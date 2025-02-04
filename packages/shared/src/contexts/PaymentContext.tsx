@@ -33,8 +33,15 @@ export type ProductOption = {
   extraLabel: string;
 };
 
+interface OpenCheckoutProps {
+  priceId: string;
+  giftToUserId?: string;
+}
+
+export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
+
 export interface PaymentContextData {
-  openCheckout?: ({ priceId }: { priceId: string }) => void;
+  openCheckout?: OpenCheckoutFn;
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
@@ -192,11 +199,8 @@ export const PaymentContextProvider = ({
     [productOptions],
   );
 
-  const isGift = !!router.query?.gift;
-  const giftToUserId = router.query?.gift as string;
-
   const openCheckout = useCallback(
-    ({ priceId }: { priceId: string }) => {
+    ({ priceId, giftToUserId }: OpenCheckoutProps) => {
       if (isPlus && priceId !== giftOneYear?.value) {
         return;
       }
@@ -211,8 +215,8 @@ export const PaymentContextProvider = ({
           email: user?.email,
         },
         customData: {
-          user_id: isGift ? giftToUserId : user?.id,
-          ...(isGift && { gifter_id: user?.id }),
+          user_id: giftToUserId ?? user?.id,
+          ...(!!giftToUserId && { gifter_id: user?.id }),
         },
         settings: {
           displayMode: 'inline',
@@ -226,8 +230,6 @@ export const PaymentContextProvider = ({
     },
     [
       giftOneYear?.value,
-      giftToUserId,
-      isGift,
       isPlus,
       isPlusAvailable,
       paddle?.Checkout,

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
@@ -21,10 +22,10 @@ export const PlusDesktop = ({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
 
-  const toggleCheckoutOption = useCallback(
-    (priceId) => {
+  const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
+    ({ priceId, giftToUserId }) => {
       setSelectedOption(priceId);
-      openCheckout({ priceId });
+      openCheckout({ priceId, giftToUserId });
     },
     [openCheckout],
   );
@@ -41,7 +42,7 @@ export const PlusDesktop = ({
 
       const { value } = giftOneYear;
       setSelectedOption(value);
-      openCheckout({ priceId: value });
+      openCheckout({ priceId: value, giftToUserId: giftToUser.id });
 
       return;
     }
@@ -67,7 +68,7 @@ export const PlusDesktop = ({
         <PlusInfo
           productOptions={productOptions}
           selectedOption={selectedOption}
-          onChange={toggleCheckoutOption}
+          onChange={onChangeCheckoutOption}
           shouldShowPlusHeader={shouldShowPlusHeader}
         />
       </div>

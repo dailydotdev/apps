@@ -32,10 +32,12 @@ import { useViewSize, ViewSize } from '../../hooks';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
+  onSelected?: (user: UserShortProfile) => void;
 }
 
 export function GiftPlusModalComponent({
   preselected,
+  onSelected,
   ...props
 }: GiftPlusModalProps): ReactElement {
   const [overlay, setOverlay] = useState<HTMLElement>();
@@ -146,7 +148,6 @@ export function GiftPlusModalComponent({
                   users={users}
                   selected={index}
                   onClick={onSelect}
-                  onHover={setIndex}
                   checkIsDisabled={(user) => user.isPlus}
                   disabledTooltip="This user already has daily.dev Plus"
                 />
@@ -191,7 +192,12 @@ export function GiftPlusModalComponent({
           one-time purchase, not a recurring subscription.
         </Typography>
         <Link href={`/plus?gift=${selected?.id}`} passHref>
-          <Button variant={ButtonVariant.Primary} disabled={!selected} tag="a">
+          <Button
+            tag="a"
+            disabled={!selected}
+            variant={ButtonVariant.Primary}
+            onClick={() => onSelected(selected)}
+          >
             Gift & Pay {giftOneYear?.price}
           </Button>
         </Link>

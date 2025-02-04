@@ -11,7 +11,6 @@ interface RecommendedMentionProps {
   users: UserShortProfile[];
   selected: number;
   onClick?: (user: UserShortProfile) => unknown;
-  onHover?: (index: number) => unknown;
   checkIsDisabled?: (user: UserShortProfile) => unknown;
   disabledTooltip?: string;
 }
@@ -21,7 +20,6 @@ export function RecommendedMention({
   users,
   selected,
   onClick,
-  onHover,
   checkIsDisabled,
   disabledTooltip,
 }: RecommendedMentionProps): ReactElement {
@@ -65,7 +63,6 @@ export function RecommendedMention({
             role="option"
             disableTooltip
             showDescription={false}
-            onHover={() => onHover?.(index)}
           />
         </ConditionalWrapper>
       ))}

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
@@ -11,7 +11,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
-import type { ProductOption } from '../../contexts/PaymentContext';
+import type {
+  ProductOption,
+  OpenCheckoutFn,
+} from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Button,
@@ -33,7 +36,7 @@ import type { CommonPlusPageProps } from './common';
 type PlusInfoProps = {
   productOptions: ProductOption[];
   selectedOption: string | null;
-  onChange: (priceId: string) => void;
+  onChange: OpenCheckoutFn;
   onContinue?: () => void;
 };
 
@@ -78,30 +81,6 @@ export const PlusInfo = ({
   const { title, description, subtitle } =
     copy[giftToUser ? PlusType.Gift : PlusType.Self];
 
-  useEffect(() => {
-    const firstPriceId = productOptions[0]?.value;
-
-    if (!firstPriceId) {
-      return;
-    }
-
-    const haveSwitched = {
-      toSelf: !giftToUser && selectedOption === giftOneYear?.value,
-      toGift: giftToUser && selectedOption !== giftOneYear?.value,
-    };
-
-    if (haveSwitched.toSelf || haveSwitched.toGift) {
-      const newPriceId = haveSwitched.toSelf ? firstPriceId : giftOneYear.value;
-      onChange(newPriceId);
-    }
-  }, [
-    giftOneYear?.value,
-    giftToUser,
-    onChange,
-    productOptions,
-    selectedOption,
-  ]);
-
   return (
     <>
       {shouldShowPlusHeader && (
@@ -142,7 +121,17 @@ export const PlusInfo = ({
                   event_name: LogEvent.GiftSubscription,
                   target_id: TargetId.PlusPage,
                 });
-                openModal({ type: LazyModal.GiftPlus });
+                openModal({
+                  type: LazyModal.GiftPlus,
+                  props: {
+                    onSelected: (user) => {
+                      onChange({
+                        priceId: productOptions[0].value,
+                        giftToUserId: user.id,
+                      });
+                    },
+                  },
+                });
               }}
             >
               Buy as a gift
@@ -164,7 +153,10 @@ export const PlusInfo = ({
         <GiftingSelectedUser
           user={giftToUser}
           className="mb-6"
-          onClose={() => router.push('/plus')}
+          onClose={() => {
+            router.push('/plus');
+            onChange({ priceId: productOptions[0].value });
+          }}
         />
       )}
       <div
@@ -188,7 +180,7 @@ export const PlusInfo = ({
                 option={option}
                 checked={selectedOption === value}
                 onChange={() => {
-                  onChange(value);
+                  onChange({ priceId: value });
                   logSubscriptionEvent({
                     event_name: LogEvent.SelectBillingCycle,
                     target_id: label.toLowerCase(),
