@@ -162,7 +162,8 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { user, isAuthReady, anonymous, loginState } = useAuthContext();
+  const { user, isAuthReady, anonymous, loginState, isValidRegion } =
+    useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -282,7 +283,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus && !isIOSNative()) {
+    if (isLastStepBeforePlus && !isIOSNative() && isValidRegion) {
       const isPlusCheckoutExperiment = getFeatureValue(
         featureOnboardingPlusCheckout,
       );
