@@ -1,10 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { WithClassNameProps } from '../utilities';
 import type { PlusItem, PlusListItemProps } from './PlusListItem';
 import { PlusItemStatus, PlusListItem } from './PlusListItem';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
@@ -88,35 +87,11 @@ export const PlusList = ({
   items = plusFeatureList,
   ...props
 }: PlusListProps & WithClassNameProps): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
-  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
-
-  const list = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          isEarlyAdopterExperiment || item.status !== PlusItemStatus.ComingSoon,
-      ),
-    [items, isEarlyAdopterExperiment],
-  );
-  const hasFilteredComingSoon =
-    !isEarlyAdopterExperiment && list.length !== items.length;
-
   return (
     <ul className={classNames('flex flex-col gap-0.5 py-6', className)}>
-      {list.map((item) => (
+      {items.map((item) => (
         <PlusListItem key={item.label} item={item} {...props} />
       ))}
-      {/* On cleanup: remove this additional item if ComingSoon experiment won */}
-      {hasFilteredComingSoon && (
-        <PlusListItem
-          item={{
-            label: 'And so much more coming soon...',
-            status: PlusItemStatus.Ready,
-          }}
-          {...props}
-        />
-      )}
     </ul>
   );
 };
