@@ -193,7 +193,7 @@ export enum RequestKey {
   UserShortById = 'user_short_by_id',
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
-  Prompts = 'prompts',
+  Prompts = 'smart_prompts',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
