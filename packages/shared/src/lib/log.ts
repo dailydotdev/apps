@@ -227,6 +227,7 @@ export enum LogEvent {
   OnboardingSkipPlus = 'skip upgrade subscription',
   OnboardingUpgradePlus = 'upgrade subscription',
   GiftSubscription = 'gift subscription',
+  CompleteGiftCheckout = 'complete gift checkout',
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',
