@@ -33,15 +33,15 @@ export const SmartPromptResponse = ({
     [activePrompt, prompts],
   );
 
-  const { executePrompt, data } = useSmartPrompt({ post, prompt });
+  const { executePrompt, data, isPending } = useSmartPrompt({ post, prompt });
 
   useEffect(() => {
-    if (!prompt.prompt || data) {
+    if (!prompt.prompt || data || isPending) {
       return;
     }
 
     executePrompt(prompt.prompt);
-  }, [prompt, executePrompt, data]);
+  }, [prompt, executePrompt, data, isPending]);
 
   return (
     <div>
