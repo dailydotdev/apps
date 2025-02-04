@@ -30,6 +30,7 @@ import {
 } from '../typography/Typography';
 import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
+import { SourceType } from '../../graphql/sources';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -120,13 +121,14 @@ export function CommonSharePostContent({
     isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
 
   const isDeleted = sharedPost.id === DeletedPostId;
-  const { private: isPrivate } = sharedPost;
+  const { private: isPrivate, source: sharedPostSource } = sharedPost;
+  const { type } = sharedPostSource;
 
   if (isDeleted) {
     return <DeletedPost />;
   }
 
-  if (isPrivate) {
+  if (isPrivate && type === SourceType.Squad) {
     return <PrivatePost post={sharedPost} openArticle={openArticle} />;
   }
 
