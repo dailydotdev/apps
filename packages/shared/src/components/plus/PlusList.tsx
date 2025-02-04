@@ -66,12 +66,12 @@ export const plusFeatureList: Array<PlusItem> = [
     tooltip: `Mute the buzzwords you’re sick of hearing. More signal, less noise.`,
   },
   {
-    label: 'Exclusive Plus Squad',
+    label: 'Members-only Squad',
     status: PlusItemStatus.Ready,
     tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and get priority support.`,
   },
   {
-    label: 'Support daily.dev',
+    label: 'Support the team and make us smile',
     status: PlusItemStatus.Ready,
     tooltip: `By subscribing to Plus, you help us suffer less and build more (well... mostly suffer less).`,
   },

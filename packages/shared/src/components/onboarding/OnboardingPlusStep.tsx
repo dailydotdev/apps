@@ -96,7 +96,7 @@ export const OnboardingPlusStep = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Supercharge your future
+          Fast-track your growth
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -104,7 +104,7 @@ export const OnboardingPlusStep = ({
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and premium features. Because copy-pasting code isn’t a
+          feeds, and pro features. Because copy-pasting code isn’t a
           long-term strategy.
         </Typography>
       </header>
