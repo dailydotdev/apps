@@ -31,19 +31,19 @@ const seo: NextSeoProps = {
 const AccountInvitePage = (): ReactElement => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
-  const { user, isGdprCovered, isAuthReady } = useAuthContext();
+  const { user, isAuthReady, isGdprCovered } = useAuthContext();
 
   useEffect(() => {
     if (!isAuthReady) {
       return;
     }
 
-    if (!user || !isGdprCovered) {
+    if (!user) {
       router.push('/');
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthReady, isGdprCovered, user]);
+  }, [isAuthReady, user]);
 
   if (!isAuthReady) {
     return null;
@@ -74,28 +74,30 @@ const AccountInvitePage = (): ReactElement => {
           Learn more about our Privacy Policy →
         </Typography>
       </AccountContentSection>
-      <AccountContentSection
-        className={{ container: 'flex flex-col' }}
-        title="Cookie preferences"
-        description="We use cookies to personalize content, improve performance, and provide a better experience. Manage your preferences below."
-      >
-        <Typography
-          href={cookiePolicy}
-          tag={TypographyTag.Link}
-          type={TypographyType.Callout}
-          target="_blank"
-          rel="noopener"
+      {isGdprCovered && (
+        <AccountContentSection
+          className={{ container: 'flex flex-col' }}
+          title="Cookie preferences"
+          description="We use cookies to personalize content, improve performance, and provide a better experience. Manage your preferences below."
         >
-          Learn more about our Cookie Policy →
-        </Typography>
-        <div className="mt-4 flex flex-col gap-4">
-          <CookieConsentItem consent={GdprConsentKey.Necessary} />
-          <CookieConsentItem
-            consent={GdprConsentKey.Marketing}
-            onToggle={onToggleMarketing}
-          />
-        </div>
-      </AccountContentSection>
+          <Typography
+            href={cookiePolicy}
+            tag={TypographyTag.Link}
+            type={TypographyType.Callout}
+            target="_blank"
+            rel="noopener"
+          >
+            Learn more about our Cookie Policy →
+          </Typography>
+          <div className="mt-4 flex flex-col gap-4">
+            <CookieConsentItem consent={GdprConsentKey.Necessary} />
+            <CookieConsentItem
+              consent={GdprConsentKey.Marketing}
+              onToggle={onToggleMarketing}
+            />
+          </div>
+        </AccountContentSection>
+      )}
       <AccountContentSection
         title="More links"
         className={{ container: 'flex flex-col gap-4' }}
