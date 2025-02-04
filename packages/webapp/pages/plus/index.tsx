@@ -30,7 +30,8 @@ const seo: NextSeoProps = {
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
 };
 
-export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> & CommonPlusPageProps;
+export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> &
+  CommonPlusPageProps;
 
 const PlusPage = ({
   giftToUser,
@@ -45,11 +46,11 @@ const PlusPage = ({
 
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
-      {
-        isLaptop
-          ? <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
-          : <PlusMobile shouldShowPlusHeader={shouldShowPlusHeader} />
-      }
+      {isLaptop ? (
+        <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
+      ) : (
+        <PlusMobile shouldShowPlusHeader={shouldShowPlusHeader} />
+      )}
     </GiftUserContext.Provider>
   );
 };

@@ -52,7 +52,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout } = useAuthContext();
+  const { user, logout, isGdprCovered } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
@@ -137,15 +137,16 @@ export default function ProfileMenu({
       });
     }
 
-    list.push(
-      {
-        title: 'Customize',
-        buttonProps: {
-          icon: <SettingsIcon />,
-          onClick: () => openModal({ type: LazyModal.UserSettings }),
-        },
+    list.push({
+      title: 'Customize',
+      buttonProps: {
+        icon: <SettingsIcon />,
+        onClick: () => openModal({ type: LazyModal.UserSettings }),
       },
-      {
+    });
+
+    if (isGdprCovered) {
+      list.push({
         title: 'Privacy',
         buttonProps: {
           tag: 'a',
@@ -154,7 +155,6 @@ export default function ProfileMenu({
         },
       });
     }
-
 
     list.push(
       {
@@ -183,7 +183,6 @@ export default function ProfileMenu({
   }, [
     user.permalink,
     isGdprCovered,
-    isDndActive,
     isPlus,
     logSubscriptionEvent,
     isDndActive,

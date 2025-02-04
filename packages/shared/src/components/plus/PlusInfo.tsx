@@ -28,7 +28,6 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
-import { LogEvent } from '../../lib/log';
 import type { CommonPlusPageProps } from './common';
 
 type PlusInfoProps = {
