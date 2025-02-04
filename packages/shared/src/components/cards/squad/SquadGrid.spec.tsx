@@ -26,6 +26,7 @@ import {
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
+import { PaymentContextProvider } from '../../../contexts/PaymentContext';
 
 const routerReplace = jest.fn();
 const squads = [generateTestSquad()];
@@ -76,8 +77,10 @@ const renderComponent = (): RenderResult => {
         loadedUserFromCache
         squads={squads}
       >
-        <LazyModalElement />
-        <SquadGrid source={admin.source} />
+        <PaymentContextProvider>
+          <LazyModalElement />
+          <SquadGrid source={admin.source} />
+        </PaymentContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );

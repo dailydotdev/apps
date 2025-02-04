@@ -160,7 +160,13 @@ export default function ProfileMenu({
       title: 'Gift daily.dev Plus',
       buttonProps: {
         icon: <GiftIcon />,
-        onClick: () => openModal({ type: LazyModal.GiftPlus }),
+        onClick: () => {
+          logSubscriptionEvent({
+            event_name: LogEvent.GiftSubscription,
+            target_id: TargetId.ProfileDropdown,
+          });
+          openModal({ type: LazyModal.GiftPlus });
+        },
       },
     });
 
@@ -174,14 +180,14 @@ export default function ProfileMenu({
 
     return list.filter(Boolean);
   }, [
+    user.permalink,
     isGdprCovered,
-    isDndActive,
     isPlus,
     logSubscriptionEvent,
-    logout,
-    openModal,
+    isDndActive,
     setShowDnd,
-    user.permalink,
+    openModal,
+    logout,
   ]);
 
   if (!user) {

@@ -310,6 +310,7 @@ export enum TargetId {
   Ads = 'ads',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
+  PlusPage = 'plus page',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
@@ -318,6 +319,7 @@ export enum TargetId {
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
+  ContextMenu = 'context',
 }
 
 export enum NotificationChannel {

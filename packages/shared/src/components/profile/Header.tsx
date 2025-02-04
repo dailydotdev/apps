@@ -55,6 +55,7 @@ export function Header({
     entity: ContentPreferenceType.User,
   });
   const { unblock, block } = useContentPreference();
+  const { logSubscriptionEvent } = usePlusSubscription();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -103,11 +104,16 @@ export function Header({
     options.push({
       icon: <MenuIcon Icon={GiftIcon} />,
       label: 'Gift daily.dev Plus',
-      action: () =>
+      action: () => {
+        logSubscriptionEvent({
+          event_name: LogEvent.GiftSubscription,
+          target_id: TargetId.ProfilePage,
+        });
         openModal({
           type: LazyModal.GiftPlus,
           props: { preselected: user as UserShortProfile },
-        }),
+        });
+      },
     });
   }
 

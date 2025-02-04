@@ -13,7 +13,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -40,11 +39,6 @@ export const PlusListItem = ({
   item,
   typographyProps,
 }: PlusListItemProps): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
-  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
-  const isComingSoonVisible =
-    isEarlyAdopterExperiment && item.status === PlusItemStatus.ComingSoon;
-
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
@@ -72,8 +66,7 @@ export const PlusListItem = ({
           size={IconSize.XSmall}
           {...iconProps}
           className={classNames(
-            'mr-1 inline-block text-text-quaternary',
-            isComingSoonVisible && 'mt-px',
+            'mr-1 mt-px inline-block text-text-quaternary',
             iconProps?.className,
           )}
         />
@@ -88,7 +81,7 @@ export const PlusListItem = ({
           )}
         >
           {item.label}
-          {isComingSoonVisible && (
+          {item.status === PlusItemStatus.ComingSoon && (
             <Typography
               tag={TypographyTag.Span}
               type={TypographyType.Caption1}
