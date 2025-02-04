@@ -16,7 +16,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
-import { invalidPlusRegions, plusSuccessUrl } from '../lib/constants';
+import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
@@ -52,16 +52,12 @@ export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
-  const { user, geo } = useAuthContext();
+  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
-
-  const isPlusAvailable = useMemo(() => {
-    return !invalidPlusRegions.includes(geo?.region);
-  }, [geo?.region]);
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
@@ -148,7 +144,6 @@ export const PaymentContextProvider = ({
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
-          showAddDiscounts: false,
         },
       });
     },
