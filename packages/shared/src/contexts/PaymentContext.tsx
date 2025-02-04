@@ -196,8 +196,8 @@ export const PaymentContextProvider = ({
     [productOptions],
   );
 
-  const isGift = !!router.query.gift;
-  const giftToUserId = `${router.query.gift}`;
+  const isGift = !!router.query?.gift;
+  const giftToUserId = router.query?.gift as string;
 
   const openCheckout = useCallback(
     ({ priceId }: { priceId: string }) => {
