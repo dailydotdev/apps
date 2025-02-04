@@ -19,8 +19,10 @@ import { FilterCheckbox } from '../../../fields/FilterCheckbox';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { labels } from '../../../../lib';
 import { useLogContext } from '../../../../contexts/LogContext';
+import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 
 export const SmartPrompts = (): ReactElement => {
+  const { editFeedSettings } = useFeedSettingsEditContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -77,7 +79,7 @@ export const SmartPrompts = (): ReactElement => {
               disabled={!isPlus}
               onToggleCallback={() => {
                 const newState = !(promptFlags?.[id] || true);
-                updatePromptFlag(id, newState);
+                editFeedSettings(() => updatePromptFlag(id, newState));
                 displayToast(
                   labels.feed.settings.globalPreferenceNotice.smartPrompt,
                 );

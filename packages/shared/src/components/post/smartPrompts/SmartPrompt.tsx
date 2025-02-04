@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { Tab, TabContainer } from '../../tabs/TabContainer';
-import { usePlusSubscription } from '../../../hooks';
+import { useActions, usePlusSubscription } from '../../../hooks';
 import { PromptButtons } from './PromptButtons';
 import { PromptDisplay } from '../../../graphql/prompt';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
@@ -10,21 +10,29 @@ import { TargetId } from '../../../lib/log';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import { SmartPromptResponse } from './SmartPromptResponse';
 import { CustomPrompt } from './CustomPrompt';
+import { ActionType } from '../../../graphql/actions';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { isPlus } = usePlusSubscription();
+  const { completeAction, checkHasCompleted } = useActions();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
   const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
+  const triedSmartPromps = checkHasCompleted(ActionType.SmartPrompt);
 
   const onSetActivePrompt = (prompt: string) => {
     setActivePrompt(prompt);
-    if (!isPlus && prompt !== PromptDisplay.TLDR) {
+
+    if (!isPlus && prompt !== PromptDisplay.TLDR && triedSmartPromps) {
       setActiveDisplay(PromptDisplay.UpgradeToPlus);
       return;
+    }
+
+    if (!triedSmartPromps && prompt !== PromptDisplay.TLDR) {
+      completeAction(ActionType.SmartPrompt);
     }
 
     switch (prompt) {
