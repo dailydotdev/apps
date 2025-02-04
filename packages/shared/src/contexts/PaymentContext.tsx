@@ -56,6 +56,8 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
+const giftingPriceId = 'pri_01jjvm32ygwb1ja7w52e668fr2';
+
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
