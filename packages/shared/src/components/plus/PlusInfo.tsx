@@ -28,6 +28,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
+import { LogEvent } from '../../lib/log';
+import type { CommonPlusPageProps } from './common';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -49,9 +51,9 @@ interface PageCopy {
 
 const copy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
-    title: 'Unlock more with Plus',
+    title: 'Fast-track your growth',
     description:
-      'Upgrade to daily.dev Plus for an enhanced, ad-free experience with exclusive features and perks to level up your game.',
+      'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
     subtitle: 'Billing cycle',
   },
   [PlusType.Gift]: {
@@ -67,7 +69,8 @@ export const PlusInfo = ({
   selectedOption,
   onChange,
   onContinue,
-}: PlusInfoProps): ReactElement => {
+  shouldShowPlusHeader = true,
+}: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
@@ -102,11 +105,13 @@ export const PlusInfo = ({
 
   return (
     <>
-      <PlusUser
-        iconSize={IconSize.Large}
-        typographyType={TypographyType.Title1}
-        className="mb-6"
-      />
+      {shouldShowPlusHeader && (
+        <PlusUser
+          iconSize={IconSize.Large}
+          typographyType={TypographyType.Title1}
+          className="mb-6"
+        />
+      )}
       <Typography
         tag={TypographyTag.H1}
         type={TypographyType.Mega2}

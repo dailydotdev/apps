@@ -96,15 +96,16 @@ export const OnboardingPlusStep = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Unlock more with Plus
+          Fast-track your growth
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
-          Upgrade to daily.dev Plus for an enhanced, ad-free experience with
-          exclusive features and perks to level up your game.
+          Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn’t a long-term
+          strategy.
         </Typography>
       </header>
       {!!items?.length && (

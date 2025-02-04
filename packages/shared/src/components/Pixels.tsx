@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/router';
 import { isProduction } from '../lib/constants';
@@ -18,13 +18,20 @@ const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
 export type PixelProps = {
   instanceId?: string;
   userId?: string;
+  consent?: boolean;
 };
 
 export type HotjarProps = {
   hotjarId: string;
 };
 
-const FbTracking = ({ userId }: PixelProps): ReactElement => {
+const FbTracking = ({ userId, consent }: PixelProps): ReactElement => {
+  useEffect(() => {
+    if (typeof globalThis.fbq === 'function') {
+      globalThis.fbq('consent', consent ? 'grant' : 'revoke');
+    }
+  }, [consent]);
+
   return (
     <>
       <Script
@@ -33,6 +40,7 @@ const FbTracking = ({ userId }: PixelProps): ReactElement => {
         strategy="afterInteractive"
         data-pixel-id={FB_PIXEL_ID}
         data-user-id={userId}
+        data-consent={consent}
       />
       <noscript>
         <img
@@ -47,7 +55,24 @@ const FbTracking = ({ userId }: PixelProps): ReactElement => {
   );
 };
 
-const GtagTracking = ({ userId, instanceId }: PixelProps): ReactElement => {
+const GtagTracking = ({
+  userId,
+  instanceId,
+  consent,
+}: PixelProps): ReactElement => {
+  useEffect(() => {
+    if (typeof globalThis.gtag === 'function') {
+      globalThis.gtag('consent', 'update', {
+        ad_storage: consent ? 'granted' : 'denied',
+        analytics_storage: consent ? 'granted' : 'denied',
+        functionality_storage: consent ? 'granted' : 'denied',
+        personalization_storage: consent ? 'granted' : 'denied',
+        ad_user_data: consent ? 'granted' : 'denied',
+        ad_personalization: consent ? 'granted' : 'denied',
+      });
+    }
+  }, [consent]);
+
   return (
     <>
       <Script
@@ -61,6 +86,7 @@ const GtagTracking = ({ userId, instanceId }: PixelProps): ReactElement => {
         data-ga-id={GA_TRACKING_ID}
         data-user-id={userId}
         data-instance-id={instanceId}
+        data-consent={consent}
       />
     </>
   );
@@ -207,14 +233,10 @@ export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
   const { query } = useRouter();
   const instanceId = query?.aiid?.toString();
 
-  const props: PixelProps = { userId, instanceId };
+  const consent = !isGdprCovered || acceptedMarketing;
+  const props: PixelProps = { userId, instanceId, consent };
 
-  if (
-    !isProduction ||
-    !userId ||
-    !isAuthReady ||
-    (isGdprCovered && !acceptedMarketing)
-  ) {
+  if (!isProduction || !userId || !isAuthReady) {
     return null;
   }
 
@@ -223,9 +245,13 @@ export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
       {hotjarId && <HotJarTracking hotjarId={hotjarId} />}
       <FbTracking {...props} />
       <GtagTracking {...props} />
-      <TiktokTracking />
-      <TwitterTracking />
-      <RedditTracking />
+      {consent && (
+        <>
+          <TiktokTracking />
+          <TwitterTracking />
+          <RedditTracking />
+        </>
+      )}
     </>
   );
 };

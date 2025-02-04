@@ -32,15 +32,15 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
           bold
           color={TypographyColor.Primary}
         >
-          You are already a Plus member!
+          {`You're already a Plus member!`}
         </Typography>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Thank you for supporting daily.dev and unlocking the best experience
-          we offer. Manage your subscription to update your plan, payment
-          details, or preferences anytime.
+          Thanks for supporting daily.dev and unlocking our most powerful
+          experience. Manage your subscription anytime to update your plan,
+          payment details, or preferences.
         </Typography>
       </div>
       <Button
@@ -51,7 +51,7 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
         href={managePlusUrl}
         target="_blank"
       >
-        Manage Subscription
+        Manage subscription
       </Button>
     </div>
   );

@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
+import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
@@ -29,9 +30,12 @@ const seo: NextSeoProps = {
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
 };
 
-export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'>;
+export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> & CommonPlusPageProps;
 
-const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
+const PlusPage = ({
+  giftToUser,
+  shouldShowPlusHeader,
+}: PlusPageProps): ReactElement => {
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -41,7 +45,11 @@ const PlusPage = ({ giftToUser }: PlusPageProps): ReactElement => {
 
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
-      {isLaptop ? <PlusDesktop /> : <PlusMobile />}
+      {
+        isLaptop
+          ? <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
+          : <PlusMobile shouldShowPlusHeader={shouldShowPlusHeader} />
+      }
     </GiftUserContext.Provider>
   );
 };

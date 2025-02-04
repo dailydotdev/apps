@@ -108,6 +108,7 @@ interface GetReplacementOptionalProps {
   selection: number[];
   trailingChar?: string;
   leadingChar?: string;
+  url?: string;
 }
 
 interface Replacement {

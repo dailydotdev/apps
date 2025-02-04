@@ -52,7 +52,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout, isGdprCovered } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
@@ -137,16 +137,15 @@ export default function ProfileMenu({
       });
     }
 
-    list.push({
-      title: 'Customize',
-      buttonProps: {
-        icon: <SettingsIcon />,
-        onClick: () => openModal({ type: LazyModal.UserSettings }),
+    list.push(
+      {
+        title: 'Customize',
+        buttonProps: {
+          icon: <SettingsIcon />,
+          onClick: () => openModal({ type: LazyModal.UserSettings }),
+        },
       },
-    });
-
-    if (isGdprCovered) {
-      list.push({
+      {
         title: 'Privacy',
         buttonProps: {
           tag: 'a',
@@ -156,32 +155,35 @@ export default function ProfileMenu({
       });
     }
 
-    list.push({
-      title: 'Gift daily.dev Plus',
-      buttonProps: {
-        icon: <GiftIcon />,
-        onClick: () => {
-          logSubscriptionEvent({
-            event_name: LogEvent.GiftSubscription,
-            target_id: TargetId.ProfileDropdown,
-          });
-          openModal({ type: LazyModal.GiftPlus });
+
+    list.push(
+      {
+        title: 'Gift daily.dev Plus',
+        buttonProps: {
+          icon: <GiftIcon />,
+          onClick: () => {
+            logSubscriptionEvent({
+              event_name: LogEvent.GiftSubscription,
+              target_id: TargetId.ProfileDropdown,
+            });
+            openModal({ type: LazyModal.GiftPlus });
+          },
         },
       },
-    });
-
-    list.push({
-      title: 'Logout',
-      buttonProps: {
-        icon: <ExitIcon />,
-        onClick: () => logout(LogoutReason.ManualLogout),
+      {
+        title: 'Logout',
+        buttonProps: {
+          icon: <ExitIcon />,
+          onClick: () => logout(LogoutReason.ManualLogout),
+        },
       },
-    });
+    );
 
     return list.filter(Boolean);
   }, [
     user.permalink,
     isGdprCovered,
+    isDndActive,
     isPlus,
     logSubscriptionEvent,
     isDndActive,

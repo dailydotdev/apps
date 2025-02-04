@@ -6,8 +6,11 @@ import { usePaymentContext } from '../../contexts/PaymentContext';
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
+import type { CommonPlusPageProps } from './common';
 
-export const PlusDesktop = (): ReactElement => {
+export const PlusDesktop = ({
+  shouldShowPlusHeader,
+}: CommonPlusPageProps): ReactElement => {
   const { openCheckout, paddle, productOptions, giftOneYear } =
     usePaymentContext();
   const { giftToUser } = useGiftUserContext();
@@ -65,6 +68,7 @@ export const PlusDesktop = (): ReactElement => {
           productOptions={productOptions}
           selectedOption={selectedOption}
           onChange={toggleCheckoutOption}
+          shouldShowPlusHeader={shouldShowPlusHeader}
         />
       </div>
       <PlusCheckoutContainer

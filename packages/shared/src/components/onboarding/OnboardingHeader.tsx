@@ -13,6 +13,10 @@ import { AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { PlusUser } from '../PlusUser';
+import { IconSize } from '../Icon';
+import { TypographyType } from '../typography/Typography';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -20,6 +24,7 @@ type OnboardingHeaderProps = {
   onClick: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
+  showPlusIcon?: boolean;
 };
 
 export const OnboardingHeader = ({
@@ -28,6 +33,7 @@ export const OnboardingHeader = ({
   setAuth,
   onClick,
   customActionName,
+  showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -60,11 +66,24 @@ export const OnboardingHeader = ({
           alt="Gradient background"
         />
         <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
-          <Logo
-            logoClassName={{ container: 'h-6' }}
-            position={LogoPosition.Relative}
-            linkDisabled
-          />
+          <ConditionalWrapper
+            condition={showPlusIcon}
+            wrapper={(component) => (
+              <div className="flex flex-row items-center gap-1">
+                {component}
+                <PlusUser
+                  iconSize={IconSize.Small}
+                  typographyType={TypographyType.Title3}
+                />
+              </div>
+            )}
+          >
+            <Logo
+              logoClassName={{ container: 'h-6' }}
+              position={LogoPosition.Relative}
+              linkDisabled
+            />
+          </ConditionalWrapper>
           {showCreateFeedButton.includes(activeScreen) && (
             <CreateFeedButton
               onClick={onClick}
