@@ -32,7 +32,7 @@ export function useCopyLink(
 
     if (link) {
       // write the link to clipboard
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard?.writeText(link);
 
       // try with a shortened link as well, if requested
       if (shortenLink) {
