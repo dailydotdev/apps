@@ -22,13 +22,15 @@ import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
-import { BlockIcon } from '../icons';
+import { BlockIcon, EarthIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
 import { DeletedPostId } from '../../lib/constants';
+import { IconSize } from '../Icon';
+import { SourceType } from '../../graphql/sources';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -51,6 +53,54 @@ const SharePostContentSkeleton = () => (
   </>
 );
 
+const DeletedPost = () => (
+  <SharedLinkContainer className="mb-5 mt-8">
+    <div className="flex flex-row items-center gap-1 px-5 py-4">
+      <BlockIcon />
+      <Typography
+        className="flex-1"
+        type={TypographyType.Subhead}
+        color={TypographyColor.Secondary}
+      >
+        This post is no longer available. It might have been removed or the link
+        has expired.
+      </Typography>
+    </div>
+  </SharedLinkContainer>
+);
+
+const PrivatePost = ({
+  post,
+  openArticle,
+}: {
+  post: Post;
+  openArticle: (e: React.MouseEvent) => void;
+}) => (
+  <SharedLinkContainer className="mb-5 mt-8">
+    <div className="flex flex-row items-center gap-1 px-5 py-4">
+      <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary">
+        <EarthIcon size={IconSize.Size16} />
+      </div>
+      <Typography
+        className="flex-1"
+        type={TypographyType.Subhead}
+        color={TypographyColor.Secondary}
+      >
+        This post is in a private squad.
+      </Typography>
+      <ReadArticleButton
+        content={getReadPostButtonText(post)}
+        className="w-fit"
+        href={post.commentsPermalink}
+        variant={ButtonVariant.Secondary}
+        title="Go to post"
+        rel="noopener"
+        {...combinedClicks(openArticle)}
+      />
+    </div>
+  </SharedLinkContainer>
+);
+
 export function CommonSharePostContent({
   sharedPost,
   source,
@@ -71,23 +121,15 @@ export function CommonSharePostContent({
     isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
 
   const isDeleted = sharedPost.id === DeletedPostId;
+  const { private: isPrivate, source: sharedPostSource } = sharedPost;
+  const { type } = sharedPostSource;
 
   if (isDeleted) {
-    return (
-      <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
-        <div className="flex flex-row items-center gap-1 px-5 py-4">
-          <BlockIcon />
-          <Typography
-            className="flex-1"
-            type={TypographyType.Subhead}
-            color={TypographyColor.Secondary}
-          >
-            This post is no longer available. It might have been removed or the
-            link has expired.
-          </Typography>
-        </div>
-      </SharedLinkContainer>
-    );
+    return <DeletedPost />;
+  }
+
+  if (isPrivate && type === SourceType.Squad) {
+    return <PrivatePost post={sharedPost} openArticle={openArticle} />;
   }
 
   return (
