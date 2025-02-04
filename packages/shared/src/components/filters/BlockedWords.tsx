@@ -31,6 +31,7 @@ import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditC
 export const BlockedWords = (): ReactElement => {
   const feedSettingsEditContext = useContext(FeedSettingsEditContext);
   const feed = feedSettingsEditContext?.feed;
+  const editFeedSettings = feedSettingsEditContext?.editFeedSettings;
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();
@@ -60,6 +61,8 @@ export const BlockedWords = (): ReactElement => {
   const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     // Enter
     if (event.keyCode === 13 && words?.length) {
+      editFeedSettings();
+
       await block({
         id: words,
         entity: ContentPreferenceType.Word,

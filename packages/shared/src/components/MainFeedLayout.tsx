@@ -245,6 +245,13 @@ export default function MainFeedLayout({
       },
     };
 
+    // do not show feed in background on new page
+    if (router.pathname === '/feeds/new') {
+      return {
+        query: null,
+      };
+    }
+
     return {
       requestKey: propsByFeed[feedName].requestKey,
       query: getQueryBasedOnLogin(
@@ -260,7 +267,14 @@ export default function MainFeedLayout({
         version: isDevelopment ? 1 : feedVersion,
       },
     };
-  }, [feedName, feedVersion, router.query?.slugOrId, tokenRefreshed, user]);
+  }, [
+    feedName,
+    feedVersion,
+    router.query?.slugOrId,
+    tokenRefreshed,
+    user,
+    router.pathname,
+  ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,

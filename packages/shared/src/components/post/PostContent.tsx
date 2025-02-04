@@ -159,12 +159,9 @@ export function PostContentRaw({
           </div>
           {isVideoType && (
             <YoutubeVideo
-              title={title}
+              placeholderProps={{ post, onWatchVideo: onReadArticle }}
               videoId={post.videoId}
               className="mb-7"
-              image={post.image}
-              source={post.source}
-              onWatchVideo={onReadArticle}
             />
           )}
           {post.summary && (

@@ -31,7 +31,7 @@ import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isIOSNative } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
@@ -51,7 +51,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout, isGdprCovered } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
@@ -65,7 +65,10 @@ export default function ProfileMenu({
           icon: <UserIcon />,
         },
       },
-      {
+    ];
+
+    if (!isIOSNative()) {
+      list.push({
         title: isPlus ? 'Manage plus' : 'Upgrade to plus',
         buttonProps: {
           tag: 'a',
@@ -82,7 +85,10 @@ export default function ProfileMenu({
             });
           },
         },
-      },
+      });
+    }
+
+    list.push(
       {
         title: 'Account details',
         buttonProps: {
@@ -117,7 +123,7 @@ export default function ProfileMenu({
           href: `${webappUrl}account/invite`,
         },
       },
-    ];
+    );
 
     if (checkIsExtension()) {
       const DndIcon = isDndActive ? PlayIcon : PauseIcon;
@@ -130,36 +136,33 @@ export default function ProfileMenu({
       });
     }
 
-    list.push({
-      title: 'Customize',
-      buttonProps: {
-        icon: <SettingsIcon />,
-        onClick: () => openModal({ type: LazyModal.UserSettings }),
+    list.push(
+      {
+        title: 'Customize',
+        buttonProps: {
+          icon: <SettingsIcon />,
+          onClick: () => openModal({ type: LazyModal.UserSettings }),
+        },
       },
-    });
-
-    if (isGdprCovered) {
-      list.push({
+      {
         title: 'Privacy',
         buttonProps: {
           tag: 'a',
           icon: <PrivacyIcon />,
           href: `${webappUrl}account/privacy`,
         },
-      });
-    }
-
-    list.push({
-      title: 'Logout',
-      buttonProps: {
-        icon: <ExitIcon />,
-        onClick: () => logout(LogoutReason.ManualLogout),
       },
-    });
+      {
+        title: 'Logout',
+        buttonProps: {
+          icon: <ExitIcon />,
+          onClick: () => logout(LogoutReason.ManualLogout),
+        },
+      },
+    );
 
     return list.filter(Boolean);
   }, [
-    isGdprCovered,
     isDndActive,
     isPlus,
     logSubscriptionEvent,

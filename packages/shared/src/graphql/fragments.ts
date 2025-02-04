@@ -210,6 +210,11 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       permalink
       image
       type
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
     }
     userState {
       vote
@@ -219,6 +224,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     slug
     clickbaitTitleDetected
+    language
     translation {
       title
     }
@@ -272,6 +278,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     slug
     domain
     clickbaitTitleDetected
+    language
     translation {
       title
     }

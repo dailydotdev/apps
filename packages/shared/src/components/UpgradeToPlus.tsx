@@ -13,6 +13,7 @@ import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
+import { isIOSNative } from '../lib/func';
 
 type Props = {
   iconOnly?: boolean;
@@ -55,7 +56,7 @@ export const UpgradeToPlus = ({
     [isLoggedIn, logSubscriptionEvent, showLogin, target],
   );
 
-  if (isPlus) {
+  if (isPlus || isIOSNative()) {
     return null;
   }
 

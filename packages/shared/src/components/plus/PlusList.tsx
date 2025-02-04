@@ -36,44 +36,44 @@ export const defaultFeatureList: Array<PlusItem> = [
 
 export const plusFeatureList: Array<PlusItem> = [
   {
-    label: 'No ads experience',
-    status: PlusItemStatus.Ready,
-    tooltip: `No ads, no distractions. It’s like noise canceling headphones, but for your feed.`,
-  },
-  {
-    label: 'AI-powered clickbait-free titles',
-    status: PlusItemStatus.Ready,
-    tooltip: `Say goodbye to clickbait titles and hello to AI-optimized titles that make your feed clearer and more informative.`,
-  },
-  {
-    label: 'Organize bookmarks in folders',
-    status: PlusItemStatus.Ready,
-    tooltip: `Easily categorize and organize your bookmarked posts into folders, so you can find what you need quickly.`,
+    label: 'Chat with posts using AI',
+    status: PlusItemStatus.ComingSoon,
+    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
   },
   {
     label: 'Advanced custom feeds',
     status: PlusItemStatus.Ready,
-    tooltip: `Why settle for one feed when you can have many? Build your personalized content empire, one custom feed at a time.`,
+    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.`,
   },
   {
-    label: 'Block posts with unwanted words',
+    label: 'AI-powered clean titles',
     status: PlusItemStatus.Ready,
-    tooltip: `Automatically filter out posts containing words you never want to see again. Life’s too short for unnecessary noise.`,
+    tooltip: `No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when relevant.`,
   },
   {
-    label: 'Exclusive Plus badge',
+    label: 'Bookmark folders',
     status: PlusItemStatus.Ready,
-    tooltip: `This badge is like a VIP pass, but for devs who love daily.dev. Flex it on your profile as if you just shipped flawless code.`,
+    tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
   },
   {
-    label: 'Private Squad for Plus members',
+    label: 'Ad-free experience',
     status: PlusItemStatus.Ready,
-    tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and access priority support.`,
+    tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
+  },
+  {
+    label: 'Keyword filters',
+    status: PlusItemStatus.Ready,
+    tooltip: `Mute the buzzwords you’re sick of hearing. More signal, less noise.`,
+  },
+  {
+    label: 'Members-only Squad',
+    status: PlusItemStatus.Ready,
+    tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and get priority support.`,
   },
   {
     label: 'Support the team and make us smile',
     status: PlusItemStatus.Ready,
-    tooltip: `By subscribing to Plus, you help us suffer less and build more (well… mostly suffer less).`,
+    tooltip: `By subscribing to Plus, you help us suffer less and build more (well... mostly suffer less).`,
   },
 ];
 
