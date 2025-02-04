@@ -32,13 +32,15 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
           bold
           color={TypographyColor.Primary}
         >
-          You're already a Plus member!
+          {`You're already a Plus member!`}
         </Typography>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Thanks for supporting daily.dev and unlocking our most powerful experience. Manage your subscription anytime to update your plan, payment details, or preferences.
+          Thanks for supporting daily.dev and unlocking our most powerful
+          experience. Manage your subscription anytime to update your plan,
+          payment details, or preferences.
         </Typography>
       </div>
       <Button

@@ -104,8 +104,8 @@ export const OnboardingPlusStep = ({
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn’t a
-          long-term strategy.
+          feeds, and pro features. Because copy-pasting code isn’t a long-term
+          strategy.
         </Typography>
       </header>
       {!!items?.length && (

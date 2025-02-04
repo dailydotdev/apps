@@ -65,8 +65,7 @@ export const PlusInfo = ({
         className="mb-6"
       >
         Work smarter, learn faster, and stay ahead with AI tools, custom feeds,
-        and pro features. Because copy-pasting code isn’t a long-term
-        strategy.
+        and pro features. Because copy-pasting code isn’t a long-term strategy.
       </Typography>
       <Typography
         tag={TypographyTag.P}
