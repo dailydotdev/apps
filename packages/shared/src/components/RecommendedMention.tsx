@@ -38,7 +38,7 @@ export function RecommendedMention({
       {users.map((user, index) => (
         <ConditionalWrapper
           key={user.username}
-          condition={checkIsDisabled && !!disabledTooltip}
+          condition={checkIsDisabled?.(user) && !!disabledTooltip}
           wrapper={(component) => (
             <SimpleTooltip content={disabledTooltip}>
               <div>{component}</div>
