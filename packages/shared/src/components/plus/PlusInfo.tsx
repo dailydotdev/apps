@@ -20,7 +20,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
@@ -109,7 +109,13 @@ export const PlusInfo = ({
               icon={<GiftIcon />}
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
-              onClick={() => openModal({ type: LazyModal.GiftPlus })}
+              onClick={() => {
+                logSubscriptionEvent({
+                  event_name: LogEvent.GiftSubscription,
+                  target_id: TargetId.PlusPage,
+                });
+                openModal({ type: LazyModal.GiftPlus });
+              }}
             >
               Buy as a gift
             </Button>
