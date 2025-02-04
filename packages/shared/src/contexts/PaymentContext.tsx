@@ -89,7 +89,7 @@ export const PaymentContextProvider = ({
             logRef.current({
               event_name:
                 'gifter_id' in event.data.custom_data
-                  ? LogEvent.GiftSubscription
+                  ? LogEvent.CompleteGiftCheckout
                   : LogEvent.CompleteCheckout,
               extra: {
                 cycle:
