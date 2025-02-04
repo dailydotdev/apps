@@ -21,17 +21,17 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
-  const triedSmartPromps = checkHasCompleted(ActionType.SmartPrompt);
+  const triedSmartPrompts = checkHasCompleted(ActionType.SmartPrompt);
 
   const onSetActivePrompt = (prompt: string) => {
     setActivePrompt(prompt);
 
-    if (!isPlus && prompt !== PromptDisplay.TLDR && triedSmartPromps) {
+    if (!isPlus && prompt !== PromptDisplay.TLDR && triedSmartPrompts) {
       setActiveDisplay(PromptDisplay.UpgradeToPlus);
       return;
     }
 
-    if (!triedSmartPromps && prompt !== PromptDisplay.TLDR) {
+    if (!triedSmartPrompts && prompt !== PromptDisplay.TLDR) {
       completeAction(ActionType.SmartPrompt);
     }
 
