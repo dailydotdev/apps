@@ -15,6 +15,7 @@ export const useOnboarding = (): UseOnboarding => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { isAuthReady, user } = useAuthContext();
   const shouldShowAuthBanner = isAuthReady && !user;
+  const isActionsReady = isActionsFetched || (!user && isAuthReady);
 
   const { hasCompletedEditTags, hasCompletedContentTypes } = useMemo(() => {
     /*
@@ -33,7 +34,7 @@ export const useOnboarding = (): UseOnboarding => {
 
   return {
     shouldShowAuthBanner,
-    isOnboardingReady: isActionsFetched && isAuthReady,
+    isOnboardingReady: isActionsReady && isAuthReady,
     hasCompletedEditTags,
     hasCompletedContentTypes,
     completeStep: (action: ActionType) => completeAction(action),
