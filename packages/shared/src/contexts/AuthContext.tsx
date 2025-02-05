@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
@@ -16,6 +16,7 @@ import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
+import { invalidPlusRegions } from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -64,6 +65,7 @@ export interface AuthContextData {
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
+  isValidRegion?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -151,6 +153,11 @@ export const AuthContextProvider = ({
     setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
 
+  const isValidRegion = useMemo(
+    () => !invalidPlusRegions.includes(geo?.region),
+    [geo?.region],
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -197,6 +204,7 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
+        isValidRegion,
         isGdprCovered:
           geo?.continent === Continent.Europe ||
           !outsideGdpr.includes(geo?.region) ||

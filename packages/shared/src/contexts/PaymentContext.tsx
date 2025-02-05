@@ -16,7 +16,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
-import { invalidPlusRegions, plusSuccessUrl } from '../lib/constants';
+import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
@@ -48,20 +48,18 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
+const giftingPriceId = 'pri_01jjvm32ygwb1ja7w52e668fr2';
+
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
-  const { user, geo } = useAuthContext();
+  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
-
-  const isPlusAvailable = useMemo(() => {
-    return !invalidPlusRegions.includes(geo?.region);
-  }, [geo?.region]);
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
@@ -174,14 +172,16 @@ export const PaymentContextProvider = ({
 
   const productOptions = useMemo(
     () =>
-      productPrices?.data?.details?.lineItems?.map((item) => ({
-        label: item.price.description,
-        value: item.price.id,
-        price: item.formattedTotals.total,
-        priceUnformatted: Number(item.totals.total),
-        currencyCode: productPrices?.data.currencyCode as string,
-        extraLabel: item.price.customData?.label as string,
-      })) ?? [],
+      productPrices?.data?.details?.lineItems
+        ?.filter(({ price }) => price.id !== giftingPriceId) // temporary until we ship gifting
+        .map((item) => ({
+          label: item.price.description,
+          value: item.price.id,
+          price: item.formattedTotals.total,
+          priceUnformatted: Number(item.totals.total),
+          currencyCode: productPrices?.data.currencyCode as string,
+          extraLabel: item.price.customData?.label as string,
+        })) ?? [],
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
 
