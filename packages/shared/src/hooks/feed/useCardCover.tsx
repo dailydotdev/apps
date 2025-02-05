@@ -90,6 +90,7 @@ export const useCardCover = ({
     shouldShowOverlay,
     shouldShowReminder,
     currentInteraction,
+    getFeatureValue,
   ]);
 
   return { overlay };
