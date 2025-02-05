@@ -9,6 +9,8 @@ import {
   WhatsappIcon,
 } from '../../icons';
 import { SocialIconType } from '../../../lib/socialMedia';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 type SocialShareButtonProps = {
   post: Post;
@@ -63,10 +65,19 @@ const SocialIconButton = ({
   post,
   platform,
 }: SocialShareButtonProps): ReactElement => {
+  const { logEvent } = useLogContext();
   return (
     <Button
       variant={ButtonVariant.Float}
       tag="a"
+      onClick={() =>
+        logEvent({
+          event_name: LogEvent.SharePost,
+          extra: JSON.stringify({
+            provider: platform,
+          }),
+        })
+      }
       {...getBtnProps({ post, platform })}
     />
   );

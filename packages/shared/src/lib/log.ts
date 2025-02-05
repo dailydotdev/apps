@@ -236,6 +236,7 @@ export enum LogEvent {
   ShareProfile = 'share profile',
   ShareSource = 'share source',
   ShareTag = 'share tag',
+  SharePost = 'share post',
   // End Share
 }
 
