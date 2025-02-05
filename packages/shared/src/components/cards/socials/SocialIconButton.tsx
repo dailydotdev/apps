@@ -28,7 +28,7 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
         href: `https://www.reddit.com/submit?url=${encodeURIComponent(
           post.permalink,
         )}&title=${encodeURIComponent(post.title)}`,
-        icon: <RedditIcon />,
+        icon: <RedditIcon secondary />,
       };
     case SocialIconType.X:
       return {
@@ -44,13 +44,13 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
         href: `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(
           post.permalink,
         )}&title=${encodeURIComponent(post.title)}`,
-        icon: <LinkedInIcon />,
+        icon: <LinkedInIcon secondary />,
       };
     case SocialIconType.WhatsApp:
       return {
         ...commonProps,
         href: `https://wa.me/?text=${encodeURIComponent(post.title)}`,
-        icon: <WhatsappIcon />,
+        icon: <WhatsappIcon color="white" secondary />,
       };
     default:
       return {};

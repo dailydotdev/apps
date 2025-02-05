@@ -39,7 +39,7 @@ export const useCardCover = ({
     if (currentInteraction === 'copy') {
       return (
         <CardCoverContainer title="Why not share it on social, too?">
-          <div>
+          <div className="mt-2 flex flex-row gap-2">
             {socials.map((social) => (
               <SocialIconButton key={social} post={post} platform={social} />
             ))}

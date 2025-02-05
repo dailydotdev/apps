@@ -14,8 +14,8 @@ export enum SocialIconType {
 export const socials = [
   SocialIconType.Reddit,
   SocialIconType.X,
-  SocialIconType.LinkedIn,
   SocialIconType.WhatsApp,
+  SocialIconType.LinkedIn,
 ];
 
 export const socialIcon: Record<SocialIconType, ComponentType<IconProps>> = {
