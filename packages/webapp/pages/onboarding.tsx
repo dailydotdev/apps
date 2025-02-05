@@ -150,7 +150,6 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
-  const params = new URLSearchParams(window.location.search);
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const {
     isOnboardingReady,
@@ -225,31 +224,44 @@ export function OnboardPage(): ReactElement {
   ].includes(activeScreen);
 
   useEffect(() => {
-    if (!isPageReady || isLogged.current || !isOnboardingReady) {
-      return;
-    }
-
-    if (user?.infoConfirmed && !hasCompletedEditTags) {
-      setActiveScreen(OnboardingStep.EditTag);
-      return;
-    }
-
-    if (user?.infoConfirmed && !hasCompletedContentTypes) {
-      setActiveScreen(OnboardingStep.ContentTypes);
-      return;
-    }
-
-    if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
-      const afterAuth = params.get(AFTER_AUTH_PARAM);
-      params.delete(AFTER_AUTH_PARAM);
-      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    if (
+      !isPageReady ||
+      isLogged.current ||
+      !isOnboardingReady ||
+      !user?.infoConfirmed
+    ) {
       return;
     }
 
     isLogged.current = true;
+
+    if (!hasCompletedEditTags) {
+      setActiveScreen(OnboardingStep.EditTag);
+      return;
+    }
+
+    if (!hasCompletedContentTypes) {
+      setActiveScreen(OnboardingStep.ContentTypes);
+      return;
+    }
+
+    if (activeScreen === OnboardingStep.Intro) {
+      const params = new URLSearchParams(window.location.search);
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    }
+
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, user, isOnboardingReady]);
+  }, [
+    isPageReady,
+    user,
+    isOnboardingReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    activeScreen,
+  ]);
 
   const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
@@ -346,6 +358,7 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
+    const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
     return router.replace({
       pathname: afterAuth || '/',

@@ -56,7 +56,7 @@ const SearchPage = (): ReactElement => {
       return;
     }
 
-    handleSubmit(undefined, query);
+    handleSubmit(query);
   }, [sessionIdQuery, query, handleSubmit]);
 
   const seo: NextSeoProps = {
