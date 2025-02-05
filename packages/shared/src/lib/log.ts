@@ -237,6 +237,10 @@ export enum LogEvent {
   ShareSource = 'share source',
   ShareTag = 'share tag',
   // End Share
+  // Start Smart Prompts
+  SmartPrompt = 'smart prompt',
+  ToggleSmartPrompts = 'toggle smart prompts',
+  // End Smart Prompts
 }
 
 export enum FeedItemTitle {
@@ -316,6 +320,7 @@ export enum TargetId {
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
+  SmartPrompt = 'smart prompt',
 }
 
 export enum NotificationChannel {

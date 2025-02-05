@@ -62,6 +62,7 @@ export enum LazyModal {
   AddToCustomFeed = 'addToCustomFeed',
   CookieConsent = 'cookieConsent',
   ReportUser = 'reportUser',
+  SmartPrompt = 'smartPrompt',
 }
 
 export type ModalTabItem = {
