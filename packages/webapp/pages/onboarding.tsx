@@ -436,7 +436,7 @@ export function OnboardPage(): ReactElement {
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
 
-  console.log('is onboarding ready: ', isOnboardingReady, showGenerigLoader);
+  console.log('is onboarding ready: ', isOnboardingReady, isAuthenticating);
 
   if (!isPageReady) {
     return null;
