@@ -23,7 +23,7 @@ function CallbackPage(): ReactElement {
         return;
       }
       postWindowMessage(eventKey, params);
-      window.close();
+      // window.close();
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
       window.location.replace(url);
