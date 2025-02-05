@@ -6,13 +6,16 @@ import { useActions, usePlusSubscription } from '../../../hooks';
 import { PromptButtons } from './PromptButtons';
 import { PromptDisplay } from '../../../graphql/prompt';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
-import { TargetId } from '../../../lib/log';
+import { LogEvent, TargetId } from '../../../lib/log';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import { SmartPromptResponse } from './SmartPromptResponse';
 import { CustomPrompt } from './CustomPrompt';
 import { ActionType } from '../../../graphql/actions';
+import { postLogEvent } from '../../../lib/feed';
+import { useLogContext } from '../../../contexts/LogContext';
 
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
+  const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
   const { completeAction, checkHasCompleted } = useActions();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
@@ -31,8 +34,15 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
       return;
     }
 
-    if (!triedSmartPrompts && prompt !== PromptDisplay.TLDR) {
-      completeAction(ActionType.SmartPrompt);
+    if (prompt !== PromptDisplay.TLDR) {
+      if (!triedSmartPrompts) {
+        completeAction(ActionType.SmartPrompt);
+      }
+      logEvent(
+        postLogEvent(LogEvent.SmartPrompt, post, {
+          extra: { prompt },
+        }),
+      );
     }
 
     switch (prompt) {

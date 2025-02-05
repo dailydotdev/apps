@@ -238,6 +238,7 @@ export enum LogEvent {
   ShareTag = 'share tag',
   // End Share
   // Start Smart Prompts
+  SmartPrompt = 'smart prompt',
   ToggleSmartPrompts = 'toggle smart prompts',
   // End Smart Prompts
 }

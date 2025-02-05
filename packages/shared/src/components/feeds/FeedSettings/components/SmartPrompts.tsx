@@ -86,6 +86,7 @@ export const SmartPrompts = (): ReactElement => {
 
                 logEvent({
                   event_name: LogEvent.ToggleSmartPrompts,
+                  target_type: label,
                   target_id: newState ? TargetId.On : TargetId.Off,
                   extra: JSON.stringify({
                     origin: Origin.Settings,
