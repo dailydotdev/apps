@@ -303,9 +303,13 @@ function AuthOptions({
   };
 
   useEventListener(globalThis, 'message', async (e) => {
+    console.log('message received: ', e.data);
+
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
+
+    console.log('messaging flow: ', e.data.flow);
 
     if (e.data?.flow) {
       const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
