@@ -154,18 +154,18 @@ const useEventListener = <
       targetElement.addEventListener(eventType, eventListener, eventOptions);
     }
 
-    // return () => {
-    //   if (targetElement && eventType && eventListener) {
-    //     if (eventType === 'message') {
-    //       console.log('message event listener cleanup');
-    //     }
-    //     targetElement.removeEventListener(
-    //       eventType,
-    //       eventListener,
-    //       eventOptions,
-    //     );
-    //   }
-    // };
+    return () => {
+      if (targetElement && eventType && eventListener) {
+        if (eventType === 'message') {
+          console.log('message event listener cleanup');
+        }
+        targetElement.removeEventListener(
+          eventType,
+          eventListener,
+          eventOptions,
+        );
+      }
+    };
   }, [target, eventType, eventOptions]);
 };
 
