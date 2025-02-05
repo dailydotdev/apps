@@ -8,6 +8,8 @@ import type { UseMutationSubscriptionProps } from '../mutationSubscription';
 import { useMutationSubscription } from '../mutationSubscription';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
+import { getShortLinkProps } from '../utils/useGetShortUrl';
+import { ReferralCampaignKey } from '../../lib';
 
 const post = { id: '1' } as Post;
 const feedName = 'testFeed';
@@ -20,10 +22,9 @@ jest.mock('../../contexts', () => {
     useActiveFeedNameContext: jest.fn().mockReturnValue({ feedName }),
   };
 });
+const client = new QueryClient();
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {
-  const client = new QueryClient();
-
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -78,6 +79,20 @@ describe('usePostShareLoop', () => {
     });
 
     expect(result.current.shouldShowOverlay).toBe(true);
+  });
+
+  it('should show social share options when link is copied', () => {
+    const { queryKey } = getShortLinkProps(
+      post?.commentsPermalink,
+      ReferralCampaignKey.SharePost,
+      loggedUser,
+    );
+    client.setQueryData(queryKey, {
+      getShortUrl: 'https://short.url',
+    });
+
+    const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
+    expect(result.current.currentInteraction).toBe('copy');
   });
 
   // Regression test for https://dailydotdev.atlassian.net/browse/MI-281
