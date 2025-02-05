@@ -26,7 +26,7 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
       return {
         ...commonProps,
         href: `https://www.reddit.com/submit?url=${encodeURIComponent(
-          post.permalink,
+          post.commentsPermalink,
         )}&title=${encodeURIComponent(post.title)}`,
         icon: <RedditIcon secondary />,
       };
@@ -34,7 +34,7 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
       return {
         ...commonProps,
         href: `https://x.com/share?url=${encodeURIComponent(
-          post.permalink,
+          post.commentsPermalink,
         )}&text=${encodeURIComponent(post.title)}`,
         icon: <TwitterIcon />,
       };
@@ -42,14 +42,16 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
       return {
         ...commonProps,
         href: `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(
-          post.permalink,
+          post.commentsPermalink,
         )}&title=${encodeURIComponent(post.title)}`,
         icon: <LinkedInIcon secondary />,
       };
     case SocialIconType.WhatsApp:
       return {
         ...commonProps,
-        href: `https://wa.me/?text=${encodeURIComponent(post.title)}`,
+        href: `https://wa.me/?text=${encodeURIComponent(
+          post.commentsPermalink,
+        )}`,
         icon: <WhatsappIcon color="white" secondary />,
       };
     default:
