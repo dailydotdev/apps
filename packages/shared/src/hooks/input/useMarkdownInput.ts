@@ -353,7 +353,7 @@ export const useMarkdownInput = ({
     if (isValidHttpUrl(pastedText)) {
       const cursor = getCursorType(textarea);
 
-      if (cursor !== CursorType.Isolated) {
+      if (cursor === CursorType.Highlighted) {
         e.preventDefault();
         await onLinkPaste(pastedText);
         return;
