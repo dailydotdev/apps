@@ -141,3 +141,6 @@ export const invalidPlusRegions = [
 ];
 
 export const DeletedPostId = '404';
+
+export const BROADCAST_CHANNEL_NAME = 'dailydev_broadcast';
+export const BROADCAST_CHANNEL = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
