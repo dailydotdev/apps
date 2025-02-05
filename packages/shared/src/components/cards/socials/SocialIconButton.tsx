@@ -10,7 +10,8 @@ import {
 } from '../../icons';
 import { SocialIconType } from '../../../lib/socialMedia';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, Origin } from '../../../lib/log';
+import { Origin } from '../../../lib/log';
+import { ReferralCampaignKey } from '../../../lib';
 
 type SocialShareButtonProps = {
   post: Post;
@@ -72,7 +73,7 @@ const SocialIconButton = ({
       tag="a"
       onClick={() =>
         logEvent({
-          event_name: LogEvent.SharePost,
+          event_name: ReferralCampaignKey.SharePost,
           extra: JSON.stringify({
             provider: platform,
             origin: Origin.Suggestions,

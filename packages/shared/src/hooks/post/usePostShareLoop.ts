@@ -21,7 +21,7 @@ interface UsePostShareLoop {
 export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const { user } = useAuthContext();
   const { queryKey: linkKey } = getShortLinkProps(
-    post.commentsPermalink,
+    post?.commentsPermalink,
     ReferralCampaignKey.SharePost,
     user,
   );

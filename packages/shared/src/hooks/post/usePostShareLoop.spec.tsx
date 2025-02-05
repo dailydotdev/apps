@@ -1,9 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { usePostShareLoop } from './usePostShareLoop';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import type { UseMutationSubscriptionProps } from '../mutationSubscription';
 import { useMutationSubscription } from '../mutationSubscription';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
 
 const post = { id: '1' } as Post;
 const feedName = 'testFeed';
@@ -16,6 +20,23 @@ jest.mock('../../contexts', () => {
     useActiveFeedNameContext: jest.fn().mockReturnValue({ feedName }),
   };
 });
+
+const wrapper = ({ children }: { children: React.ReactNode }) => {
+  const client = new QueryClient();
+
+  return (
+    <QueryClientProvider client={client}>
+      <AuthContextProvider
+        user={loggedUser}
+        updateUser={jest.fn()}
+        getRedirectUri={jest.fn()}
+        tokenRefreshed
+      >
+        {children}
+      </AuthContextProvider>
+    </QueryClientProvider>
+  );
+};
 
 // Mock the useMutationSubscription hook
 jest.mock('../mutationSubscription', () => ({
@@ -42,7 +63,7 @@ describe('usePostShareLoop', () => {
   });
 
   it('should set shouldShowOverlay to true when justUpvoted is true and hasInteracted is false', () => {
-    const { result } = renderHook(() => usePostShareLoop(post));
+    const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
 
     act(() => {
       expect(mockUseMutationSubscription).toHaveBeenCalledTimes(1);
@@ -61,7 +82,7 @@ describe('usePostShareLoop', () => {
 
   // Regression test for https://dailydotdev.atlassian.net/browse/MI-281
   it('should set shouldShowOverlay to false when downvoting', () => {
-    const { result } = renderHook(() => usePostShareLoop(post));
+    const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
 
     act(() => {
       expect(mockUseMutationSubscription).toHaveBeenCalledTimes(1);
@@ -79,7 +100,7 @@ describe('usePostShareLoop', () => {
   });
 
   it('should set shouldShowOverlay to false when onInteract is called', () => {
-    const { result } = renderHook(() => usePostShareLoop(post));
+    const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
 
     act(() => {
       expect(mockUseMutationSubscription).toHaveBeenCalledTimes(1);
