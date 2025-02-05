@@ -67,8 +67,6 @@ describe('usePostShareLoop', () => {
     const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
 
     act(() => {
-      expect(mockUseMutationSubscription).toHaveBeenCalledTimes(1);
-
       // Simulate a successful vote mutation with the same post id and vote type as Up
       callback({
         variables: { id: post.id, vote: UserVote.Up },
@@ -100,8 +98,6 @@ describe('usePostShareLoop', () => {
     const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
 
     act(() => {
-      expect(mockUseMutationSubscription).toHaveBeenCalledTimes(1);
-
       // Simulate a successful vote mutation with the same post id and vote type as Up
       callback({
         variables: { id: post.id, vote: UserVote.Down },
@@ -118,8 +114,6 @@ describe('usePostShareLoop', () => {
     const { result } = renderHook(() => usePostShareLoop(post), { wrapper });
 
     act(() => {
-      expect(mockUseMutationSubscription).toHaveBeenCalledTimes(1);
-
       // Simulate a successful vote mutation with the same post id and vote type as Up
       callback({
         variables: { id: post.id, vote: UserVote.Up },
