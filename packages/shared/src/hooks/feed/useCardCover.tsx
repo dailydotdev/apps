@@ -7,7 +7,7 @@ import { CardCoverContainer } from '../../components/cards/common/CardCoverConta
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { socials } from '../../lib/socialMedia';
-import SocialShareButton from '../../components/cards/socials/SocialShareButton';
+import SocialIconButton from '../../components/cards/socials/SocialIconButton';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -41,7 +41,7 @@ export const useCardCover = ({
         <CardCoverContainer title="Why not share it on social, too?">
           <div>
             {socials.map((social) => (
-              <SocialShareButton key={social} post={post} platform={social} />
+              <SocialIconButton key={social} post={post} platform={social} />
             ))}
           </div>
         </CardCoverContainer>

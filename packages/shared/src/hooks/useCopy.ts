@@ -37,12 +37,13 @@ export function useCopyLink(
       // try with a shortened link as well, if requested
       if (shortenLink) {
         try {
-          const clipBoardItem = new ClipboardItem({
-            'text/plain': getShortUrl(link).then((shortenedLink) => {
-              return new Blob([shortenedLink], { type: 'text/plain' });
-            }),
-          });
-          await navigator.clipboard.write([clipBoardItem]);
+          // const clipBoardItem = new ClipboardItem({
+          //   'text/plain': getShortUrl(link).then((shortenedLink) => {
+          //     return new Blob([shortenedLink], { type: 'text/plain' });
+          //   }),
+          // });
+          // await navigator.clipboard.write([clipBoardItem]);
+          await getShortUrl(link);
         } catch (e) {
           // eslint-disable-next-line no-console
           console.warn('Error copying to clipboard', e);

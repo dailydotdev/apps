@@ -57,7 +57,7 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
   }
 };
 
-const SocialShareButton = ({
+const SocialIconButton = ({
   post,
   platform,
 }: SocialShareButtonProps): ReactElement => {
@@ -70,4 +70,4 @@ const SocialShareButton = ({
   );
 };
 
-export default SocialShareButton;
+export default SocialIconButton;

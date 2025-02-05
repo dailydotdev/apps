@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import SocialShareButton from './SocialShareButton';
+import SocialIconButton from './SocialIconButton';
 import { socials } from '../../../lib/socialMedia';
 
 type SocialBarProps = {
@@ -32,7 +32,7 @@ const SocialBar = ({ post, className }: SocialBarProps): ReactElement => {
       </Typography>
       <div className="flex flex-row items-center gap-2">
         {socials.map((social) => (
-          <SocialShareButton key={social} post={post} platform={social} />
+          <SocialIconButton key={social} post={post} platform={social} />
         ))}
       </div>
     </aside>
