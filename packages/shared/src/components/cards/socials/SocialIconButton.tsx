@@ -10,7 +10,7 @@ import {
 } from '../../icons';
 import { SocialIconType } from '../../../lib/socialMedia';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 
 type SocialShareButtonProps = {
   post: Post;
@@ -75,6 +75,7 @@ const SocialIconButton = ({
           event_name: LogEvent.SharePost,
           extra: JSON.stringify({
             provider: platform,
+            origin: Origin.Suggestions,
           }),
         })
       }

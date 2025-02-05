@@ -122,7 +122,7 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
-      {linkClicked && <SocialBar post={post} className="mt-6" />}
+      {socialShare && <SocialBar post={post} className="mt-6" />}
       <span className="mt-6 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
         <Button
