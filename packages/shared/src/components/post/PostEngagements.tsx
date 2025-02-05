@@ -31,6 +31,7 @@ import { TimeSortIcon } from '../icons/Sort/Time';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { featureSocialShare } from '../../lib/featureManagement';
+import { PostContentReminder } from './common/PostContentReminder';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -119,7 +120,7 @@ function PostEngagements({
         actionsClassName="hidden laptop:flex"
         origin={logOrigin}
       />
-      {/* <PostContentReminder post={post} /> */}
+      <PostContentReminder post={post} />
       <PostContentShare post={post} />
       {linkClicked && <SocialBar post={post} className="mt-6" />}
       <span className="mt-6 flex flex-row items-center">

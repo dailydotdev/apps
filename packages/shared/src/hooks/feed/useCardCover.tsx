@@ -6,6 +6,8 @@ import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
+import { socials } from '../../lib/socialMedia';
+import SocialShareButton from '../../components/cards/socials/SocialShareButton';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -34,6 +36,17 @@ export const useCardCover = ({
   } = usePostShareLoop(post);
 
   const overlay = useMemo(() => {
+    if (currentInteraction === 'copy') {
+      return (
+        <CardCoverContainer title="Why not share it on social, too?">
+          <div>
+            {socials.map((social) => (
+              <SocialShareButton key={social} post={post} platform={social} />
+            ))}
+          </div>
+        </CardCoverContainer>
+      );
+    }
     if (shouldShowOverlay && onShare && currentInteraction === 'upvote') {
       return (
         <CardCoverShare
