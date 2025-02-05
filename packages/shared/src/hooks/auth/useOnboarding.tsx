@@ -32,8 +32,6 @@ export const useOnboarding = (): UseOnboarding => {
     };
   }, [checkHasCompleted, user]);
 
-  console.log('use onboarding: ', isAuthReady, isActionsFetched);
-
   return {
     shouldShowAuthBanner,
     isOnboardingReady: isActionsReady && isAuthReady,
