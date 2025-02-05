@@ -38,6 +38,9 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
       if (!triedSmartPrompts) {
         completeAction(ActionType.SmartPrompt);
       }
+    }
+
+    if (![PromptDisplay.CustomPrompt, PromptDisplay.TLDR].includes(prompt)) {
       logEvent(
         postLogEvent(LogEvent.SmartPrompt, post, {
           extra: { prompt },

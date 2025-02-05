@@ -7,8 +7,6 @@ import {
   TypographyType,
 } from '../../../typography/Typography';
 import { PlusUser } from '../../../PlusUser';
-import ConditionalWrapper from '../../../ConditionalWrapper';
-import { SimpleTooltip } from '../../../tooltips';
 import { LogEvent, Origin, TargetId } from '../../../../lib/log';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { plusUrl } from '../../../../lib/constants';
@@ -20,6 +18,8 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { labels } from '../../../../lib';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
+import { SimpleTooltip } from '../../../tooltips';
+import ConditionalWrapper from '../../../ConditionalWrapper';
 
 export const SmartPrompts = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
@@ -54,23 +54,25 @@ export const SmartPrompts = (): ReactElement => {
           of every post in one click.
         </Typography>
       </div>
-      <ConditionalWrapper
-        condition={!isPlus}
-        wrapper={(child) => {
-          return (
-            <SimpleTooltip
-              container={{
-                className: 'max-w-70 text-center typo-subhead',
-              }}
-              content="Upgrade to Plus to unlock Smart Prompts."
-            >
-              <div className="w-fit">{child as ReactElement}</div>
-            </SimpleTooltip>
-          );
-        }}
-      >
-        <div className="flex flex-col gap-2">
-          {prompts?.map(({ id, label, description }) => (
+
+      <div className="flex flex-col gap-2">
+        {prompts?.map(({ id, label, description }) => (
+          <ConditionalWrapper
+            condition={!isPlus}
+            key={`w-${id}`}
+            wrapper={(child) => {
+              return (
+                <SimpleTooltip
+                  container={{
+                    className: 'max-w-70 text-center typo-subhead',
+                  }}
+                  content="Upgrade to Plus to unlock Smart Prompts."
+                >
+                  <div className="w-fit">{child as ReactElement}</div>
+                </SimpleTooltip>
+              );
+            }}
+          >
             <FilterCheckbox
               key={id}
               name={`prompt-${id}`}
@@ -78,7 +80,7 @@ export const SmartPrompts = (): ReactElement => {
               description={description}
               disabled={!isPlus}
               onToggleCallback={() => {
-                const newState = !(promptFlags?.[id] || true);
+                const newState = !promptFlags?.[id] || false;
                 editFeedSettings(() => updatePromptFlag(id, newState));
                 displayToast(
                   labels.feed.settings.globalPreferenceNotice.smartPrompt,
@@ -86,7 +88,7 @@ export const SmartPrompts = (): ReactElement => {
 
                 logEvent({
                   event_name: LogEvent.ToggleSmartPrompts,
-                  target_type: label,
+                  target_type: id,
                   target_id: newState ? TargetId.On : TargetId.Off,
                   extra: JSON.stringify({
                     origin: Origin.Settings,
@@ -97,9 +99,9 @@ export const SmartPrompts = (): ReactElement => {
             >
               <Typography bold>{label}</Typography>
             </FilterCheckbox>
-          ))}
-        </div>
-      </ConditionalWrapper>
+          </ConditionalWrapper>
+        ))}
+      </div>
       {!isPlus && (
         <Button
           className="w-fit"

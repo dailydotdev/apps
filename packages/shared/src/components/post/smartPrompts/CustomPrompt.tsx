@@ -17,12 +17,16 @@ import { labels } from '../../../lib';
 import { RenderMarkdown } from '../../RenderMarkdown';
 import { CopyIcon, EditIcon } from '../../icons';
 import { useCopyText } from '../../../hooks/useCopy';
+import { postLogEvent } from '../../../lib/feed';
+import { LogEvent } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
 
 type CustomPromptProps = {
   post: Post;
 };
 
 export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const { data: prompts } = usePromptsQuery();
   const [isEdit, setIsEdit] = useState(false);
   const [copying, copy] = useCopyText();
@@ -34,10 +38,15 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
   const onSubmitCustomPrompt = useCallback(
     (e) => {
       e.preventDefault();
+      logEvent(
+        postLogEvent(LogEvent.SmartPrompt, post, {
+          extra: { prompt: 'custom-prompt' },
+        }),
+      );
       setIsEdit(false);
       executePrompt(e.target[0].value);
     },
-    [executePrompt],
+    [executePrompt, logEvent, post],
   );
 
   if (!data || isEdit) {

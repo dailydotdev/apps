@@ -141,7 +141,7 @@ export const PromptButtons = ({
         </SimpleTooltip>
       ))}
 
-      {!showAll && !isMobile && promptList?.length > 0 && (
+      {!showAll && !isMobile && promptList?.length > 0 && remainingTags > 0 && (
         <SimpleTooltip content="See more prompts">
           <Button
             variant={ButtonVariant.Subtle}
