@@ -322,6 +322,12 @@ export const cloudinaryPWADesktopSafari =
 export const clickbaitShieldModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
 
+export const cloudinaryAndroidPWA =
+  'https://daily-now-res.cloudinary.com/image/upload/s---zPja5QA--/f_auto/v1737634403/android_-_chrome_-_placeholder_gptwt8';
+
+export const cloudinaryAndroidPWAVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/s--2P1N5kYQ--/v1737634404/android_-_chrome_gvepd5.mp4';
+
 export const smartPromptModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
 export const smallPostImage = (url: string): string => {
