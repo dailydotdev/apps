@@ -209,9 +209,18 @@ export const useGetIconWithSize = (
       size: icon.props?.size ?? buttonSizeToIconSize[size],
       className: classNames(
         icon.props.className,
-        !iconOnly && '!h-6 !w-6 text-base',
-        !iconOnly && iconPosition === ButtonIconPosition.Left && '-ml-2 mr-1',
-        !iconOnly && iconPosition === ButtonIconPosition.Right && '-mr-2 ml-1',
+        !iconOnly && 'text-base',
+        !iconOnly && !icon.props?.size && '!h-6 !w-6',
+        !iconOnly && iconPosition === ButtonIconPosition.Left && 'mr-1',
+        !iconOnly &&
+          !icon.props?.size &&
+          iconPosition === ButtonIconPosition.Left &&
+          '-ml-2',
+        !iconOnly && iconPosition === ButtonIconPosition.Right && 'ml-1',
+        !iconOnly &&
+          !icon.props?.size &&
+          iconPosition === ButtonIconPosition.Right &&
+          '-mr-2',
       ),
     });
 };
