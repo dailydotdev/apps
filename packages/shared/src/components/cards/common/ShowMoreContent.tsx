@@ -38,7 +38,10 @@ export default function ShowMoreContent({
 
   return (
     <div className={className}>
-      <p className="select-text break-words typo-body">
+      <p
+        className="select-text break-words typo-body"
+        data-testid="tldr-container"
+      >
         {contentPrefix}
         {getContent()}{' '}
         {displayShowMoreLink() && (

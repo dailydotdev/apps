@@ -652,8 +652,9 @@ it('should show TLDR when there is a summary', async () => {
     createPostMock({ summary: 'test summary' }),
     completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
-  const el = await screen.findByText('TLDR');
+  const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
+  expect(el).toHaveTextContent('test summary');
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
   const link = queryByText(el.parentElement, 'Show more');
   expect(link).not.toBeInTheDocument();
@@ -667,7 +668,7 @@ it('should toggle TLDR on click', async () => {
     }),
     completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
-  const el = await screen.findByText('TLDR');
+  const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
   const showMoreLink = queryByText(el.parentElement, 'Show more');
@@ -684,7 +685,7 @@ it('should not show Show more link when there is a summary without reaching thre
         'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores',
     }),
   ]);
-  const el = await screen.findByText('TLDR');
+  const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
   const link = queryByText(el.parentElement, 'Show more');
@@ -699,7 +700,7 @@ it('should not cut summary when there is a summary without reaching threshold', 
       summary: summaryText,
     }),
   ]);
-  const el = await screen.findByText('TLDR');
+  const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
   const fullSummary = await screen.findByText(summaryText);
   expect(fullSummary).toBeInTheDocument();

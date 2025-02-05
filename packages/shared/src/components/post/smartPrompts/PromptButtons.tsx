@@ -72,7 +72,7 @@ export const PromptButtons = ({
   const { openModal } = useLazyModal();
   const { data, isLoading } = usePromptsQuery();
   const { flags: settingFlags } = useSettingsContext();
-  const { prompt: promptFlags } = settingFlags;
+  const { prompt: promptFlags } = settingFlags || {};
   const prompts = useMemo(() => {
     return data?.filter((prompt) => promptFlags?.[prompt.id] !== false);
   }, [data, promptFlags]);

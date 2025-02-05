@@ -31,7 +31,7 @@ export interface UseChat {
   queryKey: QueryKey;
   data: Search;
   isLoading: boolean;
-  handleSubmit(prompt: string): Promise<void>;
+  handleSubmit(prompt: string, event?: MouseEvent): Promise<void>;
 }
 
 export interface CreatePayload {
