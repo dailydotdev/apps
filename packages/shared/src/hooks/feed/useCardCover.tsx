@@ -8,6 +8,8 @@ import { PostReminderOptions } from '../../components/post/common/PostReminderOp
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { socials } from '../../lib/socialMedia';
 import SocialIconButton from '../../components/cards/socials/SocialIconButton';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
+import { featureSocialShare } from '../../lib/featureManagement';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -34,9 +36,10 @@ export const useCardCover = ({
     currentInteraction,
     shouldShowReminder,
   } = usePostShareLoop(post);
+  const { getFeatureValue } = useFeaturesReadyContext();
 
   const overlay = useMemo(() => {
-    if (currentInteraction === 'copy') {
+    if (currentInteraction === 'copy' && getFeatureValue(featureSocialShare)) {
       return (
         <CardCoverContainer title="Why not share it on social, too?">
           <div className="mt-2 flex flex-row gap-2">
