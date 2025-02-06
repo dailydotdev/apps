@@ -47,7 +47,6 @@ import {
 import { GiftIcon } from '@dailydotdev/shared/src/components/icons/gift';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -66,7 +65,7 @@ const AccountInvitePage = (): ReactElement => {
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
-  const { isPlusAvailable } = usePaymentContext();
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;

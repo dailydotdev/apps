@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
 import { reportSquadMember } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import type { SourceMember, Squad } from '../../graphql/sources';
@@ -19,7 +19,6 @@ import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LogEvent, TargetId } from '../../lib/log';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -129,7 +128,7 @@ export default function SquadMemberMenu({
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
-  const { isPlusAvailable } = usePaymentContext();
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
   const onUpdateMember = async (
     role: SourceMemberRole,
