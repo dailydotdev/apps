@@ -54,7 +54,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...getPostByIdKey(post?.id),
   );
 
-  const { data: smartTitle } = useQuery({
+  const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
     queryFn: async () => {
       let title = post?.title || post?.sharedPost?.title;
@@ -101,7 +101,12 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     if (!fetchedSmartTitle) {
       const [translateResult] = await fetchTranslations([post]);
 
-      client.setQueryData(key, translateResult?.value || post?.title);
+      if (translateResult?.value) {
+        client.setQueryData(key, translateResult.value);
+      } else {
+        // if translation already exist we just fetch smart title
+        await refetch();
+      }
     } else {
       client.setQueryData(key, post?.title);
     }
@@ -118,6 +123,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     logEvent,
     post,
     isPlus,
+    refetch,
     key,
     fetchTranslations,
   ]);
