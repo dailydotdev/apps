@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import type { EmptyObjectLiteral } from './kratos';
-import { isBrave, isTesting } from './constants';
+import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 
 export type EmptyFunction = () => void;
 export type EmptyPromise = () => Promise<void>;
@@ -199,3 +199,17 @@ export const isMobile = (): boolean =>
 
 export const shouldUseNativeShare = (): boolean =>
   'share' in globalThis?.navigator && isMobile();
+
+interface BroadcastMessage {
+  eventKey: string;
+  [key: string]: unknown;
+}
+
+export const broadcastMessage = (
+  message: BroadcastMessage,
+  channelName: string = BROADCAST_CHANNEL_NAME,
+): void => {
+  const channel = new BroadcastChannel(channelName);
+  channel.postMessage(message);
+  channel.close();
+};
