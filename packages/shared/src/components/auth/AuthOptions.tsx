@@ -24,7 +24,7 @@ import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import { isTesting } from '../../lib/constants';
+import { BROADCAST_CHANNEL, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { AnonymousUser, LoggedUser } from '../../lib/user';
@@ -131,7 +131,6 @@ export interface AuthOptionsProps {
   initialEmail?: string;
   targetId?: string;
   ignoreMessages?: boolean;
-  channel?: BroadcastChannel;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
 
@@ -154,7 +153,6 @@ function AuthOptions({
   initialEmail = '',
   ignoreMessages = false,
   onboardingSignupButton,
-  channel,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -305,7 +303,7 @@ function AuthOptions({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
-  useEventListener(channel, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     console.log('message received: ', e.data);
 
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
