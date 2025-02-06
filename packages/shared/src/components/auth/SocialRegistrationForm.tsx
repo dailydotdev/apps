@@ -27,7 +27,6 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { useSignBack } from '../../hooks/auth/useSignBack';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import { LanguageDropdown } from '../profile/LanguageDropdown';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -258,7 +257,6 @@ export const SocialRegistrationForm = ({
           hint={experienceLevelHint}
           saveHintSpace
         />
-        <LanguageDropdown className={{ container: 'w-full' }} name="language" />
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>

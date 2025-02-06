@@ -24,6 +24,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import type { Post } from '../../graphql/posts';
 import type { Connection } from '../../graphql/common';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export const rejectReasons: { value: PostModerationReason; label: string }[] = [
   {
@@ -62,12 +63,12 @@ export const rejectReasons: { value: PostModerationReason; label: string }[] = [
 export interface UseSourceModerationList {
   onApprove: (
     ids: string[],
-    sourceId: string,
+    sourceId?: string,
     onSuccess?: MouseEventHandler,
   ) => Promise<void>;
   onReject: (
     id: string,
-    sourceId: string,
+    sourceId?: string,
     onSuccess?: MouseEventHandler,
   ) => void;
   onDelete: (postId: string) => Promise<void>;
@@ -90,20 +91,20 @@ const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
 export const useSourceModerationList = ({
   squad,
 }: {
-  squad: Squad;
+  squad?: Squad;
 }): UseSourceModerationList => {
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
-  const { user } = squad.currentMember;
+  const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const listQueryKey = generateQueryKey(
     RequestKey.SquadPostRequests,
     user,
-    squad.id,
+    squad?.id,
   );
-  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
+  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
 
   const handleOptimistic = useCallback(
     (data: SquadPostModerationProps) => {
@@ -112,14 +113,18 @@ export const useSourceModerationList = ({
           InfiniteData<Connection<SourcePostModeration>>
         >(listQueryKey);
 
-      const currentSquad = queryClient.getQueryData<Squad>(squadQueryKey);
-      queryClient.setQueryData<Squad>(squadQueryKey, (sqd) => {
-        return {
-          ...sqd,
-          moderationPostCount:
-            currentSquad.moderationPostCount - data.postIds.length,
-        };
-      });
+      const currentSquad = queryClient.getQueryData<Squad | null>(
+        squadQueryKey,
+      );
+      if (currentSquad) {
+        queryClient.setQueryData<Squad>(squadQueryKey, (sqd) => {
+          return {
+            ...sqd,
+            moderationPostCount:
+              currentSquad.moderationPostCount - data.postIds.length,
+          };
+        });
+      }
 
       queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
         listQueryKey,
@@ -149,11 +154,8 @@ export const useSourceModerationList = ({
     isPending: isPendingApprove,
     isSuccess: isSuccessApprove,
   } = useMutation({
-    mutationFn: ({ postIds, sourceId }: SquadPostModerationProps) =>
-      squadApproveMutation({
-        postIds,
-        sourceId,
-      }),
+    mutationFn: ({ postIds }: SquadPostModerationProps) =>
+      squadApproveMutation(postIds),
     onMutate: (data) => handleOptimistic(data),
     onSuccess: (data) => {
       displayToast('Post(s) approved successfully');
@@ -168,8 +170,8 @@ export const useSourceModerationList = ({
         );
         return;
       }
-      queryClient.setQueryData(listQueryKey, context.currentData);
-      queryClient.setQueryData(squadQueryKey, context.currentSquad);
+      queryClient.setQueryData(listQueryKey, context?.currentData);
+      queryClient.setQueryData(squadQueryKey, context?.currentSquad);
       displayToast('Failed to approve post(s)');
     },
   });
