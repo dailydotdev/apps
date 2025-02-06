@@ -224,11 +224,13 @@ export function GiftPlusModalComponent({
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
-          <PlusPlanExtraLabel
-            color={PlusLabelColor.Success}
-            label={giftOneYear?.extraLabel}
-            typographyProps={{ color: TypographyColor.StatusSuccess }}
-          />
+          {giftOneYear?.extraLabel && (
+            <PlusPlanExtraLabel
+              color={PlusLabelColor.Success}
+              label={giftOneYear?.extraLabel}
+              typographyProps={{ color: TypographyColor.StatusSuccess }}
+            />
+          )}
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
             <strong className="mr-1">{giftOneYear?.price}</strong>
             {giftOneYear?.currencyCode}
