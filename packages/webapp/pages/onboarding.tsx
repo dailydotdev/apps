@@ -453,8 +453,6 @@ export function OnboardPage(): ReactElement {
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
 
-  console.log('is onboarding ready: ', isOnboardingReady, isAuthenticating);
-
   useEventListener(BROADCAST_CHANNEL, 'message', () => {
     console.log('broadcast message received from onboarding');
   });
