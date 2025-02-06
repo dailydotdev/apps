@@ -17,6 +17,7 @@ export type SettingsFlags = {
   sidebarBookmarksExpanded: boolean;
   clickbaitShieldEnabled: boolean;
   timezoneMismatchIgnore?: string;
+  prompt?: Record<string, boolean>;
 };
 
 export enum SidebarSettingsFlags {

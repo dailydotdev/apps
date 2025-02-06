@@ -44,9 +44,9 @@ import {
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
-  featureOnboardingAndroid,
   featureOnboardingExtension,
   featureOnboardingDesktopPWA,
+  featureAndroidPWA,
   featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -108,12 +108,6 @@ const OnboardingPlusStep = dynamic(() =>
   ).then((mod) => mod.OnboardingPlusStep),
 );
 
-const OnboardingAndroidApp = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
-  ).then((mod) => mod.OnboardingAndroidApp),
-);
-
 const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
@@ -130,6 +124,12 @@ const OnboardingInstallDesktop = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
   ).then((mod) => mod.OnboardingInstallDesktop),
+);
+
+const OnboardingAndroidPWA = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingAndroidPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidPWA'
+  ).then((mod) => mod.OnboardingAndroidPWA),
 );
 
 const PlusPage = dynamic(
@@ -150,7 +150,7 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
-  const params = new URLSearchParams(window.location.search);
+  const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const {
     isOnboardingReady,
     hasCompletedEditTags,
@@ -161,14 +161,8 @@ export function OnboardPage(): ReactElement {
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
-  const {
-    user,
-    isAuthReady,
-    anonymous,
-    isAndroidApp,
-    loginState,
-    isValidRegion,
-  } = useAuthContext();
+  const { user, isAuthReady, anonymous, loginState, isValidRegion } =
+    useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -214,55 +208,60 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
     useState(false);
-  const { value: appExperiment } = useConditionalFeature({
-    feature: featureOnboardingAndroid,
-    shouldEvaluate:
-      shouldEnrollOnboardingStep &&
-      checkIsBrowser(UserAgent.Android) &&
-      !isAndroidApp,
-  });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const { value: extensionExperiment } = useConditionalFeature({
     feature: featureOnboardingExtension,
     shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
   });
-  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const isCTA = [
-    OnboardingStep.AndroidApp,
     OnboardingStep.PWA,
     OnboardingStep.Extension,
     OnboardingStep.InstallDesktop,
+    OnboardingStep.AndroidPWA,
   ].includes(activeScreen);
 
   useEffect(() => {
-    if (!isPageReady || isLogged.current || !isOnboardingReady) {
-      return;
-    }
-
-    if (user?.infoConfirmed && !hasCompletedEditTags) {
-      setActiveScreen(OnboardingStep.EditTag);
-      return;
-    }
-
-    if (user?.infoConfirmed && !hasCompletedContentTypes) {
-      setActiveScreen(OnboardingStep.ContentTypes);
-      return;
-    }
-
-    if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
-      const afterAuth = params.get(AFTER_AUTH_PARAM);
-      params.delete(AFTER_AUTH_PARAM);
-      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    if (
+      !isPageReady ||
+      isLogged.current ||
+      !isOnboardingReady ||
+      !user?.infoConfirmed
+    ) {
       return;
     }
 
     isLogged.current = true;
+
+    if (!hasCompletedEditTags) {
+      setActiveScreen(OnboardingStep.EditTag);
+      return;
+    }
+
+    if (!hasCompletedContentTypes) {
+      setActiveScreen(OnboardingStep.ContentTypes);
+      return;
+    }
+
+    if (activeScreen === OnboardingStep.Intro) {
+      const params = new URLSearchParams(window.location.search);
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    }
+
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, user, isOnboardingReady]);
+  }, [
+    isPageReady,
+    user,
+    isOnboardingReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    activeScreen,
+  ]);
 
   const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
@@ -304,8 +303,13 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
-    if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
-      return setActiveScreen(OnboardingStep.AndroidApp);
+    if (
+      activeScreen !== OnboardingStep.AndroidPWA &&
+      checkIsBrowser(UserAgent.Android) &&
+      canUserInstallPWA &&
+      getFeatureValue(featureAndroidPWA)
+    ) {
+      return setActiveScreen(OnboardingStep.AndroidPWA);
     }
 
     if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
@@ -335,8 +339,7 @@ export function OnboardPage(): ReactElement {
 
     if (
       isLaptop &&
-      !isCurrentPWA &&
-      canUserInstallDesktop &&
+      canUserInstallPWA &&
       activeScreen !== OnboardingStep.InstallDesktop &&
       (haveSkippedExtension || browserDontHaveExtension)
     ) {
@@ -355,6 +358,7 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
+    const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
     return router.replace({
       pathname: afterAuth || '/',
@@ -537,15 +541,15 @@ export function OnboardPage(): ReactElement {
                 )}
               </PaymentContextProvider>
             )}
-            {activeScreen === OnboardingStep.AndroidApp && (
-              <OnboardingAndroidApp />
-            )}
             {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
             {activeScreen === OnboardingStep.Extension && (
               <OnboardingExtension onClickNext={onClickNext} />
             )}
             {activeScreen === OnboardingStep.InstallDesktop && (
               <OnboardingInstallDesktop onClickNext={onClickNext} />
+            )}
+            {activeScreen === OnboardingStep.AndroidPWA && (
+              <OnboardingAndroidPWA />
             )}
           </div>
         )}

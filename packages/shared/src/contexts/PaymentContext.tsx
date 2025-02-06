@@ -48,6 +48,8 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
+const giftingPriceId = 'pri_01jjvm32ygwb1ja7w52e668fr2';
+
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
@@ -170,14 +172,16 @@ export const PaymentContextProvider = ({
 
   const productOptions = useMemo(
     () =>
-      productPrices?.data?.details?.lineItems?.map((item) => ({
-        label: item.price.description,
-        value: item.price.id,
-        price: item.formattedTotals.total,
-        priceUnformatted: Number(item.totals.total),
-        currencyCode: productPrices?.data.currencyCode as string,
-        extraLabel: item.price.customData?.label as string,
-      })) ?? [],
+      productPrices?.data?.details?.lineItems
+        ?.filter(({ price }) => price.id !== giftingPriceId) // temporary until we ship gifting
+        .map((item) => ({
+          label: item.price.description,
+          value: item.price.id,
+          price: item.formattedTotals.total,
+          priceUnformatted: Number(item.totals.total),
+          currencyCode: productPrices?.data.currencyCode as string,
+          extraLabel: item.price.customData?.label as string,
+        })) ?? [],
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
 

@@ -33,7 +33,7 @@ export const useOnboarding = (): UseOnboarding => {
 
   return {
     shouldShowAuthBanner,
-    isOnboardingReady: isActionsFetched && isAuthReady,
+    isOnboardingReady: isAuthReady && (isActionsFetched || !user),
     hasCompletedEditTags,
     hasCompletedContentTypes,
     completeStep: (action: ActionType) => completeAction(action),
