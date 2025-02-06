@@ -393,9 +393,26 @@ export function OnboardPage(): ReactElement {
     setActiveScreen(OnboardingStep.EditTag);
   };
 
+  const [broadcast] = useState(new BroadcastChannel('dailydev_broadcast'));
+
+  useEffect(() => {
+    broadcast.onmessage = (event) => {
+      console.log('message received from use effect mounted: ', event);
+    };
+
+    return () => {
+      broadcast.close();
+    };
+  }, [broadcast]);
+
+  useEventListener(BROADCAST_CHANNEL, 'message', () => {
+    console.log('broadcast message received from onboarding');
+  });
+
   const authOptionProps: AuthOptionsProps = useMemo(() => {
     return {
       simplified: true,
+      channel: broadcast,
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
@@ -452,22 +469,6 @@ export function OnboardPage(): ReactElement {
     isAuthLoading &&
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
-
-  const [broadcast] = useState(new BroadcastChannel('dailydev_broadcast'));
-
-  useEffect(() => {
-    broadcast.onmessage = (event) => {
-      console.log('message received from use effect mounted: ', event);
-    };
-
-    return () => {
-      broadcast.close();
-    };
-  }, [broadcast]);
-
-  useEventListener(BROADCAST_CHANNEL, 'message', () => {
-    console.log('broadcast message received from onboarding');
-  });
 
   if (!isPageReady) {
     return null;
