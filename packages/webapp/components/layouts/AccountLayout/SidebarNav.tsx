@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -7,14 +7,9 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { useRouter } from 'next/router';
 import { isTouchDevice } from '@dailydotdev/shared/src/lib/tooltip';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import SidebarNavItem from './SidebarNavItem';
-import {
-  AccountPage,
-  accountPage,
-  accountSidebarPages,
-  AccountSidebarPagesSection,
-} from './common';
+import type { AccountPage } from './common';
+import { accountPage } from './common';
 
 interface SidebarNavProps {
   className?: string;
@@ -38,19 +33,7 @@ function SidebarNav({
     queryFn: () => false,
     ...disabledRefetch,
   });
-  const { user, isGdprCovered } = useContext(AuthContext);
-
-  const keys = useMemo(
-    () =>
-      pageKeys.filter((key) => {
-        if (key === AccountPage.Privacy) {
-          return isGdprCovered;
-        }
-
-        return true;
-      }),
-    [isGdprCovered],
-  );
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     if (!isTouchDevice()) {
@@ -84,7 +67,7 @@ function SidebarNav({
         <CloseButton onClick={closeSideNav} />
       </span>
       <div className="px-6 tablet:px-0">
-        {keys.map((key) => {
+        {pageKeys.map((key) => {
           const href = `/${basePath}${accountPage[key].href}`;
           const isActive = globalThis?.window?.location.pathname === href;
 
@@ -98,24 +81,6 @@ function SidebarNav({
             />
           );
         })}
-        {!isGdprCovered && (
-          <AccountSidebarPagesSection>
-            {accountSidebarPages.map((accountSidebarPage) => (
-              <Link
-                href={accountSidebarPage.href}
-                passHref
-                key={accountSidebarPage.title}
-              >
-                <a
-                  className="w-full text-text-tertiary typo-callout"
-                  target={accountSidebarPage.target}
-                >
-                  {accountSidebarPage.title}
-                </a>
-              </Link>
-            ))}
-          </AccountSidebarPagesSection>
-        )}
       </div>
     </div>
   );
