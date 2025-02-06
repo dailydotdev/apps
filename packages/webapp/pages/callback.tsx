@@ -1,4 +1,7 @@
-import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
+import {
+  broadcastMessage,
+  postWindowMessage,
+} from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import type { ReactElement } from 'react';
 import { useContext, useEffect } from 'react';
@@ -23,7 +26,8 @@ function CallbackPage(): ReactElement {
         return;
       }
       postWindowMessage(eventKey, params);
-      // window.close();
+      broadcastMessage({ ...params, eventKey });
+      window.close();
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
       window.location.replace(url);
