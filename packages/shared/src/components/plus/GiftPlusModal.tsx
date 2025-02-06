@@ -246,7 +246,7 @@ export function GiftPlusModalComponent({
             tag="a"
             disabled={!selected}
             variant={ButtonVariant.Primary}
-            onClick={() => onSelected(selected)}
+            onClick={() => onSelected?.(selected)}
           >
             Gift & Pay {giftOneYear?.price}
           </Button>
