@@ -24,7 +24,7 @@ import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import { isTesting } from '../../lib/constants';
+import { BROADCAST_CHANNEL, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { AnonymousUser, LoggedUser } from '../../lib/user';
@@ -302,7 +302,7 @@ function AuthOptions({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(BROADCAST_CHANNEL, 'message', async (e) => {
     console.log('message received: ', e.data);
 
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
