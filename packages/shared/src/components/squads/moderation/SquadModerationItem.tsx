@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Typography,
   TypographyColor,
@@ -21,13 +22,16 @@ import { useTruncatedSummary } from '../../../hooks';
 import type { SquadModerationItemProps } from './useSourceModerationItem';
 import { useSourceModerationItem } from './useSourceModerationItem';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
+import SourceProfilePicture from '../../profile/SourceProfilePicture';
 
 export function SquadModerationItem(
   props: SquadModerationItemProps,
 ): ReactElement {
+  const searchParams = useSearchParams();
+  const handle = searchParams?.get('handle');
   const { context, modal, user } = useSourceModerationItem(props);
   const { data, squad, onApprove, onReject, isPending } = props;
-  const { rejectionReason, createdBy, createdAt, image, status } = data;
+  const { rejectionReason, createdBy, createdAt, image, status, source } = data;
 
   const IconComponent =
     status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
@@ -45,6 +49,21 @@ export function SquadModerationItem(
         onClick={modal.open}
         type="button"
       />
+      {!handle && (
+        <div className="flex gap-2">
+          <SourceProfilePicture
+            className="pointer-events-none"
+            source={source}
+            size={ProfileImageSize.Small}
+          />
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
+          >
+            {source.name}
+          </Typography>
+        </div>
+      )}
       <div className="flex flex-row gap-4">
         <ProfilePicture
           className="pointer-events-none"
