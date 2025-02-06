@@ -453,6 +453,18 @@ export function OnboardPage(): ReactElement {
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
 
+  const [broadcast] = useState(new BroadcastChannel('dailydev_broadcast'));
+
+  useEffect(() => {
+    broadcast.onmessage = (event) => {
+      console.log('message received from use effect mounted: ', event);
+    };
+
+    return () => {
+      broadcast.close();
+    };
+  }, [broadcast]);
+
   useEventListener(BROADCAST_CHANNEL, 'message', () => {
     console.log('broadcast message received from onboarding');
   });
