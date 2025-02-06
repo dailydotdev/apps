@@ -27,19 +27,57 @@ type UseTranslation = (props: {
   fetchTranslations: (id: Post[]) => void;
 };
 
+type TranslateFields = 'title' | 'smartTitle';
+
 type TranslateEvent = {
   id: string;
-  title: string;
+  field: TranslateFields;
+  value: string;
 };
 
-const updateTranslation = (post: Post, translation: TranslateEvent): Post => {
+type TranslatePayload = Record<string, TranslateFields[]>;
+
+const updateTranslation = ({
+  post,
+  translation,
+  clickbaitShieldEnabled,
+}: {
+  post: Post;
+  translation: TranslateEvent;
+  clickbaitShieldEnabled: boolean;
+}): Post => {
   const updatedPost = post;
-  if (post.title) {
-    updatedPost.title = translation.title;
-    updatedPost.translation = { title: !!translation.title };
-  } else {
-    updatedPost.sharedPost.title = translation.title;
-    updatedPost.sharedPost.translation = { title: !!translation.title };
+
+  const shouldUseSmartTitle =
+    post.clickbaitTitleDetected && clickbaitShieldEnabled;
+
+  switch (translation.field) {
+    case 'title':
+      if (shouldUseSmartTitle) {
+        break;
+      }
+
+      if (post.title) {
+        updatedPost.title = translation.value;
+        updatedPost.translation = { title: !!translation.value };
+      } else {
+        updatedPost.sharedPost.title = translation.value;
+        updatedPost.sharedPost.translation = { title: !!translation.value };
+      }
+      break;
+    case 'smartTitle':
+      if (!shouldUseSmartTitle) {
+        break;
+      }
+
+      if (post.title) {
+        updatedPost.title = translation.value;
+        updatedPost.translation = { title: !!translation.value };
+      }
+
+      break;
+    default:
+      break;
   }
 
   return updatedPost;
@@ -68,23 +106,28 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         updatePost(
           pageIndex,
           index,
-          updateTranslation(
-            feedData.pages[pageIndex].page.edges[index].node,
-            translatedPost,
-          ),
+          updateTranslation({
+            post: feedData.pages[pageIndex].page.edges[index].node,
+            translation: translatedPost,
+            clickbaitShieldEnabled: !!flags?.clickbaitShieldEnabled,
+          }),
         );
       }
     },
-    [queryKey, queryClient],
+    [queryKey, queryClient, flags?.clickbaitShieldEnabled],
   );
 
   const updatePost = useCallback(
     (translatedPost: TranslateEvent) => {
       updatePostCache(queryClient, translatedPost.id, (post) =>
-        updateTranslation(post, translatedPost),
+        updateTranslation({
+          post,
+          translation: translatedPost,
+          clickbaitShieldEnabled: !!flags?.clickbaitShieldEnabled,
+        }),
       );
     },
-    [queryClient],
+    [queryClient, flags?.clickbaitShieldEnabled],
   );
 
   const fetchTranslations = useCallback(
@@ -102,11 +145,6 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
             ? !node?.translation?.title
             : !node?.sharedPost?.translation?.title,
         )
-        .filter((node) =>
-          flags?.clickbaitShieldEnabled && node?.title
-            ? !node.clickbaitTitleDetected
-            : !node.sharedPost?.clickbaitTitleDetected,
-        )
         .filter(
           (post) =>
             !(
@@ -121,18 +159,22 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         return;
       }
 
-      const params = new URLSearchParams();
-      postIds.forEach((id) => {
-        params.append('id', id);
-      });
+      const payload = postIds.reduce((acc, postId) => {
+        acc[postId] = ['title', 'smartTitle'];
 
-      const response = await fetch(`${apiUrl}/translate/post/title?${params}`, {
+        return acc;
+      }, {} as TranslatePayload);
+
+      const response = await fetch(`${apiUrl}/translate/post`, {
         signal: abort.current?.signal,
+        method: 'POST',
         headers: {
           Accept: 'text/event-stream',
           Authorization: `Bearer ${accessToken?.token}`,
           'Content-Language': language as string,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -153,7 +195,6 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
     },
     [
       accessToken?.token,
-      flags?.clickbaitShieldEnabled,
       isStreamActive,
       language,
       queryType,
