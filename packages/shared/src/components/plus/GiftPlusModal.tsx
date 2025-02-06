@@ -39,6 +39,7 @@ import { IconSize } from '../Icon';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import classed from '../../lib/classed';
 import JoinedDate from '../profile/JoinedDate';
+import { webappUrl } from '../../lib/constants';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
@@ -241,7 +242,7 @@ export function GiftPlusModalComponent({
           payment is processed, they’ll be notified of your gift. This is a
           one-time purchase, not a recurring subscription.
         </Typography>
-        <Link href={`/plus?gift=${selected?.id}`} passHref>
+        <Link href={`${webappUrl}plus?gift=${selected?.id}`} passHref>
           <Button
             tag="a"
             disabled={!selected}

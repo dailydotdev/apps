@@ -22,6 +22,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
+import { webappUrl } from '../../lib/constants';
 
 const GifterProfile = ({ gifter }: { gifter: UserShortProfile }) => (
   <Link href={`/${gifter.username}`} passHref>
@@ -104,7 +105,7 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
         </div>
         <Button
           className="mt-4 w-full"
-          href="/squads/plus"
+          href={`${webappUrl}squads/plus`}
           tag="a"
           variant={ButtonVariant.Primary}
         >{`See what's inside`}</Button>
