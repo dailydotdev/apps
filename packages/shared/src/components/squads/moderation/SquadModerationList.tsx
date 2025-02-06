@@ -43,7 +43,9 @@ export function SquadModerationList({
   );
 
   if (!list.length) {
-    return <EmptyModerationList squad={squad} isFetched={isFetched} />;
+    return (
+      <EmptyModerationList isModerator={isModerator} isFetched={isFetched} />
+    );
   }
 
   return (
