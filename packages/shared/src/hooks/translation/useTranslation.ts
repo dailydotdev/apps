@@ -23,8 +23,9 @@ export enum ServerEvents {
 type UseTranslation = (props: {
   queryKey: QueryKey;
   queryType: 'post' | 'feed';
+  clickbaitShieldEnabled?: boolean;
 }) => {
-  fetchTranslations: (id: Post[]) => void;
+  fetchTranslations: (id: Post[]) => Promise<TranslateEvent[]>;
 };
 
 type TranslateFields = 'title' | 'smartTitle';
@@ -93,11 +94,18 @@ const updateTranslation = ({
   return updatedPost;
 };
 
-export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
+export const useTranslation: UseTranslation = ({
+  queryKey,
+  queryType,
+  clickbaitShieldEnabled: clickbaitShieldEnabledProp,
+}) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
   const { flags } = useSettingsContext();
   const queryClient = useQueryClient();
+  const clickbaitShieldEnabled = !!(
+    clickbaitShieldEnabledProp ?? flags?.clickbaitShieldEnabled
+  );
 
   const { language } = user || {};
   const isStreamActive = isLoggedIn && !!language;
@@ -119,12 +127,12 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
           updateTranslation({
             post: feedData.pages[pageIndex].page.edges[index].node,
             translation: translatedPost,
-            clickbaitShieldEnabled: !!flags?.clickbaitShieldEnabled,
+            clickbaitShieldEnabled,
           }),
         );
       }
     },
-    [queryKey, queryClient, flags?.clickbaitShieldEnabled],
+    [queryKey, queryClient, clickbaitShieldEnabled],
   );
 
   const updatePost = useCallback(
@@ -133,20 +141,20 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         updateTranslation({
           post,
           translation: translatedPost,
-          clickbaitShieldEnabled: !!flags?.clickbaitShieldEnabled,
+          clickbaitShieldEnabled,
         }),
       );
     },
-    [queryClient, flags?.clickbaitShieldEnabled],
+    [queryClient, clickbaitShieldEnabled],
   );
 
   const fetchTranslations = useCallback(
     async (posts: Post[]) => {
       if (!isStreamActive) {
-        return;
+        return [];
       }
       if (posts.length === 0) {
-        return;
+        return [];
       }
 
       const postsToTranslate = posts
@@ -161,14 +169,14 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         .map((node) => (node?.title ? node : node?.sharedPost));
 
       if (postsToTranslate.length === 0) {
-        return;
+        return [];
       }
 
       const payload = postsToTranslate.reduce((acc, post) => {
         const fields = [];
 
         const shouldUseSmartTitle =
-          post.clickbaitTitleDetected && flags?.clickbaitShieldEnabled;
+          post.clickbaitTitleDetected && clickbaitShieldEnabled;
 
         if (shouldUseSmartTitle && !post.translation?.smartTitle) {
           fields.push('smartTitle');
@@ -186,7 +194,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
       }, {} as TranslatePayload);
 
       if (Object.keys(payload).length === 0) {
-        return;
+        return [];
       }
 
       const response = await fetch(`${apiUrl}/translate/post`, {
@@ -202,13 +210,18 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
       });
 
       if (!response.ok) {
-        return;
+        return [];
       }
+
+      const results: TranslateEvent[] = [];
 
       // eslint-disable-next-line no-restricted-syntax
       for await (const message of events(response)) {
         if (message.event === ServerEvents.Message) {
           const post = JSON.parse(message.data) as TranslateEvent;
+
+          results.push(post);
+
           if (queryType === 'feed') {
             updateFeed(post);
           } else {
@@ -216,6 +229,8 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
           }
         }
       }
+
+      return results;
     },
     [
       accessToken?.token,
@@ -224,7 +239,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
       queryType,
       updateFeed,
       updatePost,
-      flags?.clickbaitShieldEnabled,
+      clickbaitShieldEnabled,
     ],
   );
 
