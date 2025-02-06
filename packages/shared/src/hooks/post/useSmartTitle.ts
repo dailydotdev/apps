@@ -15,6 +15,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification } from '../useToastNotification';
 import { labels } from '../../lib';
+import { useTranslation } from '../translation/useTranslation';
+import { useActiveFeedContext } from '../../contexts';
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
@@ -31,6 +33,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { isPlus } = usePlusSubscription();
   const { completeAction } = useActions();
   const { flags } = useSettingsContext();
+  const { queryKey } = useActiveFeedContext();
 
   const { clickbaitShieldEnabled } = flags || {};
 
@@ -38,6 +41,13 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     () => [...getPostByIdKey(post?.id), { key: 'title' }],
     [post?.id],
   );
+
+  const { fetchTranslations } = useTranslation({
+    queryKey: queryKey || getPostByIdKey(post?.id),
+    queryType: queryKey ? 'feed' : 'post',
+    clickbaitShieldEnabled: !clickbaitShieldEnabled,
+  });
+
   const fetchSmartTitleKey = generateQueryKey(
     RequestKey.FetchedOriginalTitle,
     user,
@@ -89,7 +99,14 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
 
   const fetchSmartTitle = useCallback(async () => {
     if (!fetchedSmartTitle) {
-      await refetch();
+      const [translateResult] = await fetchTranslations([post]);
+
+      if (translateResult?.value) {
+        client.setQueryData(key, translateResult.value);
+      } else {
+        // if translation already exist we just fetch smart title
+        await refetch();
+      }
     } else {
       client.setQueryData(key, post?.title);
     }
@@ -108,6 +125,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     isPlus,
     refetch,
     key,
+    fetchTranslations,
   ]);
 
   const title = useMemo(() => {

@@ -23,33 +23,89 @@ export enum ServerEvents {
 type UseTranslation = (props: {
   queryKey: QueryKey;
   queryType: 'post' | 'feed';
+  clickbaitShieldEnabled?: boolean;
 }) => {
-  fetchTranslations: (id: Post[]) => void;
+  fetchTranslations: (id: Post[]) => Promise<TranslateEvent[]>;
 };
+
+type TranslateFields = 'title' | 'smartTitle';
 
 type TranslateEvent = {
   id: string;
-  title: string;
+  field: TranslateFields;
+  value: string;
 };
 
-const updateTranslation = (post: Post, translation: TranslateEvent): Post => {
+type TranslatePayload = Record<string, TranslateFields[]>;
+
+const updateTitleTranslation = ({
+  post,
+  translation,
+}: {
+  post: Post;
+  translation: TranslateEvent;
+}): void => {
   const updatedPost = post;
+
   if (post.title) {
-    updatedPost.title = translation.title;
-    updatedPost.translation = { title: !!translation.title };
+    updatedPost.title = translation.value;
+    updatedPost.translation = { title: !!translation.value };
   } else {
-    updatedPost.sharedPost.title = translation.title;
-    updatedPost.sharedPost.translation = { title: !!translation.title };
+    updatedPost.sharedPost.title = translation.value;
+    updatedPost.sharedPost.translation = { title: !!translation.value };
+  }
+};
+
+const updateTranslation = ({
+  post,
+  translation,
+  clickbaitShieldEnabled,
+}: {
+  post: Post;
+  translation: TranslateEvent;
+  clickbaitShieldEnabled: boolean;
+}): Post => {
+  const updatedPost = post;
+
+  const shouldUseSmartTitle =
+    post.clickbaitTitleDetected && clickbaitShieldEnabled;
+
+  switch (translation.field) {
+    case 'title':
+      if (shouldUseSmartTitle) {
+        break;
+      }
+
+      updateTitleTranslation({ post, translation });
+
+      break;
+    case 'smartTitle':
+      if (!shouldUseSmartTitle) {
+        break;
+      }
+
+      updateTitleTranslation({ post, translation });
+
+      break;
+    default:
+      break;
   }
 
   return updatedPost;
 };
 
-export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
+export const useTranslation: UseTranslation = ({
+  queryKey,
+  queryType,
+  clickbaitShieldEnabled: clickbaitShieldEnabledProp,
+}) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
   const { flags } = useSettingsContext();
   const queryClient = useQueryClient();
+  const clickbaitShieldEnabled = !!(
+    clickbaitShieldEnabledProp ?? flags?.clickbaitShieldEnabled
+  );
 
   const { language } = user || {};
   const isStreamActive = isLoggedIn && !!language;
@@ -68,45 +124,40 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         updatePost(
           pageIndex,
           index,
-          updateTranslation(
-            feedData.pages[pageIndex].page.edges[index].node,
-            translatedPost,
-          ),
+          updateTranslation({
+            post: feedData.pages[pageIndex].page.edges[index].node,
+            translation: translatedPost,
+            clickbaitShieldEnabled,
+          }),
         );
       }
     },
-    [queryKey, queryClient],
+    [queryKey, queryClient, clickbaitShieldEnabled],
   );
 
   const updatePost = useCallback(
     (translatedPost: TranslateEvent) => {
       updatePostCache(queryClient, translatedPost.id, (post) =>
-        updateTranslation(post, translatedPost),
+        updateTranslation({
+          post,
+          translation: translatedPost,
+          clickbaitShieldEnabled,
+        }),
       );
     },
-    [queryClient],
+    [queryClient, clickbaitShieldEnabled],
   );
 
   const fetchTranslations = useCallback(
     async (posts: Post[]) => {
       if (!isStreamActive) {
-        return;
+        return [];
       }
       if (posts.length === 0) {
-        return;
+        return [];
       }
 
-      const postIds = posts
-        .filter((node) =>
-          node?.title
-            ? !node?.translation?.title
-            : !node?.sharedPost?.translation?.title,
-        )
-        .filter((node) =>
-          flags?.clickbaitShieldEnabled && node?.title
-            ? !node.clickbaitTitleDetected
-            : !node.sharedPost?.clickbaitTitleDetected,
-        )
+      const postsToTranslate = posts
         .filter(
           (post) =>
             !(
@@ -115,34 +166,62 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
             ),
         )
         .filter(Boolean)
-        .map((node) => (node?.title ? node.id : node?.sharedPost.id));
+        .map((node) => (node?.title ? node : node?.sharedPost));
 
-      if (postIds.length === 0) {
-        return;
+      if (postsToTranslate.length === 0) {
+        return [];
       }
 
-      const params = new URLSearchParams();
-      postIds.forEach((id) => {
-        params.append('id', id);
-      });
+      const payload = postsToTranslate.reduce((acc, post) => {
+        const fields = [];
 
-      const response = await fetch(`${apiUrl}/translate/post/title?${params}`, {
+        const shouldUseSmartTitle =
+          post.clickbaitTitleDetected && clickbaitShieldEnabled;
+
+        if (shouldUseSmartTitle && !post.translation?.smartTitle) {
+          fields.push('smartTitle');
+        }
+
+        if (!shouldUseSmartTitle && !post.translation?.title) {
+          fields.push('title');
+        }
+
+        if (fields.length > 0) {
+          acc[post.id] = fields;
+        }
+
+        return acc;
+      }, {} as TranslatePayload);
+
+      if (Object.keys(payload).length === 0) {
+        return [];
+      }
+
+      const response = await fetch(`${apiUrl}/translate/post`, {
         signal: abort.current?.signal,
+        method: 'POST',
         headers: {
           Accept: 'text/event-stream',
           Authorization: `Bearer ${accessToken?.token}`,
           'Content-Language': language as string,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        return;
+        return [];
       }
+
+      const results: TranslateEvent[] = [];
 
       // eslint-disable-next-line no-restricted-syntax
       for await (const message of events(response)) {
         if (message.event === ServerEvents.Message) {
           const post = JSON.parse(message.data) as TranslateEvent;
+
+          results.push(post);
+
           if (queryType === 'feed') {
             updateFeed(post);
           } else {
@@ -150,15 +229,17 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
           }
         }
       }
+
+      return results;
     },
     [
       accessToken?.token,
-      flags?.clickbaitShieldEnabled,
       isStreamActive,
       language,
       queryType,
       updateFeed,
       updatePost,
+      clickbaitShieldEnabled,
     ],
   );
 
