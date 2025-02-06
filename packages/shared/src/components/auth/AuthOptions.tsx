@@ -31,6 +31,7 @@ import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
+import { broadcastMessage } from '../../lib/func';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -403,6 +404,16 @@ function AuthOptions({
     setIsForgotPasswordReturn(true);
     onSetActiveDisplay(defaultDisplay);
   };
+
+  useEffect(() => {
+    console.log('MOUNTED');
+
+    broadcastMessage({ eventKey: 'test' });
+
+    return () => {
+      console.log('UNMOUNTED');
+    };
+  }, []);
 
   return (
     <div
