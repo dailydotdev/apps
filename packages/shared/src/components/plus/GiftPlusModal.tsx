@@ -220,7 +220,7 @@ export function GiftPlusModalComponent({
             </div>
           )}
         </ConditionalRender>
-        <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
+        <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2 py-3">
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
