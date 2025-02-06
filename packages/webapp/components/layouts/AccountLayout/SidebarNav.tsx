@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { useRouter } from 'next/router';
@@ -33,7 +33,7 @@ function SidebarNav({
     queryFn: () => false,
     ...disabledRefetch,
   });
-  const { user } = useContext(AuthContext);
+  const { user } = useAuthContext();
 
   useEffect(() => {
     if (!isTouchDevice()) {
