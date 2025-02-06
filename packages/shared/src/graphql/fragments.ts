@@ -227,6 +227,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     language
     translation {
       title
+      smartTitle
     }
   }
 `;

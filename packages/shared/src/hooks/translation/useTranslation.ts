@@ -37,6 +37,24 @@ type TranslateEvent = {
 
 type TranslatePayload = Record<string, TranslateFields[]>;
 
+const updateTitleTranslation = ({
+  post,
+  translation,
+}: {
+  post: Post;
+  translation: TranslateEvent;
+}): void => {
+  const updatedPost = post;
+
+  if (post.title) {
+    updatedPost.title = translation.value;
+    updatedPost.translation = { title: !!translation.value };
+  } else {
+    updatedPost.sharedPost.title = translation.value;
+    updatedPost.sharedPost.translation = { title: !!translation.value };
+  }
+};
+
 const updateTranslation = ({
   post,
   translation,
@@ -57,23 +75,15 @@ const updateTranslation = ({
         break;
       }
 
-      if (post.title) {
-        updatedPost.title = translation.value;
-        updatedPost.translation = { title: !!translation.value };
-      } else {
-        updatedPost.sharedPost.title = translation.value;
-        updatedPost.sharedPost.translation = { title: !!translation.value };
-      }
+      updateTitleTranslation({ post, translation });
+
       break;
     case 'smartTitle':
       if (!shouldUseSmartTitle) {
         break;
       }
 
-      if (post.title) {
-        updatedPost.title = translation.value;
-        updatedPost.translation = { title: !!translation.value };
-      }
+      updateTitleTranslation({ post, translation });
 
       break;
     default:
@@ -139,12 +149,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         return;
       }
 
-      const postIds = posts
-        .filter((node) =>
-          node?.title
-            ? !node?.translation?.title
-            : !node?.sharedPost?.translation?.title,
-        )
+      const postsToTranslate = posts
         .filter(
           (post) =>
             !(
@@ -153,17 +158,36 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
             ),
         )
         .filter(Boolean)
-        .map((node) => (node?.title ? node.id : node?.sharedPost.id));
+        .map((node) => (node?.title ? node : node?.sharedPost));
 
-      if (postIds.length === 0) {
+      if (postsToTranslate.length === 0) {
         return;
       }
 
-      const payload = postIds.reduce((acc, postId) => {
-        acc[postId] = ['title', 'smartTitle'];
+      const payload = postsToTranslate.reduce((acc, post) => {
+        const fields = [];
+
+        const shouldUseSmartTitle =
+          post.clickbaitTitleDetected && flags?.clickbaitShieldEnabled;
+
+        if (shouldUseSmartTitle && !post.translation?.smartTitle) {
+          fields.push('smartTitle');
+        }
+
+        if (!shouldUseSmartTitle && !post.translation?.title) {
+          fields.push('title');
+        }
+
+        if (fields.length > 0) {
+          acc[post.id] = fields;
+        }
 
         return acc;
       }, {} as TranslatePayload);
+
+      if (Object.keys(payload).length === 0) {
+        return;
+      }
 
       const response = await fetch(`${apiUrl}/translate/post`, {
         signal: abort.current?.signal,
@@ -200,6 +224,7 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
       queryType,
       updateFeed,
       updatePost,
+      flags?.clickbaitShieldEnabled,
     ],
   );
 

@@ -128,7 +128,7 @@ export interface Post {
   bookmarkList?: BookmarkFolder;
   domain?: string;
   clickbaitTitleDetected?: boolean;
-  translation?: { title?: boolean };
+  translation?: { title?: boolean; smartTitle?: boolean };
   language?: string;
 }
 
