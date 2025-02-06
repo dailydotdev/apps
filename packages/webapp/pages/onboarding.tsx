@@ -52,7 +52,6 @@ import {
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
   useConditionalFeature,
-  useEventListener,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -61,10 +60,7 @@ import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import {
-  BROADCAST_CHANNEL,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
@@ -452,10 +448,6 @@ export function OnboardPage(): ReactElement {
     isAuthLoading &&
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
-
-  useEventListener(BROADCAST_CHANNEL, 'message', () => {
-    console.log('broadcast message received from onboarding');
-  });
 
   if (!isPageReady) {
     return null;
