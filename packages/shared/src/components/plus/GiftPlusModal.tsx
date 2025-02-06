@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
 import {
@@ -29,11 +30,22 @@ import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import Link from '../utilities/Link';
 import { useViewSize, ViewSize } from '../../hooks';
+import { Image } from '../image/Image';
+import { fallbackImages } from '../../lib/config';
+import { sizeClasses } from '../ProfilePicture';
+import { ConditionalRender } from '../ConditionalWrapper';
+import { Separator } from '../cards/common/common';
+import { IconSize } from '../Icon';
+import { ReputationUserBadge } from '../ReputationUserBadge';
+import classed from '../../lib/classed';
+import JoinedDate from '../profile/JoinedDate';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
   onSelected?: (user: UserShortProfile) => void;
 }
+
+const UserText = classed('span', 'flex flex-row items-center justify-center');
 
 export function GiftPlusModalComponent({
   preselected,
@@ -117,7 +129,7 @@ export function GiftPlusModalComponent({
       overlayRef={setOverlay}
       isDrawerOnMobile
     >
-      <Modal.Body className="gap-4 tablet:!px-4">
+      <Modal.Body className="gap-4 tablet:!p-4">
         <div className="flex flex-row justify-between">
           <PlusTitle type={TypographyType.Callout} bold />
           <CloseButton
@@ -126,52 +138,88 @@ export function GiftPlusModalComponent({
             onClick={onRequestClose}
           />
         </div>
-        <Typography bold type={TypographyType.Title1}>
+        <Typography bold type={TypographyType.Title1} className="text-center">
           Gift daily.dev Plus 🎁
         </Typography>
-        {selected ? (
-          <GiftingSelectedUser
-            user={selected}
-            onClose={() => setSelected(null)}
+        <div className="flex flex-col items-center gap-2">
+          <Image
+            src={selected?.image ?? fallbackImages.avatar}
+            className={classNames(sizeClasses.xxxxlarge, 'rounded-26')}
           />
-        ) : (
-          <div className="flex flex-col">
-            <BaseTooltip
-              appendTo={isTablet ? overlay : globalThis?.document?.body}
-              onClickOutside={() => setQuery('')}
-              visible={isVisible}
-              showArrow={false}
-              interactive
-              content={
-                <RecommendedMention
-                  className="w-[24rem]"
-                  users={users}
-                  selected={index}
-                  onClick={onSelect}
-                  checkIsDisabled={(user) => user.isPlus}
-                  disabledTooltip="This user already has daily.dev Plus"
+          {preselected && (
+            <>
+              <UserText>
+                <Typography bold type={TypographyType.Title3}>
+                  {preselected.name}
+                </Typography>
+                <ReputationUserBadge
+                  className="ml-0.5 !typo-footnote"
+                  user={{ reputation: preselected.reputation }}
+                  iconProps={{ size: IconSize.XSmall }}
+                  disableTooltip
                 />
-              }
-              container={{
-                className: 'shadow',
-                paddingClassName: 'p-0',
-                roundedClassName: 'rounded-16',
-                bgClassName: 'bg-accent-pepper-subtlest',
-              }}
-            >
-              <TextField
-                leftIcon={<UserIcon />}
-                inputId="search_user"
-                fieldType="tertiary"
-                autoComplete="off"
-                label="Select a recipient by name or handle"
-                onKeyDown={onKeyDown}
-                onChange={(e) => onSearch(e.currentTarget.value.trim())}
-                onFocus={(e) => setQuery(e.currentTarget.value.trim())}
-              />
-            </BaseTooltip>
-          </div>
-        )}
+              </UserText>
+              <UserText>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                >
+                  @{preselected.username}
+                </Typography>
+                <Separator />
+                <JoinedDate
+                  className="text-text-quaternary typo-caption2"
+                  date={new Date(preselected.createdAt)}
+                />
+              </UserText>
+            </>
+          )}
+        </div>
+        <ConditionalRender condition={!preselected}>
+          {selected ? (
+            <GiftingSelectedUser
+              user={selected}
+              onClose={() => setSelected(null)}
+            />
+          ) : (
+            <div className="flex flex-col">
+              <BaseTooltip
+                appendTo={isTablet ? overlay : globalThis?.document?.body}
+                onClickOutside={() => setQuery('')}
+                visible={isVisible}
+                showArrow={false}
+                interactive
+                content={
+                  <RecommendedMention
+                    className="w-[24rem]"
+                    users={users}
+                    selected={index}
+                    onClick={onSelect}
+                    checkIsDisabled={(user) => user.isPlus}
+                    disabledTooltip="This user already has daily.dev Plus"
+                  />
+                }
+                container={{
+                  className: 'shadow',
+                  paddingClassName: 'p-0',
+                  roundedClassName: 'rounded-16',
+                  bgClassName: 'bg-accent-pepper-subtlest',
+                }}
+              >
+                <TextField
+                  leftIcon={<UserIcon />}
+                  inputId="search_user"
+                  fieldType="tertiary"
+                  autoComplete="off"
+                  label="Select a recipient by name or handle"
+                  onKeyDown={onKeyDown}
+                  onChange={(e) => onSearch(e.currentTarget.value.trim())}
+                  onFocus={(e) => setQuery(e.currentTarget.value.trim())}
+                />
+              </BaseTooltip>
+            </div>
+          )}
+        </ConditionalRender>
         <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2">
           <Typography bold type={TypographyType.Callout}>
             One-year plan
