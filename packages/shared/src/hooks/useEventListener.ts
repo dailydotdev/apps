@@ -143,22 +143,12 @@ const useEventListener = <
     const targetElement =
       target && 'current' in target ? target.current : (target as T);
 
-    if (eventType === 'message') {
-      console.log('message event registration detected');
-    }
-
     if (targetElement && eventType && eventListener) {
-      if (eventType === 'message') {
-        console.log('message event listener added');
-      }
       targetElement.addEventListener(eventType, eventListener, eventOptions);
     }
 
     return () => {
       if (targetElement && eventType && eventListener) {
-        if (eventType === 'message') {
-          console.log('message event listener cleanup');
-        }
         targetElement.removeEventListener(
           eventType,
           eventListener,
