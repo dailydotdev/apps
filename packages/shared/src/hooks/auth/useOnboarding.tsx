@@ -1,21 +1,29 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 
 interface UseOnboarding {
   shouldShowAuthBanner: boolean;
-  isOnboardingReady: boolean;
+}
+
+export const useOnboarding = (): UseOnboarding => {
+  const { isAuthReady, user } = useAuthContext();
+  const shouldShowAuthBanner = isAuthReady && !user;
+
+  return { shouldShowAuthBanner };
+};
+
+interface UseOnboardingActions {
+  isOnboardingActionsReady: boolean;
   hasCompletedEditTags: boolean;
   hasCompletedContentTypes: boolean;
   completeStep: (action: ActionType) => void;
 }
 
-export const useOnboarding = (): UseOnboarding => {
-  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
-  const { isAuthReady, user } = useAuthContext();
-  const shouldShowAuthBanner = isAuthReady && !user;
-
+export const useOnboardingActions = (): UseOnboardingActions => {
+  const { user, isAuthReady } = useAuthContext();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { hasCompletedEditTags, hasCompletedContentTypes } = useMemo(() => {
     /*
       This is the date that completing the onboarding became required.
@@ -32,10 +40,12 @@ export const useOnboarding = (): UseOnboarding => {
   }, [checkHasCompleted, user]);
 
   return {
-    shouldShowAuthBanner,
-    isOnboardingReady: isActionsFetched && isAuthReady,
+    isOnboardingActionsReady: user && isAuthReady && isActionsFetched,
     hasCompletedEditTags,
     hasCompletedContentTypes,
-    completeStep: (action: ActionType) => completeAction(action),
+    completeStep: useCallback(
+      (action: ActionType) => completeAction(action),
+      [completeAction],
+    ),
   };
 };

@@ -51,6 +51,7 @@ import {
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
+  useActions,
   useConditionalFeature,
   useViewSize,
   ViewSize,
@@ -75,7 +76,7 @@ import {
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
@@ -151,18 +152,16 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
-  const {
-    isOnboardingReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-    completeStep,
-  } = useOnboarding();
+  const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
+    useOnboardingActions();
   const router = useRouter();
+  const { isActionsFetched } = useActions();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
     useAuthContext();
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { getFeatureValue } = useFeaturesReadyContext();

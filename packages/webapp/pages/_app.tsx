@@ -34,7 +34,7 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -62,10 +62,12 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
-    useOnboarding();
+  const {
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+    isOnboardingActionsReady,
+  } = useOnboardingActions();
   const didRegisterSwRef = useRef(false);
-
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user } = useAuthContext();
@@ -78,18 +80,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
-      isOnboardingReady &&
+      isOnboardingActionsReady &&
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
     ) {
       router.replace('/onboarding');
     }
-  }, [
-    isOnboardingReady,
-    router,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-  ]);
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasCompletedEditTags, hasCompletedContentTypes]);
 
   useEffect(() => {
     if (
