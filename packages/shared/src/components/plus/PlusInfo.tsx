@@ -51,18 +51,16 @@ export const PlusInfo = ({
       )}
       <Typography
         tag={TypographyTag.H1}
-        type={TypographyType.Mega2}
         color={TypographyColor.Primary}
-        className="mb-2"
+        className="mb-2 typo-title1 laptop:typo-mega2"
         bold
       >
         Fast-track your growth
       </Typography>
       <Typography
         tag={TypographyTag.H2}
-        type={TypographyType.Title3}
         color={TypographyColor.Secondary}
-        className="mb-6"
+        className="mb-6 typo-callout laptop:typo-title3"
       >
         Work smarter, learn faster, and stay ahead with AI tools, custom feeds,
         and pro features. Because copy-pasting code isn’t a long-term strategy.
