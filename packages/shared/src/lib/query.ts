@@ -194,6 +194,7 @@ export enum RequestKey {
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
+  Prompts = 'smart_prompts',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

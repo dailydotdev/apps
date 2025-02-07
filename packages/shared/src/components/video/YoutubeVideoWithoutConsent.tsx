@@ -18,7 +18,7 @@ export interface YoutubeVideoWithoutConsentProps {
 
 const Container = classed(
   'div',
-  'relative w-full overflow-hidden rounded-16 pt-[56.25%]',
+  'relative mb-7 w-full overflow-hidden rounded-16 pt-[56.25%]',
 );
 
 const Background = classed(

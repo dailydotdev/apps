@@ -15,13 +15,6 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { ReactNode } from 'react';
 import React from 'react';
-import {
-  faq,
-  privacyPolicy,
-  reportIssue,
-  requestFeature,
-  termsOfService,
-} from '@dailydotdev/shared/src/lib/constants';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;
@@ -57,39 +50,6 @@ export enum AccountSecurityDisplay {
   VerifyEmail = 'verify_email',
   ConnectEmail = 'connect_email',
 }
-
-interface AccountSidebarPage {
-  title: string;
-  href: string;
-  target: string;
-}
-export const accountSidebarPages: AccountSidebarPage[] = [
-  {
-    title: 'FAQ',
-    href: faq,
-    target: '_blank',
-  },
-  {
-    title: 'Request a feature',
-    href: requestFeature,
-    target: '_blank',
-  },
-  {
-    title: 'Report an issue',
-    href: reportIssue,
-    target: '_blank',
-  },
-  {
-    title: 'Privacy policy',
-    href: privacyPolicy,
-    target: '_blank',
-  },
-  {
-    title: 'Terms of service',
-    href: termsOfService,
-    target: '_blank',
-  },
-];
 
 export const accountPage: Record<AccountPage, AccountPageProps> = {
   profile: {
