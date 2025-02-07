@@ -67,6 +67,8 @@ export function GiftPlusModalComponent({
         query,
       });
 
+      setIndex(0);
+
       return result.recommendedMentions;
     },
     enabled: !!query?.length,
@@ -75,6 +77,10 @@ export function GiftPlusModalComponent({
   const onKeyDown = (e: React.KeyboardEvent) => {
     const movement = [ArrowKey.Up, ArrowKey.Down, KeyboardCommand.Enter];
     if (!movement.includes(e.key as (typeof movement)[number])) {
+      return;
+    }
+
+    if (!users?.length) {
       return;
     }
 
