@@ -48,7 +48,7 @@ import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
 
 const useMenuItems = (): NavItemProps[] => {
   const { promptToInstall, isAvailable } = useInstallPWA();
-  const { logout, isAndroidApp, isGdprCovered } = useAuthContext();
+  const { logout, isAndroidApp } = useAuthContext();
   const { value: androidPWAExperiment } = useConditionalFeature({
     feature: featureAndroidPWA,
     shouldEvaluate:
@@ -126,11 +126,8 @@ const useMenuItems = (): NavItemProps[] => {
         href: '/account/invite',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
+      { label: 'Privacy', icon: <PrivacyIcon />, href: '/account/privacy' },
     );
-
-    if (isGdprCovered) {
-      items.push({ label: 'Privacy', icon: <PrivacyIcon />, href: '/privacy' });
-    }
 
     return [
       ...items,
@@ -215,7 +212,6 @@ const useMenuItems = (): NavItemProps[] => {
     ].filter(Boolean);
   }, [
     isPlus,
-    isGdprCovered,
     logSubscriptionEvent,
     onLogout,
     openModal,
