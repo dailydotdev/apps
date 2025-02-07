@@ -1,16 +1,20 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
+import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,
 }: CommonPlusPageProps): ReactElement => {
-  const { openCheckout, paddle, productOptions } = usePaymentContext();
+  const { openCheckout, paddle, productOptions, giftOneYear } =
+    usePaymentContext();
+  const { giftToUser } = useGiftUserContext();
   const {
     query: { selectedPlan },
   } = useRouter();
@@ -18,10 +22,10 @@ export const PlusDesktop = ({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
 
-  const toggleCheckoutOption = useCallback(
-    (priceId) => {
+  const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
+    ({ priceId, giftToUserId }) => {
       setSelectedOption(priceId);
-      openCheckout({ priceId });
+      openCheckout({ priceId, giftToUserId });
     },
     [openCheckout],
   );
@@ -31,12 +35,26 @@ export const PlusDesktop = ({
       return;
     }
 
+    if (giftToUser) {
+      if (!giftOneYear || selectedOption) {
+        return;
+      }
+
+      const { value } = giftOneYear;
+      setSelectedOption(value);
+      openCheckout({ priceId: value, giftToUserId: giftToUser.id });
+
+      return;
+    }
+
     const option = initialPaymentOption || productOptions?.[0]?.value;
     if (option && !selectedOption) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
   }, [
+    giftOneYear,
+    giftToUser,
     initialPaymentOption,
     openCheckout,
     paddle,
@@ -50,7 +68,7 @@ export const PlusDesktop = ({
         <PlusInfo
           productOptions={productOptions}
           selectedOption={selectedOption}
-          onChange={toggleCheckoutOption}
+          onChange={onChangeCheckoutOption}
           shouldShowPlusHeader={shouldShowPlusHeader}
         />
       </div>

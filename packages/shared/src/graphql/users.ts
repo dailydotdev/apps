@@ -396,6 +396,14 @@ export const GET_REFERRING_USER_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const getUserShortInfo = async (
+  id: string,
+): Promise<UserShortProfile> => {
+  const res = await gqlClient.request(GET_REFERRING_USER_QUERY, { id });
+
+  return res.user || null;
+};
+
 export enum UserPersonalizedDigestType {
   Digest = 'digest',
   ReadingReminder = 'reading_reminder',
@@ -700,4 +708,20 @@ export const CLEAR_IMAGE_MUTATION = gql`
 
 export const clearImage = async (presets: string[]): Promise<void> => {
   await gqlClient.request(CLEAR_IMAGE_MUTATION, { presets });
+};
+
+export const GET_PLUS_GIFTER_USER = gql`
+  query PlusGifterUser {
+    plusGifterUser {
+      id
+      name
+      image
+      username
+    }
+  }
+`;
+export const getPlusGifterUser = async (): Promise<UserShortProfile> => {
+  const res = await gqlClient.request(GET_PLUS_GIFTER_USER);
+
+  return res.plusGifterUser;
 };

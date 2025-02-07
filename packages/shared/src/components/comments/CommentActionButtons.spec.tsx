@@ -22,6 +22,7 @@ import { UserVoteEntity } from '../../hooks';
 import { UserVote } from '../../graphql/posts';
 import LogContext from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
+import { PaymentContextProvider } from '../../contexts/PaymentContext';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -76,7 +77,9 @@ const renderComponent = (
             sendBeacon: jest.fn(),
           }}
         >
-          <CommentActionButtons {...props} />
+          <PaymentContextProvider>
+            <CommentActionButtons {...props} />
+          </PaymentContextProvider>
         </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

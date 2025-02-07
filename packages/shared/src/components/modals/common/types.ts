@@ -62,6 +62,8 @@ export enum LazyModal {
   AddToCustomFeed = 'addToCustomFeed',
   CookieConsent = 'cookieConsent',
   ReportUser = 'reportUser',
+  GiftPlus = 'giftPlus',
+  GiftPlusReceived = 'giftPlusReceived',
   SmartPrompt = 'smartPrompt',
 }
 

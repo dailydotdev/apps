@@ -143,7 +143,23 @@ const nextConfig: NextConfig = {
           });
         }
 
-        return rewrites;
+        return {
+          beforeFiles: [
+            {
+              source: '/plus',
+              destination: '/plus/gift',
+              has: [
+                {
+                  type: 'query',
+                  key: 'gift',
+                },
+              ],
+            },
+          ],
+          // regular rewrites
+          afterFiles: rewrites,
+          fallback: [],
+        };
       },
       redirects: async () => {
         const oldPublicAssets = [
@@ -175,6 +191,12 @@ const nextConfig: NextConfig = {
           {
             source: '/posts/:id/share',
             destination: '/posts/:id',
+            permanent: false,
+          },
+          // so we can't access /plus/gift route directly
+          {
+            source: '/plus/gift',
+            destination: '/plus',
             permanent: false,
           },
         ];

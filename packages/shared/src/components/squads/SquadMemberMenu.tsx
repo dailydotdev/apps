@@ -11,10 +11,15 @@ import { UserShortInfo } from '../profile/UserShortInfo';
 import type { MenuItemProps } from '../fields/ContextMenu';
 import ContextMenu from '../fields/ContextMenu';
 import type { UseSquadActions } from '../../hooks';
-import { useToastNotification } from '../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import { LazyModal } from '../modals/common/types';
+import { GiftIcon } from '../icons/gift';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LogEvent, TargetId } from '../../lib/log';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -120,9 +125,12 @@ export default function SquadMemberMenu({
   onUpdateRole,
   isOpen,
 }: SquadMemberMenuProps): ReactElement {
+  const { openModal } = useLazyModal();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
+  const { isPlusAvailable } = usePaymentContext();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const onUpdateMember = async (
     role: SourceMemberRole,
     title: MenuItemTitle,
@@ -206,6 +214,23 @@ export default function SquadMemberMenu({
           SourceMemberRole.Blocked,
           MenuItemTitle.BlockMember,
         ),
+      });
+    }
+
+    if (!member.user.isPlus && isPlusAvailable) {
+      menu.push({
+        label: 'Gift daily.dev Plus',
+        action: () => {
+          logSubscriptionEvent({
+            event_name: LogEvent.GiftSubscription,
+            target_id: TargetId.Squad,
+          });
+          openModal({
+            type: LazyModal.GiftPlus,
+            props: { preselected: member.user },
+          });
+        },
+        icon: <GiftIcon />,
       });
     }
 

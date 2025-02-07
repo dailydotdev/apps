@@ -11,6 +11,11 @@ export enum PlusPriceType {
   Yearly = 'yearly',
 }
 
+export enum PlusPriceTypeAppsId {
+  GiftOneYear = 'gift_one_year',
+  EarlyAdopter = 'early_adopter',
+}
+
 export interface FeatureThemeVariant {
   logo?: string;
   logoText?: string;

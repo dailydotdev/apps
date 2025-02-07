@@ -36,6 +36,7 @@ import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
+import { GiftIcon } from './icons/gift';
 
 interface ListItem {
   title: string;
@@ -51,7 +52,7 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user, logout } = useAuthContext();
+  const { user, logout, isValidRegion: isPlusAvailable } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
@@ -152,24 +153,42 @@ export default function ProfileMenu({
           href: `${webappUrl}account/privacy`,
         },
       },
-      {
-        title: 'Logout',
-        buttonProps: {
-          icon: <ExitIcon />,
-          onClick: () => logout(LogoutReason.ManualLogout),
-        },
-      },
     );
+
+    if (isPlusAvailable) {
+      list.push({
+        title: 'Gift daily.dev Plus',
+        buttonProps: {
+          icon: <GiftIcon />,
+          onClick: () => {
+            logSubscriptionEvent({
+              event_name: LogEvent.GiftSubscription,
+              target_id: TargetId.ProfileDropdown,
+            });
+            openModal({ type: LazyModal.GiftPlus });
+          },
+        },
+      });
+    }
+
+    list.push({
+      title: 'Logout',
+      buttonProps: {
+        icon: <ExitIcon />,
+        onClick: () => logout(LogoutReason.ManualLogout),
+      },
+    });
 
     return list.filter(Boolean);
   }, [
-    isDndActive,
+    user.permalink,
+    isPlusAvailable,
     isPlus,
     logSubscriptionEvent,
-    logout,
-    openModal,
+    isDndActive,
     setShowDnd,
-    user.permalink,
+    openModal,
+    logout,
   ]);
 
   if (!user) {

@@ -112,6 +112,7 @@ const useMenuItems = (): NavItemProps[] => {
     }
 
     return [
+      ...items,
       {
         label: 'Invite friends',
         icon: <AddUserIcon />,

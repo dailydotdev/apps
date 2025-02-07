@@ -11,6 +11,7 @@ import comment from '../../../__tests__/fixture/comment';
 import { Origin } from '../../lib/log';
 import post from '../../../__tests__/fixture/post';
 import { useViewSize } from '../../hooks';
+import { PaymentContextProvider } from '../../contexts/PaymentContext';
 
 const onDelete = jest.fn();
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
@@ -64,7 +65,9 @@ const renderLayout = (
           tokenRefreshed: true,
         }}
       >
-        <SubComment {...defaultProps} {...props} />
+        <PaymentContextProvider>
+          <SubComment {...defaultProps} {...props} />
+        </PaymentContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

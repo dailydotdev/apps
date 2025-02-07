@@ -10,7 +10,7 @@ interface RecommendedMentionTooltipProps {
   selected?: number;
   mentions?: UserShortProfile[];
   offset?: number[];
-  onMentionClick?: (username: string) => unknown;
+  onMentionClick?: (user: UserShortProfile) => unknown;
   onClickOutside?: () => void;
   appendTo?: () => HTMLElement;
   elementRef: MutableRefObject<HTMLElement>;
@@ -41,6 +41,7 @@ export function RecommendedMentionTooltip({
       appendTo={appendTo || globalThis?.document?.body || 'parent'}
       content={
         <RecommendedMention
+          className="w-70"
           users={typeof query !== 'undefined' && mentions}
           selected={selected}
           onClick={onMentionClick}

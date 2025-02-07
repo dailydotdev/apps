@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, {
+  useEffect,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -22,7 +22,7 @@ import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { PlusPriceType } from '../lib/featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 
 export type ProductOption = {
   label: string;
@@ -33,12 +33,20 @@ export type ProductOption = {
   extraLabel: string;
 };
 
+interface OpenCheckoutProps {
+  priceId: string;
+  giftToUserId?: string;
+}
+
+export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
+
 export interface PaymentContextData {
-  openCheckout?: ({ priceId }: { priceId: string }) => void;
+  openCheckout?: OpenCheckoutFn;
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
   isPlusAvailable: boolean;
+  giftOneYear?: ProductOption;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>(undefined);
@@ -47,8 +55,6 @@ export default PaymentContext;
 export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
-
-const giftingPriceId = 'pri_01jjvm32ygwb1ja7w52e668fr2';
 
 export const PaymentContextProvider = ({
   children,
@@ -84,9 +90,18 @@ export const PaymentContextProvider = ({
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             logRef.current({
-              event_name: LogEvent.CompleteCheckout,
+              event_name:
+                'gifter_id' in event.data.custom_data
+                  ? LogEvent.CompleteGiftCheckout
+                  : LogEvent.CompleteCheckout,
               extra: {
-                cycle: event?.data.items?.[0]?.billing_cycle.interval,
+                user_id:
+                  'gifter_id' in event.data.custom_data &&
+                  'user_id' in event.data.custom_data
+                    ? event.data.custom_data.user_id
+                    : undefined,
+                cycle:
+                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 localCost: event?.data.totals.total,
                 localCurrenct: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
@@ -121,37 +136,6 @@ export const PaymentContextProvider = ({
     });
   }, [router]);
 
-  const openCheckout = useCallback(
-    ({ priceId }: { priceId: string }) => {
-      if (isPlus) {
-        return;
-      }
-
-      if (!isPlusAvailable) {
-        return;
-      }
-
-      paddle?.Checkout.open({
-        items: [{ priceId, quantity: 1 }],
-        customer: {
-          email: user?.email,
-        },
-        customData: {
-          user_id: user?.id,
-        },
-        settings: {
-          displayMode: 'inline',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-        },
-      });
-    },
-    [paddle, user, isPlusAvailable, isPlus],
-  );
-
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
       items: Object.keys(planTypes).map((priceId) => ({
@@ -172,21 +156,28 @@ export const PaymentContextProvider = ({
 
   const productOptions = useMemo(
     () =>
-      productPrices?.data?.details?.lineItems
-        ?.filter(({ price }) => price.id !== giftingPriceId) // temporary until we ship gifting
-        .map((item) => ({
-          label: item.price.description,
-          value: item.price.id,
-          price: item.formattedTotals.total,
-          priceUnformatted: Number(item.totals.total),
-          currencyCode: productPrices?.data.currencyCode as string,
-          extraLabel: item.price.customData?.label as string,
-        })) ?? [],
+      productPrices?.data?.details?.lineItems?.map((item) => ({
+        label: item.price.description,
+        value: item.price.id,
+        price: item.formattedTotals.total,
+        priceUnformatted: Number(item.totals.total),
+        currencyCode: productPrices?.data.currencyCode as string,
+        extraLabel: item.price.customData?.label as string,
+        appsId: item.price.customData?.appsId as string,
+      })) ?? [],
     [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
   );
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
     useMemo(() => {
+      const earlyAdopter = productOptions.find(
+        ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      );
+
+      if (earlyAdopter?.value) {
+        return earlyAdopter.value;
+      }
+
       const monthlyPrices = productOptions.filter(
         (option) => planTypes[option.value] === PlusPriceType.Monthly,
       );
@@ -200,15 +191,72 @@ export const PaymentContextProvider = ({
       }).value;
     }, [planTypes, productOptions]);
 
+  const giftOneYear: ProductOption = useMemo(
+    () =>
+      productOptions.find(
+        ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
+      ),
+    [productOptions],
+  );
+
+  const openCheckout = useCallback(
+    ({ priceId, giftToUserId }: OpenCheckoutProps) => {
+      if (isPlus && priceId !== giftOneYear?.value) {
+        return;
+      }
+
+      if (!isPlusAvailable) {
+        return;
+      }
+
+      paddle?.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: {
+          email: user?.email,
+        },
+        customData: {
+          user_id: giftToUserId ?? user?.id,
+          ...(!!giftToUserId && { gifter_id: user?.id }),
+        },
+        settings: {
+          displayMode: 'inline',
+          frameTarget: 'checkout-container',
+          frameInitialHeight: 500,
+          frameStyle:
+            'width: 100%; background-color: transparent; border: none;',
+          theme: 'dark',
+        },
+      });
+    },
+    [
+      giftOneYear?.value,
+      isPlus,
+      isPlusAvailable,
+      paddle?.Checkout,
+      user?.email,
+      user?.id,
+    ],
+  );
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
-      productOptions,
+      productOptions: productOptions.filter(
+        ({ value }) => value !== giftOneYear?.value,
+      ),
       earlyAdopterPlanId,
       isPlusAvailable,
+      giftOneYear,
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions, isPlusAvailable],
+    [
+      giftOneYear,
+      earlyAdopterPlanId,
+      openCheckout,
+      paddle,
+      productOptions,
+      isPlusAvailable,
+    ],
   );
 
   return (

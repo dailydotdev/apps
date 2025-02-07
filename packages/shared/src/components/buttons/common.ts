@@ -210,7 +210,6 @@ export const useGetIconWithSize = (
       className: classNames(
         icon.props.className,
         !iconOnly && 'text-base',
-        !iconOnly && !icon.props?.size && '!h-6 !w-6',
         !iconOnly && iconPosition === ButtonIconPosition.Left && 'mr-1',
         !iconOnly &&
           !icon.props?.size &&
