@@ -34,7 +34,7 @@ import {
   FIREFOX_ACCEPTED_PERMISSION,
   FirefoxPermissionType,
 } from '@dailydotdev/shared/src/lib/cookie';
-import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -55,11 +55,7 @@ Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
-  const {
-    isOnboardingActionsReady,
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-  } = useOnboardingActions();
+  const { hasCompletedContentTypes, hasCompletedEditTags } = useOnboarding();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -80,9 +76,7 @@ function InternalApp(): ReactElement {
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
   const shouldRedirectOnboarding =
-    isPageReady &&
-    (!user || (isOnboardingActionsReady && !isOnboardingComplete)) &&
-    !isTesting;
+    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 
   useEffect(() => {
