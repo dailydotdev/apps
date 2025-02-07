@@ -132,7 +132,15 @@ export const useSmartPrompt = ({
       source.addEventListener('message', onMessage);
       sourceRef.current = source;
     },
-    [accessToken?.token, client, post, queryKey],
+    [
+      accessToken?.token,
+      client,
+      lastPrompt,
+      post,
+      prompt.id,
+      queryKey,
+      updateFlag,
+    ],
   );
 
   useEffect(() => {
