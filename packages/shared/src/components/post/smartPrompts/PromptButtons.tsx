@@ -73,9 +73,21 @@ export const PromptButtons = ({
   const { data, isLoading } = usePromptsQuery();
   const { flags: settingFlags } = useSettingsContext();
   const { prompt: promptFlags } = settingFlags || {};
+  const lastPrompt = settingFlags?.lastPrompt;
   const prompts = useMemo(() => {
-    return data?.filter((prompt) => promptFlags?.[prompt.id] !== false);
-  }, [data, promptFlags]);
+    const filteredPrompts = data?.filter(
+      (prompt) => promptFlags?.[prompt.id] !== false,
+    );
+    if (lastPrompt) {
+      filteredPrompts?.unshift(
+        filteredPrompts?.splice(
+          filteredPrompts.findIndex((item) => item.id === lastPrompt),
+          1,
+        )[0],
+      );
+    }
+    return filteredPrompts;
+  }, [data, lastPrompt, promptFlags]);
 
   const { isPlus } = usePlusSubscription();
   const promptList = usePromptButtons({

@@ -17,6 +17,7 @@ import {
 } from '../../graphql/search';
 import type { CreatePayload, TokenPayload, UseChatMessage } from '../chat';
 import { UseChatMessageType } from '../chat';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export const useSmartPrompt = ({
   post,
@@ -30,6 +31,8 @@ export const useSmartPrompt = ({
   isPending: boolean;
 } => {
   const { user, accessToken } = useAuthContext();
+  const { flags, updateFlag } = useSettingsContext();
+  const lastPrompt = flags?.lastPrompt;
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
 
@@ -43,6 +46,12 @@ export const useSmartPrompt = ({
     enabled: !!prompt.prompt,
     staleTime: StaleTime.OneHour,
   });
+
+  console.log('made it here?');
+  if (lastPrompt !== prompt.id) {
+    console.log('doing update?');
+    updateFlag('lastPrompt', prompt.id);
+  }
 
   const executePrompt = useCallback(
     async (value: string) => {
@@ -93,6 +102,10 @@ export const useSmartPrompt = ({
           case UseChatMessageType.Completed: {
             setSearchQuery({ completedAt: new Date() });
             sourceRef.current?.close();
+            console.log('made it here?');
+            if (lastPrompt !== prompt.id) {
+              updateFlag('lastPrompt', prompt.id);
+            }
             break;
           }
           case UseChatMessageType.Error: {
