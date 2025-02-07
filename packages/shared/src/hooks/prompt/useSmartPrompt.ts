@@ -47,12 +47,6 @@ export const useSmartPrompt = ({
     staleTime: StaleTime.OneHour,
   });
 
-  console.log('made it here?');
-  if (lastPrompt !== prompt.id) {
-    console.log('doing update?');
-    updateFlag('lastPrompt', prompt.id);
-  }
-
   const executePrompt = useCallback(
     async (value: string) => {
       if (!value) {
@@ -102,7 +96,6 @@ export const useSmartPrompt = ({
           case UseChatMessageType.Completed: {
             setSearchQuery({ completedAt: new Date() });
             sourceRef.current?.close();
-            console.log('made it here?');
             if (lastPrompt !== prompt.id) {
               updateFlag('lastPrompt', prompt.id);
             }
