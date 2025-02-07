@@ -210,8 +210,16 @@ export const useGetIconWithSize = (
       className: classNames(
         icon.props.className,
         !iconOnly && 'text-base',
-        !iconOnly && iconPosition === ButtonIconPosition.Left && '-ml-2 mr-1',
-        !iconOnly && iconPosition === ButtonIconPosition.Right && '-mr-2 ml-1',
+        !iconOnly && iconPosition === ButtonIconPosition.Left && 'mr-1',
+        !iconOnly &&
+          !icon.props?.size &&
+          iconPosition === ButtonIconPosition.Left &&
+          '-ml-2',
+        !iconOnly && iconPosition === ButtonIconPosition.Right && 'ml-1',
+        !iconOnly &&
+          !icon.props?.size &&
+          iconPosition === ButtonIconPosition.Right &&
+          '-mr-2',
       ),
     });
 };

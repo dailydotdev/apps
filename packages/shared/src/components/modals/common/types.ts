@@ -64,6 +64,7 @@ export enum LazyModal {
   ReportUser = 'reportUser',
   GiftPlus = 'giftPlus',
   GiftPlusReceived = 'giftPlusReceived',
+  SmartPrompt = 'smartPrompt',
 }
 
 export type ModalTabItem = {

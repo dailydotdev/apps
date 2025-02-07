@@ -12,21 +12,13 @@ import {
   DocsIcon,
   TerminalIcon,
   FeedbackIcon,
-  HammerIcon,
   AppIcon,
   DevPlusIcon,
   PrivacyIcon,
   DownloadIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
-import {
-  docs,
-  feedback,
-  managePlusUrl,
-  plusUrl,
-  privacyPolicy,
-  termsOfService,
-} from '../../lib/constants';
+import { docs, feedback, managePlusUrl, plusUrl } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -119,7 +111,8 @@ const useMenuItems = (): NavItemProps[] => {
       });
     }
 
-    items.push(
+    return [
+      ...items,
       {
         label: 'Invite friends',
         icon: <AddUserIcon />,
@@ -127,10 +120,6 @@ const useMenuItems = (): NavItemProps[] => {
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
       { label: 'Privacy', icon: <PrivacyIcon />, href: '/account/privacy' },
-    );
-
-    return [
-      ...items,
       {
         label: 'Logout',
         icon: <ExitIcon />,
@@ -192,20 +181,6 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Feedback',
         icon: <FeedbackIcon />,
         href: feedback,
-        target: '_blank',
-        rel: anchorDefaultRel,
-      },
-      {
-        label: 'Privacy policy',
-        icon: <DocsIcon />,
-        href: privacyPolicy,
-        target: '_blank',
-        rel: anchorDefaultRel,
-      },
-      {
-        label: 'Terms of service',
-        icon: <HammerIcon />,
-        href: termsOfService,
         target: '_blank',
         rel: anchorDefaultRel,
       },

@@ -351,9 +351,13 @@ export const useMarkdownInput = ({
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const pastedText = e.clipboardData.getData('text');
     if (isValidHttpUrl(pastedText)) {
-      e.preventDefault();
-      await onLinkPaste(pastedText);
-      return;
+      const cursor = getCursorType(textarea);
+
+      if (cursor === CursorType.Highlighted) {
+        e.preventDefault();
+        await onLinkPaste(pastedText);
+        return;
+      }
     }
 
     if (e.clipboardData.files?.length && isUploadEnabled) {
