@@ -77,13 +77,14 @@ const PlusBillingCycleSwitch = ({
   );
 };
 
+const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
   <div className="flex flex-col items-center">
     <div className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8">
       <ElementPlaceholder className="mx-auto inline-block h-10 w-80 rounded-10" />
     </div>
     <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
-      {Array.from({ length: 2 }, (_, i) => i).map((index) => (
+      {switchSkeletonItems.map((index) => (
         <div
           key={index}
           className={classNames(
