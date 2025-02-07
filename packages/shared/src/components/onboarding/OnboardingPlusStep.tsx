@@ -119,7 +119,6 @@ export const OnboardingPlusStep = ({
     () => productOptions.filter(({ value }) => value !== earlyAdopterPlanId),
     [productOptions, earlyAdopterPlanId],
   );
-  const isLoading = !items.length;
 
   return (
     <section className="flex max-w-screen-laptop flex-col tablet:px-10">
@@ -142,7 +141,7 @@ export const OnboardingPlusStep = ({
           strategy.
         </Typography>
       </header>
-      {!isLoading ? (
+      {items.length ? (
         <>
           <PlusBillingCycleSwitch
             productOptions={items}
