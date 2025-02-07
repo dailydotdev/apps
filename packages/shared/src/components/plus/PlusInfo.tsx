@@ -22,6 +22,7 @@ import {
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
 import type { CommonPlusPageProps } from './common';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -29,6 +30,25 @@ type PlusInfoProps = {
   onChange: (priceId: string) => void;
   onContinue?: () => void;
 };
+
+const skeletonItems = Array.from({ length: 3 }, (_, i) => i);
+const RadioGroupSkeleton = () => (
+  <div>
+    {skeletonItems.map((index) => (
+      <div
+        key={index}
+        className={classNames(
+          'flex min-h-12 items-center justify-between gap-2 rounded-10 !p-2',
+          index === 0 &&
+            '-m-px border border-border-subtlest-primary bg-surface-float',
+        )}
+      >
+        <ElementPlaceholder className="h-4 w-2/3" />
+        <ElementPlaceholder className="h-4 w-1/5" />
+      </div>
+    ))}
+  </div>
+);
 
 export const PlusInfo = ({
   productOptions,
@@ -77,6 +97,7 @@ export const PlusInfo = ({
         Billing cycle
       </Typography>
       <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
+        {productOptions.length === 0 && <RadioGroupSkeleton />}
         {productOptions.map((option) => {
           const { label, value, price, currencyCode, extraLabel } = option;
           const checked = selectedOption === value;
