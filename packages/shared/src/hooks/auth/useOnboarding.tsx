@@ -5,7 +5,7 @@ import { ActionType } from '../../graphql/actions';
 
 interface UseOnboarding {
   shouldShowAuthBanner: boolean;
-  isOnboardingReady: boolean;
+  isOnboardingActionsReady: boolean;
   hasCompletedEditTags: boolean;
   hasCompletedContentTypes: boolean;
   completeStep: (action: ActionType) => void;
@@ -33,7 +33,7 @@ export const useOnboarding = (): UseOnboarding => {
 
   return {
     shouldShowAuthBanner,
-    isOnboardingReady: isActionsFetched && isAuthReady,
+    isOnboardingActionsReady: isActionsFetched && isAuthReady,
     hasCompletedEditTags,
     hasCompletedContentTypes,
     completeStep: (action: ActionType) => completeAction(action),

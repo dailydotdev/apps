@@ -51,6 +51,7 @@ import {
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
+  useActions,
   useConditionalFeature,
   useViewSize,
   ViewSize,
@@ -151,18 +152,15 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
-  const {
-    isOnboardingReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-    completeStep,
-  } = useOnboarding();
+  const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
+    useOnboarding();
   const router = useRouter();
   const { setSettings } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
     useAuthContext();
+  const { isActionsFetched } = useActions();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -222,6 +220,8 @@ export function OnboardPage(): ReactElement {
     OnboardingStep.InstallDesktop,
     OnboardingStep.AndroidPWA,
   ].includes(activeScreen);
+
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
     if (
