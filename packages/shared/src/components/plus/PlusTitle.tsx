@@ -24,7 +24,7 @@ export function PlusTitle(
       {...typography}
       className={classnames('flex flex-row items-center gap-0.5', className)}
     >
-      <DevPlusIcon size={IconSize.Size16} /> Plus
+      <DevPlusIcon size={IconSize.XSmall} /> Plus
     </Typography>
   );
 }

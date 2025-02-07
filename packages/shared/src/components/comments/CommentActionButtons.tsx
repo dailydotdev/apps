@@ -52,7 +52,6 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { GiftIcon } from '../icons/gift';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -89,7 +88,7 @@ export default function CommentActionButtons({
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
-  const { isPlusAvailable } = usePaymentContext();
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
   const [voteState, setVoteState] = useState<VoteEntityPayload>(() => {
     return {
