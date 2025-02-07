@@ -12,6 +12,8 @@ import {
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusComparingCards } from '../plus/PlusComparingCards';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
 
 interface OnboardingStepProps {
   onClickNext: () => void;
@@ -75,6 +77,37 @@ const PlusBillingCycleSwitch = ({
   );
 };
 
+const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
+const PlusSkeleton = (): ReactElement => (
+  <div className="flex flex-col items-center">
+    <div className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8">
+      <ElementPlaceholder className="mx-auto inline-block h-10 w-80 rounded-10" />
+    </div>
+    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
+      {switchSkeletonItems.map((index) => (
+        <div
+          key={index}
+          className={classNames(
+            'mx-auto w-[21rem] max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
+            index === 0 ? 'min-h-80' : 'min-h-96',
+          )}
+        >
+          <ElementPlaceholder className="mb-4 h-6 w-10 rounded-4" />
+          <ElementPlaceholder className="mb-1 h-8 w-10 rounded-4" />
+          <ElementPlaceholder className="h-3 w-20 rounded-4" />
+          <ElementPlaceholder className="my-4 h-10 w-full rounded-16" />
+          <div className="flex flex-col gap-2">
+            <ListItemPlaceholder padding="p-0 gap-2.5" textClassName="h-3" />
+            {index === 1 && (
+              <ListItemPlaceholder padding="p-0 gap-2.5" textClassName="h-3" />
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export const OnboardingPlusStep = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
@@ -108,7 +141,7 @@ export const OnboardingPlusStep = ({
           strategy.
         </Typography>
       </header>
-      {!!items?.length && (
+      {items.length ? (
         <>
           <PlusBillingCycleSwitch
             productOptions={items}
@@ -121,6 +154,8 @@ export const OnboardingPlusStep = ({
             onClickNext={onClickNext}
           />
         </>
+      ) : (
+        <PlusSkeleton />
       )}
     </section>
   );
