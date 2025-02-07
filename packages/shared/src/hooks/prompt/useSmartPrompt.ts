@@ -31,7 +31,7 @@ export const useSmartPrompt = ({
   isPending: boolean;
 } => {
   const { user, accessToken } = useAuthContext();
-  const { flags, updateFlag } = useSettingsContext();
+  const { flags, updateFlagRemote } = useSettingsContext();
   const lastPrompt = flags?.lastPrompt;
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
@@ -97,7 +97,7 @@ export const useSmartPrompt = ({
             setSearchQuery({ completedAt: new Date() });
             sourceRef.current?.close();
             if (lastPrompt !== prompt.id) {
-              updateFlag('lastPrompt', prompt.id);
+              updateFlagRemote('lastPrompt', prompt.id);
             }
             break;
           }
@@ -139,7 +139,7 @@ export const useSmartPrompt = ({
       post,
       prompt.id,
       queryKey,
-      updateFlag,
+      updateFlagRemote,
     ],
   );
 

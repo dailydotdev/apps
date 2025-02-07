@@ -78,13 +78,12 @@ export const PromptButtons = ({
     const filteredPrompts = data?.filter(
       (prompt) => promptFlags?.[prompt.id] !== false,
     );
-    if (lastPrompt) {
-      filteredPrompts?.unshift(
-        filteredPrompts?.splice(
-          filteredPrompts.findIndex((item) => item.id === lastPrompt),
-          1,
-        )[0],
+    if (filteredPrompts && lastPrompt) {
+      const latPromptIndex = filteredPrompts.findIndex(
+        (item) => item.id === lastPrompt,
       );
+      const [lastPromptItem] = filteredPrompts.splice(latPromptIndex, 1);
+      filteredPrompts.unshift(lastPromptItem);
     }
     return filteredPrompts;
   }, [data, lastPrompt, promptFlags]);
