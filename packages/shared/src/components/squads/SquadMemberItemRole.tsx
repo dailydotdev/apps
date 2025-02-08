@@ -3,7 +3,7 @@ import React from 'react';
 import type { SourceMember } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
 import { useAuthContext } from '../../contexts/AuthContext';
-import SquadMemberBadge from './SquadMemberBadge';
+import UserBadge, { getBadgeColorByRole } from '../UserBadge';
 
 interface SquadMemberItemRoleProps {
   member: SourceMember;
@@ -22,10 +22,12 @@ function SquadMemberItemRole({
   }
 
   return (
-    <SquadMemberBadge
+    <UserBadge
       className={sameUser ? 'mr-10' : 'mr-2'}
-      role={member.role}
-    />
+      color={getBadgeColorByRole(role)}
+    >
+      {role}
+    </UserBadge>
   );
 }
 

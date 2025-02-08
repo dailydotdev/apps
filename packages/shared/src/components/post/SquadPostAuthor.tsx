@@ -7,7 +7,6 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
@@ -18,6 +17,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
+import UserBadge, { getBadgeColorByRole } from '../UserBadge';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -95,11 +95,7 @@ function SquadPostAuthor({
               )}
               <ReputationUserBadge user={author} />
               {!!role && (
-                <SquadMemberBadge
-                  key="squadMemberRole"
-                  role={role}
-                  removeMargins
-                />
+                <UserBadge color={getBadgeColorByRole(role)}>{role}</UserBadge>
               )}
             </div>
           </div>

@@ -5,13 +5,11 @@ import Link from '../utilities/Link';
 import type { Comment } from '../../graphql/comments';
 import { getCommentHash } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
-import { FeatherIcon, ScoutIcon } from '../icons';
 import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
-import UserBadge from '../UserBadge';
+import UserBadge, { getBadgeColorByRole } from '../UserBadge';
 import { FlexRow, TruncateText } from '../utilities';
 import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
@@ -120,34 +118,12 @@ export default function CommentContainer({
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
-            <ReputationUserBadge
-              key="reputation"
-              className="ml-1"
-              user={comment.author}
-            />
-            <SquadMemberBadge key="squadMemberRole" role={role} />
+            <ReputationUserBadge user={comment.author} />
+            <UserBadge color={getBadgeColorByRole(role)}>{role}</UserBadge>
             {comment.author.id === postAuthorId && (
-              <UserBadge
-                key="author"
-                className="text-status-help"
-                content="Creator"
-                Icon={FeatherIcon}
-                iconProps={{
-                  secondary: true,
-                }}
-              />
+              <UserBadge>Creator</UserBadge>
             )}
-            {comment.author.id === postScoutId && (
-              <UserBadge
-                key="scout"
-                className="text-accent-bun-default"
-                content="Scout"
-                Icon={ScoutIcon}
-                iconProps={{
-                  secondary: true,
-                }}
-              />
-            )}
+            {comment.author.id === postScoutId && <UserBadge>Scout</UserBadge>}
           </FlexRow>
           <FlexRow className="items-center text-text-quaternary">
             <ProfileLink href={comment.author.permalink}>

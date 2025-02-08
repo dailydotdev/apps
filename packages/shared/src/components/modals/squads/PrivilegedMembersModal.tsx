@@ -5,13 +5,13 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import type { Source } from '../../../graphql/sources';
 import { UserShortInfo } from '../../profile/UserShortInfo';
-import SquadMemberBadge from '../../squads/SquadMemberBadge';
 import { Origin } from '../../../lib/log';
 import { useSquad } from '../../../hooks';
 
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSourceContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSourceContentPreferenceMutationSubscription';
+import UserBadge, { getBadgeColorByRole } from '../../UserBadge';
 
 export interface PrivilegedMembersModalProps
   extends Omit<ModalProps, 'children'> {
@@ -42,7 +42,9 @@ function PrivilegedMembersModal({
               showFollow
               origin={Origin.SquadMembersList}
             >
-              <SquadMemberBadge className="mr-2" role={role} />
+              <UserBadge className="mr-2" color={getBadgeColorByRole(role)}>
+                {role}
+              </UserBadge>
             </UserShortInfo>
           </Link>
         ))}

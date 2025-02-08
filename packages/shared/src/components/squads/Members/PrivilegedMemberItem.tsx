@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import SquadMemberBadge from '../SquadMemberBadge';
 import type { SourceMember } from '../../../graphql/sources';
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileLink } from '../../profile/ProfileLink';
+import UserBadge, { getBadgeColorByRole } from '../../UserBadge';
 
 interface PrivilegedMemberItemProps {
   member: SourceMember;
@@ -24,7 +24,7 @@ export function PrivilegedMemberItem({
           <span className="ml-2.5 flex truncate text-text-tertiary typo-subhead">
             {user.name}
           </span>
-          <SquadMemberBadge role={role} />
+          <UserBadge color={getBadgeColorByRole(role)}>{role}</UserBadge>
         </div>
       </ProfileLink>
     </ProfileTooltip>
