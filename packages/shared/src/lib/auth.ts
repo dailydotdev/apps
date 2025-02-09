@@ -90,6 +90,8 @@ export interface LoginPasswordParameters extends AuthPostParams {
 export interface LoginSocialParameters extends AuthPostParams {
   provider: string;
   method: AuthenticationType;
+  id_token?: string;
+  id_token_nonce?: string;
 }
 
 export interface AccountRecoveryParameters extends AuthPostParams {
@@ -133,6 +135,8 @@ export interface RegistrationParameters {
   'traits.experienceLevel'?: string;
   'traits.language'?: string;
   optOutMarketing?: boolean;
+  id_token?: string;
+  id_token_nonce?: string;
 }
 
 export interface SettingsParameters extends AuthPostParams {
@@ -189,3 +193,22 @@ export const getNodeValue = (
   nodes: InitializationNode[],
 ): string =>
   nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value;
+
+export const isNativeAuthSupported = (provider: string): boolean =>
+  globalThis.webkit?.messageHandlers?.['native-auth'] &&
+  ['apple', 'google'].includes(provider);
+
+export const iosNativeAuth = async (
+  provider: string,
+): Promise<{ provider: string; token: string; nonce: string } | undefined> => {
+  globalThis.webkit.messageHandlers['native-auth'].postMessage(provider);
+  return new Promise((resolve) => {
+    globalThis.addEventListener(
+      'native-auth',
+      (event: CustomEvent) => {
+        resolve(event.detail);
+      },
+      { once: true },
+    );
+  });
+};

@@ -8,6 +8,8 @@ import type {
   ValidateRegistrationParams,
 } from '../lib/auth';
 import {
+  iosNativeAuth,
+  isNativeAuthSupported,
   AuthEventNames,
   errorsToJson,
   getNodeByKey,
@@ -18,6 +20,7 @@ import type {
   SuccessfulRegistrationData,
 } from '../lib/kratos';
 import {
+  AuthEvent,
   AuthFlow,
   ContinueWithAction,
   initializeKratosFlow,
@@ -77,6 +80,8 @@ const useRegistration = ({
     queryKey: key,
     queryFn: () => initializeKratosFlow(AuthFlow.Registration),
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   if (registration?.error) {
@@ -135,7 +140,7 @@ const useRegistration = ({
     mutationFn: (params: ValidateRegistrationParams) =>
       submitKratosFlow(params),
 
-    onSuccess: ({ data, error, redirect }) => {
+    onSuccess: ({ data, error, redirect }, params) => {
       const successfulData = data as SuccessfulRegistrationData;
 
       if (successfulData?.continue_with?.length) {
@@ -153,8 +158,29 @@ const useRegistration = ({
         return onRedirect(redirect);
       }
 
+      // If it's native auth, we can proceed by simulating the callback page
+      if (params?.params?.id_token) {
+        if (successfulData?.session?.active) {
+          return window.postMessage(
+            {
+              eventKey: AuthEvent.SocialRegistration,
+              social_registration: true,
+            },
+            '*',
+          );
+        }
+        return window.postMessage(
+          {
+            eventKey: AuthEvent.SocialRegistration,
+            social_registration: true,
+            flow: error?.id,
+          },
+          '*',
+        );
+      }
+
       // probably csrf token issue and definitely not related to forms data
-      if (!error.ui) {
+      if (!error?.ui) {
         logEvent({
           event_name: AuthEventNames.RegistrationError,
           extra: JSON.stringify({
@@ -233,6 +259,13 @@ const useRegistration = ({
       'traits.timezone': timezone,
       'traits.acceptedMarketing': false,
     };
+
+    // Native auth takes care of the actual OAuth process, so we need to send the proper params
+    if (isNativeAuthSupported(provider)) {
+      const res = await iosNativeAuth(provider);
+      postData.id_token = res.token;
+      postData.id_token_nonce = res.nonce;
+    }
 
     await onValidateRegistration(postData);
   };

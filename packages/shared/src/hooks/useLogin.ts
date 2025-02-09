@@ -7,7 +7,12 @@ import type {
   LoginSocialParameters,
   ValidateLoginParams,
 } from '../lib/auth';
-import { AuthEventNames, getNodeValue } from '../lib/auth';
+import {
+  iosNativeAuth,
+  isNativeAuthSupported,
+  AuthEventNames,
+  getNodeValue,
+} from '../lib/auth';
 import type {
   AuthSession,
   EmptyObjectLiteral,
@@ -129,7 +134,7 @@ const useLogin = ({
   });
 
   const onSubmitSocialLogin = useCallback(
-    (provider: string) => {
+    async (provider: string) => {
       if (!login?.ui) {
         displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
         return;
@@ -141,6 +146,14 @@ const useLogin = ({
         method: 'oidc',
         csrf_token: csrfToken,
       };
+
+      // Native auth takes care of the actual OAuth process, so we need to send the proper params
+      if (isNativeAuthSupported(provider)) {
+        const res = await iosNativeAuth(provider);
+        params.id_token = res.token;
+        params.id_token_nonce = res.nonce;
+      }
+
       onSocialLogin({ action, params });
     },
     [displayToast, login?.ui, onSocialLogin],
