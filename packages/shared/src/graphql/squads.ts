@@ -633,7 +633,7 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
 
 export const SQUAD_PENDING_POSTS_QUERY = gql`
   query sourcePostModerations(
-    $sourceId: ID!
+    $sourceId: ID
     $status: [String]
     $first: Int
     $after: String
@@ -662,14 +662,12 @@ export const SQUAD_MODERATE_POST_MUTATION = gql`
   mutation ModerateSourcePost(
     $postIds: [ID]!
     $status: String
-    $sourceId: ID!
     $rejectionReason: String
     $moderatorMessage: String
   ) {
     moderateSourcePosts(
       postIds: $postIds
       status: $status
-      sourceId: $sourceId
       rejectionReason: $rejectionReason
       moderatorMessage: $moderatorMessage
     ) {
@@ -702,16 +700,14 @@ export interface SquadPostRejectionProps extends SquadPostModerationProps {
   note?: string;
 }
 
-export const squadApproveMutation = ({
-  postIds,
-  sourceId,
-}: SquadPostModerationProps): Promise<SourcePostModeration[]> => {
+export const squadApproveMutation = (
+  postIds: string[],
+): Promise<SourcePostModeration[]> => {
   return gqlClient
     .request<{
       moderateSourcePosts: SourcePostModeration[];
     }>(SQUAD_MODERATE_POST_MUTATION, {
       postIds,
-      sourceId,
       status: SourcePostModerationStatus.Approved,
     })
     .then((res) => res.moderateSourcePosts);
@@ -719,7 +715,6 @@ export const squadApproveMutation = ({
 
 export const squadRejectMutation = ({
   postIds,
-  sourceId,
   reason,
   note,
 }: SquadPostRejectionProps): Promise<SourcePostModeration[]> => {
@@ -728,7 +723,6 @@ export const squadRejectMutation = ({
       moderateSourcePosts: SourcePostModeration[];
     }>(SQUAD_MODERATE_POST_MUTATION, {
       postIds,
-      sourceId,
       status: SourcePostModerationStatus.Rejected,
       rejectionReason: reason,
       moderatorMessage: note,

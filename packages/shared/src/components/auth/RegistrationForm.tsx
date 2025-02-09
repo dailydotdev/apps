@@ -26,7 +26,6 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import { LanguageDropdown } from '../profile/LanguageDropdown';
 import Alert, { AlertType } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
 
@@ -295,10 +294,6 @@ const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
           }
           saveHintSpace
-        />
-        <LanguageDropdown
-          className={{ container: 'w-full' }}
-          name="traits.language"
         />
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
