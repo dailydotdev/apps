@@ -11,6 +11,15 @@ function CallbackPage(): ReactElement {
   const { logEvent } = useContext(LogContext);
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
+
+    // Redirect to the native app if the native query param is set
+    if (urlSearchParams.get('native') === 'ios') {
+      urlSearchParams.delete('native');
+      const queryString = urlSearchParams.toString();
+      window.location.replace(`dailydev://oauth?${queryString}`);
+      return;
+    }
+
     const params = Object.fromEntries(urlSearchParams.entries());
     const eventKey = params.login
       ? AuthEvent.Login
