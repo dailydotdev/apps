@@ -28,7 +28,6 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const queryClient = useQueryClient();
   const { feedName } = useActiveFeedNameContext();
   const [justUpvoted, setJustUpvoted] = useState(false);
-  const [hasCopied, setHasCopied] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const shouldShowOverlay = justUpvoted && !hasInteracted;
   const shouldShowReminder = useBookmarkReminderCover(post);
@@ -67,19 +66,13 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   }>(linkKey);
 
   useEffect(() => {
-    if (linkData) {
-      setHasCopied(true);
-    }
-  }, [linkData]);
-
-  useEffect(() => {
     if (shouldShowReminder) {
       setLastInteraction('bookmark');
     }
   }, [shouldShowReminder]);
 
   const currentInteraction = useMemo(() => {
-    if (justUpvoted && shouldShowReminder && hasCopied) {
+    if (justUpvoted && shouldShowReminder && linkData) {
       return lastInteraction;
     }
 
@@ -90,11 +83,11 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
       return 'bookmark';
     }
 
-    if (hasCopied) {
+    if (linkData) {
       return 'copy';
     }
     return null;
-  }, [justUpvoted, shouldShowReminder, lastInteraction, hasCopied]);
+  }, [justUpvoted, shouldShowReminder, lastInteraction, linkData]);
 
   return {
     shouldShowOverlay,
