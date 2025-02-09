@@ -4,7 +4,7 @@ import React from 'react';
 import { SourceMemberRole } from '../graphql/sources';
 
 export const userBadgeColor = {
-  purple: 'text-brand-default bg-actions-actions-share-active',
+  purple: 'text-brand-default bg-action-share-active',
   gray: 'text-text-tertiary bg-surface-float',
 } as const;
 
@@ -31,7 +31,7 @@ const UserBadge = ({
   return (
     <span
       className={classNames(
-        'flex items-center px-1 font-bold capitalize typo-caption2 tablet:gap-0.5 tablet:typo-footnote',
+        'flex items-center rounded-6 px-1 font-bold capitalize typo-caption2 tablet:gap-0.5 tablet:typo-footnote',
         userBadgeColor[color],
         className,
       )}

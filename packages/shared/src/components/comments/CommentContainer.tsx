@@ -107,7 +107,7 @@ export default function CommentContainer({
           />
         </ProfileTooltip>
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
-          <FlexRow>
+          <FlexRow className="gap-1">
             <CommentAuthor
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
