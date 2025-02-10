@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
 import {
@@ -11,6 +12,9 @@ import {
 import { SocialIconType } from '../../../lib/socialMedia';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../lib/log';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { ReferralCampaignKey } from '../../../lib';
+import { getShortLinkProps } from '../../../hooks';
 
 type SocialShareButtonProps = {
   post: Post;
@@ -18,43 +22,51 @@ type SocialShareButtonProps = {
   variant?: ButtonVariant;
 };
 
-const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
+const getBtnProps = ({
+  post,
+  platform,
+  link,
+}: {
+  post: Post;
+  platform: string;
+  link: string;
+}) => {
   const commonProps = {
     target: '_blank',
     rel: 'noopener noreferrer',
   };
+
+  const title = post?.title || post?.sharedPost?.title;
 
   switch (platform) {
     case SocialIconType.Reddit:
       return {
         ...commonProps,
         href: `https://www.reddit.com/submit?url=${encodeURIComponent(
-          post.commentsPermalink,
-        )}&title=${encodeURIComponent(post.title)}`,
+          link,
+        )}&title=${encodeURIComponent(title)}`,
         icon: <RedditIcon secondary />,
       };
     case SocialIconType.X:
       return {
         ...commonProps,
         href: `https://x.com/share?url=${encodeURIComponent(
-          post.commentsPermalink,
-        )}&text=${encodeURIComponent(post.title)}`,
+          link,
+        )}&text=${encodeURIComponent(title)}`,
         icon: <TwitterIcon />,
       };
     case SocialIconType.LinkedIn:
       return {
         ...commonProps,
         href: `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(
-          post.commentsPermalink,
-        )}&title=${encodeURIComponent(post.title)}`,
+          link,
+        )}&title=${encodeURIComponent(title)}`,
         icon: <LinkedInIcon secondary />,
       };
     case SocialIconType.WhatsApp:
       return {
         ...commonProps,
-        href: `https://wa.me/?text=${encodeURIComponent(
-          post.commentsPermalink,
-        )}`,
+        href: `https://wa.me/?text=${encodeURIComponent(link)}`,
         icon: <WhatsappIcon color="white" secondary />,
       };
     default:
@@ -67,7 +79,16 @@ const SocialIconButton = ({
   platform,
   variant = ButtonVariant.Float,
 }: SocialShareButtonProps): ReactElement => {
+  const queryClient = useQueryClient();
+  const { user } = useAuthContext();
+  const { queryKey: linkKey } = getShortLinkProps(
+    post?.commentsPermalink,
+    ReferralCampaignKey.SharePost,
+    user,
+  );
   const { logEvent } = useLogContext();
+  const linkData = queryClient.getQueryData<string | undefined>(linkKey);
+
   return (
     <Button
       variant={variant}
@@ -81,7 +102,11 @@ const SocialIconButton = ({
           }),
         })
       }
-      {...getBtnProps({ post, platform })}
+      {...getBtnProps({
+        post,
+        platform,
+        link: linkData || post.commentsPermalink,
+      })}
     />
   );
 };
