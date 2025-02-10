@@ -22,7 +22,15 @@ type SocialShareButtonProps = {
   variant?: ButtonVariant;
 };
 
-const getBtnProps = ({ post, platform, link }: { post; platform; link }) => {
+const getBtnProps = ({
+  post,
+  platform,
+  link,
+}: {
+  post: Post;
+  platform: string;
+  link: string;
+}) => {
   const commonProps = {
     target: '_blank',
     rel: 'noopener noreferrer',
