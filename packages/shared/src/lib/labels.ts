@@ -24,6 +24,7 @@ export const labels = {
       invalidEmailOrPassword: 'Invalid email or password',
       generic:
         '❌ We got some unexpected error from our side, nothing to worry about. Please try again.',
+      existingEmail: 'This email is already in use',
     },
   },
   referral: {

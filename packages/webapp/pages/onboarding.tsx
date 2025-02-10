@@ -79,6 +79,7 @@ import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -158,7 +159,7 @@ export function OnboardPage(): ReactElement {
     completeStep,
   } = useOnboarding();
   const router = useRouter();
-  const { setSettings } = useSettingsContext();
+  const { setSettings, autoDismissNotifications } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
@@ -472,6 +473,7 @@ export function OnboardPage(): ReactElement {
           sizes="(max-width: 655px) 450px, 1024px"
         />
       )}
+      <Toast autoDismissNotifications={autoDismissNotifications} />
       <Pixels />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
