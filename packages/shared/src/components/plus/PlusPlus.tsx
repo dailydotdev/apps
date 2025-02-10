@@ -41,7 +41,7 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
     );
   }
 
-  const additional = gifter
+  const manageCopy = gifter
     ? ''
     : ` Manage your subscription anytime to update your plan, payment details, or preferences.`;
 
@@ -64,7 +64,7 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
           color={TypographyColor.Tertiary}
         >
           Thanks for supporting daily.dev and unlocking our most powerful
-          experience.{additional}.
+          experience.{manageCopy}.
         </Typography>
       </div>
       {!gifter && (
