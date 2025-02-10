@@ -34,6 +34,7 @@ import LogContext from '../contexts/LogContext';
 import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
+import { disabledRefetch } from '../lib/func';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -79,9 +80,7 @@ const useRegistration = ({
   } = useQuery({
     queryKey: key,
     queryFn: () => initializeKratosFlow(AuthFlow.Registration),
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    ...disabledRefetch,
   });
 
   if (registration?.error) {
@@ -161,22 +160,16 @@ const useRegistration = ({
       // If it's native auth, we can proceed by simulating the callback page
       if (params?.params?.id_token) {
         if (successfulData?.session?.active) {
-          return window.postMessage(
-            {
-              eventKey: AuthEvent.SocialRegistration,
-              social_registration: true,
-            },
-            '*',
-          );
-        }
-        return window.postMessage(
-          {
+          return window.postMessage({
             eventKey: AuthEvent.SocialRegistration,
             social_registration: true,
-            flow: error?.id,
-          },
-          '*',
-        );
+          });
+        }
+        return window.postMessage({
+          eventKey: AuthEvent.SocialRegistration,
+          social_registration: true,
+          flow: error?.id,
+        });
       }
 
       // probably csrf token issue and definitely not related to forms data

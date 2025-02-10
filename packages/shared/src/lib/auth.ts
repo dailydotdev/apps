@@ -9,6 +9,7 @@ import type {
 } from './kratos';
 import { MessageType } from './kratos';
 import type { Origin } from './log';
+import { promisifyEventListener } from './func';
 
 export enum AuthEventNames {
   OpenSignup = 'open signup',
@@ -201,14 +202,10 @@ export const isNativeAuthSupported = (provider: string): boolean =>
 export const iosNativeAuth = async (
   provider: string,
 ): Promise<{ provider: string; token: string; nonce: string } | undefined> => {
+  const promise = promisifyEventListener(
+    'native-auth',
+    (event) => event.detail,
+  );
   globalThis.webkit.messageHandlers['native-auth'].postMessage(provider);
-  return new Promise((resolve) => {
-    globalThis.addEventListener(
-      'native-auth',
-      (event: CustomEvent) => {
-        resolve(event.detail);
-      },
-      { once: true },
-    );
-  });
+  return promise;
 };

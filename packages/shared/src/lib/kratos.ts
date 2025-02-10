@@ -181,7 +181,6 @@ interface ContinueWith {
 }
 
 export interface SuccessfulRegistrationData {
-  id?: string;
   session: AuthSession;
   identity: Identity;
   continue_with: ContinueWith[];
