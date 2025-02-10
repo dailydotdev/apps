@@ -11,7 +11,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type OneSignal from 'react-onesignal';
 import type { NotificationPromptSource } from '../lib/log';
 import { LogEvent } from '../lib/log';
-import { checkIsExtension, disabledRefetch, isIOSNative } from '../lib/func';
+import {
+  checkIsExtension,
+  disabledRefetch,
+  isIOSNative,
+  promisifyEventListener,
+} from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
@@ -195,18 +200,12 @@ function NativeAppleSubProvider({
     queryKey: key,
 
     queryFn: async () => {
-      return new Promise((resolve) => {
-        globalThis.addEventListener(
-          'push-state',
-          (event: CustomEvent) => {
-            setIsSubscribed(!!event?.detail);
-            resolve();
-          },
-          { once: true },
-        );
-        globalThis.webkit.messageHandlers['push-state'].postMessage(null);
-        globalThis.webkit.messageHandlers['push-user-id'].postMessage(user.id);
+      const promise = promisifyEventListener('push-state', (event) => {
+        setIsSubscribed(!!event?.detail);
       });
+      globalThis.webkit.messageHandlers['push-state'].postMessage(null);
+      globalThis.webkit.messageHandlers['push-user-id'].postMessage(user.id);
+      return promise;
     },
     enabled: isEnabled,
     ...disabledRefetch,
@@ -214,28 +213,23 @@ function NativeAppleSubProvider({
 
   const subscribe = useCallback(
     async (source: NotificationPromptSource) => {
-      return new Promise<boolean>((resolve) => {
-        globalThis.addEventListener(
-          'push-subscribe',
-          (event: CustomEvent) => {
-            const subscribed = !!event?.detail;
-            setIsSubscribed(subscribed);
-            if (subscribed) {
-              logEvent({
-                event_name: LogEvent.ClickEnableNotification,
-                extra: JSON.stringify({
-                  origin: source,
-                  provider: 'apple',
-                  permission: 'granted',
-                }),
-              });
-            }
-            resolve(subscribed);
-          },
-          { once: true },
-        );
-        globalThis.webkit.messageHandlers['push-subscribe'].postMessage(null);
+      const promise = promisifyEventListener('push-subscribe', (event) => {
+        const subscribed = !!event?.detail;
+        setIsSubscribed(subscribed);
+        if (subscribed) {
+          logEvent({
+            event_name: LogEvent.ClickEnableNotification,
+            extra: JSON.stringify({
+              origin: source,
+              provider: 'apple',
+              permission: 'granted',
+            }),
+          });
+        }
+        return subscribed;
       });
+      globalThis.webkit.messageHandlers['push-subscribe'].postMessage(null);
+      return promise;
     },
     [logEvent],
   );
