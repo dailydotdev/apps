@@ -3,6 +3,7 @@ import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import {
   LinkedInIcon,
   RedditIcon,
@@ -36,13 +37,18 @@ const getBtnProps = ({
     rel: 'noopener noreferrer',
   };
 
+  const title =
+    post.type === PostType.Share
+      ? post?.title || post.sharedPost.title
+      : post.title;
+
   switch (platform) {
     case SocialIconType.Reddit:
       return {
         ...commonProps,
         href: `https://www.reddit.com/submit?url=${encodeURIComponent(
           link,
-        )}&title=${encodeURIComponent(post.title)}`,
+        )}&title=${encodeURIComponent(title)}`,
         icon: <RedditIcon secondary />,
       };
     case SocialIconType.X:
@@ -50,7 +56,7 @@ const getBtnProps = ({
         ...commonProps,
         href: `https://x.com/share?url=${encodeURIComponent(
           link,
-        )}&text=${encodeURIComponent(post.title)}`,
+        )}&text=${encodeURIComponent(title)}`,
         icon: <TwitterIcon />,
       };
     case SocialIconType.LinkedIn:
@@ -58,7 +64,7 @@ const getBtnProps = ({
         ...commonProps,
         href: `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(
           link,
-        )}&title=${encodeURIComponent(post.title)}`,
+        )}&title=${encodeURIComponent(title)}`,
         icon: <LinkedInIcon secondary />,
       };
     case SocialIconType.WhatsApp:
