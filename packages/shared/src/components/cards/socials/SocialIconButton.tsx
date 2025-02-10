@@ -3,7 +3,6 @@ import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
-import { PostType } from '../../../graphql/posts';
 import {
   LinkedInIcon,
   RedditIcon,
@@ -37,10 +36,7 @@ const getBtnProps = ({
     rel: 'noopener noreferrer',
   };
 
-  const title =
-    post.type === PostType.Share
-      ? post?.title || post.sharedPost.title
-      : post.title;
+  const title = post?.title || post?.sharedPost?.title;
 
   switch (platform) {
     case SocialIconType.Reddit:
