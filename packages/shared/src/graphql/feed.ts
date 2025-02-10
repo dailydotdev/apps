@@ -81,6 +81,7 @@ export const FEED_POST_FRAGMENT = gql`
       clickbaitTitleDetected
       translation {
         title
+        smartTitle
       }
     }
     trending

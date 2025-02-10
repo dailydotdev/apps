@@ -227,6 +227,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     language
     translation {
       title
+      smartTitle
     }
   }
 `;
@@ -281,6 +282,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     language
     translation {
       title
+      smartTitle
     }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}

@@ -88,6 +88,9 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   });
 
   const fetchSmartTitle = useCallback(async () => {
+    // eslint-disable-next-line no-console
+    console.log({ fetchedSmartTitle, post });
+
     if (!fetchedSmartTitle) {
       await refetch();
     } else {
