@@ -15,6 +15,7 @@ import { LogEvent, Origin } from '../../../lib/log';
 type SocialShareButtonProps = {
   post: Post;
   platform: SocialIconType;
+  variant?: ButtonVariant;
 };
 
 const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
@@ -64,11 +65,12 @@ const getBtnProps = ({ post, platform }: SocialShareButtonProps) => {
 const SocialIconButton = ({
   post,
   platform,
+  variant = ButtonVariant.Float,
 }: SocialShareButtonProps): ReactElement => {
   const { logEvent } = useLogContext();
   return (
     <Button
-      variant={ButtonVariant.Float}
+      variant={variant}
       tag="a"
       onClick={() =>
         logEvent({

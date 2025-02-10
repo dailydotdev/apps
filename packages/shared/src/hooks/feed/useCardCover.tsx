@@ -44,7 +44,12 @@ export const useCardCover = ({
         <CardCoverContainer title="Why not share it on social, too?">
           <div className="mt-2 flex flex-row gap-2">
             {socials.map((social) => (
-              <SocialIconButton key={social} post={post} platform={social} />
+              <SocialIconButton
+                variant={ButtonVariant.Primary}
+                key={social}
+                post={post}
+                platform={social}
+              />
             ))}
           </div>
         </CardCoverContainer>
