@@ -142,10 +142,12 @@ export const useSmartPrompt = ({
     [
       accessToken?.token,
       client,
+      completeAction,
       lastPrompt,
       post,
       prompt.id,
       queryKey,
+      triedSmartPrompts,
       updateFlagRemote,
     ],
   );
