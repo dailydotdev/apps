@@ -26,14 +26,14 @@ const Container = classed(
 
 export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
   const { user } = useAuthContext();
-  const { data: gifter, isLoading } = useQuery({
+  const { data: gifter, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.GifterUser, user),
     queryFn: getPlusGifterUser,
     enabled: Boolean(user?.isPlus),
     staleTime: StaleTime.Default,
   });
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <Container>
         <Loader />
