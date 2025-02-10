@@ -84,13 +84,9 @@ const SocialIconButton = ({
     ReferralCampaignKey.SharePost,
     user,
   );
-  const linkData = queryClient.getQueryData<{
-    getShortUrl: string;
-  }>(linkKey);
-
-  const link = linkData?.getShortUrl || post?.commentsPermalink;
-
   const { logEvent } = useLogContext();
+  const linkData = queryClient.getQueryData<string | undefined>(linkKey);
+
   return (
     <Button
       variant={variant}
@@ -104,7 +100,11 @@ const SocialIconButton = ({
           }),
         })
       }
-      {...getBtnProps({ post, platform, link })}
+      {...getBtnProps({
+        post,
+        platform,
+        link: linkData || post.commentsPermalink,
+      })}
     />
   );
 };
