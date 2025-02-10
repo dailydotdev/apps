@@ -18,6 +18,8 @@ import {
 import type { CreatePayload, TokenPayload, UseChatMessage } from '../chat';
 import { UseChatMessageType } from '../chat';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { ActionType } from '../../graphql/actions';
+import { useActions } from '../useActions';
 
 export const useSmartPrompt = ({
   post,
@@ -32,9 +34,11 @@ export const useSmartPrompt = ({
 } => {
   const { user, accessToken } = useAuthContext();
   const { flags, updateFlagRemote } = useSettingsContext();
+  const { completeAction, checkHasCompleted } = useActions();
   const lastPrompt = flags?.lastPrompt;
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
+  const triedSmartPrompts = checkHasCompleted(ActionType.SmartPrompt);
 
   const queryKey = useMemo(
     () => generateQueryKey(RequestKey.Prompts, user, post.id, prompt.id),
@@ -98,6 +102,9 @@ export const useSmartPrompt = ({
             sourceRef.current?.close();
             if (lastPrompt !== prompt.id) {
               updateFlagRemote('lastPrompt', prompt.id);
+            }
+            if (!triedSmartPrompts) {
+              completeAction(ActionType.SmartPrompt);
             }
             break;
           }
