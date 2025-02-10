@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import type { Post } from '../../graphql/posts';
 import { useCopyPostLink } from '../useCopyPostLink';
 import LogContext from '../../contexts/LogContext';
@@ -17,25 +17,27 @@ export const useLoggedCopyPostLink = (
   post: Post,
   origin = Origin.FeedbackCard,
 ): UseLoggedCopyPostLink => {
-  const { isLoading, shareLink } = useGetShortUrl({
-    query: {
-      url: post.commentsPermalink,
-      cid: ReferralCampaignKey.SharePost,
-    },
-  });
-  const [, copyLink] = useCopyPostLink(shareLink);
+  const [isLoading, setIsLoading] = useState(false);
+  const { getShortUrl } = useGetShortUrl();
+  const [, copyLink] = useCopyPostLink(post?.commentsPermalink);
   const { logEvent } = useContext(LogContext);
 
   const onCopyLink = useCallback(
-    (provider: ShareProvider) => {
+    async (provider: ShareProvider) => {
+      setIsLoading(true);
       logEvent(
         postLogEvent('share post', post, {
           extra: { provider, origin },
         }),
       );
+      const shareLink = await getShortUrl(
+        post.commentsPermalink,
+        ReferralCampaignKey.SharePost,
+      );
       copyLink({ link: shareLink });
+      setIsLoading(false);
     },
-    [copyLink, origin, post, shareLink, logEvent],
+    [copyLink, origin, post, logEvent, getShortUrl],
   );
 
   return { onCopyLink, isLoading };
