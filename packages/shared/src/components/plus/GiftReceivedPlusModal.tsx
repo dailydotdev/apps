@@ -52,7 +52,7 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
   const { user } = useAuthContext();
   const { data: gifter, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.GifterUser),
+    queryKey: generateQueryKey(RequestKey.GifterUser, user),
     queryFn: getPlusGifterUser,
     enabled: Boolean(user?.isPlus),
   });
