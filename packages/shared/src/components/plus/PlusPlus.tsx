@@ -43,7 +43,7 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
 
   const manageCopy = gifter
     ? ''
-    : ` Manage your subscription anytime to update your plan, payment details, or preferences.`;
+    : ` Manage your subscription anytime to update your plan, payment details, or preferences`;
 
   return (
     <Container className={className}>
