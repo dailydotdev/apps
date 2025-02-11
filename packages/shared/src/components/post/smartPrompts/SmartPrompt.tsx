@@ -17,7 +17,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
-  const { completeAction, checkHasCompleted } = useActions();
+  const { checkHasCompleted } = useActions();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
@@ -32,12 +32,6 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
     if (!isPlus && prompt !== PromptDisplay.TLDR && triedSmartPrompts) {
       setActiveDisplay(PromptDisplay.UpgradeToPlus);
       return;
-    }
-
-    if (prompt !== PromptDisplay.TLDR) {
-      if (!triedSmartPrompts) {
-        completeAction(ActionType.SmartPrompt);
-      }
     }
 
     if (

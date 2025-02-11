@@ -58,6 +58,7 @@ export enum Origin {
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
   PostSharedBy = 'post shared by',
+  Suggestions = 'suggestions',
 }
 
 export enum LogEvent {
@@ -236,6 +237,7 @@ export enum LogEvent {
   ShareProfile = 'share profile',
   ShareSource = 'share source',
   ShareTag = 'share tag',
+  SharePost = 'share post',
   // End Share
   // Start Smart Prompts
   SmartPrompt = 'smart prompt',

@@ -1,11 +1,12 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useMemo, useRef } from 'react';
+import React, { forwardRef, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
 import {
+  useConditionalFeature,
   useFeedPreviewMode,
   useTruncatedSummary,
   useViewSize,
@@ -23,7 +24,11 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
+import {
+  featureSocialShare,
+  feedActionSpacing,
+} from '../../../lib/featureManagement';
+import SocialBar from '../socials/SocialBar';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -57,8 +62,18 @@ export const FreeformList = forwardRef(function SharePostCard(
       post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
     [post.contentHtml],
   );
+  const [linkClicked, setLinkClicked] = useState(false);
+  const { value: socialShare } = useConditionalFeature({
+    feature: featureSocialShare,
+    shouldEvaluate: linkClicked,
+  });
 
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
+
+  const handleCopyLinkClick = (e) => {
+    setLinkClicked(true);
+    onCopyLinkClick?.(e, post);
+  };
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -67,7 +82,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
         onCommentClick={onCommentClick}
-        onCopyLinkClick={onCopyLinkClick}
+        onCopyLinkClick={handleCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
           feedActionSpacingExp ? 'mt-2 justify-between' : 'mt-4',
@@ -150,6 +165,7 @@ export const FreeformList = forwardRef(function SharePostCard(
       {!shouldSwapActions && actionButtons}
       {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
+      {socialShare && <SocialBar className="mt-4" post={post} />}
     </FeedItemContainer>
   );
 });
