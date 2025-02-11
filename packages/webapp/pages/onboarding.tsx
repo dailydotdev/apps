@@ -219,8 +219,14 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA = onboardingStepsWithCTA.includes(activeScreen);
-  const showFooter = onboardingStepsWithFooter.includes(activeScreen);
+
+  const layout = useMemo(
+    () => ({
+      hasFooter: onboardingStepsWithFooter.includes(activeScreen),
+      hasCta: onboardingStepsWithCTA.includes(activeScreen),
+    }),
+    [activeScreen],
+  );
 
   useEffect(() => {
     if (
@@ -432,12 +438,12 @@ export function OnboardPage(): ReactElement {
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
-    if (isCTA) {
+    if (layout.hasCta) {
       return 'Not now →';
     }
 
     return undefined;
-  }, [activeScreen, isCTA]);
+  }, [activeScreen, layout.hasCta]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -456,7 +462,7 @@ export function OnboardPage(): ReactElement {
     <div
       className={classNames(
         'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
-        isCTA && 'fixed',
+        layout.hasCta && 'fixed',
       )}
     >
       {showOnboardingPage && (
@@ -515,7 +521,7 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              isCTA &&
+              layout.hasCta &&
                 'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
@@ -555,7 +561,7 @@ export function OnboardPage(): ReactElement {
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      {showFooter && <FooterLinks className="mx-auto pb-6" />}
+      {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
     </div>
   );
 }
