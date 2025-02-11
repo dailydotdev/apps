@@ -848,6 +848,10 @@ export const POST_FETCH_SMART_TITLE_QUERY = gql`
   query FetchSmartTitle($id: ID!) {
     fetchSmartTitle(id: $id) {
       title
+      translation {
+        title
+        smartTitle
+      }
     }
   }
 `;
