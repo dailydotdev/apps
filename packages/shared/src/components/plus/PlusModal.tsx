@@ -1,11 +1,25 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { Modal } from '../modals/common/Modal';
-import { PlusDesktop } from './PlusDesktop';
 import { checkIsExtension } from '../../lib/func';
-import PlusExtension from './PlusExtension';
 import { useViewSize, ViewSize } from '../../hooks';
-import PlusMobileDrawer from './PlusMobileDrawer';
+
+const PlusMobileDrawer = dynamic(() =>
+  import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobile').then(
+    (mod) => mod.PlusMobile,
+  ),
+);
+
+const PlusExtension = dynamic(
+  () => import(/* webpackChunkName: "plusExtension" */ './PlusExtension'),
+);
+
+const PlusDesktop = dynamic(() =>
+  import(/* webpackChunkName: "plusDesktop" */ './PlusDesktop').then(
+    (mod) => mod.PlusDesktop,
+  ),
+);
 
 const PlusModal = (): ReactElement => {
   const isExtension = checkIsExtension();

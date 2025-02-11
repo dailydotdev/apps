@@ -20,12 +20,14 @@ type PlusProductListProps = {
   selected?: string;
   onChange: (value: string) => void;
   backgroundImage?: string;
+  className?: string;
 };
 
 const PlusProductList = ({
   productList,
   selected,
   onChange,
+  className,
 }: PlusProductListProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   const planTypes = useFeature(feature.pricingIds);
@@ -45,7 +47,12 @@ const PlusProductList = ({
   }, [productList, planTypes]);
 
   return (
-    <div className="min-h-[6.125rem] rounded-10 border border-border-subtlest-tertiary">
+    <div
+      className={classNames(
+        'rounded-10 border border-border-subtlest-tertiary',
+        className,
+      )}
+    >
       {productList.map((option) => {
         const { label, value, price, currencyCode, extraLabel } = option;
         const checked = selected === value;
@@ -66,7 +73,7 @@ const PlusProductList = ({
             }}
             className={{
               content: classNames(
-                'min-h-12 rounded-10 !p-2',
+                'min-h-12 w-full rounded-10 !p-2',
                 checked
                   ? '-m-px border border-border-subtlest-primary bg-surface-float'
                   : undefined,

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiUrl } from '../../lib/config';
 import PlusProductList from './PlusProductList';
@@ -35,10 +35,6 @@ const PlusExtension = (): ReactElement => {
   });
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-
-  const toggleCheckoutOption = useCallback((priceId) => {
-    setSelectedOption(priceId);
-  }, []);
 
   return (
     <div>
@@ -78,19 +74,25 @@ const PlusExtension = (): ReactElement => {
               <PlusProductList
                 productList={productOptions}
                 selected={selectedOption}
-                onChange={toggleCheckoutOption}
+                onChange={setSelectedOption}
               />
             )}
           </div>
           <Button
             variant={ButtonVariant.Primary}
             tag="a"
-            href={`${webappUrl}plus/checkout?selectedPlan=${selectedOption}`}
+            href={`${webappUrl}plus/payment?pid=${selectedOption}`}
+            disabled={!selectedOption}
           >
             Upgrade to Plus
           </Button>
         </div>
-        <div className="relative w-[28.5rem] bg-black pr-6">
+        <div className="relative flex w-[28.5rem] flex-col gap-8 bg-black pr-6">
+          <PlusUser
+            iconSize={IconSize.Large}
+            typographyType={TypographyType.Title1}
+            className="opacity-0"
+          />
           <Image className="absolute bottom-0" src={plusRedBackgroundImage} />
           <PlusList className="pl-10" />
         </div>

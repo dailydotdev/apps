@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
-import { ChecklistAIcon, InfoIcon } from '../icons';
+import { InfoIcon, VIcon } from '../icons';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import type { TypographyProps } from '../typography/Typography';
@@ -67,12 +67,12 @@ export const PlusListItem = ({
           !!item.tooltip && 'hover:bg-surface-float',
         )}
       >
-        <ChecklistAIcon
+        <VIcon
           aria-hidden
           size={IconSize.XSmall}
           {...iconProps}
           className={classNames(
-            'mr-1 inline-block text-text-quaternary',
+            'mr-1 inline-block text-text-primary',
             isComingSoonVisible && 'mt-px',
             iconProps?.className,
           )}
