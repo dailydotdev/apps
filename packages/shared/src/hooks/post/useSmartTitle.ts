@@ -103,7 +103,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const fetchSmartTitle = useCallback(async () => {
     if (!fetchedSmartTitle) {
       const smartTitlePost = {
-        ...post,
+        ...(post.sharedPost ? post.sharedPost : post),
         ...smartTitle,
       };
 
