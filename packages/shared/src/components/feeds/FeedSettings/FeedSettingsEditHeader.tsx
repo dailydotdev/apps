@@ -14,6 +14,8 @@ import { FeedType } from '../../../graphql/feed';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib/labels';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 const createGenericFeedPrompt: PromptOptions = {
   title: labels.feed.prompt.createGenericFeed.title,
@@ -91,6 +93,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
 
   if (!activeView) {
     return null;
@@ -139,7 +142,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
               onSubmit();
             }}
           >
-            Upgrade to Plus
+            {plusCta}
           </Button>
         ) : (
           <SaveButton activeView={activeView} />

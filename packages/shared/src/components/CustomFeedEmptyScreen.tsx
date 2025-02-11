@@ -21,9 +21,12 @@ import { LogEvent, TargetId } from '../lib/log';
 import { Button } from './buttons/Button';
 import { usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
+import { useFeature } from './GrowthBookProvider';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const { full: ctaText } = useFeature(featurePlusCtaCopy);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -85,7 +88,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                   });
                 }}
               >
-                Upgrade to Plus
+                {ctaText}
               </Button>
             </>
           ) : (

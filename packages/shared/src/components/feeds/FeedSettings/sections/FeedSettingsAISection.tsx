@@ -26,6 +26,8 @@ import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
+import { useFeature } from '../../../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -34,6 +36,7 @@ export const FeedSettingsAISection = (): ReactElement => {
   const { isLoading } = useFeedSettings();
   const { user } = useAuthContext();
   const { flags, updateFlag } = useSettingsContext();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
 
   const { onLanguageChange } = useLanguage();
 
@@ -156,7 +159,7 @@ export const FeedSettingsAISection = (): ReactElement => {
               });
             }}
           >
-            Upgrade to Plus
+            {plusCta}
           </Button>
         )}
       </section>

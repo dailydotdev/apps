@@ -20,6 +20,8 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { SimpleTooltip } from '../../../tooltips';
 import ConditionalWrapper from '../../../ConditionalWrapper';
+import { useFeature } from '../../../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 
 export const SmartPrompts = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
@@ -29,6 +31,7 @@ export const SmartPrompts = (): ReactElement => {
   const { flags, updatePromptFlag } = useSettingsContext();
   const { prompt: promptFlags } = flags;
   const { data: prompts, isLoading } = usePromptsQuery();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
 
   return (
     <section className="flex flex-col gap-4" aria-busy={isLoading}>
@@ -118,7 +121,7 @@ export const SmartPrompts = (): ReactElement => {
             });
           }}
         >
-          Upgrade to Plus
+          {plusCta}
         </Button>
       )}
     </section>

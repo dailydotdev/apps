@@ -17,6 +17,8 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { clickbaitShieldModalImage } from '../../lib/image';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 type Props = {
   hasUsedFreeTrial?: boolean;
@@ -29,6 +31,7 @@ const ClickbaitShieldModal = ({
   ...props
 }: Props & ModalProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
   const { closeModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   if (!isMobile) {
@@ -103,7 +106,7 @@ const ClickbaitShieldModal = ({
             }
           }}
         >
-          {hasUsedFreeTrial ? 'Upgrade to Plus' : 'Try out Clickbait Shield'}
+          {hasUsedFreeTrial ? plusCta : 'Try out Clickbait Shield'}
         </Button>
       </div>
     </Modal>

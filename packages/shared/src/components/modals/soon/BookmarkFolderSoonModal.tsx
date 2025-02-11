@@ -16,6 +16,8 @@ import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { bookmarkFolderSoonImage } from '../../../lib/image';
 import { webappUrl } from '../../../lib/constants';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;
 
@@ -23,6 +25,7 @@ const BookmarkFolderSoonModal = ({
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
 
   return (
     <Modal
@@ -84,7 +87,7 @@ const BookmarkFolderSoonModal = ({
                 });
               }}
             >
-              Upgrade to Plus
+              {plusCta}
             </Button>
           </div>
         )}

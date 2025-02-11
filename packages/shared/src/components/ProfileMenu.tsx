@@ -36,6 +36,8 @@ import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
+import { useFeature } from './GrowthBookProvider';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
 
 interface ListItem {
   title: string;
@@ -54,6 +56,7 @@ export default function ProfileMenu({
   const { user, logout } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
 
   const items: ListItem[] = useMemo(() => {
     const list: ListItem[] = [
@@ -69,7 +72,7 @@ export default function ProfileMenu({
 
     if (!isIOSNative()) {
       list.push({
-        title: isPlus ? 'Manage plus' : 'Upgrade to plus',
+        title: isPlus ? 'Manage plus' : plusCta,
         buttonProps: {
           tag: 'a',
           icon: <DevPlusIcon />,

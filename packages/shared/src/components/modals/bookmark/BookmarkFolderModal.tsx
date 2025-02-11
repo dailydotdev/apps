@@ -19,6 +19,8 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
 import type { BookmarkFolder } from '../../../graphql/bookmarks';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
@@ -48,6 +50,7 @@ const BookmarkFolderModal = ({
 }: BookmarkFolderModalProps): ReactElement => {
   const [icon, setIcon] = useState(folder?.icon || '');
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
   const shouldUpgrade = !isPlus;
@@ -110,7 +113,7 @@ const BookmarkFolderModal = ({
                   color={TypographyColor.Plus}
                   className="underline"
                 >
-                  upgrade to Plus
+                  {plusCta}
                 </Typography>
               </Button>
             </Typography>

@@ -27,6 +27,8 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { usePlusSubscription } from '../../hooks';
 import { IconSize } from '../Icon';
 import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 export const BlockedWords = (): ReactElement => {
   const feedSettingsEditContext = useContext(FeedSettingsEditContext);
@@ -36,6 +38,7 @@ export const BlockedWords = (): ReactElement => {
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
   const [words, setWords] = useState<string>();
   const invalidateBlockedWords = useCallback(() => {
     const queryKey = generateQueryKey(
@@ -113,7 +116,7 @@ export const BlockedWords = (): ReactElement => {
                   });
                 }}
               >
-                upgrade to Plus
+                {plusCta}
               </Typography>
             </Link>
           </>

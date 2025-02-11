@@ -21,7 +21,7 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { PlusItemStatus } from './PlusListItem';
 import { IconSize } from '../Icon';
 import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { feature, featurePlusCtaCopy } from '../../lib/featureManagement';
 import { PlusPriceType } from '../../lib/featureValues';
 
 export enum OnboardingPlans {
@@ -70,6 +70,7 @@ const PlusCard = ({
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { earlyAdopterPlanId, productOptions } = usePaymentContext();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
   const pricingIds = useFeature(feature.pricingIds);
 
   const isPaidPlan = !!plan;
@@ -186,10 +187,10 @@ const PlusCard = ({
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
-          title="Upgrade to Plus"
+          title={plusCta}
           variant={ButtonVariant.Primary}
         >
-          Upgrade to Plus
+          {plusCta}
         </Button>
       )}
       <PlusList

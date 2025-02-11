@@ -15,6 +15,8 @@ import { DevPlusIcon } from '../icons';
 import { usePlusSubscription } from '../../hooks';
 import type { TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 type PostUpgradeToPlusProps = {
   targetId: TargetId;
@@ -32,6 +34,7 @@ export const PostUpgradeToPlus = ({
 }: PostUpgradeToPlusProps & PropsWithChildren): ReactElement => {
   const [show, setShow] = useState(true);
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { full: ctaText } = useFeature(featurePlusCtaCopy);
 
   const onCloseClick = useCallback(() => {
     onClose?.();
@@ -83,7 +86,7 @@ export const PostUpgradeToPlus = ({
             });
           }}
         >
-          Upgrade to Plus
+          {ctaText}
         </Button>
         <Button
           className="flex-1"

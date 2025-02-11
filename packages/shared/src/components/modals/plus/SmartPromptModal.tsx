@@ -15,9 +15,12 @@ import { webappUrl } from '../../../lib/constants';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { usePlusSubscription } from '../../../hooks';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { full: plusCta } = useFeature(featurePlusCtaCopy);
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image
@@ -54,7 +57,7 @@ export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
             });
           }}
         >
-          Upgrade to Plus
+          {plusCta}
         </Button>
       </div>
     </Modal>
