@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
-import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
@@ -15,6 +15,7 @@ import {
   BlockIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
+import type { UserShortProfile } from '../../lib/user';
 import { Roles } from '../../lib/user';
 import {
   Button,
@@ -24,7 +25,7 @@ import {
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
@@ -38,7 +39,11 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels, largeNumberFormat } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { VoteEntityPayload } from '../../hooks';
-import { useVoteComment, voteMutationHandlers } from '../../hooks';
+import {
+  usePlusSubscription,
+  useVoteComment,
+  voteMutationHandlers,
+} from '../../hooks';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
@@ -46,6 +51,7 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
+import { GiftIcon } from '../icons/gift';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -75,14 +81,15 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user, showLogin } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
   const id = `comment-actions-menu-${comment.id}`;
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
-  const { user, showLogin } = useContext(AuthContext);
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const [voteState, setVoteState] = useState<VoteEntityPayload>(() => {
     return {
       id: comment.id,
@@ -258,6 +265,29 @@ export default function CommentActionButtons({
       label: 'Report comment',
       action: openReportCommentModal,
       icon: <FlagIcon />,
+    });
+  }
+
+  if (
+    isPlusAvailable &&
+    comment.author.id !== user?.id &&
+    !comment.author.isPlus
+  ) {
+    commentOptions.push({
+      label: 'Gift daily.dev Plus',
+      action: () => {
+        logSubscriptionEvent({
+          event_name: LogEvent.GiftSubscription,
+          target_id: TargetId.ContextMenu,
+        });
+        openModal({
+          type: LazyModal.GiftPlus,
+          props: {
+            preselected: comment.author as UserShortProfile,
+          },
+        });
+      },
+      icon: <GiftIcon />,
     });
   }
 
