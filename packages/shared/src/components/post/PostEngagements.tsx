@@ -22,14 +22,16 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions } from '../../hooks';
+import { useActions, useConditionalFeature } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
-import { PostContentReminder } from './common/PostContentReminder';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { TimeSortIcon } from '../icons/Sort/Time';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import SocialBar from '../cards/socials/SocialBar';
+import { featureSocialShare } from '../../lib/featureManagement';
+import { PostContentReminder } from './common/PostContentReminder';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -65,6 +67,16 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
+  const [linkClicked, setLinkClicked] = useState(false);
+  const { value: socialShare } = useConditionalFeature({
+    feature: featureSocialShare,
+    shouldEvaluate: linkClicked,
+  });
+
+  const handleLinkClick = () => {
+    setLinkClicked(true);
+    onCopyLinkClick?.(post);
+  };
 
   const onCommented = (comment: Comment, isNew: boolean) => {
     if (!isNew) {
@@ -99,7 +111,7 @@ function PostEngagements({
         onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
       />
       <PostActions
-        onCopyLinkClick={onCopyLinkClick}
+        onCopyLinkClick={handleLinkClick}
         post={post}
         postQueryKey={postQueryKey}
         onComment={() =>
@@ -110,6 +122,7 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
+      {socialShare && <SocialBar post={post} className="mt-6" />}
       <span className="mt-6 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
         <Button

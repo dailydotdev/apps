@@ -32,6 +32,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
 import type { CommonPlusPageProps } from './common';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -65,6 +66,25 @@ const copy: Record<PlusType, PageCopy> = {
     subtitle: "Who's it for?",
   },
 };
+
+const skeletonItems = Array.from({ length: 3 }, (_, i) => i);
+const RadioGroupSkeleton = () => (
+  <div>
+    {skeletonItems.map((index) => (
+      <div
+        key={index}
+        className={classNames(
+          'flex min-h-12 items-center justify-between gap-2 rounded-10 !p-2',
+          index === 0 &&
+            '-m-px border border-border-subtlest-primary bg-surface-float',
+        )}
+      >
+        <ElementPlaceholder className="h-4 w-2/3" />
+        <ElementPlaceholder className="h-4 w-1/5" />
+      </div>
+    ))}
+  </div>
+);
 
 export const PlusInfo = ({
   productOptions,
@@ -172,23 +192,26 @@ export const PlusInfo = ({
             checked
           />
         ) : (
-          productOptions.map((option) => {
-            const { label, value } = option;
-            return (
-              <PlusOptionRadio
-                key={value}
-                option={option}
-                checked={selectedOption === value}
-                onChange={() => {
-                  onChange({ priceId: value });
-                  logSubscriptionEvent({
-                    event_name: LogEvent.SelectBillingCycle,
-                    target_id: label.toLowerCase(),
-                  });
-                }}
-              />
-            );
-          })
+          <>
+            {productOptions.length === 0 && <RadioGroupSkeleton />}
+            {productOptions.map((option) => {
+              const { label, value } = option;
+              return (
+                <PlusOptionRadio
+                  key={value}
+                  option={option}
+                  checked={selectedOption === value}
+                  onChange={() => {
+                    onChange({ priceId: value });
+                    logSubscriptionEvent({
+                      event_name: LogEvent.SelectBillingCycle,
+                      target_id: label.toLowerCase(),
+                    });
+                  }}
+                />
+              );
+            })}
+          </>
         )}
       </div>
       {onContinue ? (

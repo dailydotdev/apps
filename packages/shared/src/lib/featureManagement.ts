@@ -81,4 +81,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
   ko: 'Korean',
 });
 
+export const featureSocialShare = new Feature('social_share', false);
+
 export { feature };

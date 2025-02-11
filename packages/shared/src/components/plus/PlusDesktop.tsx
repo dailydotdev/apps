@@ -76,7 +76,7 @@ export const PlusDesktop = ({
         checkoutRef={ref}
         className={{
           container:
-            'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5',
+            'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5 empty:min-h-[50vh] empty:bg-surface-float',
           element: 'h-[35rem]',
         }}
       />
