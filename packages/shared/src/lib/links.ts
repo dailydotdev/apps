@@ -45,6 +45,20 @@ export const setQueryParams = (
   return link.toString();
 };
 
+export const objectToQueryParams = (params: Record<string, string>): string => {
+  const link = new URLSearchParams();
+
+  Object.entries(params).forEach(([param, value]) => {
+    if (value === undefined || value === null) {
+      return;
+    }
+
+    link.set(param, value);
+  });
+
+  return link.toString();
+};
+
 export const link = {
   post: {
     create: `${webappUrl}squads/create`,
