@@ -21,6 +21,8 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
+  onboardingStepsWithCTA,
+  onboardingStepsWithFooter,
   OnboardingStep,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
@@ -217,12 +219,8 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA = [
-    OnboardingStep.PWA,
-    OnboardingStep.Extension,
-    OnboardingStep.InstallDesktop,
-    OnboardingStep.AndroidPWA,
-  ].includes(activeScreen);
+  const isCTA = onboardingStepsWithCTA.includes(activeScreen);
+  const showFooter = onboardingStepsWithFooter.includes(activeScreen);
 
   useEffect(() => {
     if (
@@ -557,7 +555,7 @@ export function OnboardPage(): ReactElement {
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      {!isCTA && <FooterLinks className="mx-auto pb-6" />}
+      {showFooter && <FooterLinks className="mx-auto pb-6" />}
     </div>
   );
 }
