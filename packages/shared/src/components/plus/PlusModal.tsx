@@ -16,8 +16,8 @@ const PlusModal = (): ReactElement => {
   }
 
   return (
-    <Modal className="!max-h-fit !w-fit" isOpen onRequestClose={() => {}}>
-      <Modal.Body>
+    <Modal className="!max-h-fit !w-fit overflow-hidden" isOpen>
+      <Modal.Body className={isExtension && '!p-0'}>
         {isExtension ? <PlusExtension /> : <PlusDesktop shouldShowPlusHeader />}
       </Modal.Body>
     </Modal>

@@ -340,3 +340,6 @@ export const smallPostImage = (url: string): string => {
 
 export const plusFeaturesImage =
   'https://media.daily.dev/image/upload/s--c4as3Quw--/f_auto/v1738509922/public/daily.dev%20Plus%20-%20Default';
+
+export const plusRedBackgroundImage =
+  'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';

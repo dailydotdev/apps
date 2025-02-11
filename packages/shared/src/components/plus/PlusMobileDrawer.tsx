@@ -27,7 +27,7 @@ const PlusMobileDrawer = (): ReactElement => {
       <Image className="" src={plusFeaturesImage} />
       <div className="flex flex-col gap-5 px-4 pt-6">
         <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Title1}>
+          <Typography bold type={TypographyType.LargeTitle}>
             Fast-track your growth
           </Typography>
           <Typography
@@ -40,7 +40,7 @@ const PlusMobileDrawer = (): ReactElement => {
           </Typography>
         </div>
         <Button
-          type="a"
+          tag="a"
           href={`${webappUrl}plus`}
           variant={ButtonVariant.Primary}
         >
