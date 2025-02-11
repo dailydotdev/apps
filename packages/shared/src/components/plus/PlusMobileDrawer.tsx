@@ -9,11 +9,33 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import { webappUrl } from '../../lib/constants';
+import { useLogContext } from '../../contexts/LogContext';
+import { TargetType, Origin, LogEvent } from '../../lib/log';
+import type { MarketingCta } from '../marketingCta/common';
 
-const PlusMobileDrawer = (): ReactElement => {
-  const { closeModal } = useLazyModal();
+type PlusMobileDrawerProps = {
+  onClose: () => void;
+  marketingCta: MarketingCta;
+};
+
+const PlusMobileDrawer = ({
+  onClose,
+  marketingCta,
+}: PlusMobileDrawerProps): ReactElement => {
+  const { logEvent } = useLogContext();
+
+  const handleClick = () => {
+    logEvent({
+      event_name: LogEvent.UpgradeSubscription,
+      target_type: TargetType.MarketingCtaPlus,
+      target_id: marketingCta.campaignId,
+      extra: JSON.stringify({
+        origin: Origin.InAppPromotion,
+      }),
+    });
+  };
+
   return (
     <Drawer
       displayCloseButton
@@ -22,7 +44,7 @@ const PlusMobileDrawer = (): ReactElement => {
         close: '!mx-4',
       }}
       isOpen
-      onClose={closeModal}
+      onClose={onClose}
     >
       <Image className="" src={plusFeaturesImage} />
       <div className="flex flex-col gap-5 px-4 pt-6">
@@ -40,6 +62,7 @@ const PlusMobileDrawer = (): ReactElement => {
           </Typography>
         </div>
         <Button
+          onClick={handleClick}
           tag="a"
           href={`${webappUrl}plus`}
           variant={ButtonVariant.Primary}

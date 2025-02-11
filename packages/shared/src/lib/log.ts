@@ -58,6 +58,8 @@ export enum Origin {
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
   PostSharedBy = 'post shared by',
+  // Marketing
+  InAppPromotion = 'in app promotion',
 }
 
 export enum LogEvent {
@@ -272,6 +274,7 @@ export enum TargetType {
   PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
+  MarketingCtaPlus = 'promotion_plus',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   Source = 'source',

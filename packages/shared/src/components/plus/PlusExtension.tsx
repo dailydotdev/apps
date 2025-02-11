@@ -11,10 +11,19 @@ import { Image } from '../image/Image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { PlusInfo } from './PlusInfo';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import type { MarketingCta } from '../marketingCta/common';
 
-const PlusExtension = (): ReactElement => {
+type PlusExtensionProps = {
+  marketingCta: MarketingCta;
+};
+
+const PlusExtension = ({ marketingCta }: PlusExtensionProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const { data: productOptions } = useQuery({
-    queryKey: ['productOptions'],
+    queryKey: generateQueryKey(RequestKey.PricePreview),
     queryFn: async () => {
       const response = await fetch(`${apiUrl}/price_previews`);
       const json = await response.json();
@@ -28,6 +37,17 @@ const PlusExtension = (): ReactElement => {
       }));
     },
   });
+
+  const handleClick = () => {
+    logEvent({
+      event_name: LogEvent.UpgradeSubscription,
+      target_type: TargetType.MarketingCtaPlus,
+      target_id: marketingCta.campaignId,
+      extra: JSON.stringify({
+        origin: Origin.InAppPromotion,
+      }),
+    });
+  };
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
@@ -50,6 +70,7 @@ const PlusExtension = (): ReactElement => {
             href={`${webappUrl}plus/payment?pid=${selectedOption}`}
             disabled={!selectedOption}
             className="mt-8"
+            onClick={handleClick}
           >
             Upgrade to Plus
           </Button>

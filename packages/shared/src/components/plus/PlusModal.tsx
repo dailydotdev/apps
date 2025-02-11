@@ -1,12 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
+import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
 import { checkIsExtension } from '../../lib/func';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useBoot, useViewSize, ViewSize } from '../../hooks';
 import { ModalClose } from '../modals/common/ModalClose';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { PaymentContextProvider } from '../../contexts/PaymentContext';
+import type { MarketingCta } from '../marketingCta/common';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 const PlusMobileDrawer = dynamic(
   () => import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobileDrawer'),
@@ -22,25 +26,51 @@ const PlusDesktop = dynamic(() =>
   ),
 );
 
-const PlusModal = (): ReactElement => {
+type PlusModalProps = ModalProps & {
+  marketingCta: MarketingCta;
+};
+
+const PlusModal = ({
+  marketingCta,
+  ...modalProps
+}: PlusModalProps): ReactElement => {
+  const { campaignId } = marketingCta;
+  const { clearMarketingCta } = useBoot();
+  const { logEvent } = useLogContext();
   const { closeModal } = useLazyModal();
   const isExtension = checkIsExtension();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
+  const handleClose = () => {
+    logEvent({
+      event_name: LogEvent.MarketingCtaDismiss,
+      target_type: TargetType.MarketingCtaPlus,
+      target_id: campaignId,
+    });
+    clearMarketingCta(campaignId);
+    closeModal();
+  };
+
   if (!isLaptop) {
-    return <PlusMobileDrawer />;
+    return (
+      <PlusMobileDrawer
+        onClose={handleClose}
+        marketingCta={marketingCta}
+        {...modalProps}
+      />
+    );
   }
 
   return (
     <PaymentContextProvider>
       <Modal
         className="!max-h-fit !w-fit overflow-hidden !bg-background-default"
-        isOpen
+        {...modalProps}
       >
         <Modal.Body className="!p-0">
-          <ModalClose onClick={closeModal} top="4" />
+          <ModalClose onClick={handleClose} top="4" />
           {isExtension ? (
-            <PlusExtension />
+            <PlusExtension marketingCta={marketingCta} />
           ) : (
             <PlusDesktop
               shouldShowPlusHeader
