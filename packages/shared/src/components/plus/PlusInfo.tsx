@@ -22,12 +22,14 @@ import {
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
 import type { CommonPlusPageProps } from './common';
+import Logo from '../Logo';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
   selectedOption: string | null;
   onChange: (priceId: string) => void;
   onContinue?: () => void;
+  showPlusList?: boolean;
 };
 
 export const PlusInfo = ({
@@ -36,6 +38,7 @@ export const PlusInfo = ({
   onChange,
   onContinue,
   shouldShowPlusHeader = true,
+  showPlusList = true,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const { earlyAdopterPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -43,11 +46,13 @@ export const PlusInfo = ({
   return (
     <>
       {shouldShowPlusHeader && (
-        <PlusUser
-          iconSize={IconSize.Large}
-          typographyType={TypographyType.Title1}
-          className="mb-6"
-        />
+        <div className="mb-6 flex items-center">
+          <Logo logoClassName={{ container: 'h-8' }} />
+          <PlusUser
+            iconSize={IconSize.Large}
+            typographyType={TypographyType.Title1}
+          />
+        </div>
       )}
       <Typography
         tag={TypographyTag.H1}
@@ -167,7 +172,7 @@ export const PlusInfo = ({
           </Button>
         </div>
       ) : undefined}
-      <PlusList />
+      {showPlusList && <PlusList />}
     </>
   );
 };

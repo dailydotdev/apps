@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic';
 import { Modal } from '../modals/common/Modal';
 import { checkIsExtension } from '../../lib/func';
 import { useViewSize, ViewSize } from '../../hooks';
+import { ModalClose } from '../modals/common/ModalClose';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 const PlusMobileDrawer = dynamic(() =>
   import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobile').then(
@@ -22,6 +24,7 @@ const PlusDesktop = dynamic(() =>
 );
 
 const PlusModal = (): ReactElement => {
+  const { closeModal } = useLazyModal();
   const isExtension = checkIsExtension();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -30,9 +33,26 @@ const PlusModal = (): ReactElement => {
   }
 
   return (
-    <Modal className="!max-h-fit !w-fit overflow-hidden" isOpen>
-      <Modal.Body className={isExtension && '!p-0'}>
-        {isExtension ? <PlusExtension /> : <PlusDesktop shouldShowPlusHeader />}
+    <Modal
+      className="!max-h-fit !w-fit overflow-hidden !bg-background-default"
+      isOpen
+    >
+      <Modal.Body className="!p-0">
+        <ModalClose onClick={closeModal} top="4" />
+        {isExtension ? (
+          <PlusExtension />
+        ) : (
+          <PlusDesktop
+            shouldShowPlusHeader
+            className="!items-start !gap-0"
+            plusInfoContainerClassName="pr-10 !pt-8"
+            showPlusList={false}
+            checkoutClassName={{
+              container:
+                'border-top-0 border-r-0 border-b-0 border-t-0 h-full pl-10 !pt-8 ',
+            }}
+          />
+        )}
       </Modal.Body>
     </Modal>
   );

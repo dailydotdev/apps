@@ -16,6 +16,7 @@ import { plusRedBackgroundImage } from '../../lib/image';
 import { Image } from '../image/Image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
+import Logo from '../Logo';
 
 const PlusExtension = (): ReactElement => {
   const { data: productOptions } = useQuery({
@@ -40,10 +41,13 @@ const PlusExtension = (): ReactElement => {
     <div>
       <div className="flex flex-row pl-6">
         <div className="flex w-[28.5rem] flex-col gap-8 pb-32 pr-10 pt-6">
-          <PlusUser
-            iconSize={IconSize.Large}
-            typographyType={TypographyType.Title1}
-          />
+          <div className="flex items-center">
+            <Logo logoClassName={{ container: 'h-8' }} />
+            <PlusUser
+              iconSize={IconSize.Large}
+              typographyType={TypographyType.Title1}
+            />
+          </div>
           <Typography
             tag={TypographyTag.H1}
             color={TypographyColor.Primary}
