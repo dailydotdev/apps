@@ -22,8 +22,6 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -47,8 +45,6 @@ export const ShareList = forwardRef(function ShareList(
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
-  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -57,18 +53,9 @@ export const ShareList = forwardRef(function ShareList(
   const { title: truncatedTitle } = useTruncatedSummary(title);
 
   const actionButtons = (
-    <Container
-      ref={containerRef}
-      className={classNames(
-        'pointer-events-none',
-        feedActionSpacingExp && 'flex-[unset]',
-      )}
-    >
+    <Container ref={containerRef} className="pointer-events-none flex-[unset]">
       <ActionButtons
-        className={classNames(
-          'mt-4',
-          feedActionSpacingExp && 'justify-between tablet:mt-0',
-        )}
+        className="mt-4 justify-between tablet:mt-0"
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -134,15 +121,15 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          {!shouldSwapActions && <div className="flex flex-1" />}
+          <div className="flex flex-1 tablet:hidden" />
           <div className="flex items-center">
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags tags={post.tags} />
           </div>
-          {shouldSwapActions && <div className="flex flex-1" />}
-          {shouldSwapActions && actionButtons}
+          <div className="hidden flex-1 tablet:flex" />
+          {!isMobile && actionButtons}
         </div>
 
         <CardCoverList
@@ -166,7 +153,7 @@ export const ShareList = forwardRef(function ShareList(
           }}
         />
       </CardContent>
-      {!shouldSwapActions && actionButtons}
+      {isMobile && actionButtons}
       {children}
     </FeedItemContainer>
   );
