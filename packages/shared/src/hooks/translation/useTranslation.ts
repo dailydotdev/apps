@@ -12,6 +12,7 @@ import {
   updatePostCache,
 } from '../../lib/query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { usePlusSubscription } from '../usePlusSubscription';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -21,8 +22,8 @@ export enum ServerEvents {
 }
 
 type UseTranslation = (props: {
-  queryKey: QueryKey;
-  queryType: 'post' | 'feed';
+  queryKey?: QueryKey;
+  queryType?: 'post' | 'feed';
   clickbaitShieldEnabled?: boolean;
 }) => {
   fetchTranslations: (id: Post[]) => Promise<TranslateEvent[]>;
@@ -38,52 +39,44 @@ type TranslateEvent = {
 
 type TranslatePayload = Record<string, TranslateFields[]>;
 
-const updateTitleTranslation = ({
+export const updateTitleTranslation = ({
   post,
   translation,
 }: {
   post: Post;
   translation: TranslateEvent;
-}): void => {
+}): Post => {
   const updatedPost = post;
 
   if (post.title) {
     updatedPost.title = translation.value;
-    updatedPost.translation = { title: !!translation.value };
+    updatedPost.translation = {
+      ...updatedPost.translation,
+      [translation.field]: !!translation.value,
+    };
   } else {
     updatedPost.sharedPost.title = translation.value;
-    updatedPost.sharedPost.translation = { title: !!translation.value };
+    updatedPost.sharedPost.translation = {
+      ...updatedPost.translation,
+      [translation.field]: !!translation.value,
+    };
   }
+
+  return updatedPost;
 };
 
 const updateTranslation = ({
   post,
   translation,
-  clickbaitShieldEnabled,
 }: {
   post: Post;
   translation: TranslateEvent;
-  clickbaitShieldEnabled: boolean;
 }): Post => {
   const updatedPost = post;
 
-  const shouldUseSmartTitle =
-    post.clickbaitTitleDetected && clickbaitShieldEnabled;
-
   switch (translation.field) {
     case 'title':
-      if (shouldUseSmartTitle) {
-        break;
-      }
-
-      updateTitleTranslation({ post, translation });
-
-      break;
     case 'smartTitle':
-      if (!shouldUseSmartTitle) {
-        break;
-      }
-
       updateTitleTranslation({ post, translation });
 
       break;
@@ -96,7 +89,7 @@ const updateTranslation = ({
 
 export const useTranslation: UseTranslation = ({
   queryKey,
-  queryType,
+  queryType = 'post',
   clickbaitShieldEnabled: clickbaitShieldEnabledProp,
 }) => {
   const abort = useRef<AbortController>();
@@ -106,12 +99,17 @@ export const useTranslation: UseTranslation = ({
   const clickbaitShieldEnabled = !!(
     clickbaitShieldEnabledProp ?? flags?.clickbaitShieldEnabled
   );
+  const { isPlus } = usePlusSubscription();
 
   const { language } = user || {};
   const isStreamActive = isLoggedIn && !!language;
 
   const updateFeed = useCallback(
     (translatedPost: TranslateEvent) => {
+      if (!queryKey) {
+        return;
+      }
+
       const updatePost = updateCachedPagePost(queryKey, queryClient);
       const feedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
@@ -127,12 +125,11 @@ export const useTranslation: UseTranslation = ({
           updateTranslation({
             post: feedData.pages[pageIndex].page.edges[index].node,
             translation: translatedPost,
-            clickbaitShieldEnabled,
           }),
         );
       }
     },
-    [queryKey, queryClient, clickbaitShieldEnabled],
+    [queryKey, queryClient],
   );
 
   const updatePost = useCallback(
@@ -141,11 +138,10 @@ export const useTranslation: UseTranslation = ({
         updateTranslation({
           post,
           translation: translatedPost,
-          clickbaitShieldEnabled,
         }),
       );
     },
-    [queryClient, clickbaitShieldEnabled],
+    [queryClient],
   );
 
   const fetchTranslations = useCallback(
@@ -176,7 +172,7 @@ export const useTranslation: UseTranslation = ({
         const fields = [];
 
         const shouldUseSmartTitle =
-          post.clickbaitTitleDetected && clickbaitShieldEnabled;
+          isPlus && post.clickbaitTitleDetected && clickbaitShieldEnabled;
 
         if (shouldUseSmartTitle && !post.translation?.smartTitle) {
           fields.push('smartTitle');
@@ -240,6 +236,7 @@ export const useTranslation: UseTranslation = ({
       updateFeed,
       updatePost,
       clickbaitShieldEnabled,
+      isPlus,
     ],
   );
 

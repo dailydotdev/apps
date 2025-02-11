@@ -842,6 +842,8 @@ export const POST_CODE_SNIPPETS_QUERY = gql`
   ${POST_CODE_SNIPPET_FRAGMENT}
 `;
 
+export type PostSmartTitle = Pick<Post, 'title' | 'translation'>;
+
 export const POST_FETCH_SMART_TITLE_QUERY = gql`
   query FetchSmartTitle($id: ID!) {
     fetchSmartTitle(id: $id) {

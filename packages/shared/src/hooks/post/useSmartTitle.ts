@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
-import type { Post } from '../../graphql/posts';
+import type { Post, PostSmartTitle } from '../../graphql/posts';
 import { POST_FETCH_SMART_TITLE_QUERY } from '../../graphql/posts';
 import { usePlusSubscription } from '../usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -15,8 +15,10 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification } from '../useToastNotification';
 import { labels } from '../../lib';
-import { useTranslation } from '../translation/useTranslation';
-import { useActiveFeedContext } from '../../contexts';
+import {
+  updateTitleTranslation,
+  useTranslation,
+} from '../translation/useTranslation';
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
@@ -33,20 +35,13 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { isPlus } = usePlusSubscription();
   const { completeAction } = useActions();
   const { flags } = useSettingsContext();
-  const { queryKey } = useActiveFeedContext();
 
   const { clickbaitShieldEnabled } = flags || {};
 
   const key = useMemo(
-    () => [...getPostByIdKey(post?.id), { key: 'title' }],
-    [post?.id],
+    () => [...getPostByIdKey(post?.id), { key: 'title', lang: user?.language }],
+    [post?.id, user?.language],
   );
-
-  const { fetchTranslations } = useTranslation({
-    queryKey: queryKey || getPostByIdKey(post?.id),
-    queryType: queryKey ? 'feed' : 'post',
-    clickbaitShieldEnabled: !clickbaitShieldEnabled,
-  });
 
   const fetchSmartTitleKey = generateQueryKey(
     RequestKey.FetchedOriginalTitle,
@@ -56,32 +51,36 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
 
   const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
-    queryFn: async () => {
-      let title = post?.title || post?.sharedPost?.title;
+    queryFn: async (): Promise<PostSmartTitle> => {
+      const titleRecord = {
+        title: post?.title || post?.sharedPost?.title,
+        translation: post.translation,
+      };
+
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
       if (!isLoggedIn) {
-        return title;
+        return titleRecord;
       }
 
       try {
         const data = await gqlClient.request<{
-          fetchSmartTitle: { title: string };
+          fetchSmartTitle: PostSmartTitle;
         }>(POST_FETCH_SMART_TITLE_QUERY, {
           id: post.sharedPost ? post.sharedPost.id : post?.id,
         });
 
-        title = data.fetchSmartTitle.title;
+        if (!isPlus) {
+          completeAction(ActionType.FetchedSmartTitle);
+        }
+
+        return data.fetchSmartTitle;
       } catch (error) {
         displayToast(
           error.response?.errors?.[0].message || labels.error.generic,
         );
       }
 
-      if (!isPlus) {
-        completeAction(ActionType.FetchedSmartTitle);
-      }
-
-      return title;
+      return titleRecord;
     },
     enabled: false,
     staleTime: Infinity,
@@ -97,20 +96,34 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...disabledRefetch,
   });
 
+  const { fetchTranslations } = useTranslation({
+    clickbaitShieldEnabled: !clickbaitShieldEnabled,
+  });
+
   const fetchSmartTitle = useCallback(async () => {
     if (!fetchedSmartTitle) {
-      const [translateResult] = await fetchTranslations([post]);
+      const smartTitlePost = {
+        ...post,
+        ...smartTitle,
+      };
 
-      if (translateResult?.value) {
-        client.setQueryData(key, translateResult.value);
+      const [translateResult] = await fetchTranslations([smartTitlePost]);
+
+      if (translateResult) {
+        client.setQueryData(
+          key,
+          updateTitleTranslation({
+            post: smartTitlePost,
+            translation: translateResult,
+          }),
+        );
       } else {
-        // if translation already exist we just fetch smart title
         await refetch();
       }
-    } else {
-      client.setQueryData(key, post?.title);
     }
+
     client.setQueryData(fetchSmartTitleKey, (prevValue: boolean) => !prevValue);
+
     logEvent(
       postLogEvent(LogEvent.ClickbaitShieldTitle, post, {
         extra: { isPlus },
@@ -126,11 +139,12 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     refetch,
     key,
     fetchTranslations,
+    smartTitle,
   ]);
 
   const title = useMemo(() => {
-    return fetchedSmartTitle
-      ? smartTitle
+    return fetchedSmartTitle && smartTitle
+      ? smartTitle.title
       : post?.title || post?.sharedPost?.title;
   }, [fetchedSmartTitle, smartTitle, post?.title, post?.sharedPost?.title]);
 
