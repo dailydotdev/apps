@@ -173,6 +173,7 @@ export default function ProfileMenu({
     openModal,
     setShowDnd,
     user.permalink,
+    plusCta,
   ]);
 
   if (!user) {

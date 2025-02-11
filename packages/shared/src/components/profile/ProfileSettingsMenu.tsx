@@ -196,6 +196,7 @@ const useMenuItems = (): NavItemProps[] => {
     appExperiment,
     promptToInstall,
     androidPWAExperiment,
+    plusCta,
   ]);
 };
 
