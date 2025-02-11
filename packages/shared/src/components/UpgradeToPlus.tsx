@@ -14,6 +14,8 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
 import { isIOSNative } from '../lib/func';
+import { useFeature } from './GrowthBookProvider';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
 
 type Props = {
   iconOnly?: boolean;
@@ -37,8 +39,8 @@ export const UpgradeToPlus = ({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-
-  const content = isFullCTAText ? 'Upgrade to Plus' : 'Upgrade';
+  const ctaCopy = useFeature(featurePlusCtaCopy);
+  const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
 
   const onClick = useCallback(
     (e: React.MouseEvent) => {
