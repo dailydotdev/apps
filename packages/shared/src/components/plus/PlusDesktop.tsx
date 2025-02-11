@@ -78,6 +78,7 @@ export const PlusDesktop = ({
           onChange={toggleCheckoutOption}
           shouldShowPlusHeader={shouldShowPlusHeader}
           showPlusList={showPlusList}
+          showDailyDevLogo
         />
       </div>
       <PlusCheckoutContainer

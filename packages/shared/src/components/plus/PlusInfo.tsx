@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
@@ -12,7 +12,6 @@ import {
 import { RadioItem } from '../fields/RadioItem';
 import { PlusList } from './PlusList';
 import type { ProductOption } from '../../contexts/PaymentContext';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Button,
   ButtonColor,
@@ -23,12 +22,16 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent } from '../../lib/log';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PlusPriceType } from '../../lib/featureValues';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
   selectedOption: string | null;
   onChange: (priceId: string) => void;
   onContinue?: () => void;
+  showDailyDevLogo?: boolean;
   showPlusList?: boolean;
 };
 
@@ -39,25 +42,41 @@ export const PlusInfo = ({
   onContinue,
   shouldShowPlusHeader = true,
   showPlusList = true,
+  showDailyDevLogo = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const planTypes = useFeature(feature.pricingIds);
+
+  const earlyAdopterPlanId = useMemo(() => {
+    const monthlyPrices = productOptions.filter(
+      (option) => planTypes[option.value] === PlusPriceType.Monthly,
+    );
+
+    if (monthlyPrices.length <= 1) {
+      return null;
+    }
+
+    return monthlyPrices.reduce((acc, plan) => {
+      return acc.priceUnformatted < plan.priceUnformatted ? acc : plan;
+    }).value;
+  }, [productOptions, planTypes]);
 
   return (
     <>
       {shouldShowPlusHeader && (
         <div className="mb-6 flex items-center">
-          <Logo logoClassName={{ container: 'h-8' }} />
+          {showDailyDevLogo && <Logo logoClassName={{ container: 'h-5' }} />}
           <PlusUser
-            iconSize={IconSize.Large}
-            typographyType={TypographyType.Title1}
+            iconSize={IconSize.Medium}
+            typographyType={TypographyType.Title3}
           />
         </div>
       )}
       <Typography
         tag={TypographyTag.H1}
         color={TypographyColor.Primary}
-        className="mb-2 typo-title1 laptop:typo-mega2"
+        type={TypographyType.LargeTitle}
+        className="mb-2"
         bold
       >
         Fast-track your growth
@@ -65,7 +84,8 @@ export const PlusInfo = ({
       <Typography
         tag={TypographyTag.H2}
         color={TypographyColor.Secondary}
-        className="mb-6 typo-callout laptop:typo-title3"
+        type={TypographyType.Body}
+        className="mb-6"
       >
         Work smarter, learn faster, and stay ahead with AI tools, custom feeds,
         and pro features. Because copy-pasting code isn’t a long-term strategy.

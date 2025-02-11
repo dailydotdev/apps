@@ -7,10 +7,8 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { ModalClose } from '../modals/common/ModalClose';
 import { useLazyModal } from '../../hooks/useLazyModal';
 
-const PlusMobileDrawer = dynamic(() =>
-  import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobile').then(
-    (mod) => mod.PlusMobile,
-  ),
+const PlusMobileDrawer = dynamic(
+  () => import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobileDrawer'),
 );
 
 const PlusExtension = dynamic(
@@ -27,7 +25,6 @@ const PlusModal = (): ReactElement => {
   const { closeModal } = useLazyModal();
   const isExtension = checkIsExtension();
   const isLaptop = useViewSize(ViewSize.Laptop);
-
   if (!isLaptop) {
     return <PlusMobileDrawer />;
   }
