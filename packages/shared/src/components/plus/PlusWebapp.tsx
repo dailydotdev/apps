@@ -1,32 +1,14 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
-import type { CommonPlusPageProps } from './common';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
 
-type PlusWebappProps = CommonPlusPageProps & {
-  className?: string;
-  plusInfoContainerClassName?: string;
-  checkoutClassName?: {
-    container?: string;
-    element?: string;
-  };
-  showPlusList?: boolean;
-};
-
-const PlusWebapp = ({
-  shouldShowPlusHeader,
-  className,
-  checkoutClassName,
-  plusInfoContainerClassName,
-  showPlusList = true,
-}: PlusWebappProps): ReactElement => {
+const PlusWebapp = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta;
@@ -66,24 +48,14 @@ const PlusWebapp = ({
   ]);
 
   return (
-    <div
-      className={classNames(
-        'flex flex-1 items-center justify-center gap-20',
-        className,
-      )}
-    >
-      <div
-        className={classNames(
-          'ml-6 flex w-[28.5rem] flex-col',
-          plusInfoContainerClassName,
-        )}
-      >
+    <div className="flex flex-1 items-start justify-center !gap-0">
+      <div className="ml-6 flex w-[28.5rem] flex-col !pt-8 pr-10">
         <PlusInfo
           productOptions={productOptions}
           selectedOption={selectedOption}
           onChange={toggleCheckoutOption}
-          shouldShowPlusHeader={shouldShowPlusHeader}
-          showPlusList={showPlusList}
+          shouldShowPlusHeader
+          showPlusList={false}
           showDailyDevLogo
           title={title}
           description={description}
@@ -92,11 +64,9 @@ const PlusWebapp = ({
       <PlusCheckoutContainer
         checkoutRef={ref}
         className={{
-          container: classNames(
-            'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5',
-            checkoutClassName?.container,
-          ),
-          element: classNames('h-[35rem]', checkoutClassName?.element),
+          container:
+            'border-top-0 h-full min-h-40 w-[28.5rem] rounded-16 border border-b-0 border-r-0 border-t-0 border-border-subtlest-tertiary bg-background-default pb-5 pl-10 pr-5 pt-8 ',
+          element: 'h-[35rem]',
         }}
       />
     </div>

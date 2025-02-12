@@ -56,20 +56,7 @@ const PlusModal = (modalProps: ModalProps): ReactElement => {
       >
         <Modal.Body className="!p-0">
           <ModalClose onClick={handleClose} top="4" />
-          {isExtension ? (
-            <PlusExtension />
-          ) : (
-            <PlusWebapp
-              shouldShowPlusHeader
-              className="!items-start !gap-0"
-              plusInfoContainerClassName="pr-10 !pt-8"
-              showPlusList={false}
-              checkoutClassName={{
-                container:
-                  'border-top-0 border-r-0 border-b-0 border-t-0 h-full pl-10 !pt-8 ',
-              }}
-            />
-          )}
+          {isExtension ? <PlusExtension /> : <PlusWebapp />}
         </Modal.Body>
       </Modal>
     </PaymentContextProvider>
