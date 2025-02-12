@@ -61,7 +61,10 @@ import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  BROADCAST_CHANNEL_NAME,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
@@ -263,6 +266,24 @@ export function OnboardPage(): ReactElement {
     hasCompletedContentTypes,
     activeScreen,
   ]);
+
+  const [channel] = useState(new BroadcastChannel(BROADCAST_CHANNEL_NAME));
+  useEffect(() => {
+    if (!channel) {
+      return undefined;
+    }
+
+    const func = () => {
+      console.log('onboarding received message');
+    };
+
+    channel.addEventListener('message', func);
+
+    return () => {
+      channel.removeEventListener('message', func);
+      channel.close();
+    };
+  }, [channel]);
 
   const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
