@@ -107,6 +107,7 @@ export const BlockedWords = (): ReactElement => {
             To unlock this feature{' '}
             <Link passHref href={plusUrl}>
               <Typography
+                className="first-letter:lowercase"
                 tag={TypographyTag.Link}
                 color={TypographyColor.Plus}
                 onClick={() => {
