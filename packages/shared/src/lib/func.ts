@@ -1,12 +1,7 @@
 import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import type { EmptyObjectLiteral } from './kratos';
-import {
-  BROADCAST_CHANNEL,
-  BROADCAST_CHANNEL_NAME,
-  isBrave,
-  isTesting,
-} from './constants';
+import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 
 export type EmptyFunction = () => void;
 export type EmptyPromise = () => Promise<void>;
@@ -214,7 +209,7 @@ export const broadcastMessage = (
   message: BroadcastMessage,
   channelName: string = BROADCAST_CHANNEL_NAME,
 ): void => {
-  const channel = BROADCAST_CHANNEL;
+  const channel = new BroadcastChannel(channelName);
   channel.postMessage(message);
   channel.close();
 };
