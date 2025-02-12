@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -15,9 +15,21 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
+import { useBoot } from '@dailydotdev/shared/src/hooks';
+import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketingCta/common';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusSuccessPage = (): ReactElement => {
+  const { getMarketingCta, clearMarketingCta } = useBoot();
+  const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
+
+  useEffect(() => {
+    if (marketingCta) {
+      const { campaignId } = marketingCta;
+      clearMarketingCta(campaignId);
+    }
+  }, [marketingCta, clearMarketingCta]);
+
   return (
     <>
       <NextSeo nofollow noindex />
