@@ -34,6 +34,7 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
+    pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly,
     pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
     pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
   }),
@@ -44,7 +45,6 @@ export const featureOnboardingPlusCheckout = new Feature(
   false,
 );
 
-export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureOnboardingExtension = new Feature(
@@ -79,5 +79,7 @@ export const featureValidLanguages = new Feature('valid_languages', {
   ja: 'Japanese',
   ko: 'Korean',
 });
+
+export const featureSocialShare = new Feature('social_share', false);
 
 export { feature };

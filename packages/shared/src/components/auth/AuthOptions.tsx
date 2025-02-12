@@ -7,7 +7,11 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
 import type { AuthTriggersType, RegistrationError } from '../../lib/auth';
-import { AuthEventNames, getNodeValue } from '../../lib/auth';
+import {
+  isNativeAuthSupported,
+  AuthEventNames,
+  getNodeValue,
+} from '../../lib/auth';
 import useRegistration from '../../hooks/useRegistration';
 import {
   AuthEvent,
@@ -291,7 +295,10 @@ function AuthOptions({
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
-    windowPopup.current = window.open();
+    // Only web auth requires a popup
+    if (!isNativeAuthSupported(provider)) {
+      windowPopup.current = window.open();
+    }
     setChosenProvider(provider);
     await onSocialRegistration(provider);
     onAuthStateUpdate?.({ isLoading: true });
@@ -338,10 +345,15 @@ function AuthOptions({
           email: getNodeValue('traits.email', connected.ui.nodes),
           image: getNodeValue('traits.image', connected.ui.nodes),
         };
-        const { result } = await getKratosProviders(connected.id);
-        setIsConnected(true);
-        await onSignBackLogin(registerUser, result[0] as SignBackProvider);
-        return onSetActiveDisplay(AuthDisplay.SignBack);
+        // Native auth doesn't return traits, so we must validate that it exists
+        if (registerUser.email) {
+          const { result } = await getKratosProviders(connected.id);
+          setIsConnected(true);
+          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
+          return onSetActiveDisplay(AuthDisplay.SignBack);
+        }
+        onSetActiveDisplay(AuthDisplay.SignBack);
+        return displayToast(labels.auth.error.existingEmail);
       }
 
       return displayToast(labels.auth.error.generic);
@@ -357,16 +369,14 @@ function AuthOptions({
       return displayToast(labels.auth.error.generic);
     }
 
-    if (!e.data?.social_registration) {
-      const { data: boot } = bootResponse;
+    const { data: boot } = bootResponse;
 
-      if (boot.user) {
-        onSignBackLogin(
-          boot.user as LoggedUser,
-          chosenProvider as SignBackProvider,
-        );
-      }
-
+    // If user is confirmed we can proceed with logging them in
+    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
+      onSignBackLogin(
+        boot.user as LoggedUser,
+        chosenProvider as SignBackProvider,
+      );
       return onSuccessfulLogin?.();
     }
 
