@@ -88,7 +88,8 @@ const PlusExtension = (): ReactElement => {
           <PlusUser
             iconSize={IconSize.Large}
             typographyType={TypographyType.Title1}
-            className="opacity-0"
+            className="invisible"
+            aria-hidden
           />
           <Image
             className="absolute bottom-0"
