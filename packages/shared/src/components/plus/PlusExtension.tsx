@@ -61,18 +61,18 @@ const PlusExtension = (): ReactElement => {
     <div>
       <div className="flex flex-row pl-6">
         <div className="flex w-[28.5rem] flex-col pb-32 pr-10 pt-6">
-          {productOptions && productOptions.length > 0 && (
-            <PlusInfo
-              productOptions={productOptions}
-              selectedOption={selectedOption}
-              onChange={({ priceId }) => {
-                setSelectedOption(priceId);
-              }}
-              showPlusList={false}
-              showDailyDevLogo
-              showGiftButton={false}
-            />
-          )}
+          <PlusInfo
+            productOptions={productOptions || []}
+            title={flags.title}
+            description={flags.description}
+            selectedOption={selectedOption}
+            onChange={({ priceId }) => {
+              setSelectedOption(priceId);
+            }}
+            showPlusList={false}
+            showDailyDevLogo
+            showGiftButton={false}
+          />
           <Button
             variant={ButtonVariant.Primary}
             tag="a"

@@ -92,6 +92,23 @@ const RadioGroupSkeleton = () => (
     ))}
   </div>
 );
+const getCopy = ({ giftToUser, title, description, subtitle }) => {
+  return {
+    titleCopy:
+      title ||
+      (giftToUser ? copy[PlusType.Gift].title : copy[PlusType.Self].title),
+    descriptionCopy:
+      description ||
+      (giftToUser
+        ? copy[PlusType.Gift].description
+        : copy[PlusType.Self].description),
+    subtitleCopy:
+      subtitle ||
+      (giftToUser
+        ? copy[PlusType.Gift].subtitle
+        : copy[PlusType.Self].subtitle),
+  };
+};
 
 export const PlusInfo = ({
   productOptions,
@@ -102,9 +119,9 @@ export const PlusInfo = ({
   showPlusList = true,
   showDailyDevLogo = false,
   showGiftButton = true,
-  title: titleProp = copy[PlusType.Self].title,
-  description: descriptionProp = copy[PlusType.Self].description,
-  subtitle: subtitleProp = copy[PlusType.Self].subtitle,
+  title,
+  description,
+  subtitle,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
@@ -112,12 +129,12 @@ export const PlusInfo = ({
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
 
-  // Get the values in order of giftToUser > props > default copy
-  const title = giftToUser ? copy[PlusType.Gift].title : titleProp;
-  const description = giftToUser
-    ? copy[PlusType.Gift].description
-    : descriptionProp;
-  const subtitle = giftToUser ? copy[PlusType.Gift].subtitle : subtitleProp;
+  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy({
+    giftToUser,
+    title,
+    description,
+    subtitle,
+  });
 
   return (
     <>
@@ -137,7 +154,7 @@ export const PlusInfo = ({
         className="mb-2"
         bold
       >
-        {title}
+        {titleCopy}
       </Typography>
       <Typography
         tag={TypographyTag.H2}
@@ -145,7 +162,7 @@ export const PlusInfo = ({
         type={TypographyType.Body}
         className="mb-6"
       >
-        {description}
+        {descriptionCopy}
       </Typography>
       <div className="mb-4">
         <ConditionalWrapper
@@ -186,7 +203,7 @@ export const PlusInfo = ({
             color={TypographyColor.Tertiary}
             bold
           >
-            {subtitle}
+            {subtitleCopy}
           </Typography>
         </ConditionalWrapper>
       </div>
