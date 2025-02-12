@@ -42,8 +42,10 @@ type PlusInfoProps = {
   onContinue?: () => void;
   showDailyDevLogo?: boolean;
   showPlusList?: boolean;
+  showGiftButton?: boolean;
   title?: string;
   description?: string;
+  subtitle?: string;
 };
 
 enum PlusType {
@@ -99,17 +101,23 @@ export const PlusInfo = ({
   shouldShowPlusHeader = true,
   showPlusList = true,
   showDailyDevLogo = false,
-  title = 'Fast-track your growth',
-  description = 'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+  showGiftButton = true,
+  title: titleProp = copy[PlusType.Self].title,
+  description: descriptionProp = copy[PlusType.Self].description,
+  subtitle: subtitleProp = copy[PlusType.Self].subtitle,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
-  // const { title, description, subtitle } =
-  //   copy[giftToUser ? PlusType.Gift : PlusType.Self];
-  const { subtitle } = copy[giftToUser ? PlusType.Gift : PlusType.Self];
+
+  // Get the values in order of giftToUser > props > default copy
+  const title = giftToUser ? copy[PlusType.Gift].title : titleProp;
+  const description = giftToUser
+    ? copy[PlusType.Gift].description
+    : descriptionProp;
+  const subtitle = giftToUser ? copy[PlusType.Gift].subtitle : subtitleProp;
 
   return (
     <>
@@ -139,48 +147,49 @@ export const PlusInfo = ({
       >
         {description}
       </Typography>
-      <ConditionalWrapper
-        condition={!giftToUser}
-        wrapper={(component) => (
-          <div className="mb-4 flex flex-row items-center justify-between">
-            <span>{component}</span>
-            <Button
-              icon={<GiftIcon />}
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Float}
-              onClick={() => {
-                logSubscriptionEvent({
-                  event_name: LogEvent.GiftSubscription,
-                  target_id: TargetId.PlusPage,
-                });
-                openModal({
-                  type: LazyModal.GiftPlus,
-                  props: {
-                    onSelected: (user) => {
-                      onChange({
-                        priceId: productOptions[0].value,
-                        giftToUserId: user.id,
-                      });
+      <div className="mb-4">
+        <ConditionalWrapper
+          condition={!giftToUser && showGiftButton}
+          wrapper={(component) => (
+            <div className="flex flex-row items-center justify-between">
+              <span>{component}</span>
+              <Button
+                icon={<GiftIcon />}
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Float}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.GiftSubscription,
+                    target_id: TargetId.PlusPage,
+                  });
+                  openModal({
+                    type: LazyModal.GiftPlus,
+                    props: {
+                      onSelected: (user) => {
+                        onChange({
+                          priceId: productOptions[0].value,
+                          giftToUserId: user.id,
+                        });
+                      },
                     },
-                  },
-                });
-              }}
-            >
-              Buy as a gift
-            </Button>
-          </div>
-        )}
-      >
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className={giftToUser && 'mb-4'}
-          bold
+                  });
+                }}
+              >
+                Buy as a gift
+              </Button>
+            </div>
+          )}
         >
-          {subtitle}
-        </Typography>
-      </ConditionalWrapper>
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            bold
+          >
+            {subtitle}
+          </Typography>
+        </ConditionalWrapper>
+      </div>
       {!!giftToUser && (
         <GiftingSelectedUser
           user={giftToUser}

@@ -16,6 +16,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -27,14 +28,19 @@ const PlusExtension = (): ReactElement => {
     queryFn: async () => {
       const response = await fetch(`${apiUrl}/price_previews`);
       const json = await response.json();
-      return json?.details?.lineItems.map((item) => ({
+      const items = json?.details?.lineItems.map((item) => ({
         label: item.price.description,
         value: item.price.id,
         price: item.formattedTotals.total,
         priceUnformatted: Number(item.totals.total),
         currencyCode: json?.currencyCode as string,
         extraLabel: item.price.customData?.label as string,
+        appsId: item.price.customData?.appsId as string,
       }));
+
+      return items.filter(
+        (item) => item.appsId !== PlusPriceTypeAppsId.GiftOneYear,
+      );
     },
   });
 
@@ -59,9 +65,12 @@ const PlusExtension = (): ReactElement => {
             <PlusInfo
               productOptions={productOptions}
               selectedOption={selectedOption}
-              onChange={setSelectedOption}
+              onChange={({ priceId }) => {
+                setSelectedOption(priceId);
+              }}
               showPlusList={false}
               showDailyDevLogo
+              showGiftButton={false}
             />
           )}
           <Button
