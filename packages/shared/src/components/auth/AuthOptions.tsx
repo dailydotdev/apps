@@ -312,7 +312,7 @@ function AuthOptions({
 
   const [channel] = useState(new BroadcastChannel(BROADCAST_CHANNEL_NAME));
 
-  useEventListener(channel, 'message', async (e) => {
+  const eventSend = async (e) => {
     console.log('message received: ', e.data);
 
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
@@ -383,7 +383,10 @@ function AuthOptions({
     }
 
     return onSetActiveDisplay(AuthDisplay.SocialRegistration);
-  });
+  };
+
+  useEventListener(channel, 'message', eventSend);
+  useEventListener(globalThis, 'message', eventSend);
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
