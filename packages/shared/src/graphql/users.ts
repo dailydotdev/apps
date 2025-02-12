@@ -8,7 +8,7 @@ import {
 } from './fragments';
 import type { PublicProfile, UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
-import { gqlClient } from './common';
+import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
@@ -720,8 +720,16 @@ export const GET_PLUS_GIFTER_USER = gql`
     }
   }
 `;
-export const getPlusGifterUser = async (): Promise<UserShortProfile> => {
-  const res = await gqlClient.request(GET_PLUS_GIFTER_USER);
+export const getPlusGifterUser = async (): Promise<UserShortProfile | null> => {
+  try {
+    const res = await gqlClient.request(GET_PLUS_GIFTER_USER);
+    return res.plusGifterUser;
+  } catch (error) {
+    const errorCode = error.response?.errors?.[0]?.extensions?.code;
+    if (errorCode === ApiError.Forbidden) {
+      return null;
+    }
 
-  return res.plusGifterUser;
+    throw error;
+  }
 };

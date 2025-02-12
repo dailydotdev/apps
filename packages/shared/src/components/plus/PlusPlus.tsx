@@ -31,7 +31,6 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
     queryFn: getPlusGifterUser,
     enabled: Boolean(user?.isPlus),
     staleTime: StaleTime.Default,
-    retry: false,
   });
 
   if (isPending) {
