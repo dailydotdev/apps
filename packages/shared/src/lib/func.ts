@@ -213,3 +213,29 @@ export const broadcastMessage = (
   channel.postMessage(message);
   channel.close();
 };
+
+export const promisifyEventListener = <T>(
+  type: string,
+  listener: (event: CustomEvent) => T | Promise<T>,
+): Promise<T> => {
+  return new Promise((resolve) => {
+    if (!globalThis?.eventControllers) {
+      globalThis.eventControllers = {};
+    }
+    if (globalThis.eventControllers[type]) {
+      globalThis.eventControllers[type].abort();
+    }
+
+    const controller = new AbortController();
+    globalThis.eventControllers[type] = controller;
+
+    globalThis.addEventListener(
+      type,
+      async (event: CustomEvent) => {
+        globalThis.eventControllers[type] = null;
+        resolve(await listener(event));
+      },
+      { once: true, signal: controller.signal },
+    );
+  });
+};

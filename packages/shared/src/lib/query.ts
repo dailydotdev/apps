@@ -193,6 +193,7 @@ export enum RequestKey {
   UserShortById = 'user_short_by_id',
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
+  GifterUser = 'gifter_user',
   Prompts = 'smart_prompts',
   PricePreview = 'price_preview',
 }

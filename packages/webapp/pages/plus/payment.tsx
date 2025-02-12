@@ -28,7 +28,7 @@ const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { openCheckout, productOptions } = usePaymentContext();
   const router = useRouter();
-  const { pid } = router.query;
+  const { pid, gift } = router.query;
 
   useEffect(() => {
     if (!router.isReady) {
@@ -65,8 +65,10 @@ const PlusPaymentPage = (): ReactElement => {
                 if (!element) {
                   return;
                 }
-
-                openCheckout({ priceId: pid as string });
+                openCheckout({
+                  priceId: pid as string,
+                  giftToUserId: gift as string,
+                });
               }}
               className={{
                 container:

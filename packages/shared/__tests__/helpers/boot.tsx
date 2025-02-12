@@ -19,6 +19,7 @@ import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import LogContext from '../../src/contexts/LogContext';
 import type { LogContextData } from '../../src/hooks/log/useLogContextData';
 import { ChecklistViewState } from '../../src/lib/checklist';
+import { PaymentContextProvider } from '../../src/contexts/PaymentContext';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -116,8 +117,10 @@ export const TestBootProvider = ({
                   value={{ ...defaultLogContextData, ...log }}
                 >
                   <NotificationsContextProvider {...notification}>
-                    {children}
-                    <LazyModalElement />
+                    <PaymentContextProvider>
+                      {children}
+                      <LazyModalElement />
+                    </PaymentContextProvider>
                   </NotificationsContextProvider>
                 </LogContext.Provider>
               </SettingsContext.Provider>

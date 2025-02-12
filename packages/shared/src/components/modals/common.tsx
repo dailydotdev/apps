@@ -238,6 +238,17 @@ const PlusModal = dynamic(
   () => import(/* webpackChunkName: "plusModal" */ '../plus/PlusModal'),
 );
 
+const GiftPlusModal = dynamic(
+  () => import(/* webpackChunkName: "giftPlusModal" */ '../plus/GiftPlusModal'),
+);
+
+const GiftReceivedPlusModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "giftReceivedPlusModal" */ '../plus/GiftReceivedPlusModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -278,6 +289,8 @@ export const modals = {
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
   [LazyModal.Plus]: PlusModal,
+  [LazyModal.GiftPlus]: GiftPlusModal,
+  [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
 };
 
 type GetComponentProps<T> = T extends

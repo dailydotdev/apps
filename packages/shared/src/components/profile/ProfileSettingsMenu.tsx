@@ -12,20 +12,19 @@ import {
   DocsIcon,
   TerminalIcon,
   FeedbackIcon,
-  HammerIcon,
   AppIcon,
   DevPlusIcon,
   PrivacyIcon,
   DownloadIcon,
+  MegaphoneIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
+  businessWebsiteUrl,
   docs,
   feedback,
   managePlusUrl,
   plusUrl,
-  privacyPolicy,
-  termsOfService,
 } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -48,7 +47,7 @@ import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
 
 const useMenuItems = (): NavItemProps[] => {
   const { promptToInstall, isAvailable } = useInstallPWA();
-  const { logout, isAndroidApp, isGdprCovered } = useAuthContext();
+  const { logout, isAndroidApp } = useAuthContext();
   const { value: androidPWAExperiment } = useConditionalFeature({
     feature: featureAndroidPWA,
     shouldEvaluate:
@@ -119,21 +118,15 @@ const useMenuItems = (): NavItemProps[] => {
       });
     }
 
-    items.push(
+    return [
+      ...items,
       {
         label: 'Invite friends',
         icon: <AddUserIcon />,
         href: '/account/invite',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
-    );
-
-    if (isGdprCovered) {
-      items.push({ label: 'Privacy', icon: <PrivacyIcon />, href: '/privacy' });
-    }
-
-    return [
-      ...items,
+      { label: 'Privacy', icon: <PrivacyIcon />, href: '/account/privacy' },
       {
         label: 'Logout',
         icon: <ExitIcon />,
@@ -177,6 +170,13 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Support',
         isHeader: true,
       },
+      {
+        label: 'Advertise',
+        href: businessWebsiteUrl,
+        icon: <MegaphoneIcon />,
+        target: '_blank',
+        rel: anchorDefaultRel,
+      },
       getAndroidPWA,
       downloadAndroidApp,
       {
@@ -198,24 +198,9 @@ const useMenuItems = (): NavItemProps[] => {
         target: '_blank',
         rel: anchorDefaultRel,
       },
-      {
-        label: 'Privacy policy',
-        icon: <DocsIcon />,
-        href: privacyPolicy,
-        target: '_blank',
-        rel: anchorDefaultRel,
-      },
-      {
-        label: 'Terms of service',
-        icon: <HammerIcon />,
-        href: termsOfService,
-        target: '_blank',
-        rel: anchorDefaultRel,
-      },
     ].filter(Boolean);
   }, [
     isPlus,
-    isGdprCovered,
     logSubscriptionEvent,
     onLogout,
     openModal,

@@ -13,3 +13,14 @@ const ConditionalWrapper = ({
   condition ? wrapper(children) : (children as ReactElement);
 
 export default ConditionalWrapper;
+
+export const ConditionalRender = ({
+  condition,
+  children,
+}: Pick<ConditionalWrapperProps, 'condition' | 'children'>): ReactNode => {
+  if (!condition) {
+    return null;
+  }
+
+  return children;
+};

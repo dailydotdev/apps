@@ -45,7 +45,6 @@ export const featureOnboardingPlusCheckout = new Feature(
   false,
 );
 
-export const feedActionSpacing = new Feature('feed_action_spacing', false);
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureOnboardingExtension = new Feature(
@@ -80,5 +79,7 @@ export const featureValidLanguages = new Feature('valid_languages', {
   ja: 'Japanese',
   ko: 'Korean',
 });
+
+export const featureSocialShare = new Feature('social_share', false);
 
 export { feature };
