@@ -2,8 +2,18 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { DocsIcon, FeedbackIcon, TerminalIcon } from '../../icons';
-import { docs, feedback, webappUrl } from '../../../lib/constants';
+import {
+  DocsIcon,
+  FeedbackIcon,
+  MegaphoneIcon,
+  TerminalIcon,
+} from '../../icons';
+import {
+  businessWebsiteUrl,
+  docs,
+  feedback,
+  webappUrl,
+} from '../../../lib/constants';
 import { Section } from '../Section';
 import { AlertColor, AlertDot } from '../../AlertDot';
 import { useChangelog } from '../../../hooks/useChangelog';
@@ -17,6 +27,11 @@ export const ResourceSection = ({
   const changelog = useChangelog();
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
+      {
+        title: 'Advertise',
+        path: businessWebsiteUrl,
+        icon: () => <ListIcon Icon={() => <MegaphoneIcon />} />,
+      },
       {
         icon: () => <ListIcon Icon={() => <DocsIcon />} />,
         title: 'Docs',
