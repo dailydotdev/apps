@@ -78,7 +78,6 @@ const updateTranslation = ({
     case 'title':
     case 'smartTitle':
       updateTitleTranslation({ post, translation });
-
       break;
     default:
       break;
@@ -134,14 +133,28 @@ export const useTranslation: UseTranslation = ({
 
   const updatePost = useCallback(
     (translatedPost: TranslateEvent) => {
-      updatePostCache(queryClient, translatedPost.id, (post) =>
-        updateTranslation({
-          post,
-          translation: translatedPost,
-        }),
+      const { post: updatedPost } = updatePostCache(
+        queryClient,
+        translatedPost.id,
+        (post) =>
+          updateTranslation({
+            post,
+            translation: translatedPost,
+          }),
       );
+
+      if (
+        updatedPost.type === PostType.Share &&
+        translatedPost.field === 'title'
+      ) {
+        setTimeout(() => {
+          queryClient.refetchQueries({
+            queryKey,
+          });
+        }, 400); // Delay to allow the postTranslated worker to finish processing
+      }
     },
-    [queryClient],
+    [queryClient, queryKey],
   );
 
   const fetchTranslations = useCallback(
