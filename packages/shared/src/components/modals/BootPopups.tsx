@@ -106,10 +106,6 @@ export const BootPopups = (): ReactElement => {
         onAfterClose: () => {
           updateLastBootPopup();
         },
-        props: {
-          marketingCta: marketingCtaPlus,
-        },
-        persistOnRouteChange: true,
       });
     }
     if (marketingCtaPopover) {

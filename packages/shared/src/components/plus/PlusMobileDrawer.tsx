@@ -12,18 +12,19 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { TargetType, Origin, LogEvent } from '../../lib/log';
-import type { MarketingCta } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketingCta/common';
+import { useBoot } from '../../hooks';
 
 type PlusMobileDrawerProps = {
   onClose: () => void;
-  marketingCta: MarketingCta;
 };
 
-const PlusMobileDrawer = ({
-  onClose,
-  marketingCta,
-}: PlusMobileDrawerProps): ReactElement => {
+const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const { getMarketingCta } = useBoot();
+  const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
+  const { flags } = marketingCta;
+  const { title, description, ctaText } = flags;
 
   const handleClick = () => {
     logEvent({
@@ -50,15 +51,13 @@ const PlusMobileDrawer = ({
       <div className="flex flex-col gap-5 px-4 pt-6">
         <div className="flex flex-col gap-2">
           <Typography bold type={TypographyType.LargeTitle}>
-            Fast-track your growth
+            {title}
           </Typography>
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            Work smarter, learn faster, and stay ahead with AI tools, custom
-            feeds, and pro features. Because copy-pasting code isn&apos;t a
-            long-term strategy.
+            {description}
           </Typography>
         </div>
         <Button
@@ -67,7 +66,7 @@ const PlusMobileDrawer = ({
           href={`${webappUrl}plus`}
           variant={ButtonVariant.Primary}
         >
-          Upgrade to Plus
+          {ctaText}
         </Button>
       </div>
     </Drawer>

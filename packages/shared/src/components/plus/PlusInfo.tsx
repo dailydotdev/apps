@@ -33,6 +33,8 @@ type PlusInfoProps = {
   onContinue?: () => void;
   showDailyDevLogo?: boolean;
   showPlusList?: boolean;
+  title?: string;
+  description?: string;
 };
 
 export const PlusInfo = ({
@@ -43,6 +45,8 @@ export const PlusInfo = ({
   shouldShowPlusHeader = true,
   showPlusList = true,
   showDailyDevLogo = false,
+  title = 'Fast-track your growth',
+  description = 'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   const planTypes = useFeature(feature.pricingIds);
@@ -79,7 +83,7 @@ export const PlusInfo = ({
         className="mb-2"
         bold
       >
-        Fast-track your growth
+        {title}
       </Typography>
       <Typography
         tag={TypographyTag.H2}
@@ -87,8 +91,7 @@ export const PlusInfo = ({
         type={TypographyType.Body}
         className="mb-6"
       >
-        Work smarter, learn faster, and stay ahead with AI tools, custom feeds,
-        and pro features. Because copy-pasting code isn’t a long-term strategy.
+        {description}
       </Typography>
       <Typography
         tag={TypographyTag.P}
