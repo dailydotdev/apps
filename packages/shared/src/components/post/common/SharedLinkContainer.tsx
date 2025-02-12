@@ -1,11 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import PostSummary from '../../cards/common/PostSummary';
-import { ArrowIcon } from '../../icons';
+import type { Post } from '../../../graphql/posts';
+import { SmartPrompt } from '../smartPrompts/SmartPrompt';
 
 interface SharedLinkContainerProps {
   children: ReactNode;
+  post?: Post;
   summary?: string;
   className?: string;
   Wrapper?: React.ComponentType<{ children: ReactNode }>;
@@ -13,21 +14,16 @@ interface SharedLinkContainerProps {
 
 export function SharedLinkContainer({
   children,
+  post,
   summary,
   className,
   Wrapper,
 }: SharedLinkContainerProps): ReactElement {
-  const [shouldShowSummary, setShouldShowSummary] = useState(true);
-
-  const postSummary = (
-    <PostSummary
-      className={classNames(
-        'mx-4 !grid transition-all duration-300 ease-in-out',
-        shouldShowSummary ? 'mb-4 grid-rows-[1fr]' : 'grid-rows-[0fr]',
-      )}
-      summary={summary}
-    />
-  );
+  const postSummary = post?.summary ? (
+    <div className="px-4">
+      <SmartPrompt post={post} />
+    </div>
+  ) : null;
 
   return (
     <div
@@ -37,24 +33,7 @@ export function SharedLinkContainer({
       )}
     >
       {children}
-      {summary && (
-        <>
-          {Wrapper ? <Wrapper>{postSummary}</Wrapper> : postSummary}
-          <button
-            type="button"
-            className="flex w-full flex-row justify-center border-t border-border-subtlest-tertiary py-2 font-bold typo-callout hover:underline"
-            onClick={() => setShouldShowSummary(!shouldShowSummary)}
-          >
-            {shouldShowSummary ? 'Hide' : 'Show'} TLDR{' '}
-            <ArrowIcon
-              className={classNames(
-                'ml-2 transition-transform duration-300 ease-in-out',
-                !shouldShowSummary && 'rotate-180',
-              )}
-            />
-          </button>
-        </>
-      )}
+      {Wrapper && summary ? <Wrapper>{postSummary}</Wrapper> : postSummary}
     </div>
   );
 }

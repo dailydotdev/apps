@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { Tab, TabContainer } from '../../tabs/TabContainer';
@@ -21,9 +21,8 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
+  const [width, setWidth] = useState<number>(0);
   const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
-  const elementRef = useRef<HTMLDivElement>(null);
-  const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
   const triedSmartPrompts = checkHasCompleted(ActionType.SmartPrompt);
 
   const onSetActivePrompt = (prompt: string) => {
@@ -61,7 +60,11 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   return (
     <div
       className="mb-6 flex flex-col gap-3 text-text-secondary"
-      ref={elementRef}
+      ref={(element) => {
+        if (element) {
+          setWidth(element.getBoundingClientRect().width);
+        }
+      }}
     >
       <PromptButtons
         activePrompt={activePrompt}
