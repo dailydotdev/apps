@@ -55,6 +55,7 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
     queryKey: generateQueryKey(RequestKey.GifterUser, user),
     queryFn: getPlusGifterUser,
     enabled: Boolean(user?.isPlus),
+    retry: false,
   });
 
   if (!gifter || isLoading) {
