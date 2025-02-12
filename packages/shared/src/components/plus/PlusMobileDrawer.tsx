@@ -24,7 +24,6 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta;
-  const { title, description, ctaText } = flags;
 
   const handleClick = () => {
     logEvent({
@@ -47,17 +46,17 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
       isOpen
       onClose={onClose}
     >
-      <Image className="" src={plusFeaturesImage} />
+      <Image src={flags?.image || plusFeaturesImage} />
       <div className="flex flex-col gap-5 px-4 pt-6">
         <div className="flex flex-col gap-2">
           <Typography bold type={TypographyType.LargeTitle}>
-            {title}
+            {flags.title}
           </Typography>
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            {description}
+            {flags.description}
           </Typography>
         </div>
         <Button
@@ -66,7 +65,7 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
           href={`${webappUrl}plus`}
           variant={ButtonVariant.Primary}
         >
-          {ctaText}
+          {flags.ctaText}
         </Button>
       </div>
     </Drawer>

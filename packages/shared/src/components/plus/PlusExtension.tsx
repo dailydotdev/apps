@@ -21,7 +21,6 @@ const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta;
-  const { ctaText } = flags;
   const { logEvent } = useLogContext();
   const { data: productOptions } = useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview),
@@ -73,7 +72,7 @@ const PlusExtension = (): ReactElement => {
             className="mt-8"
             onClick={handleClick}
           >
-            {ctaText}
+            {flags.ctaText}
           </Button>
         </div>
         <div className="relative flex w-[28.5rem] flex-col gap-8 bg-black pr-6">
@@ -82,7 +81,10 @@ const PlusExtension = (): ReactElement => {
             typographyType={TypographyType.Title1}
             className="opacity-0"
           />
-          <Image className="absolute bottom-0" src={plusRedBackgroundImage} />
+          <Image
+            className="absolute bottom-0"
+            src={flags?.image || plusRedBackgroundImage}
+          />
           <PlusList className="z-1 pl-10" />
         </div>
       </div>
