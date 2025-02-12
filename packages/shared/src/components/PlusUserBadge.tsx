@@ -59,7 +59,7 @@ export const PlusUserBadge = ({
                       });
                     }}
                   >
-                    {ctaText}
+                    {ctaText}!
                   </Typography>
                 </Link>
               )}
