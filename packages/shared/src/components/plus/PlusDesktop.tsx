@@ -1,30 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import type { CommonPlusPageProps } from './common';
 
-type PlusDesktopProps = CommonPlusPageProps & {
-  className?: string;
-  plusInfoContainerClassName?: string;
-  checkoutClassName?: {
-    container?: string;
-    element?: string;
-  };
-  showPlusList?: boolean;
-};
-
 export const PlusDesktop = ({
   shouldShowPlusHeader,
-  className,
-  checkoutClassName,
-  plusInfoContainerClassName,
-  showPlusList = true,
-}: PlusDesktopProps): ReactElement => {
+}: CommonPlusPageProps): ReactElement => {
   const { openCheckout, paddle, productOptions } = usePaymentContext();
   const {
     query: { selectedPlan },
@@ -60,35 +45,21 @@ export const PlusDesktop = ({
   ]);
 
   return (
-    <div
-      className={classNames(
-        'flex flex-1 items-center justify-center gap-20',
-        className,
-      )}
-    >
-      <div
-        className={classNames(
-          'ml-6 flex w-[28.5rem] flex-col',
-          plusInfoContainerClassName,
-        )}
-      >
+    <div className="flex flex-1 items-center justify-center gap-20">
+      <div className="ml-6 flex w-[28.5rem] flex-col">
         <PlusInfo
           productOptions={productOptions}
           selectedOption={selectedOption}
           onChange={toggleCheckoutOption}
           shouldShowPlusHeader={shouldShowPlusHeader}
-          showPlusList={showPlusList}
-          showDailyDevLogo
         />
       </div>
       <PlusCheckoutContainer
         checkoutRef={ref}
         className={{
-          container: classNames(
+          container:
             'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5',
-            checkoutClassName?.container,
-          ),
-          element: classNames('h-[35rem]', checkoutClassName?.element),
+          element: 'h-[35rem]',
         }}
       />
     </div>
