@@ -31,6 +31,7 @@ export const ResourceSection = ({
         title: 'Advertise',
         path: businessWebsiteUrl,
         icon: () => <ListIcon Icon={() => <MegaphoneIcon />} />,
+        target: '_blank',
       },
       {
         icon: () => <ListIcon Icon={() => <DocsIcon />} />,
