@@ -22,8 +22,6 @@ import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
 import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
-import { useFeature } from '../../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../../lib/featureManagement';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -40,9 +38,7 @@ export default function ActionButtons({
 }: ActionButtonsPropsList): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const { showTagsPanel } = data;
-  const isCounterVisible = post?.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -84,12 +80,7 @@ export default function ActionButtons({
             }
           >
             <Button
-              className={classNames(
-                'pointer-events-auto',
-                isCounterVisible
-                  ? '!pl-1 !pr-3'
-                  : !feedActionSpacingExp && 'w-8',
-              )}
+              className="pointer-events-auto !pl-1 !pr-3"
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               pressed={post?.userState?.vote === UserVote.Up}
@@ -100,20 +91,15 @@ export default function ActionButtons({
                 secondary={post?.userState?.vote === UserVote.Up}
                 size={IconSize.Medium}
               />
-              {isCounterVisible ? (
-                <InteractionCounter
-                  className={classNames(
-                    'ml-1.5 tabular-nums',
-                    !post.numUpvotes && feedActionSpacingExp && 'invisible',
-                  )}
-                  value={post?.numUpvotes}
-                />
-              ) : null}
+              <InteractionCounter
+                className={classNames(
+                  'ml-1.5 tabular-nums',
+                  !post.numUpvotes && 'invisible',
+                )}
+                value={post?.numUpvotes}
+              />
             </Button>
           </SimpleTooltip>
-          {!feedActionSpacingExp && (
-            <div className="box-border border border-surface-float py-2.5" />
-          )}
           <SimpleTooltip
             content={
               post?.userState?.vote === UserVote.Down
@@ -150,11 +136,7 @@ export default function ActionButtons({
             tag="a"
             href={post.commentsPermalink}
             pressed={post.commented}
-            variant={
-              feedActionSpacingExp
-                ? ButtonVariant.Tertiary
-                : ButtonVariant.Float
-            }
+            variant={ButtonVariant.Tertiary}
             {...combinedClicks(() => onCommentClick?.(post))}
           >
             <CommentIcon secondary={post.commented} size={IconSize.Medium} />
@@ -172,9 +154,7 @@ export default function ActionButtons({
             id: `post-${post.id}-bookmark-btn`,
             icon: <BookmarkIcon secondary={post.bookmarked} />,
             onClick: () => onBookmarkClick(post),
-            variant: feedActionSpacingExp
-              ? ButtonVariant.Tertiary
-              : ButtonVariant.Float,
+            variant: ButtonVariant.Tertiary,
             className: 'pointer-events-auto ml-2',
           }}
         />
@@ -183,11 +163,7 @@ export default function ActionButtons({
             className="pointer-events-auto ml-2"
             icon={<LinkIcon />}
             onClick={(e) => onCopyLinkClick?.(e, post)}
-            variant={
-              feedActionSpacingExp
-                ? ButtonVariant.Tertiary
-                : ButtonVariant.Float
-            }
+            variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
           />
         </SimpleTooltip>

@@ -23,8 +23,6 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -49,8 +47,6 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
-  const isCounterVisible = post.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -76,10 +72,7 @@ const ActionButtons = ({
       <div className="flex flex-row items-center rounded-12 bg-surface-float">
         <SimpleTooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
           <Button
-            className={classNames(
-              'pointer-events-auto',
-              isCounterVisible ? '!pl-1 !pr-3' : !feedActionSpacingExp && 'w-8',
-            )}
+            className="pointer-events-auto !pl-1 !pr-3"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
@@ -93,20 +86,15 @@ const ActionButtons = ({
               secondary={isUpvoteActive}
               size={IconSize.Small}
             />
-            {isCounterVisible ? (
-              <InteractionCounter
-                className={classNames(
-                  'ml-1.5 tabular-nums',
-                  !post.numUpvotes && feedActionSpacingExp && 'invisible',
-                )}
-                value={post.numUpvotes}
-              />
-            ) : null}
+            <InteractionCounter
+              className={classNames(
+                'ml-1.5 tabular-nums',
+                !post.numUpvotes && 'invisible',
+              )}
+              value={post.numUpvotes}
+            />
           </Button>
         </SimpleTooltip>
-        {!feedActionSpacingExp && (
-          <div className="box-border border border-surface-float py-2.5" />
-        )}
         <SimpleTooltip
           content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
         >
