@@ -14,7 +14,7 @@ import {
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { usePlusSubscription } from '../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -69,9 +69,14 @@ const PlusCard = ({
   onClickNext,
 }: PlusCardProps): ReactElement => {
   const id = useId();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const { earlyAdopterPlanId, productOptions } = usePaymentContext();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const pricingIds = useFeature(feature.pricingIds);
 
   const isPaidPlan = !!plan;

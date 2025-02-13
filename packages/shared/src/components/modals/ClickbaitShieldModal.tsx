@@ -12,12 +12,16 @@ import { PlusUser } from '../PlusUser';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
-import { usePlusSubscription, useViewSize, ViewSize } from '../../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { clickbaitShieldModalImage } from '../../lib/image';
-import { useFeature } from '../GrowthBookProvider';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 type Props = {
@@ -30,8 +34,13 @@ const ClickbaitShieldModal = ({
   fetchSmartTitle,
   ...props
 }: Props & ModalProps): ReactElement => {
-  const { logSubscriptionEvent } = usePlusSubscription();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const { closeModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   if (!isMobile) {

@@ -24,10 +24,9 @@ import { useBlockedQuery } from '../../hooks/contentPreference/useBlockedQuery';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { usePlusSubscription } from '../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { IconSize } from '../Icon';
 import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
-import { useFeature } from '../GrowthBookProvider';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 export const BlockedWords = (): ReactElement => {
@@ -38,7 +37,12 @@ export const BlockedWords = (): ReactElement => {
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const [words, setWords] = useState<string>();
   const invalidateBlockedWords = useCallback(() => {
     const queryKey = generateQueryKey(

@@ -12,10 +12,9 @@ import {
 import { Button } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
-import { usePlusSubscription } from '../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import type { TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
-import { useFeature } from '../GrowthBookProvider';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 type PostUpgradeToPlusProps = {
@@ -33,8 +32,13 @@ export const PostUpgradeToPlus = ({
   onClose,
 }: PostUpgradeToPlusProps & PropsWithChildren): ReactElement => {
   const [show, setShow] = useState(true);
-  const { logSubscriptionEvent } = usePlusSubscription();
-  const { full: ctaText } = useFeature(featurePlusCtaCopy);
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   const onCloseClick = useCallback(() => {
     onClose?.();
@@ -86,7 +90,7 @@ export const PostUpgradeToPlus = ({
             });
           }}
         >
-          {ctaText}
+          {plusCta}
         </Button>
         <Button
           className="flex-1"

@@ -14,13 +14,17 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { webappUrl } from '../../../lib/constants';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { usePlusSubscription } from '../../../hooks';
-import { useFeature } from '../../GrowthBookProvider';
+import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
-  const { logSubscriptionEvent } = usePlusSubscription();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image

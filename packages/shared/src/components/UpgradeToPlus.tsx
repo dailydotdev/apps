@@ -6,7 +6,7 @@ import { Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
-import { useViewSize, ViewSize } from '../hooks';
+import { useConditionalFeature, useViewSize, ViewSize } from '../hooks';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import type { TargetId } from '../lib/log';
 import { LogEvent } from '../lib/log';
@@ -14,7 +14,6 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
 import { isIOSNative } from '../lib/func';
-import { useFeature } from './GrowthBookProvider';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 
 type Props = {
@@ -39,7 +38,10 @@ export const UpgradeToPlus = ({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const ctaCopy = useFeature(featurePlusCtaCopy);
+  const { value: ctaCopy } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
 
   const onClick = useCallback(

@@ -36,9 +36,9 @@ import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
-import { useFeature } from './GrowthBookProvider';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 import { GiftIcon } from './icons/gift';
+import { useConditionalFeature } from '../hooks';
 
 interface ListItem {
   title: string;
@@ -57,7 +57,12 @@ export default function ProfileMenu({
   const { user, logout, isValidRegion: isPlusAvailable } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   const items: ListItem[] = useMemo(() => {
     const list: ListItem[] = [

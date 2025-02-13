@@ -6,13 +6,16 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { FilterIcon } from '../icons';
-import { useFeeds, usePlusSubscription } from '../../hooks';
+import {
+  useConditionalFeature,
+  useFeeds,
+  usePlusSubscription,
+} from '../../hooks';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { webappUrl } from '../../lib/constants';
 import { FeedType } from '../../graphql/feed';
 import { labels } from '../../lib/labels';
-import { useFeature } from '../GrowthBookProvider';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 const editPlusSubscribePrompt: PromptOptions = {
@@ -37,7 +40,12 @@ export function FeedSettingsButton({
   const { feeds, deleteFeed } = useFeeds();
   const router = useRouter();
   const { showPrompt } = usePrompt();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   const onButtonClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     logEvent({ event_name: LogEvent.ManageTags });

@@ -1,7 +1,12 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { TextField } from '../../fields/TextField';
@@ -19,7 +24,6 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
 import type { BookmarkFolder } from '../../../graphql/bookmarks';
-import { useFeature } from '../../GrowthBookProvider';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
@@ -50,7 +54,12 @@ const BookmarkFolderModal = ({
 }: BookmarkFolderModalProps): ReactElement => {
   const [icon, setIcon] = useState(folder?.icon || '');
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const [name, setName] = useState(folder?.name || '');
   const isMobile = useViewSize(ViewSize.MobileL);
   const shouldUpgrade = !isPlus;

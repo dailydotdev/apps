@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { usePlusSubscription, useToastNotification } from '../../../../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useToastNotification,
+} from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -26,7 +30,6 @@ import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
-import { useFeature } from '../../../GrowthBookProvider';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 
 export const FeedSettingsAISection = (): ReactElement => {
@@ -36,7 +39,12 @@ export const FeedSettingsAISection = (): ReactElement => {
   const { isLoading } = useFeedSettings();
   const { user } = useAuthContext();
   const { flags, updateFlag } = useSettingsContext();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   const { onLanguageChange } = useLanguage();
 

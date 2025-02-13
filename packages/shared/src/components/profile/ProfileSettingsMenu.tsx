@@ -38,7 +38,6 @@ import {
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
 import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
-import { useFeature } from '../GrowthBookProvider';
 
 const useMenuItems = (): NavItemProps[] => {
   const { promptToInstall, isAvailable } = useInstallPWA();
@@ -51,7 +50,12 @@ const useMenuItems = (): NavItemProps[] => {
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { full: plusCta } = useFeature(featurePlusCtaCopy);
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp,
