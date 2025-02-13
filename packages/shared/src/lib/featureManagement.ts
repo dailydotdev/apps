@@ -52,10 +52,6 @@ export const featureOnboardingPlusCheckout = new Feature(
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
-export const featureOnboardingExtension = new Feature(
-  'onboarding_extension',
-  false,
-);
 export const featureOnboardingDesktopPWA = new Feature(
   'onboarding_desktop_pwa',
   false,
