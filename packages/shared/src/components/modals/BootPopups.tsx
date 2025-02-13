@@ -108,6 +108,15 @@ export const BootPopups = (): ReactElement => {
         onAfterClose: () => {
           updateLastBootPopup();
         },
+        props: {
+          onAfterOpen: () => {
+            logEvent({
+              event_name: LogEvent.Impression,
+              target_type: TargetType.MarketingCtaPlus,
+              target_id: marketingCtaPlus.campaignId,
+            });
+          },
+        },
       });
     }
     if (marketingCtaPopover) {
@@ -118,8 +127,8 @@ export const BootPopups = (): ReactElement => {
           onAfterOpen: () => {
             logEvent({
               event_name: LogEvent.Impression,
-              target_type: TargetType.MarketingCtaPlus,
-              target_id: marketingCtaPlus.campaignId,
+              target_type: TargetType.MarketingCtaPopover,
+              target_id: marketingCtaPopover.campaignId,
             });
           },
           onAfterClose: () => {
