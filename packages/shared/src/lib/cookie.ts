@@ -86,10 +86,3 @@ export const expireCookie = (
 
   setCookie(name, 'expired', { path, domain, maxAge: 0 });
 };
-
-export enum FirefoxPermissionType {
-  Accepted = 'accepted',
-  Declined = 'declined',
-}
-
-export const FIREFOX_ACCEPTED_PERMISSION = 'firefox_accepted_permissions';

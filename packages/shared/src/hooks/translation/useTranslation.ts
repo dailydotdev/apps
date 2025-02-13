@@ -46,7 +46,7 @@ export const updateTitleTranslation = ({
   post: Post;
   translation: TranslateEvent;
 }): Post => {
-  const updatedPost = post;
+  const updatedPost = structuredClone(post);
 
   if (post.title) {
     updatedPost.title = translation.value;
@@ -72,12 +72,12 @@ const updateTranslation = ({
   post: Post;
   translation: TranslateEvent;
 }): Post => {
-  const updatedPost = post;
+  let updatedPost = post;
 
   switch (translation.field) {
     case 'title':
     case 'smartTitle':
-      updateTitleTranslation({ post, translation });
+      updatedPost = updateTitleTranslation({ post, translation });
 
       break;
     default:
@@ -134,6 +134,10 @@ export const useTranslation: UseTranslation = ({
 
   const updatePost = useCallback(
     (translatedPost: TranslateEvent) => {
+      if (!queryKey) {
+        return;
+      }
+
       updatePostCache(queryClient, translatedPost.id, (post) =>
         updateTranslation({
           post,
@@ -141,7 +145,7 @@ export const useTranslation: UseTranslation = ({
         }),
       );
     },
-    [queryClient],
+    [queryClient, queryKey],
   );
 
   const fetchTranslations = useCallback(
