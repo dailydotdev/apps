@@ -134,6 +134,10 @@ export const useTranslation: UseTranslation = ({
 
   const updatePost = useCallback(
     (translatedPost: TranslateEvent) => {
+      if (!queryKey) {
+        return;
+      }
+
       updatePostCache(queryClient, translatedPost.id, (post) =>
         updateTranslation({
           post,
@@ -141,7 +145,7 @@ export const useTranslation: UseTranslation = ({
         }),
       );
     },
-    [queryClient],
+    [queryClient, queryKey],
   );
 
   const fetchTranslations = useCallback(
