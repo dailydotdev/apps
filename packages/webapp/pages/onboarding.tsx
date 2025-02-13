@@ -46,17 +46,12 @@ import {
 } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
-  featureOnboardingExtension,
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
   featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import {
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -209,13 +204,7 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
-    useState(false);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
-  const { value: extensionExperiment } = useConditionalFeature({
-    feature: featureOnboardingExtension,
-    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
-  });
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
@@ -280,7 +269,6 @@ export function OnboardPage(): ReactElement {
 
     if (activeScreen === OnboardingStep.EditTag) {
       completeStep(ActionType.EditTag);
-      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
@@ -326,11 +314,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.InstallDesktop,
     ].includes(activeScreen);
 
-    if (
-      extensionExperiment &&
-      shouldShowExtensionOnboarding &&
-      isNotExtensionRelatedStep
-    ) {
+    if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
