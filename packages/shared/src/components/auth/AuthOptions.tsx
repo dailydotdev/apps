@@ -28,13 +28,14 @@ import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import { isTesting } from '../../lib/constants';
+import { BROADCAST_CHANNEL_NAME, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
+import { broadcastMessage } from '../../lib/func';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -309,10 +310,16 @@ function AuthOptions({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
-  useEventListener(globalThis, 'message', async (e) => {
+  const [channel] = useState(new BroadcastChannel(BROADCAST_CHANNEL_NAME));
+
+  const eventSend = async (e) => {
+    console.log('message received: ', e.data);
+
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
+
+    console.log('messaging flow: ', e.data.flow);
 
     if (e.data?.flow) {
       const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
@@ -376,7 +383,10 @@ function AuthOptions({
     }
 
     return onSetActiveDisplay(AuthDisplay.SocialRegistration);
-  });
+  };
+
+  useEventListener(channel, 'message', eventSend);
+  useEventListener(globalThis, 'message', eventSend);
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
@@ -409,6 +419,16 @@ function AuthOptions({
     setIsForgotPasswordReturn(true);
     onSetActiveDisplay(defaultDisplay);
   };
+
+  useEffect(() => {
+    console.log('MOUNTED');
+
+    broadcastMessage({ eventKey: 'test' });
+
+    return () => {
+      console.log('UNMOUNTED');
+    };
+  }, []);
 
   return (
     <div

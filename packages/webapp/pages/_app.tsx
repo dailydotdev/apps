@@ -62,8 +62,11 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
-    useOnboarding();
+  const {
+    isOnboardingActionsReady,
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+  } = useOnboarding();
   const didRegisterSwRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -78,14 +81,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
-      isOnboardingReady &&
+      isOnboardingActionsReady &&
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
     ) {
       router.replace('/onboarding');
     }
   }, [
-    isOnboardingReady,
+    isOnboardingActionsReady,
     router,
     hasCompletedEditTags,
     hasCompletedContentTypes,
