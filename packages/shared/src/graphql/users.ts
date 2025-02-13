@@ -8,7 +8,7 @@ import {
 } from './fragments';
 import type { PublicProfile, UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
-import { gqlClient } from './common';
+import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
@@ -396,6 +396,14 @@ export const GET_REFERRING_USER_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const getUserShortInfo = async (
+  id: string,
+): Promise<UserShortProfile> => {
+  const res = await gqlClient.request(GET_REFERRING_USER_QUERY, { id });
+
+  return res.user || null;
+};
+
 export enum UserPersonalizedDigestType {
   Digest = 'digest',
   ReadingReminder = 'reading_reminder',
@@ -700,4 +708,28 @@ export const CLEAR_IMAGE_MUTATION = gql`
 
 export const clearImage = async (presets: string[]): Promise<void> => {
   await gqlClient.request(CLEAR_IMAGE_MUTATION, { presets });
+};
+
+export const GET_PLUS_GIFTER_USER = gql`
+  query PlusGifterUser {
+    plusGifterUser {
+      id
+      name
+      image
+      username
+    }
+  }
+`;
+export const getPlusGifterUser = async (): Promise<UserShortProfile | null> => {
+  try {
+    const res = await gqlClient.request(GET_PLUS_GIFTER_USER);
+    return res.plusGifterUser;
+  } catch (error) {
+    const errorCode = error.response?.errors?.[0]?.extensions?.code;
+    if (errorCode === ApiError.Forbidden) {
+      return null;
+    }
+
+    throw error;
+  }
 };

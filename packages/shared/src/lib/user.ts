@@ -115,6 +115,10 @@ export interface UserShortProfile
   topReader?: Partial<TopReader>;
 }
 
+export type UserFlagsPublic = Partial<{
+  showPlusGift: boolean;
+}>;
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
@@ -136,6 +140,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   companies?: Company[];
   contentPreference?: ContentPreference;
   defaultFeedId?: string;
+  flags?: UserFlagsPublic;
 }
 
 interface BaseError {

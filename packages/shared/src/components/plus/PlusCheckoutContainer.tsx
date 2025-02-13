@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
+import { useGiftUserContext } from './GiftUserContext';
 
 export type PlusCheckoutContainerProps = {
   checkoutRef?: React.LegacyRef<HTMLDivElement>;
@@ -19,12 +20,17 @@ export const PlusCheckoutContainer = ({
   checkoutRef,
   className,
 }: PlusCheckoutContainerProps): ReactElement => {
+  const { giftToUser } = useGiftUserContext();
   const { isPlusAvailable } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
 
-  const getContainerElement = () => {
+  const ContainerElement = useMemo(() => {
     if (!isPlusAvailable) {
       return PlusUnavailable;
+    }
+
+    if (giftToUser) {
+      return null;
     }
 
     if (isPlus) {
@@ -32,9 +38,7 @@ export const PlusCheckoutContainer = ({
     }
 
     return null;
-  };
-
-  const ContainerElement = getContainerElement();
+  }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
 
   return (
