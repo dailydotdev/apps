@@ -32,6 +32,7 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
+  pricingIds: new Feature('pricing_ids', {}),
 };
 
 export const featureOnboardingPlusCheckout = new Feature(
