@@ -3,7 +3,6 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from './image';
-import { PlusPriceType } from './featureValues';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 
@@ -33,11 +32,6 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  pricingIds: new Feature('pricing_ids', {
-    pri_01jjbwd5j7k0nm45k8e07yfmwr: PlusPriceType.Yearly,
-    pri_01jcdp5ef4yhv00p43hr2knrdg: PlusPriceType.Monthly,
-    pri_01jcdn6enr5ap3ekkddc6fv6tq: PlusPriceType.Yearly,
-  }),
 };
 
 export const featureOnboardingPlusCheckout = new Feature(
