@@ -58,45 +58,43 @@ const PlusExtension = (): ReactElement => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   return (
-    <div>
-      <div className="flex flex-row pl-6">
-        <div className="flex w-[28.5rem] flex-col pb-32 pr-10 pt-6">
-          <PlusInfo
-            productOptions={productOptions || []}
-            title={flags.title}
-            description={flags.description}
-            selectedOption={selectedOption}
-            onChange={({ priceId }) => {
-              setSelectedOption(priceId);
-            }}
-            showPlusList={false}
-            showDailyDevLogo
-            showGiftButton={false}
-          />
-          <Button
-            variant={ButtonVariant.Primary}
-            tag="a"
-            href={`${webappUrl}plus/payment?pid=${selectedOption}`}
-            disabled={!selectedOption}
-            className="mt-8"
-            onClick={handleClick}
-          >
-            {flags.ctaText}
-          </Button>
-        </div>
-        <div className="relative flex w-[28.5rem] flex-col gap-8 bg-black pr-6">
-          <PlusUser
-            iconSize={IconSize.Large}
-            typographyType={TypographyType.Title1}
-            className="invisible"
-            aria-hidden
-          />
-          <Image
-            className="absolute bottom-0"
-            src={flags?.image || plusRedBackgroundImage}
-          />
-          <PlusList className="z-1 pl-10" />
-        </div>
+    <div className="flex flex-row pl-6">
+      <div className="flex w-[28.5rem] flex-col pb-32 pr-10 pt-6">
+        <PlusInfo
+          productOptions={productOptions || []}
+          title={flags.title}
+          description={flags.description}
+          selectedOption={selectedOption}
+          onChange={({ priceId }) => {
+            setSelectedOption(priceId);
+          }}
+          showPlusList={false}
+          showDailyDevLogo
+          showGiftButton={false}
+        />
+        <Button
+          variant={ButtonVariant.Primary}
+          tag="a"
+          href={`${webappUrl}plus/payment?pid=${selectedOption}`}
+          disabled={!selectedOption}
+          className="mt-8"
+          onClick={handleClick}
+        >
+          {flags.ctaText}
+        </Button>
+      </div>
+      <div className="relative flex w-[28.5rem] flex-col gap-8 bg-black pr-6">
+        <PlusUser
+          iconSize={IconSize.Large}
+          typographyType={TypographyType.Title1}
+          className="invisible"
+          aria-hidden
+        />
+        <Image
+          className="absolute bottom-0"
+          src={flags?.image || plusRedBackgroundImage}
+        />
+        <PlusList className="z-1 pl-10" />
       </div>
     </div>
   );
