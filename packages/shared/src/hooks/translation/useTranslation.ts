@@ -12,6 +12,7 @@ import {
   updatePostCache,
 } from '../../lib/query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { usePlusSubscription } from '../usePlusSubscription';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -21,41 +22,94 @@ export enum ServerEvents {
 }
 
 type UseTranslation = (props: {
-  queryKey: QueryKey;
-  queryType: 'post' | 'feed';
+  queryKey?: QueryKey;
+  queryType?: 'post' | 'feed';
+  clickbaitShieldEnabled?: boolean;
 }) => {
-  fetchTranslations: (id: Post[]) => void;
+  fetchTranslations: (id: Post[]) => Promise<TranslateEvent[]>;
 };
+
+type TranslateFields = 'title' | 'smartTitle';
 
 type TranslateEvent = {
   id: string;
-  title: string;
+  field: TranslateFields;
+  value: string;
 };
 
-const updateTranslation = (post: Post, translation: TranslateEvent): Post => {
+type TranslatePayload = Record<string, TranslateFields[]>;
+
+export const updateTitleTranslation = ({
+  post,
+  translation,
+}: {
+  post: Post;
+  translation: TranslateEvent;
+}): Post => {
   const updatedPost = post;
+
   if (post.title) {
-    updatedPost.title = translation.title;
-    updatedPost.translation = { title: !!translation.title };
+    updatedPost.title = translation.value;
+    updatedPost.translation = {
+      ...updatedPost.translation,
+      [translation.field]: !!translation.value,
+    };
   } else {
-    updatedPost.sharedPost.title = translation.title;
-    updatedPost.sharedPost.translation = { title: !!translation.title };
+    updatedPost.sharedPost.title = translation.value;
+    updatedPost.sharedPost.translation = {
+      ...updatedPost.translation,
+      [translation.field]: !!translation.value,
+    };
   }
 
   return updatedPost;
 };
 
-export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
+const updateTranslation = ({
+  post,
+  translation,
+}: {
+  post: Post;
+  translation: TranslateEvent;
+}): Post => {
+  const updatedPost = post;
+
+  switch (translation.field) {
+    case 'title':
+    case 'smartTitle':
+      updateTitleTranslation({ post, translation });
+
+      break;
+    default:
+      break;
+  }
+
+  return updatedPost;
+};
+
+export const useTranslation: UseTranslation = ({
+  queryKey,
+  queryType = 'post',
+  clickbaitShieldEnabled: clickbaitShieldEnabledProp,
+}) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
   const { flags } = useSettingsContext();
   const queryClient = useQueryClient();
+  const clickbaitShieldEnabled = !!(
+    clickbaitShieldEnabledProp ?? flags?.clickbaitShieldEnabled
+  );
+  const { isPlus } = usePlusSubscription();
 
   const { language } = user || {};
   const isStreamActive = isLoggedIn && !!language;
 
   const updateFeed = useCallback(
     (translatedPost: TranslateEvent) => {
+      if (!queryKey) {
+        return;
+      }
+
       const updatePost = updateCachedPagePost(queryKey, queryClient);
       const feedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
@@ -68,10 +122,10 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
         updatePost(
           pageIndex,
           index,
-          updateTranslation(
-            feedData.pages[pageIndex].page.edges[index].node,
-            translatedPost,
-          ),
+          updateTranslation({
+            post: feedData.pages[pageIndex].page.edges[index].node,
+            translation: translatedPost,
+          }),
         );
       }
     },
@@ -81,7 +135,10 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const updatePost = useCallback(
     (translatedPost: TranslateEvent) => {
       updatePostCache(queryClient, translatedPost.id, (post) =>
-        updateTranslation(post, translatedPost),
+        updateTranslation({
+          post,
+          translation: translatedPost,
+        }),
       );
     },
     [queryClient],
@@ -90,23 +147,13 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
   const fetchTranslations = useCallback(
     async (posts: Post[]) => {
       if (!isStreamActive) {
-        return;
+        return [];
       }
       if (posts.length === 0) {
-        return;
+        return [];
       }
 
-      const postIds = posts
-        .filter((node) =>
-          node?.title
-            ? !node?.translation?.title
-            : !node?.sharedPost?.translation?.title,
-        )
-        .filter((node) =>
-          flags?.clickbaitShieldEnabled && node?.title
-            ? !node.clickbaitTitleDetected
-            : !node.sharedPost?.clickbaitTitleDetected,
-        )
+      const postsToTranslate = posts
         .filter(
           (post) =>
             !(
@@ -115,34 +162,62 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
             ),
         )
         .filter(Boolean)
-        .map((node) => (node?.title ? node.id : node?.sharedPost.id));
+        .map((node) => (node?.title ? node : node?.sharedPost));
 
-      if (postIds.length === 0) {
-        return;
+      if (postsToTranslate.length === 0) {
+        return [];
       }
 
-      const params = new URLSearchParams();
-      postIds.forEach((id) => {
-        params.append('id', id);
-      });
+      const payload = postsToTranslate.reduce((acc, post) => {
+        const fields = [];
 
-      const response = await fetch(`${apiUrl}/translate/post/title?${params}`, {
+        const shouldUseSmartTitle =
+          isPlus && post.clickbaitTitleDetected && clickbaitShieldEnabled;
+
+        if (shouldUseSmartTitle && !post.translation?.smartTitle) {
+          fields.push('smartTitle');
+        }
+
+        if (!shouldUseSmartTitle && !post.translation?.title) {
+          fields.push('title');
+        }
+
+        if (fields.length > 0) {
+          acc[post.id] = fields;
+        }
+
+        return acc;
+      }, {} as TranslatePayload);
+
+      if (Object.keys(payload).length === 0) {
+        return [];
+      }
+
+      const response = await fetch(`${apiUrl}/translate/post`, {
         signal: abort.current?.signal,
+        method: 'POST',
         headers: {
           Accept: 'text/event-stream',
           Authorization: `Bearer ${accessToken?.token}`,
           'Content-Language': language as string,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        return;
+        return [];
       }
+
+      const results: TranslateEvent[] = [];
 
       // eslint-disable-next-line no-restricted-syntax
       for await (const message of events(response)) {
         if (message.event === ServerEvents.Message) {
           const post = JSON.parse(message.data) as TranslateEvent;
+
+          results.push(post);
+
           if (queryType === 'feed') {
             updateFeed(post);
           } else {
@@ -150,15 +225,18 @@ export const useTranslation: UseTranslation = ({ queryKey, queryType }) => {
           }
         }
       }
+
+      return results;
     },
     [
       accessToken?.token,
-      flags?.clickbaitShieldEnabled,
       isStreamActive,
       language,
       queryType,
       updateFeed,
       updatePost,
+      clickbaitShieldEnabled,
+      isPlus,
     ],
   );
 

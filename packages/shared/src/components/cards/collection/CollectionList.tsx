@@ -18,8 +18,6 @@ import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
-import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -38,9 +36,7 @@ export const CollectionList = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
   const actionButtons = (
@@ -52,7 +48,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        className={feedActionSpacingExp && 'mt-2 justify-between tablet:mt-0'}
+        className="mt-2 justify-between tablet:mt-0"
       />
     </Container>
   );
@@ -89,27 +85,22 @@ export const CollectionList = forwardRef(function CollectionCard(
         </PostCardHeader>
 
         <CardContent>
-          <div
-            className={classNames(
-              'mr-4 flex flex-1 flex-col',
-              !feedActionSpacingExp && 'mb-4',
-            )}
-          >
+          <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               className={classNames(
+                'mb-2',
                 generateTitleClamp({
                   hasImage: !!image,
                   hasHtmlContent: !!post.contentHtml,
                 }),
-                feedActionSpacingExp && 'mb-2',
               )}
             >
               {title}
             </CardTitle>
-            {!shouldSwapActions && <div className="flex flex-1" />}
+            <div className="flex flex-1 tablet:hidden" />
             <PostTags tags={post.tags} />
-            {shouldSwapActions && <div className="flex flex-1" />}
-            {shouldSwapActions && actionButtons}
+            <div className="hidden flex-1 tablet:flex" />
+            {!isMobile && actionButtons}
           </div>
 
           {image && (
@@ -128,7 +119,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      {!shouldSwapActions && actionButtons}
+      {isMobile && actionButtons}
       {children}
     </FeedItemContainer>
   );

@@ -16,9 +16,16 @@ import {
   DevPlusIcon,
   PrivacyIcon,
   DownloadIcon,
+  MegaphoneIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
-import { docs, feedback, managePlusUrl, plusUrl } from '../../lib/constants';
+import {
+  businessWebsiteUrl,
+  docs,
+  feedback,
+  managePlusUrl,
+  plusUrl,
+} from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -169,6 +176,13 @@ const useMenuItems = (): NavItemProps[] => {
       {
         label: 'Support',
         isHeader: true,
+      },
+      {
+        label: 'Advertise',
+        href: businessWebsiteUrl,
+        icon: <MegaphoneIcon />,
+        target: '_blank',
+        rel: anchorDefaultRel,
       },
       getAndroidPWA,
       downloadAndroidApp,
