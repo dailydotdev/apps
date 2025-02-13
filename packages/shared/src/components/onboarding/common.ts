@@ -20,6 +20,17 @@ export enum OnboardingStep {
   AndroidPWA = 'android_pwa',
 }
 
+export const onboardingStepsWithFooter: Array<OnboardingStep> = [
+  OnboardingStep.Intro,
+];
+
+export const onboardingStepsWithCTA: Array<OnboardingStep> = [
+  OnboardingStep.PWA,
+  OnboardingStep.Extension,
+  OnboardingStep.InstallDesktop,
+  OnboardingStep.AndroidPWA,
+];
+
 export const OnboardingTitle = classed(
   'h3',
   'text-center typo-title2 font-bold px-4',
