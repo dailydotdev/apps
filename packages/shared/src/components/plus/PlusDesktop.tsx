@@ -30,6 +30,8 @@ export const PlusDesktop = ({
     [openCheckout],
   );
 
+  console.log(giftOneYear, giftToUser, selectedOption);
+
   useEffect(() => {
     if (!ref?.current || !paddle) {
       return;
