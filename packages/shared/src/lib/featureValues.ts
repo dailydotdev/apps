@@ -12,6 +12,7 @@ export enum PlusPriceType {
 }
 
 export enum PlusPriceTypeAppsId {
+  Default = 'default',
   GiftOneYear = 'gift_one_year',
   EarlyAdopter = 'early_adopter',
 }
