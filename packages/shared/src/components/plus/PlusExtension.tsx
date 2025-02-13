@@ -16,6 +16,7 @@ import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
 import { getPricePreviews } from '../../graphql/paddle';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -24,7 +25,12 @@ const PlusExtension = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { data: productOptions } = useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview),
-    queryFn: getPricePreviews,
+    queryFn: async () => {
+      const previews = await getPricePreviews();
+      return previews.filter(
+        (item) => item.appsId !== PlusPriceTypeAppsId.GiftOneYear,
+      );
+    },
   });
 
   const handleClick = () => {
