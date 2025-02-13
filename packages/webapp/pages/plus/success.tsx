@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -22,12 +22,17 @@ import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 const PlusSuccessPage = (): ReactElement => {
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
+  const clearPlusMarketing = useRef(false);
 
   useEffect(() => {
-    if (marketingCta) {
-      const { campaignId } = marketingCta;
-      clearMarketingCta(campaignId);
+    if (clearPlusMarketing.current) {
+      return;
     }
+
+    const { campaignId } = marketingCta;
+    clearMarketingCta(campaignId);
+
+    clearPlusMarketing.current = true;
   }, [marketingCta, clearMarketingCta]);
 
   return (
