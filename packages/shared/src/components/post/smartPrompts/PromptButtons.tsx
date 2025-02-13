@@ -1,71 +1,36 @@
-import React, { forwardRef, useCallback, useMemo, useState } from 'react';
-import type { ReactElement, Ref } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import type { ReactElement } from 'react';
 import { ColorName } from '../../../styles/colors';
-import { ArrowIcon, CustomPromptIcon } from '../../icons';
-import type { ButtonProps } from '../../buttons/Button';
+import { ArrowIcon } from '../../icons';
 import {
   Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { IconSize } from '../../Icon';
 import { usePromptsQuery } from '../../../hooks/prompt/usePromptsQuery';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
-import type { PromptFlags } from '../../../graphql/prompt';
 import { PromptDisplay } from '../../../graphql/prompt';
 import { usePromptButtons } from '../../../hooks/prompt/usePromptButtons';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
-import { promptColorMap, PromptIconMap } from './common';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-
-type PromptButtonProps = ButtonProps<'button'> & {
-  active: boolean;
-  flags: PromptFlags;
-};
-
-const PromptButton = forwardRef(
-  (
-    { children, flags, active, ...props }: PromptButtonProps,
-    ref?: Ref<HTMLButtonElement>,
-  ): ReactElement => {
-    const PromptIcon = PromptIconMap[flags.icon] || CustomPromptIcon;
-    const variant = active ? ButtonVariant.Primary : ButtonVariant.Subtle;
-    const color = active ? flags.color : undefined;
-    return (
-      <Button
-        variant={variant}
-        color={color}
-        size={ButtonSize.XSmall}
-        icon={
-          <PromptIcon
-            size={IconSize.XSmall}
-            className={!active && promptColorMap[flags.color]}
-          />
-        }
-        {...props}
-        ref={ref}
-      >
-        {children}
-      </Button>
-    );
-  },
-);
-PromptButton.displayName = 'PromptButton';
+import PromptButton from './PromptButton';
 
 type PromptButtonsProps = {
   activePrompt: string;
   setActivePrompt: (prompt: string) => void;
   width: number;
+  isContainedView: boolean;
 };
 
 export const PromptButtons = ({
   activePrompt,
   setActivePrompt,
   width,
+  isContainedView = false,
 }: PromptButtonsProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [showAll, setShowAll] = useState(false);
@@ -97,6 +62,8 @@ export const PromptButtons = ({
     showAll: showAll || isMobile,
   });
 
+  const showDrawer = isMobile && isContainedView;
+
   const promptsCount = prompts?.length || 0;
   const remainingTags = promptsCount - promptList?.length;
 
@@ -112,6 +79,18 @@ export const PromptButtons = ({
     },
     [isMobile, isPlus, openModal, setActivePrompt],
   );
+
+  const openDrawerModal = useCallback(() => {
+    openModal({
+      type: LazyModal.MobileSmartPrompts,
+      props: {
+        prompts,
+        onChoosePrompt: (prompt) => {
+          setActivePrompt(prompt);
+        },
+      },
+    });
+  }, [openModal, prompts, setActivePrompt]);
 
   if (isLoading) {
     return (
@@ -130,7 +109,9 @@ export const PromptButtons = ({
       <PromptButton
         active={activePrompt === PromptDisplay.TLDR}
         flags={{ icon: 'TLDR', color: ColorName.Cabbage }}
-        onClick={() => setActivePrompt(PromptDisplay.TLDR)}
+        onClick={() =>
+          showDrawer ? openDrawerModal() : setActivePrompt(PromptDisplay.TLDR)
+        }
       >
         TLDR
       </PromptButton>
@@ -145,7 +126,7 @@ export const PromptButtons = ({
           <PromptButton
             active={activePrompt === id}
             flags={flags}
-            onClick={() => onPromptClick(id)}
+            onClick={() => (showDrawer ? openDrawerModal() : onPromptClick(id))}
           >
             {label}
           </PromptButton>
@@ -159,7 +140,7 @@ export const PromptButtons = ({
             size={ButtonSize.XSmall}
             icon={<ArrowIcon className="rotate-180" />}
             iconPosition={ButtonIconPosition.Right}
-            onClick={() => setShowAll(true)}
+            onClick={() => (showDrawer ? openDrawerModal() : setShowAll(true))}
           >
             {remainingTags}+ More
           </Button>

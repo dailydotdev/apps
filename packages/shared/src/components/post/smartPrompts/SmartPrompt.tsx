@@ -14,7 +14,13 @@ import { ActionType } from '../../../graphql/actions';
 import { postLogEvent } from '../../../lib/feed';
 import { useLogContext } from '../../../contexts/LogContext';
 
-export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
+export const SmartPrompt = ({
+  post,
+  isContainedView,
+}: {
+  post: Post;
+  isContainedView?: boolean;
+}): ReactElement => {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
@@ -70,6 +76,7 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
         activePrompt={activePrompt}
         setActivePrompt={onSetActivePrompt}
         width={width}
+        isContainedView={isContainedView}
       />
       <TabContainer controlledActive={activeDisplay} showHeader={false}>
         <Tab label={PromptDisplay.TLDR}>

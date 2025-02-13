@@ -21,7 +21,7 @@ export function SharedLinkContainer({
 }: SharedLinkContainerProps): ReactElement {
   const postSummary = post?.summary ? (
     <div className="px-4">
-      <SmartPrompt post={post} />
+      <SmartPrompt post={post} isContainedView />
     </div>
   ) : null;
 
