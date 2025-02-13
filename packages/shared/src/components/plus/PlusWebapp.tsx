@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 
 import { PlusInfo } from './PlusInfo';
@@ -12,24 +12,26 @@ const PlusWebapp = (): ReactElement => {
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta;
   const { title, description } = flags;
-  const { openCheckout, paddle, productOptions } = usePaymentContext();
+  const { openCheckout, productOptions } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
 
-  useEffect(() => {
-    if (!ref?.current || !paddle) {
-      return;
-    }
-    if (!selectedOption) {
-      setSelectedOption(productOptions?.[0]?.value);
-      openCheckout({ priceId: productOptions?.[0]?.value });
-    }
-  }, [openCheckout, paddle, productOptions, selectedOption]);
-
   return (
     <div className="flex flex-1 items-start justify-center !gap-0">
-      <div className="ml-6 flex w-[28.5rem] flex-col !pt-8 pr-10">
+      <div
+        className="ml-6 flex w-[28.5rem] flex-col !pt-8 pr-10"
+        ref={(element) => {
+          if (!element) {
+            return;
+          }
+
+          if (productOptions?.[0]?.value && !selectedOption) {
+            setSelectedOption(productOptions?.[0]?.value);
+            openCheckout({ priceId: productOptions?.[0]?.value });
+          }
+        }}
+      >
         <PlusInfo
           productOptions={productOptions}
           selectedOption={selectedOption}
