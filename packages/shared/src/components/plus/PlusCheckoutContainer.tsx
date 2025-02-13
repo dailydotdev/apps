@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
 import { usePaymentContext } from '../../contexts/PaymentContext';
@@ -24,7 +24,7 @@ export const PlusCheckoutContainer = ({
   const { isPlusAvailable } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
 
-  const getContainerElement = () => {
+  const ContainerElement = useMemo(() => {
     if (!isPlusAvailable) {
       return PlusUnavailable;
     }
@@ -38,9 +38,7 @@ export const PlusCheckoutContainer = ({
     }
 
     return null;
-  };
-
-  const ContainerElement = getContainerElement();
+  }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
 
   return (
