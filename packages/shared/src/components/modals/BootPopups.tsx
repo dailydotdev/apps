@@ -104,7 +104,7 @@ export const BootPopups = (): ReactElement => {
   useEffect(() => {
     if (marketingCtaPlus) {
       addBootPopup({
-        type: LazyModal.Plus,
+        type: LazyModal.PlusMarketing,
         onAfterClose: () => {
           updateLastBootPopup();
         },

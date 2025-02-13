@@ -24,7 +24,7 @@ const PlusWebapp = dynamic(
   () => import(/* webpackChunkName: "plusWebapp" */ './PlusWebapp'),
 );
 
-const PlusModal = (modalProps: ModalProps): ReactElement => {
+const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { campaignId } = marketingCta;
@@ -63,4 +63,4 @@ const PlusModal = (modalProps: ModalProps): ReactElement => {
   );
 };
 
-export default PlusModal;
+export default PlusMarketingModal;

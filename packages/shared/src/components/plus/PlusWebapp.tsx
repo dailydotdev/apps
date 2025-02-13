@@ -39,6 +39,7 @@ const PlusWebapp = (): ReactElement => {
           }}
           shouldShowPlusHeader
           showPlusList={false}
+          showGiftButton={false}
           showDailyDevLogo
           title={title}
           description={description}
