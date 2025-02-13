@@ -27,8 +27,6 @@ import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -54,25 +52,15 @@ export const ArticleList = forwardRef(function ArticleList(
   const isVideoType = isVideoPost(post);
 
   const onPostCardClick = () => onPostClick?.(post);
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const actionButtons = (
-    <Container
-      className={classNames(
-        'pointer-events-none',
-        feedActionSpacingExp && 'flex-[unset]',
-      )}
-    >
+    <Container className="pointer-events-none flex-[unset]">
       <ActionButtons
-        className={classNames(
-          'mt-4',
-          feedActionSpacingExp && 'justify-between tablet:mt-0',
-        )}
+        className="mt-4 justify-between tablet:mt-0"
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -148,15 +136,15 @@ export const ArticleList = forwardRef(function ArticleList(
                 >
                   {truncatedTitle}
                 </CardTitle>
-                {!shouldSwapActions && <div className="flex flex-1" />}
+                <div className="flex flex-1 tablet:hidden" />
                 <div className="flex items-center">
                   {post.clickbaitTitleDetected && (
                     <ClickbaitShield post={post} />
                   )}
                   <PostTags tags={post.tags} />
                 </div>
-                {shouldSwapActions && <div className="flex flex-1" />}
-                {shouldSwapActions && actionButtons}
+                <div className="hidden flex-1 tablet:flex" />
+                {!isMobile && actionButtons}
               </div>
 
               <CardCoverList
@@ -181,7 +169,7 @@ export const ArticleList = forwardRef(function ArticleList(
               />
             </CardContent>
           </CardContainer>
-          {!shouldSwapActions && actionButtons}
+          {isMobile && actionButtons}
           {children}
         </>
       )}
