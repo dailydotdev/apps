@@ -72,12 +72,12 @@ const updateTranslation = ({
   post: Post;
   translation: TranslateEvent;
 }): Post => {
-  const updatedPost = post;
+  let updatedPost = post;
 
   switch (translation.field) {
     case 'title':
     case 'smartTitle':
-      updateTitleTranslation({ post, translation });
+      updatedPost = updateTitleTranslation({ post, translation });
 
       break;
     default:
