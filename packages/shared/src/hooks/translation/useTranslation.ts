@@ -46,7 +46,7 @@ export const updateTitleTranslation = ({
   post: Post;
   translation: TranslateEvent;
 }): Post => {
-  const updatedPost = post;
+  const updatedPost = structuredClone(post);
 
   if (post.title) {
     updatedPost.title = translation.value;
