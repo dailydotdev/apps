@@ -44,39 +44,36 @@ const PlusPaymentPage = (): ReactElement => {
   return (
     <>
       <NextSeo nofollow noindex />
-      <div className="my-auto flex h-full flex-col items-center laptop:h-fit">
-        <div className="flex h-full w-full flex-col gap-6 laptop:w-[34.875rem]">
-          {isLaptop && selectedProduct && (
-            <div className="flex flex-col items-center gap-4">
-              <Typography type={TypographyType.Title2} bold>
-                Plan details
-              </Typography>
-              <PlusProductList
-                className="w-full"
-                productList={[selectedProduct]}
-                selected={selectedProduct?.value}
-                onChange={() => {}}
-              />
-            </div>
-          )}
-          <div className="flex w-full flex-1 justify-center bg-background-default">
-            <PlusCheckoutContainer
-              checkoutRef={(element) => {
-                if (!element) {
-                  return;
-                }
-                openCheckout({
-                  priceId: pid as string,
-                  giftToUserId: gift as string,
-                });
-              }}
-              className={{
-                container:
-                  'h-full w-full bg-background-default p-5 laptop:h-fit',
-                element: 'h-full',
-              }}
+      <div className="m-auto flex h-full w-full flex-col gap-6 laptop:h-fit laptop:w-[34.875rem]">
+        {isLaptop && selectedProduct && (
+          <div className="flex flex-col items-center gap-4">
+            <Typography type={TypographyType.Title2} bold>
+              Plan details
+            </Typography>
+            <PlusProductList
+              className="w-full"
+              productList={[selectedProduct]}
+              selected={selectedProduct?.value}
+              onChange={() => {}}
             />
           </div>
+        )}
+        <div className="flex w-full flex-1 justify-center bg-background-default">
+          <PlusCheckoutContainer
+            checkoutRef={(element) => {
+              if (!element) {
+                return;
+              }
+              openCheckout({
+                priceId: pid as string,
+                giftToUserId: gift as string,
+              });
+            }}
+            className={{
+              container: 'h-full w-full bg-background-default p-5 laptop:h-fit',
+              element: 'h-full',
+            }}
+          />
         </div>
       </div>
     </>
