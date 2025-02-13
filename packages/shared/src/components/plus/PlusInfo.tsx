@@ -92,21 +92,13 @@ const RadioGroupSkeleton = () => (
     ))}
   </div>
 );
+
 const getCopy = ({ giftToUser, title, description, subtitle }) => {
+  const fallback = copy[giftToUser ? PlusType.Gift : PlusType.Self];
   return {
-    titleCopy:
-      title ||
-      (giftToUser ? copy[PlusType.Gift].title : copy[PlusType.Self].title),
-    descriptionCopy:
-      description ||
-      (giftToUser
-        ? copy[PlusType.Gift].description
-        : copy[PlusType.Self].description),
-    subtitleCopy:
-      subtitle ||
-      (giftToUser
-        ? copy[PlusType.Gift].subtitle
-        : copy[PlusType.Self].subtitle),
+    titleCopy: title || fallback.title,
+    descriptionCopy: description || fallback.description,
+    subtitleCopy: subtitle || fallback.subtitle,
   };
 };
 
