@@ -1,88 +1,25 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
-import type { ProductOption } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusComparingCards } from '../plus/PlusComparingCards';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 interface OnboardingStepProps {
   onClickNext: () => void;
 }
 
-const PlusBillingCycleSwitch = ({
-  productOptions,
-  currentCycleIndex,
-  onChangeCycle,
-}: {
-  productOptions: ProductOption[];
-  currentCycleIndex: number;
-  onChangeCycle: (index: number) => void;
-}): ReactElement => {
-  return (
-    <div
-      aria-label="Select billing cycle"
-      role="radiogroup"
-      className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8"
-    >
-      {productOptions.map(({ label, extraLabel }, index) => {
-        const isActive = index === currentCycleIndex;
-        const variant = isActive ? ButtonVariant.Float : ButtonVariant.Option;
-        return (
-          <Button
-            aria-checked={isActive}
-            aria-label={label}
-            className="flex-1 justify-center"
-            key={label}
-            onClick={() => onChangeCycle(index)}
-            role="radio"
-            size={ButtonSize.Medium}
-            variant={variant}
-          >
-            <span>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-                className={classNames('text-center capitalize', {
-                  'font-normal': !isActive,
-                })}
-              >
-                {label}
-              </Typography>
-              {extraLabel && (
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption2}
-                  color={TypographyColor.StatusSuccess}
-                  className="block text-center font-normal"
-                >
-                  {extraLabel}
-                </Typography>
-              )}
-            </span>
-          </Button>
-        );
-      })}
-    </div>
-  );
-};
-
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
   <div className="flex flex-col items-center">
-    <div className="mx-auto my-6 inline-flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1 tablet:my-8">
-      <ElementPlaceholder className="mx-auto inline-block h-10 w-80 rounded-10" />
-    </div>
     <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
       {switchSkeletonItems.map((index) => (
         <div
@@ -111,17 +48,20 @@ const PlusSkeleton = (): ReactElement => (
 export const OnboardingPlusStep = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
-  const { productOptions, earlyAdopterPlanId } = usePaymentContext();
-  const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const isLaptop = useViewSize(ViewSize.Laptop);
-
-  const items = useMemo(
-    () => productOptions.filter(({ value }) => value !== earlyAdopterPlanId),
-    [productOptions, earlyAdopterPlanId],
+  const { productOptions } = usePaymentContext();
+  const item = useMemo(
+    () =>
+      productOptions.find(
+        ({ appsId, duration }) =>
+          appsId === PlusPriceTypeAppsId.EarlyAdopter &&
+          duration === PlusPriceType.Yearly,
+      ),
+    [productOptions],
   );
 
   return (
-    <section className="flex max-w-screen-laptop flex-col tablet:px-10">
+    <section className="flex max-w-screen-laptop flex-col gap-10 tablet:px-10">
       <header className="text-center">
         <Typography
           bold
@@ -141,19 +81,8 @@ export const OnboardingPlusStep = ({
           strategy.
         </Typography>
       </header>
-      {items.length ? (
-        <>
-          <PlusBillingCycleSwitch
-            productOptions={items}
-            currentCycleIndex={currentProductIndex}
-            onChangeCycle={setCurrentProductIndex}
-          />
-          <PlusComparingCards
-            currentIndex={currentProductIndex}
-            productOptions={items}
-            onClickNext={onClickNext}
-          />
-        </>
+      {item ? (
+        <PlusComparingCards productOption={item} onClickNext={onClickNext} />
       ) : (
         <PlusSkeleton />
       )}

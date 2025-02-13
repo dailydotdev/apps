@@ -1,9 +1,9 @@
-import type { ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
-import { ChecklistAIcon, InfoIcon } from '../icons';
+import { InfoIcon } from '../icons';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import type { TypographyProps } from '../typography/Typography';
@@ -13,6 +13,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { MarkOkIcon } from '../icons/MarkOk';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -29,6 +30,7 @@ export interface PlusItem {
 export interface PlusListItemProps {
   item: PlusItem;
   typographyProps?: TypographyProps<TypographyTag.P>;
+  icon?: FC<IconProps>;
   iconProps?: IconProps;
   badgeProps?: TypographyProps<TypographyTag.Span>;
 }
@@ -36,9 +38,11 @@ export interface PlusListItemProps {
 export const PlusListItem = ({
   badgeProps,
   iconProps,
+  icon,
   item,
   typographyProps,
 }: PlusListItemProps): ReactElement => {
+  const Icon = icon ?? MarkOkIcon;
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
@@ -61,7 +65,7 @@ export const PlusListItem = ({
           !!item.tooltip && 'hover:bg-surface-float',
         )}
       >
-        <ChecklistAIcon
+        <Icon
           aria-hidden
           size={IconSize.XSmall}
           {...iconProps}
