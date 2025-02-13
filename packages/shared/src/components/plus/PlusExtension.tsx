@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { apiUrl } from '../../lib/config';
 import { PlusUser } from '../PlusUser';
 import { TypographyType } from '../typography/Typography';
 import { IconSize } from '../Icon';
@@ -16,7 +15,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
-import { PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { getPricePreviews } from '../../graphql/paddle';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -25,23 +24,7 @@ const PlusExtension = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { data: productOptions } = useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview),
-    queryFn: async () => {
-      const response = await fetch(`${apiUrl}/price_previews`);
-      const json = await response.json();
-      const items = json?.details?.lineItems.map((item) => ({
-        label: item.price.description,
-        value: item.price.id,
-        price: item.formattedTotals.total,
-        priceUnformatted: Number(item.totals.total),
-        currencyCode: json?.currencyCode as string,
-        extraLabel: item.price.customData?.label as string,
-        appsId: item.price.customData?.appsId as string,
-      }));
-
-      return items.filter(
-        (item) => item.appsId !== PlusPriceTypeAppsId.GiftOneYear,
-      );
-    },
+    queryFn: getPricePreviews,
   });
 
   const handleClick = () => {
