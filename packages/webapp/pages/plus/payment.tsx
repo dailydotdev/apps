@@ -54,7 +54,6 @@ const PlusPaymentPage = (): ReactElement => {
               className="w-full"
               productList={[selectedProduct]}
               selected={selectedProduct?.value}
-              onChange={() => {}}
             />
           </div>
         )}

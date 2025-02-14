@@ -18,7 +18,7 @@ import { useFeature } from '../GrowthBookProvider';
 type PlusProductListProps = {
   productList: ProductOption[];
   selected?: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   backgroundImage?: string;
   className?: string;
 };
