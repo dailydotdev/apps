@@ -220,6 +220,12 @@ const SmartPromptModal = dynamic(() =>
   ).then((mod) => mod.SmartPromptModal),
 );
 
+const MobileSmartPromptsModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "mobileSmartPromptsModal" */ './plus/MobileSmartPromptsModal'
+  ).then((mod) => mod.MobileSmartPromptsModal),
+);
+
 const CookieConsentModal = dynamic(
   () =>
     import(
@@ -282,6 +288,7 @@ export const modals = {
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.SmartPrompt]: SmartPromptModal,
+  [LazyModal.MobileSmartPrompts]: MobileSmartPromptsModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
   [LazyModal.GiftPlus]: GiftPlusModal,

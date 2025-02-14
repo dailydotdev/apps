@@ -133,7 +133,11 @@ export function CommonSharePostContent({
   }
 
   return (
-    <SharedLinkContainer summary={sharedPost.summary} className="mb-5 mt-8">
+    <SharedLinkContainer
+      post={sharedPost}
+      summary={sharedPost.summary}
+      className="mb-5 mt-8"
+    >
       <div
         className={classNames(
           'flex max-w-full flex-col gap-2 p-4 pt-5',
