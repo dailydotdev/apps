@@ -137,7 +137,14 @@ export const BootPopups = (): ReactElement => {
         },
       });
     }
-  }, [marketingCtaPopover, logEvent, updateLastBootPopup, marketingCtaPlus]);
+  }, [
+    marketingCtaPopover,
+    logEvent,
+    updateLastBootPopup,
+    marketingCtaPlus,
+    isValidRegion,
+    user?.isPlus,
+  ]);
 
   useEffect(() => {
     if (marketingCtaPopoverSmall) {
