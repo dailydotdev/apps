@@ -15,7 +15,7 @@ const PlusWebapp = (): ReactElement => {
   const { openCheckout, productOptions } = usePaymentContext();
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const ref = useRef();
+  const checkoutRef = useRef();
 
   return (
     <div className="flex flex-1 items-start justify-center !gap-0">
@@ -48,7 +48,7 @@ const PlusWebapp = (): ReactElement => {
         />
       </div>
       <PlusCheckoutContainer
-        checkoutRef={ref}
+        checkoutRef={checkoutRef}
         className={{
           container:
             'border-top-0 h-full min-h-40 w-[28.5rem] rounded-16 border border-b-0 border-r-0 border-t-0 border-border-subtlest-tertiary bg-background-default pb-5 pl-10 pr-5 pt-8 !bg-[#0E1217]',
