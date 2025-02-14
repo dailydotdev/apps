@@ -52,11 +52,14 @@ export const OnboardingPlusStep = ({
   const { productOptions } = usePaymentContext();
   const item = useMemo(
     () =>
-      productOptions.find(
-        ({ appsId, duration }) =>
-          appsId === PlusPriceTypeAppsId.EarlyAdopter &&
-          duration === PlusPriceType.Yearly,
-      ),
+      productOptions
+        .toSorted(({ appsId, duration }) => {
+          if (appsId === PlusPriceTypeAppsId.EarlyAdopter) {
+            return -1;
+          }
+          return duration === PlusPriceType.Yearly ? 0 : 1;
+        })
+        .at(0),
     [productOptions],
   );
 
