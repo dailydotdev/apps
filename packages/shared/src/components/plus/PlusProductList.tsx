@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { ProductOption } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Typography,
   TypographyColor,
@@ -11,9 +12,6 @@ import {
 import { RadioItem } from '../fields/RadioItem';
 import { LogEvent } from '../../lib/log';
 import { usePlusSubscription } from '../../hooks';
-import { PlusPriceType } from '../../lib/featureValues';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 
 type PlusProductListProps = {
   productList: ProductOption[];
@@ -30,21 +28,7 @@ const PlusProductList = ({
   className,
 }: PlusProductListProps): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
-  const planTypes = useFeature(feature.pricingIds);
-
-  const earlyAdopterPlanId = useMemo(() => {
-    const monthlyPrices = productList.filter(
-      (option) => planTypes[option.value] === PlusPriceType.Monthly,
-    );
-
-    if (monthlyPrices.length <= 1) {
-      return null;
-    }
-
-    return monthlyPrices.reduce((acc, plan) => {
-      return acc.priceUnformatted < plan.priceUnformatted ? acc : plan;
-    }).value;
-  }, [productList, planTypes]);
+  const { earlyAdopterPlanId } = usePaymentContext();
 
   return (
     <div
