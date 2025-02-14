@@ -56,6 +56,16 @@ export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
 export const getReadPostButtonText = (post: Post): string =>
   isVideoPost(post) ? 'Watch video' : 'Read post';
 
+export const translateablePostFields = [
+  'title',
+  'smartTitle',
+  'titleHtml',
+] as const;
+export type TranslateablePostField = (typeof translateablePostFields)[number];
+export type PostTranslation = {
+  [key in TranslateablePostField]?: boolean;
+};
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;
@@ -128,7 +138,7 @@ export interface Post {
   bookmarkList?: BookmarkFolder;
   domain?: string;
   clickbaitTitleDetected?: boolean;
-  translation?: { title?: boolean; smartTitle?: boolean };
+  translation?: PostTranslation;
   language?: string;
 }
 
