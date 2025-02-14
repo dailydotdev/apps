@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PlusUser } from '../PlusUser';
+import type { TypographyColor } from '../typography/Typography';
 import { TypographyType } from '../typography/Typography';
 import { IconSize } from '../Icon';
 import { PlusList } from './PlusList';
@@ -83,7 +84,15 @@ const PlusExtension = (): ReactElement => {
           className="absolute bottom-0"
           src={flags?.image || plusRedBackgroundImage}
         />
-        <PlusList className="z-1 pl-10" />
+        <PlusList
+          typographyProps={{
+            color: 'text-white' as TypographyColor,
+          }}
+          iconProps={{
+            className: 'text-white',
+          }}
+          className="z-1 pl-10"
+        />
       </div>
     </div>
   );
