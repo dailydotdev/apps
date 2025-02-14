@@ -28,7 +28,11 @@ export const PlusThrustRefund = ({
       >
         <PrivacyIcon secondary size={IconSize.Medium} />
       </div>
-      <Typography type={TypographyType.Callout} color={TypographyColor.Primary}>
+      <Typography
+        className="min-w-0 flex-1"
+        color={TypographyColor.Primary}
+        type={TypographyType.Callout}
+      >
         30 day hassle-free refund. No questions asked.
       </Typography>
     </div>
