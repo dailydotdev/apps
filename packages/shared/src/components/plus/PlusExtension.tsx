@@ -49,7 +49,7 @@ const PlusExtension = (): ReactElement => {
 
   return (
     <div className="flex flex-row pl-6">
-      <div className="flex w-[28.5rem] flex-col pb-32 pr-10 pt-6">
+      <div className="flex flex-1 flex-col pb-32 pr-10 pt-6">
         <PlusInfo
           productOptions={productOptions || []}
           title={flags.title}
@@ -73,7 +73,7 @@ const PlusExtension = (): ReactElement => {
           {flags.ctaText}
         </Button>
       </div>
-      <div className="relative flex w-[28.5rem] flex-col gap-8 bg-black pr-6">
+      <div className="relative flex flex-1 flex-col gap-8 bg-black pr-6">
         <PlusUser
           iconSize={IconSize.Large}
           typographyType={TypographyType.Title1}

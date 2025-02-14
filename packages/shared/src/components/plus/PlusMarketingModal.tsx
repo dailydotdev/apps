@@ -11,6 +11,7 @@ import { PaymentContextProvider } from '../../contexts/PaymentContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
+import { ModalSize } from '../modals/common/types';
 
 const PlusMobileDrawer = dynamic(
   () => import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobileDrawer'),
@@ -50,7 +51,8 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   return (
     <PaymentContextProvider>
       <Modal
-        className="!max-h-fit !w-fit overflow-hidden !bg-background-default"
+        size={ModalSize.XLarge}
+        className="!bg-background-default"
         {...modalProps}
         onRequestClose={handleClose}
       >
