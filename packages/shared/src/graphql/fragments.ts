@@ -173,6 +173,14 @@ export const SQUAD_BASE_FRAGMENT = `
   ${PRIVILEGED_MEMBERS_FRAGMENT}
 `;
 
+export const POST_TRANSLATEABLE_FIELDS_FRAGMENT = gql`
+  fragment PostTranslateableFields on PostTranslation {
+    title
+    titleHtml
+    smartTitle
+  }
+`;
+
 export const FEED_POST_INFO_FRAGMENT = gql`
   fragment FeedPostInfo on Post {
     id
@@ -226,10 +234,10 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     clickbaitTitleDetected
     language
     translation {
-      title
-      smartTitle
+      ...PostTranslateableFields
     }
   }
+  ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
 
 export const SHARED_POST_INFO_FRAGMENT = gql`
@@ -281,13 +289,13 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     clickbaitTitleDetected
     language
     translation {
-      title
-      smartTitle
+      ...PostTranslateableFields
     }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
+  ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`

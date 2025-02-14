@@ -4,7 +4,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { events } from 'fetch-event-stream';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
-import type { FeedData, Post } from '../../graphql/posts';
+import type {
+  FeedData,
+  Post,
+  TranslateablePostField,
+} from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import {
   updateCachedPagePost,
@@ -29,23 +33,40 @@ type UseTranslation = (props: {
   fetchTranslations: (id: Post[]) => Promise<TranslateEvent[]>;
 };
 
-type TranslateFields = 'title' | 'smartTitle';
-
 type TranslateEvent = {
   id: string;
-  field: TranslateFields;
+  field: TranslateablePostField;
   value: string;
 };
 
-type TranslatePayload = Record<string, TranslateFields[]>;
+type TranslatePayload = Record<string, TranslateablePostField[]>;
 
-export const updateTitleTranslation = ({
+type UpdateCachedPostTranslations = ({
   post,
   translation,
 }: {
   post: Post;
   translation: TranslateEvent;
-}): Post => {
+}) => Post;
+const updateGenericPostField: UpdateCachedPostTranslations = ({
+  post,
+  translation,
+}) => {
+  const updatedPost = structuredClone(post);
+
+  updatedPost[translation.field] = translation.value;
+  updatedPost.translation = {
+    ...updatedPost.translation,
+    [translation.field]: !!translation.value,
+  };
+
+  return updatedPost;
+};
+
+export const updateTitleTranslation: UpdateCachedPostTranslations = ({
+  post,
+  translation,
+}) => {
   const updatedPost = structuredClone(post);
 
   if (post.title) {
@@ -78,7 +99,9 @@ const updateTranslation = ({
     case 'title':
     case 'smartTitle':
       updatedPost = updateTitleTranslation({ post, translation });
-
+      break;
+    case 'titleHtml':
+      updatedPost = updateGenericPostField({ post, translation });
       break;
     default:
       break;
@@ -184,6 +207,10 @@ export const useTranslation: UseTranslation = ({
 
         if (!shouldUseSmartTitle && !post.translation?.title) {
           fields.push('title');
+        }
+
+        if (post.type === PostType.Share && !post?.translation?.titleHtml) {
+          fields.push('titleHtml');
         }
 
         if (fields.length > 0) {
