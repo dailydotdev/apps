@@ -16,12 +16,7 @@ import type {
   OpenCheckoutFn,
 } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
@@ -215,12 +210,11 @@ export const PlusInfo = ({
         )}
       </div>
       {onContinue ? (
-        <div className="py-6">
+        <div className="pt-6">
           <Button
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Bacon}
-            className="w-full !text-white"
+            className="w-full"
             onClick={onContinue}
           >
             Continue »
