@@ -9,6 +9,7 @@ import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusThrustRefund } from './PlusThrustRefund';
+import { PlusFAQs } from './PlusFAQs';
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,
@@ -64,28 +65,31 @@ export const PlusDesktop = ({
   ]);
 
   return (
-    <div className="flex flex-1 items-center justify-center gap-20">
-      <div className="ml-6 flex w-[28.5rem] flex-col">
-        <PlusInfo
-          productOptions={productOptions}
-          selectedOption={selectedOption}
-          onChange={onChangeCheckoutOption}
-          shouldShowPlusHeader={shouldShowPlusHeader}
-        />
-      </div>
-      <div className="flex flex-col gap-4">
-        <PlusCheckoutContainer
-          checkoutRef={ref}
-          className={{
-            container:
-              'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5 empty:min-h-[50vh] empty:bg-surface-float',
-            element: 'h-[35rem]',
-          }}
-        />
-        <div className="flex justify-center">
-          <PlusThrustRefund />
+    <>
+      <div className="flex flex-1 items-center justify-center gap-20">
+        <div className="ml-6 flex w-[28.5rem] flex-col">
+          <PlusInfo
+            productOptions={productOptions}
+            selectedOption={selectedOption}
+            onChange={onChangeCheckoutOption}
+            shouldShowPlusHeader={shouldShowPlusHeader}
+          />
+        </div>
+        <div className="my-16 flex flex-col gap-4">
+          <PlusCheckoutContainer
+            checkoutRef={ref}
+            className={{
+              container:
+                'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5 empty:min-h-[50vh] empty:bg-surface-float',
+              element: 'h-[35rem]',
+            }}
+          />
+          <div className="flex justify-center">
+            <PlusThrustRefund />
+          </div>
         </div>
       </div>
-    </div>
+      <PlusFAQs />
+    </>
   );
 };
