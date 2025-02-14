@@ -1,5 +1,6 @@
-import type { ReactElement } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import { PrivacyIcon } from '../icons';
 import {
@@ -8,11 +9,18 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
-export const PlusThrustRefund = (): ReactElement => {
+export const PlusThrustRefund = ({
+  className,
+  ...attrs
+}: ComponentProps<'div'>): ReactElement => {
   return (
     <div
       aria-label="Refund policy"
-      className="flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2"
+      className={classNames(
+        'flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2',
+        className,
+      )}
+      {...attrs}
     >
       <div
         aria-hidden
