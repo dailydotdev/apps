@@ -32,7 +32,7 @@ export const BootPopups = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
+  const { user, isValidRegion } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
   const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
     useContext(AlertContext);
@@ -102,7 +102,7 @@ export const BootPopups = (): ReactElement => {
    * Boot popup based on marketing CTA
    */
   useEffect(() => {
-    if (marketingCtaPlus) {
+    if (marketingCtaPlus && isValidRegion && !user?.isPlus) {
       addBootPopup({
         type: LazyModal.PlusMarketing,
         onAfterClose: () => {
