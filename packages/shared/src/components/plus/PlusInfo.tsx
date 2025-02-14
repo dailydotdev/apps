@@ -28,6 +28,7 @@ import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
 import type { CommonPlusPageProps } from './common';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { PlusThrustReviews } from './PlusThrustReviews';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -222,6 +223,7 @@ export const PlusInfo = ({
         </div>
       ) : undefined}
       <PlusList />
+      <PlusThrustReviews />
     </>
   );
 };

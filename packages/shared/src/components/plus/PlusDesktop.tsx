@@ -8,6 +8,7 @@ import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
+import { PlusThrustRefund } from './PlusThrustRefund';
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,
@@ -72,14 +73,19 @@ export const PlusDesktop = ({
           shouldShowPlusHeader={shouldShowPlusHeader}
         />
       </div>
-      <PlusCheckoutContainer
-        checkoutRef={ref}
-        className={{
-          container:
-            'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5 empty:min-h-[50vh] empty:bg-surface-float',
-          element: 'h-[35rem]',
-        }}
-      />
+      <div className="flex flex-col gap-4">
+        <PlusCheckoutContainer
+          checkoutRef={ref}
+          className={{
+            container:
+              'min-h-40 w-[28.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-5 empty:min-h-[50vh] empty:bg-surface-float',
+            element: 'h-[35rem]',
+          }}
+        />
+        <div className="flex justify-center">
+          <PlusThrustRefund />
+        </div>
+      </div>
     </div>
   );
 };
