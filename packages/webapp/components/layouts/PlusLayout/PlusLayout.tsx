@@ -46,7 +46,7 @@ export default function PlusLayout({
   }
 
   return (
-    <main className="relative flex h-screen flex-col">
+    <main className="relative flex min-h-dvh flex-col">
       <img
         src={cloudinaryPlusBackground}
         alt="Plus background"
