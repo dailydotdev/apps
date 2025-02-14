@@ -20,7 +20,7 @@ const PlusWebapp = (): ReactElement => {
   return (
     <div className="flex flex-1 items-start justify-center gap-0">
       <div
-        className="ml-6 flex w-[28.5rem] flex-col pt-8 pr-10"
+        className="ml-6 flex w-[28.5rem] flex-col pr-10 pt-8"
         ref={(element) => {
           if (!element) {
             return;
@@ -51,7 +51,7 @@ const PlusWebapp = (): ReactElement => {
         checkoutRef={checkoutRef}
         className={{
           container:
-            'border-top-0 h-full min-h-40 w-[28.5rem] rounded-16 border border-b-0 border-r-0 border-t-0 border-border-subtlest-tertiary bg-background-default pb-5 pl-10 pr-5 pt-8 bg-[#0E1217]',
+            'border-top-0 h-full min-h-40 w-[28.5rem] rounded-16 border border-b-0 border-r-0 border-t-0 border-border-subtlest-tertiary bg-raw-pepper-90 pb-5 pl-10 pr-5 pt-8',
           element: 'h-[35rem]',
         }}
       />
