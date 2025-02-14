@@ -340,6 +340,7 @@ export default function MainFeedLayout({
           searchQuery,
         ),
         query: SEARCH_POSTS_QUERY,
+        pageSize: '50',
         variables: { query: searchQuery, version: searchVersion },
         emptyScreen: <SearchEmptyScreen />,
       };
