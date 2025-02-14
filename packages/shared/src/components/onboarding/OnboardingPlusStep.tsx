@@ -64,7 +64,7 @@ export const OnboardingPlusStep = ({
   );
 
   return (
-    <section className="flex max-w-screen-laptop flex-col gap-10 tablet:px-10">
+    <section className="flex w-full max-w-screen-laptop flex-col gap-10 tablet:px-10">
       <header className="text-center">
         <Typography
           bold

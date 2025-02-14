@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
-import { InfoIcon } from '../icons';
+import { InfoIcon, MarkOkIcon } from '../icons';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import type { TypographyProps } from '../typography/Typography';
@@ -13,11 +13,9 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { MarkOkIcon } from '../icons/MarkOk';
 
 export enum PlusItemStatus {
   Ready = 'done',
-  Disabled = 'disabled',
   ComingSoon = 'coming-soon',
 }
 
@@ -38,11 +36,10 @@ export interface PlusListItemProps {
 export const PlusListItem = ({
   badgeProps,
   iconProps,
-  icon,
+  icon: Icon = MarkOkIcon,
   item,
   typographyProps,
 }: PlusListItemProps): ReactElement => {
-  const Icon = icon ?? MarkOkIcon;
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
@@ -65,15 +62,17 @@ export const PlusListItem = ({
           !!item.tooltip && 'hover:bg-surface-float',
         )}
       >
-        <Icon
-          aria-hidden
-          size={IconSize.XSmall}
-          {...iconProps}
-          className={classNames(
-            'mr-1 mt-px inline-block text-text-quaternary',
-            iconProps?.className,
-          )}
-        />
+        {Icon && (
+          <Icon
+            aria-hidden
+            size={IconSize.XSmall}
+            {...iconProps}
+            className={classNames(
+              'mr-1 mt-px inline-block text-text-quaternary',
+              iconProps?.className,
+            )}
+          />
+        )}
         <Typography
           tag={TypographyTag.P}
           type={TypographyType.Body}
@@ -84,6 +83,7 @@ export const PlusListItem = ({
             typographyProps?.className,
           )}
         >
+          {!Icon && <span className="inline-block min-w-4 text-center">•</span>}
           {item.label}
           {item.status === PlusItemStatus.ComingSoon && (
             <Typography

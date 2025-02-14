@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { AppIcon, DevPlusIcon } from '../icons';
+import { DevPlusIcon, MarkOkIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { usePlusSubscription } from '../../hooks';
@@ -71,14 +71,14 @@ const PlusCard = ({
     <li
       aria-labelledby={`${id}-heading`}
       className={classNames(
-        'mx-auto w-[21rem] max-w-full rounded-16 border border-border-subtlest-tertiary p-4',
+        'mx-auto w-[21rem] rounded-16 border border-border-subtlest-tertiary p-4',
         isPaidPlan && 'bg-surface-float',
       )}
     >
       <div className="flex items-start justify-between gap-6">
         <Typography
           bold
-          className="mb-1.5 flex gap-1"
+          className="mb-4 flex gap-1"
           tag={TypographyTag.H3}
           type={TypographyType.Title3}
           color={heading.color}
@@ -171,7 +171,7 @@ const PlusCard = ({
         <PlusList
           className="!py-0"
           items={features.items}
-          icon={isPaidPlan ? undefined : AppIcon}
+          icon={isPaidPlan ? MarkOkIcon : null}
           iconProps={{ size: IconSize.Size16, className: `!mx-0` }}
           typographyProps={{
             type: TypographyType.Caption1,
@@ -196,6 +196,7 @@ export const PlusComparingCards = ({
   const priceFirstChar = productOption.price.at(0);
   const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
 
+  // Mobile with overflow -mx-4 flex flex-row flex-nowrap gap-4 overflow-x-scroll px-4
   return (
     <ul
       aria-label="Pricing plans"
