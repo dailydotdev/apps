@@ -25,6 +25,11 @@ import { BlockIcon, EarthIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { IconSize } from '../../Icon';
 
+const EmptyStateContainer = classed(
+  'div',
+  'h-40 my-2 flex-col text-center flex items-center justify-center p-4 rounded-12 border border-border-subtlest-tertiary gap-2 text-text-tertiary',
+);
+
 export const ShareGrid = forwardRef(function ShareGrid(
   {
     post,
@@ -59,11 +64,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
     ...post,
     image: post.sharedPost.image,
   };
-
-  const EmptyStateContainer = classed(
-    'div',
-    'h-40 my-2 flex-col text-center flex items-center justify-center p-4 rounded-8 border border-border-subtlest-tertiary gap-2 text-text-tertiary',
-  );
 
   const Footer = () => {
     if (isDeleted) {
