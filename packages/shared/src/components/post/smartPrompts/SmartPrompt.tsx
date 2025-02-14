@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { Tab, TabContainer } from '../../tabs/TabContainer';
@@ -14,16 +14,21 @@ import { ActionType } from '../../../graphql/actions';
 import { postLogEvent } from '../../../lib/feed';
 import { useLogContext } from '../../../contexts/LogContext';
 
-export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
+export const SmartPrompt = ({
+  post,
+  isContainedView,
+}: {
+  post: Post;
+  isContainedView?: boolean;
+}): ReactElement => {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
     PromptDisplay.TLDR,
   );
+  const [width, setWidth] = useState<number>(0);
   const [activePrompt, setActivePrompt] = useState<string>(PromptDisplay.TLDR);
-  const elementRef = useRef<HTMLDivElement>(null);
-  const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
   const triedSmartPrompts = checkHasCompleted(ActionType.SmartPrompt);
 
   const onSetActivePrompt = (prompt: string) => {
@@ -61,12 +66,17 @@ export const SmartPrompt = ({ post }: { post: Post }): ReactElement => {
   return (
     <div
       className="mb-6 flex flex-col gap-3 text-text-secondary"
-      ref={elementRef}
+      ref={(element) => {
+        if (element) {
+          setWidth(element.getBoundingClientRect().width);
+        }
+      }}
     >
       <PromptButtons
         activePrompt={activePrompt}
         setActivePrompt={onSetActivePrompt}
         width={width}
+        isContainedView={isContainedView}
       />
       <TabContainer controlledActive={activeDisplay} showHeader={false}>
         <Tab label={PromptDisplay.TLDR}>
