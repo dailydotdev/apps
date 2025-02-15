@@ -47,6 +47,8 @@ import {
   UploadPreset,
 } from '@dailydotdev/shared/src/graphql/users';
 import { useRouter } from 'next/router';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -62,7 +64,11 @@ const ProfileIndex = ({
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
-  const onSuccess = () => displayToast('Profile updated');
+  const { logEvent } = useLogContext();
+  const onSuccess = () => {
+    displayToast('Profile updated');
+    logEvent({ event_name: LogEvent.UpdateProfile });
+  };
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
   const { user, updateUser } = useContext(AuthContext);
   const [coverImage, setCoverImage] = useState(user?.cover);
@@ -140,6 +146,7 @@ const ProfileIndex = ({
           image: file,
         });
       } else {
+        logEvent({ event_name: LogEvent.UpdateProfileImage });
         updateUserProfile({
           image: file,
         });
