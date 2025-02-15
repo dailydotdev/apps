@@ -22,6 +22,7 @@ import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
 import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
+import { usePostActions } from '../../../../hooks/post/usePostActions';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -36,6 +37,7 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
 }: ActionButtonsPropsList): ReactElement {
+  const { onInteract } = usePostActions(post);
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -57,6 +59,12 @@ export default function ActionButtons({
   const onToggleUpvote = () => {
     if (post.userState?.vote === UserVote.Down && !!showTagsPanel) {
       onClose(true);
+    }
+
+    if (post.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
+    } else {
+      onInteract();
     }
 
     onUpvoteClick?.(post);
@@ -153,7 +161,14 @@ export default function ActionButtons({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             icon: <BookmarkIcon secondary={post.bookmarked} />,
-            onClick: () => onBookmarkClick(post),
+            onClick: () => {
+              if (!post.bookmarked) {
+                onInteract('bookmark');
+              } else {
+                onInteract();
+              }
+              onBookmarkClick(post);
+            },
             variant: ButtonVariant.Tertiary,
             className: 'pointer-events-auto ml-2',
           }}
@@ -162,7 +177,10 @@ export default function ActionButtons({
           <Button
             className="pointer-events-auto ml-2"
             icon={<LinkIcon />}
-            onClick={(e) => onCopyLinkClick?.(e, post)}
+            onClick={(e) => {
+              onInteract('copy');
+              onCopyLinkClick?.(e, post);
+            }}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
           />

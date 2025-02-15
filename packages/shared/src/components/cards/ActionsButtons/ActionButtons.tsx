@@ -23,6 +23,7 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { usePostActions } from '../../../hooks/post/usePostActions';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -43,6 +44,7 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
+  const { onInteract } = usePostActions(post);
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
@@ -56,10 +58,20 @@ const ActionButtons = ({
     if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
+      onInteract();
       onClose(true);
     }
 
     await onDownvoteClick?.(post);
+  };
+
+  const onToggleUpvote = async () => {
+    if (post.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
+    } else {
+      onInteract();
+    }
+    onUpvoteClick?.(post);
   };
 
   return (
@@ -76,9 +88,7 @@ const ActionButtons = ({
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
-            onClick={() => {
-              onUpvoteClick?.(post);
-            }}
+            onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           >
@@ -130,7 +140,14 @@ const ActionButtons = ({
         buttonProps={{
           id: `post-${post.id}-bookmark-btn`,
           icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => onBookmarkClick(post),
+          onClick: () => {
+            if (!post.bookmarked) {
+              onInteract('bookmark');
+            } else {
+              onInteract();
+            }
+            onBookmarkClick(post);
+          },
           size: ButtonSize.Small,
         }}
       />
@@ -138,7 +155,10 @@ const ActionButtons = ({
         <Button
           size={ButtonSize.Small}
           icon={<LinkIcon />}
-          onClick={(e) => onCopyLinkClick?.(e, post)}
+          onClick={(e) => {
+            onInteract('copy');
+            onCopyLinkClick?.(e, post);
+          }}
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />

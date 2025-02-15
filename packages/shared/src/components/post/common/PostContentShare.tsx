@@ -3,7 +3,7 @@ import React from 'react';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
-import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
+import { usePostActions } from '../../../hooks/post/usePostActions';
 import { postLogEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
 import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
@@ -16,16 +16,16 @@ interface PostContentShareProps {
 export function PostContentShare({
   post,
 }: PostContentShareProps): ReactElement {
-  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
+  const { onInteract, interaction } = usePostActions(post);
   const { isLoading, shareLink } = useGetShortUrl({
     query: {
       url: post.commentsPermalink,
       cid: ReferralCampaignKey.SharePost,
-      enabled: shouldShowOverlay,
+      enabled: interaction === 'upvote',
     },
   });
 
-  if (!shouldShowOverlay || isLoading) {
+  if (interaction !== 'upvote' || isLoading) {
     return null;
   }
 
@@ -37,7 +37,7 @@ export function PostContentShare({
       <InviteLinkInput
         className={{ container: 'w-full flex-1' }}
         link={shareLink}
-        onCopy={onInteract}
+        onCopy={() => onInteract()}
         logProps={postLogEvent('share post', post, {
           extra: {
             provider: ShareProvider.CopyLink,

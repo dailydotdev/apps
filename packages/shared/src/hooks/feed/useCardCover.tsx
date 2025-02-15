@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
-import { usePostShareLoop } from '../post/usePostShareLoop';
+import { usePostActions } from '../post/usePostActions';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
 import { CardCoverContainer } from '../../components/cards/common/CardCoverContainer';
 import { PostReminderOptions } from '../../components/post/common/PostReminderOptions';
@@ -30,16 +30,11 @@ export const useCardCover = ({
   onShare,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
-  const {
-    shouldShowOverlay,
-    onInteract,
-    currentInteraction,
-    shouldShowReminder,
-  } = usePostShareLoop(post);
+  const { onInteract, interaction } = usePostActions(post);
   const { getFeatureValue } = useFeaturesReadyContext();
 
   const overlay = useMemo(() => {
-    if (currentInteraction === 'copy' && getFeatureValue(featureSocialShare)) {
+    if (interaction === 'copy' && getFeatureValue(featureSocialShare)) {
       return (
         <CardCoverContainer title="Why not share it on social, too?">
           <div className="mt-2 flex flex-row gap-2">
@@ -55,11 +50,11 @@ export const useCardCover = ({
         </CardCoverContainer>
       );
     }
-    if (shouldShowOverlay && onShare && currentInteraction === 'upvote') {
+    if (onShare && interaction === 'upvote') {
       return (
         <CardCoverShare
           post={post}
-          onCopy={onInteract}
+          onCopy={() => onInteract()}
           onShare={() => {
             onInteract();
             onShare(post);
@@ -68,7 +63,7 @@ export const useCardCover = ({
       );
     }
 
-    if (shouldShowReminder && currentInteraction === 'bookmark') {
+    if (interaction === 'bookmark') {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -89,12 +84,10 @@ export const useCardCover = ({
     return undefined;
   }, [
     className?.bookmark?.container,
+    interaction,
     onInteract,
     onShare,
     post,
-    shouldShowOverlay,
-    shouldShowReminder,
-    currentInteraction,
     getFeatureValue,
   ]);
 
