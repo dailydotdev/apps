@@ -89,7 +89,7 @@ export default function ProfileLayout({
       target_id: user.id,
     });
     setTrackedView(true);
-  }, [user, trackedView]);
+  }, [user, trackedView, logEvent]);
 
   if (!isFallback && !user) {
     return <Custom404 />;

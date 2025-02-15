@@ -154,7 +154,7 @@ const ProfileIndex = ({
 
       return undefined;
     },
-    [updateUserProfile, uploadCoverImage, clearImageMutation],
+    [updateUserProfile, uploadCoverImage, clearImageMutation, logEvent],
   );
 
   const CoverHoverIcon = () => (
