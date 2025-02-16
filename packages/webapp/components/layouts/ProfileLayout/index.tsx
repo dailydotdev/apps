@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getProfile,
@@ -20,6 +20,8 @@ import type { NextSeoProps } from 'next-seo';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -74,6 +76,20 @@ export default function ProfileLayout({
   const router = useRouter();
   const { isFallback } = router;
   const { user } = useProfile(initialUser);
+  const [trackedView, setTrackedView] = useState(false);
+  const { logEvent } = useLogContext();
+
+  useEffect(() => {
+    if (trackedView || !user) {
+      return;
+    }
+
+    logEvent({
+      event_name: LogEvent.ProfileView,
+      target_id: user.id,
+    });
+    setTrackedView(true);
+  }, [user, trackedView, logEvent]);
 
   if (!isFallback && !user) {
     return <Custom404 />;
