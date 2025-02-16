@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { type ReactElement, type ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
@@ -68,7 +68,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user } = useAuthContext();
+  const { user, trackingId } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -102,6 +102,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       window.serwist.register();
     }
   }, [user]);
+
+  useEffect(() => {
+    const id = user?.id || trackingId;
+    if (id && globalThis.webkit?.messageHandlers?.['update-user-id']) {
+      globalThis.webkit.messageHandlers['update-user-id'].postMessage(id);
+    }
+  }, [user?.id, trackingId]);
 
   useEffect(() => {
     if (!modal) {
