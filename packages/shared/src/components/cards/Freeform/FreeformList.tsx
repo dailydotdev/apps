@@ -26,6 +26,7 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { featureSocialShare } from '../../../lib/featureManagement';
 import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
+import { PostType } from '../../../graphql/posts';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -60,7 +61,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
   const { value: socialShare } = useConditionalFeature({
     feature: featureSocialShare,
-    shouldEvaluate: interaction === 'copy',
+    shouldEvaluate: interaction === 'copy' && post.type === PostType.Freeform,
   });
 
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
