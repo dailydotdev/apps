@@ -247,6 +247,11 @@ export enum LogEvent {
   SmartPrompt = 'smart prompt',
   ToggleSmartPrompts = 'toggle smart prompts',
   // End Smart Prompts
+  // Start Profile
+  ProfileView = 'profile view',
+  UpdateProfile = 'update profile',
+  UpdateProfileImage = 'update profile image',
+  // End Profile
 }
 
 export enum FeedItemTitle {
