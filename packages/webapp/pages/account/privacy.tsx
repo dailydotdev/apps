@@ -121,7 +121,7 @@ const AccountInvitePage = (): ReactElement => {
           Content guidelines →
         </Typography>
         <Typography
-          href={privacyPolicy}
+          href="mailto:hi@daily.dev"
           tag={TypographyTag.Link}
           type={TypographyType.Callout}
           target="_blank"
