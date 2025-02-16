@@ -82,6 +82,11 @@ export default function ActionButtons({
     onBookmarkClick(post);
   };
 
+  const onCopyLink = (e: React.MouseEvent) => {
+    onInteract('copy');
+    onCopyLinkClick?.(e, post);
+  };
+
   return (
     <ConditionalWrapper
       condition={showTagsPanel === true}
@@ -182,10 +187,7 @@ export default function ActionButtons({
           <Button
             className="pointer-events-auto ml-2"
             icon={<LinkIcon />}
-            onClick={(e) => {
-              onInteract('copy');
-              onCopyLinkClick?.(e, post);
-            }}
+            onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
           />
