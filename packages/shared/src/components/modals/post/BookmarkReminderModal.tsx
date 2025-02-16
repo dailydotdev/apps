@@ -16,7 +16,6 @@ import type { Post } from '../../../graphql/posts';
 import type { ActiveFeedContextValue } from '../../../contexts';
 import { ActiveFeedContext } from '../../../contexts';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { usePostActions } from '../../../hooks/post/usePostActions';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;
@@ -100,7 +99,6 @@ export const BookmarkReminderModal = (
   const [selectedOption, setSelectedOption] = useState<ReminderPreference>(
     ReminderPreference.OneHour,
   );
-  const { onInteract } = usePostActions(post);
   const { onBookmarkReminder } = useBookmarkReminder({ post });
 
   const handleSubmit: FormEventHandler = async (e) => {
@@ -113,7 +111,6 @@ export const BookmarkReminderModal = (
     }).then(() => {
       onRequestClose(null);
     });
-    onInteract();
   };
 
   return (

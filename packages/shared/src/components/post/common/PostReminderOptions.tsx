@@ -25,7 +25,7 @@ export function PostReminderOptions({
   className,
   buttonProps = { variant: ButtonVariant.Float, size: ButtonSize.XSmall },
 }: PostReminderOptionsProps): ReactElement {
-  const { onInteract } = usePostActions(post);
+  const { onInteract, previousInteraction } = usePostActions(post);
   const { openModal } = useLazyModal();
   const feedContextData = useActiveFeedContext();
   const { onBookmarkReminder } = useBookmarkReminder({ post });
@@ -36,7 +36,7 @@ export function PostReminderOptions({
       existingReminder: post.bookmark?.remindAt,
       preference,
     });
-    onInteract();
+    onInteract(previousInteraction);
   };
   return (
     <span className={classNames('flex flex-row gap-3', className)}>
@@ -61,7 +61,11 @@ export function PostReminderOptions({
         onClick={wrapStopPropagation(() =>
           openModal({
             type: LazyModal.BookmarkReminder,
-            props: { post, feedContextData },
+            props: {
+              post,
+              feedContextData,
+              onReminderSet: () => onInteract(previousInteraction),
+            },
           }),
         )}
       >

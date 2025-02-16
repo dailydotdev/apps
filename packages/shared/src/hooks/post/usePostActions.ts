@@ -3,8 +3,11 @@ import { useCallback, useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
+type Interaction = 'upvote' | 'bookmark' | 'copy' | undefined;
+
 type PostActionData = {
-  interaction: 'upvote' | 'bookmark' | 'copy' | undefined;
+  interaction: Interaction;
+  previousInteraction: Interaction;
 };
 
 type UsePostActions = PostActionData & {
@@ -22,13 +25,16 @@ export const usePostActions = (post: Post): UsePostActions => {
     (interaction?: PostActionData['interaction']) => {
       client.setQueryData<PostActionData>(key, {
         interaction,
+        previousInteraction:
+          data?.interaction === interaction ? undefined : data?.interaction,
       });
     },
-    [client, key],
+    [client, key, data?.interaction],
   );
 
   return {
     interaction: data?.interaction,
+    previousInteraction: data?.previousInteraction,
     onInteract,
   };
 };
