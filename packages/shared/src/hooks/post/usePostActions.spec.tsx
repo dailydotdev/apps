@@ -8,6 +8,8 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { sharePost } from '../../../__tests__/fixture/post';
 import type { PostCardProps } from '../../components/cards/common/common';
 import { ArticleGrid } from '../../components/cards/article/ArticleGrid';
+import { GrowthBookProvider } from '../../components/GrowthBookProvider';
+import { BootApp } from '../../lib/boot';
 
 const defaultProps: PostCardProps = {
   post: sharePost,
@@ -29,9 +31,25 @@ const renderComponent = () => {
         getRedirectUri={jest.fn()}
         tokenRefreshed
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <ArticleGrid {...defaultProps} />
-        </SettingsContext.Provider>
+        <GrowthBookProvider
+          app={BootApp.Test}
+          user={loggedUser}
+          deviceId="123"
+          experimentation={{
+            f: '{}',
+            e: [],
+            a: [],
+            features: {
+              social_share: {
+                defaultValue: true,
+              },
+            },
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <ArticleGrid {...defaultProps} />
+          </SettingsContext.Provider>
+        </GrowthBookProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -44,8 +62,10 @@ beforeEach(() => {
 describe('usePostActions', () => {
   it('should call on share click on copy link button click', async () => {
     renderComponent();
+
     const el = screen.getByLabelText('Copy link');
     el.click();
+
     expect(
       await screen.findByText('Why not share it on social, too?'),
     ).toBeInTheDocument();
@@ -53,8 +73,10 @@ describe('usePostActions', () => {
 
   it('should show share overlay when post is upvoted', async () => {
     renderComponent();
+
     const el = screen.getByLabelText('Upvote');
     el.click();
+
     expect(
       await screen.findByText('Should anyone else see this post?'),
     ).toBeInTheDocument();
@@ -62,8 +84,10 @@ describe('usePostActions', () => {
 
   it('should show bookmark overlay when post is bookmarked', async () => {
     renderComponent();
+
     const bookmarkButton = screen.getByLabelText('Bookmark');
     bookmarkButton.click();
+
     expect(
       await screen.findByText('Don’t have time now? Set a reminder'),
     ).toBeInTheDocument();
@@ -71,17 +95,19 @@ describe('usePostActions', () => {
 
   it('should show bookmark overlay instead of share overlay when post is bookmarked after upvote click', async () => {
     renderComponent();
+
     const upvoteBtn = screen.getByLabelText('Upvote');
     upvoteBtn.click();
 
     const bookmarkBtn = screen.getByLabelText('Bookmark');
     bookmarkBtn.click();
+
     expect(
       await screen.findByText('Don’t have time now? Set a reminder'),
     ).toBeInTheDocument();
   });
 
-  it('should show share overlay instead of bookmark overlay when post is shared after upvote click', async () => {
+  it('should show share overlay instead of bookmark overlay when upvote is clicked after bookmark is clicked', async () => {
     renderComponent();
 
     const bookmarkBtn = screen.getByLabelText('Bookmark');
