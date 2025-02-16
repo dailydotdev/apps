@@ -74,6 +74,20 @@ const ActionButtons = ({
     onUpvoteClick?.(post);
   };
 
+  const onToggleBookmark = async () => {
+    if (!post.bookmarked) {
+      onInteract('bookmark');
+    } else {
+      onInteract();
+    }
+    onBookmarkClick(post);
+  };
+
+  const onCopyLink = (e: React.MouseEvent) => {
+    onInteract('copy');
+    onCopyLinkClick?.(e, post);
+  };
+
   return (
     <div
       className={classNames(
@@ -140,14 +154,7 @@ const ActionButtons = ({
         buttonProps={{
           id: `post-${post.id}-bookmark-btn`,
           icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => {
-            if (!post.bookmarked) {
-              onInteract('bookmark');
-            } else {
-              onInteract();
-            }
-            onBookmarkClick(post);
-          },
+          onClick: onToggleBookmark,
           size: ButtonSize.Small,
         }}
       />
@@ -155,10 +162,7 @@ const ActionButtons = ({
         <Button
           size={ButtonSize.Small}
           icon={<LinkIcon />}
-          onClick={(e) => {
-            onInteract('copy');
-            onCopyLinkClick?.(e, post);
-          }}
+          onClick={onCopyLink}
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />

@@ -69,10 +69,10 @@ describe('usePostActions', () => {
     ).toBeInTheDocument();
   });
 
-  it('should show bookmark overlay instead of share overlay when post is bookmarked after copy link click', async () => {
+  it('should show bookmark overlay instead of share overlay when post is bookmarked after upvote click', async () => {
     renderComponent();
-    const copyLinkBtn = screen.getByLabelText('Copy link');
-    copyLinkBtn.click();
+    const upvoteBtn = screen.getByLabelText('Upvote');
+    upvoteBtn.click();
 
     const bookmarkBtn = screen.getByLabelText('Bookmark');
     bookmarkBtn.click();
@@ -81,13 +81,15 @@ describe('usePostActions', () => {
     ).toBeInTheDocument();
   });
 
-  it('should show share overlay instead of social share overlay when post is upvoted after copy link click', async () => {
+  it('should show share overlay instead of bookmark overlay when post is shared after upvote click', async () => {
     renderComponent();
-    const copyLinkBtn = screen.getByLabelText('Copy link');
-    copyLinkBtn.click();
+
+    const bookmarkBtn = screen.getByLabelText('Bookmark');
+    bookmarkBtn.click();
 
     const upvoteBtn = screen.getByLabelText('Upvote');
     upvoteBtn.click();
+
     expect(
       await screen.findByText('Should anyone else see this post?'),
     ).toBeInTheDocument();
