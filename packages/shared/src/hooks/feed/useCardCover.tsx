@@ -10,6 +10,7 @@ import { socials } from '../../lib/socialMedia';
 import SocialIconButton from '../../components/cards/socials/SocialIconButton';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { featureSocialShare } from '../../lib/featureManagement';
+import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -32,6 +33,7 @@ export const useCardCover = ({
 }: UseCardCoverProps): UseCardCover => {
   const { onInteract, interaction } = usePostActions(post);
   const { getFeatureValue } = useFeaturesReadyContext();
+  const shouldShowReminder = useBookmarkReminderCover(post);
 
   const overlay = useMemo(() => {
     if (interaction === 'copy' && getFeatureValue(featureSocialShare)) {
@@ -63,7 +65,7 @@ export const useCardCover = ({
       );
     }
 
-    if (interaction === 'bookmark') {
+    if (interaction === 'bookmark' || shouldShowReminder) {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -89,6 +91,7 @@ export const useCardCover = ({
     onShare,
     post,
     getFeatureValue,
+    shouldShowReminder,
   ]);
 
   return { overlay };

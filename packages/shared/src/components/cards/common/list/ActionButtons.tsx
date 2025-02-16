@@ -37,7 +37,7 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
 }: ActionButtonsPropsList): ReactElement {
-  const { onInteract } = usePostActions(post);
+  const { onInteract, interaction } = usePostActions(post);
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -50,6 +50,7 @@ export default function ActionButtons({
     if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
+      onInteract();
       onClose(true);
     }
 
@@ -63,11 +64,22 @@ export default function ActionButtons({
 
     if (post.userState?.vote !== UserVote.Up) {
       onInteract('upvote');
-    } else {
+    }
+    if (interaction === 'upvote') {
       onInteract();
     }
 
     onUpvoteClick?.(post);
+  };
+
+  const onToggleBookmark = () => {
+    if (!post.bookmarked) {
+      onInteract('bookmark');
+    }
+    if (interaction === 'bookmark') {
+      onInteract();
+    }
+    onBookmarkClick(post);
   };
 
   return (
@@ -161,14 +173,7 @@ export default function ActionButtons({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             icon: <BookmarkIcon secondary={post.bookmarked} />,
-            onClick: () => {
-              if (!post.bookmarked) {
-                onInteract('bookmark');
-              } else {
-                onInteract();
-              }
-              onBookmarkClick(post);
-            },
+            onClick: onToggleBookmark,
             variant: ButtonVariant.Tertiary,
             className: 'pointer-events-auto ml-2',
           }}

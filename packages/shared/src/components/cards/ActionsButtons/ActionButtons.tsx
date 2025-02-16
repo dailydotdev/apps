@@ -44,7 +44,7 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
-  const { onInteract } = usePostActions(post);
+  const { onInteract, interaction } = usePostActions(post);
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
@@ -68,7 +68,8 @@ const ActionButtons = ({
   const onToggleUpvote = async () => {
     if (post.userState?.vote !== UserVote.Up) {
       onInteract('upvote');
-    } else {
+    }
+    if (interaction === 'upvote') {
       onInteract();
     }
     onUpvoteClick?.(post);
@@ -77,7 +78,8 @@ const ActionButtons = ({
   const onToggleBookmark = async () => {
     if (!post.bookmarked) {
       onInteract('bookmark');
-    } else {
+    }
+    if (interaction === 'bookmark') {
       onInteract();
     }
     onBookmarkClick(post);
