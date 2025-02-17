@@ -240,6 +240,13 @@ const ReportUserModal = dynamic(
     ),
 );
 
+const PlusMarketingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusMarketingModal" */ '../plus/PlusMarketingModal'
+    ),
+);
+
 const GiftPlusModal = dynamic(
   () => import(/* webpackChunkName: "giftPlusModal" */ '../plus/GiftPlusModal'),
 );
@@ -291,6 +298,7 @@ export const modals = {
   [LazyModal.MobileSmartPrompts]: MobileSmartPromptsModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
+  [LazyModal.PlusMarketing]: PlusMarketingModal,
   [LazyModal.GiftPlus]: GiftPlusModal,
   [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
 };
