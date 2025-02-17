@@ -58,6 +58,8 @@ export enum Origin {
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
   PostSharedBy = 'post shared by',
+  // Marketing
+  InAppPromotion = 'in app promotion',
   Suggestions = 'suggestions',
 }
 
@@ -245,6 +247,11 @@ export enum LogEvent {
   SmartPrompt = 'smart prompt',
   ToggleSmartPrompts = 'toggle smart prompts',
   // End Smart Prompts
+  // Start Profile
+  ProfileView = 'profile view',
+  UpdateProfile = 'update profile',
+  UpdateProfileImage = 'update profile image',
+  // End Profile
 }
 
 export enum FeedItemTitle {
@@ -276,6 +283,7 @@ export enum TargetType {
   PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
+  MarketingCtaPlus = 'promotion_plus',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   Source = 'source',

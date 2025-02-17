@@ -11,7 +11,11 @@ import { LogEvent, Origin, TargetId } from '../../../../lib/log';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { plusUrl } from '../../../../lib/constants';
 import { DevPlusIcon } from '../../../icons';
-import { usePlusSubscription, useToastNotification } from '../../../../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useToastNotification,
+} from '../../../../hooks';
 import { usePromptsQuery } from '../../../../hooks/prompt/usePromptsQuery';
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -20,6 +24,7 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { SimpleTooltip } from '../../../tooltips';
 import ConditionalWrapper from '../../../ConditionalWrapper';
+import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 
 export const SmartPrompts = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
@@ -29,6 +34,12 @@ export const SmartPrompts = (): ReactElement => {
   const { flags, updatePromptFlag } = useSettingsContext();
   const { prompt: promptFlags } = flags;
   const { data: prompts, isLoading } = usePromptsQuery();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   return (
     <section className="flex flex-col gap-4" aria-busy={isLoading}>
@@ -118,7 +129,7 @@ export const SmartPrompts = (): ReactElement => {
             });
           }}
         >
-          Upgrade to Plus
+          {plusCta}
         </Button>
       )}
     </section>

@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { usePlusSubscription, useToastNotification } from '../../../../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useToastNotification,
+} from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -26,6 +30,7 @@ import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
+import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -34,6 +39,12 @@ export const FeedSettingsAISection = (): ReactElement => {
   const { isLoading } = useFeedSettings();
   const { user } = useAuthContext();
   const { flags, updateFlag } = useSettingsContext();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   const { onLanguageChange } = useLanguage();
 
@@ -156,7 +167,7 @@ export const FeedSettingsAISection = (): ReactElement => {
               });
             }}
           >
-            Upgrade to Plus
+            {plusCta}
           </Button>
         )}
       </section>

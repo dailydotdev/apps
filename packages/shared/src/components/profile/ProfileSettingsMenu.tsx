@@ -42,6 +42,7 @@ import { useConditionalFeature } from '../../hooks';
 import {
   featureAndroidPWA,
   featureOnboardingAndroid,
+  featurePlusCtaCopy,
 } from '../../lib/featureManagement';
 import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
 
@@ -56,6 +57,12 @@ const useMenuItems = (): NavItemProps[] => {
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp,
@@ -102,7 +109,7 @@ const useMenuItems = (): NavItemProps[] => {
 
     if (!isIOSNative()) {
       items.push({
-        label: isPlus ? 'Manage plus' : 'Upgrade to plus',
+        label: isPlus ? 'Manage plus' : plusCta,
         icon: <DevPlusIcon />,
         href: isPlus ? managePlusUrl : plusUrl,
         className: isPlus ? undefined : 'text-action-plus-default',
@@ -207,6 +214,7 @@ const useMenuItems = (): NavItemProps[] => {
     appExperiment,
     promptToInstall,
     androidPWAExperiment,
+    plusCta,
   ]);
 };
 
