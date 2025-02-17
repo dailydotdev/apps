@@ -27,8 +27,12 @@ import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 export type ProductOption = {
   label: string;
   value: string;
-  price: string;
-  priceUnformatted: number;
+  price: {
+    amount: number;
+    formatted: string;
+    monthlyAmount: number;
+    monthlyFormatted: string;
+  };
   currencyCode: string;
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
@@ -158,18 +162,30 @@ export const PaymentContextProvider = ({
 
   const productOptions: Array<ProductOption> = useMemo(
     () =>
-      productPrices?.data?.details?.lineItems?.map((item) => ({
-        label: item.price.description,
-        value: item.price.id,
-        price: item.formattedTotals.total,
-        priceUnformatted: Number(item.totals.total),
-        currencyCode: productPrices?.data.currencyCode as string,
-        extraLabel: item.price.customData?.label as string,
-        appsId:
-          (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
-          PlusPriceTypeAppsId.Default,
-        duration: planTypes[item.price.id] as PlusPriceType,
-      })) ?? [],
+      productPrices?.data?.details?.lineItems?.map((item) => {
+        const duration = planTypes[item.price.id] as PlusPriceType;
+        const priceAmount = Number(item.totals.total) / 100;
+        const monthlyPrice = +(
+          priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
+        ).toFixed(2);
+        const currencyCode = productPrices?.data.currencyCode;
+        return {
+          label: item.price.description,
+          value: item.price.id,
+          price: {
+            amount: priceAmount,
+            formatted: item.formattedTotals.total,
+            monthlyAmount: monthlyPrice,
+            monthlyFormatted: `${currencyCode}${monthlyPrice}`,
+          },
+          currencyCode: productPrices?.data.currencyCode as string,
+          extraLabel: item.price.customData?.label as string,
+          appsId:
+            (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
+            PlusPriceTypeAppsId.Default,
+          duration,
+        };
+      }) ?? [],
     [planTypes, productPrices?.data],
   );
 
@@ -192,7 +208,7 @@ export const PaymentContextProvider = ({
       }
 
       return monthlyPrices.reduce((acc, plan) => {
-        return acc.priceUnformatted < plan.priceUnformatted ? acc : plan;
+        return acc.price.amount < plan.price.amount ? acc : plan;
       }).value;
     }, [planTypes, productOptions]);
 

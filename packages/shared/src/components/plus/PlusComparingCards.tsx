@@ -64,7 +64,7 @@ const PlusCard = ({
   const { heading, features } = cardContent[cardContentName];
 
   const price = {
-    amount: plan?.price ?? '0',
+    amount: plan?.price.formatted ?? '0',
   };
 
   return (
@@ -193,8 +193,7 @@ export const PlusComparingCards = ({
   productOption,
   onClickNext,
 }: PlusComparingCardsProps): ReactElement => {
-  const priceFirstChar = productOption.price.at(0);
-  const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
+  const currency = productOption.currencyCode;
 
   // Mobile with overflow -mx-4 flex flex-row flex-nowrap gap-4 overflow-x-scroll px-4
   return (

@@ -239,14 +239,14 @@ export function GiftPlusModalComponent({
             />
           )}
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
-            <strong className="mr-1">{giftOneYear?.price}</strong>
+            <strong className="mr-1">{giftOneYear?.price?.formatted}</strong>
             {giftOneYear?.currencyCode}
           </Typography>
         </div>
         <Typography type={TypographyType.Callout}>
-          Gift one year of daily.dev Plus for {giftOneYear?.price}. Once the
-          payment is processed, they’ll be notified of your gift. This is a
-          one-time purchase, not a recurring subscription.
+          Gift one year of daily.dev Plus for {giftOneYear?.price?.formatted}.
+          Once the payment is processed, they’ll be notified of your gift. This
+          is a one-time purchase, not a recurring subscription.
         </Typography>
         <Link href={`${webappUrl}plus?gift=${selected?.id}`} passHref>
           <Button
@@ -255,7 +255,7 @@ export function GiftPlusModalComponent({
             variant={ButtonVariant.Primary}
             onClick={() => onSelected?.(selected)}
           >
-            Gift & Pay {giftOneYear?.price}
+            Gift & Pay {giftOneYear?.price.formatted}
           </Button>
         </Link>
       </Modal.Body>

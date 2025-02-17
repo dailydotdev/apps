@@ -85,7 +85,7 @@ export function PlusOptionRadio({
           color={TypographyColor.Primary}
           bold
         >
-          {price}
+          {price.monthlyAmount}
         </Typography>
         <Typography
           tag={TypographyTag.Span}
