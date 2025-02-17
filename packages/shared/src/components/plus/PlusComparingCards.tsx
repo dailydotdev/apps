@@ -14,14 +14,14 @@ import {
 import { DevPlusIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { usePlusSubscription } from '../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
 import { PlusItemStatus } from './PlusListItem';
 import { IconSize } from '../Icon';
 import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { feature, featurePlusCtaCopy } from '../../lib/featureManagement';
 import { PlusPriceType } from '../../lib/featureValues';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
@@ -69,8 +69,14 @@ const PlusCard = ({
   onClickNext,
 }: PlusCardProps): ReactElement => {
   const id = useId();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const { earlyAdopterPlanId, productOptions } = usePaymentContext();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const pricingIds = useFeature(feature.pricingIds);
 
   const isPaidPlan = !!plan;
@@ -184,10 +190,10 @@ const PlusCard = ({
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
-          title="Upgrade to Plus"
+          title={plusCta}
           variant={ButtonVariant.Primary}
         >
-          Upgrade to Plus
+          {plusCta}
         </Button>
       )}
       <PlusList

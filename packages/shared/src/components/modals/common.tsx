@@ -220,6 +220,12 @@ const SmartPromptModal = dynamic(() =>
   ).then((mod) => mod.SmartPromptModal),
 );
 
+const MobileSmartPromptsModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "mobileSmartPromptsModal" */ './plus/MobileSmartPromptsModal'
+  ).then((mod) => mod.MobileSmartPromptsModal),
+);
+
 const CookieConsentModal = dynamic(
   () =>
     import(
@@ -231,6 +237,13 @@ const ReportUserModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "reportUserModal" */ './report/ReportUserModal'
+    ),
+);
+
+const PlusMarketingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusMarketingModal" */ '../plus/PlusMarketingModal'
     ),
 );
 
@@ -282,8 +295,10 @@ export const modals = {
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.SmartPrompt]: SmartPromptModal,
+  [LazyModal.MobileSmartPrompts]: MobileSmartPromptsModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
+  [LazyModal.PlusMarketing]: PlusMarketingModal,
   [LazyModal.GiftPlus]: GiftPlusModal,
   [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
 };

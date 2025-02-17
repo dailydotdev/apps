@@ -35,6 +35,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { Pixels } from '@dailydotdev/shared/src/components/Pixels';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -71,7 +72,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user } = useAuthContext();
+  const { user, trackingId } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -105,6 +106,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       window.serwist.register();
     }
   }, [user]);
+
+  useEffect(() => {
+    const id = user?.id || trackingId;
+    if (id && globalThis.webkit?.messageHandlers?.['update-user-id']) {
+      globalThis.webkit.messageHandlers['update-user-id'].postMessage(id);
+    }
+  }, [user?.id, trackingId]);
 
   useEffect(() => {
     if (!modal) {
@@ -214,6 +222,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
       )}
+      <Pixels />
     </>
   );
 }

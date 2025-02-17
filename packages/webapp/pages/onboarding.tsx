@@ -21,6 +21,8 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
+  onboardingStepsWithCTA,
+  onboardingStepsWithFooter,
   OnboardingStep,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
@@ -38,13 +40,9 @@ import {
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import {
-  logPixelSignUp,
-  Pixels,
-} from '@dailydotdev/shared/src/components/Pixels';
+import { logPixelSignUp } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
-  featureOnboardingExtension,
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
   featureOnboardingPlusCheckout,
@@ -52,7 +50,6 @@ import {
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
   useActions,
-  useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -205,22 +202,18 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
-    useState(false);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
-  const { value: extensionExperiment } = useConditionalFeature({
-    feature: featureOnboardingExtension,
-    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
-  });
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
 
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA = [
-    OnboardingStep.PWA,
-    OnboardingStep.Extension,
-    OnboardingStep.InstallDesktop,
-    OnboardingStep.AndroidPWA,
-  ].includes(activeScreen);
+
+  const layout = useMemo(
+    () => ({
+      hasFooter: onboardingStepsWithFooter.includes(activeScreen),
+      hasCta: onboardingStepsWithCTA.includes(activeScreen),
+    }),
+    [activeScreen],
+  );
 
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
@@ -276,7 +269,6 @@ export function OnboardPage(): ReactElement {
 
     if (activeScreen === OnboardingStep.EditTag) {
       completeStep(ActionType.EditTag);
-      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
@@ -322,11 +314,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.InstallDesktop,
     ].includes(activeScreen);
 
-    if (
-      extensionExperiment &&
-      shouldShowExtensionOnboarding &&
-      isNotExtensionRelatedStep
-    ) {
+    if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
@@ -434,12 +422,12 @@ export function OnboardPage(): ReactElement {
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
-    if (isCTA) {
+    if (layout.hasCta) {
       return 'Not now →';
     }
 
     return undefined;
-  }, [activeScreen, isCTA]);
+  }, [activeScreen, layout.hasCta]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
@@ -458,7 +446,7 @@ export function OnboardPage(): ReactElement {
     <div
       className={classNames(
         'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
-        isCTA && 'fixed',
+        layout.hasCta && 'fixed',
       )}
     >
       {showOnboardingPage && (
@@ -474,7 +462,6 @@ export function OnboardPage(): ReactElement {
         />
       )}
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <Pixels />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
@@ -517,7 +504,7 @@ export function OnboardPage(): ReactElement {
               activeScreen === OnboardingStep.Intro
                 ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                 : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              isCTA &&
+              layout.hasCta &&
                 'relative mb-auto flex-1 !justify-between overflow-hidden',
             )}
           >
@@ -557,7 +544,7 @@ export function OnboardPage(): ReactElement {
         )}
       </div>
       {showOnboardingPage && <OnboardingFooter />}
-      {!isCTA && <FooterLinks className="mx-auto pb-6" />}
+      {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
     </div>
   );
 }

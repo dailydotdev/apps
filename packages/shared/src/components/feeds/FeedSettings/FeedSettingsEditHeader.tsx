@@ -7,13 +7,14 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
-import { usePlusSubscription } from '../../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { FeedType } from '../../../graphql/feed';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib/labels';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 const createGenericFeedPrompt: PromptOptions = {
   title: labels.feed.prompt.createGenericFeed.title,
@@ -91,6 +92,12 @@ export const FeedSettingsEditHeader = (): ReactElement => {
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   if (!activeView) {
     return null;
@@ -139,7 +146,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
               onSubmit();
             }}
           >
-            Upgrade to Plus
+            {plusCta}
           </Button>
         ) : (
           <SaveButton activeView={activeView} />

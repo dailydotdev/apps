@@ -31,6 +31,7 @@ export type ProductOption = {
   priceUnformatted: number;
   currencyCode: string;
   extraLabel: string;
+  appsId: string;
 };
 
 interface OpenCheckoutProps {

@@ -6,7 +6,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { Pixels } from '@dailydotdev/shared/src/components/Pixels';
 import {
   ThemeMode,
   useSettingsContext,
@@ -62,7 +61,6 @@ export default function PlusLayout({
 export function getPlusLayout(page: ReactNode): ReactNode {
   return (
     <PaymentContextProvider>
-      <Pixels hotjarId="5215055" />
       <PlusLayout>{page}</PlusLayout>
     </PaymentContextProvider>
   );
