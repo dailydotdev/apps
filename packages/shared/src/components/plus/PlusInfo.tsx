@@ -16,13 +16,8 @@ import type {
   OpenCheckoutFn,
   ProductOption,
 } from '../../contexts/PaymentContext';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
