@@ -71,11 +71,13 @@ export const FEED_POST_FRAGMENT = gql`
       createdAt
       type
       tags
+      private
       source {
         id
         handle
         permalink
         image
+        type
       }
       slug
       clickbaitTitleDetected
