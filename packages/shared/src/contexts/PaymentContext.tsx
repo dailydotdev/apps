@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, {
-  useEffect,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -27,11 +27,17 @@ import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 export type ProductOption = {
   label: string;
   value: string;
-  price: string;
-  priceUnformatted: number;
+  price: {
+    amount: number;
+    formatted: string;
+    monthlyAmount: number;
+    monthlyFormatted: string;
+  };
   currencyCode: string;
+  currencySymbol: string;
   extraLabel: string;
-  appsId: string;
+  appsId: PlusPriceTypeAppsId;
+  duration: PlusPriceType;
 };
 
 interface OpenCheckoutProps {
@@ -155,18 +161,34 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes && !!geo,
   });
 
-  const productOptions = useMemo(
+  const productOptions: Array<ProductOption> = useMemo(
     () =>
-      productPrices?.data?.details?.lineItems?.map((item) => ({
-        label: item.price.description,
-        value: item.price.id,
-        price: item.formattedTotals.total,
-        priceUnformatted: Number(item.totals.total),
-        currencyCode: productPrices?.data.currencyCode as string,
-        extraLabel: item.price.customData?.label as string,
-        appsId: item.price.customData?.appsId as string,
-      })) ?? [],
-    [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
+      productPrices?.data?.details?.lineItems?.map((item) => {
+        const duration = planTypes[item.price.id] as PlusPriceType;
+        const priceAmount = parseFloat(item.totals.total) / 100;
+        const monthlyPrice = +(
+          priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
+        ).toFixed(2);
+        const currencySymbol = item.formattedTotals.total.at(0);
+        return {
+          label: item.price.description,
+          value: item.price.id,
+          price: {
+            amount: priceAmount,
+            formatted: item.formattedTotals.total,
+            monthlyAmount: monthlyPrice,
+            monthlyFormatted: `${currencySymbol}${monthlyPrice.toFixed(2)}`,
+          },
+          currencyCode: productPrices?.data.currencyCode,
+          currencySymbol,
+          extraLabel: item.price.customData?.label as string,
+          appsId:
+            (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
+            PlusPriceTypeAppsId.Default,
+          duration,
+        };
+      }) ?? [],
+    [planTypes, productPrices?.data],
   );
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
@@ -175,22 +197,8 @@ export const PaymentContextProvider = ({
         ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
       );
 
-      if (earlyAdopter?.value) {
-        return earlyAdopter.value;
-      }
-
-      const monthlyPrices = productOptions.filter(
-        (option) => planTypes[option.value] === PlusPriceType.Monthly,
-      );
-
-      if (monthlyPrices.length <= 1) {
-        return null;
-      }
-
-      return monthlyPrices.reduce((acc, plan) => {
-        return acc.priceUnformatted < plan.priceUnformatted ? acc : plan;
-      }).value;
-    }, [planTypes, productOptions]);
+      return earlyAdopter?.value ?? null;
+    }, [productOptions]);
 
   const giftOneYear: ProductOption = useMemo(
     () =>

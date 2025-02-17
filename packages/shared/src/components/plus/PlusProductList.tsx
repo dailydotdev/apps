@@ -89,7 +89,7 @@ const PlusProductList = ({
               color={TypographyColor.Primary}
               bold
             >
-              {price}
+              {price.formatted}
             </Typography>
             <Typography
               tag={TypographyTag.Span}

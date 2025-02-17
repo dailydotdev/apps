@@ -22,7 +22,8 @@ export function PlusOptionRadio({
   checked,
   onChange,
 }: PlusOptionRadioProps): ReactElement {
-  const { earlyAdopterPlanId } = usePaymentContext();
+  const { earlyAdopterPlanId, giftOneYear } = usePaymentContext();
+  const isYearlyGift = giftOneYear.value === option.value;
 
   if (!option) {
     return null;
@@ -85,7 +86,7 @@ export function PlusOptionRadio({
           color={TypographyColor.Primary}
           bold
         >
-          {price}
+          {isYearlyGift ? price.formatted : price.monthlyFormatted}
         </Typography>
         <Typography
           tag={TypographyTag.Span}
@@ -95,6 +96,15 @@ export function PlusOptionRadio({
         >
           {currencyCode}
         </Typography>
+        {!isYearlyGift && (
+          <Typography
+            className="font-normal"
+            color={TypographyColor.Quaternary}
+            type={TypographyType.Footnote}
+          >
+            /month
+          </Typography>
+        )}
       </div>
     </RadioItem>
   );

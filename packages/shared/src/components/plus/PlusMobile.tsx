@@ -8,6 +8,8 @@ import type { CommonPlusPageProps } from './common';
 import { useGiftUserContext } from './GiftUserContext';
 import { webappUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
+import { PlusThrustRefund } from './PlusThrustRefund';
+import { PlusFAQs } from './PlusFAQs';
 
 export const PlusMobile = ({
   shouldShowPlusHeader,
@@ -50,6 +52,8 @@ export const PlusMobile = ({
         onContinue={onContinue}
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
+      <PlusThrustRefund className="mt-6" />
+      <PlusFAQs />
     </div>
   );
 };

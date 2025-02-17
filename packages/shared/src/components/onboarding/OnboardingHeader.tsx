@@ -7,7 +7,7 @@ import {
   cloudinaryFeedBgMobile,
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
-import Logo, { LogoPosition } from '../Logo';
+import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
 import type { AuthProps } from '../auth/AuthOptions';
 import { AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -56,6 +56,7 @@ export const OnboardingHeader = ({
     OnboardingStep.InstallDesktop,
     OnboardingStep.AndroidPWA,
   ];
+  const isPlusStep = activeScreen === OnboardingStep.Plus;
 
   if (activeScreen !== OnboardingStep.Intro) {
     return (
@@ -78,11 +79,15 @@ export const OnboardingHeader = ({
               </div>
             )}
           >
-            <Logo
-              logoClassName={{ container: 'h-6' }}
-              position={LogoPosition.Relative}
-              linkDisabled
-            />
+            {!isPlusStep ? (
+              <Logo
+                logoClassName={{ container: 'h-6' }}
+                position={LogoPosition.Relative}
+                linkDisabled
+              />
+            ) : (
+              <LogoWithPlus />
+            )}
           </ConditionalWrapper>
           {showCreateFeedButton.includes(activeScreen) && (
             <CreateFeedButton
