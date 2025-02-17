@@ -2,8 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { PlusUser } from '../PlusUser';
-import { IconSize } from '../Icon';
 import {
   Typography,
   TypographyColor,
@@ -129,10 +127,6 @@ export const PlusInfo = ({
       {shouldShowPlusHeader && (
         <div className="mb-6 flex items-center">
           {showDailyDevLogo && <Logo logoClassName={{ container: 'h-5' }} />}
-          <PlusUser
-            iconSize={IconSize.Medium}
-            typographyType={TypographyType.Title3}
-          />
         </div>
       )}
       <Typography

@@ -104,7 +104,7 @@ export const PlusFAQs = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
   return (
-    <section aria-labelledby={titleId} className="mt-10 laptop:mt-4">
+    <section aria-labelledby={titleId} className="my-10 laptop:mt-4">
       <Typography
         bold
         className="mb-10 text-center"
