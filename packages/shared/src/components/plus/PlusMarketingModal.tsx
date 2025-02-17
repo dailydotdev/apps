@@ -44,7 +44,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
     closeModal();
   };
 
-  if (isTablet) {
+  if (!isTablet) {
     return <PlusMobileDrawer onClose={handleClose} {...modalProps} />;
   }
 
