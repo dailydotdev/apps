@@ -1,13 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { usePaymentContext } from '../../contexts/PaymentContext';
-
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
 import { ButtonVariant, Button } from '../buttons/Button';
-import { PlusListModal } from './PlusMarketingModal';
+import PlusListModalSection from './PlusListModalSection';
 
 const PlusWebapp = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -70,7 +69,7 @@ const PlusWebapp = (): ReactElement => {
           />
         </div>
       ) : (
-        <PlusListModal />
+        <PlusListModalSection />
       )}
     </div>
   );

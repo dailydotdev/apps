@@ -11,7 +11,7 @@ import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
 import { getPricePreviews } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
-import { PlusListModal } from './PlusMarketingModal';
+import PlusListModalSection from './PlusListModalSection';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -67,7 +67,7 @@ const PlusExtension = (): ReactElement => {
           {flags.ctaText}
         </Button>
       </div>
-      <PlusListModal />
+      <PlusListModalSection />
     </div>
   );
 };
