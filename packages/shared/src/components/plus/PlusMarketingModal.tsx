@@ -32,7 +32,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { closeModal } = useLazyModal();
   const isExtension = checkIsExtension();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isTablet = useViewSize(ViewSize.Tablet);
 
   const handleClose = () => {
     logEvent({
@@ -44,7 +44,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
     closeModal();
   };
 
-  if (isMobile) {
+  if (isTablet) {
     return <PlusMobileDrawer onClose={handleClose} {...modalProps} />;
   }
 
