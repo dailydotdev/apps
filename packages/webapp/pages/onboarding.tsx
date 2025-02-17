@@ -48,7 +48,11 @@ import {
   featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -146,18 +150,15 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
-  const {
-    isOnboardingReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-    completeStep,
-  } = useOnboarding();
+  const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
+    useOnboarding();
   const router = useRouter();
   const { setSettings, autoDismissNotifications } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
     useAuthContext();
+  const { isActionsFetched } = useActions();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -213,6 +214,8 @@ export function OnboardPage(): ReactElement {
     }),
     [activeScreen],
   );
+
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
     if (
