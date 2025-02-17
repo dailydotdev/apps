@@ -32,7 +32,7 @@ export const BootPopups = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
+  const { user, isValidRegion } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
   const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
     useContext(AlertContext);
@@ -44,6 +44,8 @@ export const BootPopups = (): ReactElement => {
   const marketingCtaPopoverSmall = getMarketingCta(
     MarketingCtaVariant.PopoverSmall,
   );
+  const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
+
   const {
     streak,
     shouldShowPopup: shouldShowStreaksPopup,
@@ -62,7 +64,6 @@ export const BootPopups = (): ReactElement => {
     alerts?.showStreakMilestone !== true,
     !streak?.current,
   ].some(Boolean);
-
   const addBootPopup = (popup) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
@@ -101,6 +102,23 @@ export const BootPopups = (): ReactElement => {
    * Boot popup based on marketing CTA
    */
   useEffect(() => {
+    if (marketingCtaPlus && isValidRegion && !user?.isPlus) {
+      addBootPopup({
+        type: LazyModal.PlusMarketing,
+        onAfterClose: () => {
+          updateLastBootPopup();
+        },
+        props: {
+          onAfterOpen: () => {
+            logEvent({
+              event_name: LogEvent.Impression,
+              target_type: TargetType.MarketingCtaPlus,
+              target_id: marketingCtaPlus.campaignId,
+            });
+          },
+        },
+      });
+    }
     if (marketingCtaPopover) {
       addBootPopup({
         type: LazyModal.MarketingCta,
@@ -119,7 +137,14 @@ export const BootPopups = (): ReactElement => {
         },
       });
     }
-  }, [marketingCtaPopover, logEvent, updateLastBootPopup]);
+  }, [
+    marketingCtaPopover,
+    logEvent,
+    updateLastBootPopup,
+    marketingCtaPlus,
+    isValidRegion,
+    user?.isPlus,
+  ]);
 
   useEffect(() => {
     if (marketingCtaPopoverSmall) {
