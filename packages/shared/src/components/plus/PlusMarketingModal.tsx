@@ -12,6 +12,13 @@ import { MarketingCtaVariant } from '../marketingCta/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { ModalSize } from '../modals/common/types';
+import type { TypographyColor } from '../typography/Typography';
+import { IconSize } from '../Icon';
+import { TypographyType } from '../typography/Typography';
+import { PlusUser } from '../PlusUser';
+import { plusRedBackgroundImage } from '../../lib/image';
+import { PlusList } from './PlusList';
+import { Image } from '../image/Image';
 
 const PlusMobileDrawer = dynamic(
   () => import(/* webpackChunkName: "plusMobileDrawer" */ './PlusMobileDrawer'),
@@ -24,6 +31,29 @@ const PlusExtension = dynamic(
 const PlusWebapp = dynamic(
   () => import(/* webpackChunkName: "plusWebapp" */ './PlusWebapp'),
 );
+
+export const PlusListModal = (): ReactElement => {
+  return (
+    <div className="relative flex h-full flex-1 flex-col gap-8 bg-black pr-6">
+      <PlusUser
+        iconSize={IconSize.Large}
+        typographyType={TypographyType.Title1}
+        className="invisible"
+        aria-hidden
+      />
+      <Image className="absolute bottom-0" src={plusRedBackgroundImage} />
+      <PlusList
+        typographyProps={{
+          color: 'text-white' as TypographyColor,
+        }}
+        iconProps={{
+          className: 'text-white',
+        }}
+        className="z-1 pl-10"
+      />
+    </div>
+  );
+};
 
 const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   const { getMarketingCta, clearMarketingCta } = useBoot();
@@ -52,7 +82,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
     <PaymentContextProvider>
       <Modal
         size={ModalSize.XLarge}
-        className="!bg-background-default"
+        className="!h-full overflow-x-hidden !bg-background-default"
         {...modalProps}
         onRequestClose={handleClose}
       >

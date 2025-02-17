@@ -48,6 +48,7 @@ export interface PaymentContextData {
   earlyAdopterPlanId?: string | null;
   isPlusAvailable: boolean;
   giftOneYear?: ProductOption;
+  isPricesPending: boolean;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>(undefined);
@@ -149,7 +150,7 @@ export const PaymentContextProvider = ({
     });
   }, [paddle, planTypes, geo?.region]);
 
-  const { data: productPrices } = useQuery({
+  const { data: productPrices, isLoading: isPricesPending } = useQuery({
     queryKey: ['productPrices'],
     queryFn: getPrices,
     enabled: !!paddle && !!planTypes && !!geo,
@@ -249,6 +250,7 @@ export const PaymentContextProvider = ({
       earlyAdopterPlanId,
       isPlusAvailable,
       giftOneYear,
+      isPricesPending,
     }),
     [
       giftOneYear,
@@ -257,6 +259,7 @@ export const PaymentContextProvider = ({
       paddle,
       productOptions,
       isPlusAvailable,
+      isPricesPending,
     ],
   );
 
