@@ -35,7 +35,7 @@ export const defaultFeatureList: Array<PlusItem> = [
 
 export const plusFeatureList: Array<PlusItem> = [
   {
-    label: 'Run prompts on any post',
+    label: 'Chat with posts using AI',
     status: PlusItemStatus.Ready,
     tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
   },
@@ -58,6 +58,11 @@ export const plusFeatureList: Array<PlusItem> = [
     label: 'Ad-free experience',
     status: PlusItemStatus.Ready,
     tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
+  },
+  {
+    label: 'Auto-translate your feed',
+    status: PlusItemStatus.ComingSoon,
+    tooltip: `Translate post titles and summaries into your language for a smoother learning experience.`,
   },
   {
     label: 'Keyword filters',
