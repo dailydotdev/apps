@@ -60,6 +60,11 @@ export const plusFeatureList: Array<PlusItem> = [
     tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
   },
   {
+    label: 'Auto-translate your feed',
+    status: PlusItemStatus.ComingSoon,
+    tooltip: `Translate post titles and summaries into your language for a smoother learning experience.`,
+  },
+  {
     label: 'Keyword filters',
     status: PlusItemStatus.Ready,
     tooltip: `Mute the buzzwords you’re sick of hearing. More signal, less noise.`,
