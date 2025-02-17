@@ -96,7 +96,7 @@ const PlusCard = ({
           />
         )}
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
           {price.amount}
@@ -193,7 +193,7 @@ export const PlusComparingCards = ({
   productOption,
   onClickNext,
 }: PlusComparingCardsProps): ReactElement => {
-  const currency = productOption.currencyCode;
+  const currency = productOption.currencySymbol;
 
   // Mobile with overflow -mx-4 flex flex-row flex-nowrap gap-4 overflow-x-scroll px-4
   return (

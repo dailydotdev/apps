@@ -34,6 +34,7 @@ export type ProductOption = {
     monthlyFormatted: string;
   };
   currencyCode: string;
+  currencySymbol: string;
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
   duration: PlusPriceType;
@@ -164,11 +165,11 @@ export const PaymentContextProvider = ({
     () =>
       productPrices?.data?.details?.lineItems?.map((item) => {
         const duration = planTypes[item.price.id] as PlusPriceType;
-        const priceAmount = Number(item.totals.total) / 100;
+        const priceAmount = parseFloat(item.totals.total) / 100;
         const monthlyPrice = +(
           priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
         ).toFixed(2);
-        const currencyCode = productPrices?.data.currencyCode;
+        const currencySymbol = item.formattedTotals.total.at(0);
         return {
           label: item.price.description,
           value: item.price.id,
@@ -176,9 +177,10 @@ export const PaymentContextProvider = ({
             amount: priceAmount,
             formatted: item.formattedTotals.total,
             monthlyAmount: monthlyPrice,
-            monthlyFormatted: `${currencyCode}${monthlyPrice}`,
+            monthlyFormatted: `${currencySymbol}${monthlyPrice.toFixed(2)}`,
           },
-          currencyCode: productPrices?.data.currencyCode as string,
+          currencyCode: productPrices?.data.currencyCode,
+          currencySymbol,
           extraLabel: item.price.customData?.label as string,
           appsId:
             (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
