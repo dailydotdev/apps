@@ -40,6 +40,11 @@ const feature = {
   }),
 };
 
+export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
+  full: 'Upgrade to Plus',
+  short: 'Upgrade',
+});
+
 export const featureOnboardingPlusCheckout = new Feature(
   'onboarding_plus_checkout',
   false,

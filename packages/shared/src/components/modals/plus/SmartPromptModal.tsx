@@ -14,10 +14,17 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { webappUrl } from '../../../lib/constants';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { usePlusSubscription } from '../../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 
 export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image
@@ -54,7 +61,7 @@ export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
             });
           }}
         >
-          Upgrade to Plus
+          {plusCta}
         </Button>
       </div>
     </Modal>

@@ -6,12 +6,17 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { FilterIcon } from '../icons';
-import { useFeeds, usePlusSubscription } from '../../hooks';
+import {
+  useConditionalFeature,
+  useFeeds,
+  usePlusSubscription,
+} from '../../hooks';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { webappUrl } from '../../lib/constants';
 import { FeedType } from '../../graphql/feed';
 import { labels } from '../../lib/labels';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 const editPlusSubscribePrompt: PromptOptions = {
   title: labels.feed.prompt.editPlusSubscribe.title,
@@ -35,6 +40,12 @@ export function FeedSettingsButton({
   const { feeds, deleteFeed } = useFeeds();
   const router = useRouter();
   const { showPrompt } = usePrompt();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   const onButtonClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     logEvent({ event_name: LogEvent.ManageTags });
@@ -47,7 +58,13 @@ export function FeedSettingsButton({
     );
 
     if (!isPlus && feed?.node.type === FeedType.Custom) {
-      const subscribeToPlus = await showPrompt(editPlusSubscribePrompt);
+      const subscribeToPlus = await showPrompt({
+        ...editPlusSubscribePrompt,
+        okButton: {
+          ...editPlusSubscribePrompt.okButton,
+          title: plusCta,
+        },
+      });
 
       if (subscribeToPlus) {
         router?.push(`${webappUrl}plus`);
