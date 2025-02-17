@@ -35,7 +35,7 @@ export const defaultFeatureList: Array<PlusItem> = [
 
 export const plusFeatureList: Array<PlusItem> = [
   {
-    label: 'Chat with posts using AI',
+    label: 'Run prompts on any post',
     status: PlusItemStatus.Ready,
     tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
   },
