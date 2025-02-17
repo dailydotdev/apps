@@ -40,10 +40,7 @@ import {
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import {
-  logPixelSignUp,
-  Pixels,
-} from '@dailydotdev/shared/src/components/Pixels';
+import { logPixelSignUp } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
   featureOnboardingDesktopPWA,
@@ -462,7 +459,6 @@ export function OnboardPage(): ReactElement {
         />
       )}
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <Pixels />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
