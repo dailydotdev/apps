@@ -11,11 +11,12 @@ import {
 import { DevPlusIcon, MarkOkIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { usePlusSubscription } from '../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 export enum OnboardingPlans {
@@ -56,7 +57,14 @@ const PlusCard = ({
   onClickNext,
 }: PlusCardProps): ReactElement => {
   const id = useId();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
+
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
     ? OnboardingPlans.Plus
@@ -137,10 +145,10 @@ const PlusCard = ({
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
-          title="Upgrade to Plus"
+          title={plusCta}
           variant={ButtonVariant.Primary}
         >
-          Get started
+          {plusCta}
         </Button>
       )}
       <Typography

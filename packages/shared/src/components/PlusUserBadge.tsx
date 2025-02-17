@@ -15,6 +15,8 @@ import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
+import { useConditionalFeature } from '../hooks';
 
 export type Props = {
   user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
@@ -26,6 +28,12 @@ export const PlusUserBadge = ({
   tooltip = true,
 }: Props): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   if (!user.isPlus) {
     return null;
@@ -56,7 +64,7 @@ export const PlusUserBadge = ({
                       });
                     }}
                   >
-                    Upgrade to Plus!
+                    {plusCta}!
                   </Typography>
                 </Link>
               )}

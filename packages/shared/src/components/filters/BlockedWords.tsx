@@ -24,9 +24,10 @@ import { useBlockedQuery } from '../../hooks/contentPreference/useBlockedQuery';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { usePlusSubscription } from '../../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { IconSize } from '../Icon';
 import { FeedSettingsEditContext } from '../feeds/FeedSettings/FeedSettingsEditContext';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
 
 export const BlockedWords = (): ReactElement => {
   const feedSettingsEditContext = useContext(FeedSettingsEditContext);
@@ -36,6 +37,12 @@ export const BlockedWords = (): ReactElement => {
   const { user } = useAuthContext();
   const { block, unblock } = useContentPreference();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const [words, setWords] = useState<string>();
   const invalidateBlockedWords = useCallback(() => {
     const queryKey = generateQueryKey(
@@ -104,6 +111,7 @@ export const BlockedWords = (): ReactElement => {
             To unlock this feature{' '}
             <Link passHref href={plusUrl}>
               <Typography
+                className="inline-block first-letter:lowercase"
                 tag={TypographyTag.Link}
                 color={TypographyColor.Plus}
                 onClick={() => {
@@ -113,7 +121,7 @@ export const BlockedWords = (): ReactElement => {
                   });
                 }}
               >
-                upgrade to Plus
+                {plusCta}
               </Typography>
             </Link>
           </>
