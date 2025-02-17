@@ -203,11 +203,10 @@ export const PlusComparingCards = ({
 }: PlusComparingCardsProps): ReactElement => {
   const currency = productOption.currencySymbol;
 
-  // Mobile with overflow -mx-4 flex flex-row flex-nowrap gap-4 overflow-x-scroll px-4
   return (
     <ul
       aria-label="Pricing plans"
-      className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2"
+      className="mx-auto flex grid-cols-1 flex-col-reverse place-content-center items-start gap-6 tablet:grid-cols-2 laptop:grid"
     >
       {Object.values(OnboardingPlans).map((plan) => (
         <PlusCard
