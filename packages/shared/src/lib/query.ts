@@ -195,6 +195,7 @@ export enum RequestKey {
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
   Prompts = 'smart_prompts',
+  PostActions = 'post_actions',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
