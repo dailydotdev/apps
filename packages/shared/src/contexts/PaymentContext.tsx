@@ -197,22 +197,8 @@ export const PaymentContextProvider = ({
         ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
       );
 
-      if (earlyAdopter?.value) {
-        return earlyAdopter.value;
-      }
-
-      const monthlyPrices = productOptions.filter(
-        (option) => planTypes[option.value] === PlusPriceType.Monthly,
-      );
-
-      if (monthlyPrices.length <= 1) {
-        return null;
-      }
-
-      return monthlyPrices.reduce((acc, plan) => {
-        return acc.price.amount < plan.price.amount ? acc : plan;
-      }).value;
-    }, [planTypes, productOptions]);
+      return earlyAdopter?.value ?? null;
+    }, [productOptions]);
 
   const giftOneYear: ProductOption = useMemo(
     () =>

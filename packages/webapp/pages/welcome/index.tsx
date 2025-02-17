@@ -37,7 +37,6 @@ import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { Pixels } from '@dailydotdev/shared/src/components/Pixels';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { authGradientBg } from '@dailydotdev/shared/src/components/banners';
@@ -108,7 +107,6 @@ const DemoPage = (): ReactElement => {
 
   return (
     <>
-      <Pixels />
       <div
         className={classNames(
           'sticky top-0 z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
