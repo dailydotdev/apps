@@ -52,7 +52,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
     <PaymentContextProvider>
       <Modal
         size={ModalSize.XLarge}
-        className="!bg-background-default"
+        className="flex-1 overflow-x-hidden !bg-background-default"
         {...modalProps}
         onRequestClose={handleClose}
       >

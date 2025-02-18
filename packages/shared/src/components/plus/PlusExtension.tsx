@@ -1,13 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PlusUser } from '../PlusUser';
-import type { TypographyColor } from '../typography/Typography';
-import { TypographyType } from '../typography/Typography';
-import { IconSize } from '../Icon';
-import { PlusList } from './PlusList';
-import { plusRedBackgroundImage } from '../../lib/image';
-import { Image } from '../image/Image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { PlusInfo } from './PlusInfo';
@@ -18,6 +11,7 @@ import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
 import { getPricePreviews } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
+import PlusListModalSection from './PlusListModalSection';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -48,8 +42,8 @@ const PlusExtension = (): ReactElement => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-row pl-6">
-      <div className="flex flex-1 flex-col pb-32 pr-10 pt-6">
+    <div className="flex flex-1 flex-row pl-6">
+      <div className="flex flex-1 flex-col pr-10 pt-6">
         <PlusInfo
           productOptions={productOptions || []}
           title={flags.title}
@@ -73,27 +67,7 @@ const PlusExtension = (): ReactElement => {
           {flags.ctaText}
         </Button>
       </div>
-      <div className="relative flex flex-1 flex-col gap-8 bg-black pr-6">
-        <PlusUser
-          iconSize={IconSize.Large}
-          typographyType={TypographyType.Title1}
-          className="invisible"
-          aria-hidden
-        />
-        <Image
-          className="absolute bottom-0"
-          src={flags?.image || plusRedBackgroundImage}
-        />
-        <PlusList
-          typographyProps={{
-            color: 'text-white' as TypographyColor,
-          }}
-          iconProps={{
-            className: 'text-white',
-          }}
-          className="z-1 pl-10"
-        />
-      </div>
+      <PlusListModalSection />
     </div>
   );
 };
