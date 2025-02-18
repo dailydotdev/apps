@@ -5,6 +5,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { usePaymentContext } from '../../contexts/PaymentContext';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
@@ -76,6 +77,7 @@ export const OnboardingPlusStep = ({
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
+          color={TypographyColor.Secondary}
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
