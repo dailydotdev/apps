@@ -44,7 +44,9 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
-  const { onInteract, interaction, previousInteraction } = usePostActions(post);
+  const { onInteract, interaction, previousInteraction } = usePostActions({
+    post,
+  });
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;

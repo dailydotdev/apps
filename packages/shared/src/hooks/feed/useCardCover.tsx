@@ -31,7 +31,7 @@ export const useCardCover = ({
   onShare,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
-  const { onInteract, interaction } = usePostActions(post);
+  const { onInteract, interaction } = usePostActions({ post });
   const { getFeatureValue } = useFeaturesReadyContext();
   const shouldShowReminder = useBookmarkReminderCover(post);
 

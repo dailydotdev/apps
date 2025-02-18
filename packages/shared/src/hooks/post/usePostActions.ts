@@ -14,7 +14,7 @@ type UsePostActions = PostActionData & {
   onInteract: (interaction: PostActionData['interaction']) => void;
 };
 
-export const usePostActions = (post: Post): UsePostActions => {
+export const usePostActions = ({ post }: { post: Post }): UsePostActions => {
   const client = useQueryClient();
   const key = useMemo(() => {
     return generateQueryKey(RequestKey.PostActions, { id: post?.id });

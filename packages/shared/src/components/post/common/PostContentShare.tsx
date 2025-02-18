@@ -16,7 +16,7 @@ interface PostContentShareProps {
 export function PostContentShare({
   post,
 }: PostContentShareProps): ReactElement {
-  const { onInteract, interaction } = usePostActions(post);
+  const { onInteract, interaction } = usePostActions({ post });
   const { isLoading, shareLink } = useGetShortUrl({
     query: {
       url: post.commentsPermalink,

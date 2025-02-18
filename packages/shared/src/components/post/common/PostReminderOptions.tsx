@@ -25,7 +25,7 @@ export function PostReminderOptions({
   className,
   buttonProps = { variant: ButtonVariant.Float, size: ButtonSize.XSmall },
 }: PostReminderOptionsProps): ReactElement {
-  const { onInteract, previousInteraction } = usePostActions(post);
+  const { onInteract, previousInteraction } = usePostActions({ post });
   const { openModal } = useLazyModal();
   const feedContextData = useActiveFeedContext();
   const { onBookmarkReminder } = useBookmarkReminder({ post });

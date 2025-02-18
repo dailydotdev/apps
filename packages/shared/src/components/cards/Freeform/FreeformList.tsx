@@ -46,7 +46,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { interaction } = usePostActions(post);
+  const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = () => onPostClick(post);

@@ -37,7 +37,9 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
 }: ActionButtonsPropsList): ReactElement {
-  const { onInteract, interaction, previousInteraction } = usePostActions(post);
+  const { onInteract, interaction, previousInteraction } = usePostActions({
+    post,
+  });
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
