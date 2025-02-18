@@ -64,6 +64,18 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
+function getCurrencySymbol(currency: string) {
+  return (0)
+    .toLocaleString(navigator.language, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+    .replace(/\d/g, '')
+    .trim();
+}
+
 const priceFormatter = new Intl.NumberFormat(navigator.language, {
   minimumFractionDigits: 2,
 });
@@ -174,7 +186,8 @@ export const PaymentContextProvider = ({
         const monthlyPrice = +(
           priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
         ).toFixed(2);
-        const currencySymbol = item.formattedTotals.total.at(0);
+        const currencyCode = productPrices?.data.currencyCode;
+        const currencySymbol = getCurrencySymbol(currencyCode);
         return {
           label: item.price.description,
           value: item.price.id,
@@ -186,7 +199,7 @@ export const PaymentContextProvider = ({
               monthlyPrice,
             )}`,
           },
-          currencyCode: productPrices?.data.currencyCode,
+          currencyCode,
           currencySymbol,
           extraLabel: item.price.customData?.label as string,
           appsId:
