@@ -68,7 +68,7 @@ export const PlusListItem = ({
             size={IconSize.XSmall}
             {...iconProps}
             className={classNames(
-              'mr-1 mt-px inline-block text-text-quaternary',
+              'mr-1 mt-px inline-block',
               iconProps?.className,
             )}
           />
