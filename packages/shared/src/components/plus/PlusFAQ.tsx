@@ -8,7 +8,7 @@ import {
 } from '../typography/Typography';
 import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
-import { faq } from '../../lib/constants';
+import { feedback } from '../../lib/constants';
 import { plusFAQs } from './common';
 
 interface FAQ {
@@ -44,7 +44,7 @@ export const PlusFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
   return (
-    <section aria-labelledby={titleId} className="my-10 laptop:mt-4">
+    <section aria-labelledby={titleId} className="my-10">
       <Typography
         bold
         className="mb-10 text-center"
@@ -67,7 +67,7 @@ export const PlusFAQ = (): ReactElement => {
         For technical or product related questions{' '}
         <a
           className="underline"
-          href={faq}
+          href={feedback}
           target="_blank"
           rel={anchorDefaultRel}
         >

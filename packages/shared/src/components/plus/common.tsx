@@ -1,4 +1,6 @@
 import React from 'react';
+import { feedback } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export interface CommonPlusPageProps {
   shouldShowPlusHeader?: boolean;
@@ -41,8 +43,16 @@ export const plusFAQs = [
         </p>
         <p>
           To get a refund, please first cancel your subscription and then email
-          us at support@daily.dev. You can learn more about our refund policy
-          here.
+          us at support@daily.dev. You can learn more about our refund policy{' '}
+          <a
+            className="underline"
+            href={feedback}
+            target="_blank"
+            rel={anchorDefaultRel}
+          >
+            here
+          </a>
+          .
         </p>
       </div>
     ),

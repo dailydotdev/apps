@@ -67,7 +67,7 @@ export const PlusDesktop = ({
 
   return (
     <>
-      <div className="flex flex-1 items-center justify-center gap-20">
+      <div className="flex flex-1 items-center justify-center gap-20 pt-10">
         <div className="ml-6 flex w-[28.5rem] flex-col">
           <PlusInfo
             productOptions={productOptions}
@@ -76,7 +76,7 @@ export const PlusDesktop = ({
             shouldShowPlusHeader={shouldShowPlusHeader}
           />
         </div>
-        <div className="my-16 flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
           <PlusCheckoutContainer
             checkoutRef={ref}
             className={{
