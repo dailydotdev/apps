@@ -64,6 +64,10 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
+const priceFormatter = new Intl.NumberFormat(navigator.language, {
+  minimumFractionDigits: 2,
+});
+
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
@@ -178,7 +182,9 @@ export const PaymentContextProvider = ({
             amount: priceAmount,
             formatted: item.formattedTotals.total,
             monthlyAmount: monthlyPrice,
-            monthlyFormatted: `${currencySymbol}${monthlyPrice.toFixed(2)}`,
+            monthlyFormatted: `${currencySymbol}${priceFormatter.format(
+              monthlyPrice,
+            )}`,
           },
           currencyCode: productPrices?.data.currencyCode,
           currencySymbol,
