@@ -148,12 +148,12 @@ export const LogoWithPlus = (): ReactElement => {
   const featureTheme = useFeatureTheme();
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
-    <div className="relative flex items-center laptop:gap-1">
+    <div className="relative flex items-center">
       <Logo position={LogoPosition.Relative} featureTheme={featureTheme} />
       <PlusUser
-        iconSize={isMobile ? IconSize.Size16 : IconSize.Small}
+        iconSize={IconSize.Size16}
         typographyType={
-          isMobile ? TypographyType.Footnote : TypographyType.Title3
+          isMobile ? TypographyType.Footnote : TypographyType.Callout
         }
       />
     </div>
