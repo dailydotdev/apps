@@ -18,6 +18,17 @@ import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../ActionsButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { DeletedPostId } from '../../../lib/constants';
+import { SourceType } from '../../../graphql/sources';
+import classed from '../../../lib/classed';
+import { BlockIcon, EarthIcon } from '../../icons';
+import { Typography, TypographyType } from '../../typography/Typography';
+import { IconSize } from '../../Icon';
+
+const EmptyStateContainer = classed(
+  'div',
+  'h-40 my-2 flex-col text-center flex items-center justify-center p-4 rounded-12 border border-border-subtlest-tertiary gap-2 text-text-tertiary',
+);
 
 export const ShareGrid = forwardRef(function ShareGrid(
   {
@@ -42,12 +53,49 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
-
+  const isDeleted = post?.sharedPost?.id === DeletedPostId;
+  const { private: sharedPostPrivate, source: sharedPostSource } =
+    post?.sharedPost;
+  const isPrivate =
+    sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
 
   const footerPost = {
     ...post,
     image: post.sharedPost.image,
+  };
+
+  const Footer = () => {
+    if (isDeleted) {
+      return (
+        <EmptyStateContainer>
+          <BlockIcon size={IconSize.Size16} />
+          <Typography type={TypographyType.Footnote}>
+            This post is no longer available. It might have been removed or the
+            link has expired.
+          </Typography>
+        </EmptyStateContainer>
+      );
+    }
+    if (isPrivate) {
+      return (
+        <EmptyStateContainer>
+          <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary text-surface-primary">
+            <EarthIcon size={IconSize.Size16} />
+          </div>
+          <Typography type={TypographyType.Footnote}>
+            This post is in a private squad.
+          </Typography>
+        </EmptyStateContainer>
+      );
+    }
+    return (
+      <PostCardFooter
+        openNewTab={openNewTab}
+        post={footerPost}
+        className={{}}
+      />
+    );
   };
 
   return (
@@ -100,11 +148,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         </Container>
       </>
       <Container ref={containerRef}>
-        <PostCardFooter
-          openNewTab={openNewTab}
-          post={footerPost}
-          className={{}}
-        />
+        <Footer />
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}
