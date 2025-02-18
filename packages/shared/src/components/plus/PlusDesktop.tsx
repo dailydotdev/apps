@@ -1,15 +1,18 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
-
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusThrustRefund } from './PlusThrustRefund';
-import { PlusFAQs } from './PlusFAQs';
+
+const PlusFAQs = dynamic(() =>
+  import('./PlusFAQs').then((mod) => mod.PlusFAQs),
+);
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,

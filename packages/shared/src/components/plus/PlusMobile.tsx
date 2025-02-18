@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { PlusInfo } from './PlusInfo';
 import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
@@ -8,8 +9,14 @@ import type { CommonPlusPageProps } from './common';
 import { useGiftUserContext } from './GiftUserContext';
 import { webappUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
-import { PlusThrustRefund } from './PlusThrustRefund';
-import { PlusFAQs } from './PlusFAQs';
+
+const PlusThrustRefund = dynamic(() =>
+  import('./PlusThrustRefund').then((mod) => mod.PlusThrustRefund),
+);
+
+const PlusFAQs = dynamic(() =>
+  import('./PlusFAQs').then((mod) => mod.PlusFAQs),
+);
 
 export const PlusMobile = ({
   shouldShowPlusHeader,
