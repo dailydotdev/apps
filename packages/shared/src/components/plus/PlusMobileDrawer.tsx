@@ -46,7 +46,7 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
       isOpen
       onClose={onClose}
     >
-      <Image src={flags?.image || plusFeaturesImage} />
+      <Image src={plusFeaturesImage} />
       <div className="flex flex-col gap-5 px-4 pt-6">
         <div className="flex flex-col gap-2">
           <Typography bold type={TypographyType.LargeTitle}>
