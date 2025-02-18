@@ -64,21 +64,20 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
-function getCurrencySymbol(currency: string) {
-  return (0)
-    .toLocaleString(navigator.language, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })
-    .replace(/\d/g, '')
-    .trim();
-}
-
 const priceFormatter = new Intl.NumberFormat(navigator.language, {
   minimumFractionDigits: 2,
 });
+
+function getCurrencySymbol(currency: string) {
+  return new Intl.NumberFormat(navigator.language, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+  })
+    .format(0)
+    .replace(/\d/g, '')
+    .trim();
+}
 
 export const PaymentContextProvider = ({
   children,
