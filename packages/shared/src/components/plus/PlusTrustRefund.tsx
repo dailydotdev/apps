@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
-export const PlusThrustRefund = ({
+export const PlusTrustRefund = ({
   className,
   ...attrs
 }: ComponentProps<'div'>): ReactElement => {

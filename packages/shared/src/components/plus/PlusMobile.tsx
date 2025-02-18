@@ -10,8 +10,8 @@ import { useGiftUserContext } from './GiftUserContext';
 import { webappUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 
-const PlusThrustRefund = dynamic(() =>
-  import('./PlusThrustRefund').then((mod) => mod.PlusThrustRefund),
+const PlusTrustRefund = dynamic(() =>
+  import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
 );
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
@@ -57,7 +57,7 @@ export const PlusMobile = ({
         onContinue={onContinue}
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
-      <PlusThrustRefund className="mt-6" />
+      <PlusTrustRefund className="mt-6" />
       <PlusFAQs />
     </div>
   );

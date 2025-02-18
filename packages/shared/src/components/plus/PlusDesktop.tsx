@@ -8,7 +8,7 @@ import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
-import { PlusThrustRefund } from './PlusThrustRefund';
+import { PlusTrustRefund } from './PlusTrustRefund';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
@@ -86,7 +86,7 @@ export const PlusDesktop = ({
             }}
           />
           <div className="flex justify-center">
-            <PlusThrustRefund />
+            <PlusTrustRefund />
           </div>
         </div>
       </div>
