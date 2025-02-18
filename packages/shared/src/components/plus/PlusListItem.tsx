@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
-import { InfoIcon, MarkOkIcon } from '../icons';
+import { InfoIcon, VIcon } from '../icons';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import type { TypographyProps } from '../typography/Typography';
@@ -36,7 +36,7 @@ export interface PlusListItemProps {
 export const PlusListItem = ({
   badgeProps,
   iconProps,
-  icon: Icon = MarkOkIcon,
+  icon: Icon = VIcon,
   item,
   typographyProps,
 }: PlusListItemProps): ReactElement => {

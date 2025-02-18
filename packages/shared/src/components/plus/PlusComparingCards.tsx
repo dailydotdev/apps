@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon, MarkOkIcon } from '../icons';
+import { DevPlusIcon, VIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { useConditionalFeature, usePlusSubscription } from '../../hooks';
@@ -179,7 +179,7 @@ const PlusCard = ({
         <PlusList
           className="!py-0"
           items={features.items}
-          icon={isPaidPlan ? MarkOkIcon : null}
+          icon={isPaidPlan ? VIcon : null}
           iconProps={{ size: IconSize.Size16, className: `!mx-0` }}
           typographyProps={{
             type: TypographyType.Caption1,
