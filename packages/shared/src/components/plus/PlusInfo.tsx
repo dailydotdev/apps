@@ -27,7 +27,7 @@ import { GiftIcon } from '../icons/gift';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { PlusThrustReviews } from './PlusThrustReviews';
+import { PlusTrustReviews } from './PlusTrustReviews';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -247,7 +247,7 @@ export const PlusInfo = ({
         </div>
       ) : undefined}
       {showPlusList && <PlusList />}
-      <PlusThrustReviews />
+      <PlusTrustReviews />
     </>
   );
 };

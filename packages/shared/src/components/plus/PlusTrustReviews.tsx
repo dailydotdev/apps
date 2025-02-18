@@ -4,7 +4,7 @@ import { IconSize } from '../Icon';
 import { StarIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 
-export const PlusThrustReviews = (): ReactElement => {
+export const PlusTrustReviews = (): ReactElement => {
   return (
     <div className="flex flex-col gap-2">
       <div
