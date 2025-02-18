@@ -37,7 +37,7 @@ export function PostContentShare({
       <InviteLinkInput
         className={{ container: 'w-full flex-1' }}
         link={shareLink}
-        onCopy={onInteract}
+        onCopy={() => onInteract('none')}
         logProps={postLogEvent('share post', post, {
           extra: {
             provider: ShareProvider.CopyLink,

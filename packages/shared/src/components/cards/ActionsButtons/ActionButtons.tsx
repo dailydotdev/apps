@@ -44,7 +44,7 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
-  const { onInteract, interaction } = usePostActions(post);
+  const { onInteract, interaction, previousInteraction } = usePostActions(post);
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
@@ -58,7 +58,7 @@ const ActionButtons = ({
     if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
-      onInteract();
+      onInteract('none');
       onClose(true);
     }
 
@@ -70,7 +70,7 @@ const ActionButtons = ({
       onInteract('upvote');
     }
     if (interaction === 'upvote') {
-      onInteract();
+      onInteract('none');
     }
     onUpvoteClick?.(post);
   };
@@ -80,7 +80,7 @@ const ActionButtons = ({
       onInteract('bookmark');
     }
     if (interaction === 'bookmark') {
-      onInteract();
+      onInteract(previousInteraction);
     }
     onBookmarkClick(post);
   };

@@ -56,9 +56,9 @@ export const useCardCover = ({
       return (
         <CardCoverShare
           post={post}
-          onCopy={() => onInteract()}
+          onCopy={() => onInteract('none')}
           onShare={() => {
-            onInteract();
+            onInteract('none');
             onShare(post);
           }}
         />

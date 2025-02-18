@@ -1,9 +1,9 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
-type Interaction = 'upvote' | 'bookmark' | 'copy' | undefined;
+type Interaction = 'upvote' | 'bookmark' | 'copy' | 'none';
 
 type PostActionData = {
   interaction: Interaction;
@@ -11,7 +11,7 @@ type PostActionData = {
 };
 
 type UsePostActions = PostActionData & {
-  onInteract: (interaction?: PostActionData['interaction']) => void;
+  onInteract: (interaction: PostActionData['interaction']) => void;
 };
 
 export const usePostActions = (post: Post): UsePostActions => {
@@ -19,17 +19,25 @@ export const usePostActions = (post: Post): UsePostActions => {
   const key = useMemo(() => {
     return generateQueryKey(RequestKey.PostActions, { id: post?.id });
   }, [post?.id]);
-  const data = client.getQueryData<PostActionData>(key);
+
+  const { data } = useQuery<PostActionData>({
+    queryKey: key,
+    initialData: {
+      interaction: 'none',
+      previousInteraction: 'none',
+    },
+    staleTime: Infinity,
+  });
 
   const onInteract = useCallback(
-    (interaction?: PostActionData['interaction']) => {
+    (interaction: PostActionData['interaction']) => {
       client.setQueryData<PostActionData>(key, {
         interaction,
         previousInteraction:
-          data?.interaction === interaction ? undefined : data?.interaction,
+          data?.interaction === interaction ? 'none' : data?.interaction,
       });
     },
-    [client, key, data?.interaction],
+    [client, key, data.interaction],
   );
 
   return {
