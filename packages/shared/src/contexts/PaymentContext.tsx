@@ -175,9 +175,10 @@ export const PaymentContextProvider = ({
           priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
         ).toFixed(2);
         const currencyCode = productPrices?.data.currencyCode;
-        const currencySymbol = item.formattedTotals.total
-          .replace(/\d|\.|,/g, '')
-          .trim();
+        const currencySymbol = item.formattedTotals.total.replace(
+          /\d|\.|\s|,/g,
+          '',
+        );
         return {
           label: item.price.description,
           value: item.price.id,
