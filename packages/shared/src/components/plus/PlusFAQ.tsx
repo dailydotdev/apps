@@ -40,7 +40,7 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
   </div>
 );
 
-export const PlusFAQs = (): ReactElement => {
+export const PlusFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
   return (

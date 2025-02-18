@@ -10,9 +10,7 @@ import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusThrustRefund } from './PlusThrustRefund';
 
-const PlusFAQs = dynamic(() =>
-  import('./PlusFAQs').then((mod) => mod.PlusFAQs),
-);
+const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,

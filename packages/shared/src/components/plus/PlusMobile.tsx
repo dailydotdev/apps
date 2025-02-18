@@ -14,9 +14,7 @@ const PlusThrustRefund = dynamic(() =>
   import('./PlusThrustRefund').then((mod) => mod.PlusThrustRefund),
 );
 
-const PlusFAQs = dynamic(() =>
-  import('./PlusFAQs').then((mod) => mod.PlusFAQs),
-);
+const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
 export const PlusMobile = ({
   shouldShowPlusHeader,
