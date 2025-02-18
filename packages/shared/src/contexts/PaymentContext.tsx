@@ -68,17 +68,6 @@ const priceFormatter = new Intl.NumberFormat(navigator.language, {
   minimumFractionDigits: 2,
 });
 
-function getCurrencySymbol(currency: string) {
-  return new Intl.NumberFormat(navigator.language, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-  })
-    .format(0)
-    .replace(/\d/g, '')
-    .trim();
-}
-
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
@@ -186,7 +175,9 @@ export const PaymentContextProvider = ({
           priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
         ).toFixed(2);
         const currencyCode = productPrices?.data.currencyCode;
-        const currencySymbol = getCurrencySymbol(currencyCode);
+        const currencySymbol = item.formattedTotals.total
+          .replace(/\d|\.|,/g, '')
+          .trim();
         return {
           label: item.price.description,
           value: item.price.id,
