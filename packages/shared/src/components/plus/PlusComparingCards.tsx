@@ -72,7 +72,7 @@ const PlusCard = ({
   const { heading, features } = cardContent[cardContentName];
 
   const price = {
-    amount: plan?.price.formatted ?? '0',
+    amount: plan?.price.monthlyFormatted ?? '0',
   };
 
   return (
