@@ -41,6 +41,7 @@
       args.em = email;
     }
 
+    console.log('Initializing Facebook Pixel with args:', args);
     window.fbq('init', PIXEL_ID, args);
   };
 
