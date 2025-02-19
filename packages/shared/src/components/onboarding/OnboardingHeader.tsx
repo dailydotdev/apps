@@ -16,7 +16,7 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
-import { TypographyType } from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -60,44 +60,53 @@ export const OnboardingHeader = ({
 
   if (activeScreen !== OnboardingStep.Intro) {
     return (
-      <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
-        <img
-          className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
-          src={getImage()}
-          alt="Gradient background"
-        />
-        <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
-          <ConditionalWrapper
-            condition={showPlusIcon}
-            wrapper={(component) => (
-              <div className="flex flex-row items-center gap-1">
-                {component}
-                <PlusUser
-                  iconSize={IconSize.Small}
-                  typographyType={TypographyType.Title3}
+      <>
+        {activeScreen === OnboardingStep.Plus && (
+          <div className="min-w-full bg-status-success px-6 py-4 text-center text-black">
+            <Typography bold type={TypographyType.Callout}>
+              Pay nothing today. Start your 7-day free trial!
+            </Typography>
+          </div>
+        )}
+        <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
+          <img
+            className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
+            src={getImage()}
+            alt="Gradient background"
+          />
+          <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
+            <ConditionalWrapper
+              condition={showPlusIcon}
+              wrapper={(component) => (
+                <div className="flex flex-row items-center gap-1">
+                  {component}
+                  <PlusUser
+                    iconSize={IconSize.Small}
+                    typographyType={TypographyType.Title3}
+                  />
+                </div>
+              )}
+            >
+              {!isPlusStep ? (
+                <Logo
+                  logoClassName={{ container: 'h-6' }}
+                  position={LogoPosition.Relative}
+                  linkDisabled
                 />
-              </div>
-            )}
-          >
-            {!isPlusStep ? (
-              <Logo
-                logoClassName={{ container: 'h-6' }}
-                position={LogoPosition.Relative}
-                linkDisabled
+              ) : (
+                <LogoWithPlus />
+              )}
+            </ConditionalWrapper>
+            {showCreateFeedButton.includes(activeScreen) && (
+              <CreateFeedButton
+                onClick={onClick}
+                customActionName={customActionName}
+                activeScreen={activeScreen}
               />
-            ) : (
-              <LogoWithPlus />
             )}
-          </ConditionalWrapper>
-          {showCreateFeedButton.includes(activeScreen) && (
-            <CreateFeedButton
-              onClick={onClick}
-              customActionName={customActionName}
-              activeScreen={activeScreen}
-            />
-          )}
-        </div>
-      </header>
+          </div>
+        </header>
+      </>
     );
   }
 
