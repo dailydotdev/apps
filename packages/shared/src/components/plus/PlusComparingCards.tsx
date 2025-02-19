@@ -97,7 +97,7 @@ const PlusCard = ({
                 ? PlusLabelColor.Success
                 : PlusLabelColor.Help
             }
-            label={plan.extraLabel}
+            label={isFreeTrialExperiment ? '7-day free trial' : plan.extraLabel}
             className="ml-3"
             typographyProps={{
               color: isFreeTrialExperiment
