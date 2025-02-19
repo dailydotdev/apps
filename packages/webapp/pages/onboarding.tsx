@@ -40,6 +40,7 @@ import {
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import { logPixelSignUp } from '@dailydotdev/shared/src/components/Pixels';
 import {
   feature,
   featureOnboardingDesktopPWA,
@@ -53,6 +54,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -369,7 +371,10 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulRegistration = () => {
+  const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
+    logPixelSignUp({
+      experienceLevel: userRefetched?.experienceLevel,
+    });
     setActiveScreen(OnboardingStep.EditTag);
   };
 

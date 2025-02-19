@@ -1,7 +1,6 @@
 (function() {
   const PIXEL_ID = document.currentScript.getAttribute('data-pixel-id');
   const userId = document.currentScript.getAttribute('data-user-id');
-  const email = document.currentScript.getAttribute('data-email');
   const consent = document.currentScript.getAttribute('data-consent');
 
   const queryString = window.location.search;
@@ -32,19 +31,10 @@
     'https://connect.facebook.net/en_US/fbevents.js',
   );
 
-  window.updateFbUserData = (userId, email) => {
-    window.fbq.instance.pixelsByID[PIXEL_ID].userData.external_id = userId;
-    window.fbq.instance.pixelsByID[PIXEL_ID].userData.email = email;
-  };
-
-  window.fbq('consent', consent ? 'grant' : 'revoke');
-
   const args = userId ? { external_id: userId } : {};
   if (anonId) {
     args.anon_id = anonId;
   }
-  if (email) {
-    args.em = email;
-  }
+  window.fbq('consent', consent ? 'grant' : 'revoke');
   window.fbq('init', PIXEL_ID, args);
 })();

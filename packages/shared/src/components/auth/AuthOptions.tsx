@@ -35,7 +35,6 @@ import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
-import { logPixelSignUp } from '../../lib/pixels';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -268,12 +267,6 @@ function AuthOptions({
 
     logEvent({
       event_name: AuthEventNames.SignupSuccessfully,
-    });
-    const loggedUser = data?.user as LoggedUser;
-    logPixelSignUp({
-      userId: loggedUser?.id,
-      email: loggedUser?.email,
-      experienceLevel: loggedUser?.experienceLevel,
     });
 
     // if redirect is set move before modal close

@@ -19,25 +19,18 @@ export type PixelProps = {
   instanceId?: string;
   userId?: string;
   consent?: boolean;
-  email?: string;
 };
 
 export type HotjarProps = {
   hotjarId: string;
 };
 
-const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
+const FbTracking = ({ userId, consent }: PixelProps): ReactElement => {
   useEffect(() => {
     if (typeof globalThis.fbq === 'function') {
       globalThis.fbq('consent', consent ? 'grant' : 'revoke');
     }
   }, [consent]);
-
-  useEffect(() => {
-    if (typeof globalThis.updateFbUserData === 'function') {
-      globalThis.updateFbUserData(userId, email);
-    }
-  }, [email, userId]);
 
   return (
     <>
@@ -47,7 +40,6 @@ const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
         strategy="afterInteractive"
         data-pixel-id={FB_PIXEL_ID}
         data-user-id={userId}
-        data-email={email}
         data-consent={consent}
       />
       <noscript>
@@ -151,6 +143,10 @@ const TiktokTracking = (): ReactElement => {
   );
 };
 
+interface LogSignUpProps {
+  experienceLevel: keyof typeof UserExperienceLevel;
+}
+
 export const EXPERIENCE_TO_SENIORITY: Record<
   keyof typeof UserExperienceLevel,
   string
@@ -164,6 +160,69 @@ export const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
+export const logPixelSignUp = ({ experienceLevel }: LogSignUpProps): void => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isExtension = urlParams.get('ref') === 'install';
+
+  const isEngineer = !!experienceLevel && experienceLevel !== 'NOT_ENGINEER';
+  if (typeof globalThis.gtag === 'function') {
+    globalThis.gtag('event', 'signup');
+    if (isEngineer) {
+      globalThis.gtag('event', 'engineer_signup');
+    }
+    if (isExtension) {
+      globalThis.gtag('event', 'extension_signup');
+    }
+  }
+
+  if (typeof globalThis.fbq === 'function') {
+    globalThis.fbq('track', 'signup');
+    const seniority = EXPERIENCE_TO_SENIORITY[experienceLevel];
+    if (seniority) {
+      globalThis.fbq('track', `signup3_${seniority}`);
+    }
+    if (isEngineer) {
+      globalThis.fbq('track', 'engineer signup');
+    }
+    if (isExtension) {
+      globalThis.fbq('track', 'extension_signup');
+    }
+  }
+
+  if (typeof globalThis.twq === 'function') {
+    globalThis.twq('event', 'tw-o6izs-okoq6', {});
+  }
+
+  if (typeof globalThis.rdt === 'function') {
+    globalThis.rdt('track', 'SignUp');
+  }
+
+  if (typeof globalThis.ttq?.track === 'function') {
+    globalThis.ttq.track('CompletePayment', { value: 1 });
+  }
+};
+
+export const logPixelPayment = (
+  value: number,
+  currency: string,
+  transactionId: string,
+): void => {
+  if (typeof globalThis.gtag === 'function') {
+    globalThis.gtag('event', 'purchase', {
+      transaction_id: transactionId,
+      value,
+      currency,
+    });
+  }
+
+  if (typeof globalThis.fbq === 'function') {
+    globalThis.fbq('track', 'Purchase', {
+      value,
+      currency,
+    });
+  }
+};
+
 export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
   const { cookieExists: acceptedMarketing } = useConsentCookie(
     GdprConsentKey.Marketing,
@@ -175,7 +234,7 @@ export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
   const instanceId = query?.aiid?.toString();
 
   const consent = !isGdprCovered || acceptedMarketing;
-  const props: PixelProps = { userId, instanceId, consent, email: user?.email };
+  const props: PixelProps = { userId, instanceId, consent };
 
   if (!isProduction || !userId || !isAuthReady) {
     return null;

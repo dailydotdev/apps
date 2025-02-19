@@ -19,7 +19,7 @@ import { useAuthContext } from './AuthContext';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
-import { logPixelPayment } from '../lib/pixels';
+import { logPixelPayment } from '../components/Pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
