@@ -7,6 +7,10 @@ import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
 import { webappUrl } from '../lib/constants';
 import { IconSize } from './Icon';
+import { useFeatureTheme } from '../hooks/utils/useFeatureTheme';
+import { useViewSize, ViewSize } from '../hooks';
+import { PlusUser } from './PlusUser';
+import { TypographyType } from './typography/Typography';
 
 const DevPlusIcon = dynamic(() =>
   import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
@@ -139,3 +143,19 @@ export default function Logo({
     </LinkWithTooltip>
   );
 }
+
+export const LogoWithPlus = (): ReactElement => {
+  const featureTheme = useFeatureTheme();
+  const isMobile = useViewSize(ViewSize.MobileL);
+  return (
+    <div className="relative flex items-center">
+      <Logo position={LogoPosition.Relative} featureTheme={featureTheme} />
+      <PlusUser
+        iconSize={IconSize.Size16}
+        typographyType={
+          isMobile ? TypographyType.Footnote : TypographyType.Callout
+        }
+      />
+    </div>
+  );
+};
