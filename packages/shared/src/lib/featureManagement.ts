@@ -81,6 +81,10 @@ export const featureValidLanguages = new Feature('valid_languages', {
   ko: 'Korean',
 });
 
+export const featurePlusButtonColors = new Feature<
+  'Avocado' | 'Cabbage' | 'Onion'
+>('plus_button_colors', 'Cabbage');
+
 export const featureSocialShare = new Feature('social_share', false);
 
 export { feature };

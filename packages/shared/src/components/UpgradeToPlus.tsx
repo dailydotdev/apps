@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import type { ButtonSize, ButtonColor } from './buttons/Button';
-import { Button, ButtonVariant } from './buttons/Button';
+import type { ButtonSize } from './buttons/Button';
+import { ButtonColor, Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
@@ -14,7 +14,11 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
 import { isIOSNative } from '../lib/func';
-import { featurePlusCtaCopy } from '../lib/featureManagement';
+import {
+  featurePlusButtonColors,
+  featurePlusCtaCopy,
+} from '../lib/featureManagement';
+import { capitalize } from '../lib/strings';
 
 type Props = {
   iconOnly?: boolean;
@@ -40,6 +44,10 @@ export const UpgradeToPlus = ({
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { value: ctaCopy } = useConditionalFeature({
     feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
+  const { value: colorExperiment } = useConditionalFeature({
+    feature: featurePlusButtonColors,
     shouldEvaluate: !isPlus,
   });
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
@@ -79,6 +87,10 @@ export const UpgradeToPlus = ({
         onClick={onClick}
         {...(variant && { variant, color })}
         {...attrs}
+        {...(colorExperiment && {
+          color: ButtonColor[capitalize(colorExperiment)],
+          variant: ButtonVariant.Primary,
+        })}
       >
         {iconOnly ? null : content}
       </Button>
