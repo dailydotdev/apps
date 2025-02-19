@@ -4,3 +4,5 @@ next-env.d.ts
 # sw files that are generated on build
 public/sw.js
 workbox-*.js
+
+certificates
