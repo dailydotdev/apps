@@ -34,7 +34,7 @@
 
   window.updateFbUserData = (userId, email) => {
     window.fbq.instance.pixelsByID[PIXEL_ID].userData.external_id = userId;
-    window.fbq.instance.pixelsByID[PIXEL_ID].userData.email = userId;
+    window.fbq.instance.pixelsByID[PIXEL_ID].userData.email = email;
   };
 
   window.fbq('consent', consent ? 'grant' : 'revoke');
