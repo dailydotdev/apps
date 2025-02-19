@@ -18,7 +18,6 @@ import {
   featurePlusButtonColors,
   featurePlusCtaCopy,
 } from '../lib/featureManagement';
-import { capitalize } from '../lib/strings';
 
 type Props = {
   iconOnly?: boolean;
@@ -27,6 +26,28 @@ type Props = {
   variant?: ButtonVariant;
   color?: ButtonColor;
 } & WithClassNameProps;
+
+const getButtonColor = (colorExperiment: string) => {
+  switch (colorExperiment) {
+    case 'avocado':
+      return {
+        color: ButtonColor.Avocado,
+        variant: ButtonVariant.Primary,
+      };
+    case 'cabbage':
+      return {
+        color: ButtonColor.Cabbage,
+        variant: ButtonVariant.Primary,
+      };
+    case 'onion':
+      return {
+        color: ButtonColor.Onion,
+        variant: ButtonVariant.Primary,
+      };
+    default:
+      return {};
+  }
+};
 
 export const UpgradeToPlus = ({
   className,
@@ -87,10 +108,7 @@ export const UpgradeToPlus = ({
         onClick={onClick}
         {...(variant && { variant, color })}
         {...attrs}
-        {...(colorExperiment && {
-          color: ButtonColor[capitalize(colorExperiment)],
-          variant: ButtonVariant.Primary,
-        })}
+        {...(colorExperiment && getButtonColor(colorExperiment))}
       >
         {iconOnly ? null : content}
       </Button>
