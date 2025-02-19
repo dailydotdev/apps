@@ -32,20 +32,19 @@
     'https://connect.facebook.net/en_US/fbevents.js',
   );
 
-  window.initFbPixel = (userId, email) => {
-    const args = userId ? { external_id: userId } : {};
-    if (anonId) {
-      args.anon_id = anonId;
-    }
-    if (email) {
-      args.em = email;
-    }
-
-    // console.log('Initializing Facebook Pixel with args:', args);
-    // window.fbq('init', PIXEL_ID, args);
-    window.fbq('init', PIXEL_ID);
+  window.updateFbUserData = (userId, email) => {
+    window.fbq.instance.pixelsByID[PIXEL_ID].userData.external_id = userId;
+    window.fbq.instance.pixelsByID[PIXEL_ID].userData.email = userId;
   };
 
   window.fbq('consent', consent ? 'grant' : 'revoke');
-  window.initFbPixel(userId, email);
+
+  const args = userId ? { external_id: userId } : {};
+  if (anonId) {
+    args.anon_id = anonId;
+  }
+  if (email) {
+    args.em = email;
+  }
+  window.fbq('init', PIXEL_ID, args);
 })();

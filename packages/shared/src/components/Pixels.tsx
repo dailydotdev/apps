@@ -33,11 +33,11 @@ const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
     }
   }, [consent]);
 
-  // useEffect(() => {
-  //   if (typeof globalThis.initFbPixel === 'function') {
-  //     globalThis.initFbPixel(userId, email);
-  //   }
-  // }, [email, userId]);
+  useEffect(() => {
+    if (typeof globalThis.updateFbUserData === 'function') {
+      globalThis.updateFbUserData(userId, email);
+    }
+  }, [email, userId]);
 
   return (
     <>

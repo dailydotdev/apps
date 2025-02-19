@@ -27,7 +27,7 @@ export const logPixelSignUp = ({
   }
 
   if (typeof globalThis.fbq === 'function') {
-    // globalThis.initFbPixel(userId, email);
+    globalThis.updateFbUserData(userId, email);
     globalThis.fbq('track', 'signup');
     const seniority = EXPERIENCE_TO_SENIORITY[experienceLevel];
     if (seniority) {
