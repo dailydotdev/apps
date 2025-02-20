@@ -38,8 +38,8 @@ tasks:
     before: |
       nvm install
       nvm use
-      mkdir -p certificates
-      openssl req -x509 -newkey rsa:2048 -nodes -keyout certificates/adhoc-server.key -out certificates/adhoc-server.crt -days 365 -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=adhoc-server"
+      mkdir -p packages/webapp/certificates
+      openssl req -x509 -newkey rsa:2048 -nodes -keyout packages/webapp/certificates/adhoc-server.key -out packages/webapp/certificates/adhoc-server.crt -days 365 -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=adhoc-server"
     init: |
       npm i -g pnpm@9.14.4
       pnpm install
