@@ -2,7 +2,7 @@ import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
-import { BellIcon, PrivacyIcon } from '../icons';
+import { BellIcon, PrivacyIcon, TipIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -16,7 +16,7 @@ interface PlusTrustRefundProps extends ComponentProps<'div'> {
 
 const alerts = {
   trial: {
-    icon: BellIcon,
+    icon: TipIcon,
     iconClassName: 'bg-action-upvote-float text-action-upvote-default',
     text: '7-day free trial, Cancel anytime.',
   },
