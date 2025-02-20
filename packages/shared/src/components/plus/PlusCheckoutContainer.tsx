@@ -25,9 +25,6 @@ export const PlusCheckoutContainer = ({
   const { isPlusAvailable, isFreeTrialExperiment, isPricesPending } =
     usePaymentContext();
   const { isPlus } = usePlusSubscription();
-  const showTrialCheckbox =
-    isFreeTrialExperiment && !giftToUser && !isPricesPending;
-
   const ContainerElement = useMemo(() => {
     if (!isPlusAvailable) {
       return PlusUnavailable;
@@ -44,6 +41,11 @@ export const PlusCheckoutContainer = ({
     return null;
   }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
+  const showTrialCheckbox =
+    isFreeTrialExperiment &&
+    !giftToUser &&
+    !isPricesPending &&
+    shouldRenderCheckout;
 
   return (
     <div className={className?.container}>
