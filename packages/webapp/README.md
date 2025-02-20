@@ -2,7 +2,7 @@
 
 A Next.js + React web application of daily.dev.
 It utilizes the brand new incremental static generation feature of Next.js to deliver pages fast.
-Available at: <https://app.daily.dev>
+Available at: [app.daily.dev](https://app.daily.dev)
 
 ## Stack
 
@@ -25,7 +25,7 @@ Available at: <https://app.daily.dev>
 daily.dev web app requires a running environment of daily.dev.
 [Check out this guide](https://github.com/dailydotdev/daily#-running-dailydev-locally) of how to run daily.dev locally.
 
-Finally run `npm run dev` to run the service and listen to port `5002`.
+Finally run `npm run dev:notls` to run the service and listen to port `5002`.
 
 ## Want to Help?
 
@@ -33,4 +33,4 @@ So you want to contribute to daily.dev web app and make an impact, we are glad t
 
 Before you proceed we have a few guidelines for contribution that will make everything much easier.
 We would appreciate if you dedicate the time and read them carefully:
-<https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md>
+[CONTRIBUTING.md](https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md)
