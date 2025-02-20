@@ -83,7 +83,7 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusButtonColors = new Feature<
-  'avocado' | 'cabbage' | 'onion' | ''
+  'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
 >('plus_button_colors', '');
 
 export const featureSocialShare = new Feature('social_share', false);
