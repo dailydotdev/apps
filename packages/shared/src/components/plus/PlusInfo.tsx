@@ -2,8 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { PlusUser } from '../PlusUser';
-import { IconSize } from '../Icon';
 import {
   Typography,
   TypographyColor,
@@ -16,13 +14,8 @@ import type {
   OpenCheckoutFn,
   ProductOption,
 } from '../../contexts/PaymentContext';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
@@ -34,6 +27,7 @@ import { GiftIcon } from '../icons/gift';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { PlusTrustReviews } from './PlusTrustReviews';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
@@ -133,10 +127,6 @@ export const PlusInfo = ({
       {shouldShowPlusHeader && (
         <div className="mb-6 flex items-center">
           {showDailyDevLogo && <Logo logoClassName={{ container: 'h-5' }} />}
-          <PlusUser
-            iconSize={IconSize.Medium}
-            typographyType={TypographyType.Title3}
-          />
         </div>
       )}
       <Typography
@@ -245,12 +235,11 @@ export const PlusInfo = ({
         )}
       </div>
       {onContinue ? (
-        <div className="py-6">
+        <div className="pt-6">
           <Button
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Bacon}
-            className="w-full !text-white"
+            className="w-full"
             onClick={onContinue}
           >
             Continue »
@@ -258,6 +247,7 @@ export const PlusInfo = ({
         </div>
       ) : undefined}
       {showPlusList && <PlusList />}
+      <PlusTrustReviews />
     </>
   );
 };
