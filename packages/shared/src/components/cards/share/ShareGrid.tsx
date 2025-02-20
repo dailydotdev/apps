@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
@@ -29,46 +29,6 @@ const EmptyStateContainer = classed(
   'div',
   'h-40 my-2 flex-col text-center flex items-center justify-center p-4 rounded-12 border border-border-subtlest-tertiary gap-2 text-text-tertiary',
 );
-
-type FooterProps = {
-  isDeleted: boolean;
-  isPrivate: boolean;
-  openNewTab: PostCardProps['openNewTab'];
-  footerPost: PostCardProps['post'];
-};
-const Footer = ({
-  isDeleted,
-  isPrivate,
-  openNewTab,
-  footerPost,
-}: FooterProps) => {
-  if (isDeleted) {
-    return (
-      <EmptyStateContainer>
-        <BlockIcon size={IconSize.Size16} />
-        <Typography type={TypographyType.Footnote}>
-          This post is no longer available. It might have been removed or the
-          link has expired.
-        </Typography>
-      </EmptyStateContainer>
-    );
-  }
-  if (isPrivate) {
-    return (
-      <EmptyStateContainer>
-        <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary text-surface-primary">
-          <EarthIcon size={IconSize.Size16} />
-        </div>
-        <Typography type={TypographyType.Footnote}>
-          This post is in a private squad.
-        </Typography>
-      </EmptyStateContainer>
-    );
-  }
-  return (
-    <PostCardFooter openNewTab={openNewTab} post={footerPost} className={{}} />
-  );
-};
 
 export const ShareGrid = forwardRef(function ShareGrid(
   {
@@ -100,10 +60,44 @@ export const ShareGrid = forwardRef(function ShareGrid(
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
 
-  const footerPost = {
-    ...post,
-    image: post.sharedPost.image,
-  };
+  const footer = useMemo(() => {
+    if (isDeleted) {
+      return (
+        <EmptyStateContainer>
+          <BlockIcon size={IconSize.Size16} />
+          <Typography type={TypographyType.Footnote}>
+            This post is no longer available. It might have been removed or the
+            link has expired.
+          </Typography>
+        </EmptyStateContainer>
+      );
+    }
+    if (isPrivate) {
+      return (
+        <EmptyStateContainer>
+          <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary text-surface-primary">
+            <EarthIcon size={IconSize.Size16} />
+          </div>
+          <Typography type={TypographyType.Footnote}>
+            This post is in a private squad.
+          </Typography>
+        </EmptyStateContainer>
+      );
+    }
+
+    const footerPost = {
+      ...post,
+      image: post.sharedPost.image,
+    };
+
+    return (
+      <PostCardFooter
+        openNewTab={openNewTab}
+        post={footerPost}
+        className={{}}
+      />
+    );
+  }, [isDeleted, isPrivate, openNewTab, post]);
 
   return (
     <FeedItemContainer
@@ -155,12 +149,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         </Container>
       </>
       <Container ref={containerRef}>
-        <Footer
-          isDeleted={isDeleted}
-          isPrivate={isPrivate}
-          openNewTab={openNewTab}
-          footerPost={footerPost}
-        />
+        {footer}
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}
