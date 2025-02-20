@@ -31,9 +31,11 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
     queryKey: generateQueryKey(RequestKey.ReferringUser, { id: userId }),
     queryFn: () => getBasicUserInfo(userId),
     enabled: !!userId,
+    retry: false,
   });
 
   if (userId && !isError) {
+    const name = user?.name ? user?.name.split(' ')[0] : user?.username;
     return (
       <OnboardingHeadline
         avatar={<ProfilePicture user={user} />}
@@ -44,7 +46,7 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
         }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."
-        description={`Be like ${user?.name}, join daily.dev. There is a lot more content waiting for you inside!`}
+        description={`Be like ${name}, join daily.dev. There is a lot more content waiting for you inside!`}
       />
     );
   }
