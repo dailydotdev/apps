@@ -84,4 +84,9 @@ export const featureValidLanguages = new Feature('valid_languages', {
 
 export const featureSocialShare = new Feature('social_share', false);
 
+export const featurePersonalizedOnboarding = new Feature(
+  'personalized_onboarding',
+  false,
+);
+
 export { feature };

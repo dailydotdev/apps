@@ -45,10 +45,11 @@ import {
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
   featureOnboardingPlusCheckout,
+  featurePersonalizedOnboarding,
 } from '@dailydotdev/shared/src/lib/featureManagement';
-import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
   useActions,
+  useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -76,6 +77,7 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -127,6 +129,13 @@ const OnboardingAndroidPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingAndroidPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidPWA'
   ).then((mod) => mod.OnboardingAndroidPWA),
+);
+
+const PersonalizedOnboardingHeadline = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "personalizedOnboardingHeadline" */ '@dailydotdev/shared/src/components/onboarding/headline/PersonalizedOnboardingHeadline'
+    ),
 );
 
 const PlusPage = dynamic(
@@ -202,7 +211,6 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
-
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
   const layout = useMemo(
@@ -427,6 +435,11 @@ export function OnboardPage(): ReactElement {
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
+  const personalizedOnboarding = useConditionalFeature({
+    shouldEvaluate: !user && showOnboardingPage,
+    feature: featurePersonalizedOnboarding,
+  });
+
   const showGenerigLoader =
     isAuthenticating &&
     isAuthLoading &&
@@ -479,12 +492,16 @@ export function OnboardPage(): ReactElement {
         {showOnboardingPage && (
           <>
             <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-              <OnboardingHeadline
-                className={{
-                  title: 'tablet:typo-mega-1 typo-large-title',
-                  description: 'mb-8 typo-body tablet:typo-title2',
-                }}
-              />
+              {!personalizedOnboarding ? (
+                <OnboardingHeadline
+                  className={{
+                    title: 'tablet:typo-mega-1 typo-large-title',
+                    description: 'mb-8 typo-body tablet:typo-title2',
+                  }}
+                />
+              ) : (
+                <PersonalizedOnboardingHeadline />
+              )}
               <AuthOptions {...authOptionProps} />
             </div>
             <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
