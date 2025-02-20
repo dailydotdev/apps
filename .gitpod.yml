@@ -2,7 +2,6 @@
 ports:
   - port: 5002
     onOpen: open-browser
-    protocol: https
   - port: 4000
     onOpen: ignore
   - port: 5000
@@ -38,11 +37,9 @@ tasks:
     before: |
       nvm install
       nvm use
-      mkdir -p packages/webapp/certificates
-      openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -keyout packages/webapp/certificates/adhoc-server.key -out packages/webapp/certificates/adhoc-server.crt -days 365 -subj "/O=Daily Dev GitPod/CN=localhost"
     init: |
       npm i -g pnpm@9.14.4
       pnpm install
     command: |
       cd packages/webapp
-      npm run dev
+      npm run dev:notls
