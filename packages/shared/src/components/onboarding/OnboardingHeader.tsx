@@ -18,6 +18,7 @@ import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
 import { TypographyType } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -36,6 +37,7 @@ export const OnboardingHeader = ({
   customActionName,
   showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
+  const { isFreeTrialExperiment } = usePaymentContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
@@ -62,7 +64,9 @@ export const OnboardingHeader = ({
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <>
-        {activeScreen === OnboardingStep.Plus && <PlusFreeTrialAlert />}
+        {activeScreen === OnboardingStep.Plus && isFreeTrialExperiment && (
+          <PlusFreeTrialAlert />
+        )}
         <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
           <img
             className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"

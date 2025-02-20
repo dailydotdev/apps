@@ -8,37 +8,40 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface PlusTrustRefundProps extends ComponentProps<'div'> {
   withFreeTrial?: boolean;
 }
 
-const refundAlert = {
-  icon: PrivacyIcon,
-  iconClassName: 'bg-action-comment-float text-accent-blueCheese-default',
-  text: '30 day hassle-free refund. No questions asked.',
-};
-
-const alerts = [
-  {
+const alerts = {
+  trial: {
     icon: BellIcon,
     iconClassName: 'bg-action-upvote-float text-action-upvote-default',
     text: '7-day free trial, Cancel anytime.',
   },
-  refundAlert,
-  {
+  refund: {
+    icon: PrivacyIcon,
+    iconClassName: 'bg-action-comment-float text-accent-blueCheese-default',
+    text: '30 day hassle-free refund. No questions asked.',
+  },
+  reminder: {
     icon: BellIcon,
     iconClassName: 'bg-action-bookmark-float text-accent-bun-default',
     text: "We'll email you a reminder before your trial ends.",
   },
-];
+};
 
 export const PlusTrustRefund = ({
   className,
-  withFreeTrial,
+  withFreeTrial = false,
   ...attrs
 }: PlusTrustRefundProps): ReactElement => {
-  const items = withFreeTrial ? alerts : [refundAlert];
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const hasVerticalLayout = withFreeTrial && isLaptop;
+  const items = withFreeTrial
+    ? [alerts.trial, alerts.refund, alerts.reminder]
+    : [alerts.refund];
 
   return (
     <>
@@ -47,9 +50,9 @@ export const PlusTrustRefund = ({
           aria-label="Refund policy"
           className={classNames(
             'flex items-center gap-2 rounded-10 bg-surface-float ',
+            !hasVerticalLayout && 'px-3 py-2',
+            hasVerticalLayout && 'flex-1 flex-col p-4 text-center',
             className,
-            !withFreeTrial && 'px-3 py-2',
-            withFreeTrial && 'flex-1 flex-col p-4 text-center',
           )}
           key={text}
           {...attrs}
@@ -58,13 +61,13 @@ export const PlusTrustRefund = ({
             aria-hidden
             className={classNames(
               'grid size-8 place-items-center rounded-10',
-              withFreeTrial && 'laptop:size-12',
+              hasVerticalLayout && 'laptop:size-12',
               iconClassName,
             )}
           >
             <Icon
               secondary
-              size={withFreeTrial ? IconSize.Large : IconSize.Medium}
+              size={hasVerticalLayout ? IconSize.Large : IconSize.Medium}
             />
           </div>
           <Typography

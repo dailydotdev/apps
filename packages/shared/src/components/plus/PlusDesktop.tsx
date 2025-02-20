@@ -102,7 +102,7 @@ export const PlusDesktop = ({
           <PlusTrustRefund withFreeTrial />
         </div>
       )}
-      <PlusFAQs />
+      <PlusFAQs withFreeTrial={isFreeTrialExperiment} />
     </>
   );
 };

@@ -21,7 +21,7 @@ export const PlusMobile = ({
 }: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftToUser } = useGiftUserContext();
-  const { productOptions } = usePaymentContext();
+  const { productOptions, isFreeTrialExperiment } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
@@ -57,8 +57,8 @@ export const PlusMobile = ({
         onContinue={onContinue}
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
-      <PlusTrustRefund className="mt-6" />
-      <PlusFAQs />
+      <PlusTrustRefund withFreeTrial={isFreeTrialExperiment} className="mt-6" />
+      <PlusFAQs withFreeTrial={isFreeTrialExperiment} />
     </div>
   );
 };
