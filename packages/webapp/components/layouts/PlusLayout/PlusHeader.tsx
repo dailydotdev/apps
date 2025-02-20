@@ -27,8 +27,10 @@ export const PlusFreeTrialAlert = (): ReactElement => {
 
 export const PlusHeader = (): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { back, replace, isReady } = useRouter();
+  const { back, replace, isReady, query, pathname } = useRouter();
   const { isFreeTrialExperiment } = usePaymentContext();
+  const shouldShowFreeTrial =
+    isFreeTrialExperiment && pathname === '/plus' && !query?.gift;
 
   const onBackClick = useCallback(() => {
     if (window.history?.length > 1) {
@@ -44,7 +46,7 @@ export const PlusHeader = (): ReactElement => {
 
   return (
     <>
-      {isFreeTrialExperiment && <PlusFreeTrialAlert />}
+      {shouldShowFreeTrial && <PlusFreeTrialAlert />}
       <header className="flex h-16 w-full items-center justify-center gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 tablet:bg-transparent laptop:justify-start">
         <Button
           variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
