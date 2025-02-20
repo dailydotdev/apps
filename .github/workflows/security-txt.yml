@@ -1,0 +1,31 @@
+on:
+  schedule:
+    - cron: '0 0 31 12 *'
+
+jobs:
+  security-txt:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Enable OIDC
+      pull-requests: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: chainguard-dev/actions/setup-gitsign@main
+
+      - name: Setup git
+        run: |
+          git config --global tag.gpgsign true
+
+      - name: Replace Expires header
+        run: |
+          sed -i -E "s/(Expires: )[0-9]{4}/\1$(date +%Y)/" packages/webapp/public/.well-known/security.txt
+
+      - name: Commit changes
+        run: |
+          git checkout -b update-security-txt
+          git add packages/webapp/public/.well-known/security.txt
+          git commit -m "Update security.txt"
+          gh pr create --title "Update security.txt" --body "Update security.txt" --base main --head update-security-txt
