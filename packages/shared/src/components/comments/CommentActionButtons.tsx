@@ -13,6 +13,7 @@ import {
   DownvoteIcon,
   AddUserIcon,
   BlockIcon,
+  MedalBadgeIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
 import type { UserShortProfile } from '../../lib/user';
@@ -160,6 +161,16 @@ export default function CommentActionButtons({
         comment,
         post,
       },
+    });
+  };
+
+  const openGiveAwardModal = () => {
+    if (!user) {
+      return showLogin({ trigger: AuthTriggers.GiveAward });
+    }
+
+    return openModal({
+      type: LazyModal.GiveAward,
     });
   };
 
@@ -348,6 +359,16 @@ export default function CommentActionButtons({
           className="mr-3"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.BlueCheese}
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Award tihs user" appendTo={appendTo}>
+        <Button
+          size={ButtonSize.Small}
+          icon={<MedalBadgeIcon secondary />}
+          className="mr-3"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Bun}
+          onClick={openGiveAwardModal}
         />
       </SimpleTooltip>
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
