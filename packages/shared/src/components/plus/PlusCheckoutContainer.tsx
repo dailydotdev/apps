@@ -22,7 +22,8 @@ export const PlusCheckoutContainer = ({
   className,
 }: PlusCheckoutContainerProps): ReactElement => {
   const { giftToUser } = useGiftUserContext();
-  const { isPlusAvailable, isFreeTrialExperiment } = usePaymentContext();
+  const { isPlusAvailable, isFreeTrialExperiment, isPricesPending } =
+    usePaymentContext();
   const { isPlus } = usePlusSubscription();
 
   const ContainerElement = useMemo(() => {
@@ -41,20 +42,16 @@ export const PlusCheckoutContainer = ({
     return null;
   }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
-  const shouldRenderCheckbox = isFreeTrialExperiment && shouldRenderCheckout;
 
   return (
-    <div
-      ref={shouldRenderCheckout ? checkoutRef : undefined}
-      className={classNames(
-        shouldRenderCheckout && 'checkout-container',
-        className?.container,
-        shouldRenderCheckbox && 'flex flex-col-reverse gap-4',
-      )}
-    >
+    <div className={className?.container}>
+      <div
+        ref={shouldRenderCheckout ? checkoutRef : undefined}
+        className={classNames(shouldRenderCheckout && 'checkout-container')}
+      />
       {ContainerElement && <ContainerElement className={className?.element} />}
-      {shouldRenderCheckbox && (
-        <Checkbox name="freeTrialReminder" checked>
+      {isFreeTrialExperiment && !isPricesPending && (
+        <Checkbox name="freeTrialReminder" checked className="mt-4">
           Remind me before the trial ends
         </Checkbox>
       )}

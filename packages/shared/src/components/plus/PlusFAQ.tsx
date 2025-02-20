@@ -31,7 +31,7 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
     >
       <Typography
         color={TypographyColor.Tertiary}
-        tag={TypographyTag.P}
+        tag={TypographyTag.Div}
         type={TypographyType.Callout}
       >
         {item.answer}

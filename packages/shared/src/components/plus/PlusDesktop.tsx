@@ -21,6 +21,7 @@ export const PlusDesktop = ({
     productOptions,
     giftOneYear,
     isFreeTrialExperiment,
+    isPricesPending,
   } = usePaymentContext();
   const { giftToUser } = useGiftUserContext();
   const {
@@ -90,14 +91,14 @@ export const PlusDesktop = ({
               element: 'h-[35rem]',
             }}
           />
-          {!isFreeTrialExperiment && (
+          {!isFreeTrialExperiment && !isPricesPending && (
             <div className="flex justify-center">
               <PlusTrustRefund />
             </div>
           )}
         </div>
       </div>
-      {isFreeTrialExperiment && (
+      {isFreeTrialExperiment && !isPricesPending && (
         <div className="mx-auto mt-10 flex w-[62.5rem] gap-3">
           <PlusTrustRefund withFreeTrial />
         </div>
