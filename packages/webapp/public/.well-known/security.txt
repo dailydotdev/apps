@@ -1,0 +1,5 @@
+Contact: mailto:support@daily.dev
+Expires: 2025-12-30T23:00:00.000Z
+Preferred-Languages: en
+Canonical: https://app.daily.dev/.well-known/security.txt
+Hiring: https://daily.dev/careers
