@@ -41,6 +41,7 @@ export const PlusCheckoutContainer = ({
     return null;
   }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
+  const shouldRenderCheckbox = isFreeTrialExperiment && shouldRenderCheckout;
 
   return (
     <div
@@ -48,11 +49,11 @@ export const PlusCheckoutContainer = ({
       className={classNames(
         shouldRenderCheckout && 'checkout-container',
         className?.container,
-        isFreeTrialExperiment && 'flex flex-col-reverse gap-4',
+        shouldRenderCheckbox && 'flex flex-col-reverse gap-4',
       )}
     >
       {ContainerElement && <ContainerElement className={className?.element} />}
-      {isFreeTrialExperiment && (
+      {shouldRenderCheckbox && (
         <Checkbox name="freeTrialReminder" checked>
           Remind me before the trial ends
         </Checkbox>
