@@ -27,9 +27,10 @@ export const PlusFreeTrialAlert = (): ReactElement => {
 
 export const PlusHeader = (): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { back, replace, isReady, query } = useRouter();
+  const { back, replace, isReady, query, pathname } = useRouter();
   const { isFreeTrialExperiment } = usePaymentContext();
-  const showTrialAlert = isFreeTrialExperiment && !query?.gift;
+  const showTrialAlert =
+    isFreeTrialExperiment && !(query?.gift || pathname.includes('/success'));
 
   const onBackClick = useCallback(() => {
     if (window.history?.length > 1) {
