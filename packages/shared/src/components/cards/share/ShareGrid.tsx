@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
@@ -60,12 +60,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
 
-  const footerPost = {
-    ...post,
-    image: post.sharedPost.image,
-  };
-
-  const Footer = () => {
+  const footer = useMemo(() => {
     if (isDeleted) {
       return (
         <EmptyStateContainer>
@@ -89,6 +84,12 @@ export const ShareGrid = forwardRef(function ShareGrid(
         </EmptyStateContainer>
       );
     }
+
+    const footerPost = {
+      ...post,
+      image: post.sharedPost.image,
+    };
+
     return (
       <PostCardFooter
         openNewTab={openNewTab}
@@ -96,7 +97,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         className={{}}
       />
     );
-  };
+  }, [isDeleted, isPrivate, openNewTab, post]);
 
   return (
     <FeedItemContainer
@@ -148,7 +149,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         </Container>
       </>
       <Container ref={containerRef}>
-        <Footer />
+        {footer}
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}
