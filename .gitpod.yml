@@ -2,6 +2,7 @@
 ports:
   - port: 5002
     onOpen: open-browser
+    protocol: https
   - port: 4000
     onOpen: ignore
   - port: 5000
@@ -37,9 +38,11 @@ tasks:
     before: |
       nvm install
       nvm use
+      mkdir -p certificates
+      openssl req -x509 -newkey rsa:2048 -nodes -keyout certificates/adhoc-server.key -out certificates/adhoc-server.crt -days 365 -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=adhoc-server"
     init: |
       npm i -g pnpm@9.14.4
       pnpm install
     command: |
       cd packages/webapp
-      npm run dev:notls
+      npm run dev
