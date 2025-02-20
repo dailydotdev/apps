@@ -7,6 +7,7 @@ import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
 import { useGiftUserContext } from './GiftUserContext';
+import { Checkbox } from '../fields/Checkbox';
 
 export type PlusCheckoutContainerProps = {
   checkoutRef?: React.LegacyRef<HTMLDivElement>;
@@ -21,7 +22,7 @@ export const PlusCheckoutContainer = ({
   className,
 }: PlusCheckoutContainerProps): ReactElement => {
   const { giftToUser } = useGiftUserContext();
-  const { isPlusAvailable } = usePaymentContext();
+  const { isPlusAvailable, isFreeTrialExperiment } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
 
   const ContainerElement = useMemo(() => {
@@ -47,9 +48,15 @@ export const PlusCheckoutContainer = ({
       className={classNames(
         shouldRenderCheckout && 'checkout-container',
         className?.container,
+        isFreeTrialExperiment && 'flex flex-col-reverse gap-4',
       )}
     >
       {ContainerElement && <ContainerElement className={className?.element} />}
+      {isFreeTrialExperiment && (
+        <Checkbox name="freeTrialReminder" checked>
+          Remind me before the trial ends
+        </Checkbox>
+      )}
     </div>
   );
 };

@@ -16,7 +16,8 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
-import { Typography, TypographyType } from '../typography/Typography';
+import { TypographyType } from '../typography/Typography';
+import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -61,13 +62,7 @@ export const OnboardingHeader = ({
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <>
-        {activeScreen === OnboardingStep.Plus && (
-          <div className="min-w-full bg-status-success px-6 py-4 text-center text-black">
-            <Typography bold type={TypographyType.Callout}>
-              Pay nothing today. Start your 7-day free trial!
-            </Typography>
-          </div>
-        )}
+        {activeScreen === OnboardingStep.Plus && <PlusFreeTrialAlert />}
         <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
           <img
             className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
