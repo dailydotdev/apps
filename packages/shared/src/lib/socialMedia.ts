@@ -57,7 +57,9 @@ export const getSocialReferrer = (): SocialIconType | null => {
   if (host.includes('reddit.')) {
     return SocialIconType.Reddit;
   }
-  if (host.includes('x.') || host.includes('twitter.') || host === 't.co') {
+
+  const twitterHosts = ['x.', 'twitter.', 't.co'];
+  if (twitterHosts.some((h) => host.includes(h))) {
     return SocialIconType.X;
   }
   return null;
