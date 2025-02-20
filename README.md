@@ -34,12 +34,15 @@ The decision was made to allow faster iterations and to keep features parity in 
 ## Projects
 
 ### [packages](https://github.com/dailydotdev/apps/tree/main/packages)
+
 contains a collection of smaller projects or libraries that are used across the daily.dev application suite. Here's a brief overview of each package mentioned:
 
 - ### [eslint-config](https://github.com/dailydotdev/apps/tree/main/packages/eslint-config)
+
   Shared ESLint settings for maintaining consistent code quality across the project.
 
 - ### [eslint-rules](https://github.com/dailydotdev/apps/tree/main/packages/eslint-rules)
+
   A custom ESLint plugin that defines a set of rules for the project, including a rule to enforce consistent color usage.
 
 - ### [extension](https://github.com/dailydotdev/apps/tree/main/packages/extension)
@@ -55,6 +58,7 @@ contains a collection of smaller projects or libraries that are used across the 
   The main project contains most of the components used in the applications. Every component that needs to be used on both platforms should be placed in this project. This includes the design system components, custom hooks, and many more.
 
 - ### [storybook](https://github.com/dailydotdev/apps/tree/main/packages/storybook)
+
   The Storybook configuration for the project, used to develop and showcase UI components in isolation.
 
 - ### [webapp](https://github.com/dailydotdev/apps/tree/master/packages/webapp)
@@ -62,10 +66,10 @@ contains a collection of smaller projects or libraries that are used across the 
   The web app project. This is a Next.js project and has more pages than the extension, such as a registration page, post page, profile page, etc. For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
 ## Local Environment
+
   To spin up a local environment, we suggest using GitPod. We have a GitPod button above, everything is already configured and should work out of the box. Click on it and let's roll!
 
   **Note:** Checkout getting started with GitPod using their [official docs](https://www.gitpod.io/docs/introduction/getting-started). If you're new to gitPod, don't worry, it's a simple and powerful tool that will help you get started with this project in no time.
-
 
 ## Want to Help?
 
@@ -74,7 +78,7 @@ So you want to contribute to daily.dev app suite and make an impact, we are glad
 Before you proceed we have a few guidelines for contribution that will make everything much easier.
 
 We would appreciate if you dedicate the time and read them carefully:
-https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md
+[CONTRIBUTING.md](https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md)
 
 ## Bootstrap Project
 
