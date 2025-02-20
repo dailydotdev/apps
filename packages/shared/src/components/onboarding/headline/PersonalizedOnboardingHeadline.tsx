@@ -13,7 +13,7 @@ import {
   SocialIconType,
 } from '../../../lib/socialMedia';
 import { geoToEmoji, geoToCountry } from '../../../lib/geo';
-import { capitalize } from '../../../lib/strings';
+import { capitalize, getFirstWord } from '../../../lib/strings';
 import { IconSize } from '../../Icon';
 import { getBasicUserInfo } from '../../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
@@ -35,7 +35,6 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
   });
 
   if (userId && !isError) {
-    const name = user?.name ? user?.name.split(' ')[0] : user?.username;
     return (
       <OnboardingHeadline
         avatar={<ProfilePicture user={user} />}
@@ -46,7 +45,9 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
         }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."
-        description={`Be like ${name}, join daily.dev. There is a lot more content waiting for you inside!`}
+        description={`Be like ${
+          getFirstWord(user?.name) || user?.username
+        }, join daily.dev. There is a lot more content waiting for you inside!`}
       />
     );
   }

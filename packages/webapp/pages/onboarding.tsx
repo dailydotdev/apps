@@ -436,7 +436,7 @@ export function OnboardPage(): ReactElement {
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
   const personalizedOnboarding = useConditionalFeature({
-    shouldEvaluate: !user && showOnboardingPage,
+    shouldEvaluate: !user && showOnboardingPage && isAuthReady,
     feature: featurePersonalizedOnboarding,
   });
 
