@@ -361,7 +361,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      <SimpleTooltip content="Award tihs user" appendTo={appendTo}>
+      <SimpleTooltip content="Award this user" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}
           icon={<MedalBadgeIcon secondary />}
