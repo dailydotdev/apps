@@ -29,8 +29,10 @@ const PlusSuccessPage = (): ReactElement => {
       return;
     }
 
-    const { campaignId } = marketingCta;
-    clearMarketingCta(campaignId);
+    if (marketingCta) {
+      const { campaignId } = marketingCta;
+      clearMarketingCta(campaignId);
+    }
 
     clearPlusMarketing.current = true;
   }, [marketingCta, clearMarketingCta]);
