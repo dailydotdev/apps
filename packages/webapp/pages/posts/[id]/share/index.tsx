@@ -1,12 +1,12 @@
+import React from 'react';
+import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
-import React from 'next';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import { POST_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/posts';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { ClientError } from 'graphql-request';
 import type { NextSeoProps } from 'next-seo';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import type { ReactElement } from 'react';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
