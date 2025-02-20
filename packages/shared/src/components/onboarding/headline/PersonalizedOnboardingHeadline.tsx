@@ -40,9 +40,9 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
       <OnboardingHeadline
         avatar={<ProfilePicture user={user} />}
         className={{
-          pretitle: 'typo-title2 ',
-          title: 'typo-large-title',
-          description: 'mb-8 typo-title3 ',
+          pretitle: 'typo-footnote tablet:typo-title2 ',
+          title: 'typo-title1 tablet:typo-large-title',
+          description: 'mb-8 typo-callout tablet:typo-title3 ',
         }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."
@@ -64,9 +64,9 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
           />
         }
         className={{
-          pretitle: 'typo-title2',
-          title: classNames('typo-large-title', gradient),
-          description: 'mb-8 typo-title3',
+          pretitle: 'typo-footnote tablet:typo-title2',
+          title: classNames('typo-title1 tablet:typo-large-title', gradient),
+          description: 'mb-8 typo-callout tablet:typo-title3',
         }}
         pretitle={`Coming from ${capitalize(social)}?`}
         {...socialCTA[social]}
@@ -81,8 +81,8 @@ const PersonalizedOnboardingHeadline = (): ReactElement => {
       <OnboardingHeadline
         avatar={<span className="text-[3rem] leading-none">{emoji}</span>}
         className={{
-          title: `typo-mega3`,
-          description: 'mb-8 typo-title3',
+          title: `typo-title1 tablet:typo-large-title`,
+          description: 'mb-8 typo-callout tablet:typo-title3',
         }}
         title={`daily.dev is the fastest growing developer platform in ${country}!`}
         description="We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)"
