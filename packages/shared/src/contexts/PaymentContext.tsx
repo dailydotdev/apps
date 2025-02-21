@@ -71,10 +71,6 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
-const priceFormatter = new Intl.NumberFormat(navigator.language, {
-  minimumFractionDigits: 2,
-});
-
 export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
@@ -173,15 +169,20 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes && !!geo,
   });
 
-  const productOptions: Array<ProductOption> = useMemo(
-    () =>
+  const productOptions: Array<ProductOption> = useMemo(() => {
+    const priceFormatter = new Intl.NumberFormat(
+      globalThis?.navigator?.language ?? 'en-US',
+      {
+        minimumFractionDigits: 2,
+      },
+    );
+    return (
       productPrices?.data?.details?.lineItems?.map((item) => {
         const duration = planTypes[item.price.id] as PlusPriceType;
         const priceAmount = parseFloat(item.totals.total) / 100;
+        const months = duration === PlusPriceType.Yearly ? 12 : 1;
         const monthlyPrice = Number(
-          (priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1))
-            .toString()
-            .match(/^-?\d+(?:\.\d{0,2})?/)[0],
+          (priceAmount / months).toString().match(/^-?\d+(?:\.\d{0,2})?/)[0],
         );
         const currencyCode = productPrices?.data.currencyCode;
         const currencySymbol = item.formattedTotals.total.replace(
@@ -208,9 +209,9 @@ export const PaymentContextProvider = ({
           duration,
           trialPeriod: item.price.trialPeriod,
         };
-      }) ?? [],
-    [planTypes, productPrices?.data],
-  );
+      }) ?? []
+    );
+  }, [planTypes, productPrices?.data]);
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>
