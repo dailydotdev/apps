@@ -5,9 +5,6 @@ import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useBanner } from '../../hooks/useBanner';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { SidebarOnboardingChecklistCard } from '../checklist/SidebarOnboardingChecklistCard';
-import { ChecklistViewState } from '../../lib/checklist';
 import { MainSection } from './sections/MainSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
@@ -34,9 +31,8 @@ export const SidebarDesktop = ({
   onNavTabClick,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, onboardingChecklistView } = useSettingsContext();
+  const { sidebarExpanded,  } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
 
   const defaultRenderSectionProps = useMemo(
@@ -47,9 +43,6 @@ export const SidebarDesktop = ({
     }),
     [sidebarExpanded, activePage],
   );
-
-  const isHiddenOnboardingChecklistView =
-    onboardingChecklistView === ChecklistViewState.Hidden;
 
   return (
     <SidebarAside
@@ -106,12 +99,6 @@ export const SidebarDesktop = ({
             isItemsButton={false}
           />
         </Nav>
-        {isLoggedIn && sidebarExpanded && !isHiddenOnboardingChecklistView && (
-          <>
-            <div className="flex-1" />
-            <SidebarOnboardingChecklistCard />
-          </>
-        )}
       </SidebarScrollWrapper>
     </SidebarAside>
   );
