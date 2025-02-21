@@ -29,13 +29,7 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
         </Typography>
       }
     >
-      <Typography
-        color={TypographyColor.Tertiary}
-        tag={TypographyTag.Div}
-        type={TypographyType.Callout}
-      >
-        {item.answer}
-      </Typography>
+      <div className="text-text-tertiary typo-callout">{item.answer}</div>
     </Accordion>
   </div>
 );
