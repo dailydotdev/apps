@@ -180,7 +180,7 @@ export const PaymentContextProvider = ({
           '',
         );
         return {
-          label: item.price.description,
+          label: item.price.name,
           value: item.price.id,
           price: {
             amount: priceAmount,
