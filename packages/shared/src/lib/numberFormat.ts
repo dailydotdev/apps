@@ -32,7 +32,7 @@ export const getRandom4Digits = (leftPad?: string): string => {
 };
 
 export const removeNonNumber = (value: string): string =>
-  value.replace(/\D/g, '');
+  value.replace(/[^\d.]/g, '');
 
 export const getPrice = (
   item: PricePreviewResponse['data']['details']['lineItems'][0],
