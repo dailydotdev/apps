@@ -173,7 +173,9 @@ export const PaymentContextProvider = ({
         const duration = planTypes[item.price.id] as PlusPriceType;
         const priceAmount = getPrice(item);
         const months = duration === PlusPriceType.Yearly ? 12 : 1;
-        const monthlyPrice = +(priceAmount / months).toFixed(2);
+        const monthlyPrice = Number(
+          (priceAmount / months).toString().match(/^-?\d+(?:\.\d{0,2})?/)[0],
+        );
         const currencyCode = productPrices?.data.currencyCode;
         const currencySymbol = item.formattedTotals.total.replace(
           /\d|\.|\s|,/g,
