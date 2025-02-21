@@ -56,7 +56,7 @@ export const PlusCheckoutContainer = ({
       {ContainerElement && <ContainerElement className={className?.element} />}
       {showTrialCheckbox && (
         <div className="mx-auto mt-4 max-w-[40rem]">
-          <Checkbox name="freeTrialReminder" checked>
+          <Checkbox name="freeTrialReminder" defaultChecked>
             Remind me before the trial ends
           </Checkbox>
         </div>
