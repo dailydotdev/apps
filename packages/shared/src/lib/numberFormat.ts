@@ -52,5 +52,5 @@ export const getPrice = (
     return fixedAmount;
   }
 
-  return priceAmount;
+  return fixedAmount;
 };
