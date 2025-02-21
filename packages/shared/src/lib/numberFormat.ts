@@ -48,9 +48,5 @@ export const getPrice = (
 
   const fixedAmount = priceAmount / 100;
 
-  if (fixedAmount === priceAmountFormatted) {
-    return fixedAmount;
-  }
-
   return fixedAmount;
 };
