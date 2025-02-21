@@ -41,19 +41,18 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
-  logPixelSignUp,
-  Pixels,
-} from '@dailydotdev/shared/src/components/Pixels';
-import {
   feature,
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
   featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -149,18 +148,15 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const { isAvailable: canUserInstallPWA } = useInstallPWA();
-  const {
-    isOnboardingReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-    completeStep,
-  } = useOnboarding();
+  const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
+    useOnboarding();
   const router = useRouter();
   const { setSettings, autoDismissNotifications } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
     useAuthContext();
+  const { isActionsFetched } = useActions();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -216,6 +212,8 @@ export function OnboardPage(): ReactElement {
     }),
     [activeScreen],
   );
+
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
     if (
@@ -371,10 +369,7 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    logPixelSignUp({
-      experienceLevel: userRefetched?.experienceLevel,
-    });
+  const onSuccessfulRegistration = () => {
     setActiveScreen(OnboardingStep.EditTag);
   };
 
@@ -462,7 +457,6 @@ export function OnboardPage(): ReactElement {
         />
       )}
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <Pixels />
       {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}

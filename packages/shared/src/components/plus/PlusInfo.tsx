@@ -2,8 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { PlusUser } from '../PlusUser';
-import { IconSize } from '../Icon';
 import {
   Typography,
   TypographyColor,
@@ -11,18 +9,13 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
-import type {
-  ProductOption,
-  OpenCheckoutFn,
-} from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import type {
+  OpenCheckoutFn,
+  ProductOption,
+} from '../../contexts/PaymentContext';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
@@ -32,13 +25,21 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons/gift';
 import type { CommonPlusPageProps } from './common';
+import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { PlusTrustReviews } from './PlusTrustReviews';
 
 type PlusInfoProps = {
   productOptions: ProductOption[];
   selectedOption: string | null;
   onChange: OpenCheckoutFn;
   onContinue?: () => void;
+  showDailyDevLogo?: boolean;
+  showPlusList?: boolean;
+  showGiftButton?: boolean;
+  title?: string;
+  description?: string;
+  subtitle?: string;
 };
 
 enum PlusType {
@@ -86,89 +87,108 @@ const RadioGroupSkeleton = () => (
   </div>
 );
 
+const getCopy = ({ giftToUser, title, description, subtitle }) => {
+  const fallback = copy[giftToUser ? PlusType.Gift : PlusType.Self];
+  return {
+    titleCopy: title || fallback.title,
+    descriptionCopy: description || fallback.description,
+    subtitleCopy: subtitle || fallback.subtitle,
+  };
+};
+
 export const PlusInfo = ({
   productOptions,
   selectedOption,
   onChange,
   onContinue,
   shouldShowPlusHeader = true,
+  showPlusList = true,
+  showDailyDevLogo = false,
+  showGiftButton = true,
+  title,
+  description,
+  subtitle,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
-  const { title, description, subtitle } =
-    copy[giftToUser ? PlusType.Gift : PlusType.Self];
+
+  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy({
+    giftToUser,
+    title,
+    description,
+    subtitle,
+  });
 
   return (
     <>
       {shouldShowPlusHeader && (
-        <PlusUser
-          iconSize={IconSize.Large}
-          typographyType={TypographyType.Title1}
-          className="mb-6"
-        />
+        <div className="mb-6 flex items-center">
+          {showDailyDevLogo && <Logo logoClassName={{ container: 'h-5' }} />}
+        </div>
       )}
       <Typography
         tag={TypographyTag.H1}
-        type={TypographyType.Mega2}
         color={TypographyColor.Primary}
+        type={TypographyType.LargeTitle}
         className="mb-2"
         bold
       >
-        {title}
+        {titleCopy}
       </Typography>
       <Typography
         tag={TypographyTag.H2}
-        type={TypographyType.Title3}
         color={TypographyColor.Secondary}
+        type={TypographyType.Body}
         className="mb-6"
       >
-        {description}
+        {descriptionCopy}
       </Typography>
-      <ConditionalWrapper
-        condition={!giftToUser}
-        wrapper={(component) => (
-          <div className="mb-4 flex flex-row items-center justify-between">
-            <span>{component}</span>
-            <Button
-              icon={<GiftIcon />}
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Float}
-              onClick={() => {
-                logSubscriptionEvent({
-                  event_name: LogEvent.GiftSubscription,
-                  target_id: TargetId.PlusPage,
-                });
-                openModal({
-                  type: LazyModal.GiftPlus,
-                  props: {
-                    onSelected: (user) => {
-                      onChange({
-                        priceId: productOptions[0].value,
-                        giftToUserId: user.id,
-                      });
+      <div className="mb-4">
+        <ConditionalWrapper
+          condition={!giftToUser && showGiftButton}
+          wrapper={(component) => (
+            <div className="flex flex-row items-center justify-between">
+              <span>{component}</span>
+              <Button
+                icon={<GiftIcon />}
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Float}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.GiftSubscription,
+                    target_id: TargetId.PlusPage,
+                  });
+                  openModal({
+                    type: LazyModal.GiftPlus,
+                    props: {
+                      onSelected: (user) => {
+                        onChange({
+                          priceId: productOptions[0].value,
+                          giftToUserId: user.id,
+                        });
+                      },
                     },
-                  },
-                });
-              }}
-            >
-              Buy as a gift
-            </Button>
-          </div>
-        )}
-      >
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className={giftToUser && 'mb-4'}
-          bold
+                  });
+                }}
+              >
+                Buy as a gift
+              </Button>
+            </div>
+          )}
         >
-          {subtitle}
-        </Typography>
-      </ConditionalWrapper>
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            bold
+          >
+            {subtitleCopy}
+          </Typography>
+        </ConditionalWrapper>
+      </div>
       {!!giftToUser && (
         <GiftingSelectedUser
           user={giftToUser}
@@ -215,19 +235,19 @@ export const PlusInfo = ({
         )}
       </div>
       {onContinue ? (
-        <div className="py-6">
+        <div className="pt-6">
           <Button
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Bacon}
-            className="w-full !text-white"
+            className="w-full"
             onClick={onContinue}
           >
             Continue »
           </Button>
         </div>
       ) : undefined}
-      <PlusList />
+      {showPlusList && <PlusList />}
+      <PlusTrustReviews />
     </>
   );
 };

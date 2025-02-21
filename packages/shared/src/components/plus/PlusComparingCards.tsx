@@ -1,28 +1,21 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
-import type {
-  PaymentContextData,
-  ProductOption,
-} from '../../contexts/PaymentContext';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import classNames from 'classnames';
+import type { ProductOption } from '../../contexts/PaymentContext';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon } from '../icons';
+import { DevPlusIcon, VIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { usePlusSubscription } from '../../hooks';
 import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
-import { PlusItemStatus } from './PlusListItem';
 import { IconSize } from '../Icon';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { PlusPriceType } from '../../lib/featureValues';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 export enum OnboardingPlans {
@@ -52,13 +45,7 @@ const cardContent = {
       color: TypographyColor.Plus,
     },
     features: {
-      items: [
-        {
-          label: 'Everything on the Free plan',
-          status: PlusItemStatus.Disabled,
-        },
-        ...plusFeatureList,
-      ],
+      items: plusFeatureList,
     },
   },
 };
@@ -70,8 +57,6 @@ const PlusCard = ({
 }: PlusCardProps): ReactElement => {
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { earlyAdopterPlanId, productOptions } = usePaymentContext();
-  const pricingIds = useFeature(feature.pricingIds);
 
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
@@ -79,41 +64,22 @@ const PlusCard = ({
     : OnboardingPlans.Free;
   const { heading, features } = cardContent[cardContentName];
 
-  const { hasDiscount, discountPlan } = productOptions.reduce(
-    (acc, product) => {
-      if (!isPaidPlan || !earlyAdopterPlanId) {
-        return acc;
-      }
-
-      const isCardPlan = product.value === plan.value;
-      const isDiscountPlan = product.value === earlyAdopterPlanId;
-      const isMonthly = pricingIds[product.value] === PlusPriceType.Monthly;
-
-      return {
-        hasDiscount: acc.hasDiscount || (isCardPlan && isMonthly),
-        discountPlan: acc.discountPlan || (isDiscountPlan ? product : null),
-      };
-    },
-    {
-      hasDiscount: false,
-      discountPlan: null,
-    },
-  );
-
   const price = {
-    amount: (hasDiscount ? discountPlan.price : plan?.price) ?? '0',
-    cycle: isPaidPlan ? `Billed ${plan?.label?.toLowerCase()}` : 'Free forever',
+    amount: plan?.price.monthlyFormatted ?? '0',
   };
 
   return (
     <li
       aria-labelledby={`${id}-heading`}
-      className="mx-auto w-[21rem] max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+      className={classNames(
+        'mx-auto w-[21rem] rounded-16 border border-border-subtlest-tertiary p-4',
+        isPaidPlan && 'bg-surface-float',
+      )}
     >
       <div className="flex items-start justify-between gap-6">
         <Typography
           bold
-          className="mb-1.5 flex gap-1"
+          className="mb-4 flex gap-1"
           tag={TypographyTag.H3}
           type={TypographyType.Title3}
           color={heading.color}
@@ -122,37 +88,27 @@ const PlusCard = ({
           {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
-        {hasDiscount && discountPlan?.extraLabel && (
+        {plan?.extraLabel && (
           <PlusPlanExtraLabel
             color={PlusLabelColor.Help}
-            label={discountPlan.extraLabel}
+            label={plan.extraLabel}
             className="ml-3"
             typographyProps={{ color: TypographyColor.StatusHelp }}
           />
         )}
       </div>
-      <div className="flex items-baseline gap-0.5">
+      <div className="flex items-center gap-1.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
           {price.amount}
         </Typography>
-        {hasDiscount && (
-          <Typography
-            type={TypographyType.Title3}
-            color={TypographyColor.Quaternary}
-            className="line-through"
-          >
-            {plan.price}
-          </Typography>
-        )}
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Footnote}
+        >
+          /month
+        </Typography>
       </div>
-      <Typography
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Footnote}
-      >
-        {price.cycle}
-      </Typography>
-
       {!isPaidPlan ? (
         <Button
           className="my-4 block w-full"
@@ -167,14 +123,12 @@ const PlusCard = ({
           variant={ButtonVariant.Secondary}
           type="button"
         >
-          Continue
+          Join for free
         </Button>
       ) : (
         <Button
           className="my-4 block w-full"
-          href={`${plusUrl}?selectedPlan=${
-            hasDiscount ? discountPlan?.value : plan?.value
-          }`}
+          href={`${plusUrl}?selectedPlan=${plan?.value}`}
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.OnboardingUpgradePlus,
@@ -184,45 +138,68 @@ const PlusCard = ({
           rel={anchorDefaultRel}
           tag="a"
           target="_blank"
-          title="Upgrade to Plus"
+          title="Get started with Plus"
           variant={ButtonVariant.Primary}
         >
-          Upgrade to Plus
+          Get started
         </Button>
       )}
-      <PlusList
-        className="!py-0"
-        items={features.items}
-        iconProps={{ size: IconSize.Size16, className: '!mx-0' }}
-        typographyProps={{
-          type: TypographyType.Caption1,
-          className: '!gap-1',
-        }}
-        badgeProps={{ className: '!px-1' }}
-      />
+      <Typography
+        className="mb-4 text-center"
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Footnote}
+      >
+        {isPaidPlan ? (
+          <>
+            30 day hassle-free refund.{' '}
+            <span className="whitespace-nowrap">No questions asked.</span>
+          </>
+        ) : (
+          'Free forever'
+        )}
+      </Typography>
+      <div>
+        {isPaidPlan && (
+          <Typography
+            bold
+            className="mb-2"
+            color={TypographyColor.Primary}
+            type={TypographyType.Caption1}
+          >
+            Everything in Free +
+          </Typography>
+        )}
+        <PlusList
+          className="!py-0"
+          items={features.items}
+          icon={isPaidPlan ? VIcon : null}
+          iconProps={{ size: IconSize.Size16, className: `!mx-0` }}
+          typographyProps={{
+            type: TypographyType.Caption1,
+            className: '!gap-1',
+          }}
+          badgeProps={{ className: '!px-1' }}
+        />
+      </div>
     </li>
   );
 };
 
-interface PlusComparingCardsProps
-  extends Pick<PaymentContextData, 'productOptions'> {
-  currentIndex: number;
+interface PlusComparingCardsProps {
   onClickNext: () => void;
+  productOption?: ProductOption;
 }
 
 export const PlusComparingCards = ({
-  productOptions,
-  currentIndex,
+  productOption,
   onClickNext,
 }: PlusComparingCardsProps): ReactElement => {
-  const productOption = productOptions[currentIndex];
-  const priceFirstChar = productOption.price.at(0);
-  const currency = Number.isInteger(+priceFirstChar) ? '' : priceFirstChar;
+  const currency = productOption.currencySymbol;
 
   return (
     <ul
       aria-label="Pricing plans"
-      className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2"
+      className="mx-auto flex grid-cols-1 flex-col-reverse place-content-center items-start gap-6 tablet:grid-cols-2 laptop:grid"
     >
       {Object.values(OnboardingPlans).map((plan) => (
         <PlusCard

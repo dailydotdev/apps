@@ -3,9 +3,9 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from './image';
-import { PlusPriceType } from './featureValues';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
+import { PlusPriceType } from './featureValues';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -34,11 +34,19 @@ const feature = {
   onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
-    pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly,
-    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly,
-    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly,
+    pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly, // Annual
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly, // Monthly
+    pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly, // One-Year Gift
   }),
 };
+
+export const visitLinkFeature = new Feature('post_visit_link', false);
+
+export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
+  full: 'Upgrade to Plus',
+  short: 'Upgrade',
+});
 
 export const featureOnboardingPlusCheckout = new Feature(
   'onboarding_plus_checkout',

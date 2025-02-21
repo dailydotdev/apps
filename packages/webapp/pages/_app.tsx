@@ -35,6 +35,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { Pixels } from '@dailydotdev/shared/src/components/Pixels';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -62,8 +63,11 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const { isOnboardingReady, hasCompletedContentTypes, hasCompletedEditTags } =
-    useOnboarding();
+  const {
+    isOnboardingActionsReady,
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+  } = useOnboarding();
   const didRegisterSwRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -78,14 +82,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
-      isOnboardingReady &&
+      isOnboardingActionsReady &&
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
     ) {
       router.replace('/onboarding');
     }
   }, [
-    isOnboardingReady,
+    isOnboardingActionsReady,
     router,
     hasCompletedEditTags,
     hasCompletedContentTypes,
@@ -218,6 +222,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
       )}
+      <Pixels />
     </>
   );
 }
