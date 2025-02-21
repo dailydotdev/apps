@@ -79,7 +79,7 @@ export const PlusUserBadge = ({
         </SimpleTooltip>
       )}
     >
-      <div className="ml-1 flex items-center">
+      <div className="flex items-center">
         <PlusUser withText={false} />
       </div>
     </ConditionalWrapper>
