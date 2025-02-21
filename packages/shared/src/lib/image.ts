@@ -330,6 +330,9 @@ export const cloudinaryAndroidPWA =
 export const cloudinaryAndroidPWAVideo =
   'https://daily-now-res.cloudinary.com/video/upload/s--2P1N5kYQ--/v1737634404/android_-_chrome_gvepd5.mp4';
 
+export const cloudinaryAwardUnicorn =
+  'https://daily-now-res.cloudinary.com/image/upload/s--t9sWnia4--/f_auto,q_auto/v1740123247/awards/Unicorn';
+
 export const smartPromptModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
 export const smallPostImage = (url: string): string => {

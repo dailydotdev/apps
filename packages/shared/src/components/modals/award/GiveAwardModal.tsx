@@ -11,6 +11,8 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
+import { Image } from '../../image/Image';
+import { cloudinaryAwardUnicorn } from '../../../lib/image';
 
 const SCREENS = {
   INTRO: 'INTRO',
@@ -28,7 +30,19 @@ const IntroScreen = ({ setActiveStep }: SharedScreenProps) => {
     <>
       <Modal.Header title="Give an Award" />
       <Modal.Body>
-        <div className="mb-4 flex items-center justify-center p-4">
+        <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
+          <Image
+            src={cloudinaryAwardUnicorn}
+            alt="Award unicorn"
+            className="size-[7.5rem]"
+          />
+          <Typography
+            type={TypographyType.Title3}
+            bold
+            color={TypographyColor.Primary}
+          >
+            15 Awards given
+          </Typography>
           <Button
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Float}
@@ -92,7 +106,12 @@ const GiveAwardModal = ({ ...props }: ModalProps): ReactElement => {
     setActiveStep,
   };
   return (
-    <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Small} {...props}>
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
+      {...props}
+      isDrawerOnMobile
+    >
       {activeStep === SCREENS.INTRO ? <IntroScreen {...sharedProps} /> : null}
       {activeStep === SCREENS.COMMENT ? (
         <CommentScreen {...sharedProps} />
