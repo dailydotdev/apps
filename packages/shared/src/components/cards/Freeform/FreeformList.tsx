@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
 
@@ -25,6 +25,8 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { featureSocialShare } from '../../../lib/featureManagement';
 import SocialBar from '../socials/SocialBar';
+import { usePostActions } from '../../../hooks/post/usePostActions';
+import { PostType } from '../../../graphql/posts';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -44,6 +46,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = () => onPostClick(post);
@@ -56,18 +59,12 @@ export const FreeformList = forwardRef(function SharePostCard(
       post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
     [post.contentHtml],
   );
-  const [linkClicked, setLinkClicked] = useState(false);
   const { value: socialShare } = useConditionalFeature({
     feature: featureSocialShare,
-    shouldEvaluate: linkClicked,
+    shouldEvaluate: interaction === 'copy' && post.type === PostType.Freeform,
   });
 
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
-
-  const handleCopyLinkClick = (e) => {
-    setLinkClicked(true);
-    onCopyLinkClick?.(e, post);
-  };
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -76,7 +73,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
         onCommentClick={onCommentClick}
-        onCopyLinkClick={handleCopyLinkClick}
+        onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
           'mt-2 justify-between',
