@@ -49,9 +49,8 @@ export const PlusTrustRefund = ({
         <div
           aria-label="Refund policy"
           className={classNames(
-            'flex items-center gap-2 rounded-10 bg-surface-float ',
-            !hasVerticalLayout && 'px-3 py-2',
-            hasVerticalLayout && 'flex-1 flex-col p-4 text-center',
+            'flex items-center gap-2 rounded-10 bg-surface-float',
+            hasVerticalLayout ? 'flex-1 flex-col p-4 text-center' : 'px-3 py-2',
             className,
           )}
           key={text}
