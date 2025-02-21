@@ -22,9 +22,11 @@ export const usePostActions = ({ post }: { post: Post }): UsePostActions => {
 
   const { data } = useQuery<PostActionData>({
     queryKey: key,
-    initialData: {
-      interaction: 'none',
-      previousInteraction: 'none',
+    initialData: () => {
+      return {
+        interaction: 'none',
+        previousInteraction: 'none',
+      };
     },
     staleTime: Infinity,
   });
