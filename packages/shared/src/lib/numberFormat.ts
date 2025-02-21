@@ -1,3 +1,5 @@
+import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
+
 export function largeNumberFormat(value: number): string | null {
   if (typeof value !== 'number') {
     return null;
@@ -27,4 +29,28 @@ export const getRandom4Digits = (leftPad?: string): string => {
   }
 
   return random.toString().padStart(4, leftPad);
+};
+
+export const removeNonNumber = (value: string): string =>
+  value.replace(/\D/g, '');
+
+export const getPrice = (
+  item: PricePreviewResponse['data']['details']['lineItems'][0],
+): number => {
+  const priceAmount = parseFloat(item.totals.total);
+  const priceAmountFormatted = parseFloat(
+    removeNonNumber(item.formattedTotals.total),
+  );
+
+  if (priceAmount === priceAmountFormatted) {
+    return priceAmount;
+  }
+
+  const fixedAmount = priceAmount / 100;
+
+  if (fixedAmount === priceAmountFormatted) {
+    return fixedAmount;
+  }
+
+  return priceAmount;
 };
