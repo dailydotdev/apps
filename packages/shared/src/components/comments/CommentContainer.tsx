@@ -120,7 +120,7 @@ export default function CommentContainer({
                 @{comment.author.username}
               </TruncateText>
             </ProfileLink>
-            <Separator className="mx-0" />
+            <Separator className="!mx-0" />
             <CommentPublishDate comment={comment} />
             {topReader && (
               <>
