@@ -167,7 +167,12 @@ export function SquadMemberModal({
               <InitialItem squad={squad} />
             ),
         }}
-        users={members?.map(({ user }) => user)}
+        users={members?.map(({ user, role }) => {
+          return {
+            ...user,
+            role,
+          };
+        })}
         onSearch={handleSearchDebounce}
         origin={Origin.SquadMembersList}
       />
