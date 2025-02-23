@@ -14,7 +14,6 @@ import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks';
-import SquadMemberItemRole from '../squads/SquadMemberItemRole';
 import { verifyPermission } from '../../graphql/squads';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { defaultSearchDebounceMs } from '../../lib/func';
@@ -134,12 +133,6 @@ export function SquadMemberModal({
           onScroll: hideMenu,
         }}
         userListProps={{
-          additionalContent: (user, index) => (
-            <SquadMemberItemRole
-              member={members[index]}
-              key={`squad_role_${user.id}`}
-            />
-          ),
           afterContent: (user, index) => (
             <SquadMemberItemOptionsButton
               key={`squad_option_${user.id}`}

@@ -7,17 +7,17 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { TruncateText, DateFormat } from '../utilities';
+import { TruncateText, DateFormat, getRoleName } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
+import UserBadge from '../UserBadge';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -94,13 +94,7 @@ function SquadPostAuthor({
                 <VerifiedCompanyUserBadge user={author} />
               )}
               <ReputationUserBadge user={author} />
-              {!!role && (
-                <SquadMemberBadge
-                  key="squadMemberRole"
-                  role={role}
-                  removeMargins
-                />
-              )}
+              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             </div>
           </div>
           <div
