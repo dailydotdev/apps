@@ -121,10 +121,10 @@ export default function CommentContainer({
             <CommentPublishDate comment={comment} />
           </FlexRow>
           <FlexRow className="gap-1">
+            <ReputationUserBadge user={comment.author} />
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
-            <ReputationUserBadge user={comment.author} />
             <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             {comment.author.id === postAuthorId && (
               <UserBadge>Creator</UserBadge>
