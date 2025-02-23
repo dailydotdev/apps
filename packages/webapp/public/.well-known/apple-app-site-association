@@ -11,6 +11,11 @@
                         "comment": "Matches any OAuth callback URL"
                     },
                     {
+                        "/": "/plus*",
+                        "exclude": true,
+                        "comment": "Matches any plus URL"
+                    },
+                    {
                         "/": "/*",
                         "comment": "Matches any URL path under app.daily.dev"
                     }
