@@ -19,7 +19,6 @@ import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
-import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
 
 interface ClassName extends CommentClassName {
@@ -62,8 +61,6 @@ export default function CommentContainer({
     source: post.source,
     user: comment.author,
   });
-
-  const topReader = comment.author?.topReader;
 
   return (
     <article
@@ -122,12 +119,6 @@ export default function CommentContainer({
             </ProfileLink>
             <Separator className="!mx-0" />
             <CommentPublishDate comment={comment} />
-            {topReader && (
-              <>
-                <Separator className="mx-0" />
-                <TopReaderIn topReader={topReader} tooltip />
-              </>
-            )}
           </FlexRow>
           <FlexRow className="gap-1">
             {comment.author?.companies?.length > 0 && (
