@@ -9,14 +9,13 @@ import {
 } from '../ProfilePicture';
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
-import { Separator } from '../cards/common/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { TruncateText, DateFormat, getRoleName } from '../utilities';
-import { TimeFormatType } from '../../lib/dateFormat';
+import { TruncateText, getRoleName } from '../utilities';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../PlusUserBadge';
 import UserBadge from '../UserBadge';
+import { IconSize } from '../Icon';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -80,30 +79,33 @@ function SquadPostAuthor({
             className?.details,
           )}
         >
-          <div className="flex w-full">
+          <div
+            className={classNames(
+              'flex gap-1 text-text-tertiary',
+              className?.handle,
+            )}
+          >
             <TruncateText
               className={classNames('font-bold', className?.name)}
               title={author.name}
             >
               {author.name}
             </TruncateText>
-            <div className="flex gap-1">
-              {author?.isPlus && <PlusUserBadge user={author} />}
-              {author?.companies?.length > 0 && (
-                <VerifiedCompanyUserBadge user={author} />
-              )}
-              <ReputationUserBadge user={author} />
-              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
-            </div>
-          </div>
-          <div
-            className={classNames('flex text-text-tertiary', className?.handle)}
-          >
+            {author?.isPlus && (
+              <PlusUserBadge size={IconSize.Small} user={author} />
+            )}
             <TruncateText title={`@${author.username}`}>
               @{author.username}
             </TruncateText>
-            {!!date && <Separator />}
-            {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
+          </div>
+          <div className="flex w-full">
+            <div className="flex gap-1">
+              <ReputationUserBadge user={author} />
+              {author?.companies?.length > 0 && (
+                <VerifiedCompanyUserBadge user={author} />
+              )}
+              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
+            </div>
           </div>
         </a>
       </ProfileTooltip>
