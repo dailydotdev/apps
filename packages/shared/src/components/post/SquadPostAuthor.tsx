@@ -10,12 +10,14 @@ import {
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { TruncateText, getRoleName } from '../utilities';
+import { DateFormat, TruncateText, getRoleName } from '../utilities';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../PlusUserBadge';
 import UserBadge from '../UserBadge';
 import { IconSize } from '../Icon';
+import { Separator } from '../cards/common/common';
+import { TimeFormatType } from '../../lib/dateFormat';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -97,6 +99,8 @@ function SquadPostAuthor({
             <TruncateText title={`@${author.username}`}>
               @{author.username}
             </TruncateText>
+            {!!date && <Separator className="!mx-0" />}
+            {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
           </div>
           <div className="flex w-full">
             <div className="flex gap-1">
