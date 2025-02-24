@@ -41,6 +41,8 @@ const feature = {
   }),
 };
 
+export const visitLinkFeature = new Feature('post_visit_link', false);
+
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Upgrade to Plus',
   short: 'Upgrade',
