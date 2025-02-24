@@ -10,6 +10,7 @@ import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
 import { plusFAQItems, plusFAQTrialItem } from './common';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 interface FAQ {
   question: string;
@@ -34,14 +35,11 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
   </div>
 );
 
-export const PlusFAQ = ({
-  withFreeTrial = false,
-}: {
-  withFreeTrial?: boolean;
-}): ReactElement => {
+export const PlusFAQ = (): ReactElement => {
+  const { isFreeTrialExperiment } = usePaymentContext();
   const id = useId();
   const titleId = `${id}-title`;
-  const items = withFreeTrial
+  const items = isFreeTrialExperiment
     ? plusFAQItems.toSpliced(3, 0, plusFAQTrialItem)
     : plusFAQItems;
   return (

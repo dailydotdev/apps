@@ -9,10 +9,9 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
-interface PlusTrustRefundProps extends ComponentProps<'div'> {
-  withFreeTrial?: boolean;
-}
+type PlusTrustRefundProps = ComponentProps<'div'>;
 
 const alerts = {
   trial: {
@@ -34,12 +33,12 @@ const alerts = {
 
 export const PlusTrustRefund = ({
   className,
-  withFreeTrial = false,
   ...attrs
 }: PlusTrustRefundProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const hasVerticalLayout = withFreeTrial && isLaptop;
-  const items = withFreeTrial
+  const { isFreeTrialExperiment } = usePaymentContext();
+  const hasVerticalLayout = isFreeTrialExperiment && isLaptop;
+  const items = isFreeTrialExperiment
     ? [alerts.trial, alerts.refund, alerts.reminder]
     : [alerts.refund];
 

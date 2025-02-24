@@ -57,8 +57,8 @@ export const PlusMobile = ({
         onContinue={onContinue}
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
-      <PlusTrustRefund withFreeTrial={isFreeTrialExperiment} className="mt-6" />
-      <PlusFAQs withFreeTrial={isFreeTrialExperiment} />
+      <PlusTrustRefund className="mt-6" />
+      <PlusFAQs />
     </div>
   );
 };

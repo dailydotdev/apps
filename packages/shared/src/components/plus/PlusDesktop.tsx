@@ -100,10 +100,10 @@ export const PlusDesktop = ({
       </div>
       {isFreeTrialExperiment && !isPricesPending && !giftToUser && (
         <div className="mx-auto mt-10 flex w-[62.5rem] gap-3">
-          <PlusTrustRefund withFreeTrial />
+          <PlusTrustRefund />
         </div>
       )}
-      <PlusFAQs withFreeTrial={isFreeTrialExperiment} />
+      <PlusFAQs />
     </>
   );
 };
