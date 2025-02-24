@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
 import type { ProductOption } from '../contexts/PaymentContext';
 import { gqlClient } from './common';
 
@@ -29,3 +30,6 @@ export const getPricePreviews = async (): Promise<ProductOption[]> => {
   const response = await gqlClient.request(PRICE_PREVIEWS);
   return response.pricePreviews.items;
 };
+
+export type PaddleProductLineItem =
+  PricePreviewResponse['data']['details']['lineItems'][0];
