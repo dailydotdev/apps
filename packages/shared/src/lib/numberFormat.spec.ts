@@ -32,4 +32,20 @@ describe('function getPrice', () => {
     expect(dummyPaddleProductItemYen.totals.total).toBe('5880');
     expect(result).toEqual(5880);
   });
+
+  it('should return the price when the value is low', () => {
+    const dummy = structuredClone(dummyPaddleProductItemDollar);
+    dummy.formattedTotals.total = '$0.99';
+    dummy.totals.total = '99';
+    const result = getPrice(dummy);
+    expect(result).toEqual(0.99);
+  });
+
+  it('should return the price when the value is high', () => {
+    const dummy = structuredClone(dummyPaddleProductItemDollar);
+    dummy.formattedTotals.total = 'KD9999999';
+    dummy.totals.total = '999999900';
+    const result = getPrice(dummy);
+    expect(result).toEqual(9999999);
+  });
 });
