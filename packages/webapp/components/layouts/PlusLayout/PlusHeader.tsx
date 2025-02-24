@@ -9,21 +9,8 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogoWithPlus } from '@dailydotdev/shared/src/components/Logo';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
-
-export const PlusFreeTrialAlert = (): ReactElement => {
-  return (
-    <div className="min-w-full bg-status-success px-6 py-4 text-center text-black">
-      <Typography bold type={TypographyType.Callout}>
-        Pay nothing today. Start your 7-day free trial!
-      </Typography>
-    </div>
-  );
-};
+import { PlusFreeTrialAlert } from '@dailydotdev/shared/src/components/plus/PlusFreeTrialAlert';
 
 export const PlusHeader = (): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
