@@ -6,6 +6,7 @@
     "components/**/*.tsx",
     "graphql/**/*.ts",
     "pages/**/*.tsx",
+    "pages/**/*.ts",
     "*.js",
     "**/.eslintrc.js",
     "__tests__/**/*.ts",
