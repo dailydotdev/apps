@@ -316,7 +316,7 @@ function AuthOptions({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
-  useEventListener(broadcastChannel, 'message', async (e) => {
+  const onProviderMessage = async (e: MessageEvent) => {
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
@@ -383,7 +383,11 @@ function AuthOptions({
     }
 
     return onSetActiveDisplay(AuthDisplay.SocialRegistration);
-  });
+  };
+
+  useEventListener(broadcastChannel, 'message', onProviderMessage);
+
+  useEventListener(globalThis, 'message', onProviderMessage);
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
