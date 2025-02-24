@@ -17,15 +17,18 @@ import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 import { useConditionalFeature } from '../hooks';
+import { IconSize } from './Icon';
 
 export type Props = {
   user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
   tooltip?: boolean;
+  size?: IconSize;
 };
 
 export const PlusUserBadge = ({
   user,
   tooltip = true,
+  size = IconSize.Size16,
 }: Props): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const {
@@ -79,8 +82,8 @@ export const PlusUserBadge = ({
         </SimpleTooltip>
       )}
     >
-      <div className="ml-1 flex items-center">
-        <PlusUser withText={false} />
+      <div className="flex items-center">
+        <PlusUser withText={false} iconSize={size} />
       </div>
     </ConditionalWrapper>
   );
