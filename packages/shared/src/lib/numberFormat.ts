@@ -1,4 +1,4 @@
-import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
+import type { PaddleProductLineItem } from '../graphql/paddle';
 
 export function largeNumberFormat(value: number): string | null {
   if (typeof value !== 'number') {
@@ -34,9 +34,7 @@ export const getRandom4Digits = (leftPad?: string): string => {
 export const removeNonNumber = (value: string): string =>
   value.replace(/[^\d.]/g, '');
 
-export const getPrice = (
-  item: PricePreviewResponse['data']['details']['lineItems'][0],
-): number => {
+export const getPrice = (item: PaddleProductLineItem): number => {
   const priceAmount = parseFloat(item.totals.total);
   const priceAmountFormatted = parseFloat(
     removeNonNumber(item.formattedTotals.total),
@@ -46,7 +44,5 @@ export const getPrice = (
     return priceAmount;
   }
 
-  const fixedAmount = priceAmount / 100;
-
-  return fixedAmount;
+  return priceAmount / 100;
 };
