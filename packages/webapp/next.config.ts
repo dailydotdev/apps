@@ -146,6 +146,10 @@ const nextConfig: NextConfig = {
         return {
           beforeFiles: [
             {
+              source: '/.well-known/security.txt',
+              destination: '/api/files/security',
+            },
+            {
               source: '/plus',
               destination: '/plus/gift',
               has: [
