@@ -52,13 +52,14 @@ function TextFieldComponent(
     rightIcon,
     required,
     onBlur: onExternalBlur,
+    focused: focusedProp,
     ...props
   }: TextFieldProps,
   ref?: MutableRefObject<HTMLDivElement>,
 ): ReactElement {
   const {
     validInput,
-    focused,
+    focused: focusedHook,
     hasInput,
     focusInput,
     inputRef,
@@ -72,6 +73,7 @@ function TextFieldComponent(
     valid,
     validityChanged,
   });
+  const focused = focusedProp || focusedHook;
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
@@ -131,7 +133,7 @@ function TextFieldComponent(
           actionButton && 'mr-2',
         )}
       >
-        {isPrimaryField && (focused || hasValue) && (
+        {isPrimaryField && (focusedHook || hasValue) && (
           <label
             className={classNames(
               'typo-caption1',
@@ -152,7 +154,7 @@ function TextFieldComponent(
         <FieldInput
           placeholder={getFieldPlaceholder({
             label,
-            focused,
+            focused: focusedHook,
             placeholder,
             isTertiaryField,
             isSecondaryField,
