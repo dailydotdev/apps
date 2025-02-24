@@ -14,6 +14,7 @@ export * from './BringForward';
 export * from './Calendar';
 export * from './Camera';
 export * from './Card';
+export * from './Coin';
 export * from './CardLayout';
 export * from './ChecklistA';
 export * from './ChecklistB';
