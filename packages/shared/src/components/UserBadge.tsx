@@ -15,7 +15,7 @@ const userBadgeColor = {
   gray: 'text-text-tertiary bg-surface-float',
 };
 
-export const getBadgeColorByRole = (role: SourceMemberRole): string => {
+const getBadgeColorByRole = (role: SourceMemberRole): string => {
   if (isPrivilegedRole(role)) {
     return userBadgeColor.purple;
   }
