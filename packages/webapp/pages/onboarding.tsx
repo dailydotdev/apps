@@ -45,6 +45,7 @@ import {
   featureOnboardingDesktopPWA,
   featureAndroidPWA,
   featureOnboardingPlusCheckout,
+  featureOnboardingPapercuts,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -193,6 +194,7 @@ export function OnboardPage(): ReactElement {
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const onboardingPapercut = useFeature(featureOnboardingPapercuts);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -347,11 +349,11 @@ export function OnboardPage(): ReactElement {
 
     const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
+    const query = onboardingPapercut ? undefined : { ua: 'true' };
+
     return router.replace({
       pathname: afterAuth || '/',
-      query: {
-        ua: 'true',
-      },
+      query,
     });
   };
 
