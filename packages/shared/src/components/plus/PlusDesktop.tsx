@@ -91,7 +91,7 @@ export const PlusDesktop = ({
               element: 'h-[35rem]',
             }}
           />
-          {!isFreeTrialExperiment && !isPricesPending && (
+          {!isFreeTrialExperiment && !isPricesPending && !giftToUser && (
             <div className="flex justify-center">
               <PlusTrustRefund />
             </div>
