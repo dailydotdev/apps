@@ -21,7 +21,7 @@ export const PlusMobile = ({
 }: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftToUser } = useGiftUserContext();
-  const { productOptions, isFreeTrialExperiment } = usePaymentContext();
+  const { productOptions } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
