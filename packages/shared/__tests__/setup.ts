@@ -62,6 +62,13 @@ Object.defineProperty(global, 'TransformStream', {
   })),
 });
 
+Object.defineProperty(global, 'BroadcastChannel', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    postMessage: jest.fn(),
+  })),
+});
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
