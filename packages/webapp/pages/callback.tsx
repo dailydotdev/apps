@@ -25,8 +25,12 @@ function CallbackPage(): ReactElement {
         window.location.replace(`/reset-password?${search}`);
         return;
       }
-      postWindowMessage(eventKey, params);
-      broadcastMessage({ ...params, eventKey });
+
+      if (window.opener?.postMessage) {
+        postWindowMessage(eventKey, params);
+      } else {
+        broadcastMessage({ ...params, eventKey });
+      }
       window.close();
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
