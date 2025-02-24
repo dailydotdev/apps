@@ -85,6 +85,7 @@ Object.defineProperty(global, 'BroadcastChannel', {
   value: jest.fn().mockImplementation(() => ({
     postMessage: jest.fn(),
     addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
     readable: jest.fn(),
     writable: jest.fn(),
   })),
