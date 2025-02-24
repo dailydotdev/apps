@@ -28,6 +28,7 @@ import { logPixelPayment } from '../lib/pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
+import { getPrice } from '../lib';
 
 export type ProductOption = {
   label: string;
@@ -179,7 +180,7 @@ export const PaymentContextProvider = ({
     return (
       productPrices?.data?.details?.lineItems?.map((item) => {
         const duration = planTypes[item.price.id] as PlusPriceType;
-        const priceAmount = parseFloat(item.totals.total) / 100;
+        const priceAmount = getPrice(item);
         const months = duration === PlusPriceType.Yearly ? 12 : 1;
         const monthlyPrice = Number(
           (priceAmount / months).toString().match(/^-?\d+(?:\.\d{0,2})?/)[0],
