@@ -30,6 +30,9 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useFeature } from '../GrowthBookProvider';
+import { featureCustomFeedPlacement } from '../../lib/featureManagement';
+import CustomFeedSlider from '../feeds/CustomFeedSlider';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -74,6 +77,7 @@ export const SearchControlHeader = ({
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   if (isMobile) {
     return null;
@@ -93,6 +97,13 @@ export const SearchControlHeader = ({
     SharedFeedPage.Custom,
     SharedFeedPage.CustomForm,
   ];
+
+  const clickbaitShieldProps = customFeedPlacement
+    ? {
+        buttonSize: ButtonSize.Small,
+        variant: ButtonVariant.Tertiary,
+      }
+    : {};
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
@@ -123,6 +134,15 @@ export const SearchControlHeader = ({
         onChange={(_, index) => setSelectedPeriod(index)}
       />
     ) : null,
+    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+      <ToggleClickbaitShield
+        {...clickbaitShieldProps}
+        origin={
+          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
+        }
+        key="toggle-clickbait-shield"
+      />
+    ) : null,
     sortingEnabled && isSortableFeed ? (
       <Dropdown
         {...dropdownProps}
@@ -132,14 +152,6 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
-      />
-    ) : null,
-    feedsWithActions.includes(feedName as SharedFeedPage) ? (
-      <ToggleClickbaitShield
-        origin={
-          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
-        }
-        key="toggle-clickbait-shield"
       />
     ) : null,
   ];
@@ -166,7 +178,12 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      {actions}
+      <div className="flex w-full items-center gap-2">
+        {customFeedPlacement && <CustomFeedSlider />}
+        <div className="flex gap-2">
+          {customFeedPlacement ? actions.reverse() : actions}
+        </div>
+      </div>
     </ConditionalWrapper>
   );
 };

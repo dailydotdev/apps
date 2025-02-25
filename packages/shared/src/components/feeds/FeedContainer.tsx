@@ -21,6 +21,8 @@ import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
+import { featureCustomFeedPlacement } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -165,6 +167,7 @@ export const FeedContainer = ({
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
+  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   const { feeds } = useFeeds();
 
@@ -217,7 +220,13 @@ export const FeedContainer = ({
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto">
+                <span
+                  className={classNames(
+                    'flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto',
+                    !customFeedPlacement && 'mr-auto',
+                    customFeedPlacement && 'max-w-full flex-1 !pr-0',
+                  )}
+                >
                   {actionButtons}
                 </span>
               )}

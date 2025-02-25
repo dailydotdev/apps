@@ -9,14 +9,16 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SidebarOnboardingChecklistCard } from '../checklist/SidebarOnboardingChecklistCard';
 import { ChecklistViewState } from '../../lib/checklist';
 import { MainSection } from './sections/MainSection';
-import { NetworkSection } from './sections/NetworkSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { ResourceSection } from './sections/ResourceSection';
-import { BookmarkSection } from './sections/BookmarkSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
+import { featureCustomFeedPlacement } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
+import { BookmarkSection } from './sections/BookmarkSection';
+import { NetworkSection } from './sections/NetworkSection';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -38,6 +40,7 @@ export const SidebarDesktop = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
+  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -47,6 +50,25 @@ export const SidebarDesktop = ({
     }),
     [sidebarExpanded, activePage],
   );
+
+  // For experiment purposes. Can insert the winning order directly into the return jsx on cleanup.
+  const bookmarkAndNetworkSection = useMemo(() => {
+    const sections: ReactElement[] = [
+      <NetworkSection
+        {...defaultRenderSectionProps}
+        title="Network"
+        isItemsButton={isNavButtons}
+        key="network-section"
+      />,
+      <BookmarkSection
+        {...defaultRenderSectionProps}
+        title="Bookmarks"
+        isItemsButton={false}
+        key="bookmark-section"
+      />,
+    ];
+    return customFeedPlacement ? sections.reverse() : sections;
+  }, [defaultRenderSectionProps, customFeedPlacement, isNavButtons]);
 
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
@@ -71,6 +93,7 @@ export const SidebarDesktop = ({
               sidebarExpanded ? 'mx-4' : 'mx-auto',
             )}
             compact={!sidebarExpanded}
+            sidebar
             size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
             showIcon
           />
@@ -85,16 +108,7 @@ export const SidebarDesktop = ({
             title="Custom feeds"
             isItemsButton={false}
           />
-          <NetworkSection
-            {...defaultRenderSectionProps}
-            title="Network"
-            isItemsButton={isNavButtons}
-          />
-          <BookmarkSection
-            {...defaultRenderSectionProps}
-            title="Bookmarks"
-            isItemsButton={false}
-          />
+          {bookmarkAndNetworkSection}
           <DiscoverSection
             {...defaultRenderSectionProps}
             title="Discover"

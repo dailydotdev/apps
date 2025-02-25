@@ -95,4 +95,9 @@ export const featurePersonalizedOnboarding = new Feature(
   false,
 );
 
+export const featureCustomFeedPlacement = new Feature(
+  'custom_feed_placement',
+  false,
+);
+
 export { feature };
