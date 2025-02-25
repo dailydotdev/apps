@@ -167,7 +167,7 @@ export const PaymentContextProvider = ({
   const { data: productPrices, isLoading: isPricesPending } = useQuery({
     queryKey: ['productPrices'],
     queryFn: getPrices,
-    enabled: !!paddle && !!planTypes && !!geo,
+    enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
   const productOptions: Array<ProductOption> = useMemo(() => {
@@ -179,7 +179,10 @@ export const PaymentContextProvider = ({
     );
     return (
       productPrices?.data?.details?.lineItems?.map((item) => {
-        const duration = planTypes[item.price.id] as PlusPriceType;
+        const isOneOff = !item.price?.billingCycle?.interval;
+        const isYearly = item.price?.billingCycle?.interval === 'year';
+        const duration =
+          isOneOff || isYearly ? PlusPriceType.Yearly : PlusPriceType.Monthly;
         const priceAmount = getPrice(item);
         const months = duration === PlusPriceType.Yearly ? 12 : 1;
         const monthlyPrice = Number(
@@ -212,7 +215,7 @@ export const PaymentContextProvider = ({
         };
       }) ?? []
     );
-  }, [planTypes, productPrices?.data]);
+  }, [productPrices?.data]);
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>
