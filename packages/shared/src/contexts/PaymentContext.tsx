@@ -179,7 +179,10 @@ export const PaymentContextProvider = ({
     );
     return (
       productPrices?.data?.details?.lineItems?.map((item) => {
-        const duration = planTypes[item.price.id] as PlusPriceType;
+        const duration =
+          item.price.billingCycle.interval === 'year'
+            ? PlusPriceType.Yearly
+            : PlusPriceType.Monthly;
         const priceAmount = getPrice(item);
         const months = duration === PlusPriceType.Yearly ? 12 : 1;
         const monthlyPrice = Number(
@@ -190,11 +193,6 @@ export const PaymentContextProvider = ({
           /\d|\.|\s|,/g,
           '',
         );
-        console.log({
-          months,
-          monthlyPrice,
-          freeTrial: !!item.price.trialPeriod,
-        });
         return {
           label: item.price.name,
           value: item.price.id,
