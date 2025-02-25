@@ -215,7 +215,7 @@ export const PaymentContextProvider = ({
         };
       }) ?? []
     );
-  }, [planTypes, productPrices?.data]);
+  }, [productPrices?.data]);
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>
