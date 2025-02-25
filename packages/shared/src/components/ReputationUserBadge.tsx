@@ -1,20 +1,18 @@
-import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { UserBadgeProps } from './UserBadge';
-import UserBadge from './UserBadge';
+import classNames from 'classnames';
 import { ReputationIcon } from './icons';
 import type { LoggedUser } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
-import { largeNumberFormat } from '../lib';
+import type { IconProps } from './Icon';
 import { IconSize } from './Icon';
+import { largeNumberFormat } from '../lib';
 
-export type ReputationUserBadgeProps = Omit<
-  UserBadgeProps,
-  'content' | 'Icon' | 'removeMargins'
-> & {
+export type ReputationUserBadgeProps = {
+  className?: string;
   user: Pick<LoggedUser, 'reputation'>;
   disableTooltip?: boolean;
+  iconProps?: IconProps;
 };
 
 export const ReputationUserBadge = ({
@@ -22,7 +20,6 @@ export const ReputationUserBadge = ({
   iconProps,
   user,
   disableTooltip = false,
-  ...rest
 }: ReputationUserBadgeProps): ReactElement => {
   if (typeof user?.reputation !== 'number') {
     return null;
@@ -34,22 +31,18 @@ export const ReputationUserBadge = ({
       content="Reputation"
       placement="bottom"
     >
-      <div className="flex items-center">
-        <UserBadge
-          {...rest}
-          className={classNames(className, 'text-text-primary')}
-          content={largeNumberFormat(user.reputation)}
-          Icon={ReputationIcon}
-          iconProps={{
-            ...iconProps,
-            className: classNames(
-              iconProps?.className,
-              'text-accent-onion-default',
-            ),
-            size: iconProps?.size || IconSize.XSmall,
-          }}
-          removeMargins
+      <div
+        className={classNames(
+          'flex items-center font-bold text-text-primary typo-footnote',
+          className,
+        )}
+      >
+        <ReputationIcon
+          className="text-accent-onion-default"
+          size={IconSize.XSmall}
+          {...iconProps}
         />
+        {largeNumberFormat(user.reputation)}
       </div>
     </SimpleTooltip>
   );
