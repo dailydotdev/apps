@@ -179,11 +179,10 @@ export const PaymentContextProvider = ({
     );
     return (
       productPrices?.data?.details?.lineItems?.map((item) => {
+        const isOneOff = !item.price?.billingCycle?.interval;
+        const isYearly = item.price?.billingCycle?.interval === 'year';
         const duration =
-          !item.price?.billingCycle?.interval ||
-          item.price?.billingCycle?.interval === 'year'
-            ? PlusPriceType.Yearly
-            : PlusPriceType.Monthly;
+          isOneOff || isYearly ? PlusPriceType.Yearly : PlusPriceType.Monthly;
         const priceAmount = getPrice(item);
         const months = duration === PlusPriceType.Yearly ? 12 : 1;
         const monthlyPrice = Number(
