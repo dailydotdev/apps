@@ -59,8 +59,14 @@ export const featureOnboardingDesktopPWA = new Feature(
   'onboarding_desktop_pwa',
   false,
 );
+
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',
+  false,
+);
+
+export const featureOnboardingPapercuts = new Feature(
+  'onboarding_papercuts',
   false,
 );
 

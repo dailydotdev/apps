@@ -1,10 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { passwordStrength } from 'check-password-strength';
+import classNames from 'classnames';
 import type { TextFieldProps } from './TextField';
 import { TextField } from './TextField';
 import { EyeIcon, EyeCancelIcon, LockIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 
 const passwordStrengthStates = {
   0: {
@@ -39,6 +42,10 @@ export function PasswordField({
   className,
   ...props
 }: PasswordFieldProps): ReactElement {
+  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
+  const errorMessage = onboardingPapercuts
+    ? 'Password needs to have at lease one uppercase, one special character and one number'
+    : `Password needs a minimum length of ${props.minLength}`;
   const [value, setValue] = useState<string>(null);
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
@@ -46,7 +53,7 @@ export function PasswordField({
   const isPasswordVisible = useType === 'text';
   const hasUserAction = isValid !== null;
   const userActionHint = !isValid
-    ? `Password needs a minimum length of ${props.minLength}`
+    ? errorMessage
     : passwordStrengthStates[passwordStrengthLevel].label;
   const hint = !hasUserAction ? null : userActionHint;
   const shouldShowStrength = !!value && showStrength && hasUserAction;
@@ -73,9 +80,12 @@ export function PasswordField({
       valid={!props.hint || isValid}
       className={{
         ...className,
-        hint: shouldShowStrength
-          ? passwordStrengthStates[passwordStrengthLevel].className
-          : 'text-status-error',
+        hint: classNames(
+          className?.hint,
+          shouldShowStrength
+            ? passwordStrengthStates[passwordStrengthLevel].className
+            : 'text-status-error',
+        ),
         baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
         input: 'hide-ms-reveal',
       }}
