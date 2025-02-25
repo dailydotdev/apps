@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import type { ButtonSize, ButtonColor } from './buttons/Button';
-import { Button, ButtonVariant } from './buttons/Button';
+import type { ButtonSize } from './buttons/Button';
+import { ButtonColor, Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
@@ -14,7 +14,10 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
 import { isIOSNative } from '../lib/func';
-import { featurePlusCtaCopy } from '../lib/featureManagement';
+import {
+  featurePlusButtonColors,
+  featurePlusCtaCopy,
+} from '../lib/featureManagement';
 
 type Props = {
   iconOnly?: boolean;
@@ -23,6 +26,44 @@ type Props = {
   variant?: ButtonVariant;
   color?: ButtonColor;
 } & WithClassNameProps;
+
+const getButtonColor = (colorExperiment: string) => {
+  switch (colorExperiment) {
+    case 'avocado':
+      return {
+        color: ButtonColor.Avocado,
+        variant: ButtonVariant.Primary,
+      };
+    case 'cabbage':
+      return {
+        color: ButtonColor.Cabbage,
+        variant: ButtonVariant.Primary,
+      };
+    case 'onion':
+      return {
+        color: ButtonColor.Onion,
+        variant: ButtonVariant.Primary,
+      };
+    case 'cheesebacon':
+      return {
+        className: 'border-none',
+        color: ButtonColor.Bacon,
+        style: {
+          background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 100%)`,
+        },
+      };
+    case 'onionbacon':
+      return {
+        className: 'border-none',
+        color: ButtonColor.Onion,
+        style: {
+          background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-bacon-default) 0%, var(--theme-accent-onion-default) 100%)`,
+        },
+      };
+    default:
+      return {};
+  }
+};
 
 export const UpgradeToPlus = ({
   className,
@@ -41,6 +82,10 @@ export const UpgradeToPlus = ({
   const { value: ctaCopy } = useConditionalFeature({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
+  });
+  const { value: colorExperiment } = useConditionalFeature({
+    feature: featurePlusButtonColors,
+    shouldEvaluate: !isPlus && isLoggedIn,
   });
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
 
@@ -79,6 +124,7 @@ export const UpgradeToPlus = ({
         onClick={onClick}
         {...(variant && { variant, color })}
         {...attrs}
+        {...(colorExperiment && getButtonColor(colorExperiment))}
       >
         {iconOnly ? null : content}
       </Button>
