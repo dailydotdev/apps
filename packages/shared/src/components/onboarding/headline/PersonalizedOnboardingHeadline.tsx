@@ -20,7 +20,9 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { ProfilePicture } from '../../ProfilePicture';
 
 const OnboardingHeadline = dynamic(() =>
-  import('../../auth/OnboardingHeadline').then((mod) => mod.OnboardingHeadline),
+  import(
+    /* webpackChunkName: "onboardingHeadline" */ '../../auth/OnboardingHeadline'
+  ).then((mod) => mod.OnboardingHeadline),
 );
 
 const PersonalizedOnboardingHeadline = (): ReactElement => {
