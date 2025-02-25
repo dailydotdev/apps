@@ -7,6 +7,7 @@ import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
 import { useGiftUserContext } from './GiftUserContext';
+import { Checkbox } from '../fields/Checkbox';
 
 export type PlusCheckoutContainerProps = {
   checkoutRef?: React.LegacyRef<HTMLDivElement>;
@@ -21,9 +22,9 @@ export const PlusCheckoutContainer = ({
   className,
 }: PlusCheckoutContainerProps): ReactElement => {
   const { giftToUser } = useGiftUserContext();
-  const { isPlusAvailable } = usePaymentContext();
+  const { isPlusAvailable, isFreeTrialExperiment, isPricesPending } =
+    usePaymentContext();
   const { isPlus } = usePlusSubscription();
-
   const ContainerElement = useMemo(() => {
     if (!isPlusAvailable) {
       return PlusUnavailable;
@@ -40,16 +41,26 @@ export const PlusCheckoutContainer = ({
     return null;
   }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
+  const showTrialCheckbox =
+    isFreeTrialExperiment &&
+    !giftToUser &&
+    !isPricesPending &&
+    shouldRenderCheckout;
 
   return (
-    <div
-      ref={shouldRenderCheckout ? checkoutRef : undefined}
-      className={classNames(
-        shouldRenderCheckout && 'checkout-container',
-        className?.container,
-      )}
-    >
+    <div className={className?.container}>
+      <div
+        ref={shouldRenderCheckout ? checkoutRef : undefined}
+        className={classNames(shouldRenderCheckout && 'checkout-container')}
+      />
       {ContainerElement && <ContainerElement className={className?.element} />}
+      {showTrialCheckbox && (
+        <div className="mx-auto mt-4 max-w-[40rem]">
+          <Checkbox name="freeTrialReminder" defaultChecked>
+            Remind me before the trial ends
+          </Checkbox>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,7 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
+import type {
+  Environments,
+  Paddle,
+  PaddleEventData,
+  TimePeriod,
+} from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
   getPaddleInstance,
@@ -39,6 +44,7 @@ export type ProductOption = {
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
   duration: PlusPriceType;
+  trialPeriod: TimePeriod | null;
 };
 
 interface OpenCheckoutProps {
@@ -56,6 +62,7 @@ export interface PaymentContextData {
   isPlusAvailable: boolean;
   giftOneYear?: ProductOption;
   isPricesPending: boolean;
+  isFreeTrialExperiment: boolean;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>(undefined);
@@ -64,10 +71,6 @@ export default PaymentContext;
 export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
-
-const priceFormatter = new Intl.NumberFormat(navigator.language, {
-  minimumFractionDigits: 2,
-});
 
 export const PaymentContextProvider = ({
   children,
@@ -167,8 +170,14 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes && !!geo,
   });
 
-  const productOptions: Array<ProductOption> = useMemo(
-    () =>
+  const productOptions: Array<ProductOption> = useMemo(() => {
+    const priceFormatter = new Intl.NumberFormat(
+      globalThis?.navigator?.language ?? 'en-US',
+      {
+        minimumFractionDigits: 2,
+      },
+    );
+    return (
       productPrices?.data?.details?.lineItems?.map((item) => {
         const duration = planTypes[item.price.id] as PlusPriceType;
         const priceAmount = getPrice(item);
@@ -199,25 +208,30 @@ export const PaymentContextProvider = ({
             (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
             PlusPriceTypeAppsId.Default,
           duration,
+          trialPeriod: item.price.trialPeriod,
         };
-      }) ?? [],
-    [planTypes, productPrices?.data],
-  );
+      }) ?? []
+    );
+  }, [planTypes, productPrices?.data]);
 
-  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
-    useMemo(() => {
-      const earlyAdopter = productOptions.find(
+  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
+    () =>
+      productOptions.find(
         ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
-      );
-
-      return earlyAdopter?.value ?? null;
-    }, [productOptions]);
+      )?.value,
+    [productOptions],
+  );
 
   const giftOneYear: ProductOption = useMemo(
     () =>
       productOptions.find(
         ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
       ),
+    [productOptions],
+  );
+
+  const isFreeTrialExperiment = useMemo(
+    () => productOptions.some(({ trialPeriod }) => !!trialPeriod),
     [productOptions],
   );
 
@@ -271,6 +285,7 @@ export const PaymentContextProvider = ({
       isPlusAvailable,
       giftOneYear,
       isPricesPending,
+      isFreeTrialExperiment,
     }),
     [
       giftOneYear,
@@ -280,6 +295,7 @@ export const PaymentContextProvider = ({
       productOptions,
       isPlusAvailable,
       isPricesPending,
+      isFreeTrialExperiment,
     ],
   );
 
