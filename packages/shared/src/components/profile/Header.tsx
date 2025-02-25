@@ -27,6 +27,7 @@ import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
 import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
+import { AwardButton } from '../award/AwardButton';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -172,6 +173,7 @@ export function Header({
             className="flex-row-reverse"
           />
         )}
+        {!isSameUser && <AwardButton appendTo="parent" type="USER" />}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
