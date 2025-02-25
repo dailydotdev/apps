@@ -85,7 +85,7 @@ export const UpgradeToPlus = ({
   });
   const { value: colorExperiment } = useConditionalFeature({
     feature: featurePlusButtonColors,
-    shouldEvaluate: !isPlus,
+    shouldEvaluate: !isPlus && isLoggedIn,
   });
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
 
