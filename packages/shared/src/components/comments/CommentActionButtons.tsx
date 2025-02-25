@@ -13,7 +13,6 @@ import {
   DownvoteIcon,
   AddUserIcon,
   BlockIcon,
-  MedalBadgeIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
 import type { UserShortProfile } from '../../lib/user';
@@ -53,6 +52,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { GiftIcon } from '../icons/gift';
+import { AwardButton } from '../award/AwardButton';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -161,16 +161,6 @@ export default function CommentActionButtons({
         comment,
         post,
       },
-    });
-  };
-
-  const openGiveAwardModal = () => {
-    if (!user) {
-      return showLogin({ trigger: AuthTriggers.GiveAward });
-    }
-
-    return openModal({
-      type: LazyModal.GiveAward,
     });
   };
 
@@ -361,16 +351,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      <SimpleTooltip content="Award this user" appendTo={appendTo}>
-        <Button
-          size={ButtonSize.Small}
-          icon={<MedalBadgeIcon secondary />}
-          className="mr-3"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Bun}
-          onClick={openGiveAwardModal}
-        />
-      </SimpleTooltip>
+      <AwardButton className="mr-3" appendTo={appendTo} type="COMMENT" />
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}

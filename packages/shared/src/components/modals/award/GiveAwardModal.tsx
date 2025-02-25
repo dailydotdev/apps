@@ -14,6 +14,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon, CoinIcon } from '../../icons';
 import { Image } from '../../image/Image';
 import { cloudinaryAwardUnicorn } from '../../../lib/image';
+import type { AwardTypes } from '../../../contexts/GiveAwardModalContext';
 import {
   GiveAwardModalContextProvider,
   useGiveAwardModalContext,
@@ -56,7 +57,7 @@ const AwardItem = () => {
 };
 
 const IntroScreen = () => {
-  const { setActiveStep, onRequestClose } = useGiveAwardModalContext();
+  const { setActiveStep, onRequestClose, type } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
     <>
@@ -76,27 +77,29 @@ const IntroScreen = () => {
         ) : null}
       </Modal.Header>
       <Modal.Body>
-        <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
-          <Image
-            src={cloudinaryAwardUnicorn}
-            alt="Award unicorn"
-            className="size-[7.5rem]"
-          />
-          <Typography
-            type={TypographyType.Title3}
-            bold
-            color={TypographyColor.Primary}
-          >
-            15 Awards given
-          </Typography>
-          <Button
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Float}
-            onClick={() => setActiveStep('SHOW_ALL')}
-          >
-            See all →
-          </Button>
-        </div>
+        {type !== 'USER' ? (
+          <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
+            <Image
+              src={cloudinaryAwardUnicorn}
+              alt="Award unicorn"
+              className="size-[7.5rem]"
+            />
+            <Typography
+              type={TypographyType.Title3}
+              bold
+              color={TypographyColor.Primary}
+            >
+              15 Awards given
+            </Typography>
+            <Button
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Float}
+              onClick={() => setActiveStep('SHOW_ALL')}
+            >
+              See all →
+            </Button>
+          </div>
+        ) : undefined}
         <Typography type={TypographyType.Callout} className="text-center">
           Show your appreciation! Pick an Award to send to{' '}
           <Typography
@@ -335,11 +338,21 @@ const ModalBody = () => {
   );
 };
 
-const GiveAwardModal = ({ ...props }: ModalProps): ReactElement => {
+type GiveAwardModalProps = ModalProps & {
+  type: AwardTypes;
+};
+
+const GiveAwardModal = ({
+  type,
+  ...props
+}: GiveAwardModalProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
-    <GiveAwardModalContextProvider onRequestClose={props.onRequestClose}>
+    <GiveAwardModalContextProvider
+      onRequestClose={props.onRequestClose}
+      type={type}
+    >
       <Modal
         kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
         size={Modal.Size.Small}
