@@ -170,6 +170,8 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
+  console.log({ planTypes, user, productPrices, isPricesPending });
+
   const productOptions: Array<ProductOption> = useMemo(() => {
     const priceFormatter = new Intl.NumberFormat(
       globalThis?.navigator?.language ?? 'en-US',
