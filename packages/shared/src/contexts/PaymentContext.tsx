@@ -190,7 +190,11 @@ export const PaymentContextProvider = ({
           /\d|\.|\s|,/g,
           '',
         );
-        console.log({ months, monthlyPrice });
+        console.log({
+          months,
+          monthlyPrice,
+          freeTrial: !!item.price.trialPeriod,
+        });
         return {
           label: item.price.name,
           value: item.price.id,
