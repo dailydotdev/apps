@@ -70,6 +70,8 @@ const PlusCard = ({
     amount: plan?.price.monthlyFormatted ?? '0',
   };
 
+  console.log(price);
+
   return (
     <li
       aria-labelledby={`${id}-heading`}
