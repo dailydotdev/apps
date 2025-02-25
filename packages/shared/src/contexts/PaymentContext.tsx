@@ -23,9 +23,8 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
-import { usePlusSubscription } from '../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../lib/pixels';
-import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
@@ -76,8 +75,16 @@ export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
-  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const planTypes = useFeature(feature.pricingIds);
+  const {
+    user,
+    geo,
+    isAuthReady,
+    isValidRegion: isPlusAvailable,
+  } = useAuthContext();
+  const { value: planTypes } = useConditionalFeature({
+    feature: feature.pricingIds,
+    shouldEvaluate: isAuthReady && !!user,
+  });
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
