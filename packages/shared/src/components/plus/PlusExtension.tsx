@@ -55,6 +55,7 @@ const PlusExtension = (): ReactElement => {
           showPlusList={false}
           showDailyDevLogo
           showGiftButton={false}
+          showTrustReviews={false}
         />
         <Button
           variant={ButtonVariant.Primary}

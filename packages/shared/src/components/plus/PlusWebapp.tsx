@@ -39,6 +39,7 @@ const PlusWebapp = (): ReactElement => {
           showDailyDevLogo
           title={title}
           description={description}
+          showTrustReviews={false}
         />
         {!showCheckout && (
           <Button
