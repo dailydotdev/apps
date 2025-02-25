@@ -435,7 +435,7 @@ export function OnboardPage(): ReactElement {
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
-  const personalizedOnboarding = useConditionalFeature({
+  const { value: personalizedOnboarding } = useConditionalFeature({
     shouldEvaluate: !user && showOnboardingPage && isAuthReady,
     feature: featurePersonalizedOnboarding,
   });
@@ -501,7 +501,9 @@ export function OnboardPage(): ReactElement {
                     }}
                   />
                 ) : (
-                  <PersonalizedOnboardingHeadline />
+                  <div className="tablet:pt-6">
+                    <PersonalizedOnboardingHeadline />
+                  </div>
                 )}
                 <AuthOptions {...authOptionProps} />
               </div>
