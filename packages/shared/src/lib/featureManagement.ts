@@ -84,6 +84,15 @@ export const featureValidLanguages = new Feature('valid_languages', {
   ko: 'Korean',
 });
 
+export const featurePlusButtonColors = new Feature<
+  'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
+>('plus_button_colors', '');
+
 export const featureSocialShare = new Feature('social_share', false);
+
+export const featurePersonalizedOnboarding = new Feature(
+  'personalized_onboarding',
+  false,
+);
 
 export { feature };
