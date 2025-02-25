@@ -1,3 +1,4 @@
+import type { QueryKey } from '@tanstack/react-query';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -7,6 +8,7 @@ import { RequestKey, generateQueryKey } from '../../lib/query';
 import type { ReferralCampaignKey } from '../../lib';
 import { disabledRefetch } from '../../lib/func';
 import { gqlClient } from '../../graphql/common';
+import type { LoggedUser } from '../../lib/user';
 
 interface LinkAsQuery {
   url: string;
@@ -25,20 +27,27 @@ interface UseGetShortUrl {
   query?: LinkAsQuery;
 }
 
+export const getShortLinkProps = (
+  url: string,
+  cid?: ReferralCampaignKey,
+  user?: LoggedUser,
+): { trackedUrl: string; queryKey: QueryKey } => {
+  const trackedUrl = cid
+    ? addLogQueryParams({ link: url, userId: user?.id, cid })
+    : url;
+  const queryKey = generateQueryKey(RequestKey.ShortUrl, user, trackedUrl);
+
+  return { trackedUrl, queryKey };
+};
+
 export const useGetShortUrl = ({
   query,
 }: UseGetShortUrl = {}): UseGetShortUrlResult => {
   const { user, isAuthReady } = useAuthContext();
   const queryClient = useQueryClient();
   const getProps = useCallback(
-    (url: string, cid?: ReferralCampaignKey) => {
-      const trackedUrl = cid
-        ? addLogQueryParams({ link: url, userId: user?.id, cid })
-        : url;
-      const queryKey = generateQueryKey(RequestKey.ShortUrl, user, trackedUrl);
-
-      return { trackedUrl, queryKey };
-    },
+    (url: string, cid?: ReferralCampaignKey) =>
+      getShortLinkProps(url, cid, user),
     [user],
   );
 

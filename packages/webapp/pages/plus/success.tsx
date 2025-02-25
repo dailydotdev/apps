@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -13,12 +13,32 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
+import { useBoot } from '@dailydotdev/shared/src/hooks';
+import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketingCta/common';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusSuccessPage = (): ReactElement => {
+  const { getMarketingCta, clearMarketingCta } = useBoot();
+  const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
+  const clearPlusMarketing = useRef(false);
+
+  useEffect(() => {
+    if (clearPlusMarketing.current) {
+      return;
+    }
+
+    if (!marketingCta) {
+      return;
+    }
+
+    const { campaignId } = marketingCta;
+    clearMarketingCta(campaignId);
+
+    clearPlusMarketing.current = true;
+  }, [marketingCta, clearMarketingCta]);
+
   return (
     <>
       <NextSeo nofollow noindex />
@@ -44,15 +64,14 @@ const PlusSuccessPage = (): ReactElement => {
           >
             Success! Your payment is complete, you’re all set.
           </Typography>
-          <Link href={webappUrl} passHref>
-            <Button
-              variant={ButtonVariant.Primary}
-              tag="a"
-              size={ButtonSize.Large}
-            >
-              Back to daily.dev
-            </Button>
-          </Link>
+          <Button
+            variant={ButtonVariant.Primary}
+            tag="a"
+            href={webappUrl}
+            size={ButtonSize.Large}
+          >
+            Back to daily.dev
+          </Button>
         </div>
       </div>
     </>

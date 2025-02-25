@@ -2,13 +2,14 @@ import type { GetReplacementFn } from './textarea';
 import { CursorType, isFalsyOrSpace } from './textarea';
 
 const urlText = 'url';
-const getUrlText = (content = '') => `[${content}](${urlText})`;
+const getUrlText = (content = '', url = urlText) => `[${content}](${url})`;
 
 export const getLinkReplacement: GetReplacementFn = (
   type,
-  { word, selection: [start] },
+  { word, url, selection: [start] },
 ) => {
-  const replacement = getUrlText(word);
+  const urlReplacement = url ?? urlText;
+  const replacement = getUrlText(word, urlReplacement);
 
   if (type === CursorType.Isolated) {
     const offset = start + 1;
@@ -16,7 +17,20 @@ export const getLinkReplacement: GetReplacementFn = (
   }
 
   const end = start + replacement.length - 1;
-  return { replacement, offset: [end - urlText.length, end] };
+  return { replacement, offset: [end - urlReplacement.length, end] };
+};
+
+export const getStyleReplacement = (wrapper: string): GetReplacementFn => {
+  return (type: CursorType, { word, selection: [start] }) => {
+    const replacement = `${wrapper}${word}${wrapper}`;
+
+    if (type === CursorType.Isolated) {
+      const offset = start + wrapper.length;
+      return { replacement, offset: [offset, offset] };
+    }
+
+    return { replacement };
+  };
 };
 
 export const getMentionReplacement: GetReplacementFn = (

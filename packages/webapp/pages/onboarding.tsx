@@ -21,6 +21,8 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
+  onboardingStepsWithCTA,
+  onboardingStepsWithFooter,
   OnboardingStep,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
@@ -29,6 +31,7 @@ import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   useFeature,
+  useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
@@ -38,23 +41,19 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
-  logPixelSignUp,
-  Pixels,
-} from '@dailydotdev/shared/src/components/Pixels';
-import {
   feature,
-  featureOnboardingAndroid,
-  featureOnboardingExtension,
   featureOnboardingDesktopPWA,
+  featureAndroidPWA,
+  featureOnboardingPlusCheckout,
+  featurePersonalizedOnboarding,
 } from '@dailydotdev/shared/src/lib/featureManagement';
-import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
+  useActions,
   useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -68,6 +67,7 @@ import {
   checkIsBrowser,
   getCurrentBrowserName,
   isIOS,
+  isIOSNative,
   isPWA,
   UserAgent,
 } from '@dailydotdev/shared/src/lib/func';
@@ -75,6 +75,9 @@ import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboa
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
+import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -104,12 +107,6 @@ const OnboardingPlusStep = dynamic(() =>
   ).then((mod) => mod.OnboardingPlusStep),
 );
 
-const OnboardingAndroidApp = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingAndroidApp" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidApp'
-  ).then((mod) => mod.OnboardingAndroidApp),
-);
-
 const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
@@ -128,6 +125,23 @@ const OnboardingInstallDesktop = dynamic(() =>
   ).then((mod) => mod.OnboardingInstallDesktop),
 );
 
+const OnboardingAndroidPWA = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingAndroidPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidPWA'
+  ).then((mod) => mod.OnboardingAndroidPWA),
+);
+
+const PersonalizedOnboardingHeadline = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "personalizedOnboardingHeadline" */ '@dailydotdev/shared/src/components/onboarding/headline/PersonalizedOnboardingHeadline'
+    ),
+);
+
+const PlusPage = dynamic(
+  () => import(/* webpackChunkName: "plusPage" */ './plus'),
+);
+
 type OnboardingVisual = {
   fullBackground?: {
     mobile?: string;
@@ -142,28 +156,40 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
-  const {
-    isOnboardingReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-    completeStep,
-  } = useOnboarding();
+  const { isAvailable: canUserInstallPWA } = useInstallPWA();
+  const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
+    useOnboarding();
   const router = useRouter();
-  const { setSettings } = useSettingsContext();
+  const { setSettings, autoDismissNotifications } = useSettingsContext();
   const isLogged = useRef(false);
-  const { user, isAuthReady, anonymous, isAndroidApp } = useAuthContext();
-  const { logSubscriptionEvent, showPlusSubscription: isOnboardingPlusActive } =
-    usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const { user, isAuthReady, anonymous, loginState, isValidRegion } =
+    useAuthContext();
+  const { isActionsFetched } = useActions();
   const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { logEvent } = useLogContext();
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
-    isLoginFlow: false,
-    defaultDisplay: shouldVerify
-      ? AuthDisplay.EmailVerification
-      : AuthDisplay.OnboardingSignup,
-    ...(anonymous?.email && { email: anonymous.email }),
+    isAuthenticating:
+      !!storage.getItem(SIGNIN_METHOD_KEY) ||
+      shouldVerify ||
+      !!loginState?.formValues?.email ||
+      loginState?.isLogin,
+    isLoginFlow: loginState?.isLogin,
+    defaultDisplay: (() => {
+      if (loginState?.formValues?.email) {
+        return AuthDisplay.Registration;
+      }
+      if (shouldVerify) {
+        return AuthDisplay.EmailVerification;
+      }
+      if (loginState?.isLogin) {
+        return AuthDisplay.Default;
+      }
+      return AuthDisplay.OnboardingSignup;
+    })(),
+    email: loginState?.formValues?.email || anonymous?.email,
   });
   const {
     isAuthenticating,
@@ -183,54 +209,59 @@ export function OnboardPage(): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
-  const [shouldEnrollOnboardingStep, setShouldEnrollOnboardingStep] =
-    useState(false);
-  const { value: appExperiment } = useConditionalFeature({
-    feature: featureOnboardingAndroid,
-    shouldEvaluate:
-      shouldEnrollOnboardingStep &&
-      checkIsBrowser(UserAgent.Android) &&
-      !isAndroidApp,
-  });
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
-  const { value: extensionExperiment } = useConditionalFeature({
-    feature: featureOnboardingExtension,
-    shouldEvaluate: shouldEnrollOnboardingStep && shouldShowExtensionOnboarding,
-  });
-  const { isCurrentPWA, isAvailable: canUserInstallDesktop } = useInstallPWA();
-
+  const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const isCTA = [
-    OnboardingStep.AndroidApp,
-    OnboardingStep.PWA,
-    OnboardingStep.Extension,
-    OnboardingStep.InstallDesktop,
-  ].includes(activeScreen);
+
+  const layout = useMemo(
+    () => ({
+      hasFooter: onboardingStepsWithFooter.includes(activeScreen),
+      hasCta: onboardingStepsWithCTA.includes(activeScreen),
+    }),
+    [activeScreen],
+  );
+
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
-    if (!isPageReady || isLogged.current || !isOnboardingReady) {
-      return;
-    }
-
-    if (user?.infoConfirmed && !hasCompletedEditTags) {
-      setActiveScreen(OnboardingStep.EditTag);
-      return;
-    }
-
-    if (user?.infoConfirmed && !hasCompletedContentTypes) {
-      setActiveScreen(OnboardingStep.ContentTypes);
-      return;
-    }
-
-    if (user?.infoConfirmed && activeScreen === OnboardingStep.Intro) {
-      router.replace(getPathnameWithQuery(webappUrl, window.location.search));
+    if (
+      !isPageReady ||
+      isLogged.current ||
+      !isOnboardingReady ||
+      !user?.infoConfirmed
+    ) {
       return;
     }
 
     isLogged.current = true;
+
+    if (!hasCompletedEditTags) {
+      setActiveScreen(OnboardingStep.EditTag);
+      return;
+    }
+
+    if (!hasCompletedContentTypes) {
+      setActiveScreen(OnboardingStep.ContentTypes);
+      return;
+    }
+
+    if (activeScreen === OnboardingStep.Intro) {
+      const params = new URLSearchParams(window.location.search);
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    }
+
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, user, isOnboardingReady]);
+  }, [
+    isPageReady,
+    user,
+    isOnboardingReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    activeScreen,
+  ]);
 
   const onClickNext: OnboardingOnClickNext = (options) => {
     logEvent({
@@ -244,7 +275,6 @@ export function OnboardPage(): ReactElement {
 
     if (activeScreen === OnboardingStep.EditTag) {
       completeStep(ActionType.EditTag);
-      setShouldEnrollOnboardingStep(true);
       return setActiveScreen(OnboardingStep.ContentTypes);
     }
 
@@ -264,12 +294,21 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isOnboardingPlusActive && isLastStepBeforePlus) {
+    if (isLastStepBeforePlus && !isIOSNative() && isValidRegion) {
+      const isPlusCheckoutExperiment = getFeatureValue(
+        featureOnboardingPlusCheckout,
+      );
+      setIsPlusCheckout(isPlusCheckoutExperiment);
       return setActiveScreen(OnboardingStep.Plus);
     }
 
-    if (appExperiment && activeScreen !== OnboardingStep.AndroidApp) {
-      return setActiveScreen(OnboardingStep.AndroidApp);
+    if (
+      activeScreen !== OnboardingStep.AndroidPWA &&
+      checkIsBrowser(UserAgent.Android) &&
+      canUserInstallPWA &&
+      getFeatureValue(featureAndroidPWA)
+    ) {
+      return setActiveScreen(OnboardingStep.AndroidPWA);
     }
 
     if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
@@ -281,11 +320,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.InstallDesktop,
     ].includes(activeScreen);
 
-    if (
-      extensionExperiment &&
-      shouldShowExtensionOnboarding &&
-      isNotExtensionRelatedStep
-    ) {
+    if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
@@ -299,8 +334,7 @@ export function OnboardPage(): ReactElement {
 
     if (
       isLaptop &&
-      !isCurrentPWA &&
-      canUserInstallDesktop &&
+      canUserInstallPWA &&
       activeScreen !== OnboardingStep.InstallDesktop &&
       (haveSkippedExtension || browserDontHaveExtension)
     ) {
@@ -319,8 +353,10 @@ export function OnboardPage(): ReactElement {
         : LogEvent.OnboardingSkip,
     });
 
+    const params = new URLSearchParams(window.location.search);
+    const afterAuth = params.get(AFTER_AUTH_PARAM);
     return router.replace({
-      pathname: '/',
+      pathname: afterAuth || '/',
       query: {
         ua: 'true',
       },
@@ -328,12 +364,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const onClickCreateFeed = () => {
-    if (isOnboardingPlusActive) {
-      logSubscriptionEvent({
-        event_name: LogEvent.OnboardingSkipPlus,
-        target_id: TargetId.Onboarding,
-      });
-    }
+    logSubscriptionEvent({
+      event_name: LogEvent.OnboardingSkipPlus,
+      target_id: TargetId.Onboarding,
+    });
 
     setSettings({
       sidebarExpanded: true,
@@ -343,10 +377,7 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    logPixelSignUp({
-      experienceLevel: userRefetched?.experienceLevel,
-    });
+  const onSuccessfulRegistration = () => {
     setActiveScreen(OnboardingStep.EditTag);
   };
 
@@ -361,7 +392,7 @@ export function OnboardPage(): ReactElement {
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
-      trigger: AuthTriggers.Onboarding,
+      trigger: loginState?.trigger || AuthTriggers.Onboarding,
       formRef,
       defaultDisplay,
       forceDefaultDisplay: !isAuthenticating,
@@ -383,6 +414,7 @@ export function OnboardPage(): ReactElement {
     isLoginFlow,
     isMobile,
     targetId,
+    loginState,
   ]);
 
   const customActionName = useMemo(() => {
@@ -393,124 +425,140 @@ export function OnboardPage(): ReactElement {
     if (activeScreen === OnboardingStep.Plus) {
       return 'Skip for now ➞';
     }
-    if (isCTA) {
+    if (layout.hasCta) {
       return 'Not now →';
     }
 
     return undefined;
-  }, [activeScreen, isCTA]);
+  }, [activeScreen, layout.hasCta]);
 
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
+
+  const { value: personalizedOnboarding } = useConditionalFeature({
+    shouldEvaluate: !user && showOnboardingPage && isAuthReady,
+    feature: featurePersonalizedOnboarding,
+  });
 
   const showGenerigLoader =
     isAuthenticating &&
     isAuthLoading &&
     activeScreen === OnboardingStep.Intro &&
     !isOnboardingReady;
+
   if (!isPageReady) {
     return null;
   }
 
   return (
-    <div
-      className={classNames(
-        'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
-        isCTA && 'fixed',
-      )}
-    >
-      {showOnboardingPage && (
-        <img
-          alt="Onboarding background"
-          className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
-          fetchPriority="high"
-          loading="eager"
-          role="presentation"
-          src={onboardingVisual.fullBackground.mobile}
-          srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
-          sizes="(max-width: 655px) 450px, 1024px"
-        />
-      )}
-      <Pixels />
-      {showGenerigLoader && <GenericLoader />}
-      <OnboardingHeader
-        showOnboardingPage={showOnboardingPage}
-        setAuth={setAuth}
-        customActionName={customActionName}
-        onClick={onClickCreateFeed}
-        activeScreen={activeScreen}
-      />
+    <PaymentContextProvider>
       <div
         className={classNames(
-          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-          activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-          !isAuthenticating && 'mt-7.5 flex-1 content-center',
-          [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
-            activeScreen,
-          ) && '!flex-col',
+          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+          layout.hasCta && 'fixed',
         )}
       >
         {showOnboardingPage && (
-          <>
-            <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-              <OnboardingHeadline
-                className={{
-                  title: 'tablet:typo-mega-1 typo-large-title',
-                  description: 'mb-8 typo-body tablet:typo-title2',
-                }}
-              />
-              <AuthOptions {...authOptionProps} />
+          <img
+            alt="Onboarding background"
+            className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
+            fetchPriority="high"
+            loading="eager"
+            role="presentation"
+            src={onboardingVisual.fullBackground.mobile}
+            srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
+            sizes="(max-width: 655px) 450px, 1024px"
+          />
+        )}
+        <Toast autoDismissNotifications={autoDismissNotifications} />
+        {showGenerigLoader && <GenericLoader />}
+        <OnboardingHeader
+          showOnboardingPage={showOnboardingPage}
+          setAuth={setAuth}
+          customActionName={customActionName}
+          onClick={onClickCreateFeed}
+          activeScreen={activeScreen}
+          showPlusIcon={isPlusCheckout && activeScreen === OnboardingStep.Plus}
+        />
+        <div
+          className={classNames(
+            'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
+            activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
+            !isAuthenticating && 'mt-7.5 flex-1 content-center',
+            [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
+              activeScreen,
+            ) && '!flex-col',
+          )}
+        >
+          {showOnboardingPage && (
+            <>
+              <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+                {!personalizedOnboarding ? (
+                  <OnboardingHeadline
+                    className={{
+                      title: 'tablet:typo-mega-1 typo-large-title',
+                      description: 'mb-8 typo-body tablet:typo-title2',
+                    }}
+                  />
+                ) : (
+                  <div className="tablet:pt-6">
+                    <PersonalizedOnboardingHeadline />
+                  </div>
+                )}
+                <AuthOptions {...authOptionProps} />
+              </div>
+              <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+            </>
+          )}
+          {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
+            <AuthOptions {...authOptionProps} />
+          ) : (
+            <div
+              className={classNames(
+                'flex tablet:flex-1',
+                activeScreen === OnboardingStep.Intro
+                  ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
+                  : 'mb-10 ml-0 w-full flex-col items-center justify-start',
+                layout.hasCta &&
+                  'relative mb-auto flex-1 !justify-between overflow-hidden',
+              )}
+            >
+              {activeScreen === OnboardingStep.ReadingReminder && (
+                <ReadingReminder onClickNext={onClickNext} />
+              )}
+              {activeScreen === OnboardingStep.EditTag && (
+                <EditTag
+                  feedSettings={feedSettings}
+                  userId={user?.id}
+                  customActionName={customActionName}
+                  onClick={onClickNext}
+                  activeScreen={activeScreen}
+                />
+              )}
+              {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
+              {activeScreen === OnboardingStep.Plus &&
+                (isPlusCheckout ? (
+                  <PlusPage shouldShowPlusHeader={false} />
+                ) : (
+                  <OnboardingPlusStep onClickNext={onClickNext} />
+                ))}
+              {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
+              {activeScreen === OnboardingStep.Extension && (
+                <OnboardingExtension onClickNext={onClickNext} />
+              )}
+              {activeScreen === OnboardingStep.InstallDesktop && (
+                <OnboardingInstallDesktop onClickNext={onClickNext} />
+              )}
+              {activeScreen === OnboardingStep.AndroidPWA && (
+                <OnboardingAndroidPWA />
+              )}
             </div>
-            <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
-          </>
-        )}
-        {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
-          <AuthOptions {...authOptionProps} />
-        ) : (
-          <div
-            className={classNames(
-              'flex tablet:flex-1',
-              activeScreen === OnboardingStep.Intro
-                ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
-                : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-              isCTA &&
-                'relative mb-auto flex-1 !justify-between overflow-hidden',
-            )}
-          >
-            {activeScreen === OnboardingStep.ReadingReminder && (
-              <ReadingReminder onClickNext={onClickNext} />
-            )}
-            {activeScreen === OnboardingStep.EditTag && (
-              <EditTag
-                feedSettings={feedSettings}
-                userId={user?.id}
-                customActionName={customActionName}
-                onClick={onClickNext}
-                activeScreen={activeScreen}
-              />
-            )}
-            {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-            {activeScreen === OnboardingStep.Plus && (
-              <PaymentContextProvider>
-                <OnboardingPlusStep onClickNext={onClickNext} />
-              </PaymentContextProvider>
-            )}
-            {activeScreen === OnboardingStep.AndroidApp && (
-              <OnboardingAndroidApp />
-            )}
-            {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
-            {activeScreen === OnboardingStep.Extension && (
-              <OnboardingExtension onClickNext={onClickNext} />
-            )}
-            {activeScreen === OnboardingStep.InstallDesktop && (
-              <OnboardingInstallDesktop onClickNext={onClickNext} />
-            )}
-          </div>
-        )}
+          )}
+        </div>
+        {showOnboardingPage && <OnboardingFooter />}
+        {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
       </div>
-      {showOnboardingPage && <OnboardingFooter />}
-      {!isCTA && <FooterLinks className="mx-auto pb-6" />}
-    </div>
+    </PaymentContextProvider>
   );
 }
 

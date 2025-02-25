@@ -23,8 +23,7 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
+import { usePostActions } from '../../../hooks/post/usePostActions';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -45,12 +44,13 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
+  const { onInteract, interaction, previousInteraction } = usePostActions({
+    post,
+  });
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
-  const isCounterVisible = post.numUpvotes || feedActionSpacingExp;
 
   if (isFeedPreview) {
     return null;
@@ -60,10 +60,36 @@ const ActionButtons = ({
     if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
+      onInteract('none');
       onClose(true);
     }
 
     await onDownvoteClick?.(post);
+  };
+
+  const onToggleUpvote = async () => {
+    if (post.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
+    }
+    if (interaction === 'upvote') {
+      onInteract('none');
+    }
+    onUpvoteClick?.(post);
+  };
+
+  const onToggleBookmark = async () => {
+    if (!post.bookmarked) {
+      onInteract('bookmark');
+    }
+    if (interaction === 'bookmark') {
+      onInteract(previousInteraction);
+    }
+    onBookmarkClick(post);
+  };
+
+  const onCopyLink = (e: React.MouseEvent) => {
+    onInteract('copy');
+    onCopyLinkClick?.(e, post);
   };
 
   return (
@@ -76,16 +102,11 @@ const ActionButtons = ({
       <div className="flex flex-row items-center rounded-12 bg-surface-float">
         <SimpleTooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
           <Button
-            className={classNames(
-              'pointer-events-auto',
-              isCounterVisible ? '!pl-1 !pr-3' : !feedActionSpacingExp && 'w-8',
-            )}
+            className="pointer-events-auto !pl-1 !pr-3"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
-            onClick={() => {
-              onUpvoteClick?.(post);
-            }}
+            onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           >
@@ -93,20 +114,15 @@ const ActionButtons = ({
               secondary={isUpvoteActive}
               size={IconSize.Small}
             />
-            {isCounterVisible ? (
-              <InteractionCounter
-                className={classNames(
-                  'ml-1.5 tabular-nums',
-                  !post.numUpvotes && feedActionSpacingExp && 'invisible',
-                )}
-                value={post.numUpvotes}
-              />
-            ) : null}
+            <InteractionCounter
+              className={classNames(
+                'ml-1.5 tabular-nums',
+                !post.numUpvotes && 'invisible',
+              )}
+              value={post.numUpvotes}
+            />
           </Button>
         </SimpleTooltip>
-        {!feedActionSpacingExp && (
-          <div className="box-border border border-surface-float py-2.5" />
-        )}
         <SimpleTooltip
           content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
         >
@@ -142,7 +158,7 @@ const ActionButtons = ({
         buttonProps={{
           id: `post-${post.id}-bookmark-btn`,
           icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => onBookmarkClick(post),
+          onClick: onToggleBookmark,
           size: ButtonSize.Small,
         }}
       />
@@ -150,7 +166,7 @@ const ActionButtons = ({
         <Button
           size={ButtonSize.Small}
           icon={<LinkIcon />}
-          onClick={(e) => onCopyLinkClick?.(e, post)}
+          onClick={onCopyLink}
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />

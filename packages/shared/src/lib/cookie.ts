@@ -10,11 +10,15 @@ export type CookieOptions = {
   secure: boolean;
 };
 
-export const getCookies = (
-  names: string[],
-): Record<string, string> | undefined => {
+export const getCookies = <
+  T extends string[] = string[],
+  R = Record<T[number], string>,
+>(
+  names: T,
+): R | undefined => {
   const cookies =
-    document?.cookie?.split(';')?.map((cookie) => cookie.trim()) || [];
+    globalThis?.document?.cookie?.split(';')?.map((cookie) => cookie.trim()) ||
+    [];
   if (!cookies.length) {
     return undefined;
   }
@@ -28,7 +32,7 @@ export const getCookies = (
       ...acc,
       [name]: decodeURIComponent(foundCookie.split('=')[1]),
     };
-  }, {});
+  }, {} as R);
 };
 
 export const setCookie = (
@@ -82,10 +86,3 @@ export const expireCookie = (
 
   setCookie(name, 'expired', { path, domain, maxAge: 0 });
 };
-
-export enum FirefoxPermissionType {
-  Accepted = 'accepted',
-  Declined = 'declined',
-}
-
-export const FIREFOX_ACCEPTED_PERMISSION = 'firefox_accepted_permissions';

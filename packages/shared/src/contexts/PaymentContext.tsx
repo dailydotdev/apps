@@ -7,7 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
+import type {
+  Environments,
+  Paddle,
+  PaddleEventData,
+  TimePeriod,
+} from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
   getPaddleInstance,
@@ -19,28 +24,48 @@ import { useAuthContext } from './AuthContext';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
-import { logPixelPayment } from '../components/Pixels';
+import { logPixelPayment } from '../lib/pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { PlusPriceType } from '../lib/featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
+import { getPrice } from '../lib';
 
 export type ProductOption = {
   label: string;
   value: string;
-  price: string;
-  priceUnformatted: number;
+  price: {
+    amount: number;
+    formatted: string;
+    monthlyAmount: number;
+    monthlyFormatted: string;
+  };
   currencyCode: string;
+  currencySymbol: string;
   extraLabel: string;
+  appsId: PlusPriceTypeAppsId;
+  duration: PlusPriceType;
+  trialPeriod: TimePeriod | null;
 };
 
+interface OpenCheckoutProps {
+  priceId: string;
+  giftToUserId?: string;
+}
+
+export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
+
 export interface PaymentContextData {
-  openCheckout?: ({ priceId }: { priceId: string }) => void;
+  openCheckout?: OpenCheckoutFn;
   paddle?: Paddle | undefined;
   productOptions?: ProductOption[];
   earlyAdopterPlanId?: string | null;
+  isPlusAvailable: boolean;
+  giftOneYear?: ProductOption;
+  isPricesPending: boolean;
+  isFreeTrialExperiment: boolean;
 }
 
-const PaymentContext = React.createContext<PaymentContextData>({});
+const PaymentContext = React.createContext<PaymentContextData>(undefined);
 export default PaymentContext;
 
 export type PaymentContextProviderProps = {
@@ -51,10 +76,10 @@ export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
-  const { user, geo } = useAuthContext();
+  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
 
@@ -81,9 +106,18 @@ export const PaymentContextProvider = ({
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             logRef.current({
-              event_name: LogEvent.CompleteCheckout,
+              event_name:
+                'gifter_id' in event.data.custom_data
+                  ? LogEvent.CompleteGiftCheckout
+                  : LogEvent.CompleteCheckout,
               extra: {
-                cycle: event?.data.items?.[0]?.billing_cycle.interval,
+                user_id:
+                  'gifter_id' in event.data.custom_data &&
+                  'user_id' in event.data.custom_data
+                    ? event.data.custom_data.user_id
+                    : undefined,
+                cycle:
+                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 localCost: event?.data.totals.total,
                 localCurrenct: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
@@ -118,30 +152,6 @@ export const PaymentContextProvider = ({
     });
   }, [router]);
 
-  const openCheckout = useCallback(
-    ({ priceId }: { priceId: string }) => {
-      paddle?.Checkout.open({
-        items: [{ priceId, quantity: 1 }],
-        customer: {
-          email: user?.email,
-        },
-        customData: {
-          user_id: user?.id,
-        },
-        settings: {
-          displayMode: 'inline',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-          showAddDiscounts: false,
-        },
-      });
-    },
-    [paddle, user],
-  );
-
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
       items: Object.keys(planTypes).map((priceId) => ({
@@ -154,48 +164,139 @@ export const PaymentContextProvider = ({
     });
   }, [paddle, planTypes, geo?.region]);
 
-  const { data: productPrices } = useQuery({
+  const { data: productPrices, isLoading: isPricesPending } = useQuery({
     queryKey: ['productPrices'],
     queryFn: getPrices,
     enabled: !!paddle && !!planTypes && !!geo,
   });
 
-  const productOptions = useMemo(
+  const productOptions: Array<ProductOption> = useMemo(() => {
+    const priceFormatter = new Intl.NumberFormat(
+      globalThis?.navigator?.language ?? 'en-US',
+      {
+        minimumFractionDigits: 2,
+      },
+    );
+    return (
+      productPrices?.data?.details?.lineItems?.map((item) => {
+        const duration = planTypes[item.price.id] as PlusPriceType;
+        const priceAmount = getPrice(item);
+        const months = duration === PlusPriceType.Yearly ? 12 : 1;
+        const monthlyPrice = Number(
+          (priceAmount / months).toString().match(/^-?\d+(?:\.\d{0,2})?/)[0],
+        );
+        const currencyCode = productPrices?.data.currencyCode;
+        const currencySymbol = item.formattedTotals.total.replace(
+          /\d|\.|\s|,/g,
+          '',
+        );
+        return {
+          label: item.price.name,
+          value: item.price.id,
+          price: {
+            amount: priceAmount,
+            formatted: item.formattedTotals.total,
+            monthlyAmount: monthlyPrice,
+            monthlyFormatted: `${currencySymbol}${priceFormatter.format(
+              monthlyPrice,
+            )}`,
+          },
+          currencyCode,
+          currencySymbol,
+          extraLabel: item.price.customData?.label as string,
+          appsId:
+            (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
+            PlusPriceTypeAppsId.Default,
+          duration,
+          trialPeriod: item.price.trialPeriod,
+        };
+      }) ?? []
+    );
+  }, [planTypes, productPrices?.data]);
+
+  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>
-      productPrices?.data?.details?.lineItems?.map((item) => ({
-        label: item.price.description,
-        value: item.price.id,
-        price: item.formattedTotals.total,
-        priceUnformatted: Number(item.totals.total),
-        currencyCode: productPrices?.data.currencyCode as string,
-        extraLabel: item.price.customData?.label as string,
-      })) ?? [],
-    [productPrices?.data.currencyCode, productPrices?.data?.details?.lineItems],
+      productOptions.find(
+        ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      )?.value,
+    [productOptions],
   );
 
-  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
-    useMemo(() => {
-      const monthlyPrices = productOptions.filter(
-        (option) => planTypes[option.value] === PlusPriceType.Monthly,
-      );
+  const giftOneYear: ProductOption = useMemo(
+    () =>
+      productOptions.find(
+        ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
+      ),
+    [productOptions],
+  );
 
-      if (monthlyPrices.length <= 1) {
-        return null;
+  const isFreeTrialExperiment = useMemo(
+    () => productOptions.some(({ trialPeriod }) => !!trialPeriod),
+    [productOptions],
+  );
+
+  const openCheckout = useCallback(
+    ({ priceId, giftToUserId }: OpenCheckoutProps) => {
+      if (isPlus && priceId !== giftOneYear?.value) {
+        return;
       }
 
-      return monthlyPrices.reduce((acc, plan) => {
-        return acc.priceUnformatted < plan.priceUnformatted ? acc : plan;
-      }).value;
-    }, [planTypes, productOptions]);
+      if (!isPlusAvailable) {
+        return;
+      }
+
+      paddle?.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: {
+          email: user?.email,
+        },
+        customData: {
+          user_id: giftToUserId ?? user?.id,
+          ...(!!giftToUserId && { gifter_id: user?.id }),
+        },
+        settings: {
+          displayMode: 'inline',
+          frameTarget: 'checkout-container',
+          frameInitialHeight: 500,
+          frameStyle:
+            'width: 100%; background-color: transparent; border: none;',
+          theme: 'dark',
+        },
+      });
+    },
+    [
+      giftOneYear?.value,
+      isPlus,
+      isPlusAvailable,
+      paddle?.Checkout,
+      user?.email,
+      user?.id,
+    ],
+  );
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
-      productOptions,
+      productOptions: productOptions.filter(
+        ({ value }) => value !== giftOneYear?.value,
+      ),
       earlyAdopterPlanId,
+      isPlusAvailable,
+      giftOneYear,
+      isPricesPending,
+      isFreeTrialExperiment,
     }),
-    [earlyAdopterPlanId, openCheckout, paddle, productOptions],
+    [
+      giftOneYear,
+      earlyAdopterPlanId,
+      openCheckout,
+      paddle,
+      productOptions,
+      isPlusAvailable,
+      isPricesPending,
+      isFreeTrialExperiment,
+    ],
   );
 
   return (

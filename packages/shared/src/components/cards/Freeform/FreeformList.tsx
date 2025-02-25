@@ -6,6 +6,7 @@ import { sanitize } from 'dompurify';
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
 import {
+  useConditionalFeature,
   useFeedPreviewMode,
   useTruncatedSummary,
   useViewSize,
@@ -22,8 +23,10 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeature } from '../../GrowthBookProvider';
-import { feedActionSpacing } from '../../../lib/featureManagement';
+import { featureSocialShare } from '../../../lib/featureManagement';
+import SocialBar from '../socials/SocialBar';
+import { usePostActions } from '../../../hooks/post/usePostActions';
+import { PostType } from '../../../graphql/posts';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -43,10 +46,9 @@ export const FreeformList = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
-  const feedActionSpacingExp = useFeature(feedActionSpacing);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const shouldSwapActions = feedActionSpacingExp && !isMobile;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
@@ -57,6 +59,10 @@ export const FreeformList = forwardRef(function SharePostCard(
       post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
     [post.contentHtml],
   );
+  const { value: socialShare } = useConditionalFeature({
+    feature: featureSocialShare,
+    shouldEvaluate: interaction === 'copy' && post.type === PostType.Freeform,
+  });
 
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
 
@@ -70,7 +76,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className={classNames(
-          feedActionSpacingExp ? 'mt-2 justify-between' : 'mt-4',
+          'mt-2 justify-between',
           !!image && 'laptop:mt-auto',
         )}
       />
@@ -126,8 +132,8 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-            {shouldSwapActions && <div className="flex flex-1" />}
-            {shouldSwapActions && actionButtons}
+            <div className="hidden flex-1 tablet:flex" />
+            {!isMobile && actionButtons}
           </div>
 
           {image && (
@@ -136,10 +142,7 @@ export const FreeformList = forwardRef(function SharePostCard(
               post={post}
               imageProps={{
                 alt: 'Post Cover image',
-                className: classNames(
-                  'w-full mobileXXL:self-start',
-                  feedActionSpacingExp && 'mt-2 tablet:mt-0',
-                ),
+                className: 'w-full mobileXXL:self-start mt-2 tablet:mt-0',
                 ...(eagerLoadImage && HIGH_PRIORITY_IMAGE_PROPS),
                 src: image,
               }}
@@ -147,9 +150,10 @@ export const FreeformList = forwardRef(function SharePostCard(
           )}
         </CardContent>
       </CardContainer>
-      {!shouldSwapActions && actionButtons}
+      {isMobile && actionButtons}
       {!image && <PostContentReminder post={post} className="z-1" />}
       {children}
+      {socialShare && <SocialBar className="mt-4" post={post} />}
     </FeedItemContainer>
   );
 });

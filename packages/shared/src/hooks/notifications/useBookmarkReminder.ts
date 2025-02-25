@@ -7,9 +7,8 @@ import type {
 } from '../../graphql/bookmarks';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
-import { updatePostCache } from '../usePostById';
 import { useActiveFeedContext } from '../../contexts';
-import { updateCachedPagePost } from '../../lib/query';
+import { updateCachedPagePost, updatePostCache } from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';

@@ -2,15 +2,25 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 
 import React from 'react';
+import { QueryClient } from '@tanstack/react-query';
 import YoutubeVideo from './YoutubeVideo';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { sharePost } from '../../../__tests__/fixture/post';
 
 const renderComponent = (): RenderResult => {
+  const client = new QueryClient();
+
   return render(
-    <YoutubeVideo
-      title="test title"
-      videoId="igZCEr3HwCg"
-      data-testid="iframeId"
-    />,
+    <TestBootProvider client={client}>
+      <YoutubeVideo
+        placeholderProps={{
+          post: { ...sharePost, title: 'test title' },
+          onWatchVideo: jest.fn(),
+        }}
+        videoId="igZCEr3HwCg"
+        data-testid="iframeId"
+      />
+    </TestBootProvider>,
   );
 };
 

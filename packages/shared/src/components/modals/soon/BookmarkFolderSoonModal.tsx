@@ -16,6 +16,8 @@ import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { bookmarkFolderSoonImage } from '../../../lib/image';
 import { webappUrl } from '../../../lib/constants';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import { useConditionalFeature } from '../../../hooks';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;
 
@@ -23,6 +25,12 @@ const BookmarkFolderSoonModal = ({
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
 
   return (
     <Modal
@@ -84,7 +92,7 @@ const BookmarkFolderSoonModal = ({
                 });
               }}
             >
-              Upgrade to Plus
+              {plusCta}
             </Button>
           </div>
         )}

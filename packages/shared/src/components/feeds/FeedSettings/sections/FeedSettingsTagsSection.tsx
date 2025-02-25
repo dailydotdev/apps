@@ -34,7 +34,7 @@ const tabs = Object.values(FeedSettingsTagsSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsTagsSection = (): ReactElement => {
-  const { feed } = useContext(FeedSettingsEditContext);
+  const { feed, editFeedSettings } = useContext(FeedSettingsEditContext);
   const [activeViewState, setActiveView] = useState<string>(
     () => FeedSettingsTagsSectionTabs.Suggested,
   );
@@ -130,6 +130,9 @@ export const FeedSettingsTagsSection = (): ReactElement => {
               TagElement={TagElement}
               searchQuery={searchQuery}
               searchTags={searchResult?.searchTags.tags || []}
+              onClickTag={() => {
+                editFeedSettings();
+              }}
             />
           )}
           {activeView === FeedSettingsTagsSectionTabs.MyTags && (
@@ -153,7 +156,9 @@ export const FeedSettingsTagsSection = (): ReactElement => {
                             isSelected
                             tag={tag}
                             onClick={() => {
-                              onUnfollowTags({ tags: [tag.name] });
+                              editFeedSettings(() =>
+                                onUnfollowTags({ tags: [tag.name] }),
+                              );
                             }}
                           />
                         ))}

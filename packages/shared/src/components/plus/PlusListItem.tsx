@@ -1,9 +1,9 @@
-import type { ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SimpleTooltip } from '../tooltips';
-import { ChecklistAIcon, InfoIcon } from '../icons';
+import { InfoIcon, VIcon } from '../icons';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import type { TypographyProps } from '../typography/Typography';
@@ -13,11 +13,9 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 
 export enum PlusItemStatus {
   Ready = 'done',
-  Disabled = 'disabled',
   ComingSoon = 'coming-soon',
 }
 
@@ -30,6 +28,7 @@ export interface PlusItem {
 export interface PlusListItemProps {
   item: PlusItem;
   typographyProps?: TypographyProps<TypographyTag.P>;
+  icon?: FC<IconProps>;
   iconProps?: IconProps;
   badgeProps?: TypographyProps<TypographyTag.Span>;
 }
@@ -37,14 +36,10 @@ export interface PlusListItemProps {
 export const PlusListItem = ({
   badgeProps,
   iconProps,
+  icon: Icon = VIcon,
   item,
   typographyProps,
 }: PlusListItemProps): ReactElement => {
-  const { earlyAdopterPlanId } = usePaymentContext();
-  const isEarlyAdopterExperiment = !!earlyAdopterPlanId;
-  const isComingSoonVisible =
-    isEarlyAdopterExperiment && item.status === PlusItemStatus.ComingSoon;
-
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
@@ -67,16 +62,17 @@ export const PlusListItem = ({
           !!item.tooltip && 'hover:bg-surface-float',
         )}
       >
-        <ChecklistAIcon
-          aria-hidden
-          size={IconSize.XSmall}
-          {...iconProps}
-          className={classNames(
-            'mr-1 inline-block text-text-quaternary',
-            isComingSoonVisible && 'mt-px',
-            iconProps?.className,
-          )}
-        />
+        {Icon && (
+          <Icon
+            aria-hidden
+            size={IconSize.XSmall}
+            {...iconProps}
+            className={classNames(
+              'mr-1 mt-px inline-block',
+              iconProps?.className,
+            )}
+          />
+        )}
         <Typography
           tag={TypographyTag.P}
           type={TypographyType.Body}
@@ -87,8 +83,9 @@ export const PlusListItem = ({
             typographyProps?.className,
           )}
         >
+          {!Icon && <span className="inline-block min-w-4 text-center">•</span>}
           {item.label}
-          {isComingSoonVisible && (
+          {item.status === PlusItemStatus.ComingSoon && (
             <Typography
               tag={TypographyTag.Span}
               type={TypographyType.Caption1}

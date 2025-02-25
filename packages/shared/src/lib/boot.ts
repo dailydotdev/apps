@@ -1,5 +1,5 @@
 import type { FeatureDefinition } from '@growthbook/growthbook';
-import type { AnonymousUser, ContentLanguage, LoggedUser } from './user';
+import type { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import type { Alerts } from '../graphql/alerts';
 import type { RemoteSettings } from '../graphql/settings';
@@ -8,6 +8,7 @@ import type { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import type { MarketingCta } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
+import type { Continent } from './geo';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -64,10 +65,11 @@ export type Boot = {
   };
   marketingCta?: MarketingCta | null;
   feeds: Feed[];
-  language?: ContentLanguage;
+  language?: string;
   geo: {
     ip?: string;
     region?: string;
+    continent?: Continent;
   };
   isAndroidApp?: boolean;
 };

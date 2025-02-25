@@ -9,6 +9,8 @@ export interface Provider {
   value: string;
 }
 
+export const AFTER_AUTH_PARAM = 'after_auth';
+
 export enum SocialProvider {
   // Twitter = 'twitter',
   Facebook = 'facebook',

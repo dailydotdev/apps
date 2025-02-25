@@ -6,7 +6,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import SharedBookmarksModal from './SharedBookmarksModal';
@@ -17,6 +17,7 @@ import {
   BOOKMARK_SHARING_QUERY,
 } from '../../graphql/bookmarksSharing';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 const onRequestClose = jest.fn();
 
@@ -37,13 +38,13 @@ const renderComponent = (mocks: MockedGraphQLResponse[] = []): RenderResult => {
 
   mocks.forEach(mockGraphQL);
   return render(
-    <QueryClientProvider client={client}>
+    <TestBootProvider client={client}>
       <SharedBookmarksModal
         isOpen
         onRequestClose={onRequestClose}
         ariaHideApp={false}
       />
-    </QueryClientProvider>,
+    </TestBootProvider>,
   );
 };
 

@@ -24,7 +24,6 @@ import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePr
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
   useJoinReferral,
@@ -43,6 +42,12 @@ import {
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
 
+const Unauthorized = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "unauthorized" */ '@dailydotdev/shared/src/components/errors/Unauthorized'
+    ),
+);
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
@@ -74,6 +79,7 @@ const PostAuthBanner = dynamic(() =>
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
+  error?: ApiError;
 }
 
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
@@ -97,7 +103,7 @@ export const seoTitle = (post: Post): string | undefined => {
   return post?.title;
 };
 
-export const PostPage = ({ id, initialData }: Props): ReactElement => {
+export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   useJoinReferral();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
@@ -140,6 +146,9 @@ export const PostPage = ({ id, initialData }: Props): ReactElement => {
   const Content = CONTENT_MAP[post?.type];
 
   if (!Content || isError) {
+    if (error === ApiError.Forbidden) {
+      return <Unauthorized />;
+    }
     return <Custom404 />;
   }
 
@@ -220,12 +229,13 @@ export async function getStaticProps({
     };
   } catch (err) {
     const clientError = err as ClientError;
+    const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
-    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+    if (errors.includes(errorCode)) {
       const { postId } = clientError.response.errors[0].extensions;
 
       return {
-        props: { id: postId || id },
+        props: { id: postId || id, error: errorCode },
         revalidate: 60,
       };
     }

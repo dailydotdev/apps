@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import type { EmptyObjectLiteral } from './kratos';
-import { isBrave, isTesting } from './constants';
+import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 
 export type EmptyFunction = () => void;
 export type EmptyPromise = () => Promise<void>;
@@ -71,6 +71,9 @@ export const isAppleDevice = (): boolean => {
 
 export const isIOS = (): boolean =>
   /iPhone|iPad/i.test(globalThis?.navigator.userAgent);
+
+export const isIOSNative = (): boolean =>
+  globalThis.webkit && globalThis.webkit.messageHandlers;
 
 export enum ArrowKeyEnum {
   Up = 'ArrowUp',
@@ -196,3 +199,43 @@ export const isMobile = (): boolean =>
 
 export const shouldUseNativeShare = (): boolean =>
   'share' in globalThis?.navigator && isMobile();
+
+interface BroadcastMessage {
+  eventKey: string;
+  [key: string]: unknown;
+}
+
+export const broadcastMessage = (
+  message: BroadcastMessage,
+  channelName: string = BROADCAST_CHANNEL_NAME,
+): void => {
+  const channel = new BroadcastChannel(channelName);
+  channel.postMessage(message);
+  channel.close();
+};
+
+export const promisifyEventListener = <T>(
+  type: string,
+  listener: (event: CustomEvent) => T | Promise<T>,
+): Promise<T> => {
+  return new Promise((resolve) => {
+    if (!globalThis?.eventControllers) {
+      globalThis.eventControllers = {};
+    }
+    if (globalThis.eventControllers[type]) {
+      globalThis.eventControllers[type].abort();
+    }
+
+    const controller = new AbortController();
+    globalThis.eventControllers[type] = controller;
+
+    globalThis.addEventListener(
+      type,
+      async (event: CustomEvent) => {
+        globalThis.eventControllers[type] = null;
+        resolve(await listener(event));
+      },
+      { once: true, signal: controller.signal },
+    );
+  });
+};

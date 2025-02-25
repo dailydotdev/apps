@@ -322,6 +322,16 @@ export const cloudinaryPWADesktopSafari =
 export const clickbaitShieldModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
 
+export const cloudinaryGiftedPlusModalImage = `https://daily-now-res.cloudinary.com/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
+
+export const cloudinaryAndroidPWA =
+  'https://daily-now-res.cloudinary.com/image/upload/s---zPja5QA--/f_auto/v1737634403/android_-_chrome_-_placeholder_gptwt8';
+
+export const cloudinaryAndroidPWAVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/s--2P1N5kYQ--/v1737634404/android_-_chrome_gvepd5.mp4';
+
+export const smartPromptModalImage =
+  'https://daily-now-res.cloudinary.com/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;
@@ -329,3 +339,9 @@ export const smallPostImage = (url: string): string => {
 
   return url.replace('/f_auto,q_auto/', '/c_fill,f_auto,q_auto,w_192/');
 };
+
+export const plusFeaturesImage =
+  'https://media.daily.dev/image/upload/s--c4as3Quw--/f_auto/v1738509922/public/daily.dev%20Plus%20-%20Default';
+
+export const plusRedBackgroundImage =
+  'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';

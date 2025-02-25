@@ -56,6 +56,16 @@ export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
 export const getReadPostButtonText = (post: Post): string =>
   isVideoPost(post) ? 'Watch video' : 'Read post';
 
+export const translateablePostFields = [
+  'title',
+  'smartTitle',
+  'titleHtml',
+] as const;
+export type TranslateablePostField = (typeof translateablePostFields)[number];
+export type PostTranslation = {
+  [key in TranslateablePostField]?: boolean;
+};
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;
@@ -105,7 +115,6 @@ export interface Post {
   author?: Author;
   scout?: Scout;
   views?: number;
-  placeholder?: string;
   read?: boolean;
   bookmarked?: boolean;
   trending?: number;
@@ -129,6 +138,8 @@ export interface Post {
   bookmarkList?: BookmarkFolder;
   domain?: string;
   clickbaitTitleDetected?: boolean;
+  translation?: PostTranslation;
+  language?: string;
 }
 
 export type RelatedPost = Pick<
@@ -260,7 +271,6 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       title
       permalink
       image
-      placeholder
       createdAt
       readTime
       tags
@@ -842,10 +852,16 @@ export const POST_CODE_SNIPPETS_QUERY = gql`
   ${POST_CODE_SNIPPET_FRAGMENT}
 `;
 
+export type PostSmartTitle = Pick<Post, 'title' | 'translation'>;
+
 export const POST_FETCH_SMART_TITLE_QUERY = gql`
   query FetchSmartTitle($id: ID!) {
     fetchSmartTitle(id: $id) {
       title
+      translation {
+        title
+        smartTitle
+      }
     }
   }
 `;

@@ -16,6 +16,7 @@ import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import { isIOSNative } from '../../lib/func';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -109,6 +110,9 @@ const OnboardingRegistrationForm = ({
   };
 
   const getSignupProviders = () => {
+    if (isIOSNative()) {
+      return [providerMap.google, providerMap.apple];
+    }
     if (isWebView()) {
       return [providerMap.github];
     }

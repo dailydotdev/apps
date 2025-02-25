@@ -3,7 +3,7 @@ import React from 'react';
 import type { ChecklistStepProps } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
 import { Button, ButtonVariant } from '../buttons/Button';
-import BrowsersIcon from '../../../icons/browsers.svg';
+import BrowsersIcon from '../icons/Browsers/group.svg';
 import { FlexCentered } from '../utilities';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';

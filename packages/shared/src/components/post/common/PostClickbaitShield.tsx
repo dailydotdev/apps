@@ -15,26 +15,23 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ActionType } from '../../../graphql/actions';
 import { LazyModal } from '../../modals/common/types';
 
-import { ClickbaitTrial } from '../../plus/ClickbaitTrial';
+import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import type { Post } from '../../../graphql/posts';
 import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { TargetId } from '../../../lib/log';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
-  const { isPlus, showPlusSubscription } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
-
-  if (!showPlusSubscription) {
-    return null;
-  }
 
   if (!isPlus) {
     const hasUsedFreeTrial = checkHasCompleted(ActionType.FetchedSmartTitle);
@@ -61,7 +58,19 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         {fetchedSmartTitle ? (
           <>
             This title was optimized with Clickbait Shield
-            <ClickbaitTrial />
+            <PostUpgradeToPlus
+              className="mt-6"
+              targetId={TargetId.ClickbaitShield}
+              title="Want to automatically optimize titles across your feed?"
+            >
+              Clickbait Shield uses AI to automatically optimize post titles by
+              fixing common problems like clickbait, lack of clarity, and overly
+              promotional language.
+              <br />
+              <br />
+              The result is clearer, more informative titles that help you
+              quickly find the content you actually need.
+            </PostUpgradeToPlus>
           </>
         ) : (
           <>

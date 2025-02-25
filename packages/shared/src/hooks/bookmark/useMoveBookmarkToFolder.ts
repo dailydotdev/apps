@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { MoveBookmarkToFolderProps } from '../../graphql/bookmarks';
 import { moveBookmarkToFolder } from '../../graphql/bookmarks';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
-import { getPostByIdKey } from '../usePostById';
+import { getPostByIdKey } from '../../lib/query';
 import type { PostData } from '../../graphql/posts';
 import { useToastNotification } from '../useToastNotification';
 

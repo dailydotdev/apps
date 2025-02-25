@@ -17,7 +17,8 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';
-import { isNullOrUndefined } from '../../lib/func';
+import { isIOSNative, isNullOrUndefined } from '../../lib/func';
+import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
 
@@ -31,7 +32,8 @@ export const BootPopups = (): ReactElement => {
   const { logEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
+  const { user, isValidRegion } = useAuthContext();
+  const { updateUserProfile } = useProfileForm();
   const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
     useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
@@ -42,6 +44,8 @@ export const BootPopups = (): ReactElement => {
   const marketingCtaPopoverSmall = getMarketingCta(
     MarketingCtaVariant.PopoverSmall,
   );
+  const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
+
   const {
     streak,
     shouldShowPopup: shouldShowStreaksPopup,
@@ -60,7 +64,6 @@ export const BootPopups = (): ReactElement => {
     alerts?.showStreakMilestone !== true,
     !streak?.current,
   ].some(Boolean);
-
   const addBootPopup = (popup) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
@@ -99,6 +102,23 @@ export const BootPopups = (): ReactElement => {
    * Boot popup based on marketing CTA
    */
   useEffect(() => {
+    if (marketingCtaPlus && !isIOSNative() && isValidRegion && !user?.isPlus) {
+      addBootPopup({
+        type: LazyModal.PlusMarketing,
+        onAfterClose: () => {
+          updateLastBootPopup();
+        },
+        props: {
+          onAfterOpen: () => {
+            logEvent({
+              event_name: LogEvent.Impression,
+              target_type: TargetType.MarketingCtaPlus,
+              target_id: marketingCtaPlus.campaignId,
+            });
+          },
+        },
+      });
+    }
     if (marketingCtaPopover) {
       addBootPopup({
         type: LazyModal.MarketingCta,
@@ -117,7 +137,14 @@ export const BootPopups = (): ReactElement => {
         },
       });
     }
-  }, [marketingCtaPopover, logEvent, updateLastBootPopup]);
+  }, [
+    marketingCtaPopover,
+    logEvent,
+    updateLastBootPopup,
+    marketingCtaPlus,
+    isValidRegion,
+    user?.isPlus,
+  ]);
 
   useEffect(() => {
     if (marketingCtaPopoverSmall) {
@@ -242,6 +269,30 @@ export const BootPopups = (): ReactElement => {
     user,
   ]);
 
+  /**
+   * Received gift plus modal
+   */
+  useEffect(() => {
+    if (!user?.flags?.showPlusGift || !user.isPlus) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.GiftPlusReceived,
+      props: {
+        user,
+        onAfterClose: () => {
+          updateUserProfile({
+            flags: { showPlusGift: false },
+          });
+        },
+      },
+    });
+  }, [updateUserProfile, user]);
+
+  /**
+   * Top reader badge modal
+   */
   useEffect(() => {
     if (!alerts?.showTopReader) {
       return;

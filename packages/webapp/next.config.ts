@@ -143,7 +143,27 @@ const nextConfig: NextConfig = {
           });
         }
 
-        return rewrites;
+        return {
+          beforeFiles: [
+            {
+              source: '/.well-known/security.txt',
+              destination: '/api/files/security',
+            },
+            {
+              source: '/plus',
+              destination: '/plus/gift',
+              has: [
+                {
+                  type: 'query',
+                  key: 'gift',
+                },
+              ],
+            },
+          ],
+          // regular rewrites
+          afterFiles: rewrites,
+          fallback: [],
+        };
       },
       redirects: async () => {
         const oldPublicAssets = [
@@ -177,6 +197,12 @@ const nextConfig: NextConfig = {
             destination: '/posts/:id',
             permanent: false,
           },
+          // so we can't access /plus/gift route directly
+          {
+            source: '/plus/gift',
+            destination: '/plus',
+            permanent: false,
+          },
         ];
       },
       headers: async () => {
@@ -190,6 +216,13 @@ const nextConfig: NextConfig = {
                 value:
                   'We are hiring! Check https://daily.dev/careers for more info!',
               },
+            ],
+          },
+          {
+            source: '/.well-known/apple-app-site-association',
+            headers: [
+              { key: 'Content-Type', value: 'application/json' },
+              { key: 'Cache-Control', value: 'no-cache' },
             ],
           },
         ];

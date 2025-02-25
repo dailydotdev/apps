@@ -26,7 +26,7 @@ export const PlusUser = ({
 }: Props): ReactElement => {
   return (
     <Typography
-      className={classNames('flex', className)}
+      className={classNames('flex items-center', className)}
       color={typographyColor}
       type={typographyType}
       bold

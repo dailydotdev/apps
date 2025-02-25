@@ -8,7 +8,7 @@ import type { UseVotePost, UseVoteMutationProps } from './types';
 import { voteMutationMatcher, voteMutationHandlers } from './types';
 import { useVotePost } from './useVotePost';
 import { mutateVoteFeedPost } from './utils';
-import { updatePostCache } from '../usePostById';
+import { updatePostCache } from '../../lib/query';
 
 export type UseFeedVotePostProps = {
   feedName: string;

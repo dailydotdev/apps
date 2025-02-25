@@ -1,11 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { VIcon } from '../../icons';
-import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions } from '../../../graphql/sources';
 import { SquadEmptyScreen } from './SquadEmptyScreen';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { verifyPermission } from '../../../graphql/squads';
 
 const ModerationItemSkeleton = () => (
   <div className="flex w-full flex-col gap-4 p-6">
@@ -37,15 +34,13 @@ const ModerationItemSkeleton = () => (
 );
 
 export const EmptyModerationList = ({
-  squad,
   isFetched,
+  isModerator,
 }: {
-  squad: Squad;
+  isModerator: boolean;
   isFetched: boolean;
 }): ReactElement => {
-  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
-
-  if (!isFetched || !squad) {
+  if (!isFetched || !isModerator) {
     return (
       <div className="flex flex-col gap-4">
         <ModerationItemSkeleton />

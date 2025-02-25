@@ -214,10 +214,47 @@ const AddToCustomFeedModal = dynamic(
     ),
 );
 
+const SmartPromptModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "smartPromptModal" */ './plus/SmartPromptModal'
+  ).then((mod) => mod.SmartPromptModal),
+);
+
+const MobileSmartPromptsModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "mobileSmartPromptsModal" */ './plus/MobileSmartPromptsModal'
+  ).then((mod) => mod.MobileSmartPromptsModal),
+);
+
+const CookieConsentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "cookieConsentModal" */ './user/CookieConsentModal'
+    ),
+);
+
 const ReportUserModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "reportUserModal" */ './report/ReportUserModal'
+    ),
+);
+
+const PlusMarketingModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusMarketingModal" */ '../plus/PlusMarketingModal'
+    ),
+);
+
+const GiftPlusModal = dynamic(
+  () => import(/* webpackChunkName: "giftPlusModal" */ '../plus/GiftPlusModal'),
+);
+
+const GiftReceivedPlusModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "giftReceivedPlusModal" */ '../plus/GiftReceivedPlusModal'
     ),
 );
 
@@ -257,7 +294,13 @@ export const modals = {
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
+  [LazyModal.SmartPrompt]: SmartPromptModal,
+  [LazyModal.MobileSmartPrompts]: MobileSmartPromptsModal,
+  [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
+  [LazyModal.PlusMarketing]: PlusMarketingModal,
+  [LazyModal.GiftPlus]: GiftPlusModal,
+  [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
 };
 
 type GetComponentProps<T> = T extends

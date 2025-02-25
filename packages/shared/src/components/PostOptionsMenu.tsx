@@ -46,14 +46,11 @@ import {
   useToastNotification,
 } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, getPostByIdKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import usePostById, {
-  getPostByIdKey,
-  invalidatePostCacheById,
-} from '../hooks/usePostById';
+import usePostById, { invalidatePostCacheById } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
@@ -148,7 +145,7 @@ export default function PostOptionsMenu({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
-  const { showPlusSubscription, isPlus } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
@@ -419,7 +416,7 @@ export default function PostOptionsMenu({
       });
     }
 
-    if (post?.bookmark && showPlusSubscription) {
+    if (post?.bookmark) {
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
         label: 'Move to...',

@@ -1,22 +1,41 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { PlusInfo } from './PlusInfo';
+import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
+import type { CommonPlusPageProps } from './common';
+import { useGiftUserContext } from './GiftUserContext';
 import { webappUrl } from '../../lib/constants';
+import { objectToQueryParams } from '../../lib';
 
-export const PlusMobile = (): ReactElement => {
+const PlusTrustRefund = dynamic(() =>
+  import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
+);
+
+const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
+
+export const PlusMobile = ({
+  shouldShowPlusHeader,
+}: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
+  const { giftToUser } = useGiftUserContext();
   const { productOptions } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
-  const selectionChange = useCallback((priceId) => {
+  const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
     setSelectedOption(priceId);
   }, []);
 
   const onContinue = useCallback(() => {
-    router.push(`${webappUrl}plus/payment?pid=${selectedOption}`);
-  }, [router, selectedOption]);
+    const params = objectToQueryParams({
+      pid: selectedOption,
+      gift: giftToUser?.id,
+    });
+
+    router.push(`${webappUrl}plus/payment?${params}`);
+  }, [router, giftToUser, selectedOption]);
 
   return (
     <div
@@ -36,7 +55,10 @@ export const PlusMobile = (): ReactElement => {
         selectedOption={selectedOption}
         onChange={selectionChange}
         onContinue={onContinue}
+        shouldShowPlusHeader={shouldShowPlusHeader}
       />
+      <PlusTrustRefund className="mt-6" />
+      <PlusFAQs />
     </div>
   );
 };

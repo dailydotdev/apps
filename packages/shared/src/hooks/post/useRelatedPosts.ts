@@ -14,10 +14,10 @@ import {
 import {
   generateQueryKey,
   getNextPageParam,
+  getPostByIdKey,
   RequestKey,
   StaleTime,
 } from '../../lib/query';
-import { getPostByIdKey } from '../usePostById';
 import { useRequestProtocol } from '../useRequestProtocol';
 
 export type UseRelatedPostsProps = {

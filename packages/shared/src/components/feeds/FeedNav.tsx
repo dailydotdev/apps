@@ -28,6 +28,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -77,8 +78,10 @@ function FeedNav(): ReactElement {
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
 
+  const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
+
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
-    const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
+    const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
       const isEditingFeed =
         router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
       let feedPath = `${webappUrl}feeds/${feed.id}`;
@@ -113,7 +116,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}history`]: FeedNavTab.History,
     };
   }, [
-    feeds?.edges,
+    sortedFeeds,
     router.query.slugOrId,
     router.pathname,
     defaultFeedId,

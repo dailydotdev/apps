@@ -3,13 +3,12 @@ import React, { useMemo } from 'react';
 import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { BookmarkIcon, EyeIcon, HotIcon, SquadIcon } from '../../icons';
+import { EyeIcon, HotIcon, SquadIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import { webappUrl } from '../../../lib/constants';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
@@ -21,7 +20,6 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  const { showPlusSubscription } = usePlusSubscription();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
@@ -62,15 +60,6 @@ export const MainSection = ({
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
-      !showPlusSubscription && {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
-        ),
-        title: 'Bookmarks',
-        path: `${webappUrl}bookmarks`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <EyeIcon secondary={active} />} />
@@ -81,13 +70,7 @@ export const MainSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [
-    isLoggedIn,
-    user,
-    showPlusSubscription,
-    isCustomDefaultFeed,
-    onNavTabClick,
-  ]);
+  }, [isLoggedIn, user, isCustomDefaultFeed, onNavTabClick]);
 
   return (
     <Section

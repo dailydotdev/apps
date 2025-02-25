@@ -12,18 +12,19 @@ import {
   DocsIcon,
   TerminalIcon,
   FeedbackIcon,
-  HammerIcon,
   AppIcon,
   DevPlusIcon,
+  PrivacyIcon,
+  DownloadIcon,
+  MegaphoneIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
+  businessWebsiteUrl,
   docs,
   feedback,
   managePlusUrl,
   plusUrl,
-  privacyPolicy,
-  termsOfService,
 } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -36,16 +37,32 @@ import { ButtonColor } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import { GooglePlayIcon } from '../icons/Google/Play';
-import { checkIsBrowser, UserAgent } from '../../lib/func';
+import { checkIsBrowser, isIOSNative, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
-import { featureOnboardingAndroid } from '../../lib/featureManagement';
+import {
+  featureAndroidPWA,
+  featureOnboardingAndroid,
+  featurePlusCtaCopy,
+} from '../../lib/featureManagement';
+import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
 
 const useMenuItems = (): NavItemProps[] => {
+  const { promptToInstall, isAvailable } = useInstallPWA();
   const { logout, isAndroidApp } = useAuthContext();
+  const { value: androidPWAExperiment } = useConditionalFeature({
+    feature: featureAndroidPWA,
+    shouldEvaluate:
+      checkIsBrowser(UserAgent.Android) && isAvailable && !isAndroidApp,
+  });
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { showPlusSubscription, isPlus, logSubscriptionEvent } =
-    usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const { value: appExperiment } = useConditionalFeature({
     feature: featureOnboardingAndroid,
     shouldEvaluate: checkIsBrowser(UserAgent.Android) && !isAndroidApp,
@@ -64,21 +81,11 @@ const useMenuItems = (): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const plusItem = showPlusSubscription
+    const getAndroidPWA = androidPWAExperiment
       ? {
-          label: isPlus ? 'Manage plus' : 'Upgrade to plus',
-          icon: <DevPlusIcon />,
-          href: isPlus ? managePlusUrl : plusUrl,
-          className: isPlus ? undefined : 'text-action-plus-default',
-          target: isPlus ? '_blank' : undefined,
-          onClick: () => {
-            logSubscriptionEvent({
-              event_name: isPlus
-                ? LogEvent.ManageSubscription
-                : LogEvent.UpgradeSubscription,
-              target_id: TargetId.ProfileDropdown,
-            });
-          },
+          label: 'Add to Home Screen',
+          icon: <DownloadIcon />,
+          onClick: async () => await promptToInstall?.(),
         }
       : undefined;
 
@@ -92,19 +99,41 @@ const useMenuItems = (): NavItemProps[] => {
         }
       : undefined;
 
-    return [
+    const items: NavItemProps[] = [
       {
         label: 'Profile',
         isHeader: true,
       },
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
-      plusItem,
+    ];
+
+    if (!isIOSNative()) {
+      items.push({
+        label: isPlus ? 'Manage plus' : plusCta,
+        icon: <DevPlusIcon />,
+        href: isPlus ? managePlusUrl : plusUrl,
+        className: isPlus ? undefined : 'text-action-plus-default',
+        target: isPlus ? '_blank' : undefined,
+        onClick: () => {
+          logSubscriptionEvent({
+            event_name: isPlus
+              ? LogEvent.ManageSubscription
+              : LogEvent.UpgradeSubscription,
+            target_id: TargetId.ProfileDropdown,
+          });
+        },
+      });
+    }
+
+    return [
+      ...items,
       {
         label: 'Invite friends',
         icon: <AddUserIcon />,
         href: '/account/invite',
       },
       { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
+      { label: 'Privacy', icon: <PrivacyIcon />, href: '/account/privacy' },
       {
         label: 'Logout',
         icon: <ExitIcon />,
@@ -148,6 +177,14 @@ const useMenuItems = (): NavItemProps[] => {
         label: 'Support',
         isHeader: true,
       },
+      {
+        label: 'Advertise',
+        href: businessWebsiteUrl,
+        icon: <MegaphoneIcon />,
+        target: '_blank',
+        rel: anchorDefaultRel,
+      },
+      getAndroidPWA,
       downloadAndroidApp,
       {
         label: 'Docs',
@@ -168,28 +205,16 @@ const useMenuItems = (): NavItemProps[] => {
         target: '_blank',
         rel: anchorDefaultRel,
       },
-      {
-        label: 'Privacy policy',
-        icon: <DocsIcon />,
-        href: privacyPolicy,
-        target: '_blank',
-        rel: anchorDefaultRel,
-      },
-      {
-        label: 'Terms of service',
-        icon: <HammerIcon />,
-        href: termsOfService,
-        target: '_blank',
-        rel: anchorDefaultRel,
-      },
     ].filter(Boolean);
   }, [
     isPlus,
     logSubscriptionEvent,
     onLogout,
     openModal,
-    showPlusSubscription,
     appExperiment,
+    promptToInstall,
+    androidPWAExperiment,
+    plusCta,
   ]);
 };
 

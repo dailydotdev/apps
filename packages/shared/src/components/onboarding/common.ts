@@ -13,12 +13,23 @@ export enum OnboardingStep {
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   ReadingReminder = 'reading_reminder',
-  AndroidApp = 'android_app',
   PWA = 'pwa',
   Plus = 'plus',
   Extension = 'extension',
   InstallDesktop = 'install_desktop',
+  AndroidPWA = 'android_pwa',
 }
+
+export const onboardingStepsWithFooter: Array<OnboardingStep> = [
+  OnboardingStep.Intro,
+];
+
+export const onboardingStepsWithCTA: Array<OnboardingStep> = [
+  OnboardingStep.PWA,
+  OnboardingStep.Extension,
+  OnboardingStep.InstallDesktop,
+  OnboardingStep.AndroidPWA,
+];
 
 export const OnboardingTitle = classed(
   'h3',

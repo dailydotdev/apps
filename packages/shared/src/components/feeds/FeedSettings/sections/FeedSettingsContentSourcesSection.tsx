@@ -20,6 +20,7 @@ import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useMutationSubscription } from '../../../../hooks';
 import { contentPreferenceMutationMatcher } from '../../../../hooks/contentPreference/types';
+import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 
 enum Tabs {
   Sources = 'Sources',
@@ -30,6 +31,7 @@ const tabs = Object.values(Tabs);
 const noop = () => undefined;
 
 export const FeedSettingsContentSourcesSection = (): ReactElement => {
+  const { editFeedSettings } = useFeedSettingsEditContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<string>(() => tabs[0]);
@@ -71,6 +73,8 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   useMutationSubscription({
     matcher: contentPreferenceMutationMatcher,
     callback: () => {
+      editFeedSettings();
+
       return searchPanel.query?.length
         ? queryClient.invalidateQueries({
             queryKey: generateQueryKey(

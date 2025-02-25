@@ -12,9 +12,9 @@ import {
   generateQueryKey,
   getAllCommentsQuery,
   RequestKey,
+  updatePostCache,
 } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
-import { updatePostCache } from '../usePostById';
 import type { Edge } from '../../graphql/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { useRequestProtocol } from '../useRequestProtocol';

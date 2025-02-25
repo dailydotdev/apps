@@ -11,7 +11,7 @@ import { postLogEvent } from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
-} from '../usePostById';
+} from '../../lib/query';
 import type { UseVotePostProps, UseVotePost, ToggleVoteProps } from './types';
 import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';

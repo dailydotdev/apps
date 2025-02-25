@@ -1,3 +1,5 @@
+import type { PaddleProductLineItem } from '../graphql/paddle';
+
 export function largeNumberFormat(value: number): string | null {
   if (typeof value !== 'number') {
     return null;
@@ -27,4 +29,20 @@ export const getRandom4Digits = (leftPad?: string): string => {
   }
 
   return random.toString().padStart(4, leftPad);
+};
+
+export const removeNonNumber = (value: string): string =>
+  value.replace(/,(\d{2})$/, '.$1').replace(/[^\d.]/g, '');
+
+export const getPrice = (item: PaddleProductLineItem): number => {
+  const priceAmount = parseFloat(item.totals.total);
+  const priceAmountFormatted = parseFloat(
+    removeNonNumber(item.formattedTotals.total),
+  );
+
+  if (priceAmount === priceAmountFormatted) {
+    return priceAmount;
+  }
+
+  return priceAmount / 100;
 };

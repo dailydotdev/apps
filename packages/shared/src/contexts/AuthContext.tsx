@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import {
   deleteAccount,
@@ -12,7 +13,10 @@ import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
+import { AFTER_AUTH_PARAM } from '../components/auth/common';
+import { Continent, outsideGdpr } from '../lib/geo';
+import { invalidPlusRegions } from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -60,6 +64,8 @@ export interface AuthContextData {
   isAuthReady?: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
+  isGdprCovered?: boolean;
+  isValidRegion?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -138,7 +144,7 @@ export const AuthContextProvider = ({
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
-
+  const router = useRouter();
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
@@ -146,6 +152,11 @@ export const AuthContextProvider = ({
   if (isLegacyLogout && !loginState) {
     setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
+
+  const isValidRegion = useMemo(
+    () => !invalidPlusRegions.includes(geo?.region),
+    [geo?.region],
+  );
 
   return (
     <AuthContext.Provider
@@ -158,15 +169,24 @@ export const AuthContextProvider = ({
         firstVisit: user?.firstVisit,
         trackingId: user?.id,
         shouldShowLogin: loginState !== null,
-        showLogin: useCallback(({ trigger, options = {} }) => {
-          const hasCompanion = !!isCompanionActivated();
-          if (hasCompanion) {
-            const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
-            window.open(signup);
-          } else {
-            setLoginState({ ...options, trigger });
-          }
-        }, []),
+        showLogin: useCallback(
+          ({ trigger, options = {} }) => {
+            const hasCompanion = !!isCompanionActivated();
+            if (hasCompanion) {
+              const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
+              window.open(signup);
+            } else {
+              const params = new URLSearchParams(globalThis?.location.search);
+
+              setLoginState({ ...options, trigger });
+              if (!params.get(AFTER_AUTH_PARAM)) {
+                params.set(AFTER_AUTH_PARAM, window.location.pathname);
+              }
+              router.push(`/onboarding?${params.toString()}`);
+            }
+          },
+          [router],
+        ),
         closeLogin: useCallback(() => setLoginState(null), []),
         loginState,
         updateUser,
@@ -184,6 +204,11 @@ export const AuthContextProvider = ({
         squads,
         geo,
         isAndroidApp,
+        isValidRegion,
+        isGdprCovered:
+          geo?.continent === Continent.Europe ||
+          !outsideGdpr.includes(geo?.region) ||
+          isIOSNative(),
       }}
     >
       {children}

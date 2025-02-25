@@ -20,7 +20,7 @@ import { FeedType } from '../../../../graphql/feed';
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 export const FeedSettingsContentPreferencesSection = (): ReactElement => {
-  const { feed } = useContext(FeedSettingsEditContext);
+  const { feed, editFeedSettings } = useContext(FeedSettingsEditContext);
   const { advancedSettings } = useFeedSettings({ feedId: feed?.id });
   const videoSetting = getVideoSetting(advancedSettings);
   const articleSetting = getArticleSettings(advancedSettings);
@@ -65,9 +65,11 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
                 videoSetting.defaultEnabledState
               }
               onToggleCallback={() =>
-                onToggleSettings(
-                  videoSetting.id,
-                  videoSetting.defaultEnabledState,
+                editFeedSettings(() =>
+                  onToggleSettings(
+                    videoSetting.id,
+                    videoSetting.defaultEnabledState,
+                  ),
                 )
               }
             >
@@ -82,8 +84,10 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
                   .length > 0
               }
               onToggleCallback={(enabled) => {
-                onUpdateSettings(
-                  articleSetting.map(({ id }) => ({ id, enabled })),
+                editFeedSettings(() =>
+                  onUpdateSettings(
+                    articleSetting.map(({ id }) => ({ id, enabled })),
+                  ),
                 );
               }}
             >
@@ -114,7 +118,9 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
             name={`${ADVANCED_SETTINGS_KEY}-${id}`}
             checked={!checkSourceBlocked(options.source)}
             description={description}
-            onToggleCallback={() => onToggleSource(options.source)}
+            onToggleCallback={() =>
+              editFeedSettings(() => onToggleSource(options.source))
+            }
             descriptionClassName="text-text-tertiary"
           >
             <Typography bold>{title}</Typography>
@@ -127,7 +133,11 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
               name={`${ADVANCED_SETTINGS_KEY}-${id}`}
               checked={selectedSettings[id] ?? defaultEnabledState}
               description={description}
-              onToggleCallback={() => onToggleSettings(id, defaultEnabledState)}
+              onToggleCallback={() =>
+                editFeedSettings(() =>
+                  onToggleSettings(id, defaultEnabledState),
+                )
+              }
               descriptionClassName="text-text-tertiary"
             >
               <Typography bold>{title}</Typography>

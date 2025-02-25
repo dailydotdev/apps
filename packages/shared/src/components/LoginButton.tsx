@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from './buttons/Button';
-import AuthContext from '../contexts/AuthContext';
 import LogContext from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
-import { AuthTriggers } from '../lib/auth';
 import { TargetType } from '../lib/log';
+import { useAuthContext } from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 
 interface ClassName {
   container?: string;
@@ -33,14 +33,15 @@ const getLogEvent = (copy: ButtonCopy): LogEvent => ({
 export default function LoginButton({
   className = {},
 }: LoginButtonProps): ReactElement {
-  const { showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
-
+  const { showLogin } = useAuthContext();
   const onClick = (copy: ButtonCopy) => {
     logEvent(getLogEvent(copy));
     showLogin({
       trigger: AuthTriggers.MainButton,
-      options: { isLogin: copy === ButtonCopy.Login },
+      options: {
+        isLogin: copy === ButtonCopy.Login,
+      },
     });
   };
 

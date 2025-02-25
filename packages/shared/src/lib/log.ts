@@ -58,6 +58,9 @@ export enum Origin {
   UserUpvotesList = 'user upvotes list',
   FollowFilter = 'follow filter',
   PostSharedBy = 'post shared by',
+  // Marketing
+  InAppPromotion = 'in app promotion',
+  Suggestions = 'suggestions',
 }
 
 export enum LogEvent {
@@ -226,6 +229,8 @@ export enum LogEvent {
   ReceivePayment = 'receive payment',
   OnboardingSkipPlus = 'skip upgrade subscription',
   OnboardingUpgradePlus = 'upgrade subscription',
+  GiftSubscription = 'gift subscription',
+  CompleteGiftCheckout = 'complete gift checkout',
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',
@@ -236,7 +241,17 @@ export enum LogEvent {
   ShareProfile = 'share profile',
   ShareSource = 'share source',
   ShareTag = 'share tag',
+  SharePost = 'share post',
   // End Share
+  // Start Smart Prompts
+  SmartPrompt = 'smart prompt',
+  ToggleSmartPrompts = 'toggle smart prompts',
+  // End Smart Prompts
+  // Start Profile
+  ProfileView = 'profile view',
+  UpdateProfile = 'update profile',
+  UpdateProfileImage = 'update profile image',
+  // End Profile
 }
 
 export enum FeedItemTitle {
@@ -268,6 +283,7 @@ export enum TargetType {
   PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
+  MarketingCtaPlus = 'promotion_plus',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   Source = 'source',
@@ -308,6 +324,7 @@ export enum TargetId {
   Ads = 'ads',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
+  PlusPage = 'plus page',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
@@ -316,6 +333,8 @@ export enum TargetId {
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
+  ContextMenu = 'context',
+  SmartPrompt = 'smart prompt',
 }
 
 export enum NotificationChannel {

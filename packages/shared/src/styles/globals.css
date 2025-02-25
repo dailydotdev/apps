@@ -6,3 +6,5 @@
 
 @import 'tailwindcss/utilities.css';
 @import './utilities.css';
+
+@import './ios.css';

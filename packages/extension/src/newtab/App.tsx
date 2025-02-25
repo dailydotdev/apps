@@ -1,13 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import AuthContext, {
-  useAuthContext,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import browser from 'webextension-polyfill';
 import type { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -32,11 +29,6 @@ import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionC
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import {
-  FIREFOX_ACCEPTED_PERMISSION,
-  FirefoxPermissionType,
-} from '@dailydotdev/shared/src/lib/cookie';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
@@ -45,21 +37,12 @@ import MainFeedPage from './MainFeedPage';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
-import { FirefoxPermission } from '../permission/FirefoxPermission';
-import { FirefoxPermissionDeclined } from '../permission/FirefoxPermissionDeclined';
 
 structuredCloneJsonPolyfill();
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
 const queryClient = new QueryClient(defaultQueryClientConfig);
-const AuthModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "authModal" */ '@dailydotdev/shared/src/components/auth/AuthModal'
-    ),
-);
-
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
@@ -69,13 +52,7 @@ function InternalApp(): ReactElement {
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
-  const [firefoxPermission, setFirefoxPermission, isFetched] =
-    usePersistentContext<FirefoxPermissionType | null>(
-      FIREFOX_ACCEPTED_PERMISSION,
-      null,
-    );
   const { unreadCount } = useNotificationContext();
-  const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
@@ -88,7 +65,6 @@ function InternalApp(): ReactElement {
   const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
   const shouldRedirectOnboarding =
     isPageReady && (!user || !isOnboardingComplete) && !isTesting;
-  const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {
@@ -118,24 +94,6 @@ function InternalApp(): ReactElement {
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  if (isFirefoxExtension) {
-    if (!isFetched) {
-      return null;
-    }
-
-    if (firefoxPermission === FirefoxPermissionType.Declined) {
-      return (
-        <FirefoxPermissionDeclined
-          onGoBack={() => setFirefoxPermission(null)}
-        />
-      );
-    }
-
-    if (firefoxPermission !== FirefoxPermissionType.Accepted) {
-      return <FirefoxPermission onUpdate={setFirefoxPermission} />;
-    }
-  }
-
   if (!hostGranted) {
     return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
   }
@@ -147,14 +105,6 @@ function InternalApp(): ReactElement {
   return (
     <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
-      {shouldShowLogin && (
-        <AuthModal
-          isOpen={shouldShowLogin}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          {...loginState}
-        />
-      )}
     </DndContextProvider>
   );
 }

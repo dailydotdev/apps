@@ -37,6 +37,7 @@ function ShareYouTubeContent({
       <SharePostTitle title={post?.title} titleHtml={post?.titleHtml} />
       <SharedLinkContainer
         className="my-5"
+        post={post?.sharedPost}
         summary={post?.sharedPost?.summary}
         Wrapper={({ children }) => (
           <ConditionalWrapper
@@ -70,8 +71,11 @@ function ShareYouTubeContent({
         )}
       >
         <YoutubeVideo
-          title={post?.sharedPost?.title}
           videoId={post?.sharedPost?.videoId}
+          placeholderProps={{
+            post: post.sharedPost,
+            onWatchVideo: onReadArticle,
+          }}
         />
       </SharedLinkContainer>
     </>
