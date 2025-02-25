@@ -167,7 +167,7 @@ export const PaymentContextProvider = ({
   const { data: productPrices, isLoading: isPricesPending } = useQuery({
     queryKey: ['productPrices'],
     queryFn: getPrices,
-    enabled: !!paddle && !!planTypes && !!geo,
+    enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
   const productOptions: Array<ProductOption> = useMemo(() => {
