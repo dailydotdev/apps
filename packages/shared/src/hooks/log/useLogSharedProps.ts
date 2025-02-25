@@ -6,7 +6,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getCookies } from '../../lib/cookie';
 
-const COOKIES = ['_ga', '_fbp', '_fbc'];
+const COOKIES = ['_ga', '_fbp', '_fbc', 'gbuuid'];
 
 export default function useLogSharedProps(
   app: string,
