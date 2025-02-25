@@ -9,7 +9,8 @@ import {
 import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
-import { plusFAQs } from './common';
+import { plusFAQItems, plusFAQTrialItem } from './common';
+import { usePaymentContext } from '../../contexts/PaymentContext';
 
 interface FAQ {
   question: string;
@@ -29,20 +30,18 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
         </Typography>
       }
     >
-      <Typography
-        color={TypographyColor.Tertiary}
-        tag={TypographyTag.P}
-        type={TypographyType.Callout}
-      >
-        {item.answer}
-      </Typography>
+      <div className="text-text-tertiary typo-callout">{item.answer}</div>
     </Accordion>
   </div>
 );
 
 export const PlusFAQ = (): ReactElement => {
+  const { isFreeTrialExperiment } = usePaymentContext();
   const id = useId();
   const titleId = `${id}-title`;
+  const items = isFreeTrialExperiment
+    ? plusFAQItems.toSpliced(3, 0, plusFAQTrialItem)
+    : plusFAQItems;
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography
@@ -55,7 +54,7 @@ export const PlusFAQ = (): ReactElement => {
         Frequently asked questions
       </Typography>
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        {plusFAQs.map((item) => (
+        {items.map((item) => (
           <FAQItem key={item.question} item={item} />
         ))}
       </div>

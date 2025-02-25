@@ -23,6 +23,7 @@ import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { usePostActions } from '../../../hooks/post/usePostActions';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -43,6 +44,9 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
+  const { onInteract, interaction, previousInteraction } = usePostActions({
+    post,
+  });
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
@@ -56,10 +60,36 @@ const ActionButtons = ({
     if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
+      onInteract('none');
       onClose(true);
     }
 
     await onDownvoteClick?.(post);
+  };
+
+  const onToggleUpvote = async () => {
+    if (post.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
+    }
+    if (interaction === 'upvote') {
+      onInteract('none');
+    }
+    onUpvoteClick?.(post);
+  };
+
+  const onToggleBookmark = async () => {
+    if (!post.bookmarked) {
+      onInteract('bookmark');
+    }
+    if (interaction === 'bookmark') {
+      onInteract(previousInteraction);
+    }
+    onBookmarkClick(post);
+  };
+
+  const onCopyLink = (e: React.MouseEvent) => {
+    onInteract('copy');
+    onCopyLinkClick?.(e, post);
   };
 
   return (
@@ -76,9 +106,7 @@ const ActionButtons = ({
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
-            onClick={() => {
-              onUpvoteClick?.(post);
-            }}
+            onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           >
@@ -130,7 +158,7 @@ const ActionButtons = ({
         buttonProps={{
           id: `post-${post.id}-bookmark-btn`,
           icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: () => onBookmarkClick(post),
+          onClick: onToggleBookmark,
           size: ButtonSize.Small,
         }}
       />
@@ -138,7 +166,7 @@ const ActionButtons = ({
         <Button
           size={ButtonSize.Small}
           icon={<LinkIcon />}
-          onClick={(e) => onCopyLinkClick?.(e, post)}
+          onClick={onCopyLink}
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />
