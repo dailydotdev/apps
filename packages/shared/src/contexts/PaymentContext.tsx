@@ -180,6 +180,7 @@ export const PaymentContextProvider = ({
     return (
       productPrices?.data?.details?.lineItems?.map((item) => {
         const duration =
+          !item.price?.billingCycle?.interval ||
           item.price?.billingCycle?.interval === 'year'
             ? PlusPriceType.Yearly
             : PlusPriceType.Monthly;
