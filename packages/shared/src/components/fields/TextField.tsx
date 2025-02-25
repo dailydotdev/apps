@@ -24,6 +24,8 @@ export interface TextFieldProps extends BaseFieldProps {
   rightIcon?: React.ReactElement<IconProps>;
   hintIcon?: ReactElement<IconProps>;
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
+  showMaxLength?: boolean;
+  inputRef?: (input: HTMLInputElement) => void;
 }
 
 function TextFieldComponent(
@@ -33,6 +35,7 @@ function TextFieldComponent(
     name,
     label,
     maxLength,
+    showMaxLength = true,
     value,
     saveHintSpace = false,
     progress,
@@ -53,6 +56,7 @@ function TextFieldComponent(
     required,
     onBlur: onExternalBlur,
     focused: focusedProp,
+    inputRef: inputRefProp,
     ...props
   }: TextFieldProps,
   ref?: MutableRefObject<HTMLDivElement>,
@@ -161,7 +165,10 @@ function TextFieldComponent(
           })}
           name={name}
           id={inputId.concat(id)}
-          ref={inputRef}
+          ref={(el) => {
+            inputRef.current = el;
+            inputRefProp?.(el);
+          }}
           onFocus={onFocus}
           onBlur={(e) => {
             if (onExternalBlur) {
@@ -202,7 +209,7 @@ function TextFieldComponent(
           />
         )}
       </div>
-      {maxLength && (
+      {maxLength && showMaxLength && (
         <div
           className="ml-2 font-bold typo-callout"
           style={{ color: 'var(--field-placeholder-color)' }}

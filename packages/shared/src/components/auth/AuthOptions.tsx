@@ -36,6 +36,8 @@ import { labels } from '../../lib';
 import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
 import { logPixelSignUp } from '../../lib/pixels';
+import { IconSize } from '../Icon';
+import { MailIcon } from '../icons';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -562,6 +564,9 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
+          {onboardingSignupButton && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          )}
           <AuthHeader simplified={simplified} title="Verify your email" />
           <EmailCodeVerification
             email={email}
