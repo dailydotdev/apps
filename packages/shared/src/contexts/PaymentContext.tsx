@@ -194,7 +194,6 @@ export const PaymentContextProvider = ({
           /\d|\.|\s|,/g,
           '',
         );
-        console.log({ months, monthlyPrice, item, productPrices });
         return {
           label: item.price.name,
           value: item.price.id,
