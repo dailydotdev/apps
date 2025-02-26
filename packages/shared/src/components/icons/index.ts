@@ -101,6 +101,7 @@ export * from './Star';
 export * from './Telegram';
 export * from './Terminal';
 export * from './Timer';
+export * from './Tip';
 export * from './Tour';
 export * from './Trash';
 export * from './Trending';

@@ -20,7 +20,7 @@ import { FooterLinks } from '../footer';
 
 const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { isFetched } = useAuthContext();
-  const { id: squadId, handle } = squadSource;
+  const { id: squadId, handle } = squadSource || {};
   const { squad } = useSquad({ handle });
 
   const { data: squadMembers } = useQuery<BasicSourceMember[]>({
