@@ -40,9 +40,16 @@ const CustomFeedSlider = (): ReactElement => {
     if (!scrollContainerRef.current) {
       return;
     }
-    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-    setShowLeftArrow(scrollLeft > 0);
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth);
+    const container = scrollContainerRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+
+    const firstFeedBtn = container.firstElementChild as HTMLElement;
+    const lastFeedBtn = container.lastElementChild as HTMLElement;
+    const leftThreshold = firstFeedBtn?.offsetWidth ?? 0;
+    const rightThreshold = lastFeedBtn?.offsetWidth ?? 0;
+
+    setShowLeftArrow(scrollLeft > leftThreshold);
+    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - rightThreshold);
   };
 
   const scroll = (direction: 'left' | 'right') => {
@@ -78,7 +85,7 @@ const CustomFeedSlider = (): ReactElement => {
     <div className="relative flex-1 overflow-x-auto">
       {showLeftArrow && (
         <Button
-          className="absolute left-0 top-1/2 z-1 -translate-y-1/2 bg-background-default !px-2"
+          className="absolute left-0 top-1/2 z-1 -translate-y-1/2 rounded-l-none rounded-r-12 bg-background-default !px-2"
           onClick={() => scroll('left')}
           aria-label="Scroll left"
           icon={<ArrowIcon className="-rotate-90" size={IconSize.Small} />}
@@ -122,7 +129,7 @@ const CustomFeedSlider = (): ReactElement => {
 
       {showRightArrow && (
         <Button
-          className="absolute right-0 top-1/2 z-1 -translate-y-1/2 bg-background-default !px-2"
+          className="absolute right-0 top-1/2 z-1 -translate-y-1/2 rounded-l-12 rounded-r-none bg-background-default !px-2"
           onClick={() => scroll('right')}
           aria-label="Scroll right"
           icon={<ArrowIcon className="rotate-90" size={IconSize.Small} />}
