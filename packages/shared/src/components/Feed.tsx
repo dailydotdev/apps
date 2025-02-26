@@ -49,6 +49,7 @@ import type { PostClick } from '../lib/click';
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
+import { CodeField } from './fields/CodeField';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -432,6 +433,7 @@ export default function Feed<T>({
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
+      <CodeField onChange={(code) => console.log(code)} />
       <FeedWrapperComponent {...containerProps}>
         {isSearchPageLaptop && emptyScreen && emptyFeed ? (
           <>{emptyScreen}</>

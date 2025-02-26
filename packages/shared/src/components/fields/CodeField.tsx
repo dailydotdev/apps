@@ -1,6 +1,12 @@
-import type { ReactElement, ClipboardEventHandler, ChangeEvent } from 'react';
+import type {
+  ReactElement,
+  ClipboardEventHandler,
+  ChangeEvent,
+  KeyboardEventHandler,
+} from 'react';
 import React, { useRef, useState } from 'react';
 import { TextField } from './TextField';
+import { ArrowKey } from '../../lib/element';
 
 interface CodeFieldProps {
   onChange: (code: string) => void;
@@ -8,6 +14,7 @@ interface CodeFieldProps {
 }
 
 const DEFAULT_LENGTH = 6;
+const INVALID_KEYS = [ArrowKey.Up, ArrowKey.Down, '.'];
 
 export function CodeField({
   onChange,
@@ -23,7 +30,7 @@ export function CodeField({
     onChange(sliced);
   };
 
-  const onInputChange = (e: ChangeEvent<HTMLInputElement>, index) => {
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     const char = e.target.value;
     const newCode = [...code];
     newCode[index] = char;
@@ -38,6 +45,12 @@ export function CodeField({
     }
   };
 
+  const onKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (INVALID_KEYS.includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <span className="flex flex-row gap-2">
       {[...Array(DEFAULT_LENGTH)].map((_, index) => (
@@ -47,13 +60,15 @@ export function CodeField({
           inputId={`code-${index}`}
           tabIndex={index + 1}
           label={null}
-          maxLength={1}
+          type="number"
+          min={0}
+          max={9}
           showMaxLength={false}
-          pattern="[0-9]*\.?[0-9]*"
           className={{ container: 'w-12' }}
           onPaste={index === 0 && onPaste}
           value={code[index] || ''}
           onChange={(e) => onInputChange(e, index)}
+          onKeyDown={onKeyDown}
           inputRef={(el) => {
             if (el) {
               elementsRef.current[index] = el;
