@@ -27,7 +27,7 @@ export const generateTestAdmin = (
     name: 'Lee Hansel Solevilla',
     image:
       'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-    permalink: 'http://webapp.local.com:5002/abc123zzzz',
+    permalink: 'https://app.local.fylla.dev:5002/abc123zzzz',
     username: 'abc123zzzz',
   },
   source: {
@@ -35,7 +35,7 @@ export const generateTestAdmin = (
     active: true,
     handle: 'test',
     name: 'Test',
-    permalink: 'http://webapp.local.com:5002/squads/test',
+    permalink: 'https://app.local.fylla.dev:5002/squads/test',
     public: true,
     type: SourceType.Squad,
     image: cloudinarySquadsImageFallback,
@@ -49,7 +49,7 @@ export const generateTestAdmin = (
               name: 'Lee Hansel Solevilla',
               image:
                 'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-              permalink: 'http://webapp.local.com:5002/a123124124111',
+              permalink: 'https://app.local.fylla.dev:5002/a123124124111',
               username: 'a123124124111',
             },
             source: null,
@@ -68,7 +68,7 @@ export const generateTestAdmin = (
         name: 'Lee Hansel Solevilla',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        permalink: 'http://webapp.local.com:5002/a123124124111',
+        permalink: 'https://app.local.fylla.dev:5002/a123124124111',
         username: 'a123124124111',
       },
       source: {
@@ -234,7 +234,7 @@ export const generateTestMember = (
     id: `Se4LmwLU0q6aVDpX1MkqX${i}`,
     name: `Lee Hansel Solevilla - ${i}`,
     image: `https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile${i}`,
-    permalink: `http://webapp.local.com:5002/abc123zzzz${i}`,
+    permalink: `https://app.local.fylla.dev:5002/abc123zzzz${i}`,
     username: `abc123zzzz${i}`,
   },
   source: null,

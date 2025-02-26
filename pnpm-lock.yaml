@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: gq27mpymrj2xll3ho34p34c2kq
+pnpmfileChecksum: wwg4fh6adnnbwkwc7son3zyt3m
 
 patchedDependencies:
   graphql-request@3.7.0:
@@ -377,8 +377,8 @@ importers:
   packages/shared:
     dependencies:
       '@growthbook/growthbook':
-        specifier: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb
-        version: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb
+        specifier: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e
+        version: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e
       '@growthbook/growthbook-react':
         specifier: ^0.17.0
         version: 0.17.0(react@18.3.1)
@@ -2060,8 +2060,8 @@ packages:
     peerDependencies:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
 
-  '@growthbook/growthbook@https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb':
-    resolution: {tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb}
+  '@growthbook/growthbook@https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e':
+    resolution: {tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e}
     version: 0.27.0
     engines: {node: '>=10'}
 
@@ -9892,10 +9892,10 @@ snapshots:
 
   '@growthbook/growthbook-react@0.17.0(react@18.3.1)':
     dependencies:
-      '@growthbook/growthbook': https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb
+      '@growthbook/growthbook': https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e
       react: 18.3.1
 
-  '@growthbook/growthbook@https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb': {}
+  '@growthbook/growthbook@https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e': {}
 
   '@humanwhocodes/config-array@0.5.0':
     dependencies:

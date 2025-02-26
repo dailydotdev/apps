@@ -20,7 +20,7 @@ export type CreateRequestContentScripts = (
 
 export const HOST_PERMISSIONS = isProduction
   ? ['https://daily.dev/*', 'https://*.daily.dev/*']
-  : ['http://local.com/*', 'http://*.local.com/*'];
+  : ['https://local.fylla.dev/*', 'https://*.local.fylla.dev/*'];
 
 let hasInjectedScripts = false;
 const companionScriptId = 'daily-companion-app';
