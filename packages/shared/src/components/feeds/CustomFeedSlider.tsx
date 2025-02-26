@@ -79,6 +79,18 @@ const CustomFeedSlider = (): ReactElement => {
       });
       updateArrowVisibility();
     }
+
+    // For cases where the scroll container becomes smaller,
+    // and all the buttons are not visible anymore.
+    const resizeObserver = new ResizeObserver(() => {
+      updateArrowVisibility();
+    });
+    if (scrollContainerRef.current) {
+      resizeObserver.observe(scrollContainerRef.current);
+    }
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, [router.asPath]);
 
   return (
