@@ -18,13 +18,16 @@ import { webappUrl } from '../../../lib/constants';
 import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
+import { SourcePostModerationStatus } from '../../../graphql/squads';
 
 export const NetworkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
-  const { count, isModeratorInAnySquad } = useSquadPendingPosts();
+  const { count, isModeratorInAnySquad } = useSquadPendingPosts({
+    status: [SourcePostModerationStatus.Pending],
+  });
   const { openNewSquad } = useSquadNavigation();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
