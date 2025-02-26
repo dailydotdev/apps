@@ -58,6 +58,8 @@ const StickyNavIconWrapper = classed(
   'sticky flex h-11 w-20 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
+const MIN_SCROLL_BEFORE_HIDING = 60;
+
 function FeedNav(): ReactElement {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -141,7 +143,7 @@ function FeedNav(): ReactElement {
       return;
     }
 
-    if (!shouldHeaderBeVisible && scrollY < 60) {
+    if (!shouldHeaderBeVisible && scrollY < MIN_SCROLL_BEFORE_HIDING) {
       return;
     }
 
