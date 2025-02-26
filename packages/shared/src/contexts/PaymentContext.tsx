@@ -23,11 +23,15 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from './AuthContext';
 import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
-import { useConditionalFeature, usePlusSubscription } from '../hooks';
+import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../lib/pixels';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '../components/GrowthBookProvider';
 
 export type ProductOption = {
   label: string;
@@ -75,17 +79,10 @@ export const PaymentContextProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
-  const {
-    user,
-    geo,
-    isAuthReady,
-    isValidRegion: isPlusAvailable,
-  } = useAuthContext();
-  const shouldEvaluate = isAuthReady && !!user;
-  const { value: planTypes } = useConditionalFeature({
-    feature: feature.pricingIds,
-    shouldEvaluate,
-  });
+  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
+  const { growthbook } = useGrowthBookContext();
+  const planTypes = useFeature(feature.pricingIds);
+  console.log(growthbook);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
@@ -178,13 +175,14 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
-  console.log({
-    planTypes,
-    user,
-    productPrices,
-    isPricesPending,
-    shouldEvaluate,
-  });
+  console.log(
+    structuredClone({
+      planTypes,
+      user,
+      productPrices,
+      isPricesPending,
+    }),
+  );
 
   const productOptions: Array<ProductOption> = useMemo(() => {
     const priceFormatter = new Intl.NumberFormat(
