@@ -13,10 +13,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  plusDetailsUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { useBoot } from '@dailydotdev/shared/src/hooks';
 import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketingCta/common';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusSuccessPage = (): ReactElement => {
@@ -64,14 +68,26 @@ const PlusSuccessPage = (): ReactElement => {
           >
             Success! Your payment is complete, you’re all set.
           </Typography>
-          <Button
-            variant={ButtonVariant.Primary}
-            tag="a"
-            href={webappUrl}
-            size={ButtonSize.Large}
-          >
-            Back to daily.dev
-          </Button>
+          <span className="flex flex-col gap-4 tablet:flex-row">
+            <Button
+              variant={ButtonVariant.Primary}
+              tag="a"
+              href={plusDetailsUrl}
+              size={ButtonSize.Large}
+              rel={anchorDefaultRel}
+              target="_blank"
+            >
+              See what&#39;s included in Plus
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              tag="a"
+              href={webappUrl}
+              size={ButtonSize.Large}
+            >
+              Back to feed
+            </Button>
+          </span>
         </div>
       </div>
     </>
