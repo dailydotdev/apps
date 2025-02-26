@@ -25,8 +25,16 @@ function CallbackPage(): ReactElement {
         window.location.replace(`/reset-password?${search}`);
         return;
       }
-      postWindowMessage(eventKey, params);
-      broadcastMessage({ ...params, eventKey });
+
+      if (
+        !window.opener?.postMessage ||
+        document.referrer === 'https://www.facebook.com/'
+      ) {
+        broadcastMessage({ ...params, eventKey });
+      } else {
+        postWindowMessage(eventKey, params);
+      }
+
       window.close();
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;

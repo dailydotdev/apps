@@ -149,7 +149,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           feedId={feedId}
         />
       )}
-      {afterContent}
+      <div className="z-1">{afterContent}</div>
     </Element>
   );
 };
