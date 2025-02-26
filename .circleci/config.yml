@@ -120,9 +120,6 @@ workflows:
   build:
     jobs:
       - install_deps
-      - build:
-          requires:
-            - install_deps
       - test_extension:
           requires:
             - install_deps
