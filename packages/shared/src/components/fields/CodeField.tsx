@@ -109,7 +109,14 @@ export function CodeField({
 
   return (
     <span className="flex flex-row gap-2">
-      <input type="text" id="code" name="code" value={code.join('')} hidden />
+      <input
+        type="text"
+        id="code"
+        name="code"
+        value={code.join('')}
+        hidden
+        readOnly
+      />
       {[...Array(DEFAULT_LENGTH)].map((_, index) => (
         <TextField
           // eslint-disable-next-line react/no-array-index-key

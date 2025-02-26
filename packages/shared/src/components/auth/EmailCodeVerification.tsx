@@ -154,7 +154,14 @@ function EmailCodeVerification({
       )}
       {onboardingPapercuts && (
         <div className="my-10 flex w-full flex-col items-center gap-4">
-          <input type="text" id="email" name="email" value={email} hidden />
+          <input
+            type="text"
+            id="email"
+            name="email"
+            value={email}
+            hidden
+            readOnly
+          />
           <CodeField
             onSubmit={onCodeSubmit}
             onChange={onCodeChange}
