@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { webappUrl } from '../../lib/constants';
 import { PlusInfo } from './PlusInfo';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useLogContext } from '../../contexts/LogContext';
@@ -60,7 +59,7 @@ const PlusExtension = (): ReactElement => {
         <Button
           variant={ButtonVariant.Primary}
           tag="a"
-          href={`${webappUrl}plus/payment?pid=${selectedOption}`}
+          href={`https://app.daily.dev/plus/payment?pid=${selectedOption}`}
           disabled={!selectedOption}
           className="mt-8"
           onClick={handleClick}
