@@ -170,7 +170,7 @@ export const PaymentContextProvider = ({
   }, [paddle, planTypes, geo?.region]);
 
   const { data: productPrices, isLoading: isPricesPending } = useQuery({
-    queryKey: ['productPrices'],
+    queryKey: ['productPrices', user, planTypes],
     queryFn: getPrices,
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
