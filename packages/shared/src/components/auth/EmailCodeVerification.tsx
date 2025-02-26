@@ -42,24 +42,18 @@ function EmailCodeVerification({
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
   const [email, setEmail] = useState(emailProp);
-  const {
-    sendEmail,
-    verifyCode,
-    resendTimer,
-    isLoading,
-    autoResend,
-    isVerifyingCode,
-  } = useAccountEmailFlow({
-    flow: AuthFlow.Verification,
-    flowId,
-    onError: setHint,
-    onVerifyCodeSuccess: () => {
-      logEvent({
-        event_name: AuthEventNames.VerifiedSuccessfully,
-      });
-      onSubmit();
-    },
-  });
+  const { sendEmail, verifyCode, resendTimer, autoResend, isVerifyingCode } =
+    useAccountEmailFlow({
+      flow: AuthFlow.Verification,
+      flowId,
+      onError: setHint,
+      onVerifyCodeSuccess: () => {
+        logEvent({
+          event_name: AuthEventNames.VerifiedSuccessfully,
+        });
+        onSubmit();
+      },
+    });
 
   useEffect(() => {
     if (autoResend && !alert.alert && alert.firstAlert === true) {
@@ -87,9 +81,16 @@ function EmailCodeVerification({
     sendEmail(email);
   };
 
-  const onCodeChange = async (newCode: string) => {
+  const onCodeSubmit = async (newCode: string) => {
     if (newCode.length === 6) {
+      setCode(newCode);
       await verifyCode({ code: newCode });
+    }
+  };
+
+  const onCodeChange = async () => {
+    if (hint?.length > 0) {
+      setHint('');
     }
   };
 
@@ -153,11 +154,27 @@ function EmailCodeVerification({
       )}
       {onboardingPapercuts && (
         <div className="my-10 flex w-full flex-col items-center gap-4">
-          <CodeField onChange={onCodeChange} disabled={isVerifyingCode} />
+          <input type="text" id="email" name="email" value={email} hidden />
+          <CodeField
+            onSubmit={onCodeSubmit}
+            onChange={onCodeChange}
+            disabled={isVerifyingCode}
+          />
+          {hint && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.StatusError}
+              className="px-4 text-center"
+            >
+              {hint}
+            </Typography>
+          )}
           <span className="text-text-tertiary">
             Didn&#39;t get verification codes?{' '}
             <button
               type="button"
+              disabled={resendTimer > 0}
+              onClick={onSendCode}
               className={
                 resendTimer === 0 ? 'text-text-link' : 'text-text-disabled'
               }
@@ -173,7 +190,7 @@ function EmailCodeVerification({
           'mt-6': !onboardingPapercuts,
         })}
         type="submit"
-        loading={isLoading}
+        loading={isVerifyingCode}
         disabled={autoResend}
       >
         Verify
