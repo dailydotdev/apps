@@ -25,8 +25,8 @@
     "https://*.dailynow.co/"
   ],
   "__dev__permissions": ["storage", "scripting"],
-  "__dev__host_permissions": ["http://localhost/", "http://*.local.com/", "https://*.local.fylla.dev/*"],
-  "__firefox|dev__permissions": ["storage", "http://localhost/", "http://*.local.com/"],
+  "__dev__host_permissions": ["http://localhost/", "https://*.local.fylla.dev/"],
+  "__firefox|dev__permissions": ["storage", "http://localhost/", "https://*.local.fylla.dev/"],
   "optional_permissions": ["topSites"],
   "__firefox__optional_permissions": ["topSites", "*://*/*"],
   "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
