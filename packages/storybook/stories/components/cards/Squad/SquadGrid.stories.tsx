@@ -34,7 +34,7 @@ const meta: Meta<typeof SquadGrid> = {
                 name: 'Lee Hansel Solevilla',
                 image:
                   'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-                permalink: 'http://webapp.local.com:5002/a123124124111',
+                permalink: 'https://app.local.fylla.dev:5002/a123124124111',
                 username: 'a123124124111',
               },
               source: null,
@@ -49,7 +49,7 @@ const meta: Meta<typeof SquadGrid> = {
                 name: 'Lee Hansel Solevilla',
                 image:
                   'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-                permalink: 'http://webapp.local.com:5002/a123124124111',
+                permalink: 'https://app.local.fylla.dev:5002/a123124124111',
                 username: 'a123124124111',
               },
               source: null,
@@ -64,7 +64,7 @@ const meta: Meta<typeof SquadGrid> = {
                 name: 'Lee Hansel Solevilla',
                 image:
                   'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-                permalink: 'http://webapp.local.com:5002/a123124124111',
+                permalink: 'https://app.local.fylla.dev:5002/a123124124111',
                 username: 'a123124124111',
               },
               source: null,
