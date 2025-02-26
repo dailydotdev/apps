@@ -102,6 +102,7 @@ export const SearchControlHeader = ({
     ? {
         buttonSize: ButtonSize.Small,
         variant: ButtonVariant.Tertiary,
+        buttonVariant: ButtonVariant.Tertiary,
       }
     : {};
 
@@ -181,7 +182,7 @@ export const SearchControlHeader = ({
     >
       <div className="flex w-full items-center gap-2">
         {customFeedPlacement && <CustomFeedSlider />}
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           {customFeedPlacement ? actions.reverse() : actions}
         </div>
       </div>

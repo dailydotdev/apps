@@ -102,9 +102,7 @@ const CustomFeedSlider = (): ReactElement => {
             <Button
               key={url}
               ref={isActive ? activeButtonRef : undefined}
-              variant={
-                isActive ? ButtonVariant.Primary : ButtonVariant.Tertiary
-              }
+              variant={isActive ? ButtonVariant.Primary : ButtonVariant.Subtle}
               size={ButtonSize.Small}
               tag="a"
               href={url}
