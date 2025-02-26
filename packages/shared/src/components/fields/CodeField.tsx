@@ -7,6 +7,7 @@ import type {
 import React, { useRef, useState } from 'react';
 import { TextField } from './TextField';
 import { ArrowKey } from '../../lib/element';
+import { checkIsNumbersOnly } from '../../lib';
 
 interface CodeFieldProps {
   onChange: (code: string) => void;
@@ -27,7 +28,7 @@ export function CodeField({
 
   const onPaste: ClipboardEventHandler<HTMLInputElement> = (e) => {
     const text = e.clipboardData.getData('text');
-    const isNumbersOnly = /^\d+$/.test(text);
+    const isNumbersOnly = checkIsNumbersOnly(text);
 
     if (!isNumbersOnly) {
       e.preventDefault();
