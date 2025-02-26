@@ -48,6 +48,7 @@ export const useSquadPendingPosts = ({
       RequestKey.SquadPostRequests,
       user,
       squadId ?? 'all',
+      status,
     ),
     queryFn: async ({ pageParam }) => {
       return gqlClient
