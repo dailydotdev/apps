@@ -26,20 +26,6 @@ jobs:
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
-  build:
-    docker:
-      - image: cimg/node:22.11
-    resource_class: medium+
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
-      - run:
-          name: Build
-          command: npm run build:chrome
-          working_directory: packages/extension
   test_extension:
     docker:
       - image: cimg/node:22.11
@@ -120,9 +106,6 @@ workflows:
   build:
     jobs:
       - install_deps
-      - build:
-          requires:
-            - install_deps
       - test_extension:
           requires:
             - install_deps
