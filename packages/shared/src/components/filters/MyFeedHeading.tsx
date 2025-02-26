@@ -34,7 +34,7 @@ function MyFeedHeading({
     <>
       <FeedSettingsButton
         onClick={onOpenFeedFilters}
-        className={!customFeedPlacement && 'mr-auto'}
+        className={!customFeedPlacement ? 'mr-auto' : ''}
         size={ButtonSize.Medium}
         variant={
           isLaptop && !customFeedPlacement
