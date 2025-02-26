@@ -30,17 +30,18 @@ export const Checkbox = forwardRef(function Checkbox(
     onToggleCallback,
     id = '',
     disabled,
+    defaultChecked,
     ...props
   }: CheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {
-  const [actualChecked, setActualChecked] = useState(checked);
+  const [actualChecked, setActualChecked] = useState(checked ?? defaultChecked);
   const checkId = useId();
   const inputId = id.concat(checkId);
 
   useEffect(() => {
-    setActualChecked(checked);
-  }, [checked]);
+    setActualChecked(checked ?? defaultChecked);
+  }, [checked, defaultChecked]);
 
   const onChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setActualChecked(event.target.checked);
@@ -62,6 +63,7 @@ export const Checkbox = forwardRef(function Checkbox(
       <input
         aria-labelledby={`label-span-${checkId}`}
         checked={checked}
+        defaultChecked={defaultChecked}
         className="absolute h-0 w-0 opacity-0"
         data-testid="checkbox-input"
         disabled={disabled}

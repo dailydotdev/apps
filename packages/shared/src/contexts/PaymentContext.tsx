@@ -7,7 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
+import type {
+  Environments,
+  Paddle,
+  PaddleEventData,
+  TimePeriod,
+} from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
   getPaddleInstance,
@@ -23,6 +28,7 @@ import { logPixelPayment } from '../lib/pixels';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
+import { getPrice } from '../lib';
 
 export type ProductOption = {
   label: string;
@@ -38,6 +44,7 @@ export type ProductOption = {
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
   duration: PlusPriceType;
+  trialPeriod: TimePeriod | null;
 };
 
 interface OpenCheckoutProps {
@@ -55,6 +62,7 @@ export interface PaymentContextData {
   isPlusAvailable: boolean;
   giftOneYear?: ProductOption;
   isPricesPending: boolean;
+  isFreeTrialExperiment: boolean;
 }
 
 const PaymentContext = React.createContext<PaymentContextData>(undefined);
@@ -63,10 +71,6 @@ export default PaymentContext;
 export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
-
-const priceFormatter = new Intl.NumberFormat(navigator.language, {
-  minimumFractionDigits: 2,
-});
 
 export const PaymentContextProvider = ({
   children,
@@ -163,17 +167,27 @@ export const PaymentContextProvider = ({
   const { data: productPrices, isLoading: isPricesPending } = useQuery({
     queryKey: ['productPrices'],
     queryFn: getPrices,
-    enabled: !!paddle && !!planTypes && !!geo,
+    enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
-  const productOptions: Array<ProductOption> = useMemo(
-    () =>
+  const productOptions: Array<ProductOption> = useMemo(() => {
+    const priceFormatter = new Intl.NumberFormat(
+      globalThis?.navigator?.language ?? 'en-US',
+      {
+        minimumFractionDigits: 2,
+      },
+    );
+    return (
       productPrices?.data?.details?.lineItems?.map((item) => {
-        const duration = planTypes[item.price.id] as PlusPriceType;
-        const priceAmount = parseFloat(item.totals.total) / 100;
-        const monthlyPrice = +(
-          priceAmount / (duration === PlusPriceType.Yearly ? 12 : 1)
-        ).toFixed(2);
+        const isOneOff = !item.price?.billingCycle?.interval;
+        const isYearly = item.price?.billingCycle?.interval === 'year';
+        const duration =
+          isOneOff || isYearly ? PlusPriceType.Yearly : PlusPriceType.Monthly;
+        const priceAmount = getPrice(item);
+        const months = duration === PlusPriceType.Yearly ? 12 : 1;
+        const monthlyPrice = Number(
+          (priceAmount / months).toString().match(/^-?\d+(?:\.\d{0,2})?/)[0],
+        );
         const currencyCode = productPrices?.data.currencyCode;
         const currencySymbol = item.formattedTotals.total.replace(
           /\d|\.|\s|,/g,
@@ -197,25 +211,30 @@ export const PaymentContextProvider = ({
             (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
             PlusPriceTypeAppsId.Default,
           duration,
+          trialPeriod: item.price.trialPeriod,
         };
-      }) ?? [],
-    [planTypes, productPrices?.data],
-  );
+      }) ?? []
+    );
+  }, [productPrices?.data]);
 
-  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] =
-    useMemo(() => {
-      const earlyAdopter = productOptions.find(
+  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
+    () =>
+      productOptions.find(
         ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
-      );
-
-      return earlyAdopter?.value ?? null;
-    }, [productOptions]);
+      )?.value,
+    [productOptions],
+  );
 
   const giftOneYear: ProductOption = useMemo(
     () =>
       productOptions.find(
         ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
       ),
+    [productOptions],
+  );
+
+  const isFreeTrialExperiment = useMemo(
+    () => productOptions.some(({ trialPeriod }) => !!trialPeriod),
     [productOptions],
   );
 
@@ -269,6 +288,7 @@ export const PaymentContextProvider = ({
       isPlusAvailable,
       giftOneYear,
       isPricesPending,
+      isFreeTrialExperiment,
     }),
     [
       giftOneYear,
@@ -278,6 +298,7 @@ export const PaymentContextProvider = ({
       productOptions,
       isPlusAvailable,
       isPricesPending,
+      isFreeTrialExperiment,
     ],
   );
 
