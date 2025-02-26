@@ -28,10 +28,7 @@ import { logPixelPayment } from '../lib/pixels';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '../components/GrowthBookProvider';
+import { useFeature } from '../components/GrowthBookProvider';
 
 export type ProductOption = {
   label: string;
@@ -80,9 +77,7 @@ export const PaymentContextProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { growthbook } = useGrowthBookContext();
   const planTypes = useFeature(feature.pricingIds);
-  console.log(growthbook);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
@@ -174,15 +169,6 @@ export const PaymentContextProvider = ({
     queryFn: getPrices,
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
-
-  console.log(
-    structuredClone({
-      planTypes,
-      user,
-      productPrices,
-      isPricesPending,
-    }),
-  );
 
   const productOptions: Array<ProductOption> = useMemo(() => {
     const priceFormatter = new Intl.NumberFormat(
