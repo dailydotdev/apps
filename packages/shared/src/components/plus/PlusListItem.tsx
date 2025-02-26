@@ -23,6 +23,8 @@ export interface PlusItem {
   label: string;
   status: PlusItemStatus;
   tooltip?: string;
+  icon?: FC<IconProps>;
+  typographyProps?: TypographyProps<TypographyTag.P>;
 }
 
 export interface PlusListItemProps {
