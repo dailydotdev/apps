@@ -81,9 +81,10 @@ export const PaymentContextProvider = ({
     isAuthReady,
     isValidRegion: isPlusAvailable,
   } = useAuthContext();
+  const shouldEvaluate = isAuthReady && !!user;
   const { value: planTypes } = useConditionalFeature({
     feature: feature.pricingIds,
-    shouldEvaluate: isAuthReady && !!user,
+    shouldEvaluate,
   });
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -177,7 +178,13 @@ export const PaymentContextProvider = ({
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
-  console.log({ planTypes, user, productPrices, isPricesPending });
+  console.log({
+    planTypes,
+    user,
+    productPrices,
+    isPricesPending,
+    shouldEvaluate,
+  });
 
   const productOptions: Array<ProductOption> = useMemo(() => {
     const priceFormatter = new Intl.NumberFormat(
