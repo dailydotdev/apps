@@ -63,6 +63,7 @@ export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
+export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
 export const plusSuccessUrl = `${webappUrl}plus/success`;
 
 export const authUrl =
