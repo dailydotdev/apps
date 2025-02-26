@@ -106,6 +106,28 @@ const useMenuItems = (): NavItemProps[] => {
           });
         },
       });
+    } else {
+      items.push({
+        label: isPlus ? 'Manage plus' : plusCta,
+        icon: <DevPlusIcon />,
+        href: isPlus ? undefined : plusUrl,
+        className: isPlus ? undefined : 'text-action-plus-default',
+        target: isPlus ? '_blank' : undefined,
+        onClick: () => {
+          if (isPlus) {
+            globalThis.webkit.messageHandlers[
+              'iap-subscription-manage'
+            ].postMessage(null);
+          }
+
+          logSubscriptionEvent({
+            event_name: isPlus
+              ? LogEvent.ManageSubscription
+              : LogEvent.UpgradeSubscription,
+            target_id: TargetId.ProfileDropdown,
+          });
+        },
+      });
     }
 
     return [
