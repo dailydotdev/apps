@@ -27,6 +27,7 @@ import { useSignBack } from './auth/useSignBack';
 import type { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
 import { useEventListener } from './useEventListener';
+import { broadcastChannel } from '../lib/constants';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -164,7 +165,7 @@ const useLogin = ({
     [displayToast, login?.ui, onPasswordLogin],
   );
 
-  useEventListener(globalThis, 'message', async (e) => {
+  const onLoginMessage = async (e: MessageEvent) => {
     if (e.data?.eventKey !== AuthEvent.Login) {
       return;
     }
@@ -204,7 +205,11 @@ const useLogin = ({
 
       onSuccessfulLogin?.();
     }
-  });
+  };
+
+  useEventListener(globalThis, 'message', onLoginMessage);
+
+  useEventListener(broadcastChannel, 'message', onLoginMessage);
 
   return {
     loginHint: hintState,
