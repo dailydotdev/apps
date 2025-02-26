@@ -42,18 +42,24 @@ function EmailCodeVerification({
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
   const [email, setEmail] = useState(emailProp);
-  const { sendEmail, verifyCode, resendTimer, isLoading, autoResend } =
-    useAccountEmailFlow({
-      flow: AuthFlow.Verification,
-      flowId,
-      onError: setHint,
-      onVerifyCodeSuccess: () => {
-        logEvent({
-          event_name: AuthEventNames.VerifiedSuccessfully,
-        });
-        onSubmit();
-      },
-    });
+  const {
+    sendEmail,
+    verifyCode,
+    resendTimer,
+    isLoading,
+    autoResend,
+    isVerifyingCode,
+  } = useAccountEmailFlow({
+    flow: AuthFlow.Verification,
+    flowId,
+    onError: setHint,
+    onVerifyCodeSuccess: () => {
+      logEvent({
+        event_name: AuthEventNames.VerifiedSuccessfully,
+      });
+      onSubmit();
+    },
+  });
 
   useEffect(() => {
     if (autoResend && !alert.alert && alert.firstAlert === true) {
@@ -147,7 +153,7 @@ function EmailCodeVerification({
       )}
       {onboardingPapercuts && (
         <div className="my-10 flex w-full flex-col items-center gap-4">
-          <CodeField onChange={onCodeChange} />
+          <CodeField onChange={onCodeChange} disabled={isVerifyingCode} />
           <span className="text-text-tertiary">
             Didn&#39;t get verification codes?{' '}
             <button

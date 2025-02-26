@@ -2,7 +2,7 @@ import type {
   ReactElement,
   ClipboardEventHandler,
   ChangeEvent,
-  KeyboardEventHandler,
+  KeyboardEvent,
 } from 'react';
 import React, { useRef, useState } from 'react';
 import { TextField } from './TextField';
@@ -11,12 +11,14 @@ import { ArrowKey } from '../../lib/element';
 interface CodeFieldProps {
   onChange: (code: string) => void;
   length?: number;
+  disabled?: boolean;
 }
 
 const DEFAULT_LENGTH = 6;
 const INVALID_KEYS = [ArrowKey.Up, ArrowKey.Down, '.'];
 
 export function CodeField({
+  disabled,
   onChange,
   length = DEFAULT_LENGTH,
 }: CodeFieldProps): ReactElement {
@@ -43,16 +45,24 @@ export function CodeField({
     newCode[index] = char;
     setCode(newCode);
 
-    if (char.length > 0 && index < DEFAULT_LENGTH - 1) {
-      const nextIndex = index + 1;
+    if (char.length > 0) {
+      if (index < DEFAULT_LENGTH - 1) {
+        const nextIndex = index + 1;
 
-      if (elementsRef.current[nextIndex]) {
-        elementsRef.current[nextIndex].focus();
+        if (elementsRef.current[nextIndex]) {
+          elementsRef.current[nextIndex].focus();
+        }
+      }
+    } else if (index > 0) {
+      const previous = index - 1;
+
+      if (elementsRef.current[previous]) {
+        elementsRef.current[previous].focus();
       }
     }
   };
 
-  const onKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (INVALID_KEYS.includes(e.key)) {
       e.preventDefault();
     }
@@ -76,6 +86,7 @@ export function CodeField({
           value={code[index] || ''}
           onChange={(e) => onInputChange(e, index)}
           onKeyDown={onKeyDown}
+          disabled={disabled}
           inputRef={(el) => {
             if (el) {
               elementsRef.current[index] = el;

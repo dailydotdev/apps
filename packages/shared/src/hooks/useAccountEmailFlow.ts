@@ -27,6 +27,7 @@ interface UseAccountEmail {
   token?: string;
   flow?: string;
   autoResend?: boolean;
+  isVerifyingCode: boolean;
 }
 
 interface UseAccountEmailProps {
@@ -123,7 +124,7 @@ function useAccountEmailFlow({
     },
   });
 
-  const { mutateAsync: verifyCode } = useMutation({
+  const { mutateAsync: verifyCode, isPending: isVerifyingCode } = useMutation({
     mutationFn: ({ code, altFlowId }: { code: string; altFlowId?: string }) =>
       submitKratosFlow({
         action: FlowActionURLs[flow] + (altFlowId ?? activeFlow),
@@ -157,8 +158,17 @@ function useAccountEmailFlow({
       isLoading,
       flow: emailFlow?.id,
       autoResend,
+      isVerifyingCode,
     }),
-    [sendEmail, verifyCode, emailFlow, timer, isLoading, autoResend],
+    [
+      sendEmail,
+      verifyCode,
+      emailFlow,
+      timer,
+      isLoading,
+      autoResend,
+      isVerifyingCode,
+    ],
   );
 }
 
