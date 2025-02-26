@@ -98,7 +98,7 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
 
-  const clickbaitShieldProps = customFeedPlacement
+  const actionBtnProps = customFeedPlacement
     ? {
         buttonSize: ButtonSize.Small,
         variant: ButtonVariant.Tertiary,
@@ -136,7 +136,7 @@ export const SearchControlHeader = ({
     ) : null,
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
       <ToggleClickbaitShield
-        {...clickbaitShieldProps}
+        {...actionBtnProps}
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
@@ -152,6 +152,7 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
+        {...actionBtnProps}
       />
     ) : null,
   ];
