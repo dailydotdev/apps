@@ -26,11 +26,15 @@ function CallbackPage(): ReactElement {
         return;
       }
 
-      if (window.opener?.postMessage) {
-        postWindowMessage(eventKey, params);
-      } else {
+      if (
+        !window.opener?.postMessage ||
+        document.referrer === 'https://www.facebook.com/'
+      ) {
         broadcastMessage({ ...params, eventKey });
+      } else {
+        postWindowMessage(eventKey, params);
       }
+
       window.close();
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
