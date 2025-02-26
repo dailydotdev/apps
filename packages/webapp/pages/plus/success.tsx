@@ -77,7 +77,7 @@ const PlusSuccessPage = (): ReactElement => {
               rel={anchorDefaultRel}
               target="_blank"
             >
-              See what&#39;s included in Plus
+              See what&apos;s included in Plus
             </Button>
             <Button
               variant={ButtonVariant.Secondary}
