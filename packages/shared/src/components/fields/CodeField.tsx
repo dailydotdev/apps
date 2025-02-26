@@ -25,6 +25,13 @@ export function CodeField({
 
   const onPaste: ClipboardEventHandler<HTMLInputElement> = (e) => {
     const text = e.clipboardData.getData('text');
+    const isNumbersOnly = /^\d+$/.test(text);
+
+    if (!isNumbersOnly) {
+      e.preventDefault();
+      return;
+    }
+
     const sliced = text.slice(0, DEFAULT_LENGTH);
     setCode(sliced.split(''));
     onChange(sliced);
