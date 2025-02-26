@@ -25,10 +25,10 @@ import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../lib/pixels';
-import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
+import { useFeature } from '../components/GrowthBookProvider';
 
 export type ProductOption = {
   label: string;
@@ -165,9 +165,9 @@ export const PaymentContextProvider = ({
   }, [paddle, planTypes, geo?.region]);
 
   const { data: productPrices, isLoading: isPricesPending } = useQuery({
-    queryKey: ['productPrices'],
+    queryKey: ['productPrices', user, planTypes],
     queryFn: getPrices,
-    enabled: !!paddle && !!planTypes && !!geo,
+    enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
 
   const productOptions: Array<ProductOption> = useMemo(() => {
@@ -179,7 +179,10 @@ export const PaymentContextProvider = ({
     );
     return (
       productPrices?.data?.details?.lineItems?.map((item) => {
-        const duration = planTypes[item.price.id] as PlusPriceType;
+        const isOneOff = !item.price?.billingCycle?.interval;
+        const isYearly = item.price?.billingCycle?.interval === 'year';
+        const duration =
+          isOneOff || isYearly ? PlusPriceType.Yearly : PlusPriceType.Monthly;
         const priceAmount = getPrice(item);
         const months = duration === PlusPriceType.Yearly ? 12 : 1;
         const monthlyPrice = Number(
@@ -212,7 +215,7 @@ export const PaymentContextProvider = ({
         };
       }) ?? []
     );
-  }, [planTypes, productPrices?.data]);
+  }, [productPrices?.data]);
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>

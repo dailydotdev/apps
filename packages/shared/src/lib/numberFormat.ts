@@ -32,7 +32,7 @@ export const getRandom4Digits = (leftPad?: string): string => {
 };
 
 export const removeNonNumber = (value: string): string =>
-  value.replace(/[^\d.]/g, '');
+  value.replace(/,(\d{2})$/, '.$1').replace(/[^\d.]/g, '');
 
 export const getPrice = (item: PaddleProductLineItem): number => {
   const priceAmount = parseFloat(item.totals.total);
