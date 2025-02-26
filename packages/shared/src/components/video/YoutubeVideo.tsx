@@ -6,6 +6,7 @@ import type { YoutubeVideoWithoutConsentProps } from './YoutubeVideoWithoutConse
 import { YoutubeVideoWithoutConsent } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoBackground, YoutubeVideoContainer } from './common';
 import { useConsentCookie } from '../../hooks/useCookieConsent';
+import { checkIsExtension } from '../../lib/func';
 
 interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
@@ -23,6 +24,7 @@ const YoutubeVideo = ({
   ...props
 }: YoutubeVideoProps): ReactElement => {
   const { title } = placeholderProps.post;
+  const isExtension = checkIsExtension();
   const { isAuthReady, isGdprCovered } = useAuthContext();
   const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
@@ -36,7 +38,7 @@ const YoutubeVideo = ({
     );
   }
 
-  if (isGdprCovered && !cookieExists) {
+  if (!isExtension && isGdprCovered && !cookieExists) {
     return (
       <YoutubeVideoWithoutConsent
         {...placeholderProps}
