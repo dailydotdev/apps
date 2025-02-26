@@ -1,10 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import type { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
-import { useContext } from 'react';
-import { generateQueryKey, RequestKey } from '../lib/query';
 import type { Feature } from '../lib/featureManagement';
-import { disabledRefetch } from '../lib/func';
-import AuthContext from '../contexts/AuthContext';
 import {
   useFeaturesReadyContext,
   useGrowthBookContext,
@@ -21,32 +16,19 @@ export const useConditionalFeature = <T extends JSONValue>({
   feature: Feature<T>;
   shouldEvaluate: boolean;
 }): UseConditionalFeature<T> => {
-  const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
   const { ready } = useFeaturesReadyContext();
-  const queryKey = generateQueryKey(
-    RequestKey.Feature,
-    user,
-    feature.id,
-    shouldEvaluate,
-  );
+  const isPending = !(shouldEvaluate && ready);
+  let value: WidenPrimitives<T> = feature.defaultValue as WidenPrimitives<T>;
 
-  const { data: featureValue, isPending } = useQuery({
-    queryKey,
-    queryFn: () => {
-      if (!shouldEvaluate) {
-        return feature.defaultValue as WidenPrimitives<T>;
-      }
-      return growthbook
-        ? growthbook.getFeatureValue(feature.id, feature.defaultValue)
-        : (feature.defaultValue as WidenPrimitives<T>);
-    },
-    enabled: shouldEvaluate && ready,
-    ...disabledRefetch,
-  });
+  if (!isPending) {
+    value = growthbook
+      ? growthbook.getFeatureValue(feature.id, feature.defaultValue)
+      : value;
+  }
 
   return {
-    value: featureValue ?? (feature.defaultValue as WidenPrimitives<T>),
+    value,
     isLoading: isPending,
   };
 };
