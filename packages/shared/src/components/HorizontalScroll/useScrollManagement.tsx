@@ -26,7 +26,7 @@ export const useScrollManagement = (
   }, [ref, onScroll]);
 
   useEffect(() => {
-    // For cases where the scroll container becomes smaller,
+    // For cases where the scroll container becomes smaller, such as sidebar resize,
     // and all the buttons are not visible anymore.
     // also needs to run checkScrollPosition once at start to determine which arrows to show.
     const resizeObserver = new ResizeObserver(() => {
