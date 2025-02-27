@@ -14,18 +14,21 @@ import {
   TypographyColor,
 } from '../typography/Typography';
 import { useScrollManagement } from '../HorizontalScroll/useScrollManagement';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 
 const CustomFeedSlider = (): ReactElement => {
   const { feeds } = useFeeds();
   const { isPlus } = usePlusSubscription();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLAnchorElement>(null);
   const router = useRouter();
 
   const urlToTab: Record<string, string> = useMemo(() => {
+    const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
     return {
-      '/': 'For you',
+      [myFeedPath]: 'For you',
       ...sortedFeeds.reduce((acc, { node: feed }) => {
         const feedPath = `/feeds/${feed.id}`;
         acc[feedPath] = feed.flags?.name || `Feed ${feed.id}`;
@@ -33,7 +36,7 @@ const CustomFeedSlider = (): ReactElement => {
       }, {}),
       '/feeds/new': 'New feed',
     };
-  }, [sortedFeeds]);
+  }, [sortedFeeds, isCustomDefaultFeed]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) {

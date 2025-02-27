@@ -21,7 +21,7 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
-  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
@@ -29,8 +29,12 @@ export const MainSection = ({
     // is not using webappUrl so it gets selected
     let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
 
-    if (isExtension) {
+    if (isExtension && !customFeedPlacement) {
       myFeedPath = '/my-feed';
+    }
+
+    if (isCustomDefaultFeed && customFeedPlacement) {
+      myFeedPath = `/feeds/${defaultFeedId}`;
     }
 
     const myFeed = isLoggedIn
@@ -84,6 +88,7 @@ export const MainSection = ({
     isCustomDefaultFeed,
     onNavTabClick,
     customFeedPlacement,
+    defaultFeedId,
   ]);
 
   return (
