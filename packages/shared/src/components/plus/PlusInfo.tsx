@@ -36,6 +36,7 @@ type PlusInfoProps = {
   onContinue?: () => void;
   showDailyDevLogo?: boolean;
   showPlusList?: boolean;
+  showTrustReviews?: boolean;
   showGiftButton?: boolean;
   title?: string;
   description?: string;
@@ -105,6 +106,7 @@ export const PlusInfo = ({
   showPlusList = true,
   showDailyDevLogo = false,
   showGiftButton = true,
+  showTrustReviews = true,
   title,
   description,
   subtitle,
@@ -247,7 +249,7 @@ export const PlusInfo = ({
         </div>
       ) : undefined}
       {showPlusList && <PlusList />}
-      <PlusTrustReviews />
+      {showTrustReviews && <PlusTrustReviews />}
     </>
   );
 };
