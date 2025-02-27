@@ -5,7 +5,6 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import type { Source } from '../../../graphql/sources';
 import { UserShortInfo } from '../../profile/UserShortInfo';
-import SquadMemberBadge from '../../squads/SquadMemberBadge';
 import { Origin } from '../../../lib/log';
 import { useSquad } from '../../../hooks';
 
@@ -38,12 +37,10 @@ function PrivilegedMembersModal({
             <UserShortInfo
               tag="a"
               href={user.permalink}
-              user={user}
+              user={{ ...user, role }}
               showFollow
               origin={Origin.SquadMembersList}
-            >
-              <SquadMemberBadge className="mr-2" role={role} />
-            </UserShortInfo>
+            />
           </Link>
         ))}
       </Modal.Body>

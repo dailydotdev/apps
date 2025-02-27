@@ -5,14 +5,12 @@ import Link from '../utilities/Link';
 import type { Comment } from '../../graphql/comments';
 import { getCommentHash } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
-import { FeatherIcon, ScoutIcon } from '../icons';
 import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
 import UserBadge from '../UserBadge';
-import { FlexRow, TruncateText } from '../utilities';
+import { FlexRow, getRoleName, TruncateText } from '../utilities';
 import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
@@ -21,8 +19,8 @@ import { CardLink } from '../cards/common/Card';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
-import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -65,8 +63,6 @@ export default function CommentContainer({
     user: comment.author,
   });
 
-  const topReader = comment.author?.topReader;
-
   return (
     <article
       ref={isCommentReferenced ? commentRef : null}
@@ -105,11 +101,16 @@ export default function CommentContainer({
         >
           <ProfileImageLink
             user={comment.author}
-            picture={{ width: 48, height: 48, fetchPriority: 'low' }}
+            picture={{
+              width: 40,
+              height: 40,
+              size: ProfileImageSize.Large,
+              fetchPriority: 'low',
+            }}
           />
         </ProfileTooltip>
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
-          <FlexRow>
+          <FlexRow className="items-center gap-1 text-text-quaternary">
             <CommentAuthor
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
@@ -117,52 +118,29 @@ export default function CommentContainer({
             {!!comment.author?.isPlus && (
               <PlusUserBadge user={comment.author} />
             )}
+            <div className="flex items-center">
+              <ProfileLink href={comment.author.permalink}>
+                <TruncateText
+                  className="text-text-tertiary typo-footnote"
+                  title={`@${comment.author.username}`}
+                >
+                  @{comment.author.username}
+                </TruncateText>
+              </ProfileLink>
+              <Separator className="!mx-0.5" />
+              <CommentPublishDate comment={comment} />
+            </div>
+          </FlexRow>
+          <FlexRow className="gap-1">
+            <ReputationUserBadge user={comment.author} />
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
-            <ReputationUserBadge
-              key="reputation"
-              className="ml-1"
-              user={comment.author}
-            />
-            <SquadMemberBadge key="squadMemberRole" role={role} />
+            <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             {comment.author.id === postAuthorId && (
-              <UserBadge
-                key="author"
-                className="text-status-help"
-                content="Creator"
-                Icon={FeatherIcon}
-                iconProps={{
-                  secondary: true,
-                }}
-              />
+              <UserBadge>Creator</UserBadge>
             )}
-            {comment.author.id === postScoutId && (
-              <UserBadge
-                key="scout"
-                className="text-accent-bun-default"
-                content="Scout"
-                Icon={ScoutIcon}
-                iconProps={{
-                  secondary: true,
-                }}
-              />
-            )}
-          </FlexRow>
-          <FlexRow className="items-center text-text-quaternary">
-            <ProfileLink href={comment.author.permalink}>
-              <TruncateText title={`@${comment.author.username}`}>
-                @{comment.author.username}
-              </TruncateText>
-            </ProfileLink>
-            <Separator />
-            <CommentPublishDate comment={comment} />
-            {topReader && (
-              <>
-                <Separator />
-                <TopReaderIn topReader={topReader} tooltip />
-              </>
-            )}
+            {comment.author.id === postScoutId && <UserBadge>Scout</UserBadge>}
           </FlexRow>
         </div>
       </header>

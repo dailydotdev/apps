@@ -9,15 +9,14 @@ import {
 } from './fragments';
 import type { Connection } from './common';
 import { gqlClient } from './common';
+import { SourceMemberRole, SourceType } from './sources';
 import type {
   BasicSourceMember,
   Source,
   SourceMember,
-  SourceMemberRole,
   SourcePermissions,
   Squad,
 } from './sources';
-import { SourceType } from './sources';
 import type { Post } from './posts';
 import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
@@ -556,6 +555,9 @@ export const verifyPermission = (
   squad: Squad,
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);
+
+export const isPrivilegedRole = (role?: SourceMemberRole): boolean =>
+  [SourceMemberRole.Admin, SourceMemberRole.Moderator].includes(role);
 
 export const isSourcePublicSquad = (source: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
