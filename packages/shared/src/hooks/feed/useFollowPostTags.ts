@@ -39,7 +39,8 @@ export const useFollowPostTags = ({
       (acc, tag) => {
         const isFollowing = followed.includes(tag);
         const key = isFollowing ? 'followed' : 'notFollowed';
-        return { ...acc, [key]: [...acc[key], tag] };
+        acc[key].push(tag);
+        return acc;
       },
       {
         all,
