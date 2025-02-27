@@ -23,7 +23,7 @@ interface PostTagListProps {
 }
 
 interface PostTagItemProps {
-  isFollowed: boolean;
+  isFollowed?: boolean;
   onFollow?: (tag: string) => void;
   tag: string;
 }
@@ -74,7 +74,6 @@ const PostTagItem = ({
         >{`#${tag}`}</a>
       </Link>
       <span
-        aria-hidden
         className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
         role="separator"
       />
@@ -92,12 +91,16 @@ const PostTagItem = ({
 export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
   const { isTagExperiment, onFollowTag, tags } = useFollowPostTags({ post });
 
+  if (!tags.all.length) {
+    return null;
+  }
+
   if (!isTagExperiment) {
     return <TagLinks tags={tags.all} />;
   }
 
   return (
-    <div className="flex flex-1 items-center gap-2">
+    <div aria-label="Post tags" className="flex flex-1 items-center gap-2">
       {tags.followed.map((tag) => (
         <PostTagItem key={`followed-${tag}`} tag={tag} isFollowed />
       ))}
