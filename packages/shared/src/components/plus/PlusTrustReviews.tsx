@@ -1,12 +1,21 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import { StarIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
 
-export const PlusTrustReviews = (): ReactElement => {
+type PlusTrustReviewsProps = {
+  center?: boolean;
+};
+
+export const PlusTrustReviews = ({
+  center,
+}: PlusTrustReviewsProps): ReactElement => {
   return (
-    <div className="flex flex-col gap-2">
+    <div
+      className={classNames('flex flex-col gap-2', center && 'items-center')}
+    >
       <div
         aria-label="Rating: 4.8 out of 5"
         className="flex gap-0.5 text-accent-cheese-default"

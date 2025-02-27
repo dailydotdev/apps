@@ -7,6 +7,8 @@ import { ArrowIcon } from '../icons';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 
 export type FeedPreviewControlsControlsProps = {
   isOpen: boolean;
@@ -24,12 +26,15 @@ export const FeedPreviewControls = ({
   onClick,
 }: FeedPreviewControlsControlsProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
 
   return (
     <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
       <Button
-        variant={ButtonVariant.Float}
+        variant={
+          onboardingPapercuts ? ButtonVariant.Primary : ButtonVariant.Float
+        }
         disabled={isDisabled}
         icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
         iconPosition={ButtonIconPosition.Right}
