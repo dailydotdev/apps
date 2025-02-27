@@ -12,11 +12,7 @@ interface UseFollowPostTagsProps {
 interface UseFollowPostTags {
   isTagExperiment: boolean;
   onFollowTag: (tag: string) => void;
-  tags: {
-    all: string[];
-    followed: string[];
-    notFollowed: string[];
-  };
+  tags: Record<'all' | 'followed' | 'notFollowed', string[]>;
 }
 
 export const useFollowPostTags = ({
