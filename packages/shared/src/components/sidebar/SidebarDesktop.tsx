@@ -102,12 +102,14 @@ export const SidebarDesktop = ({
             onNavTabClick={onNavTabClick}
             isItemsButton={isNavButtons}
           />
-          <CustomFeedSection
-            {...defaultRenderSectionProps}
-            onNavTabClick={onNavTabClick}
-            title="Custom feeds"
-            isItemsButton={false}
-          />
+          {!customFeedPlacement && (
+            <CustomFeedSection
+              {...defaultRenderSectionProps}
+              onNavTabClick={onNavTabClick}
+              title="Custom feeds"
+              isItemsButton={false}
+            />
+          )}
           {bookmarkAndNetworkSection}
           <DiscoverSection
             {...defaultRenderSectionProps}
