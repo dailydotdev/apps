@@ -23,7 +23,7 @@ export function PlusOptionRadio({
   onChange,
 }: PlusOptionRadioProps): ReactElement {
   const { earlyAdopterPlanId, giftOneYear } = usePaymentContext();
-  const isYearlyGift = giftOneYear.value === option.value;
+  const isYearlyGift = giftOneYear?.value === option?.value;
 
   if (!option) {
     return null;
