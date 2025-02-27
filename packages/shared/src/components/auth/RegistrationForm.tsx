@@ -28,8 +28,6 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import Alert, { AlertType } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -60,7 +58,6 @@ const RegistrationForm = ({
   onUpdateHints,
   simplified,
 }: RegistrationFormProps): ReactElement => {
-  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const { logEvent } = useContext(LogContext);
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -178,19 +175,6 @@ const RegistrationForm = ({
     !isSubmitted || !hints?.['traits.experienceLevel'];
 
   const headingId = useId();
-  const passwordField = (
-    <PasswordField
-      required
-      minLength={6}
-      maxLength={72}
-      saveHintSpace
-      className={{ container: 'w-full', hint: onboardingPapercuts && 'h-8' }}
-      name="password"
-      inputId="password"
-      label="Create a password"
-      autoComplete="new-password"
-    />
-  );
 
   return (
     <>
@@ -257,7 +241,17 @@ const RegistrationForm = ({
             )
           }
         />
-        {!onboardingPapercuts && passwordField}
+        <PasswordField
+          required
+          minLength={6}
+          maxLength={72}
+          saveHintSpace
+          className={{ container: 'w-full' }}
+          name="password"
+          inputId="password"
+          label="Create a password"
+          autoComplete="new-password"
+        />
         <TextField
           autoComplete="user"
           saveHintSpace
@@ -278,7 +272,6 @@ const RegistrationForm = ({
             isUsernameValid && <VIcon className="text-accent-avocado-default" />
           }
         />
-        {onboardingPapercuts && passwordField}
         {isAuthorOnboarding && (
           <TextField
             saveHintSpace
