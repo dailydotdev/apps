@@ -803,3 +803,7 @@ details.right-icon {
   display: none;
 }
 
+meter::-webkit-meter-bar {
+  background: transparent;
+  border: 0;
+}
