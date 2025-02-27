@@ -79,6 +79,7 @@ const CustomFeedSlider = (): ReactElement => {
       >
         {Object.entries(urlToTab).map(([url, label]) => {
           const isActive = router.asPath === url;
+          const isNewFeed = url === '/feeds/new';
           return (
             <Button
               key={url}
@@ -87,10 +88,10 @@ const CustomFeedSlider = (): ReactElement => {
               size={ButtonSize.Small}
               tag="a"
               href={url}
-              icon={url === '/feeds/new' && <PlusIcon size={IconSize.Small} />}
+              icon={isNewFeed && <PlusIcon size={IconSize.Small} />}
             >
               {label}
-              {!isPlus && (
+              {!isPlus && isNewFeed && (
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Caption1}

@@ -35,7 +35,7 @@ export const MainSection = ({
 
     const myFeed = isLoggedIn
       ? {
-          title: 'My feed',
+          title: customFeedPlacement ? 'Home' : 'My feed',
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
