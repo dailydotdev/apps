@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
 import useFeedSettings from '../useFeedSettings';
 import { featurePostTagSorting } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { useAuthContext } from '../../contexts/AuthContext';
+import useTagAndSource from '../useTagAndSource';
+import { Origin } from '../../lib/log';
 
 interface UseFollowPostTagsProps {
   post: Post;
@@ -46,9 +48,23 @@ export const useFollowPostTags = ({
     );
   }, [post.tags, feedSettings?.includeTags]);
 
+  const { onFollowTags } = useTagAndSource({
+    origin: Origin.PostTags,
+    postId: post.id,
+  });
+
+  const onFollowTag = useCallback(
+    (tag: string) =>
+      onFollowTags({
+        tags: [tag],
+        requireLogin: true,
+      }),
+    [onFollowTags],
+  );
+
   return {
     isTagExperiment,
-    onFollowTag: () => undefined,
+    onFollowTag,
     tags,
   };
 };
