@@ -141,7 +141,7 @@ export const ArticleList = forwardRef(function ArticleList(
                   {post.clickbaitTitleDetected && (
                     <ClickbaitShield post={post} />
                   )}
-                  <PostTags tags={post.tags} />
+                  <PostTags post={post} />
                 </div>
                 <div className="hidden flex-1 tablet:flex" />
                 {!isMobile && actionButtons}
