@@ -113,7 +113,10 @@ export default function CommentContainer({
               <PlusUserBadge user={comment.author} />
             )}
             <ProfileLink href={comment.author.permalink}>
-              <TruncateText title={`@${comment.author.username}`}>
+              <TruncateText
+                className="text-text-tertiary typo-footnote"
+                title={`@${comment.author.username}`}
+              >
                 @{comment.author.username}
               </TruncateText>
             </ProfileLink>

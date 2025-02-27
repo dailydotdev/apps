@@ -34,7 +34,7 @@ const UserBadge = ({
   return (
     <span
       className={classNames(
-        'flex items-center rounded-6 px-1 font-bold capitalize typo-caption2 tablet:gap-0.5 tablet:typo-footnote',
+        'flex items-center rounded-6 px-1 font-bold capitalize typo-footnote tablet:gap-0.5',
         getBadgeColorByRole(role),
         className,
       )}

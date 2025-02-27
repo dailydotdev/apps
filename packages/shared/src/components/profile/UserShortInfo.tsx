@@ -114,11 +114,14 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           )}
         >
           <div className="flex gap-1">
-            <TruncateText className="font-bold" title={name}>
+            <TruncateText className="font-bold typo-callout" title={name}>
               {name}
             </TruncateText>
             {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
-            <TruncateText title={`@${username}`}>
+            <TruncateText
+              className="text-text-tertiary typo-footnote"
+              title={`@${username}`}
+            >
               {transformUsername ? transformUsername(user) : `@${username}`}
             </TruncateText>
           </div>
@@ -132,7 +135,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             )}
           </div>
           {bio && showDescription && (
-            <span className="text-text-tertiary">{bio}</span>
+            <span className="text-text-tertiary typo-footnote">{bio}</span>
           )}
         </div>
       </ProfileTooltip>
