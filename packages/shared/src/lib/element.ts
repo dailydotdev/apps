@@ -3,6 +3,7 @@ import classNames from 'classnames';
 export enum KeyboardCommand {
   Enter = 'Enter',
   Space = 'Space',
+  Backspace = 'Backspace',
 }
 
 export enum ArrowKey {

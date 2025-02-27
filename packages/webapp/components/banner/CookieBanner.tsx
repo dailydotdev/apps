@@ -20,6 +20,9 @@ import {
 import { otherGdprConsents } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureOnboardingPapercuts } from '@dailydotdev/shared/src/lib/featureManagement';
+import classNames from 'classnames';
 import type { CommonCookieBannerProps } from './CookieBannerContainer';
 import { CookieBannerContainer } from './CookieBannerContainer';
 
@@ -28,6 +31,7 @@ export default function CookieBanner({
   onModalClose,
   onHideBanner,
 }: CommonCookieBannerProps): ReactElement {
+  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const { openModal } = useLazyModal();
   const { isGdprCovered } = useAuthContext();
   const onAcceptAll = () => onAccepted(otherGdprConsents);
@@ -41,12 +45,20 @@ export default function CookieBanner({
   };
 
   return (
-    <CookieBannerContainer className="p-4 laptop:w-64">
+    <CookieBannerContainer
+      className={classNames(
+        'p-4 laptop:w-64',
+        onboardingPapercuts && 'tablet:rounded-0 rounded-10',
+      )}
+    >
       <div className="flex w-full flex-row items-center justify-between">
         <CookieIcon
           secondary
           size={IconSize.Small}
-          className="text-text-tertiary"
+          className={classNames(
+            'text-text-tertiary',
+            onboardingPapercuts && 'hidden tablet:block',
+          )}
         />
         {!isGdprCovered && (
           <ModalClose
@@ -80,11 +92,19 @@ export default function CookieBanner({
           </Typography>
           .
         </span>
-        <div className="flex flex-col gap-2 tablet:flex-row tablet:justify-between">
+        <div
+          className={classNames(
+            'flex gap-2',
+            onboardingPapercuts
+              ? 'flex-row'
+              : 'flex-col tablet:flex-row laptop:justify-between',
+          )}
+        >
           <Button
             onClick={onAcceptAll}
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
+            className={onboardingPapercuts && 'flex-1 tablet:flex-[unset]'}
           >
             {isGdprCovered ? 'Accept all' : 'I understand'}
           </Button>
@@ -93,6 +113,7 @@ export default function CookieBanner({
               onClick={onOpenModal}
               size={ButtonSize.Small}
               variant={ButtonVariant.Float}
+              className={onboardingPapercuts && 'flex-1 tablet:flex-[unset]'}
             >
               Customize
             </Button>

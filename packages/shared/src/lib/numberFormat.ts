@@ -46,3 +46,6 @@ export const getPrice = (item: PaddleProductLineItem): number => {
 
   return priceAmount / 100;
 };
+
+export const checkIsNumbersOnly = (value: string): boolean =>
+  /^\d+$/.test(value);
