@@ -27,10 +27,10 @@ export default function PostTags({
     isTagExperiment,
   } = useFollowPostTags({ post });
   const shouldShowOnlyFollowedTags = !!(isTagExperiment && followed.length);
+  const tags = shouldShowOnlyFollowedTags ? followed : all;
 
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
-  const tags = shouldShowOnlyFollowedTags ? followed : all;
   const list = useFeedTags({
     tags,
     width,

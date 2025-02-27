@@ -33,13 +33,14 @@ export const useFollowPostTags = ({
   });
 
   const tags = useMemo(() => {
+    const all = post.tags ?? [];
     const followed = feedSettings?.includeTags || [];
     return {
-      all: post.tags,
+      all,
       followed,
-      notFollowed: post.tags.filter((tag) => !followed?.includes(tag)),
+      notFollowed: all.filter((tag) => !followed?.includes(tag)),
     };
-  }, [post, feedSettings?.includeTags]);
+  }, [post.tags, feedSettings?.includeTags]);
 
   return {
     isTagExperiment,
