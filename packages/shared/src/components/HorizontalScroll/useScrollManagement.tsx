@@ -32,7 +32,7 @@ export const useScrollManagement = (
     const resizeObserver = new ResizeObserver(() => {
       checkScrollPosition();
     });
-    if (ref.current) {
+    if (ref.current && globalThis) {
       resizeObserver.observe(ref.current);
     }
     return () => {
