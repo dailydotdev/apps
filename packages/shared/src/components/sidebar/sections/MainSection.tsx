@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { EyeIcon, HotIcon, SquadIcon } from '../../icons';
+import { EyeIcon, HomeIcon, HotIcon, SquadIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -12,6 +12,8 @@ import { webappUrl } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCustomFeedPlacement } from '../../../lib/featureManagement';
 
 export const MainSection = ({
   isItemsButton,
@@ -20,6 +22,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
@@ -36,7 +39,12 @@ export const MainSection = ({
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
-          icon: <ProfilePicture size={ProfileImageSize.XSmall} user={user} />,
+          icon: (active: boolean) =>
+            customFeedPlacement ? (
+              <HomeIcon secondary={active} />
+            ) : (
+              <ProfilePicture size={ProfileImageSize.XSmall} user={user} />
+            ),
         }
       : undefined;
 
@@ -70,7 +78,13 @@ export const MainSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [isLoggedIn, user, isCustomDefaultFeed, onNavTabClick]);
+  }, [
+    isLoggedIn,
+    user,
+    isCustomDefaultFeed,
+    onNavTabClick,
+    customFeedPlacement,
+  ]);
 
   return (
     <Section
