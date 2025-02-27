@@ -169,8 +169,8 @@ const RegistrationForm = ({
     });
   };
 
-  const isNameValid = !hints?.['traits.name'] && isSubmitted;
-  const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
+  const isNameValid = !hints?.['traits.name'];
+  const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
 
