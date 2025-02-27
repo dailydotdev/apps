@@ -248,7 +248,7 @@ const Earnings = (): ReactElement => {
                     }}
                   />
                   <Typography type={TypographyType.Callout}>
-                    7,865/<strong>10,000</strong> Cores (≈ USD $100)
+                    7,865 / <strong>10,000</strong> Cores (≈ USD $100)
                   </Typography>
                 </div>
               </div>
