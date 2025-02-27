@@ -13,14 +13,13 @@ function PostNavigation({
   onPreviousPost,
   onNextPost,
   className = {},
-  children,
   contextMenuId = 'post-navigation-context',
   ...props
 }: PostNavigationProps): ReactElement {
   return (
     <div
       className={classNames(
-        'flex flex-row items-center gap-2',
+        'flex h-10 flex-row items-center gap-2',
         className?.container,
       )}
       role="navigation"
@@ -51,7 +50,6 @@ function PostNavigation({
           />
         </SimpleTooltip>
       )}
-      {children}
       <PostHeaderActions
         {...props}
         className={classNames('flex', className?.actions)}

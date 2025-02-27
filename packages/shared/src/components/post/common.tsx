@@ -44,7 +44,6 @@ export interface PostNavigationProps extends PostActions {
   onPreviousPost?: () => unknown;
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
-  children?: ReactNode;
   isBannerVisible?: boolean;
   contextMenuId?: string;
 }
