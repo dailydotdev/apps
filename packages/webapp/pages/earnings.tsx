@@ -85,12 +85,12 @@ const BalanceBlock = ({
       className={classNames('flex flex-1 flex-col rounded-14 p-4', className)}
     >
       {Icon}
-      <div className="mt-4 flex gap-1">
-        <Typography type={TypographyType.Callout}>{title}</Typography>
-        <SimpleTooltip placement="top" content={description} appendTo="parent">
+      <SimpleTooltip content={description} appendTo="parent">
+        <div className="mt-4 flex gap-1">
+          <Typography type={TypographyType.Callout}>{title}</Typography>
           <InfoIcon />
-        </SimpleTooltip>
-      </div>
+        </div>
+      </SimpleTooltip>
       <Typography type={TypographyType.Title2} bold>
         {balance}
       </Typography>
