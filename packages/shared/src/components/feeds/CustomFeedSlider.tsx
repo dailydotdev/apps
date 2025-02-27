@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import { useFeeds } from '../../hooks/feed';
@@ -13,6 +13,7 @@ import {
   TypographyType,
   TypographyColor,
 } from '../typography/Typography';
+import { useScrollManagement } from '../HorizontalScroll/useScrollManagement';
 
 const CustomFeedSlider = (): ReactElement => {
   const { feeds } = useFeeds();
@@ -20,8 +21,6 @@ const CustomFeedSlider = (): ReactElement => {
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLAnchorElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
   const router = useRouter();
 
   const urlToTab: Record<string, string> = useMemo(() => {
@@ -36,22 +35,6 @@ const CustomFeedSlider = (): ReactElement => {
     };
   }, [sortedFeeds]);
 
-  const updateArrowVisibility = () => {
-    if (!scrollContainerRef.current) {
-      return;
-    }
-    const container = scrollContainerRef.current;
-    const { scrollLeft, scrollWidth, clientWidth } = container;
-
-    const firstFeedBtn = container.firstElementChild as HTMLElement;
-    const lastFeedBtn = container.lastElementChild as HTMLElement;
-    const leftThreshold = firstFeedBtn?.offsetWidth ?? 0;
-    const rightThreshold = lastFeedBtn?.offsetWidth ?? 0;
-
-    setShowLeftArrow(scrollLeft > leftThreshold);
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - rightThreshold);
-  };
-
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) {
       return;
@@ -65,10 +48,9 @@ const CustomFeedSlider = (): ReactElement => {
         (direction === 'left' ? -scrollAmount : scrollAmount),
       behavior: 'smooth',
     });
-
-    // Update arrow visibility after scroll animation
-    setTimeout(updateArrowVisibility, 300);
   };
+
+  const { isAtStart, isAtEnd } = useScrollManagement(scrollContainerRef);
 
   useEffect(() => {
     if (activeButtonRef.current) {
@@ -77,25 +59,12 @@ const CustomFeedSlider = (): ReactElement => {
         block: 'nearest',
         inline: 'center',
       });
-      updateArrowVisibility();
     }
-
-    // For cases where the scroll container becomes smaller,
-    // and all the buttons are not visible anymore.
-    const resizeObserver = new ResizeObserver(() => {
-      updateArrowVisibility();
-    });
-    if (scrollContainerRef.current) {
-      resizeObserver.observe(scrollContainerRef.current);
-    }
-    return () => {
-      resizeObserver.disconnect();
-    };
   }, [router.asPath]);
 
   return (
     <div className="relative flex-1 overflow-x-auto">
-      {showLeftArrow && (
+      {!isAtStart && (
         <Button
           className="absolute left-0 top-1/2 z-1 -translate-y-1/2 rounded-l-none rounded-r-12 bg-background-default !px-2"
           onClick={() => scroll('left')}
@@ -137,7 +106,7 @@ const CustomFeedSlider = (): ReactElement => {
         })}
       </div>
 
-      {showRightArrow && (
+      {!isAtEnd && (
         <Button
           className="absolute right-0 top-1/2 z-1 -translate-y-1/2 rounded-l-12 rounded-r-none bg-background-default !px-2"
           onClick={() => scroll('right')}
