@@ -20,6 +20,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -100,7 +101,12 @@ export default function CommentContainer({
         >
           <ProfileImageLink
             user={comment.author}
-            picture={{ width: 48, height: 48, fetchPriority: 'low' }}
+            picture={{
+              width: 40,
+              height: 40,
+              size: ProfileImageSize.Large,
+              fetchPriority: 'low',
+            }}
           />
         </ProfileTooltip>
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
@@ -112,16 +118,18 @@ export default function CommentContainer({
             {!!comment.author?.isPlus && (
               <PlusUserBadge user={comment.author} />
             )}
-            <ProfileLink href={comment.author.permalink}>
-              <TruncateText
-                className="text-text-tertiary typo-footnote"
-                title={`@${comment.author.username}`}
-              >
-                @{comment.author.username}
-              </TruncateText>
-            </ProfileLink>
-            <Separator className="!mx-0" />
-            <CommentPublishDate comment={comment} />
+            <div className="flex items-center">
+              <ProfileLink href={comment.author.permalink}>
+                <TruncateText
+                  className="text-text-tertiary typo-footnote"
+                  title={`@${comment.author.username}`}
+                >
+                  @{comment.author.username}
+                </TruncateText>
+              </ProfileLink>
+              <Separator className="!mx-0.5" />
+              <CommentPublishDate comment={comment} />
+            </div>
           </FlexRow>
           <FlexRow className="gap-1">
             <ReputationUserBadge user={comment.author} />

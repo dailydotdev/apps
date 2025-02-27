@@ -59,7 +59,7 @@ const defaultClassName = {
 
 const UserShortInfoComponent = <Tag extends React.ElementType>(
   {
-    imageSize = ProfileImageSize.XLarge,
+    imageSize = ProfileImageSize.Large,
     tag,
     user,
     className = {},
@@ -91,7 +91,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       ref={ref}
       {...props}
       className={classNames(
-        'flex flex-row items-center',
+        'flex flex-row',
         className.container ?? defaultClassName.container,
       )}
     >
@@ -113,7 +113,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <TruncateText className="font-bold typo-callout" title={name}>
               {name}
             </TruncateText>
