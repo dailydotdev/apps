@@ -25,10 +25,10 @@ import { plusSuccessUrl } from '../lib/constants';
 import { LogEvent } from '../lib/log';
 import { usePlusSubscription } from '../hooks';
 import { logPixelPayment } from '../lib/pixels';
-import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
+import { useFeature } from '../components/GrowthBookProvider';
 
 export type ProductOption = {
   label: string;
@@ -165,7 +165,7 @@ export const PaymentContextProvider = ({
   }, [paddle, planTypes, geo?.region]);
 
   const { data: productPrices, isLoading: isPricesPending } = useQuery({
-    queryKey: ['productPrices'],
+    queryKey: ['productPrices', user, planTypes],
     queryFn: getPrices,
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
