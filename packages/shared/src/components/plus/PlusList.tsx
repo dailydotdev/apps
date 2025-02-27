@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { WithClassNameProps } from '../utilities';
 import type { PlusItem, PlusListItemProps } from './PlusListItem';
 import { PlusItemStatus, PlusListItem } from './PlusListItem';
+import { CoinIcon } from '../icons';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
@@ -34,6 +35,15 @@ export const defaultFeatureList: Array<PlusItem> = [
 ];
 
 export const plusFeatureList: Array<PlusItem> = [
+  {
+    icon: CoinIcon,
+    typographyProps: {
+      bold: true,
+    },
+    label: 'Get {{x}} Cores every {{month/year}}',
+    status: PlusItemStatus.Ready,
+    tooltip: `Unlock {{x}} Cores every {{month/year}} to access exclusive content, features, and benefits.`,
+  },
   {
     label: 'Run prompts on any post',
     status: PlusItemStatus.Ready,
@@ -95,7 +105,13 @@ export const PlusList = ({
   return (
     <ul className={classNames('flex flex-col gap-0.5 py-6', className)}>
       {items.map((item) => (
-        <PlusListItem key={item.label} item={item} {...props} />
+        <PlusListItem
+          key={item.label}
+          item={item}
+          icon={item.icon}
+          typographyProps={item.typographyProps}
+          {...props}
+        />
       ))}
     </ul>
   );
