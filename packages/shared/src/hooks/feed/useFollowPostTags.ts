@@ -35,11 +35,18 @@ export const useFollowPostTags = ({
   const tags = useMemo(() => {
     const all = post.tags ?? [];
     const followed = feedSettings?.includeTags || [];
-    return {
-      all,
-      followed,
-      notFollowed: all.filter((tag) => !followed?.includes(tag)),
-    };
+    return all.reduce(
+      (acc, tag) => {
+        const isFollowing = followed.includes(tag);
+        const key = isFollowing ? 'followed' : 'notFollowed';
+        return { ...acc, [key]: [...acc[key], tag] };
+      },
+      {
+        all,
+        followed: [],
+        notFollowed: [],
+      },
+    );
   }, [post.tags, feedSettings?.includeTags]);
 
   return {
