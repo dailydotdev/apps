@@ -126,7 +126,7 @@ export const ShareList = forwardRef(function ShareList(
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
-            <PostTags tags={post.tags} />
+            <PostTags post={post} />
           </div>
           <div className="hidden flex-1 tablet:flex" />
           {!isMobile && actionButtons}

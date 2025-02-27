@@ -41,6 +41,8 @@ const feature = {
   }),
 };
 
+export const featurePostTagSorting = new Feature('post_tag_sorting', true);
+
 export const visitLinkFeature = new Feature('post_visit_link', false);
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {

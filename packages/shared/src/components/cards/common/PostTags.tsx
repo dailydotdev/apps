@@ -5,8 +5,10 @@ import type { Post } from '../../../graphql/posts';
 import Classed from '../../../lib/classed';
 import { useFeedTags } from '../../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../../hooks';
+import { useFollowPostTags } from '../../../hooks/feed/useFollowPostTags';
 
-interface PostTagsProps extends Pick<Post, 'tags'> {
+interface PostTagsProps {
+  post: Post;
   className?: string;
 }
 
@@ -16,12 +18,19 @@ const Chip = Classed(
 );
 
 export default function PostTags({
-  tags,
+  post,
   className,
 }: PostTagsProps): ReactElement {
   const { isListMode } = useFeedLayout();
+  const {
+    tags: { all, followed },
+    isTagExperiment,
+  } = useFollowPostTags({ post });
+  const shouldShowOnlyFollowedTags = !!(isTagExperiment && followed.length);
+
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
+  const tags = shouldShowOnlyFollowedTags ? followed : all;
   const list = useFeedTags({
     tags,
     width,
