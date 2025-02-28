@@ -11,7 +11,6 @@ import {
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
-import { AuthTriggers } from '../lib/auth';
 import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
@@ -104,7 +103,6 @@ const logout = async (reason: string): Promise<void> => {
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
-  isLegacyLogout?: boolean;
   children?: ReactNode;
   firstLoad?: boolean;
 } & Pick<
@@ -133,7 +131,6 @@ export const AuthContextProvider = ({
   getRedirectUri,
   refetchBoot,
   visit,
-  isLegacyLogout,
   accessToken,
   squads,
   firstLoad,
@@ -147,10 +144,6 @@ export const AuthContextProvider = ({
   const router = useRouter();
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
-  }
-
-  if (isLegacyLogout && !loginState) {
-    setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
 
   const isValidRegion = useMemo(
