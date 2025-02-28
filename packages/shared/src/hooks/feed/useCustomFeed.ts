@@ -5,7 +5,7 @@ interface UseCustomFeed {
   isCustomFeed: boolean;
 }
 
-export const useCustomFeed = () => {
+export const useCustomFeed = (): UseCustomFeed => {
   const feedContextData = useActiveFeedContext();
   const { queryKey: feedQueryKey } = feedContextData;
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
