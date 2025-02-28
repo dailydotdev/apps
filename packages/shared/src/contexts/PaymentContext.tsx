@@ -30,6 +30,7 @@ import { getPrice } from '../lib';
 import { useFeature } from '../components/GrowthBookProvider';
 import { checkIsExtension } from '../lib/func';
 import { usePixelsContext } from './PixelsContext';
+import { isIOSNative } from '../lib/func';
 
 export type ProductOption = {
   label: string;
@@ -73,7 +74,7 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
-export const PaymentContextProvider = ({
+export const PaddleSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
@@ -313,6 +314,17 @@ export const PaymentContextProvider = ({
       {children}
     </PaymentContext.Provider>
   );
+};
+
+export const PaymentContextProvider = ({
+  children,
+}: PaymentContextProviderProps): ReactElement => {
+  if (isIOSNative()) {
+    // TODO: Implement native payment context
+    return <PaddleSubProvider>{children}</PaddleSubProvider>;
+  }
+
+  return <PaddleSubProvider>{children}</PaddleSubProvider>;
 };
 
 export const usePaymentContext = (): PaymentContextData =>
