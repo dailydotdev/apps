@@ -28,17 +28,18 @@ export const useFollowPostTags = ({
   const { feedSettings } = useFeedSettings({
     feedId: isCustomFeed ? feedId : undefined,
   });
-  const isNotModerationItem = !!post.permalink;
+  const isModerationItem = !post.permalink;
   const hasFollowedTags = !!feedSettings?.includeTags?.length;
+  const shouldEvaluate =
+    shouldEvaluateExperiment && !isModerationItem && hasFollowedTags;
 
   const { value: isTagExperiment, isLoading } = useConditionalFeature({
     feature: featurePostTagSorting,
-    shouldEvaluate:
-      shouldEvaluateExperiment && isNotModerationItem && hasFollowedTags,
+    shouldEvaluate,
   });
 
   const tags = useMemo(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || isModerationItem) {
       return {
         all: post?.tags,
         followed: [],
@@ -46,7 +47,7 @@ export const useFollowPostTags = ({
       };
     }
 
-    const all = isLoading ? [] : post.tags ?? [];
+    const all = isLoading && shouldEvaluate ? [] : post.tags ?? [];
     const followedTags = new Set(feedSettings?.includeTags || []);
     return all.reduce(
       (acc, tag) => {
@@ -61,7 +62,14 @@ export const useFollowPostTags = ({
         notFollowed: [],
       },
     );
-  }, [feedSettings?.includeTags, isLoading, isLoggedIn, post.tags]);
+  }, [
+    feedSettings?.includeTags,
+    isLoading,
+    isLoggedIn,
+    isModerationItem,
+    post.tags,
+    shouldEvaluate,
+  ]);
 
   const { onFollowTags } = useTagAndSource({
     origin: Origin.PostTags,
