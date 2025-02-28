@@ -99,10 +99,10 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
 
-  const shieldBtnProps: ButtonProps<'button'> = customFeedPlacement && {
+  const shieldBtnProps: ButtonProps<'button'> = customFeedPlacement ? {
     size: ButtonSize.Small,
     variant: ButtonVariant.Tertiary,
-  };
+  } : undefined;
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) && (
