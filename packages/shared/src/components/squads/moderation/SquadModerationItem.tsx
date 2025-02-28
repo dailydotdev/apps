@@ -119,7 +119,7 @@ export function SquadModerationItem(
           >
             {title}
           </Typography>
-          <PostTags className="!mx-0 min-w-full" tags={post?.tags} />
+          <PostTags className="!mx-0 min-w-full" post={post} />
         </div>
         <div className="flex-1">
           <CardImage className="mx-auto" src={image || post?.image} />
