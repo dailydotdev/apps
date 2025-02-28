@@ -137,7 +137,7 @@ export const SearchControlHeader = ({
     ) : null,
     feedsWithActions.includes(feedName as SharedFeedPage) ? (
       <ToggleClickbaitShield
-        {...actionBtnProps}
+        buttonProps={actionBtnProps}
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
