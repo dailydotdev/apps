@@ -19,7 +19,7 @@ import { getBlockedMessage } from './common';
 import { GenericTagButton } from '../../filters/TagButton';
 import { SimpleTooltip } from '../../tooltips';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
+import { useCustomFeed } from '../../../hooks/feed/useCustomFeed';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -32,10 +32,7 @@ export function PostTagsPanel({
   className,
   toastOnSuccess = true,
 }: PostTagsPanelProps): ReactElement {
-  const feedContextData = useActiveFeedContext();
-  const feedQueryKey = feedContextData?.queryKey;
-  const isCustomFeed = feedQueryKey?.[0] === 'custom';
-  const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
+  const { feedId: customFeedId } = useCustomFeed();
   const { feedSettings } = useFeedSettings({
     feedId: customFeedId,
   });

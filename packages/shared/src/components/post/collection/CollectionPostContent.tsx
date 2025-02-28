@@ -20,9 +20,9 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
-import { TagLinks } from '../../TagLinks';
 import { withPostById } from '../withPostById';
 import { SharedByUserBanner } from '../../SharedByUserBanner';
+import { PostTagList } from '../tags/PostTagList';
 
 const CollectionPostContentRaw = ({
   post,
@@ -139,7 +139,7 @@ const CollectionPostContentRaw = ({
             >
               {post.title}
             </h1>
-            <TagLinks tags={post.tags || []} />
+            <PostTagList post={post} />
             {!!updatedAt && (
               <div className="flex items-center text-text-tertiary typo-footnote">
                 <span>Last updated</span> <Separator />
