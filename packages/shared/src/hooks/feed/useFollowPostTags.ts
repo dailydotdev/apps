@@ -3,9 +3,10 @@ import type { Post } from '../../graphql/posts';
 import useFeedSettings from '../useFeedSettings';
 import { featurePostTagSorting } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../useConditionalFeature';
-import { useAuthContext } from '../../contexts/AuthContext';
 import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useCustomFeed } from './useCustomFeed';
 
 interface UseFollowPostTagsProps {
   post: Post;
@@ -21,23 +22,34 @@ export const useFollowPostTags = ({
   post,
 }: UseFollowPostTagsProps): UseFollowPostTags => {
   const { isLoggedIn } = useAuthContext();
-  const { feedSettings } = useFeedSettings();
+  const { feedId, isCustomFeed } = useCustomFeed();
+  const { feedSettings } = useFeedSettings({
+    feedId: isCustomFeed ? feedId : undefined,
+  });
   const isNotModerationItem = !!post.permalink;
   const hasFollowedTags = !!feedSettings?.includeTags?.length;
 
-  const { value: isTagExperiment } = useConditionalFeature({
+  const { value: isTagExperiment, isLoading } = useConditionalFeature({
     feature: featurePostTagSorting,
-    shouldEvaluate: isLoggedIn && isNotModerationItem && hasFollowedTags,
+    shouldEvaluate: isNotModerationItem && hasFollowedTags,
   });
 
   const tags = useMemo(() => {
-    const all = post.tags ?? [];
-    const followed = feedSettings?.includeTags || [];
+    if (!isLoggedIn) {
+      return {
+        all: post?.tags,
+        followed: [],
+        notFollowed: post?.tags,
+      };
+    }
+
+    const all = isLoading ? [] : post.tags ?? [];
+    const followedTags = new Set(feedSettings?.includeTags || []);
     return all.reduce(
       (acc, tag) => {
-        const isFollowing = followed.includes(tag);
-        const key = isFollowing ? 'followed' : 'notFollowed';
-        acc[key].push(tag);
+        const isFollowing = followedTags.has(tag);
+        const group = isFollowing ? 'followed' : 'notFollowed';
+        acc[group].push(tag);
         return acc;
       },
       {
@@ -46,7 +58,7 @@ export const useFollowPostTags = ({
         notFollowed: [],
       },
     );
-  }, [post.tags, feedSettings?.includeTags]);
+  }, [feedSettings?.includeTags, isLoading, isLoggedIn, post.tags]);
 
   const { onFollowTags } = useTagAndSource({
     origin: Origin.PostTags,
@@ -61,6 +73,12 @@ export const useFollowPostTags = ({
       }),
     [onFollowTags],
   );
+
+  console.log({
+    isTagExperiment,
+    tags,
+    feedSettings,
+  });
 
   return {
     isTagExperiment,
