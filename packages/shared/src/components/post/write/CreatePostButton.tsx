@@ -79,10 +79,8 @@ export function CreatePostButton<Tag extends AllowedTags>({
     if (customFeedPlacement) {
       return ButtonVariant.Secondary;
     }
-    if (sidebar || footer) {
-      return ButtonVariant.Float;
-    }
-    return ButtonVariant.Primary;
+
+    return sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary;
   };
 
   return (
