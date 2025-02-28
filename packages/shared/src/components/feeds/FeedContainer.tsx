@@ -222,9 +222,10 @@ export const FeedContainer = ({
               {!!actionButtons && (
                 <span
                   className={classNames(
-                    'flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto',
-                    !customFeedPlacement && 'mr-auto',
-                    customFeedPlacement && 'max-w-full flex-1 !pr-0',
+                    'flex w-full flex-row gap-3 border-border-subtlest-tertiary laptop:w-auto',
+                    customFeedPlacement
+                      ? 'max-w-full flex-1 pr-0'
+                      : 'mr-auto pr-3',
                   )}
                 >
                   {actionButtons}
