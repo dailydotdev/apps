@@ -135,15 +135,6 @@ export const SearchControlHeader = ({
         onChange={(_, index) => setSelectedPeriod(index)}
       />
     ) : null,
-    feedsWithActions.includes(feedName as SharedFeedPage) ? (
-      <ToggleClickbaitShield
-        buttonProps={actionBtnProps}
-        origin={
-          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
-        }
-        key="toggle-clickbait-shield"
-      />
-    ) : null,
     sortingEnabled && isSortableFeed ? (
       <Dropdown
         {...dropdownProps}
@@ -154,6 +145,15 @@ export const SearchControlHeader = ({
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
         {...actionBtnProps}
+      />
+    ) : null,
+    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+      <ToggleClickbaitShield
+        buttonProps={actionBtnProps}
+        origin={
+          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
+        }
+        key="toggle-clickbait-shield"
       />
     ) : null,
   ];
