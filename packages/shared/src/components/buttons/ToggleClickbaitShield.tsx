@@ -19,7 +19,7 @@ import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 
 export const ToggleClickbaitShield = ({
   origin,
-  buttonProps,
+  buttonProps = {},
 }: {
   origin: Origin;
   buttonProps?: ButtonProps<'button'>;
