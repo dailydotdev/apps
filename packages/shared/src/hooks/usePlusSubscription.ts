@@ -3,6 +3,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { TargetType } from '../lib/log';
 import type { LogEvent, TargetId } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
+import type { SubscriptionProvider } from '../lib/plus';
 
 type LogSubscriptionEvent = {
   event_name: LogEvent | string;
@@ -12,10 +13,12 @@ type LogSubscriptionEvent = {
 
 export const usePlusSubscription = (): {
   isPlus: boolean;
+  plusProvider: SubscriptionProvider | null;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
 } => {
   const { user } = useAuthContext();
   const isPlus = user?.isPlus || false;
+  const plusProvider = user?.plusProvider || null;
   const { logEvent } = useLogContext();
 
   const logSubscriptionEvent = useCallback(
@@ -32,6 +35,7 @@ export const usePlusSubscription = (): {
 
   return {
     isPlus,
+    plusProvider,
     logSubscriptionEvent,
   };
 };

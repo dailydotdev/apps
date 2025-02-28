@@ -7,6 +7,7 @@ import {
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
+import type { SubscriptionProvider } from './plus';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -137,6 +138,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
   isPlus?: boolean;
+  plusProvider?: SubscriptionProvider;
   companies?: Company[];
   contentPreference?: ContentPreference;
   defaultFeedId?: string;
