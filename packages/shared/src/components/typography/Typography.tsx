@@ -47,6 +47,7 @@ export enum TypographyColor {
   Link = 'text-text-link',
   StatusSuccess = 'text-status-success',
   StatusHelp = 'text-status-help',
+  StatusError = 'text-status-error',
   Plus = 'text-action-plus-default',
   Brand = 'text-brand-default',
   Credit = 'text-text-credit',
