@@ -14,6 +14,7 @@ import { webappUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { WebKitMessageHandlers } from '../../lib/ios';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -67,7 +68,9 @@ export const PlusIOS = ({
   }, []);
 
   const onContinue = useCallback(() => {
-    globalThis.webkit.messageHandlers['iap-subscription-request'].postMessage(
+    globalThis.webkit.messageHandlers[
+      WebKitMessageHandlers.IAPSubscriptionRequest
+    ].postMessage(
       JSON.stringify({
         productId: selectedOption,
         userId: user.id,
@@ -133,9 +136,9 @@ export const PlusIOS = ({
         },
       );
 
-      globalThis.webkit.messageHandlers['iap-product-list'].postMessage(
-        productList,
-      );
+      globalThis.webkit.messageHandlers[
+        WebKitMessageHandlers.IAPProductList
+      ].postMessage(productList);
 
       return products;
     },
@@ -181,7 +184,7 @@ export const PlusIOS = ({
         <Button
           onClick={() => {
             globalThis.webkit.messageHandlers[
-              'iap-subscription-manage'
+              WebKitMessageHandlers.IAPSubscriptionManage
             ].postMessage(null);
           }}
           variant={ButtonVariant.Float}
