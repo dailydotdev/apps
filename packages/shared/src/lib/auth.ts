@@ -40,7 +40,6 @@ export enum AuthTriggers {
   Filter = 'filter',
   Upvote = 'upvote',
   Settings = 'settings',
-  LegacyLogout = 'legacy_logout',
   Verification = 'verification',
   VerifySession = 'verify session',
   ReportPost = 'report post',

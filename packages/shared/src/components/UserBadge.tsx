@@ -1,45 +1,45 @@
 import classNames from 'classnames';
-import type { FunctionComponent, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import type { IconProps } from './Icon';
-import { IconSize } from './Icon';
-import { useViewSize, ViewSize } from '../hooks';
+import { SourceMemberRole } from '../graphql/sources';
+import { isPrivilegedRole } from '../graphql/squads';
 
-export type UserBadgeProps = {
+type UserBadgeProps = {
+  role?: SourceMemberRole;
   className?: string;
-  content: ReactNode;
-  Icon: FunctionComponent<IconProps>;
-  iconProps?: IconProps;
-  removeMargins?: boolean;
-  disableResponsive?: boolean;
+  children: ReactNode;
+};
+
+const userBadgeColor = {
+  purple: 'text-brand-default bg-action-share-active',
+  gray: 'text-text-tertiary bg-surface-float',
+};
+
+const getBadgeColorByRole = (role: SourceMemberRole): string => {
+  if (isPrivilegedRole(role)) {
+    return userBadgeColor.purple;
+  }
+  return userBadgeColor.gray;
 };
 
 const UserBadge = ({
   className,
-  content,
-  Icon,
-  iconProps,
-  removeMargins,
-  disableResponsive,
+  children,
+  role = SourceMemberRole.Member,
 }: UserBadgeProps): ReactElement => {
-  const isMobile = useViewSize(ViewSize.MobileL);
+  if (!children) {
+    return null;
+  }
 
   return (
     <span
       className={classNames(
-        'flex items-center font-bold capitalize typo-caption2',
-        !removeMargins && 'ml-1 tablet:ml-2',
-        !disableResponsive && 'tablet:gap-0.5 tablet:typo-footnote',
+        'flex items-center rounded-6 px-1 capitalize typo-footnote tablet:gap-0.5',
+        getBadgeColorByRole(role),
         className,
       )}
     >
-      {typeof Icon === 'function' && (
-        <Icon
-          size={isMobile || disableResponsive ? IconSize.XXSmall : undefined}
-          {...iconProps}
-        />
-      )}
-      {content}
+      {children}
     </span>
   );
 };

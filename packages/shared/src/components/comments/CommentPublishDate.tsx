@@ -20,7 +20,7 @@ export function CommentPublishDate({
     <DateFormat
       date={date}
       type={TimeFormatType.Comment}
-      className={classNames('typo-callout', className)}
+      className={classNames('text-text-tertiary typo-footnote', className)}
       prefix={edited ? 'Modified ' : ''}
     />
   );

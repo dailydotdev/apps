@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactElement, ReactHTML, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { ClassedHTML } from '../../../lib/classed';
 import classed from '../../../lib/classed';
@@ -12,8 +13,12 @@ export interface CommonCardCoverProps {
 
 export const separatorCharacter = <>&#x2022;</>;
 
-export const Separator = (): ReactElement => (
-  <span className="mx-1">{separatorCharacter}</span>
+export const Separator = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <span className={classNames('mx-1', className)}>{separatorCharacter}</span>
 );
 
 export const visibleOnGroupHover =

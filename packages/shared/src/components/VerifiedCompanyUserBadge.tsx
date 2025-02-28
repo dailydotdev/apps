@@ -33,7 +33,7 @@ export const VerifiedCompanyUserBadge = ({
         className: 'text-center',
       }}
     >
-      <div className="ml-1 flex items-center">
+      <div className="flex items-center">
         <ProfilePicture
           size={ProfileImageSize.Size16}
           className="border border-border-subtlest-secondary"
