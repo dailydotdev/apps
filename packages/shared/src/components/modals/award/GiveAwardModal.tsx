@@ -22,31 +22,28 @@ import {
 import { Justify } from '../../utilities';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { termsOfService } from '../../../lib/constants';
-import { Origin } from '../../../lib/log';
-import { CopyType } from '../../sources/SourceActions/SourceActionsFollow';
-import UserList from '../../profile/UserList';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalKind } from '../common/types';
-import type { UserShortProfile } from '../../../lib/user';
+import { IconSize } from '../../Icon';
 
 const AwardItem = () => {
   const { setActiveStep } = useGiveAwardModalContext();
   return (
     <Button
       variant={ButtonVariant.Float}
-      className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float p-2"
+      className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float !p-1"
       onClick={() => setActiveStep('COMMENT')}
     >
       <Image
         src={cloudinaryAwardUnicorn}
         alt="Award unicorn"
-        className="size-[3.25rem]"
+        className="size-20"
       />
-      <div className="flex items-center justify-center rounded-10 bg-action-bookmark-float p-1">
+      <div className="flex items-center justify-center">
+        <CoinIcon size={IconSize.Size16} />
         <Typography
-          bold
-          type={TypographyType.Subhead}
-          color={TypographyColor.Credit}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
           tag={TypographyTag.Span}
         >
           Free
@@ -61,10 +58,7 @@ const IntroScreen = () => {
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
     <>
-      <Modal.Header
-        title={isMobile ? null : 'Give an Award'}
-        showCloseButton={!isMobile}
-      >
+      <Modal.Header title={' '} showCloseButton={!isMobile}>
         {isMobile ? (
           <Button
             onClick={onRequestClose}
@@ -76,7 +70,7 @@ const IntroScreen = () => {
           </Button>
         ) : null}
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
         {type !== 'USER' ? (
           <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
             <Image
@@ -91,21 +85,19 @@ const IntroScreen = () => {
             >
               15 Awards given
             </Typography>
-            <Button
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Float}
-              onClick={() => setActiveStep('SHOW_ALL')}
-            >
-              See all →
-            </Button>
           </div>
         ) : undefined}
-        <Typography type={TypographyType.Callout} className="text-center">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="text-center"
+        >
           Show your appreciation! Pick an Award to send to{' '}
           <Typography
             type={TypographyType.Callout}
-            color={TypographyColor.Credit}
+            color={TypographyColor.Primary}
             tag={TypographyTag.Span}
+            bold
           >
             John doe
           </Typography>
@@ -138,17 +130,22 @@ const CommentScreen = () => {
         />
       </Modal.Header>
       <Modal.Body>
-        <div className="mb-4 flex flex-col items-center justify-center">
+        <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <Image
             src={cloudinaryAwardUnicorn}
             alt="Award unicorn"
             className="size-[7.5rem]"
           />
-          <Typography type={TypographyType.Callout} className="text-center">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            className="text-center"
+          >
             Awesome choice! We’re sure that{' '}
             <Typography
+              bold
               type={TypographyType.Callout}
-              color={TypographyColor.Credit}
+              color={TypographyColor.Primary}
               tag={TypographyTag.Span}
             >
               John doe
@@ -169,7 +166,7 @@ const CommentScreen = () => {
               container: 'flex-1',
             }}
             initialContent=""
-            enabledCommand={{ upload: false, link: false, mention: true }}
+            enabledCommand={{ upload: false, link: false, mention: false }}
             showMarkdownGuide={false}
           />
         </form>
@@ -200,140 +197,12 @@ const CommentScreen = () => {
   );
 };
 
-const ShowAllScreen = () => {
-  const { setActiveStep } = useGiveAwardModalContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const users: UserShortProfile[] = [
-    {
-      id: '1',
-      name: 'John Doe',
-      username: 'johndoe',
-      image: 'https://randomuser.me/api',
-      permalink: 'https://randomuser.me/api',
-      bio: 'Lorem Ipsum',
-      createdAt: '2020-01-01',
-      reputation: 100,
-      companies: [],
-      isPlus: true,
-      plusMemberSince: new Date('2020-01-01'),
-    },
-    {
-      id: '2',
-      name: 'Jane Doe',
-      username: 'janedoe',
-      image: 'https://randomuser.me/api',
-      permalink: 'https://randomuser.me/api',
-      bio: 'Lorem Ipsum',
-      createdAt: '2020-01-01',
-      reputation: 100,
-      companies: [],
-      isPlus: false,
-      plusMemberSince: new Date('2020-01-01'),
-    },
-  ];
-  return (
-    <>
-      <Modal.Header title="Awards received" showCloseButton={!isMobile}>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          onClick={() => setActiveStep('INTRO')}
-          size={ButtonSize.Small}
-          className="mr-2 flex -rotate-90"
-          icon={<ArrowIcon />}
-        />
-      </Modal.Header>
-      <Modal.Body className="!p-0">
-        <div
-          className={classNames(
-            'flex items-center justify-center gap-2 p-8',
-            isMobile ? 'flex-row' : 'flex-col',
-          )}
-        >
-          <Image
-            src={cloudinaryAwardUnicorn}
-            alt="Award unicorn"
-            className="size-14"
-          />
-          {isMobile ? (
-            <div className="flex h-full flex-col items-center justify-center">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-              >
-                Awards given
-              </Typography>
-              <Typography
-                type={TypographyType.Title2}
-                bold
-                color={TypographyColor.Primary}
-              >
-                175
-              </Typography>
-            </div>
-          ) : (
-            <>
-              <Typography
-                type={TypographyType.Body}
-                bold
-                color={TypographyColor.Primary}
-              >
-                175
-              </Typography>
-              <Typography
-                type={TypographyType.Title3}
-                bold
-                color={TypographyColor.Primary}
-              >
-                Awards given by the community
-              </Typography>
-            </>
-          )}
-        </div>
-        <UserList
-          scrollingProps={{
-            isFetchingNextPage: false,
-            canFetchMore: false,
-            fetchNextPage: () => null,
-          }}
-          users={users}
-          additionalContent={() => (
-            <div className="flex items-center justify-center gap-2">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Credit}
-                bold
-                className="flex"
-              >
-                <CoinIcon /> 45
-              </Typography>
-              <div className="flex size-7 items-center justify-center rounded-10 bg-surface-float">
-                <Image
-                  src={cloudinaryAwardUnicorn}
-                  alt="Award unicorn"
-                  className="size-5"
-                />
-              </div>
-            </div>
-          )}
-          userInfoProps={{
-            origin: Origin.BlockedFilter,
-            showFollow: false,
-            showSubscribe: false,
-            copyType: CopyType.Custom,
-          }}
-        />
-      </Modal.Body>
-    </>
-  );
-};
-
 const ModalBody = () => {
   const { activeStep } = useGiveAwardModalContext();
   return (
     <>
       {activeStep === 'INTRO' ? <IntroScreen /> : null}
       {activeStep === 'COMMENT' ? <CommentScreen /> : null}
-      {activeStep === 'SHOW_ALL' ? <ShowAllScreen /> : null}
     </>
   );
 };

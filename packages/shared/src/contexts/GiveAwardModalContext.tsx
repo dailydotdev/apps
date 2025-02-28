@@ -12,7 +12,6 @@ export type AwardTypes = keyof typeof AWARD_TYPES;
 const SCREENS = {
   INTRO: 'INTRO',
   COMMENT: 'COMMENT',
-  SHOW_ALL: 'SHOW_ALL',
 } as const;
 
 export type Screens = keyof typeof SCREENS;
