@@ -74,12 +74,6 @@ export const useFollowPostTags = ({
     [onFollowTags],
   );
 
-  console.log({
-    isTagExperiment,
-    tags,
-    feedSettings,
-  });
-
   return {
     isTagExperiment,
     onFollowTag,
