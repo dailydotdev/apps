@@ -5,6 +5,7 @@ import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { pageMainClassNames } from '../layout/PageWrapperLayout';
+import { SourceMemberRole } from '../../graphql/sources';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -208,3 +209,7 @@ export const PageInfoHeader = classed(
   'div',
   'mb-10 flex w-full flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4',
 );
+
+// Currently it's only Moderator that deviates from the actual SourceMemberRole name.
+export const getRoleName = (role: SourceMemberRole): string =>
+  role === SourceMemberRole.Moderator ? 'Mod' : role;
