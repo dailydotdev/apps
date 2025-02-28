@@ -182,7 +182,7 @@ export const PlusIOS = ({
           onClick={() => {
             globalThis.webkit.messageHandlers[
               'iap-subscription-manage'
-            ].postMessage();
+            ].postMessage(null);
           }}
           variant={ButtonVariant.Float}
         >
