@@ -33,6 +33,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useFeature } from '../GrowthBookProvider';
 import { featureCustomFeedPlacement } from '../../lib/featureManagement';
 import CustomFeedSlider from '../feeds/CustomFeedSlider';
+import type { ButtonProps } from '../buttons/Button';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -98,14 +99,10 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
 
-  const actionBtnProps = customFeedPlacement
-    ? {
-        buttonSize: ButtonSize.Small,
-        size: ButtonSize.Small,
-        variant: ButtonVariant.Tertiary,
-        buttonVariant: ButtonVariant.Tertiary,
-      }
-    : {};
+  const shieldBtnProps: ButtonProps<'button'> = customFeedPlacement && {
+    size: ButtonSize.Small,
+    variant: ButtonVariant.Tertiary,
+  };
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) && (
@@ -145,12 +142,15 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
-        {...actionBtnProps}
+        {...(customFeedPlacement && {
+          buttonSize: ButtonSize.Small,
+          buttonVariant: ButtonVariant.Tertiary,
+        })}
       />
     ),
     feedsWithActions.includes(feedName as SharedFeedPage) && (
       <ToggleClickbaitShield
-        buttonProps={actionBtnProps}
+        buttonProps={shieldBtnProps}
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
