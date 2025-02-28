@@ -24,6 +24,7 @@ import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
 import { ChecklistViewState } from '../lib/checklist';
 import { gqlClient } from '../graphql/common';
+import { SortCommentsBy } from '../graphql/comments';
 
 export enum ThemeMode {
   Dark = 'dark',
@@ -55,6 +56,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
+  updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
   updateFlag: (
     flag: keyof SettingsFlags,
     value: string | boolean,
@@ -126,6 +128,7 @@ const defaultSettings: RemoteSettings = {
   optOutReadingStreak: false,
   optOutCompanion: false,
   autoDismissNotifications: true,
+  sortCommentsBy: SortCommentsBy.OldestFirst,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
   onboardingChecklistView: ChecklistViewState.Hidden,
@@ -270,6 +273,8 @@ export const SettingsContextProvider = ({
       loadedSettings,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
+      updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
+        setSettings({ ...settings, sortCommentsBy }),
       setOnboardingChecklistView: (value: ChecklistViewState) =>
         setSettings({
           ...settings,

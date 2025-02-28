@@ -32,6 +32,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { featureSocialShare } from '../../lib/featureManagement';
 import { PostContentReminder } from './common/PostContentReminder';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -52,7 +53,8 @@ function PostEngagements({
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
-  const [sortBy, setSortBy] = useState(SortCommentsBy.OldestFirst);
+  const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
+    useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>();
@@ -157,7 +159,6 @@ function PostEngagements({
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
-        sortBy={sortBy}
         origin={logOrigin}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
