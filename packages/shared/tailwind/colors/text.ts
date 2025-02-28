@@ -9,6 +9,7 @@ const textColors = {
     default: 'var(--theme-text-highlight-default)',
     hover: 'var(--theme-text-highlight-hover)',
   },
+  credit: 'var(--theme-accent-bun-default)',
 };
 
 export default textColors;
