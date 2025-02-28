@@ -75,9 +75,15 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);
 
-  const experimentVariant = customFeedPlacement
-    ? ButtonVariant.Secondary
-    : ButtonVariant.Float;
+  const gettVariant = () => {
+    if (customFeedPlacement) {
+      return ButtonVariant.Secondary;
+    }
+    if (sidebar || footer) {
+      return ButtonVariant.Float;
+    }
+    return ButtonVariant.Primary;
+  };
 
   return (
     <ConditionalWrapper
@@ -90,7 +96,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
     >
       <Button
         {...buttonProps}
-        variant={sidebar || footer ? experimentVariant : ButtonVariant.Primary}
+        variant={gettVariant()}
         className={className}
         disabled={getIsDisabled()}
         icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
