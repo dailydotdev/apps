@@ -101,6 +101,7 @@ export const SearchControlHeader = ({
   const actionBtnProps = customFeedPlacement
     ? {
         buttonSize: ButtonSize.Small,
+        size: ButtonSize.Small,
         variant: ButtonVariant.Tertiary,
         buttonVariant: ButtonVariant.Tertiary,
       }
