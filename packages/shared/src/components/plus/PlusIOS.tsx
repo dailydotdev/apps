@@ -57,11 +57,8 @@ export const PlusIOS = ({
 }: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
-  // const { giftToUser } = useGiftUserContext();
   const productIds = useFeature(featureIAPProducts);
-  // const { productOptions } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  // const [productOptions, setProductOptions] = useState([]);
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
     setSelectedOption(priceId);
@@ -79,13 +76,6 @@ export const PlusIOS = ({
   }, [selectedOption, user.id]);
 
   const productList = useMemo(() => Object.keys(productIds), [productIds]);
-
-  // Trigger the native code to fetch the product list from AppStore
-  // useEffect(() => {
-  //   globalThis.webkit.messageHandlers['iap-product-list'].postMessage(
-  //     productList,
-  //   );
-  // }, [productList]);
 
   const { data: productOptions, ...query } = useQuery({
     queryKey: ['iap-products'],
@@ -153,7 +143,6 @@ export const PlusIOS = ({
 
       const params = objectToQueryParams({
         provider: 'storekit',
-        // gift: giftToUser?.id,
       });
       router.replace(`${webappUrl}plus/success?${params}`);
     });
