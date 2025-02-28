@@ -74,6 +74,7 @@ export const useFollowPostTags = ({
   const { onFollowTags } = useTagAndSource({
     origin: Origin.PostTags,
     postId: post.id,
+    feedId,
   });
 
   const onFollowTag = useCallback(
