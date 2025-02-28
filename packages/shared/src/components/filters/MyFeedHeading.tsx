@@ -37,9 +37,9 @@ function MyFeedHeading({
         className={!customFeedPlacement ? 'mr-auto' : ''}
         size={ButtonSize.Medium}
         variant={
-          isLaptop && !customFeedPlacement
-            ? ButtonVariant.Float
-            : ButtonVariant.Tertiary
+          !isLaptop || customFeedPlacement
+            ? ButtonVariant.Tertiary
+            : ButtonVariant.Float
         }
         icon={<FilterIcon />}
         iconPosition={
