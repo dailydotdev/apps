@@ -96,7 +96,11 @@ export const PlusIOS = ({
               const monthlyPrice = +(
                 price / (duration === PlusPriceType.Yearly ? 12 : 1)
               ).toFixed(2);
-              const currencySymbol = '$';
+              const currencySymbol =
+                product.attributes.offers[0].priceFormatted.replace(
+                  /\d|\.|\s|,/g,
+                  '',
+                );
 
               return {
                 label: product.attributes.name,
@@ -109,7 +113,7 @@ export const PlusIOS = ({
                     monthlyPrice,
                   )}`,
                 },
-                currencyCode: 'USD',
+                currencyCode: product.attributes.offers[0].currencyCode,
                 currencySymbol,
                 extraLabel: product.attributes?.description?.standard,
                 appsId: PlusPriceTypeAppsId.Default,
