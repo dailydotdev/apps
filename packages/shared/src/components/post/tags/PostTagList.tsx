@@ -57,6 +57,7 @@ const PostTagItem = ({
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <Chip
           className="px-2 py-1 hover:bg-border-subtlest-tertiary"
+          role="listitem"
           tag={TypographyTag.Link}
         >
           #{tag}
@@ -66,7 +67,7 @@ const PostTagItem = ({
   }
 
   return (
-    <Chip className="flex items-center bg-surface-float">
+    <Chip className="flex items-center bg-surface-float" role="listitem">
       <Link href={getTagPageLink(tag)} passHref>
         <a
           className="inline-block px-2 py-1"
@@ -100,7 +101,7 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
   }
 
   return (
-    <div aria-label="Post tags" className="flex flex-1 items-center gap-2">
+    <ul aria-label="Post tags" className="flex items-center gap-2">
       {tags.followed.map((tag) => (
         <PostTagItem key={`followed-${tag}`} tag={tag} isFollowed />
       ))}
@@ -112,6 +113,6 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
           tag={tag}
         />
       ))}
-    </div>
+    </ul>
   );
 };
