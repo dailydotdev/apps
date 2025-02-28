@@ -34,7 +34,7 @@ const Chip = <T extends TypographyTag>({
 }: PropsWithChildren<TypographyProps<T>>) => (
   <Typography
     className={classNames(
-      'cursor-pointer rounded-10 border border-border-subtlest-tertiary transition-colors',
+      'cursor-pointer rounded-10 border-border-subtlest-tertiary transition-colors',
       className,
     )}
     color={TypographyColor.Tertiary}
@@ -55,7 +55,7 @@ const PostTagItem = ({
     return (
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <Chip
-          className="px-2 py-1 hover:bg-border-subtlest-tertiary"
+          className="border px-2 py-1 hover:bg-border-subtlest-tertiary"
           role="listitem"
           tag={TypographyTag.Link}
           title={`Check all #${tag} posts`}
