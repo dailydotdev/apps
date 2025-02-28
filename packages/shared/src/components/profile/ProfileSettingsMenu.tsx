@@ -211,11 +211,11 @@ const useMenuItems = (): NavItemProps[] => {
       },
     ].filter(Boolean);
   }, [
+    appExperiment,
     isPlus,
     logSubscriptionEvent,
     onLogout,
     openModal,
-    appExperiment,
     plusCta,
   ]);
 };
