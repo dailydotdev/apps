@@ -93,7 +93,6 @@ export const SidebarDesktop = ({
               sidebarExpanded ? 'mx-4' : 'mx-auto',
             )}
             compact={!sidebarExpanded}
-            sidebar
             size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
             showIcon
           />
