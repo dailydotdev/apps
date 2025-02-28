@@ -41,7 +41,7 @@ const feature = {
   }),
 };
 
-export const featurePostTagSorting = new Feature('post_tag_sorting', true);
+export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
 export const visitLinkFeature = new Feature('post_visit_link', false);
 
