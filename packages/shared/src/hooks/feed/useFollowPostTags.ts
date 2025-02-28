@@ -31,7 +31,10 @@ export const useFollowPostTags = ({
   const isModerationItem = !post.permalink;
   const hasFollowedTags = !!feedSettings?.includeTags?.length;
   const shouldEvaluate =
-   isLoggedIn &&  shouldEvaluateExperiment && !isModerationItem && hasFollowedTags;
+    isLoggedIn &&
+    shouldEvaluateExperiment &&
+    !isModerationItem &&
+    hasFollowedTags;
 
   const { value: isTagExperiment, isLoading } = useConditionalFeature({
     feature: featurePostTagSorting,
