@@ -107,7 +107,7 @@ export const SearchControlHeader = ({
     : {};
 
   const actionButtons = [
-    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+    feedsWithActions.includes(feedName as SharedFeedPage) && (
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
@@ -124,7 +124,7 @@ export const SearchControlHeader = ({
           }
         }}
       />
-    ) : null,
+    ),
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
@@ -135,7 +135,7 @@ export const SearchControlHeader = ({
         onChange={(_, index) => setSelectedPeriod(index)}
       />
     ) : null,
-    sortingEnabled && isSortableFeed ? (
+    sortingEnabled && isSortableFeed && (
       <Dropdown
         {...dropdownProps}
         key="sorting"
@@ -146,8 +146,8 @@ export const SearchControlHeader = ({
         drawerProps={{ displayCloseButton: true }}
         {...actionBtnProps}
       />
-    ) : null,
-    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+    ),
+    feedsWithActions.includes(feedName as SharedFeedPage) && (
       <ToggleClickbaitShield
         buttonProps={actionBtnProps}
         origin={
@@ -155,7 +155,7 @@ export const SearchControlHeader = ({
         }
         key="toggle-clickbait-shield"
       />
-    ) : null,
+    ),
   ];
   const actions = actionButtons.filter((button) => !!button);
 
