@@ -19,7 +19,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 const CustomFeedSlider = (): ReactElement => {
   const { feeds } = useFeeds();
   const { isPlus } = usePlusSubscription();
-  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLAnchorElement>(null);
@@ -30,13 +30,13 @@ const CustomFeedSlider = (): ReactElement => {
     return {
       [myFeedPath]: 'For you',
       ...sortedFeeds.reduce((acc, { node: feed }) => {
-        const feedPath = `/feeds/${feed.id}`;
+        const feedPath = defaultFeedId === feed.id ? '/' : `/feeds/${feed.id}`;
         acc[feedPath] = feed.flags?.name || `Feed ${feed.id}`;
         return acc;
       }, {}),
       '/feeds/new': 'New feed',
     };
-  }, [sortedFeeds, isCustomDefaultFeed]);
+  }, [sortedFeeds, isCustomDefaultFeed, defaultFeedId]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) {
