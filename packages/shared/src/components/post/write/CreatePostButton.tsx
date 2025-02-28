@@ -15,6 +15,8 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { SimpleTooltip } from '../../tooltips';
+import { featureCustomFeedPlacement } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
   extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
@@ -43,6 +45,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const hasAccess =
     !handle ||
     squads?.some((item) => verifyPermission(item, SourcePermissions.Post));
+  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   if (!footer && !user) {
     return null;
@@ -72,6 +75,14 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);
 
+  const gettVariant = () => {
+    if (customFeedPlacement) {
+      return ButtonVariant.Secondary;
+    }
+
+    return sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary;
+  };
+
   return (
     <ConditionalWrapper
       condition={shouldShowAsCompact}
@@ -83,9 +94,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
     >
       <Button
         {...buttonProps}
-        variant={
-          sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary
-        }
+        variant={gettVariant()}
         className={className}
         disabled={getIsDisabled()}
         icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
