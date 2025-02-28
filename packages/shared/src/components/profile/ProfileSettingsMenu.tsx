@@ -42,12 +42,13 @@ import {
   featureOnboardingAndroid,
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
+import { SubscriptionProvider } from '../../lib/plus';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout, isAndroidApp } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, plusProvider, logSubscriptionEvent } = usePlusSubscription();
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -90,45 +91,54 @@ const useMenuItems = (): NavItemProps[] => {
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     ];
 
-    if (!isIOSNative()) {
-      items.push({
-        label: isPlus ? 'Manage plus' : plusCta,
-        icon: <DevPlusIcon />,
-        href: isPlus ? managePlusUrl : plusUrl,
-        className: isPlus ? undefined : 'text-action-plus-default',
-        target: isPlus ? '_blank' : undefined,
-        onClick: () => {
-          logSubscriptionEvent({
-            event_name: isPlus
-              ? LogEvent.ManageSubscription
-              : LogEvent.UpgradeSubscription,
-            target_id: TargetId.ProfileDropdown,
-          });
-        },
-      });
-    } else {
-      items.push({
-        label: isPlus ? 'Manage plus' : plusCta,
-        icon: <DevPlusIcon />,
-        href: isPlus ? undefined : plusUrl,
-        className: isPlus ? undefined : 'text-action-plus-default',
-        target: isPlus ? '_blank' : undefined,
-        onClick: () => {
-          if (isPlus) {
-            globalThis.webkit.messageHandlers[
-              'iap-subscription-manage'
-            ].postMessage(null);
-          }
+    const getPlusHref = () => {
+      // Not a plus user - return signup URL
+      if (!isPlus) {
+        return plusUrl;
+      }
 
-          logSubscriptionEvent({
-            event_name: isPlus
-              ? LogEvent.ManageSubscription
-              : LogEvent.UpgradeSubscription,
-            target_id: TargetId.ProfileDropdown,
-          });
-        },
-      });
-    }
+      // Plus users with Apple StoreKit on iOS get no URL (handled by onClick)
+      if (
+        isIOSNative() &&
+        plusProvider === SubscriptionProvider.AppleStoreKit
+      ) {
+        return undefined;
+      }
+
+      // External subscription management for iOS and Paddle users
+      if (isIOSNative() || plusProvider === SubscriptionProvider.Paddle) {
+        return managePlusUrl;
+      }
+
+      // Internal subscription management for other cases
+      return '/account/subscription';
+    };
+
+    items.push({
+      label: isPlus ? 'Manage plus' : plusCta,
+      icon: <DevPlusIcon />,
+      href: getPlusHref(),
+      className: isPlus ? undefined : 'text-action-plus-default',
+      target: isPlus ? '_blank' : undefined,
+      onClick: () => {
+        if (
+          isPlus &&
+          isIOSNative() &&
+          plusProvider === SubscriptionProvider.AppleStoreKit
+        ) {
+          globalThis.webkit.messageHandlers[
+            'iap-subscription-manage'
+          ].postMessage(null);
+        }
+
+        logSubscriptionEvent({
+          event_name: isPlus
+            ? LogEvent.ManageSubscription
+            : LogEvent.UpgradeSubscription,
+          target_id: TargetId.ProfileDropdown,
+        });
+      },
+    });
 
     return [
       ...items,
@@ -217,6 +227,7 @@ const useMenuItems = (): NavItemProps[] => {
     onLogout,
     openModal,
     plusCta,
+    plusProvider,
   ]);
 };
 
