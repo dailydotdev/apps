@@ -25,7 +25,7 @@ export default function PostTags({
   const {
     tags: { all, followed },
     isTagExperiment,
-  } = useFollowPostTags({ post });
+  } = useFollowPostTags({ post, shouldEvaluateExperiment: true });
   const shouldShowOnlyFollowedTags = !!(isTagExperiment && followed.length);
   const tags = shouldShowOnlyFollowedTags ? followed : all;
 

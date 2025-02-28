@@ -10,6 +10,7 @@ import { useCustomFeed } from './useCustomFeed';
 
 interface UseFollowPostTagsProps {
   post: Post;
+  shouldEvaluateExperiment?: boolean;
 }
 
 interface UseFollowPostTags {
@@ -20,6 +21,7 @@ interface UseFollowPostTags {
 
 export const useFollowPostTags = ({
   post,
+  shouldEvaluateExperiment = false,
 }: UseFollowPostTagsProps): UseFollowPostTags => {
   const { isLoggedIn } = useAuthContext();
   const { feedId, isCustomFeed } = useCustomFeed();
@@ -31,7 +33,8 @@ export const useFollowPostTags = ({
 
   const { value: isTagExperiment, isLoading } = useConditionalFeature({
     feature: featurePostTagSorting,
-    shouldEvaluate: isNotModerationItem && hasFollowedTags,
+    shouldEvaluate:
+      shouldEvaluateExperiment && isNotModerationItem && hasFollowedTags,
   });
 
   const tags = useMemo(() => {

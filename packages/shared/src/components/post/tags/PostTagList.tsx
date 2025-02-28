@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useFollowPostTags } from '../../../hooks/feed/useFollowPostTags';
-import { TagLinks } from '../../TagLinks';
 import type { TypographyProps } from '../../typography/Typography';
 import {
   Typography,
@@ -59,6 +58,7 @@ const PostTagItem = ({
           className="px-2 py-1 hover:bg-border-subtlest-tertiary"
           role="listitem"
           tag={TypographyTag.Link}
+          title={`Check all #${tag} posts`}
         >
           #{tag}
         </Chip>
@@ -71,7 +71,7 @@ const PostTagItem = ({
       <Link href={getTagPageLink(tag)} passHref>
         <a
           className="inline-block px-2 py-1"
-          title={`Check #${tag} posts`}
+          title={`Check all #${tag} posts`}
         >{`#${tag}`}</a>
       </Link>
       <span
@@ -90,14 +90,10 @@ const PostTagItem = ({
 };
 
 export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
-  const { isTagExperiment, onFollowTag, tags } = useFollowPostTags({ post });
+  const { onFollowTag, tags } = useFollowPostTags({ post });
 
   if (!tags.all.length) {
     return null;
-  }
-
-  if (!isTagExperiment) {
-    return <TagLinks tags={tags.all} />;
   }
 
   return (
