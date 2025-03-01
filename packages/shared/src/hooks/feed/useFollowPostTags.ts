@@ -70,7 +70,7 @@ export const useFollowPostTags = ({
     isLoading,
     isLoggedIn,
     isModerationItem,
-    post.tags,
+    post?.tags,
     shouldEvaluate,
   ]);
 
