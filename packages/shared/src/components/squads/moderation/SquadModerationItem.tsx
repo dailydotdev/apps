@@ -8,7 +8,6 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { CardImage } from '../../cards/common/Card';
-import PostTags from '../../cards/common/PostTags';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
@@ -119,7 +118,7 @@ export function SquadModerationItem(
           >
             {title}
           </Typography>
-          <PostTags className="!mx-0 min-w-full" post={post} />
+          {/* <PostTags className="!mx-0 min-w-full" post={post} /> */}
         </div>
         <div className="flex-1">
           <CardImage className="mx-auto" src={image || post?.image} />
