@@ -28,7 +28,7 @@ export const useFollowPostTags = ({
   const { feedSettings } = useFeedSettings({
     feedId: isCustomFeed ? feedId : undefined,
   });
-  const isModerationItem = !post.permalink;
+  const isModerationItem = !post?.permalink;
   const hasFollowedTags = !!feedSettings?.includeTags?.length;
   const shouldEvaluate =
     isLoggedIn &&
