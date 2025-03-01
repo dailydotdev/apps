@@ -8,6 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { CardImage } from '../../cards/common/Card';
+import PostTags from '../../cards/common/PostTags';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
@@ -22,7 +23,6 @@ import type { SquadModerationItemProps } from './useSourceModerationItem';
 import { useSourceModerationItem } from './useSourceModerationItem';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
 import SourceProfilePicture from '../../profile/SourceProfilePicture';
-import PostTags from '../../cards/common/PostTags';
 
 export function SquadModerationItem(
   props: SquadModerationItemProps,
