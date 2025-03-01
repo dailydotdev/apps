@@ -22,12 +22,14 @@ export default function PostTags({
   className,
 }: PostTagsProps): ReactElement {
   const { isListMode } = useFeedLayout();
-  const {
-    tags: { all, followed },
-    isTagExperiment,
-  } = useFollowPostTags({ post, shouldEvaluateExperiment: true });
-  const shouldShowOnlyFollowedTags = !!(isTagExperiment && followed.length);
-  const tags = shouldShowOnlyFollowedTags ? followed : all;
+  const { tags: postTags, isTagExperiment } = useFollowPostTags({
+    post,
+    shouldEvaluateExperiment: true,
+  });
+  const shouldShowOnlyFollowedTags = !!(
+    isTagExperiment && postTags?.followed.length
+  );
+  const tags = shouldShowOnlyFollowedTags ? postTags?.followed : postTags?.all;
 
   const elementRef = useRef<HTMLDivElement>(null);
   const width = elementRef?.current?.getBoundingClientRect()?.width || 0;

@@ -28,7 +28,7 @@ export const useFollowPostTags = ({
   const { feedSettings } = useFeedSettings({
     feedId: isCustomFeed ? feedId : undefined,
   });
-  const isModerationItem = !post.permalink;
+  const isModerationItem = !post?.permalink;
   const hasFollowedTags = !!feedSettings?.includeTags?.length;
   const shouldEvaluate =
     isLoggedIn &&
@@ -70,13 +70,13 @@ export const useFollowPostTags = ({
     isLoading,
     isLoggedIn,
     isModerationItem,
-    post.tags,
+    post?.tags,
     shouldEvaluate,
   ]);
 
   const { onFollowTags } = useTagAndSource({
     origin: Origin.PostTags,
-    postId: post.id,
+    postId: post?.id,
     feedId,
   });
 
