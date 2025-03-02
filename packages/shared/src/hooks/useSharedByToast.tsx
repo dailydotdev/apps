@@ -30,7 +30,7 @@ const useSharedByToast = (): void => {
     });
   const { data: user } = useUserShortByIdQuery({ id: userId });
   const { follow } = useContentPreference({ showToastOnSuccess: true });
-  const { displayToast } = useToastNotification();
+  const { displayToast, dismissToast } = useToastNotification();
   const isFollowing =
     contentPreference?.status === ContentPreferenceStatus.Follow;
 
@@ -41,7 +41,11 @@ const useSharedByToast = (): void => {
 
     displayToast(
       <div className="flex items-center gap-4 ">
-        <Link className="flex items-center gap-2 " href={`/${user.username}`}>
+        <Link
+          onClick={() => dismissToast()}
+          className="flex items-center gap-2 "
+          href={`/${user.username}`}
+        >
           <ProfilePicture user={user} size={ProfileImageSize.Medium} />
           <span>
             <Typography tag={TypographyTag.Span} bold>
