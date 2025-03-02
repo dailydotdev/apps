@@ -16,7 +16,7 @@ import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
-import { SharedByUserBanner } from '../SharedByUserBanner';
+import useSharedByToast from '../../hooks/useSharedByToast';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -51,7 +51,6 @@ function SquadPostContentRaw({
     source: post?.source,
     user: post?.author,
   });
-
   const navigationProps: PostNavigationProps = {
     post,
     onPreviousPost,
@@ -61,6 +60,7 @@ function SquadPostContentRaw({
     inlineActions,
     onRemovePost,
   };
+  useSharedByToast();
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -117,7 +117,6 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
-          <SharedByUserBanner className="mb-3" />
           <PostSourceInfo
             source={post.source}
             className={classNames('!typo-body', customNavigation && 'mt-6')}
