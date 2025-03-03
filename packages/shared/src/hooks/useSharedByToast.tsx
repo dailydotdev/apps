@@ -81,6 +81,7 @@ const useSharedByToast = (): void => {
     isFollowing,
     contentPreference,
     isPending,
+    dismissToast,
   ]);
 };
 
