@@ -42,7 +42,6 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
-  featureOnboardingDesktopPWA,
   featureAndroidPWA,
   featureOnboardingPlusCheckout,
   featureOnboardingPapercuts,
@@ -64,9 +63,7 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
-  BrowserName,
   checkIsBrowser,
-  getCurrentBrowserName,
   isIOS,
   isIOSNative,
   isPWA,
@@ -118,12 +115,6 @@ const OnboardingExtension = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
   ).then((mod) => mod.OnboardingExtension),
-);
-
-const OnboardingInstallDesktop = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
-  ).then((mod) => mod.OnboardingInstallDesktop),
 );
 
 const OnboardingAndroidPWA = dynamic(() =>
@@ -202,7 +193,6 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingPapercut = useFeature(featureOnboardingPapercuts);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
@@ -265,7 +255,7 @@ export function OnboardPage(): ReactElement {
     activeScreen,
   ]);
 
-  const onClickNext: OnboardingOnClickNext = (options) => {
+  const onClickNext: OnboardingOnClickNext = () => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -317,36 +307,12 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    const isNotExtensionRelatedStep = ![
-      OnboardingStep.Extension,
-      OnboardingStep.InstallDesktop,
-    ].includes(activeScreen);
+    const isNotExtensionRelatedStep = ![OnboardingStep.Extension].includes(
+      activeScreen,
+    );
 
     if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
-    }
-
-    const haveSkippedExtension =
-      !options?.clickExtension && activeScreen === OnboardingStep.Extension;
-    const browserName = getCurrentBrowserName();
-    const browserDontHaveExtension = [
-      BrowserName.Safari,
-      BrowserName.Firefox,
-    ].includes(browserName);
-
-    if (
-      isLaptop &&
-      canUserInstallPWA &&
-      activeScreen !== OnboardingStep.InstallDesktop &&
-      (haveSkippedExtension || browserDontHaveExtension)
-    ) {
-      const installDesktopExperiment = growthbook.getFeatureValue(
-        featureOnboardingDesktopPWA.id,
-        featureOnboardingDesktopPWA.defaultValue,
-      );
-      if (installDesktopExperiment) {
-        return setActiveScreen(OnboardingStep.InstallDesktop);
-      }
     }
 
     logEvent({
@@ -547,9 +513,6 @@ export function OnboardPage(): ReactElement {
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
-              )}
-              {activeScreen === OnboardingStep.InstallDesktop && (
-                <OnboardingInstallDesktop onClickNext={onClickNext} />
               )}
               {activeScreen === OnboardingStep.AndroidPWA && (
                 <OnboardingAndroidPWA />
