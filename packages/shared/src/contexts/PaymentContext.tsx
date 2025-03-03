@@ -28,7 +28,7 @@ import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
 import { useFeature } from '../components/GrowthBookProvider';
-import { PixelsContext } from './PixelsContext';
+import { usePixelsContext } from './PixelsContext';
 
 export type ProductOption = {
   label: string;
@@ -77,7 +77,7 @@ export const PaymentContextProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { trackPayment } = useContext(PixelsContext);
+  const { trackPayment } = usePixelsContext();
   const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -151,7 +151,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router]);
+  }, [router, trackPayment]);
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({

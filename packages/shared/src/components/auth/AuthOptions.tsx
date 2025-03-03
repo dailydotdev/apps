@@ -1,5 +1,5 @@
 import type { MutableRefObject, ReactElement } from 'react';
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -39,7 +39,7 @@ import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingPapercuts } from '../../lib/featureManagement';
-import { PixelsContext } from '../../contexts/PixelsContext';
+import { usePixelsContext } from '../../contexts/PixelsContext';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -164,7 +164,7 @@ function AuthOptions({
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
-  const { trackSignup } = useContext(PixelsContext);
+  const { trackSignup } = usePixelsContext();
   const { logEvent } = useLogContext();
   const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const [isConnected, setIsConnected] = useState(false);

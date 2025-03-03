@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import type { LoggedUser } from '../lib/user';
 
 export interface PixelsContextData {
@@ -16,3 +16,6 @@ export const PixelsContext = createContext<PixelsContextData>({
   trackPayment() {},
   trackEvent() {},
 });
+
+export const usePixelsContext = (): PixelsContextData =>
+  useContext(PixelsContext);
