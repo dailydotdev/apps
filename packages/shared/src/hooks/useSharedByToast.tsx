@@ -70,7 +70,7 @@ const useSharedByToast = (): void => {
         )}
       </div>,
     );
-    // Adding all the dependencies causes too many dependencies.
+    // Adding all the dependencies causes too many rerenders.
     // Only using the ones that determine if the toast should be shown.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, userId, isLoading, isAuthReady]);
