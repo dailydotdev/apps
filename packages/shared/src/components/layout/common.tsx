@@ -30,6 +30,10 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useFeature } from '../GrowthBookProvider';
+import { featureCustomFeedPlacement } from '../../lib/featureManagement';
+import CustomFeedSlider from '../feeds/CustomFeedSlider';
+import type { ButtonProps } from '../buttons/Button';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -74,6 +78,7 @@ export const SearchControlHeader = ({
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
 
   if (isMobile) {
     return null;
@@ -94,8 +99,15 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
 
+  const shieldBtnProps: ButtonProps<'button'> = customFeedPlacement
+    ? {
+        size: ButtonSize.Small,
+        variant: ButtonVariant.Tertiary,
+      }
+    : undefined;
+
   const actionButtons = [
-    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+    feedsWithActions.includes(feedName as SharedFeedPage) && (
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
@@ -112,7 +124,7 @@ export const SearchControlHeader = ({
           }
         }}
       />
-    ) : null,
+    ),
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
@@ -123,7 +135,7 @@ export const SearchControlHeader = ({
         onChange={(_, index) => setSelectedPeriod(index)}
       />
     ) : null,
-    sortingEnabled && isSortableFeed ? (
+    sortingEnabled && isSortableFeed && (
       <Dropdown
         {...dropdownProps}
         key="sorting"
@@ -132,16 +144,21 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
+        {...(customFeedPlacement && {
+          buttonSize: ButtonSize.Small,
+          buttonVariant: ButtonVariant.Tertiary,
+        })}
       />
-    ) : null,
-    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+    ),
+    feedsWithActions.includes(feedName as SharedFeedPage) && (
       <ToggleClickbaitShield
+        buttonProps={shieldBtnProps}
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
         key="toggle-clickbait-shield"
       />
-    ) : null,
+    ),
   ];
   const actions = actionButtons.filter((button) => !!button);
 
@@ -166,7 +183,12 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      {actions}
+      <div className="flex w-full items-center gap-2">
+        {customFeedPlacement && <CustomFeedSlider />}
+        <div className="flex items-center gap-2">
+          {customFeedPlacement ? actions.reverse() : actions}
+        </div>
+      </div>
     </ConditionalWrapper>
   );
 };

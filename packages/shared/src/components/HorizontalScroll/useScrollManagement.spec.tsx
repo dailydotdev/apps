@@ -7,8 +7,24 @@ jest.mock('../../hooks/useDebounceFn');
 describe('useScrollManagement', () => {
   let mockRef: { current: HTMLElement | null };
   let onScrollMock: jest.Mock;
+  let mockResizeObserver: jest.Mock;
+  let mockObserve: jest.Mock;
+  let mockDisconnect: jest.Mock;
 
   beforeEach(() => {
+    mockObserve = jest.fn();
+    mockDisconnect = jest.fn();
+
+    mockResizeObserver = jest.fn().mockImplementation(() => {
+      return {
+        observe: mockObserve,
+        disconnect: mockDisconnect,
+        unobserve: jest.fn(),
+      };
+    });
+
+    global.ResizeObserver = mockResizeObserver;
+
     onScrollMock = jest.fn();
 
     mockRef = {
@@ -17,14 +33,22 @@ describe('useScrollManagement', () => {
 
     Object.defineProperty(mockRef.current, 'scrollWidth', {
       value: 1000,
+      configurable: true,
     });
-    Object.defineProperty(mockRef.current, 'clientWidth', { value: 500 });
+    Object.defineProperty(mockRef.current, 'clientWidth', {
+      value: 500,
+      configurable: true,
+    });
     Object.defineProperty(mockRef.current, 'scrollLeft', {
       value: 0,
       writable: true,
     });
 
     (useDebounceFn as jest.Mock).mockImplementation((fn) => [fn]);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should set isAtStart to true when scrolled to the start', () => {

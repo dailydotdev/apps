@@ -138,7 +138,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
-            <PostTags tags={post.sharedPost.tags} />
+            <PostTags post={post.sharedPost} />
           </div>
           <PostMetadata
             createdAt={post.createdAt}

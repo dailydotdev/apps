@@ -72,7 +72,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       </FreeformCardTitle>
 
       {!!post.image && <CardSpace />}
-      <PostTags tags={post.tags} />
+      <PostTags post={post} />
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
