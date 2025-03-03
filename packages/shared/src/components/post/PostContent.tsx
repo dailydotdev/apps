@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
-import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
@@ -27,6 +26,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import useSharedByToast from '../../hooks/useSharedByToast';
+import { PostTagList } from './tags/PostTagList';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -165,7 +165,7 @@ export function PostContentRaw({
             />
           )}
           {post.summary && <SmartPrompt post={post} />}
-          <TagLinks tags={post.tags || []} />
+          <PostTagList post={post} />
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}

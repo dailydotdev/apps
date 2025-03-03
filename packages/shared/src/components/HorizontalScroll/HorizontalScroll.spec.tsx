@@ -6,13 +6,33 @@ import { useCalculateVisibleElements } from './useCalculateVisibleElements';
 jest.mock('./useCalculateVisibleElements');
 
 describe('HorizontalScroll', () => {
+  let mockResizeObserver: jest.Mock;
+  let mockObserve: jest.Mock;
+  let mockDisconnect: jest.Mock;
+
   beforeEach(() => {
+    mockObserve = jest.fn();
+    mockDisconnect = jest.fn();
+
+    mockResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: mockObserve,
+      disconnect: mockDisconnect,
+      unobserve: jest.fn(),
+    }));
+
+    global.ResizeObserver = mockResizeObserver;
+
     (useCalculateVisibleElements as jest.Mock).mockReturnValue({
       scrollableElementWidth: 100,
       isOverflowing: true,
       elementsCount: 5,
     });
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders correctly with the given title and children', () => {
     render(
       <HorizontalScroll scrollProps={{ title: { copy: 'Scrollable Area' } }}>
