@@ -17,15 +17,16 @@ import { Typography, TypographyTag } from '../components/typography/Typography';
 
 const useSharedByToast = (): void => {
   const { user: currentUser, isAuthReady } = useAuthContext();
-  const { query, isReady } = useRouter();
+  const { query } = useRouter();
   const userId = (query?.userid as string) || null;
-  const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: userId,
-    entity: ContentPreferenceType.User,
-    queryOptions: {
-      enabled: !!userId && userId !== currentUser?.id,
-    },
-  });
+  const { data: contentPreference, isLoading } =
+    useContentPreferenceStatusQuery({
+      id: userId,
+      entity: ContentPreferenceType.User,
+      queryOptions: {
+        enabled: !!userId && userId !== currentUser?.id,
+      },
+    });
   const { data: user } = useUserShortByIdQuery({ id: userId });
   const { follow } = useContentPreference({ showToastOnSuccess: true });
   const { displayToast, dismissToast } = useToastNotification();
@@ -33,7 +34,7 @@ const useSharedByToast = (): void => {
     contentPreference?.status === ContentPreferenceStatus.Follow;
 
   useLayoutEffect(() => {
-    if (!user && isReady && isAuthReady) {
+    if (!user || isLoading || !isAuthReady) {
       return;
     }
 
@@ -69,9 +70,10 @@ const useSharedByToast = (): void => {
         )}
       </div>,
     );
-    // Adding all the dependencies causes a lot of unnecessary rerenders.
+    // Adding all the dependencies causes too many dependencies.
+    // Only using the ones that determine if the toast should be shown.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, userId, isReady, isAuthReady]);
+  }, [user, userId, isLoading, isAuthReady]);
 };
 
 export default useSharedByToast;
