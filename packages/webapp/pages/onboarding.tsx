@@ -42,7 +42,6 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
-  featureAndroidPWA,
   featureOnboardingPlusCheckout,
   featureOnboardingPapercuts,
   featurePersonalizedOnboarding,
@@ -62,17 +61,10 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import {
-  checkIsBrowser,
-  isIOS,
-  isIOSNative,
-  isPWA,
-  UserAgent,
-} from '@dailydotdev/shared/src/lib/func';
+import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -117,12 +109,6 @@ const OnboardingExtension = dynamic(() =>
   ).then((mod) => mod.OnboardingExtension),
 );
 
-const OnboardingAndroidPWA = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingAndroidPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidPWA'
-  ).then((mod) => mod.OnboardingAndroidPWA),
-);
-
 const PersonalizedOnboardingHeadline = dynamic(
   () =>
     import(
@@ -148,7 +134,6 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
-  const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
     useOnboarding();
   const router = useRouter();
@@ -292,15 +277,6 @@ export function OnboardPage(): ReactElement {
       );
       setIsPlusCheckout(isPlusCheckoutExperiment);
       return setActiveScreen(OnboardingStep.Plus);
-    }
-
-    if (
-      activeScreen !== OnboardingStep.AndroidPWA &&
-      checkIsBrowser(UserAgent.Android) &&
-      canUserInstallPWA &&
-      getFeatureValue(featureAndroidPWA)
-    ) {
-      return setActiveScreen(OnboardingStep.AndroidPWA);
     }
 
     if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
@@ -453,9 +429,7 @@ export function OnboardPage(): ReactElement {
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
             activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
             !isAuthenticating && 'mt-7.5 flex-1 content-center',
-            [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
-              activeScreen,
-            ) && '!flex-col',
+            [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
         >
           {showOnboardingPage && (
@@ -513,9 +487,6 @@ export function OnboardPage(): ReactElement {
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
-              )}
-              {activeScreen === OnboardingStep.AndroidPWA && (
-                <OnboardingAndroidPWA />
               )}
             </div>
           )}
