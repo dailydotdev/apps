@@ -426,6 +426,11 @@ function AuthOptions({
     onSetActiveDisplay(defaultDisplay);
   };
 
+  const onEmailLogin: typeof onPasswordLogin = (params) => {
+    setEmail(params.identifier);
+    onPasswordLogin(params);
+  };
+
   return (
     <div
       className={classNames(
@@ -450,7 +455,7 @@ function AuthOptions({
             isReady={isReady}
             loginHint={loginHint}
             onForgotPassword={onForgotPassword}
-            onPasswordLogin={onPasswordLogin}
+            onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
             providers={providers}

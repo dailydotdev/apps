@@ -41,6 +41,8 @@ const feature = {
   }),
 };
 
+export const featurePostTagSorting = new Feature('post_tag_sorting', false);
+
 export const visitLinkFeature = new Feature('post_visit_link', false);
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
@@ -98,6 +100,11 @@ export const featureSocialShare = new Feature('social_share', false);
 
 export const featurePersonalizedOnboarding = new Feature(
   'personalized_onboarding',
+  false,
+);
+
+export const featureCustomFeedPlacement = new Feature(
+  'custom_feed_placement',
   false,
 );
 
