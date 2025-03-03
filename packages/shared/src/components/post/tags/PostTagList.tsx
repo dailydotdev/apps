@@ -97,7 +97,7 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
   }
 
   return (
-    <ul aria-label="Post tags" className="flex items-center gap-2">
+    <ul aria-label="Post tags" className="flex flex-wrap items-center gap-2">
       {tags.followed.map((tag) => (
         <PostTagItem key={`followed-${tag}`} tag={tag} isFollowed />
       ))}
