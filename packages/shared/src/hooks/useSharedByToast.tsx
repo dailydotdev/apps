@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -16,26 +16,24 @@ import { Button } from '../components/buttons/Button';
 import { Typography, TypographyTag } from '../components/typography/Typography';
 
 const useSharedByToast = (): void => {
-  const { user: currentUser } = useAuthContext();
-  const { query } = useRouter();
+  const { user: currentUser, isAuthReady } = useAuthContext();
+  const { query, isReady } = useRouter();
   const userId = (query?.userid as string) || null;
-  const [hasShownToast, setHasShownToast] = useState(false);
-  const { data: contentPreference, isPending } =
-    useContentPreferenceStatusQuery({
-      id: userId,
-      entity: ContentPreferenceType.User,
-      queryOptions: {
-        enabled: !!userId && userId !== currentUser?.id,
-      },
-    });
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: userId,
+    entity: ContentPreferenceType.User,
+    queryOptions: {
+      enabled: !!userId && userId !== currentUser?.id,
+    },
+  });
   const { data: user } = useUserShortByIdQuery({ id: userId });
   const { follow } = useContentPreference({ showToastOnSuccess: true });
   const { displayToast, dismissToast } = useToastNotification();
   const isFollowing =
     contentPreference?.status === ContentPreferenceStatus.Follow;
 
-  useEffect(() => {
-    if (hasShownToast || !user || isPending) {
+  useLayoutEffect(() => {
+    if (!user && isReady && isAuthReady) {
       return;
     }
 
@@ -71,18 +69,9 @@ const useSharedByToast = (): void => {
         )}
       </div>,
     );
-    setHasShownToast(true);
-  }, [
-    user,
-    hasShownToast,
-    displayToast,
-    follow,
-    userId,
-    isFollowing,
-    contentPreference,
-    isPending,
-    dismissToast,
-  ]);
+    // Adding all the dependencies causes a lot of unnecessary rerenders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, userId, isReady, isAuthReady]);
 };
 
 export default useSharedByToast;
