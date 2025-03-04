@@ -120,6 +120,10 @@ export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
 }>;
 
+export type UserSubscriptionFlags = Partial<{
+  provider: SubscriptionProvider;
+}>;
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
@@ -138,11 +142,11 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
   isPlus?: boolean;
-  plusProvider?: SubscriptionProvider;
   companies?: Company[];
   contentPreference?: ContentPreference;
   defaultFeedId?: string;
   flags?: UserFlagsPublic;
+  subscriptionFlags?: UserSubscriptionFlags;
 }
 
 interface BaseError {

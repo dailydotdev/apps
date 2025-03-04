@@ -18,7 +18,7 @@ export const usePlusSubscription = (): {
 } => {
   const { user } = useAuthContext();
   const isPlus = user?.isPlus || false;
-  const plusProvider = user?.plusProvider || null;
+  const plusProvider = user?.subscriptionFlags?.provider || null;
   const { logEvent } = useLogContext();
 
   const logSubscriptionEvent = useCallback(
