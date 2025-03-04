@@ -188,14 +188,16 @@ export default function ProfileMenu({
     return list.filter(Boolean);
   }, [
     user.permalink,
-    isPlusAvailable,
     isPlus,
+    plusCta,
+    plusHref,
+    plusProvider,
+    isPlusAvailable,
     logSubscriptionEvent,
     isDndActive,
     setShowDnd,
     openModal,
     logout,
-    plusCta,
   ]);
 
   if (!user) {

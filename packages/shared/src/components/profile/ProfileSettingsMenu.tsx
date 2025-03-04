@@ -203,6 +203,7 @@ const useMenuItems = (): NavItemProps[] => {
     onLogout,
     openModal,
     plusCta,
+    plusHref,
     plusProvider,
   ]);
 };
