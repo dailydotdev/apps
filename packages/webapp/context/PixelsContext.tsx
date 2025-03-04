@@ -89,9 +89,38 @@ function WebPixelsProvider({
   );
 }
 
+function IOSPixelsProvider({
+  children,
+}: PixelsContextProviderProps): ReactElement {
+  const context: PixelsContextData = {
+    trackSignup({ id, email }) {
+      globalThis.webkit.messageHandlers['track-event'].postMessage({
+        eventName: 'signup',
+        email,
+        userId: id,
+      });
+    },
+    trackPayment() {},
+    trackEvent(eventName: string) {
+      globalThis.webkit.messageHandlers['track-event'].postMessage({
+        eventName,
+      });
+    },
+  };
+
+  return (
+    <PixelsContext.Provider value={context}>
+      <Pixels />
+      {children}
+    </PixelsContext.Provider>
+  );
+}
+
 export function PixelsProvider(
   props: PixelsContextProviderProps,
 ): ReactElement {
-  // Once we have iOS support will create a new provider and use it conditionally
+  if (globalThis.webkit?.messageHandlers?.['track-event']) {
+    return <IOSPixelsProvider {...props} />;
+  }
   return <WebPixelsProvider {...props} />;
 }
