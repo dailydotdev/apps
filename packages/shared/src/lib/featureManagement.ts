@@ -57,11 +57,6 @@ export const featureOnboardingPlusCheckout = new Feature(
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
-export const featureOnboardingDesktopPWA = new Feature(
-  'onboarding_desktop_pwa',
-  false,
-);
-
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',
   false,
@@ -78,7 +73,6 @@ export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   },
 } as Record<FeedSettingsKeys, FeedAdTemplate>);
 
-export const featureAndroidPWA = new Feature('android_pwa_onboarding', false);
 export const featureValidLanguages = new Feature('valid_languages', {
   en: 'English',
   es: 'Spanish',
