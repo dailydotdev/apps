@@ -24,8 +24,8 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import { SharedByUserBanner } from '../SharedByUserBanner';
 import { SmartPrompt } from './smartPrompts/SmartPrompt';
+import useSharedByToast from '../../hooks/useSharedByToast';
 import { PostTagList } from './tags/PostTagList';
 
 export const SCROLL_OFFSET = 80;
@@ -71,6 +71,7 @@ export function PostContentRaw({
     'laptop:flex-row laptop:pb-0',
     className?.container,
   );
+  useSharedByToast();
 
   const navigationProps: PostNavigationProps = {
     postPosition,
@@ -147,7 +148,6 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <SharedByUserBanner />
           <div className="my-6">
             <h1
               className="break-words font-bold typo-large-title"
