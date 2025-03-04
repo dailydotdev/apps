@@ -28,9 +28,8 @@ import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
 import { useFeature } from '../components/GrowthBookProvider';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isIOSNative } from '../lib/func';
 import { usePixelsContext } from './PixelsContext';
-import { isIOSNative } from '../lib/func';
 
 export type ProductOption = {
   label: string;
