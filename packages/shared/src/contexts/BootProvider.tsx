@@ -262,7 +262,7 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (
       isIOSNative() &&
-      logged &&
+      shouldRefetch &&
       !logged?.subscriptionFlags?.appAccountToken
     ) {
       gqlClient
@@ -281,7 +281,7 @@ export const BootDataProvider = ({
           });
         });
     }
-  }, [logged, updateBootData]);
+  }, [logged, shouldRefetch, updateBootData]);
 
   if (error) {
     return (
