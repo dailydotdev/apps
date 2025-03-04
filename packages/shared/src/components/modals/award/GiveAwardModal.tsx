@@ -25,6 +25,7 @@ import { termsOfService } from '../../../lib/constants';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
+import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 
 const AwardItem = () => {
   const { setActiveStep } = useGiveAwardModalContext();
@@ -54,11 +55,12 @@ const AwardItem = () => {
 };
 
 const IntroScreen = () => {
-  const { setActiveStep, onRequestClose, type } = useGiveAwardModalContext();
+  const { onRequestClose, type } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
     <>
       <Modal.Header title={' '} showCloseButton={!isMobile}>
+        <BuyCreditsButton />
         {isMobile ? (
           <Button
             onClick={onRequestClose}
