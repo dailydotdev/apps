@@ -11,7 +11,6 @@ import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useFeature } from '../GrowthBookProvider';
 import { featureIAPProducts } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
-import { objectToQueryParams } from '../../lib';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { WebKitMessageHandlers } from '../../lib/ios';
@@ -145,10 +144,7 @@ export const PlusIOS = ({
         return;
       }
 
-      const params = objectToQueryParams({
-        provider: 'storekit',
-      });
-      router.replace(`${webappUrl}plus/success?${params}`);
+      router.replace(`${webappUrl}plus/success`);
     });
   }, [router, selectedOption]);
 
