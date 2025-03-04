@@ -35,11 +35,11 @@ import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
-import { logPixelSignUp } from '../../lib/pixels';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingPapercuts } from '../../lib/featureManagement';
+import { usePixelsContext } from '../../contexts/PixelsContext';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -164,6 +164,7 @@ function AuthOptions({
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
+  const { trackSignup } = usePixelsContext();
   const { logEvent } = useLogContext();
   const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const [isConnected, setIsConnected] = useState(false);
@@ -275,11 +276,7 @@ function AuthOptions({
       event_name: AuthEventNames.SignupSuccessfully,
     });
     const loggedUser = data?.user as LoggedUser;
-    logPixelSignUp({
-      userId: loggedUser?.id,
-      email: loggedUser?.email,
-      experienceLevel: loggedUser?.experienceLevel,
-    });
+    trackSignup(loggedUser);
 
     // if redirect is set move before modal close
     if (redirect) {
