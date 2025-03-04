@@ -122,6 +122,9 @@ export type UserFlagsPublic = Partial<{
 
 export type UserSubscriptionFlags = Partial<{
   provider: SubscriptionProvider;
+
+  // StoreKit flags
+  appAccountToken?: string; // StoreKit app account token (UUID)
 }>;
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
