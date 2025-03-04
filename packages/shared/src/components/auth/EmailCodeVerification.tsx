@@ -177,7 +177,7 @@ function EmailCodeVerification({
             </Typography>
           )}
           <span className="text-text-tertiary">
-            Didn&#39;t get verification codes?{' '}
+            Didn&#39;t get a verification code?{' '}
             <button
               type="button"
               disabled={resendTimer > 0}

@@ -54,6 +54,7 @@ function TextFieldComponent(
     disabled,
     rightIcon,
     required,
+    pressed,
     onBlur: onExternalBlur,
     focused: focusedProp,
     inputRef: inputRefProp,
@@ -180,6 +181,7 @@ function TextFieldComponent(
           readOnly={readOnly}
           size={1}
           className={classNames(
+            styles.input,
             'self-stretch text-ellipsis',
             className?.input,
             getFieldFontColor({
@@ -189,6 +191,7 @@ function TextFieldComponent(
               focused,
               hasActionIcon: !!rightIcon,
             }),
+            { pressed },
           )}
           disabled={disabled}
           required={required}

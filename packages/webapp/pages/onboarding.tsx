@@ -448,8 +448,11 @@ export function OnboardPage(): ReactElement {
                   </div>
                 )}
                 <AuthOptions {...authOptionProps} />
+                {onboardingPapercut && <SignupDisclaimer />}
               </div>
-              <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+              {!onboardingPapercut && (
+                <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+              )}
             </>
           )}
           {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
@@ -491,7 +494,7 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {showOnboardingPage && <OnboardingFooter />}
+        {showOnboardingPage && !onboardingPapercut && <OnboardingFooter />}
         {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
