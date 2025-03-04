@@ -83,12 +83,11 @@ export const PaymentContextProvider = ({
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
-  const isExtension = checkIsExtension();
 
   logRef.current = logSubscriptionEvent;
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
-    if (isExtension) {
+    if (checkIsExtension()) {
       // Payment not available on extension
       return;
     }
@@ -157,7 +156,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [isExtension, router, trackPayment]);
+  }, [router, trackPayment]);
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
