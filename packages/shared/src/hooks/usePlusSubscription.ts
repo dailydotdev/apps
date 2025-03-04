@@ -1,9 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { TargetType } from '../lib/log';
 import type { LogEvent, TargetId } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
-import type { SubscriptionProvider } from '../lib/plus';
+import { SubscriptionProvider } from '../lib/plus';
+import { managePlusUrl, plusUrl } from '../lib/constants';
+import { isIOSNative } from '../lib/func';
 
 type LogSubscriptionEvent = {
   event_name: LogEvent | string;
@@ -15,6 +17,7 @@ export const usePlusSubscription = (): {
   isPlus: boolean;
   plusProvider: SubscriptionProvider | null;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
+  plusHref: string | undefined;
 } => {
   const { user } = useAuthContext();
   const isPlus = user?.isPlus || false;
@@ -33,9 +36,29 @@ export const usePlusSubscription = (): {
     [logEvent],
   );
 
+  const plusHref = useMemo(() => {
+    if (!isPlus) {
+      return plusUrl;
+    }
+
+    // Plus users with Apple StoreKit on iOS get no URL (handled by onClick)
+    if (isIOSNative() && plusProvider === SubscriptionProvider.AppleStoreKit) {
+      return undefined;
+    }
+
+    // External subscription management for iOS and Paddle users
+    if (isIOSNative() || plusProvider === SubscriptionProvider.Paddle) {
+      return managePlusUrl;
+    }
+
+    // Internal subscription management for other cases
+    return '/account/subscription';
+  }, [isPlus, plusProvider]);
+
   return {
     isPlus,
     plusProvider,
     logSubscriptionEvent,
+    plusHref,
   };
 };

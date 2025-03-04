@@ -18,13 +18,7 @@ import {
   MegaphoneIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
-import {
-  businessWebsiteUrl,
-  docs,
-  feedback,
-  managePlusUrl,
-  plusUrl,
-} from '../../lib/constants';
+import { businessWebsiteUrl, docs, feedback } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -49,7 +43,8 @@ const useMenuItems = (): NavItemProps[] => {
   const { logout, isAndroidApp } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { isPlus, plusProvider, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
+    usePlusSubscription();
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -92,35 +87,15 @@ const useMenuItems = (): NavItemProps[] => {
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     ];
 
-    const getPlusHref = () => {
-      // Not a plus user - return signup URL
-      if (!isPlus) {
-        return plusUrl;
-      }
-
-      // Plus users with Apple StoreKit on iOS get no URL (handled by onClick)
-      if (
-        isIOSNative() &&
-        plusProvider === SubscriptionProvider.AppleStoreKit
-      ) {
-        return undefined;
-      }
-
-      // External subscription management for iOS and Paddle users
-      if (isIOSNative() || plusProvider === SubscriptionProvider.Paddle) {
-        return managePlusUrl;
-      }
-
-      // Internal subscription management for other cases
-      return '/account/subscription';
-    };
-
     items.push({
       label: isPlus ? 'Manage plus' : plusCta,
       icon: <DevPlusIcon />,
-      href: getPlusHref(),
+      href: plusHref,
       className: isPlus ? undefined : 'text-action-plus-default',
-      target: isPlus ? '_blank' : undefined,
+      target:
+        isPlus && plusProvider === SubscriptionProvider.Paddle
+          ? '_blank'
+          : undefined,
       onClick: () => {
         if (
           isPlus &&

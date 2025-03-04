@@ -20,18 +20,13 @@ import InteractivePopup, {
 } from './tooltips/InteractivePopup';
 import type { AllowedTags, ButtonProps } from './buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import {
-  managePlusUrl,
-  plusUrl,
-  reputation,
-  webappUrl,
-} from '../lib/constants';
+import { reputation, webappUrl } from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { checkIsExtension, isIOSNative } from '../lib/func';
+import { checkIsExtension } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
@@ -39,6 +34,7 @@ import { LogEvent, TargetId } from '../lib/log';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 import { GiftIcon } from './icons/gift';
 import { useConditionalFeature } from '../hooks';
+import { SubscriptionProvider } from '../lib/plus';
 
 interface ListItem {
   title: string;
@@ -56,7 +52,8 @@ export default function ProfileMenu({
   const { openModal } = useLazyModal();
   const { user, logout, isValidRegion: isPlusAvailable } = useAuthContext();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent, plusHref, plusProvider } =
+    usePlusSubscription();
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -76,26 +73,27 @@ export default function ProfileMenu({
       },
     ];
 
-    if (!isIOSNative()) {
-      list.push({
-        title: isPlus ? 'Manage plus' : plusCta,
-        buttonProps: {
-          tag: 'a',
-          icon: <DevPlusIcon />,
-          href: isPlus ? managePlusUrl : plusUrl,
-          className: isPlus ? undefined : 'text-action-plus-default',
-          target: isPlus ? '_blank' : undefined,
-          onClick: () => {
-            logSubscriptionEvent({
-              event_name: isPlus
-                ? LogEvent.ManageSubscription
-                : LogEvent.UpgradeSubscription,
-              target_id: TargetId.ProfileDropdown,
-            });
-          },
+    list.push({
+      title: isPlus ? 'Manage plus' : plusCta,
+      buttonProps: {
+        tag: 'a',
+        icon: <DevPlusIcon />,
+        href: plusHref,
+        className: isPlus ? undefined : 'text-action-plus-default',
+        target:
+          isPlus && plusProvider === SubscriptionProvider.Paddle
+            ? '_blank'
+            : undefined,
+        onClick: () => {
+          logSubscriptionEvent({
+            event_name: isPlus
+              ? LogEvent.ManageSubscription
+              : LogEvent.UpgradeSubscription,
+            target_id: TargetId.ProfileDropdown,
+          });
         },
-      });
-    }
+      },
+    });
 
     list.push(
       {
