@@ -183,6 +183,10 @@ const OnboardingRegistrationForm = ({
           type="email"
           name="email"
           focused={onboardingPapercut}
+          pressed={onboardingPapercut}
+          className={{
+            container: onboardingPapercut && 'bg-overlay-active-salt',
+          }}
         />
 
         {shouldLogin && (

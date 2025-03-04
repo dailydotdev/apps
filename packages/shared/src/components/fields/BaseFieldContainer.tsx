@@ -10,6 +10,7 @@ interface FieldStateProps {
   isLocked?: boolean;
   hasInput?: boolean;
   focused?: boolean;
+  pressed?: boolean;
   disabled?: boolean;
   invalid?: boolean;
   hasActionIcon?: boolean;
