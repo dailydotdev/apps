@@ -19,6 +19,8 @@ import { IconSize } from '../Icon';
 import { TypographyType } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
 import { usePaymentContext } from '../../contexts/PaymentContext';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingReorder } from '../../lib/featureManagement';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -38,6 +40,7 @@ export const OnboardingHeader = ({
   showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
   const { isFreeTrialExperiment } = usePaymentContext();
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
@@ -130,30 +133,32 @@ export const OnboardingHeader = ({
         position={LogoPosition.Relative}
         linkDisabled
       />
-      <span className={classNames('flex items-center', 'text-text-tertiary')}>
-        <span
-          className="hidden tablet:block"
-          id={`login-label-${id}`}
-          aria-hidden
-        >
-          Already using daily.dev?
+      {!isReorderExperiment && (
+        <span className={classNames('flex items-center', 'text-text-tertiary')}>
+          <span
+            className="hidden tablet:block"
+            id={`login-label-${id}`}
+            aria-hidden
+          >
+            Already using daily.dev?
+          </span>
+          <Button
+            aria-label="Already using daily.dev? Login now"
+            className="ml-3"
+            onClick={(e) => {
+              e.preventDefault();
+              setAuth({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                defaultDisplay: AuthDisplay.Default,
+              });
+            }}
+            variant={ButtonVariant.Secondary}
+          >
+            Log in
+          </Button>
         </span>
-        <Button
-          aria-label="Already using daily.dev? Login now"
-          className="ml-3"
-          onClick={(e) => {
-            e.preventDefault();
-            setAuth({
-              isAuthenticating: true,
-              isLoginFlow: true,
-              defaultDisplay: AuthDisplay.Default,
-            });
-          }}
-          variant={ButtonVariant.Secondary}
-        >
-          Log in
-        </Button>
-      </span>
+      )}
     </header>
   );
 };

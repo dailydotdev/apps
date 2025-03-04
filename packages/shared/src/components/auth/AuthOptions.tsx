@@ -38,7 +38,10 @@ import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingPapercuts } from '../../lib/featureManagement';
+import {
+  featureOnboardingPapercuts,
+  featureOnboardingReorder,
+} from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 
 const AuthDefault = dynamic(
@@ -55,11 +58,16 @@ const RegistrationForm = dynamic(
   () => import(/* webpackChunkName: "registrationForm" */ './RegistrationForm'),
 );
 
-const OnboardingRegistrationForm = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
-    ),
+const OnboardingRegistrationForm = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
+  ).then((mod) => mod.OnboardingRegistrationForm),
+);
+
+const OnboardingRegistrationFormExperiment = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingRegistrationFormExperiment" */ './OnboardingRegistrationForm'
+  ).then((mod) => mod.OnboardingRegistrationFormExperiment),
 );
 
 const AuthSignBack = dynamic(() =>
@@ -173,6 +181,8 @@ function AuthOptions({
   );
   const { refetchBoot, user } = useAuthContext();
   const router = useRouter();
+  const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
@@ -428,6 +438,11 @@ function AuthOptions({
     onPasswordLogin(params);
   };
 
+  const RegistrationFormComponent =
+    isReorderExperiment && isOnboardingPage
+      ? OnboardingRegistrationFormExperiment
+      : OnboardingRegistrationForm;
+
   return (
     <div
       className={classNames(
@@ -493,7 +508,7 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>
-          <OnboardingRegistrationForm
+          <RegistrationFormComponent
             onSignup={(signupEmail) => {
               onAuthStateUpdate({
                 isAuthenticating: true,
