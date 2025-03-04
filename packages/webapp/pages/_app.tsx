@@ -35,6 +35,11 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import {
+  messageHandlerExists,
+  sendMessage,
+  WebKitMessageHandlers,
+} from '@dailydotdev/shared/src/lib/ios';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -113,6 +118,18 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       globalThis.webkit.messageHandlers['update-user-id'].postMessage(id);
     }
   }, [user?.id, trackingId]);
+
+  useEffect(() => {
+    if (
+      user?.subscriptionFlags?.appAccountToken &&
+      messageHandlerExists(WebKitMessageHandlers.IAPSetAppAccountToken)
+    ) {
+      sendMessage(
+        WebKitMessageHandlers.IAPSetAppAccountToken,
+        user.subscriptionFlags.appAccountToken,
+      );
+    }
+  }, [user?.subscriptionFlags?.appAccountToken]);
 
   useEffect(() => {
     if (!modal) {
