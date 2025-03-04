@@ -220,6 +220,7 @@ const OnboardingRegistrationForm = ({
       <OrDivider
         className={{
           container: classNames('mb-8', className?.onboardingDivider),
+          text: onboardingPapercut ? 'text-text-tertiary' : undefined,
         }}
         label="Or sign up with"
         aria-hidden
