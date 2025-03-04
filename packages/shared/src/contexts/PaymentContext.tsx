@@ -28,6 +28,7 @@ import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
 import { useFeature } from '../components/GrowthBookProvider';
+import { checkIsExtension } from '../lib/func';
 import { usePixelsContext } from './PixelsContext';
 
 export type ProductOption = {
@@ -82,10 +83,14 @@ export const PaymentContextProvider = ({
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
-  logRef.current = logSubscriptionEvent;
 
+  logRef.current = logSubscriptionEvent;
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
+    if (checkIsExtension()) {
+      // Payment not available on extension
+      return;
+    }
     const existingPaddleInstance = getPaddleInstance();
     if (existingPaddleInstance) {
       setPaddle(existingPaddleInstance);
