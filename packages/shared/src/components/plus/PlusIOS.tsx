@@ -69,10 +69,10 @@ export const PlusIOS = ({
     ].postMessage(
       JSON.stringify({
         productId: selectedOption,
-        userId: user.id,
+        appAccountToken: user?.subscriptionFlags?.appAccountToken,
       }),
     );
-  }, [selectedOption, user.id]);
+  }, [selectedOption, user?.subscriptionFlags?.appAccountToken]);
 
   const productList = useMemo(() => Object.keys(productIds), [productIds]);
 
