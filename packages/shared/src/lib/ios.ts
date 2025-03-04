@@ -15,11 +15,13 @@ export const sendMessage = (
   payload: unknown,
 ): void => {
   if (!isIOSNative()) {
+    // eslint-disable-next-line no-console
     console.error('sendMessage is only available on iOS');
     return;
   }
 
   if (!messageHandlerExists(handler)) {
+    // eslint-disable-next-line no-console
     console.error(`Message handler ${handler} does not exist`);
     return;
   }
