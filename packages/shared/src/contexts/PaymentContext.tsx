@@ -157,7 +157,7 @@ export const PaymentContextProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router, trackPayment]);
+  }, [isExtension, router, trackPayment]);
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
