@@ -54,6 +54,7 @@ const baseConfig = {
     alias: {
       'react-onesignal': false,
       '@marsidev/react-turnstile': false,
+      '@paddle/paddle-js': false,
     },
     fallback: {
       fs: false,
