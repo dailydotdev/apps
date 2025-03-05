@@ -106,7 +106,10 @@ export const PlusIOS = ({
                 currencyCode: product.attributes.offers[0].currencyCode,
                 currencySymbol,
                 extraLabel: product.attributes?.description?.standard,
-                appsId: PlusPriceTypeAppsId.Default,
+                appsId:
+                  product.attributes.offerName === 'annualSpecial'
+                    ? PlusPriceTypeAppsId.EarlyAdopter
+                    : PlusPriceTypeAppsId.Default,
                 duration,
               };
             })
