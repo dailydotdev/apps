@@ -30,6 +30,7 @@ import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import * as actionHook from '@dailydotdev/shared/src/hooks/useActions';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as libFuncs from '@dailydotdev/shared/src/lib/func';
+import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -87,6 +88,7 @@ const defaultSettings: RemoteSettings = {
   optOutReadingStreak: true,
   optOutCompanion: true,
   autoDismissNotifications: true,
+  sortCommentsBy: SortCommentsBy.NewestFirst,
   customLinks: [
     'http://custom1.com',
     'http://custom2.com',
