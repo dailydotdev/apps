@@ -237,6 +237,9 @@ export const clickbaitShieldModalImage =
 
 export const cloudinaryGiftedPlusModalImage = `https://daily-now-res.cloudinary.com/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
 
+export const cloudinaryAwardUnicorn =
+  'https://daily-now-res.cloudinary.com/image/upload/s--t9sWnia4--/f_auto,q_auto/v1740123247/awards/Unicorn';
+
 export const smartPromptModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
 export const smallPostImage = (url: string): string => {
