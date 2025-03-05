@@ -13,7 +13,7 @@ import { featureIAPProducts } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { WebKitMessageHandlers } from '../../lib/ios';
+import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -64,14 +64,10 @@ export const PlusIOS = ({
   }, []);
 
   const onContinue = useCallback(() => {
-    globalThis.webkit.messageHandlers[
-      WebKitMessageHandlers.IAPSubscriptionRequest
-    ].postMessage(
-      JSON.stringify({
-        productId: selectedOption,
-        appAccountToken: user?.subscriptionFlags?.appAccountToken,
-      }),
-    );
+    sendMessage(WebKitMessageHandlers.IAPSubscriptionRequest, {
+      productId: selectedOption,
+      appAccountToken: user?.subscriptionFlags?.appAccountToken,
+    });
   }, [selectedOption, user?.subscriptionFlags?.appAccountToken]);
 
   const productList = useMemo(() => Object.keys(productIds), [productIds]);
@@ -129,9 +125,7 @@ export const PlusIOS = ({
         },
       );
 
-      globalThis.webkit.messageHandlers[
-        WebKitMessageHandlers.IAPProductList
-      ].postMessage(productList);
+      sendMessage(WebKitMessageHandlers.IAPProductList, productList);
 
       return products;
     },
