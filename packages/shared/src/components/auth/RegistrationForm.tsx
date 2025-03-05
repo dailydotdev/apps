@@ -312,6 +312,9 @@ const RegistrationForm = ({
           <Turnstile
             ref={ref}
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
+            options={{
+              theme: 'auto',
+            }}
             className="mx-auto"
           />
           {turnstileError ? (
