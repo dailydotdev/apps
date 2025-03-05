@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
@@ -26,6 +26,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
+import { BuyCoresModal } from './BuyCoresModal';
 
 const AwardItem = () => {
   const { setActiveStep } = useGiveAwardModalContext();
@@ -55,12 +56,12 @@ const AwardItem = () => {
 };
 
 const IntroScreen = () => {
-  const { onRequestClose, type } = useGiveAwardModalContext();
+  const { onRequestClose, type, setActiveModal } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
     <>
       <Modal.Header title={' '} showCloseButton={!isMobile}>
-        <BuyCreditsButton />
+        <BuyCreditsButton onPlusClick={() => setActiveModal('BUY_CORES')} />
         {isMobile ? (
           <Button
             onClick={onRequestClose}
@@ -209,29 +210,46 @@ const ModalBody = () => {
   );
 };
 
+const ModalRender = ({ ...props }) => {
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { activeModal, setActiveModal } = useGiveAwardModalContext();
+
+  const onCompletion = useCallback(() => {
+    setActiveModal('AWARD');
+  }, [setActiveModal]);
+
+  return (
+    <>
+      {activeModal === 'AWARD' ? (
+        <Modal
+          kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
+          size={Modal.Size.Small}
+          className={classNames(!isMobile ? '!h-[40rem]' : undefined)}
+          {...props}
+        >
+          <ModalBody />
+        </Modal>
+      ) : null}
+      {activeModal === 'BUY_CORES' ? (
+        <BuyCoresModal {...props} onCompletion={onCompletion} />
+      ) : null}
+    </>
+  );
+};
+
 type GiveAwardModalProps = ModalProps & {
   type: AwardTypes;
 };
-
 const GiveAwardModal = ({
   type,
   ...props
 }: GiveAwardModalProps): ReactElement => {
-  const isMobile = useViewSize(ViewSize.MobileL);
-
   return (
     <GiveAwardModalContextProvider
       onRequestClose={props.onRequestClose}
       type={type}
     >
-      <Modal
-        kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
-        size={Modal.Size.Small}
-        className={classNames(!isMobile ? '!h-[40rem]' : undefined)}
-        {...props}
-      >
-        <ModalBody />
-      </Modal>
+      <ModalRender {...props} />
     </GiveAwardModalContextProvider>
   );
 };
