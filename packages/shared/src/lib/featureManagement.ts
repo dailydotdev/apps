@@ -102,4 +102,6 @@ export const featureCustomFeedPlacement = new Feature(
   false,
 );
 
+export const featureInteractiveFeed = new Feature('interactive_feed', false);
+
 export { feature };
