@@ -7,7 +7,8 @@ import { PlusInfo } from './PlusInfo';
 import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
 import type { CommonPlusPageProps } from './common';
 import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import type { PlusPriceType } from '../../lib/featureValues';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useFeature } from '../GrowthBookProvider';
 import { featureIAPProducts } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
@@ -18,10 +19,6 @@ import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
 );
-
-const priceFormatter = new Intl.NumberFormat(navigator.language, {
-  minimumFractionDigits: 2,
-});
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
@@ -87,10 +84,6 @@ export const PlusIOS = ({
               const duration = productIds[
                 product.attributes.offerName
               ] as PlusPriceType;
-              const price = parseInt(product.attributes.offers[0].price, 10);
-              const monthlyPrice = +(
-                price / (duration === PlusPriceType.Yearly ? 12 : 1)
-              ).toFixed(2);
               const currencySymbol =
                 product.attributes.offers[0].priceFormatted.replace(
                   /\d|\.|\s|,/g,
@@ -103,10 +96,8 @@ export const PlusIOS = ({
                 price: {
                   amount: product.attributes.offers[0].price,
                   formatted: product.attributes.offers[0].priceFormatted,
-                  monthlyAmount: monthlyPrice,
-                  monthlyFormatted: `${currencySymbol}${priceFormatter.format(
-                    monthlyPrice,
-                  )}`,
+                  monthlyAmount: product.attributes.offers[0].price,
+                  monthlyFormatted: product.attributes.offers[0].priceFormatted,
                 },
                 currencyCode: product.attributes.offers[0].currencyCode,
                 currencySymbol,
