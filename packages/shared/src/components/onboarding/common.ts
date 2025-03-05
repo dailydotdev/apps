@@ -16,8 +16,6 @@ export enum OnboardingStep {
   PWA = 'pwa',
   Plus = 'plus',
   Extension = 'extension',
-  InstallDesktop = 'install_desktop',
-  AndroidPWA = 'android_pwa',
 }
 
 export const onboardingStepsWithFooter: Array<OnboardingStep> = [
@@ -27,8 +25,6 @@ export const onboardingStepsWithFooter: Array<OnboardingStep> = [
 export const onboardingStepsWithCTA: Array<OnboardingStep> = [
   OnboardingStep.PWA,
   OnboardingStep.Extension,
-  OnboardingStep.InstallDesktop,
-  OnboardingStep.AndroidPWA,
 ];
 
 export const OnboardingTitle = classed(

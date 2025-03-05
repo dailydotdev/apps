@@ -35,9 +35,9 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
-import { Pixels } from '@dailydotdev/shared/src/components/Pixels';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import { PixelsProvider } from '../context/PixelsContext';
 
 structuredCloneJsonPolyfill();
 
@@ -222,7 +222,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
       )}
-      <Pixels />
     </>
   );
 }
@@ -246,11 +245,13 @@ export default function App(props: AppProps): ReactElement {
           version={version}
           deviceId={deviceId}
         >
-          <PushNotificationContextProvider>
-            <SubscriptionContextProvider>
-              <InternalApp {...props} />
-            </SubscriptionContextProvider>
-          </PushNotificationContextProvider>
+          <PixelsProvider>
+            <PushNotificationContextProvider>
+              <SubscriptionContextProvider>
+                <InternalApp {...props} />
+              </SubscriptionContextProvider>
+            </PushNotificationContextProvider>
+          </PixelsProvider>
         </BootDataProvider>
         <ReactQueryDevtools />
       </QueryClientProvider>

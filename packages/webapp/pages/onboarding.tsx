@@ -42,8 +42,6 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
-  featureOnboardingDesktopPWA,
-  featureAndroidPWA,
   featureOnboardingPlusCheckout,
   featureOnboardingPapercuts,
   featurePersonalizedOnboarding,
@@ -63,19 +61,10 @@ import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import {
-  BrowserName,
-  checkIsBrowser,
-  getCurrentBrowserName,
-  isIOS,
-  isIOSNative,
-  isPWA,
-  UserAgent,
-} from '@dailydotdev/shared/src/lib/func';
+import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useInstallPWA } from '@dailydotdev/shared/src/components/onboarding/PWA/useInstallPWA';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -120,18 +109,6 @@ const OnboardingExtension = dynamic(() =>
   ).then((mod) => mod.OnboardingExtension),
 );
 
-const OnboardingInstallDesktop = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingInstallDesktopStep" */ '@dailydotdev/shared/src/components/onboarding/PWA/OnboardingInstallDesktop'
-  ).then((mod) => mod.OnboardingInstallDesktop),
-);
-
-const OnboardingAndroidPWA = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingAndroidPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingAndroidPWA'
-  ).then((mod) => mod.OnboardingAndroidPWA),
-);
-
 const PersonalizedOnboardingHeadline = dynamic(
   () =>
     import(
@@ -157,7 +134,6 @@ const seo: NextSeoProps = {
 };
 
 export function OnboardPage(): ReactElement {
-  const { isAvailable: canUserInstallPWA } = useInstallPWA();
   const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
     useOnboarding();
   const router = useRouter();
@@ -202,7 +178,6 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const onboardingPapercut = useFeature(featureOnboardingPapercuts);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
@@ -265,7 +240,7 @@ export function OnboardPage(): ReactElement {
     activeScreen,
   ]);
 
-  const onClickNext: OnboardingOnClickNext = (options) => {
+  const onClickNext: OnboardingOnClickNext = () => {
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
@@ -304,49 +279,16 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
-    if (
-      activeScreen !== OnboardingStep.AndroidPWA &&
-      checkIsBrowser(UserAgent.Android) &&
-      canUserInstallPWA &&
-      getFeatureValue(featureAndroidPWA)
-    ) {
-      return setActiveScreen(OnboardingStep.AndroidPWA);
-    }
-
     if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    const isNotExtensionRelatedStep = ![
-      OnboardingStep.Extension,
-      OnboardingStep.InstallDesktop,
-    ].includes(activeScreen);
+    const isNotExtensionRelatedStep = ![OnboardingStep.Extension].includes(
+      activeScreen,
+    );
 
     if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
-    }
-
-    const haveSkippedExtension =
-      !options?.clickExtension && activeScreen === OnboardingStep.Extension;
-    const browserName = getCurrentBrowserName();
-    const browserDontHaveExtension = [
-      BrowserName.Safari,
-      BrowserName.Firefox,
-    ].includes(browserName);
-
-    if (
-      isLaptop &&
-      canUserInstallPWA &&
-      activeScreen !== OnboardingStep.InstallDesktop &&
-      (haveSkippedExtension || browserDontHaveExtension)
-    ) {
-      const installDesktopExperiment = growthbook.getFeatureValue(
-        featureOnboardingDesktopPWA.id,
-        featureOnboardingDesktopPWA.defaultValue,
-      );
-      if (installDesktopExperiment) {
-        return setActiveScreen(OnboardingStep.InstallDesktop);
-      }
     }
 
     logEvent({
@@ -487,9 +429,7 @@ export function OnboardPage(): ReactElement {
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
             activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
             !isAuthenticating && 'mt-7.5 flex-1 content-center',
-            [OnboardingStep.Extension, OnboardingStep.InstallDesktop].includes(
-              activeScreen,
-            ) && '!flex-col',
+            [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
         >
           {showOnboardingPage && (
@@ -547,12 +487,6 @@ export function OnboardPage(): ReactElement {
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
-              )}
-              {activeScreen === OnboardingStep.InstallDesktop && (
-                <OnboardingInstallDesktop onClickNext={onClickNext} />
-              )}
-              {activeScreen === OnboardingStep.AndroidPWA && (
-                <OnboardingAndroidPWA />
               )}
             </div>
           )}

@@ -9,29 +9,14 @@ export const cloudinaryFeedBgTablet =
 export const cloudinaryFeedBgMobile =
   'https://media.daily.dev/image/upload/s--TiBUzfrQ--/f_auto/v1692271284/public/Mobile-ask-bg';
 
-export const cloudinaryFeedBgLayoutV1 =
-  'https://media.daily.dev/image/upload/s--zkEyMCOC--/f_auto/v1705675789/public/Search_Gradient';
-
-export const cloudinaryFeedBetaTag =
-  'https://media.daily.dev/image/upload/v1713111099/beta-tag_uiqqxx.svg';
-
 export const cloudinaryPostImageCoverPlaceholder =
   'https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001';
-
-export const cloudinaryFeedFiltersRecommended =
-  'https://media.daily.dev/image/upload/v1665224467/public/recommended.png';
 
 export const cloudinaryFeedFiltersYourFeedDark =
   'https://media.daily.dev/image/upload/s--_0r3L1f9--/v1689662930/Your_feed_dark_ord3s0.png';
 
 export const cloudinaryFeedFiltersYourFeedLight =
   'https://media.daily.dev/image/upload/s--n6DmR1cJ--/v1689662930/Your_feed_light_iyrsva.png';
-
-export const cloudinaryFeedFiltersTopicsV2 =
-  'https://media.daily.dev/image/upload/v1670321759/public/feed_filters_v2.svg';
-
-export const cloudinaryFeedFiltersTopicsV3 =
-  'https://media.daily.dev/image/upload/v1670321759/public/feed_filters_v3.svg';
 
 export const cloudinaryFeedFiltersScrollDark =
   'https://media.daily.dev/image/upload/v1671199935/public/scroll_feed_filters.svg';
@@ -48,24 +33,6 @@ export const cloudinaryNotificationsBrowser =
 export const cloudinaryNotificationsBrowserEnabled =
   'https://media.daily.dev/image/upload/v1672124926/public/notifications_enabled.gif';
 
-export const cloudinaryNotificationsUpvote =
-  'https://media.daily.dev/image/upload/v1670251800/notifications/icons/upvote.svg';
-
-export const cloudinaryNotificationsDaily =
-  'https://media.daily.dev/image/upload/v1670251800/notifications/icons/daily.svg';
-
-export const cloudinaryNotificationsDiscuss =
-  'https://media.daily.dev/image/upload/v1670251800/notifications/icons/discuss.svg';
-
-export const cloudinaryNotificationsBell =
-  'https://media.daily.dev/image/upload/v1670251800/notifications/icons/bell.svg';
-
-export const cloudinarySquadsDirectoryBanner =
-  'https://media.daily.dev/image/upload/s--7QJfELWV--/f_auto/v1686299194/Squads_Background_z0uuvc';
-
-export const cloudinarySquadsDirectoryFeatured =
-  'https://media.daily.dev/image/upload/s--alJYtPQc--/f_auto/v1722254596/featured_svg_aowe1m';
-
 export const cloudinarySquadsDirectoryCardBannerDefault =
   'https://media.daily.dev/image/upload/s--puRUea_K--/f_auto/v1690887143/cover-generic_blur_xny4yt';
 
@@ -81,9 +48,6 @@ export const cloudinarySquadsCreateSquadMobile =
 export const cloudinarySquadsTourBanner0 =
   'https://media.daily.dev/image/upload/f_auto/public/squad_tour0';
 
-export const cloudinarySquadsTourBanner1 =
-  'https://media.daily.dev/image/upload/f_auto/public/squad_tour1';
-
 export const cloudinarySquadsTourBanner1V2 =
   'https://media.daily.dev/image/upload/f_auto/public/squad_tour1_v2';
 
@@ -92,9 +56,6 @@ export const cloudinarySquadsTourBanner2 =
 
 export const cloudinarySquadsTourBanner3 =
   'https://media.daily.dev/image/upload/f_auto/public/squad_tour3';
-
-export const cloudinarySquadsTourBanner4 =
-  'https://media.daily.dev/image/upload/f_auto/public/squad_tour4';
 
 export const cloudinarySquadsTourBanner4V2 =
   'https://media.daily.dev/image/upload/f_auto/public/squad_tour4_v2';
@@ -132,12 +93,6 @@ export const cloudinaryReferralCampaignGenericHappy =
 export const cloudinaryReferralCampaignSearchBg =
   'https://media.daily.dev/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi';
 
-export const cloudinaryReferralCampaignSearchBgKeys =
-  'https://media.daily.dev/image/upload/s--5Jrks80V--/v1697393719/referral_keys_bg_dregwt.svg';
-
-export const cloudinaryReferralCampaignSearchBgPopup =
-  'https://media.daily.dev/image/upload/s--FfsjTd-p--/f_auto/v1697393720/referral_bg_popup_qvmau3';
-
 export const cloudinaryReferralCampaignSearchBgMobile =
   'https://media.daily.dev/image/upload/s--pvdAKlaQ--/f_auto/v1697393719/referral_bg_mobile_on0esi';
 
@@ -156,32 +111,11 @@ export const cloudinaryReferralCampaignGenericReferralPlayButton =
 export const cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet =
   'https://media.daily.dev/image/upload/v1698922944/glow_mobile_tablet_lsou4j.svg';
 
-export const cloudinaryReferralCampaignAppScreenshot =
-  'https://media.daily.dev/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf';
-
-export const cloudinaryReferralCampaignBackgroundDark =
-  'https://media.daily.dev/image/upload/s--YzB9MTQz--/v1686039108/main-background_ciqmr7.svg';
-
-export const cloudinaryReferralCampaignPurpleEdgeGlow =
-  'https://media.daily.dev/image/upload/s--Va9xODJM--/v1686074969/Glow_fjelt5.svg';
-
 export const cloudinarySearchOg =
   'https://media.daily.dev/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search';
 
-export const cloudinarySearchGradientCommon =
-  'https://media.daily.dev/image/upload/s--zkEyMCOC--/f_auto/v1705675789/public/Search_Gradient';
-
-export const cloudinaryAuthLoginDefault =
-  'https://media.daily.dev/image/upload/s--AZI7rZi_--/f_auto/v1694527819/public/login';
-
-export const cloudinaryAuthLoginSmall =
-  'https://media.daily.dev/image/upload/s--OFOFLUY1--/f_auto/v1694527818/public/login_small';
-
 export const cloudinaryOnboardingGlow =
   'https://media.daily.dev/image/upload/v1694596741/Glow_o9ehvn.svg';
-
-export const cloudinaryOnboardingDefault =
-  'https://media.daily.dev/image/upload/s--eQyhCzPZ--/f_auto/v1715169755/Master_image_mzjgot';
 
 export const cloudinaryOnboardingFullBackgroundMobile =
   'https://media.daily.dev/image/upload/s--EwsBTBt6--/f_auto/v1716969841/dailydev_where_developers_suffer_together_mobile_shkn1w';
@@ -218,9 +152,6 @@ export const cloudinaryDevcardDefaultCoverImage =
 
 export const cloudinaryReputationPrivilegesUnlocked =
   'https://media.daily.dev/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg';
-
-export const cloudinaryPromotionsBookmarkLoops =
-  'https://media.daily.dev/image/upload/s--n2t9TCqZ--/f_auto/v1713991549/public/daily';
 
 export const cloudinaryShortcutsIconsGmail =
   'https://media.daily.dev/image/upload/s--QYLzNTIV--/f_auto/v1717506847/public/Gmail%20Shortcut';
@@ -298,37 +229,13 @@ export const cloudinaryOnboardingExtension = {
   },
 };
 
-export const cloudinaryAddToHomeScreen =
-  'https://daily-now-res.cloudinary.com/image/upload/s--Ml_3MSzc--/f_auto/v1733037697/add_to_home_screen_mddvzw';
-
-export const cloudinaryAndroidApp =
-  'https://daily-now-res.cloudinary.com/image/upload/s--IEq-BTWL--/f_auto/v1733066824/dailydev_pwa_peqr8o';
-
-export const advancedCustomFeedSoonImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--1ITlYroY--/f_auto/v1733239487/Advanced_custom_feeds_mfimpv';
-
 export const bookmarkFolderSoonImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
-
-export const cloudinaryPWADesktopChrome =
-  'https://daily-now-res.cloudinary.com/image/upload/s--Whz80e4B--/f_auto/v1731405024/dailydev_pwa_chrome_web_lfhgnk';
-
-export const cloudinaryPWADesktopEdge =
-  'https://daily-now-res.cloudinary.com/image/upload/s--kEBZKEnE--/f_auto/v1731405024/dailydev_pwa_edge_web_ygzeqp';
-
-export const cloudinaryPWADesktopSafari =
-  'https://res.cloudinary.com/daily-now/image/upload/s--8_A3sC32--/f_auto,q_auto/dailydev-safari-pwa_dli6xx';
 
 export const clickbaitShieldModalImage =
   'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
 
 export const cloudinaryGiftedPlusModalImage = `https://daily-now-res.cloudinary.com/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
-
-export const cloudinaryAndroidPWA =
-  'https://daily-now-res.cloudinary.com/image/upload/s---zPja5QA--/f_auto/v1737634403/android_-_chrome_-_placeholder_gptwt8';
-
-export const cloudinaryAndroidPWAVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/s--2P1N5kYQ--/v1737634404/android_-_chrome_gvepd5.mp4';
 
 export const cloudinaryAwardUnicorn =
   'https://daily-now-res.cloudinary.com/image/upload/s--t9sWnia4--/f_auto,q_auto/v1740123247/awards/Unicorn';
