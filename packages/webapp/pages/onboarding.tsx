@@ -44,6 +44,7 @@ import {
   feature,
   featureOnboardingPlusCheckout,
   featureOnboardingPapercuts,
+  featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
@@ -367,6 +368,7 @@ export function OnboardPage(): ReactElement {
     return undefined;
   }, [activeScreen, layout.hasCta]);
 
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
@@ -471,7 +473,7 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {showOnboardingPage && <OnboardingFooter />}
+        {showOnboardingPage && !isReorderExperiment && <OnboardingFooter />}
         {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
