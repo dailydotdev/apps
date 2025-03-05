@@ -44,11 +44,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     }
   }, [isPlus, plusProvider, router]);
 
-  if (
-    !isPlus ||
-    plusProvider === SubscriptionProvider.Paddle ||
-    (isIOSNative() && plusProvider === SubscriptionProvider.AppleStoreKit)
-  ) {
+  if (!router.isReady) {
     return null;
   }
 
