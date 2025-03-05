@@ -15,6 +15,9 @@ import { webappUrl } from '../../lib/constants';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
+import { useToastNotification } from '../../hooks';
+import { DEFAULT_ERROR } from '../../graphql/common';
+import Toast from '../notifications/Toast';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -52,6 +55,7 @@ export const PlusIOS = ({
   shouldShowPlusHeader,
 }: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
+  const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const productIds = useFeature(featureIAPProducts);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -131,51 +135,58 @@ export const PlusIOS = ({
 
       router.replace(`${webappUrl}plus/success`);
     });
-  }, [router, selectedOption]);
+
+    promisifyEventListener('iap-error', () => {
+      displayToast(DEFAULT_ERROR);
+    });
+  }, [displayToast, router, selectedOption]);
 
   return (
-    <div
-      className="flex flex-col p-6"
-      ref={(element) => {
-        if (!element) {
-          return;
-        }
+    <>
+      <Toast autoDismissNotifications />
+      <div
+        className="flex flex-col p-6"
+        ref={(element) => {
+          if (!element) {
+            return;
+          }
 
-        if (productOptions?.[0]?.value && !selectedOption) {
-          setSelectedOption(productOptions?.[0]?.value);
-        }
-      }}
-    >
-      <div className="flex gap-2">
-        <Button
-          onClick={() => {
-            query.refetch();
-          }}
-          variant={ButtonVariant.Float}
-        >
-          Reload
-        </Button>
-        <Button
-          onClick={() => {
-            globalThis.webkit.messageHandlers[
-              WebKitMessageHandlers.IAPSubscriptionManage
-            ].postMessage(null);
-          }}
-          variant={ButtonVariant.Float}
-        >
-          Manage
-        </Button>
+          if (productOptions?.[0]?.value && !selectedOption) {
+            setSelectedOption(productOptions?.[0]?.value);
+          }
+        }}
+      >
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              query.refetch();
+            }}
+            variant={ButtonVariant.Float}
+          >
+            Reload
+          </Button>
+          <Button
+            onClick={() => {
+              globalThis.webkit.messageHandlers[
+                WebKitMessageHandlers.IAPSubscriptionManage
+              ].postMessage(null);
+            }}
+            variant={ButtonVariant.Float}
+          >
+            Manage
+          </Button>
+        </div>
+        <PlusInfo
+          productOptions={productOptions || []}
+          selectedOption={selectedOption}
+          onChange={selectionChange}
+          onContinue={onContinue}
+          shouldShowPlusHeader={shouldShowPlusHeader}
+          showGiftButton={false}
+        />
+        <PlusTrustRefund className="mt-6" />
+        <PlusFAQs />
       </div>
-      <PlusInfo
-        productOptions={productOptions || []}
-        selectedOption={selectedOption}
-        onChange={selectionChange}
-        onContinue={onContinue}
-        shouldShowPlusHeader={shouldShowPlusHeader}
-        showGiftButton={false}
-      />
-      <PlusTrustRefund className="mt-6" />
-      <PlusFAQs />
-    </div>
+    </>
   );
 };
