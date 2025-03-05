@@ -46,8 +46,8 @@ export const usePlusSubscription = (): {
       return undefined;
     }
 
-    // External subscription management for iOS and Paddle users
-    if (isIOSNative() || plusProvider === SubscriptionProvider.Paddle) {
+    // External subscription management for Paddle users
+    if (plusProvider === SubscriptionProvider.Paddle) {
       return managePlusUrl;
     }
 
