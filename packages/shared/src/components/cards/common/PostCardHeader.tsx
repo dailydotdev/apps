@@ -83,7 +83,10 @@ export const PostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <SourceButton source={source} />
+        <SourceButton
+          size={isFeedPreview ? ProfileImageSize.Small : undefined}
+          source={source}
+        />
         {!!post?.author && (
           <ProfileTooltip userId={post.author.id}>
             <ProfileImageLink

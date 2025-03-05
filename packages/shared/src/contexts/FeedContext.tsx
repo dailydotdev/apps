@@ -1,13 +1,21 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
+import {
+  useConditionalFeature,
+  useMedia,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
+import { useInteractiveFeedContext } from './InteractiveFeedContext';
 
 export type FeedContextData = {
   pageSize: number;
@@ -111,6 +119,10 @@ const FeedContext = React.createContext<FeedContextData>(
 export function FeedLayoutProvider({
   children,
 }: PropsWithChildren): ReactElement {
+  const router = useRouter();
+  const isOnboarding = router.pathname.includes('/onboarding');
+  const isLaptopL = useViewSize(ViewSize.LaptopL);
+  const { interactiveFeedExp } = useInteractiveFeedContext();
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
@@ -173,8 +185,20 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
+  const finalSettings =
+    isOnboarding && interactiveFeedExp
+      ? {
+          ...currentSettings,
+          numCards: {
+            cozy: isLaptopL ? 4 : 3,
+            eco: isLaptopL ? 4 : 3,
+            roomy: isLaptopL ? 4 : 3,
+          },
+        }
+      : currentSettings;
+
   return (
-    <FeedContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={finalSettings}>
       {children}
     </FeedContext.Provider>
   );

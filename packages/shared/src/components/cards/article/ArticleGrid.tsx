@@ -1,10 +1,11 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { usePostFeedback } from '../../../hooks';
+import { useFeedPreviewMode, usePostFeedback } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import FeedItemContainer from '../common/FeedItemContainer';
@@ -25,6 +26,16 @@ import ActionButtons from '../ActionsButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import useInteractiveFeed from '../../../hooks/feed/useInteractiveFeed';
+import RelevancyTag from '../../tags/RelevancyTag';
+
+const InteractiveFeedTagOverlay = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "interactiveFeedOverlay" */ '../../post/tags/InteractiveFeedTagOverlay'
+    ),
+  { ssr: false },
+);
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -54,6 +65,23 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
+  const [isHovering, setIsHovering] = useState(false);
+  const isFeedPreview = useFeedPreviewMode();
+  const {
+    showInteractiveFeedOverlay,
+    onClose,
+    postIrrelevant,
+    postRelevant,
+    interactiveFeedExp,
+    showRelevancyTag,
+  } = useInteractiveFeed({
+    post,
+  });
+  const smallCard = interactiveFeedExp && isFeedPreview;
+
+  if (showInteractiveFeedOverlay) {
+    return <InteractiveFeedTagOverlay onClose={onClose} post={post} />;
+  }
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -68,18 +96,32 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   return (
     <FeedItemContainer
       domProps={{
+        onMouseEnter: () => setIsHovering(true),
+        onMouseLeave: () => setIsHovering(false),
         ...domProps,
         style,
         className: getPostClassNames(
           post,
-          classNames(className, showFeedback && '!p-0'),
-          'min-h-card',
+          classNames(
+            className,
+            showFeedback && '!p-0',
+            postRelevant &&
+              '!border-status-success !bg-action-upvote-float text-action-upvote-default',
+            postIrrelevant &&
+              '!border-action-downvote-default bg-overlay-float-ketchup',
+          ),
+          !smallCard && 'min-h-card',
         ),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked && !showFeedback}
     >
+      {showRelevancyTag && (
+        <div className="absolute right-2 top-2">
+          <RelevancyTag relevant={!postIrrelevant} />
+        </div>
+      )}
       <CardOverlay
         post={post}
         onPostCardClick={onPostCardClick}
@@ -113,7 +155,10 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             onReadArticleClick={onReadArticleClick}
             showFeedback={showFeedback}
           />
-          <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
+          <CardTitle
+            className={interactiveFeedExp ? 'typo-callout' : ''}
+            lineClamp={showFeedback ? 'line-clamp-2' : undefined}
+          >
             {title}
           </CardTitle>
         </CardTextContainer>
@@ -124,12 +169,14 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
             </div>
-            <PostMetadata
-              createdAt={post.createdAt}
-              readTime={post.readTime}
-              isVideoType={isVideoType}
-              className="mx-4"
-            />
+            {!interactiveFeedExp && (
+              <PostMetadata
+                createdAt={post.createdAt}
+                readTime={post.readTime}
+                isVideoType={isVideoType}
+                className="mx-4"
+              />
+            )}
           </Container>
         )}
         <Container>
@@ -137,8 +184,12 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             openNewTab={openNewTab}
             post={post}
             onShare={onShare}
+            isHoveringCard={isHovering}
             className={{
-              image: classNames(showFeedback && 'mb-0'),
+              image: classNames(
+                showFeedback && 'mb-0',
+                smallCard && ' !my-0 h-26',
+              ),
             }}
             eagerLoadImage={eagerLoadImage}
           />

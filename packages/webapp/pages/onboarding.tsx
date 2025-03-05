@@ -68,6 +68,7 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import { useInteractiveFeedContext } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -118,6 +119,20 @@ const PersonalizedOnboardingHeadline = dynamic(
 
 const PlusPage = dynamic(
   () => import(/* webpackChunkName: "plusPage" */ './plus'),
+);
+
+const InteractiveFeedStep = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "interactiveFeedStep" */ '@dailydotdev/shared/src/components/onboarding/InteractiveFeedStep'
+    ),
+);
+
+const FeedPreviewStep = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedPreviewStep" */ '@dailydotdev/shared/src/components/onboarding/FeedPreviewStep'
+    ),
 );
 
 type OnboardingVisual = {
@@ -189,7 +204,7 @@ export function OnboardPage(): ReactElement {
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-
+  const { interactiveFeedExp } = useInteractiveFeedContext();
   const layout = useMemo(
     () => ({
       hasFooter: onboardingStepsWithFooter.includes(activeScreen),
@@ -212,8 +227,17 @@ export function OnboardPage(): ReactElement {
 
     isLogged.current = true;
 
+    if (interactiveFeedExp && !hasCompletedContentTypes) {
+      setActiveScreen(OnboardingStep.ContentTypes);
+      return;
+    }
+
     if (!hasCompletedEditTags) {
-      setActiveScreen(OnboardingStep.EditTag);
+      if (interactiveFeedExp) {
+        setActiveScreen(OnboardingStep.InteractiveFeed);
+      } else {
+        setActiveScreen(OnboardingStep.EditTag);
+      }
       return;
     }
 
@@ -283,12 +307,27 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    const isNotExtensionRelatedStep = ![OnboardingStep.Extension].includes(
-      activeScreen,
-    );
+    const isNotExtensionRelatedStep = ![
+      OnboardingStep.Extension,
+      OnboardingStep.InteractiveFeed,
+      OnboardingStep.PreviewFeed,
+    ].includes(activeScreen);
 
     if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    if (
+      interactiveFeedExp &&
+      activeScreen !== OnboardingStep.InteractiveFeed &&
+      !hasCompletedEditTags
+    ) {
+      return setActiveScreen(OnboardingStep.InteractiveFeed);
+    }
+
+    if (activeScreen === OnboardingStep.InteractiveFeed) {
+      completeStep(ActionType.EditTag);
+      return setActiveScreen(OnboardingStep.PreviewFeed);
     }
 
     logEvent({
@@ -371,6 +410,10 @@ export function OnboardPage(): ReactElement {
     }
     if (layout.hasCta) {
       return 'Not now →';
+    }
+
+    if (activeScreen === OnboardingStep.InteractiveFeed) {
+      return 'Preview your feed ➞';
     }
 
     return undefined;
@@ -487,6 +530,15 @@ export function OnboardPage(): ReactElement {
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
+              )}
+              {activeScreen === OnboardingStep.InteractiveFeed && (
+                <InteractiveFeedStep />
+              )}
+              {activeScreen === OnboardingStep.PreviewFeed && (
+                <FeedPreviewStep
+                  onComplete={onClickNext}
+                  onEdit={() => setActiveScreen(OnboardingStep.InteractiveFeed)}
+                />
               )}
             </div>
           )}

@@ -16,6 +16,8 @@ export enum OnboardingStep {
   PWA = 'pwa',
   Plus = 'plus',
   Extension = 'extension',
+  InteractiveFeed = 'interactive_feed',
+  PreviewFeed = 'preview_feed',
 }
 
 export const onboardingStepsWithFooter: Array<OnboardingStep> = [

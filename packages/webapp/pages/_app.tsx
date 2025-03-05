@@ -35,6 +35,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -248,7 +249,9 @@ export default function App(props: AppProps): ReactElement {
           <PixelsProvider>
             <PushNotificationContextProvider>
               <SubscriptionContextProvider>
-                <InternalApp {...props} />
+                <InteractiveFeedProvider>
+                  <InternalApp {...props} />
+                </InteractiveFeedProvider>
               </SubscriptionContextProvider>
             </PushNotificationContextProvider>
           </PixelsProvider>

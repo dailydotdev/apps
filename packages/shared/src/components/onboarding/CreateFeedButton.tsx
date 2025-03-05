@@ -30,6 +30,7 @@ export const CreateFeedButton = ({
   const CTAStep = [OnboardingStep.PWA, OnboardingStep.Extension].includes(
     activeScreen,
   );
+  const interactiveFeed = activeScreen === OnboardingStep.InteractiveFeed;
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
@@ -46,7 +47,11 @@ export const CreateFeedButton = ({
 
   const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
-    tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
+    tagsCountMatch ||
+    contentTypeNotEmpty ||
+    isPlusStep ||
+    CTAStep ||
+    interactiveFeed;
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
