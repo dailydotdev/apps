@@ -44,12 +44,10 @@ import {
   feature,
   featureOnboardingPlusCheckout,
   featureOnboardingPapercuts,
-  featurePersonalizedOnboarding,
   featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
-  useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -108,13 +106,6 @@ const OnboardingExtension = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
   ).then((mod) => mod.OnboardingExtension),
-);
-
-const PersonalizedOnboardingHeadline = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "personalizedOnboardingHeadline" */ '@dailydotdev/shared/src/components/onboarding/headline/PersonalizedOnboardingHeadline'
-    ),
 );
 
 const PlusPage = dynamic(
@@ -381,11 +372,6 @@ export function OnboardPage(): ReactElement {
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
-  const { value: personalizedOnboarding } = useConditionalFeature({
-    shouldEvaluate: !user && showOnboardingPage && isAuthReady,
-    feature: featurePersonalizedOnboarding,
-  });
-
   const showGenerigLoader =
     isAuthenticating &&
     isAuthLoading &&
@@ -437,18 +423,12 @@ export function OnboardPage(): ReactElement {
           {showOnboardingPage && (
             <>
               <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-                {!personalizedOnboarding ? (
-                  <OnboardingHeadline
-                    className={{
-                      title: 'tablet:typo-mega-1 typo-large-title',
-                      description: 'mb-8 typo-body tablet:typo-title2',
-                    }}
-                  />
-                ) : (
-                  <div className="tablet:pt-6">
-                    <PersonalizedOnboardingHeadline />
-                  </div>
-                )}
+                <OnboardingHeadline
+                  className={{
+                    title: 'tablet:typo-mega-1 typo-large-title',
+                    description: 'mb-8 typo-body tablet:typo-title2',
+                  }}
+                />
                 <AuthOptions {...authOptionProps} />
               </div>
               <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />

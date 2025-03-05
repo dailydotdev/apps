@@ -92,11 +92,6 @@ export const featurePlusButtonColors = new Feature<
 
 export const featureSocialShare = new Feature('social_share', false);
 
-export const featurePersonalizedOnboarding = new Feature(
-  'personalized_onboarding',
-  false,
-);
-
 export const featureCustomFeedPlacement = new Feature(
   'custom_feed_placement',
   false,
