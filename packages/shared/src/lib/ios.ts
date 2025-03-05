@@ -15,15 +15,11 @@ export const sendMessage = <T = unknown>(
   payload: T,
 ): void => {
   if (!isIOSNative()) {
-    // eslint-disable-next-line no-console
-    console.error('sendMessage is only available on iOS');
-    return;
+    throw new Error('sendMessage is only available on iOS');
   }
 
   if (!messageHandlerExists(handler)) {
-    // eslint-disable-next-line no-console
-    console.error(`Message handler ${handler} does not exist`);
-    return;
+    throw new Error(`Message handler ${handler} does not exist`);
   }
 
   globalThis.webkit.messageHandlers[handler].postMessage(payload);
