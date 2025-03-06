@@ -89,14 +89,16 @@ export function PlusOptionRadio({
         >
           {isYearlyGift ? price.formatted : price.monthlyFormatted}
         </Typography>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className="font-normal"
-        >
-          {currencyCode}
-        </Typography>
+        {currencyCode && (
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className="font-normal"
+          >
+            {currencyCode}
+          </Typography>
+        )}
         {!isYearlyGift && (
           <Typography
             className="font-normal"

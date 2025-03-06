@@ -40,7 +40,7 @@ export type ProductOption = {
     monthlyAmount: number;
     monthlyFormatted: string;
   };
-  currencyCode: string;
+  currencyCode?: string;
   currencySymbol: string;
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;

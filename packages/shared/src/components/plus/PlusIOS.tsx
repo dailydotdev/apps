@@ -88,11 +88,6 @@ export const PlusIOS = ({
               const duration = productIds[
                 product.attributes.offerName
               ] as PlusPriceType;
-              const currencySymbol =
-                product.attributes.offers[0].priceFormatted.replace(
-                  /\d|\.|\s|,/g,
-                  '',
-                );
 
               return {
                 label: product.attributes.name,
@@ -103,8 +98,6 @@ export const PlusIOS = ({
                   monthlyAmount: product.attributes.offers[0].price,
                   monthlyFormatted: product.attributes.offers[0].priceFormatted,
                 },
-                currencyCode: product.attributes.offers[0].currencyCode,
-                currencySymbol,
                 extraLabel: product.attributes?.description?.standard,
                 appsId:
                   product.attributes.offerName === 'annualSpecial'
