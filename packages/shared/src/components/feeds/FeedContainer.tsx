@@ -227,7 +227,7 @@ export const FeedContainer = ({
                   className={classNames(
                     'flex w-full flex-row gap-3 border-border-subtlest-tertiary laptop:w-auto',
                     customFeedPlacement
-                      ? 'max-w-full flex-1 pr-0'
+                      ? 'flex-1 pr-0 laptop:w-full'
                       : 'mr-auto pr-3',
                   )}
                 >
