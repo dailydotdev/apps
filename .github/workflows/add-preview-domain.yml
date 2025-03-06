@@ -13,19 +13,19 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Prepare domain
-        id: prepare
-        uses: actions/github-script@v7.0.1
-        with:
-          script: |
-            const branch = `${{ github.head_ref }}`
-            const jiraTicket = branch.match(/\b(MI|AS)-\d+\b/);
-            core.setOutput('jiraTicket', jiraTicket)
-
       - name: Comment with the jira ticket
         uses: actions/github-script@v7.0.1
         with:
           script: |
+            const branch = `${{ github.head_ref }}`
+            const match = branch.match(/\b(MI|AS)-\d+\b/);
+            const jiraTicket = match ? match[0] : null;
+
+            if (!jiraTicket) {
+              console.log('No Jira ticket found')
+              return
+            }
+
             const knownString = '### Jira ticket'
             const pullRequest = await github.rest.pulls.get({
               pull_number: context.issue.number,
@@ -39,8 +39,8 @@ jobs:
             } else {
               console.log('Creating comment for the first time')
               const body = pullRequest.data.body
-                ? `${pullRequest.data.body}\n\n${knownString}\n${{ steps.prepare.outputs.jiraTicket }}`
-                : `${knownString}\n${{ steps.prepare.outputs.jiraTicket }}`
+                ? `${pullRequest.data.body}\n\n${knownString}\n${jiraTicket}`
+                : `${knownString}\n${jiraTicket}`
 
               await github.rest.pulls.update({
                 pull_number: context.issue.number,
