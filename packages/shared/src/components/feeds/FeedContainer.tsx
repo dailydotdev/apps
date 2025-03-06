@@ -23,6 +23,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { featureCustomFeedPlacement } from '../../lib/featureManagement';
+import CustomFeedSlider from './CustomFeedSlider';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -214,6 +215,9 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
+          {customFeedPlacement && feedName === 'following' && (
+            <CustomFeedSlider />
+          )}
           {inlineHeader && header}
           {isSearch && !shouldUseListFeedLayout && (
             <span
