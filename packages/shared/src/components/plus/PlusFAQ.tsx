@@ -10,7 +10,7 @@ import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
 import { plusFAQItems, plusFAQTrialItem } from './common';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/PaymentContext';
 
 interface FAQ {
   question: string;

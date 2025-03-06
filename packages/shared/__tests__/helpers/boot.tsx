@@ -19,7 +19,7 @@ import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import LogContext from '../../src/contexts/LogContext';
 import type { LogContextData } from '../../src/hooks/log/useLogContextData';
 import { ChecklistViewState } from '../../src/lib/checklist';
-import { PaymentContextProvider } from '../../src/contexts/PaymentContext';
+import { PaymentContextProvider } from '../../src/contexts/payment/PaymentContext';
 
 interface TestBootProviderProps {
   children: ReactNode;

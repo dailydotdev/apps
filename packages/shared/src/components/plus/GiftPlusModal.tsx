@@ -16,7 +16,7 @@ import { PlusTitle } from './PlusTitle';
 import {
   PaymentContextProvider,
   usePaymentContext,
-} from '../../contexts/PaymentContext';
+} from '../../contexts/payment/PaymentContext';
 import { TextField } from '../fields/TextField';
 import { UserIcon } from '../icons';
 import { gqlClient } from '../../graphql/common';

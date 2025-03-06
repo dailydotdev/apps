@@ -20,22 +20,22 @@ import {
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { useAuthContext } from './AuthContext';
-import { plusSuccessUrl } from '../lib/constants';
-import { LogEvent } from '../lib/log';
-import { usePlusSubscription } from '../hooks';
-import { feature, featureIAPProducts } from '../lib/featureManagement';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
-import { getPrice } from '../lib';
-import { useFeature } from '../components/GrowthBookProvider';
+import { useAuthContext } from '../AuthContext';
+import { plusSuccessUrl } from '../../lib/constants';
+import { LogEvent } from '../../lib/log';
+import { usePlusSubscription } from '../../hooks';
+import { feature, featureIAPProducts } from '../../lib/featureManagement';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { getPrice } from '../../lib';
+import { useFeature } from '../../components/GrowthBookProvider';
 import {
   checkIsExtension,
   isIOSNative,
   isNullOrUndefined,
   promisifyEventListener,
-} from '../lib/func';
-import { usePixelsContext } from './PixelsContext';
-import { sendMessage, WebKitMessageHandlers } from '../lib/ios';
+} from '../../lib/func';
+import { usePixelsContext } from '../PixelsContext';
+import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
 
 export type ProductOption = {
   label: string;

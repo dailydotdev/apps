@@ -22,7 +22,7 @@ import { UserVoteEntity } from '../../hooks';
 import { UserVote } from '../../graphql/posts';
 import LogContext from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
-import { PaymentContextProvider } from '../../contexts/PaymentContext';
+import { PaymentContextProvider } from '../../contexts/payment/PaymentContext';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();

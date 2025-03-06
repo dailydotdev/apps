@@ -7,7 +7,7 @@ import { checkIsExtension } from '../../lib/func';
 import { useBoot, useViewSize, ViewSize } from '../../hooks';
 import { ModalClose } from '../modals/common/ModalClose';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { PaymentContextProvider } from '../../contexts/PaymentContext';
+import { PaymentContextProvider } from '../../contexts/payment/PaymentContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';

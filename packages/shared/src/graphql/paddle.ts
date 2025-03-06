@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
-import type { ProductOption } from '../contexts/PaymentContext';
+import type { ProductOption } from '../contexts/payment/PaymentContext';
 import { gqlClient } from './common';
 
 const PRICE_FRAGMENT = gql`

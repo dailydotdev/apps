@@ -11,7 +11,7 @@ import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
 import { useViewSize } from '../../hooks';
-import { PaymentContextProvider } from '../../contexts/PaymentContext';
+import { PaymentContextProvider } from '../../contexts/payment/PaymentContext';
 
 const onDelete = jest.fn();
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;

@@ -59,7 +59,7 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment/PaymentContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
