@@ -30,7 +30,15 @@ export function PlusOptionRadio({
     return null;
   }
 
-  const { label, value, price, currencyCode, extraLabel, appsId } = option;
+  const {
+    label,
+    value,
+    price,
+    currencyCode,
+    extraLabel,
+    appsId,
+    durationLabel,
+  } = option;
   const isEarlyAccess = appsId === PlusPriceTypeAppsId.EarlyAdopter;
 
   return (
@@ -105,7 +113,7 @@ export function PlusOptionRadio({
             color={TypographyColor.Quaternary}
             type={TypographyType.Footnote}
           >
-            /month
+            /{durationLabel}
           </Typography>
         )}
       </div>

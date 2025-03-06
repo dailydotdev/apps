@@ -41,10 +41,11 @@ export type ProductOption = {
     monthlyFormatted: string;
   };
   currencyCode?: string;
-  currencySymbol: string;
+  currencySymbol?: string;
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
   duration: PlusPriceType;
+  durationLabel: 'month' | 'year';
   trialPeriod: TimePeriod | null;
 };
 
@@ -217,6 +218,7 @@ export const PaddleSubProvider = ({
             (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
             PlusPriceTypeAppsId.Default,
           duration,
+          durationLabel: 'month',
           trialPeriod: item.price.trialPeriod,
         };
       }) ?? []

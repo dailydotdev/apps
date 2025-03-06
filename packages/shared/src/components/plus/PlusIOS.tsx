@@ -4,11 +4,13 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { PlusInfo } from './PlusInfo';
-import type { OpenCheckoutFn } from '../../contexts/PaymentContext';
+import type {
+  OpenCheckoutFn,
+  ProductOption,
+} from '../../contexts/PaymentContext';
 import type { CommonPlusPageProps } from './common';
 import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
-import type { PlusPriceType } from '../../lib/featureValues';
-import { PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useFeature } from '../GrowthBookProvider';
 import { featureIAPProducts } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
@@ -84,7 +86,7 @@ export const PlusIOS = ({
             : [];
 
           return productsRaw
-            ?.map((product: IAPProduct) => {
+            ?.map((product: IAPProduct): ProductOption => {
               const duration = productIds[
                 product.attributes.offerName
               ] as PlusPriceType;
@@ -93,9 +95,9 @@ export const PlusIOS = ({
                 label: product.attributes.name,
                 value: product.attributes.offerName,
                 price: {
-                  amount: product.attributes.offers[0].price,
+                  amount: parseFloat(product.attributes.offers[0].price),
                   formatted: product.attributes.offers[0].priceFormatted,
-                  monthlyAmount: product.attributes.offers[0].price,
+                  monthlyAmount: parseFloat(product.attributes.offers[0].price),
                   monthlyFormatted: product.attributes.offers[0].priceFormatted,
                 },
                 extraLabel: product.attributes?.description?.standard,
@@ -104,6 +106,9 @@ export const PlusIOS = ({
                     ? PlusPriceTypeAppsId.EarlyAdopter
                     : PlusPriceTypeAppsId.Default,
                 duration,
+                durationLabel:
+                  duration === PlusPriceType.Yearly ? 'year' : 'month',
+                trialPeriod: null,
               };
             })
             .sort((a: { value: string }, b: { value: string }) => {
