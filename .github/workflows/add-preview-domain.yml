@@ -39,8 +39,8 @@ jobs:
             } else {
               console.log('Creating comment for the first time')
               const body = pullRequest.data.body
-                ? `${pullRequest.data.body}\n\n${knownString}\nhttps://${{ steps.prepare.outputs.jiraTicket }}`
-                : `${knownString}\nhttps://${{ steps.prepare.outputs.jiraTicket }}`
+                ? `${pullRequest.data.body}\n\n${knownString}\n${{ steps.prepare.outputs.jiraTicket }}`
+                : `${knownString}\n${{ steps.prepare.outputs.jiraTicket }}`
 
               await github.rest.pulls.update({
                 pull_number: context.issue.number,
