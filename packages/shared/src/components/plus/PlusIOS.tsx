@@ -140,6 +140,11 @@ export const PlusIOS = ({
     promisifyEventListener('iap-error', () => {
       displayToast(DEFAULT_ERROR);
     });
+
+    return () => {
+      globalThis?.eventControllers?.['iap-purchase-result']?.abort();
+      globalThis?.eventControllers?.['iap-error']?.abort();
+    };
   }, [displayToast, router, selectedOption]);
 
   return (
