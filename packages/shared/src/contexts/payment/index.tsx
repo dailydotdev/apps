@@ -1,9 +1,13 @@
 import React from 'react';
 import type { ReactElement } from 'react';
+import dynamic from 'next/dynamic';
 import { isIOSNative } from '../../lib/func';
 import { PaddleSubProvider } from './Paddle';
 import type { PaymentContextProviderProps } from './context';
-import { StoreKitSubProvider } from './StoreKit';
+
+const StoreKitSubProvider = dynamic(() =>
+  import('./StoreKit').then((mod) => mod.StoreKitSubProvider),
+);
 
 export const PaymentContextProvider = ({
   children,
