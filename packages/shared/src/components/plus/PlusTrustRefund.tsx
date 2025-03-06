@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks';
-import { usePaymentContext } from '../../contexts/payment/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 
 type PlusTrustRefundProps = ComponentProps<'div'>;
 

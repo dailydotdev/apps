@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ProductOption } from '../../contexts/payment/PaymentContext';
+import type { ProductOption } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,

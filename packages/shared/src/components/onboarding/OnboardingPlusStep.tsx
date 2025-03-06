@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
-import { usePaymentContext } from '../../contexts/payment/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,

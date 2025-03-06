@@ -8,8 +8,8 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
-import type { ProductOption } from '../../contexts/payment/PaymentContext';
-import { usePaymentContext } from '../../contexts/payment/PaymentContext';
+import type { ProductOption } from '../../contexts/payment/context';
+import { usePaymentContext } from '../../contexts/payment/context';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 interface PlusOptionRadioProps {
