@@ -15,6 +15,7 @@ import {
 } from '../typography/Typography';
 import { useScrollManagement } from '../HorizontalScroll/useScrollManagement';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { webappUrl } from '../../lib/constants';
 
 const CustomFeedSlider = (): ReactElement => {
   const { feeds } = useFeeds();
@@ -27,15 +28,21 @@ const CustomFeedSlider = (): ReactElement => {
 
   const urlToTab: Record<string, string> = useMemo(() => {
     const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+    const followingPath = `${webappUrl}following`;
+    const newFeedPath = `${webappUrl}feeds/new`;
+
     return {
       [myFeedPath]: 'For you',
-      '/following': 'Following',
+      [followingPath]: 'Following',
       ...sortedFeeds.reduce((acc, { node: feed }) => {
-        const feedPath = defaultFeedId === feed.id ? '/' : `/feeds/${feed.id}`;
+        const feedPath =
+          defaultFeedId === feed.id
+            ? webappUrl
+            : `${webappUrl}feeds/${feed.id}`;
         acc[feedPath] = feed.flags?.name || `Feed ${feed.id}`;
         return acc;
       }, {}),
-      '/feeds/new': 'New feed',
+      [newFeedPath]: 'New feed',
     };
   }, [sortedFeeds, isCustomDefaultFeed, defaultFeedId]);
 
@@ -83,7 +90,8 @@ const CustomFeedSlider = (): ReactElement => {
       >
         {Object.entries(urlToTab).map(([url, label]) => {
           const isActive = router.asPath === url;
-          const isNewFeed = url === '/feeds/new';
+          const isNewFeed = url === `${webappUrl}feeds/new`;
+
           return (
             <Button
               key={url}
