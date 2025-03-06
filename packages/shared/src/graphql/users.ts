@@ -733,3 +733,9 @@ export const getPlusGifterUser = async (): Promise<UserShortProfile | null> => {
     throw error;
   }
 };
+
+export const REQUEST_APP_ACCOUNT_TOKEN_MUTATION = gql`
+  mutation RequestAppAccountToken {
+    requestAppAccountToken
+  }
+`;

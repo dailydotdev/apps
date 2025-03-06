@@ -28,7 +28,7 @@ import { feature } from '../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 import { getPrice } from '../lib';
 import { useFeature } from '../components/GrowthBookProvider';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isIOSNative } from '../lib/func';
 import { usePixelsContext } from './PixelsContext';
 
 export type ProductOption = {
@@ -40,11 +40,12 @@ export type ProductOption = {
     monthlyAmount: number;
     monthlyFormatted: string;
   };
-  currencyCode: string;
-  currencySymbol: string;
+  currencyCode?: string;
+  currencySymbol?: string;
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
   duration: PlusPriceType;
+  durationLabel: 'month' | 'year';
   trialPeriod: TimePeriod | null;
 };
 
@@ -73,7 +74,7 @@ export type PaymentContextProviderProps = {
   children?: ReactNode;
 };
 
-export const PaymentContextProvider = ({
+export const PaddleSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
@@ -217,6 +218,7 @@ export const PaymentContextProvider = ({
             (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
             PlusPriceTypeAppsId.Default,
           duration,
+          durationLabel: 'month',
           trialPeriod: item.price.trialPeriod,
         };
       }) ?? []
@@ -313,6 +315,17 @@ export const PaymentContextProvider = ({
       {children}
     </PaymentContext.Provider>
   );
+};
+
+export const PaymentContextProvider = ({
+  children,
+}: PaymentContextProviderProps): ReactElement => {
+  if (isIOSNative()) {
+    // TODO: Implement native payment context
+    return <PaddleSubProvider>{children}</PaddleSubProvider>;
+  }
+
+  return <PaddleSubProvider>{children}</PaddleSubProvider>;
 };
 
 export const usePaymentContext = (): PaymentContextData =>
