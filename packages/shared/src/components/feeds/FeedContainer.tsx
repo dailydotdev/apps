@@ -14,6 +14,7 @@ import {
   useViewSize,
   ViewSize,
   useFeeds,
+  useConditionalFeature,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -22,7 +23,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { featureCustomFeedPlacement } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -139,7 +139,7 @@ export const FeedContainer = ({
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const { spaciness, loadedSettings } = useContext(SettingsContext);
+  const { spaciness, loadedSettings, insaneMode } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -167,7 +167,10 @@ export const FeedContainer = ({
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
-  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
+  const { value: customFeedPlacement } = useConditionalFeature({
+    feature: featureCustomFeedPlacement,
+    shouldEvaluate: !insaneMode && isLaptop,
+  });
 
   const { feeds } = useFeeds();
 

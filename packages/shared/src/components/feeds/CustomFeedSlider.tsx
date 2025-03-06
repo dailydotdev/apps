@@ -29,6 +29,7 @@ const CustomFeedSlider = (): ReactElement => {
     const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
     return {
       [myFeedPath]: 'For you',
+      '/following': 'Following',
       ...sortedFeeds.reduce((acc, { node: feed }) => {
         const feedPath = defaultFeedId === feed.id ? '/' : `/feeds/${feed.id}`;
         acc[feedPath] = feed.flags?.name || `Feed ${feed.id}`;

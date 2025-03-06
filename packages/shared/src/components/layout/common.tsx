@@ -17,7 +17,7 @@ import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -30,7 +30,6 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useFeature } from '../GrowthBookProvider';
 import { featureCustomFeedPlacement } from '../../lib/featureManagement';
 import CustomFeedSlider from '../feeds/CustomFeedSlider';
 import type { ButtonProps } from '../buttons/Button';
@@ -71,14 +70,17 @@ export const SearchControlHeader = ({
     defaultValue: 0,
   });
   const router = useRouter();
-  const { sortingEnabled } = useContext(SettingsContext);
+  const { sortingEnabled, insaneMode } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
+  const { value: customFeedPlacement } = useConditionalFeature({
+    feature: featureCustomFeedPlacement,
+    shouldEvaluate: !insaneMode && isLaptop,
+  });
 
   if (isMobile) {
     return null;
