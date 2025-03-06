@@ -13,10 +13,8 @@ import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusTitle } from './PlusTitle';
-import {
-  PaymentContextProvider,
-  usePaymentContext,
-} from '../../contexts/payment/context';
+import { PaymentContextProvider } from '../../contexts/payment';
+import { usePaymentContext } from '../../contexts/payment/context';
 import { TextField } from '../fields/TextField';
 import { UserIcon } from '../icons';
 import { gqlClient } from '../../graphql/common';
