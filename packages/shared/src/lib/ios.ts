@@ -8,7 +8,7 @@ export enum WebKitMessageHandlers {
 }
 
 export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
-  isIOSNative() && globalThis.webkit?.messageHandlers?.[handler];
+  isIOSNative() && !!globalThis.webkit?.messageHandlers?.[handler];
 
 export const sendMessage = <T = unknown>(
   handler: WebKitMessageHandlers,
