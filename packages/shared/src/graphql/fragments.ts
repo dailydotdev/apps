@@ -229,6 +229,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       flags {
         feedbackDismiss
       }
+      awarded
     }
     slug
     clickbaitTitleDetected
@@ -283,6 +284,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       flags {
         feedbackDismiss
       }
+      awarded
     }
     slug
     domain

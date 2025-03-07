@@ -1,6 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
 import type { ModalProps } from '../components/modals/common/Modal';
+import type { Author } from '../graphql/comments';
+import type { Product } from '../graphql/njord';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -22,12 +24,24 @@ export type ModalRenders = keyof typeof MODALRENDERS;
 
 export type Screens = keyof typeof SCREENS;
 
+export const maxNoteLength = 400;
+
+export type AwardEntity = {
+  id: string;
+  author?: Author;
+  awards?: number;
+};
+
 export type GiveAwardModalContextData = {
   activeModal: ModalRenders;
   setActiveModal: (modal: ModalRenders) => void;
   activeStep: Screens;
-  setActiveStep: (step: Screens) => void;
+  setActiveStep: Dispatch<
+    SetStateAction<{ screen: Screens; product?: Product }>
+  >;
   type: AwardTypes;
+  entity: AwardEntity;
+  product?: Product;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -37,14 +51,21 @@ export default GiveAwardModalContext;
 export type GiveAwardModalContextProviderProps = {
   children?: ReactNode;
   type: AwardTypes;
+  entity: AwardEntity;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 export const GiveAwardModalContextProvider = ({
   children,
   onRequestClose,
   type,
+  entity,
 }: GiveAwardModalContextProviderProps): ReactElement => {
-  const [activeStep, setActiveStep] = useState<Screens>(SCREENS.INTRO);
+  const [activeStep, setActiveStep] = useState<{
+    screen: Screens;
+    product?: Product;
+  }>({
+    screen: SCREENS.INTRO,
+  });
   const [activeModal, setActiveModal] = useState<ModalRenders>(
     MODALRENDERS.AWARD,
   );
@@ -54,11 +75,13 @@ export const GiveAwardModalContextProvider = ({
       activeModal,
       setActiveModal,
       onRequestClose,
-      activeStep,
+      activeStep: activeStep.screen,
+      product: activeStep.product,
       setActiveStep,
       type,
+      entity,
     }),
-    [activeModal, activeStep, onRequestClose, type],
+    [activeModal, activeStep, onRequestClose, type, entity],
   );
 
   return (
