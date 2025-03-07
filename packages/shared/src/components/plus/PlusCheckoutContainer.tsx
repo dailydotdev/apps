@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';

@@ -9,11 +9,11 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 import type {
   OpenCheckoutFn,
   ProductOption,
-} from '../../contexts/PaymentContext';
+} from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
