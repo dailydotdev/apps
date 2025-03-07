@@ -355,7 +355,11 @@ export default function CommentActionButtons({
         className="mr-3"
         appendTo={appendTo}
         type="COMMENT"
-        entity={comment}
+        entity={{
+          id: comment.id,
+          receiver: comment.author,
+          numAwards: comment.numAwards,
+        }}
       />
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button

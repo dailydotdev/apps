@@ -174,7 +174,14 @@ export function Header({
           />
         )}
         {!isSameUser && (
-          <AwardButton appendTo="parent" type="USER" entity={user} />
+          <AwardButton
+            appendTo="parent"
+            type="USER"
+            entity={{
+              id: user.id,
+              receiver: user,
+            }}
+          />
         )}
         {!isSameUser && (
           <CustomFeedOptionsMenu

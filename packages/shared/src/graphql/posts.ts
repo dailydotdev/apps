@@ -113,6 +113,7 @@ export interface Post {
   commentsPermalink: string;
   numUpvotes?: number;
   numComments?: number;
+  numAwards?: number;
   author?: Author;
   scout?: Scout;
   views?: number;
@@ -279,6 +280,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       commentsPermalink
       numUpvotes
       numComments
+      numAwards
       source {
         ...SourceShortInfo
       }

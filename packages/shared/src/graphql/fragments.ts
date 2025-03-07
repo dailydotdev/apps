@@ -195,6 +195,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     views
     numUpvotes
     numComments
+    numAwards
     summary
     bookmark {
       remindAt
@@ -259,6 +260,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     views
     numUpvotes
     numComments
+    numAwards
     videoId
     bookmark {
       remindAt
