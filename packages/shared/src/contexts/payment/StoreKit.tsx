@@ -56,7 +56,8 @@ export const StoreKitSubProvider = ({
     queryKey: ['iap-products'],
     enabled:
       !!productIds &&
-      messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest),
+      messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest) &&
+      !!user?.isTeamMember,
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
