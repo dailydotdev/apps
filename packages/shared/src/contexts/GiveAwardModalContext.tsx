@@ -14,9 +14,17 @@ const SCREENS = {
   COMMENT: 'COMMENT',
 } as const;
 
+const MODALRENDERS = {
+  AWARD: 'AWARD',
+  BUY_CORES: 'BUY_CORES',
+} as const;
+export type ModalRenders = keyof typeof MODALRENDERS;
+
 export type Screens = keyof typeof SCREENS;
 
 export type GiveAwardModalContextData = {
+  activeModal: ModalRenders;
+  setActiveModal: (modal: ModalRenders) => void;
   activeStep: Screens;
   setActiveStep: (step: Screens) => void;
   type: AwardTypes;
@@ -37,15 +45,20 @@ export const GiveAwardModalContextProvider = ({
   type,
 }: GiveAwardModalContextProviderProps): ReactElement => {
   const [activeStep, setActiveStep] = useState<Screens>(SCREENS.INTRO);
+  const [activeModal, setActiveModal] = useState<ModalRenders>(
+    MODALRENDERS.AWARD,
+  );
 
   const contextData = useMemo<GiveAwardModalContextData>(
     () => ({
+      activeModal,
+      setActiveModal,
       onRequestClose,
       activeStep,
       setActiveStep,
       type,
     }),
-    [activeStep, onRequestClose, type],
+    [activeModal, activeStep, onRequestClose, type],
   );
 
   return (
