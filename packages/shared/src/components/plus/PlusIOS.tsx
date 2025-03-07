@@ -9,7 +9,7 @@ import type { CommonPlusPageProps } from './common';
 import { promisifyEventListener } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
 import { iOSSupportsPlusPurchase } from '../../lib/ios';
-import { useToastNotification } from '../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import Toast from '../notifications/Toast';
 
@@ -26,10 +26,11 @@ export const PlusIOS = ({
   const { displayToast } = useToastNotification();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { productOptions, openCheckout } = usePaymentContext();
+  const { isPlus } = usePlusSubscription();
 
   const canContinue = useMemo(
-    () => iOSSupportsPlusPurchase() && !!selectedOption,
-    [selectedOption],
+    () => iOSSupportsPlusPurchase() && !!selectedOption && !isPlus,
+    [isPlus, selectedOption],
   );
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
