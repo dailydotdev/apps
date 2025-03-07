@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { PlusInfo } from './PlusInfo';
@@ -26,6 +26,11 @@ export const PlusIOS = ({
   const { displayToast } = useToastNotification();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { productOptions, openCheckout } = usePaymentContext();
+
+  const canContinue = useMemo(
+    () => iOSSupportsPlusPurchase() && !!selectedOption,
+    [selectedOption],
+  );
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
     setSelectedOption(priceId);
@@ -85,6 +90,7 @@ export const PlusIOS = ({
           onContinue={onContinue}
           shouldShowPlusHeader={shouldShowPlusHeader}
           showGiftButton={false}
+          continueEnabled={canContinue}
         />
         <PlusTrustRefund className="mt-6" />
         <PlusFAQs />

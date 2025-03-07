@@ -41,6 +41,7 @@ type PlusInfoProps = {
   title?: string;
   description?: string;
   subtitle?: string;
+  continueEnabled?: boolean;
 };
 
 enum PlusType {
@@ -110,6 +111,7 @@ export const PlusInfo = ({
   title,
   description,
   subtitle,
+  continueEnabled = true,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
@@ -243,6 +245,7 @@ export const PlusInfo = ({
             variant={ButtonVariant.Primary}
             className="w-full"
             onClick={onContinue}
+            disabled={!continueEnabled}
           >
             Continue »
           </Button>
