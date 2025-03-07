@@ -15,10 +15,10 @@ export function PostUpvotesCommentsCount({
 }: PostUpvotesCommentsCountProps): ReactElement {
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
-  const hasUpvotesOrCommentsOrViews =
-    upvotes > 0 || comments > 0 || post.views > 0;
+  const awards = post.numAwards || 0;
+  const hasStats = upvotes > 0 || comments > 0 || post.views > 0 || awards > 0;
 
-  return !hasUpvotesOrCommentsOrViews ? (
+  return !hasStats ? (
     <></>
   ) : (
     <div
@@ -35,6 +35,12 @@ export function PostUpvotesCommentsCount({
         <span>
           {largeNumberFormat(comments)}
           {` Comment${comments === 1 ? '' : 's'}`}
+        </span>
+      )}
+      {awards > 0 && (
+        <span>
+          {largeNumberFormat(awards)}
+          {` Award${awards === 1 ? '' : 's'}`}
         </span>
       )}
     </div>
