@@ -22,7 +22,7 @@ function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
   const { completeAction } = useActions();
-  const { toggleShowTopSites, insaneMode } = useSettingsContext();
+  const { toggleShowTopSites } = useSettingsContext();
   const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
