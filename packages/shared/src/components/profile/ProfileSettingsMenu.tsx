@@ -90,7 +90,7 @@ const useMenuItems = (): NavItemProps[] => {
     if (
       !isIOSNative() ||
       (isIOSNative() && user.isTeamMember)
-      // messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)
+      // iOSSupportsPlusPurchase()
     ) {
       items.push({
         label: isPlus ? 'Manage plus' : plusCta,

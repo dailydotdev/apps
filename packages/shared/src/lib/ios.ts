@@ -10,6 +10,10 @@ export enum WebKitMessageHandlers {
 export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
   isIOSNative() && !!globalThis.webkit?.messageHandlers?.[handler];
 
+export const iOSSupportsPlusPurchase = (): boolean =>
+  isIOSNative() &&
+  messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest);
+
 export const sendMessage = <T = unknown>(
   handler: WebKitMessageHandlers,
   payload: T,
