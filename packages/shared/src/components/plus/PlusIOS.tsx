@@ -87,9 +87,9 @@ export const PlusIOS = ({
           </Button>
           <Button
             onClick={() => {
-              globalThis.webkit.messageHandlers[
+              globalThis.webkit.messageHandlers?.[
                 WebKitMessageHandlers.IAPSubscriptionManage
-              ].postMessage(null);
+              ]?.postMessage(null);
             }}
             variant={ButtonVariant.Float}
           >

@@ -8,7 +8,11 @@ import type {
   ProductOption,
 } from './context';
 import { PaymentContext } from './context';
-import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
+import {
+  messageHandlerExists,
+  sendMessage,
+  WebKitMessageHandlers,
+} from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { featureIAPProducts } from '../../lib/featureManagement';
@@ -50,8 +54,14 @@ export const StoreKitSubProvider = ({
 
   const { data: productOptions } = useQuery({
     queryKey: ['iap-products'],
-    enabled: !!productIds,
+    enabled:
+      !!productIds &&
+      messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest),
     queryFn: async () => {
+      if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
+        return [];
+      }
+
       const products = promisifyEventListener(
         'iap-products-result',
         (event) => {
