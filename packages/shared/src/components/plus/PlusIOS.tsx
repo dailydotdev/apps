@@ -10,7 +10,7 @@ import type { CommonPlusPageProps } from './common';
 import { promisifyEventListener } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { WebKitMessageHandlers } from '../../lib/ios';
+import { iOSSupportsPlusPurchase, WebKitMessageHandlers } from '../../lib/ios';
 import { useToastNotification } from '../../hooks';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import Toast from '../notifications/Toast';
@@ -96,6 +96,15 @@ export const PlusIOS = ({
             Manage
           </Button>
         </div>
+
+        {!iOSSupportsPlusPurchase() && (
+          <div className="flex flex-wrap items-center rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-tertiary typo-callout tablet:mt-1">
+            Purchasing Plus subscriptions is not supported in this version of
+            the app. Please update to the latest version to purchase Plus
+            subscriptions.
+          </div>
+        )}
+
         <PlusInfo
           productOptions={productOptions || []}
           selectedOption={selectedOption}
