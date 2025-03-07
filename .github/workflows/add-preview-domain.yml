@@ -25,6 +25,7 @@ jobs:
               console.log('No Jira ticket found')
               return
             }
+            console.log(`Found ticket `${jiraTicket}`
 
             const knownString = '### Jira ticket'
             const pullRequest = await github.rest.pulls.get({
