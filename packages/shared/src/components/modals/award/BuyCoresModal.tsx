@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -16,93 +16,109 @@ import { ModalClose } from '../common/ModalClose';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import { CoinIcon } from '../../icons';
-
-const CoreOptionButton = () => {
-  const { onCompletion } = useBuyCoresContext();
-  return (
-    <Button
-      className="w-full"
-      variant={ButtonVariant.Float}
-      icon={<CoinIcon />}
-      size={ButtonSize.Large}
-      onClick={onCompletion}
-    >
-      <Typography
-        type={TypographyType.Body}
-        color={TypographyColor.Primary}
-        bold
-      >
-        100
-      </Typography>
-      <div className="flex-1" />
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-        className="font-normal"
-      >
-        $0.99
-      </Typography>
-    </Button>
-  );
-};
+import { useGiveAwardModalContext } from '../../../contexts/GiveAwardModalContext';
+import { IconSize } from '../../Icon';
+import useDebounceFn from '../../../hooks/useDebounceFn';
+import { CoreOptionList } from '../../cores/CoreOptionList';
+import { CoreAmountNeeded } from '../../cores/CoreAmountNeeded';
 
 const CoreOptions = () => {
-  const { amountNeeded } = useBuyCoresContext();
   return (
     <div className="flex-1 ">
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-      >
-        <Typography
-          tag={TypographyTag.Span}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {amountNeeded} Cores
-        </Typography>{' '}
-        will be used to give the Award. The remaining{' '}
-        <Typography
-          tag={TypographyTag.Span}
-          color={TypographyColor.Primary}
-          bold
-        >
-          80 Cores
-        </Typography>{' '}
-        will be added to your balance.
-      </Typography>
-      <div className="mt-4 flex flex-col gap-2">
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-        <CoreOptionButton />
-      </div>
+      <CoreAmountNeeded />
+      <CoreOptionList />
     </div>
   );
 };
 
 const Checkout = () => {
-  return <div className="flex-1">Checkout</div>;
+  const { setActiveStep } = useBuyCoresContext();
+  return (
+    <div className="flex-1">
+      <div className="checkout-container" />
+      <Button onClick={() => setActiveStep('PROCESSING')}>
+        Complete purchase
+      </Button>
+    </div>
+  );
 };
 
-const Processing = () => {
-  return <div>Processing</div>;
+const ProcessingLoading = () => {
+  return (
+    <>
+      <CoinIcon size={IconSize.XXXLarge} />
+      <Typography type={TypographyType.Title3} bold>
+        Processing your payment
+      </Typography>
+    </>
+  );
+};
+
+const ProcessingCompleted = () => {
+  const { onCompletion } = useBuyCoresContext();
+
+  return (
+    <>
+      <CoinIcon size={IconSize.XXXLarge} />
+      <Typography type={TypographyType.Body} bold>
+        200
+      </Typography>
+      <Typography type={TypographyType.Title3} bold>
+        You got your Cores!
+      </Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        Success! Your Cores are now available in your balance.
+      </Typography>
+      <Button
+        onClick={onCompletion}
+        variant={ButtonVariant.Primary}
+        className="w-full"
+      >
+        Got it
+      </Button>
+    </>
+  );
+};
+
+const Processing = ({ ...props }) => {
+  const { onCompletion } = useBuyCoresContext();
+  const [isProcessing, setIsProcessing] = useState(true);
+
+  const [cb] = useDebounceFn(() => setIsProcessing(false), 1500);
+  cb();
+
+  return (
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.XSmall}
+      {...props}
+      onRequestClose={onCompletion}
+      isDrawerOnMobile
+    >
+      <Modal.Body className="flex items-center gap-4 text-center">
+        {isProcessing ? <ProcessingLoading /> : <ProcessingCompleted />}
+      </Modal.Body>
+    </Modal>
+  );
 };
 
 const BuyCoresMobile = () => {
+  const { selectedProduct, openCheckout } = useBuyCoresContext();
+
+  useEffect(() => {
+    if (selectedProduct) {
+      openCheckout(selectedProduct);
+    }
+  }, [openCheckout, selectedProduct]);
+
   return (
-    <ModalBody>
-      <CoreOptions />
-    </ModalBody>
+    <ModalBody>{selectedProduct ? <Checkout /> : <CoreOptions />}</ModalBody>
   );
 };
 
@@ -117,45 +133,64 @@ const BuyCoreDesktop = () => {
   );
 };
 
+const BuyFlow = ({ ...props }) => {
+  const { setActiveModal } = useGiveAwardModalContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  return (
+    <Modal
+      kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
+      size={Modal.Size.XLarge}
+      className={classNames(!isMobile ? '!h-[40rem]' : undefined)}
+      {...props}
+    >
+      <Modal.Header
+        title="Get more Cores"
+        className="mr-auto flex-row-reverse justify-end gap-4"
+      >
+        <BuyCreditsButton
+          hideBuyButton
+          onPlusClick={() => setActiveModal('BUY_CORES')}
+        />
+        {isMobile ? (
+          <Button
+            onClick={props.onRequestClose}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className="mr-2"
+          >
+            Close
+          </Button>
+        ) : null}
+        <ModalClose onClick={props.onRequestClose} top="2" />
+      </Modal.Header>
+      {isMobile ? <BuyCoresMobile /> : <BuyCoreDesktop />}
+    </Modal>
+  );
+};
+
+const ModalRender = ({ ...props }) => {
+  const { activeStep } = useBuyCoresContext();
+
+  if (activeStep === 'PROCESSING') {
+    return <Processing {...props} />;
+  }
+  if (activeStep === 'INTRO') {
+    return <BuyFlow {...props} />;
+  }
+  return null;
+};
+
 type BuyCoresModalProps = {
   onCompletion?: () => void;
 } & ModalProps;
 export const BuyCoresModal = ({
-  props,
   onCompletion,
+  ...props
 }: BuyCoresModalProps): ReactElement => {
-  const isMobile = useViewSize(ViewSize.MobileL);
-
   return (
     <BuyCoresContextProvider amountNeeded={40} onCompletion={onCompletion}>
-      <Modal
-        kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
-        size={Modal.Size.XLarge}
-        className={classNames(!isMobile ? '!h-[40rem]' : undefined)}
-        {...props}
-      >
-        <Modal.Header
-          title="Get more Cores"
-          className="mr-auto flex-row-reverse justify-end gap-4"
-        >
-          <BuyCreditsButton
-            hideBuyButton
-            onPlusClick={() => setActiveModal('BUY_CORES')}
-          />
-          {isMobile ? (
-            <Button
-              onClick={onRequestClose}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              className="mr-2"
-            >
-              Close
-            </Button>
-          ) : null}
-          <ModalClose top="2" />
-        </Modal.Header>
-        {isMobile ? <BuyCoresMobile /> : <BuyCoreDesktop />}
-      </Modal>
+      <ModalRender {...props} />
     </BuyCoresContextProvider>
   );
 };
