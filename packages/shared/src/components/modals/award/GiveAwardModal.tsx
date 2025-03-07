@@ -101,7 +101,7 @@ const IntroScreen = () => {
               bold
               color={TypographyColor.Primary}
             >
-              {entity.awards || 0} Awards given
+              {entity.numAwards || 0} Awards given
             </Typography>
           </div>
         ) : undefined}
@@ -117,7 +117,7 @@ const IntroScreen = () => {
             tag={TypographyTag.Span}
             bold
           >
-            {entity.author.name || `@${entity.author.username}`}
+            {entity.receiver.name || `@${entity.receiver.username}`}
           </Typography>
           !
         </Typography>
@@ -193,7 +193,7 @@ const CommentScreen = () => {
               color={TypographyColor.Primary}
               tag={TypographyTag.Span}
             >
-              {entity.author.name || `@${entity.author.username}`}
+              {entity.receiver.name || `@${entity.receiver.username}`}
             </Typography>{' '}
             will appreciate this award!
           </Typography>

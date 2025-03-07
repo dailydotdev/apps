@@ -214,7 +214,11 @@ export function PostActions({
                     type: LazyModal.GiveAward,
                     props: {
                       type: 'POST',
-                      entity: post,
+                      entity: {
+                        id: post.id,
+                        receiver: post.author,
+                        numAwards: post.numAwards,
+                      },
                     },
                   });
                 }}

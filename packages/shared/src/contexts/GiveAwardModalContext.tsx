@@ -1,8 +1,8 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
 import type { ModalProps } from '../components/modals/common/Modal';
-import type { Author } from '../graphql/comments';
 import type { Product } from '../graphql/njord';
+import type { PublicProfile } from '../lib/user';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -28,8 +28,8 @@ export const maxNoteLength = 400;
 
 export type AwardEntity = {
   id: string;
-  author?: Author;
-  awards?: number;
+  receiver: Pick<PublicProfile, 'name' | 'username'>;
+  numAwards?: number;
 };
 
 export type GiveAwardModalContextData = {
