@@ -10,7 +10,7 @@ import type {
 import { PaymentContext } from './context';
 import {
   messageHandlerExists,
-  sendMessage,
+  postWebKitMessage,
   WebKitMessageHandlers,
 } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
@@ -106,7 +106,7 @@ export const StoreKitSubProvider = ({
         },
       );
 
-      sendMessage(WebKitMessageHandlers.IAPProductList, productList);
+      postWebKitMessage(WebKitMessageHandlers.IAPProductList, productList);
 
       return products;
     },
@@ -114,7 +114,7 @@ export const StoreKitSubProvider = ({
 
   const openCheckout = useCallback(
     ({ priceId }: OpenCheckoutProps) => {
-      sendMessage(WebKitMessageHandlers.IAPSubscriptionRequest, {
+      postWebKitMessage(WebKitMessageHandlers.IAPSubscriptionRequest, {
         productId: priceId,
         appAccountToken: user?.subscriptionFlags?.appAccountToken,
       });

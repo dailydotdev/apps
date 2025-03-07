@@ -8,7 +8,7 @@ import { managePlusUrl, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { SubscriptionProvider } from '@dailydotdev/shared/src/lib/plus';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import {
-  sendMessage,
+  postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -37,7 +37,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     }
 
     if (isIOSNative() && plusProvider === SubscriptionProvider.AppleStoreKit) {
-      sendMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
+      postWebKitMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
 
       // Send the user back to the previous page as the native handler will take over
       router.back();

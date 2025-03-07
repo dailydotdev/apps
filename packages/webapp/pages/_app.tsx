@@ -37,7 +37,7 @@ import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import {
   messageHandlerExists,
-  sendMessage,
+  postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
@@ -124,7 +124,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       user?.subscriptionFlags?.appAccountToken &&
       messageHandlerExists(WebKitMessageHandlers.IAPSetAppAccountToken)
     ) {
-      sendMessage(
+      postWebKitMessage(
         WebKitMessageHandlers.IAPSetAppAccountToken,
         user.subscriptionFlags.appAccountToken,
       );

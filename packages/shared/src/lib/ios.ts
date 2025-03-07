@@ -14,7 +14,7 @@ export const iOSSupportsPlusPurchase = (): boolean =>
   isIOSNative() &&
   messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest);
 
-export const sendMessage = <T = unknown>(
+export const postWebKitMessage = <T = unknown>(
   handler: WebKitMessageHandlers,
   payload: T,
 ): void => {
