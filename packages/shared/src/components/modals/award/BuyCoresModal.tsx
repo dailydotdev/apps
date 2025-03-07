@@ -86,7 +86,7 @@ const ProcessingCompleted = () => {
   );
 };
 
-const Processing = ({ ...props }) => {
+const Processing = ({ ...props }: ModalProps): ReactElement => {
   const { onCompletion } = useBuyCoresContext();
   const [isProcessing, setIsProcessing] = useState(true);
 
@@ -113,7 +113,7 @@ const BuyCoresMobile = () => {
 
   useEffect(() => {
     if (selectedProduct) {
-      openCheckout(selectedProduct);
+      openCheckout({ priceId: selectedProduct });
     }
   }, [openCheckout, selectedProduct]);
 
@@ -133,7 +133,7 @@ const BuyCoreDesktop = () => {
   );
 };
 
-const BuyFlow = ({ ...props }) => {
+const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
   const { setActiveModal } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
@@ -169,7 +169,7 @@ const BuyFlow = ({ ...props }) => {
   );
 };
 
-const ModalRender = ({ ...props }) => {
+const ModalRender = ({ ...props }: ModalProps) => {
   const { activeStep } = useBuyCoresContext();
 
   if (activeStep === 'PROCESSING') {
@@ -181,9 +181,9 @@ const ModalRender = ({ ...props }) => {
   return null;
 };
 
-type BuyCoresModalProps = {
+type BuyCoresModalProps = ModalProps & {
   onCompletion?: () => void;
-} & ModalProps;
+};
 export const BuyCoresModal = ({
   onCompletion,
   ...props

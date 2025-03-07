@@ -23,7 +23,7 @@ export const CoreOptionButton = ({
   const onSelect = useCallback(() => {
     setSelectedProduct(id);
     if (!isMobile) {
-      openCheckout(id);
+      openCheckout({ priceId: id });
     }
   }, [id, isMobile, openCheckout, setSelectedProduct]);
   return (

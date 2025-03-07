@@ -10,7 +10,7 @@ import { isIOSNative } from '../../lib/func';
 
 type BuyCreditsButtonProps = {
   onPlusClick: () => void;
-  hideBuyButton: boolean;
+  hideBuyButton?: boolean;
 };
 export const BuyCreditsButton = ({
   onPlusClick,

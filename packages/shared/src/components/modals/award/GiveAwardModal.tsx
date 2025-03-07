@@ -210,7 +210,7 @@ const ModalBody = () => {
   );
 };
 
-const ModalRender = ({ ...props }) => {
+const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { activeModal, setActiveModal } = useGiveAwardModalContext();
 
