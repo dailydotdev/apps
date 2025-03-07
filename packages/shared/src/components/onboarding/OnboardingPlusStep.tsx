@@ -58,7 +58,7 @@ export const OnboardingPlusStep = ({
           if (appsId === PlusPriceTypeAppsId.EarlyAdopter) {
             return -1;
           }
-          return duration === PlusPriceType.Yearly ? -1 : 0;
+          return duration === PlusPriceType.Yearly ? 0 : 1;
         })
         .at(0),
     [productOptions],
