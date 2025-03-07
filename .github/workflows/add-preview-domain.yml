@@ -19,7 +19,7 @@ jobs:
           script: |
             const branch = `${{ github.head_ref }}`
             const match = branch.match(/\b(MI|AS)-\d+\b/i);
-            const jiraTicket = match ? match[0] : null;
+            const jiraTicket = match ? match[0].toUpperCase() : null;
 
             if (!jiraTicket) {
               console.log('No Jira ticket found')
