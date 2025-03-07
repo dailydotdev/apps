@@ -1,6 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
 import type { ModalProps } from '../components/modals/common/Modal';
+import type { Product } from '../graphql/njord';
+import type { PublicProfile } from '../lib/user';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -16,10 +18,22 @@ const SCREENS = {
 
 export type Screens = keyof typeof SCREENS;
 
+export const maxNoteLength = 400;
+
+export type AwardEntity = {
+  id: string;
+  receiver: Pick<PublicProfile, 'name' | 'username'>;
+  numAwards?: number;
+};
+
 export type GiveAwardModalContextData = {
   activeStep: Screens;
-  setActiveStep: (step: Screens) => void;
+  setActiveStep: Dispatch<
+    SetStateAction<{ screen: Screens; product?: Product }>
+  >;
   type: AwardTypes;
+  entity: AwardEntity;
+  product?: Product;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -29,23 +43,32 @@ export default GiveAwardModalContext;
 export type GiveAwardModalContextProviderProps = {
   children?: ReactNode;
   type: AwardTypes;
+  entity: AwardEntity;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 export const GiveAwardModalContextProvider = ({
   children,
   onRequestClose,
   type,
+  entity,
 }: GiveAwardModalContextProviderProps): ReactElement => {
-  const [activeStep, setActiveStep] = useState<Screens>(SCREENS.INTRO);
+  const [activeStep, setActiveStep] = useState<{
+    screen: Screens;
+    product?: Product;
+  }>({
+    screen: SCREENS.INTRO,
+  });
 
   const contextData = useMemo<GiveAwardModalContextData>(
     () => ({
       onRequestClose,
-      activeStep,
+      activeStep: activeStep.screen,
+      product: activeStep.product,
       setActiveStep,
       type,
+      entity,
     }),
-    [activeStep, onRequestClose, type],
+    [activeStep, onRequestClose, type, entity],
   );
 
   return (

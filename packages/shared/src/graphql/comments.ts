@@ -41,6 +41,7 @@ export interface Comment {
   author?: Author;
   permalink: string;
   numUpvotes: number;
+  numAwards: number;
   children?: Connection<Comment>;
   parent?: Comment;
   post?: Post;
