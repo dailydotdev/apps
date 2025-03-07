@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { EmptyScreenIcon } from './EmptyScreen';
 import { DevPlusIcon, HashtagIcon } from './icons';
 import { PageContainer, SharedFeedPage } from './utilities';
@@ -19,9 +20,17 @@ import {
 } from './typography/Typography';
 import { LogEvent, TargetId } from '../lib/log';
 import { Button } from './buttons/Button';
-import { useConditionalFeature, usePlusSubscription } from '../hooks';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import { IconSize } from './Icon';
-import { featurePlusCtaCopy } from '../lib/featureManagement';
+import {
+  featureCustomFeedPlacement,
+  featurePlusCtaCopy,
+} from '../lib/featureManagement';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -37,9 +46,20 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { value: customFeedPlacement } = useConditionalFeature({
+    feature: featureCustomFeedPlacement,
+    shouldEvaluate: isLaptop,
+  });
+
   return (
     <div className="flex w-full flex-col">
-      <div className="mr-auto mt-0 flex gap-3 tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto">
+      <div
+        className={
+          (classNames('mt-0 flex gap-3 tablet:mr-0 tablet:mt-2'),
+          !customFeedPlacement && 'mr-auto laptop:mr-auto laptop:w-auto')
+        }
+      >
         <SearchControlHeader
           algoState={[selectedAlgo, setSelectedAlgo]}
           feedName={SharedFeedPage.Custom}
