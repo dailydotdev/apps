@@ -40,7 +40,7 @@ import { SubscriptionProvider } from '../../lib/plus';
 import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout, isAndroidApp } = useAuthContext();
+  const { logout, isAndroidApp, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
@@ -87,32 +87,38 @@ const useMenuItems = (): NavItemProps[] => {
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     ];
 
-    items.push({
-      label: isPlus ? 'Manage plus' : plusCta,
-      icon: <DevPlusIcon />,
-      href: plusHref,
-      className: isPlus ? undefined : 'text-action-plus-default',
-      target:
-        isPlus && plusProvider === SubscriptionProvider.Paddle
-          ? '_blank'
-          : undefined,
-      onClick: () => {
-        if (
-          isPlus &&
-          isIOSNative() &&
-          plusProvider === SubscriptionProvider.AppleStoreKit
-        ) {
-          sendMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
-        }
+    if (
+      !isIOSNative() ||
+      (isIOSNative() && user.isTeamMember)
+      // messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)
+    ) {
+      items.push({
+        label: isPlus ? 'Manage plus' : plusCta,
+        icon: <DevPlusIcon />,
+        href: plusHref,
+        className: isPlus ? undefined : 'text-action-plus-default',
+        target:
+          isPlus && plusProvider === SubscriptionProvider.Paddle
+            ? '_blank'
+            : undefined,
+        onClick: () => {
+          if (
+            isPlus &&
+            isIOSNative() &&
+            plusProvider === SubscriptionProvider.AppleStoreKit
+          ) {
+            sendMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
+          }
 
-        logSubscriptionEvent({
-          event_name: isPlus
-            ? LogEvent.ManageSubscription
-            : LogEvent.UpgradeSubscription,
-          target_id: TargetId.ProfileDropdown,
-        });
-      },
-    });
+          logSubscriptionEvent({
+            event_name: isPlus
+              ? LogEvent.ManageSubscription
+              : LogEvent.UpgradeSubscription,
+            target_id: TargetId.ProfileDropdown,
+          });
+        },
+      });
+    }
 
     return [
       ...items,
@@ -203,6 +209,7 @@ const useMenuItems = (): NavItemProps[] => {
     plusCta,
     plusHref,
     plusProvider,
+    user.isTeamMember,
   ]);
 };
 
