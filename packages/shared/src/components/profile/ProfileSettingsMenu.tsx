@@ -37,7 +37,7 @@ import {
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
 import { SubscriptionProvider } from '../../lib/plus';
-import { sendMessage, WebKitMessageHandlers } from '../../lib/ios';
+import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout, isAndroidApp, user } = useAuthContext();
@@ -107,7 +107,7 @@ const useMenuItems = (): NavItemProps[] => {
             isIOSNative() &&
             plusProvider === SubscriptionProvider.AppleStoreKit
           ) {
-            sendMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
+            postWebKitMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
           }
 
           logSubscriptionEvent({
