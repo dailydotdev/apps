@@ -125,7 +125,7 @@ export const PaymentContextProvider = ({
                 cycle:
                   event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 localCost: event?.data.totals.total,
-                localCurrenct: event?.data.currency_code,
+                localCurrency: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
               },
             });
