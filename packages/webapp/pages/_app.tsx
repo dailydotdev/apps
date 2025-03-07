@@ -114,8 +114,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     const id = user?.id || trackingId;
-    if (id && globalThis.webkit?.messageHandlers?.['update-user-id']) {
-      globalThis.webkit.messageHandlers['update-user-id'].postMessage(id);
+    if (id && messageHandlerExists(WebKitMessageHandlers.UpdateUserId)) {
+      postWebKitMessage(WebKitMessageHandlers.UpdateUserId, id);
     }
   }, [user?.id, trackingId]);
 
