@@ -27,7 +27,7 @@ const CustomFeedSlider = (): ReactElement => {
   const router = useRouter();
 
   const urlToTab: Record<string, string> = useMemo(() => {
-    const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+    const myFeedPath = isCustomDefaultFeed ? `${webappUrl}my-feed` : '/';
     const followingPath = `${webappUrl}following`;
     const newFeedPath = `${webappUrl}feeds/new`;
 
@@ -36,9 +36,7 @@ const CustomFeedSlider = (): ReactElement => {
       [followingPath]: 'Following',
       ...sortedFeeds.reduce((acc, { node: feed }) => {
         const feedPath =
-          defaultFeedId === feed.id
-            ? webappUrl
-            : `${webappUrl}feeds/${feed.id}`;
+          defaultFeedId === feed.id ? '/' : `${webappUrl}feeds/${feed.id}`;
         acc[feedPath] = feed.flags?.name || `Feed ${feed.id}`;
         return acc;
       }, {}),
