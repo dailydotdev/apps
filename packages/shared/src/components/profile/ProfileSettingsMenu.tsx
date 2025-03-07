@@ -107,7 +107,10 @@ const useMenuItems = (): NavItemProps[] => {
             isIOSNative() &&
             plusProvider === SubscriptionProvider.AppleStoreKit
           ) {
-            postWebKitMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
+            postWebKitMessage(
+              WebKitMessageHandlers.IAPSubscriptionManage,
+              null,
+            );
           }
 
           logSubscriptionEvent({
