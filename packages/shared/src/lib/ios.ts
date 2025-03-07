@@ -3,6 +3,7 @@ import { isIOSNative } from './func';
 export enum WebKitMessageHandlers {
   NativeAuth = 'native-auth',
   UpdateUserId = 'update-user-id',
+  TrackEvent = 'track-event',
   IAPProductList = 'iap-product-list',
   IAPSubscriptionManage = 'iap-subscription-manage',
   IAPSubscriptionRequest = 'iap-subscription-request',
