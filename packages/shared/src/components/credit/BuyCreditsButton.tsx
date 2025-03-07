@@ -8,10 +8,14 @@ import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { isIOSNative } from '../../lib/func';
 
+type BuyCreditsButtonProps = {
+  onPlusClick: () => void;
+  hideBuyButton: boolean;
+};
 export const BuyCreditsButton = ({
   onPlusClick,
   hideBuyButton,
-}): ReactElement => {
+}: BuyCreditsButtonProps): ReactElement => {
   const renderBuyButton = !isIOSNative() && !hideBuyButton;
   return (
     <div className="flex items-center rounded-10 bg-surface-float">
