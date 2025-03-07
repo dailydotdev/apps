@@ -351,7 +351,12 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      <AwardButton className="mr-3" appendTo={appendTo} type="COMMENT" />
+      <AwardButton
+        className="mr-3"
+        appendTo={appendTo}
+        type="COMMENT"
+        entity={comment}
+      />
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}

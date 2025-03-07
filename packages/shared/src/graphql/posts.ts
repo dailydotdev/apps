@@ -89,6 +89,7 @@ export type UserPostFlags = {
 export interface PostUserState {
   vote: UserVote;
   flags?: UserPostFlags;
+  awarded?: boolean;
 }
 
 export interface Post {

@@ -7,12 +7,13 @@ import {
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
+  MedalBadgeIcon,
 } from '../icons';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
-import { useVotePost } from '../../hooks';
+import { useMutationSubscription, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import { Card } from '../cards/common/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -21,6 +22,13 @@ import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { BookmarkButton } from '../buttons';
+import { AuthTriggers } from '../../lib/auth';
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { SimpleTooltip } from '../tooltips';
+import type { AwardProps } from '../../graphql/njord';
+import { updatePostCache } from '../../lib/query';
 
 interface PostActionsProps {
   post: Post;
@@ -38,6 +46,8 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
+  const { showLogin, user } = useAuthContext();
+  const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
 
@@ -66,6 +76,37 @@ export function PostActions({
 
     await toggleDownvote({ payload: post, origin });
   };
+
+  useMutationSubscription({
+    matcher: ({ mutation }) => {
+      const [requestKey] = Array.isArray(mutation.options.mutationKey)
+        ? mutation.options.mutationKey
+        : [];
+
+      return requestKey === 'awards';
+    },
+    callback: ({
+      variables: mutationVariables,
+      queryClient: mutationQueryClient,
+    }) => {
+      const { entityId, type } = mutationVariables as AwardProps;
+
+      if (type !== 'POST') {
+        return;
+      }
+
+      if (entityId !== post.id) {
+        return;
+      }
+
+      updatePostCache(mutationQueryClient, post.id, {
+        userState: {
+          ...post.userState,
+          awarded: true,
+        },
+      });
+    },
+  });
 
   return (
     <ConditionalWrapper
@@ -150,6 +191,44 @@ export function PostActions({
           >
             Copy
           </QuaternaryButton>
+          {!!post.author && (
+            <ConditionalWrapper
+              condition={post?.userState?.awarded}
+              wrapper={(children) => {
+                return (
+                  <SimpleTooltip content="You already awarded this post!">
+                    <div>{children}</div>
+                  </SimpleTooltip>
+                );
+              }}
+            >
+              <QuaternaryButton
+                id="award-post-btn"
+                pressed={post?.userState?.awarded}
+                onClick={() => {
+                  if (!user) {
+                    return showLogin({ trigger: AuthTriggers.GiveAward });
+                  }
+
+                  return openModal({
+                    type: LazyModal.GiveAward,
+                    props: {
+                      type: 'POST',
+                      entity: post,
+                    },
+                  });
+                }}
+                icon={<MedalBadgeIcon />}
+                responsiveLabelClass={actionsClassName}
+                className={classNames(
+                  'btn-tertiary-cabbage',
+                  post?.userState?.awarded && 'pointer-events-none',
+                )}
+              >
+                Award
+              </QuaternaryButton>
+            </ConditionalWrapper>
+          )}
         </div>
       </div>
     </ConditionalWrapper>

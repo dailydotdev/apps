@@ -274,6 +274,8 @@ export const BootDataProvider = ({
       experimentation={cachedBootData?.exp}
       updateExperimentation={updateExperimentation}
     >
+      {/* TODO feat/transactions remove, just for debug */}
+      <div>Balance: {(user as LoggedUser)?.balance.amount}</div>
       <AuthContextProvider
         user={user}
         updateUser={updateUser}
