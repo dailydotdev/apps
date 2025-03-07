@@ -2,15 +2,13 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
 import { PlusInfo } from './PlusInfo';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { CommonPlusPageProps } from './common';
 import { promisifyEventListener } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { iOSSupportsPlusPurchase, WebKitMessageHandlers } from '../../lib/ios';
+import { iOSSupportsPlusPurchase } from '../../lib/ios';
 import { useToastNotification } from '../../hooks';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import Toast from '../notifications/Toast';
@@ -28,8 +26,6 @@ export const PlusIOS = ({
   const { displayToast } = useToastNotification();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { productOptions, openCheckout } = usePaymentContext();
-
-  const queryClient = useQueryClient();
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
     setSelectedOption(priceId);
@@ -74,29 +70,6 @@ export const PlusIOS = ({
           }
         }}
       >
-        <div className="flex gap-2">
-          <Button
-            onClick={() => {
-              queryClient.refetchQueries({
-                queryKey: ['iap-products'],
-              });
-            }}
-            variant={ButtonVariant.Float}
-          >
-            Reload
-          </Button>
-          <Button
-            onClick={() => {
-              globalThis.webkit.messageHandlers?.[
-                WebKitMessageHandlers.IAPSubscriptionManage
-              ]?.postMessage(null);
-            }}
-            variant={ButtonVariant.Float}
-          >
-            Manage
-          </Button>
-        </div>
-
         {!iOSSupportsPlusPurchase() && (
           <div className="flex flex-wrap items-center rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-tertiary typo-callout tablet:mt-1">
             Purchasing Plus subscriptions is not supported in this version of
