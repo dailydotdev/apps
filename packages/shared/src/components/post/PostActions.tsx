@@ -104,6 +104,7 @@ export function PostActions({
           ...post.userState,
           awarded: true,
         },
+        numAwards: (post.numAwards || 0) + 1,
       });
     },
   });
