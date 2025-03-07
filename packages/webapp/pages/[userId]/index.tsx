@@ -18,6 +18,7 @@ import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
+import { Awards } from '@dailydotdev/shared/src/components/profile/Awards';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -71,7 +72,7 @@ const ProfilePage = ({
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
         <Readme user={user} />
-
+        <Awards />
         <TopReaderWidget user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
