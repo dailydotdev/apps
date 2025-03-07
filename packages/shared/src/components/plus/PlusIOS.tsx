@@ -72,9 +72,9 @@ export const PlusIOS = ({
       >
         {!iOSSupportsPlusPurchase() && (
           <div className="flex flex-wrap items-center rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-tertiary typo-callout tablet:mt-1">
-            Purchasing Plus subscriptions is not supported in this version of
-            the app. Please update to the latest version to purchase Plus
-            subscriptions.
+            Plus subscriptions aren&apos;t supported in this version of the app.
+            🚀 Upgrade to the latest version to purchase and supercharge your
+            experience!
           </div>
         )}
 
