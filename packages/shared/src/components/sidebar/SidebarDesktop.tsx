@@ -15,10 +15,9 @@ import { ResourceSection } from './sections/ResourceSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
-import { featureCustomFeedPlacement } from '../../lib/featureManagement';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
-import { useConditionalFeature } from '../../hooks';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -36,15 +35,11 @@ export const SidebarDesktop = ({
   onNavTabClick,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, onboardingChecklistView, insaneMode } =
-    useSettingsContext();
+  const { sidebarExpanded, onboardingChecklistView } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const { value: customFeedPlacement } = useConditionalFeature({
-    feature: featureCustomFeedPlacement,
-    shouldEvaluate: !insaneMode,
-  });
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const defaultRenderSectionProps = useMemo(
     () => ({

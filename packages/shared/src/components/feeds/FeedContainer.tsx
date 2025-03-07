@@ -14,7 +14,6 @@ import {
   useViewSize,
   ViewSize,
   useFeeds,
-  useConditionalFeature,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -22,8 +21,8 @@ import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
-import { featureCustomFeedPlacement } from '../../lib/featureManagement';
 import CustomFeedSlider from './CustomFeedSlider';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -168,10 +167,7 @@ export const FeedContainer = ({
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
-  const { value: customFeedPlacement } = useConditionalFeature({
-    feature: featureCustomFeedPlacement,
-    shouldEvaluate: !insaneMode && isLaptop,
-  });
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const { feeds } = useFeeds();
 

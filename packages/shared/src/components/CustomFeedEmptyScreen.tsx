@@ -20,17 +20,10 @@ import {
 } from './typography/Typography';
 import { LogEvent, TargetId } from '../lib/log';
 import { Button } from './buttons/Button';
-import {
-  useConditionalFeature,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
-import {
-  featureCustomFeedPlacement,
-  featurePlusCtaCopy,
-} from '../lib/featureManagement';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
+import useCustomFeedHeader from '../hooks/feed/useCustomFeedHeader';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -46,11 +39,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const { value: customFeedPlacement } = useConditionalFeature({
-    feature: featureCustomFeedPlacement,
-    shouldEvaluate: isLaptop,
-  });
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   return (
     <div className="flex w-full flex-col">

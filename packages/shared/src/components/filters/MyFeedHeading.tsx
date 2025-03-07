@@ -7,18 +7,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import {
-  useActions,
-  useConditionalFeature,
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { useShortcutsUser } from '../../hooks/useShortcutsUser';
-import { featureCustomFeedPlacement } from '../../lib/featureManagement';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
@@ -33,10 +27,7 @@ function MyFeedHeading({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { value: customFeedPlacement } = useConditionalFeature({
-    feature: featureCustomFeedPlacement,
-    shouldEvaluate: !insaneMode && isLaptop,
-  });
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   return (
     <>

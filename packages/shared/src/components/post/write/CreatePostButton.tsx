@@ -3,12 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import {
-  useConditionalFeature,
-  useSquad,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import type {
@@ -20,8 +15,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { SimpleTooltip } from '../../tooltips';
-import { featureCustomFeedPlacement } from '../../../lib/featureManagement';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
+import useCustomFeedHeader from '../../../hooks/feed/useCustomFeedHeader';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
   extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
@@ -42,7 +36,6 @@ export function CreatePostButton<Tag extends AllowedTags>({
 }: CreatePostButtonProps<Tag>): ReactElement {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
-  const { insaneMode } = useSettingsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
@@ -51,10 +44,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const hasAccess =
     !handle ||
     squads?.some((item) => verifyPermission(item, SourcePermissions.Post));
-  const { value: customFeedPlacement } = useConditionalFeature({
-    feature: featureCustomFeedPlacement,
-    shouldEvaluate: !insaneMode && isLaptop,
-  });
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   if (!footer && !user) {
     return null;
