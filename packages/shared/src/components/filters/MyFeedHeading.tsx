@@ -29,15 +29,21 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { customFeedPlacement } = useCustomFeedHeader();
 
+  const getSetttingsVariant = () => {
+    if (customFeedPlacement) {
+      return ButtonVariant.Tertiary;
+    }
+
+    return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
+  };
+
   return (
     <>
       <FeedSettingsButton
         onClick={onOpenFeedFilters}
         className={!customFeedPlacement ? 'mr-auto' : ''}
         size={ButtonSize.Medium}
-        variant={
-          customFeedPlacement ? ButtonVariant.Tertiary : ButtonVariant.Float
-        }
+        variant={getSetttingsVariant()}
         icon={<FilterIcon />}
         iconPosition={
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
