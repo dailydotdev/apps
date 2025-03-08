@@ -12,8 +12,7 @@ import { webappUrl } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureCustomFeedPlacement } from '../../../lib/featureManagement';
+import useCustomFeedHeader from '../../../hooks/feed/useCustomFeedHeader';
 
 export const MainSection = ({
   isItemsButton,
@@ -22,7 +21,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
