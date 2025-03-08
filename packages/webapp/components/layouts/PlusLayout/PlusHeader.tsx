@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogoWithPlus } from '@dailydotdev/shared/src/components/Logo';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
 import { PlusFreeTrialAlert } from '@dailydotdev/shared/src/components/plus/PlusFreeTrialAlert';
 
 export const PlusHeader = (): ReactElement => {

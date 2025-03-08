@@ -41,6 +41,12 @@ const feature = {
   }),
 };
 
+export const featureIAPProducts = new Feature('iap_products', {
+  annualSpecial: PlusPriceType.Yearly,
+  annual: PlusPriceType.Yearly,
+  monthly: PlusPriceType.Monthly,
+});
+
 export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
 export const visitLinkFeature = new Feature('post_visit_link', false);

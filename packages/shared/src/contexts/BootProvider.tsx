@@ -19,11 +19,12 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isIOSNative } from '../lib/func';
 import type { Feed, FeedList } from '../graphql/feed';
 import { gqlClient } from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
+import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
 
 const ServerError = dynamic(
   () =>
@@ -257,6 +258,30 @@ export const BootDataProvider = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteData]);
+
+  useEffect(() => {
+    if (
+      isIOSNative() &&
+      shouldRefetch &&
+      !logged?.subscriptionFlags?.appAccountToken
+    ) {
+      gqlClient
+        .request<{ requestAppAccountToken: string }>(
+          REQUEST_APP_ACCOUNT_TOKEN_MUTATION,
+        )
+        .then((result) => {
+          updateBootData({
+            user: {
+              ...logged,
+              subscriptionFlags: {
+                ...logged.subscriptionFlags,
+                appAccountToken: result.requestAppAccountToken,
+              },
+            },
+          });
+        });
+    }
+  }, [logged, shouldRefetch, updateBootData]);
 
   if (error) {
     return (
