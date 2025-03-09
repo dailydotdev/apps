@@ -16,6 +16,7 @@ import {
 import { useScrollManagement } from '../HorizontalScroll/useScrollManagement';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { webappUrl } from '../../lib/constants';
+import Link from '../utilities/Link';
 
 const CustomFeedSlider = (): ReactElement => {
   const { feeds } = useFeeds();
@@ -91,28 +92,30 @@ const CustomFeedSlider = (): ReactElement => {
           const isNewFeed = url === `${webappUrl}feeds/new`;
 
           return (
-            <Button
-              key={url}
-              ref={isActive ? activeButtonRef : undefined}
-              variant={isActive ? ButtonVariant.Primary : ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              tag="a"
-              href={url}
-              icon={isNewFeed && <PlusIcon size={IconSize.Small} />}
-            >
-              {label}
-              {!isPlus && isNewFeed && (
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  className="ml-1 flex items-center rounded-4 bg-action-plus-float px-1"
-                  bold
-                  color={TypographyColor.Plus}
-                >
-                  Plus
-                </Typography>
-              )}
-            </Button>
+            <Link key={url} href={url} passHref>
+              <Button
+                ref={isActive ? activeButtonRef : undefined}
+                variant={
+                  isActive ? ButtonVariant.Primary : ButtonVariant.Subtle
+                }
+                size={ButtonSize.Small}
+                tag="a"
+                icon={isNewFeed && <PlusIcon size={IconSize.Small} />}
+              >
+                {label}
+                {!isPlus && isNewFeed && (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    className="ml-1 flex items-center rounded-4 bg-action-plus-float px-1"
+                    bold
+                    color={TypographyColor.Plus}
+                  >
+                    Plus
+                  </Typography>
+                )}
+              </Button>
+            </Link>
           );
         })}
       </div>
