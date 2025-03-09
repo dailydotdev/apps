@@ -1,6 +1,15 @@
 import { isIOSNative } from './func';
 
 export enum WebKitMessageHandlers {
+  NativeAuth = 'native-auth',
+  UpdateUserId = 'update-user-id',
+  TrackEvent = 'track-event',
+
+  PushState = 'push-state',
+  PushUserId = 'push-user-id',
+  PushSubscribe = 'push-subscribe',
+  PushUnsubscribe = 'push-unsubscribe',
+
   IAPProductList = 'iap-product-list',
   IAPSubscriptionManage = 'iap-subscription-manage',
   IAPSubscriptionRequest = 'iap-subscription-request',
@@ -8,7 +17,7 @@ export enum WebKitMessageHandlers {
 }
 
 export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
-  isIOSNative() && !!globalThis.webkit?.messageHandlers?.[handler];
+  isIOSNative() && !!globalThis?.webkit?.messageHandlers?.[handler];
 
 export const iOSSupportsPlusPurchase = (): boolean =>
   isIOSNative() &&
