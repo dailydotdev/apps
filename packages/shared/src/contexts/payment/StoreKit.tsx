@@ -48,7 +48,7 @@ export type IAPProduct = {
 export const StoreKitSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, isValidRegion: isPlusAvailable } = useAuthContext();
   const productIds = useFeature(featureIAPProducts);
   const productList = useMemo(() => Object.keys(productIds), [productIds]);
 
@@ -121,12 +121,12 @@ export const StoreKitSubProvider = ({
       openCheckout,
       productOptions,
       earlyAdopterPlanId: null,
-      isPlusAvailable: false,
+      isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
       isFreeTrialExperiment: false,
     }),
-    [openCheckout, productOptions],
+    [isPlusAvailable, openCheckout, productOptions],
   );
 
   return (
