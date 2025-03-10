@@ -351,16 +351,18 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      <AwardButton
-        className="mr-3"
-        appendTo={appendTo}
-        type="COMMENT"
-        entity={{
-          id: comment.id,
-          receiver: comment.author,
-          numAwards: comment.numAwards,
-        }}
-      />
+      {!comment.userState?.awarded && (
+        <AwardButton
+          className="mr-3"
+          appendTo={appendTo}
+          type="COMMENT"
+          entity={{
+            id: comment.id,
+            receiver: comment.author,
+            numAwards: comment.numAwards,
+          }}
+        />
+      )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}

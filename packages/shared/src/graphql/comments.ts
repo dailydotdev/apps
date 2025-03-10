@@ -29,6 +29,7 @@ export type Scout = Author;
 
 export interface CommentUserState {
   vote: UserVote;
+  awarded: boolean;
 }
 
 export interface Comment {

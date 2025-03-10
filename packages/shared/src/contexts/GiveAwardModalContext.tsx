@@ -28,7 +28,7 @@ export const maxNoteLength = 400;
 
 export type AwardEntity = {
   id: string;
-  receiver: Pick<PublicProfile, 'name' | 'username'>;
+  receiver: Pick<PublicProfile, 'id' | 'name' | 'username'>;
   numAwards?: number;
 };
 

@@ -28,7 +28,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
-import { updatePostCache } from '../../lib/query';
+import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 
 interface PostActionsProps {
   post: Post;
@@ -91,21 +91,30 @@ export function PostActions({
     }) => {
       const { entityId, type } = mutationVariables as AwardProps;
 
-      if (type !== 'POST') {
+      if (type === 'POST') {
+        if (entityId !== post.id) {
+          return;
+        }
+
+        updatePostCache(mutationQueryClient, post.id, {
+          userState: {
+            ...post.userState,
+            awarded: true,
+          },
+          numAwards: (post.numAwards || 0) + 1,
+        });
+
         return;
       }
 
-      if (entityId !== post.id) {
-        return;
+      if (type === 'COMMENT') {
+        mutationQueryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.PostComments, undefined, {
+            postId: post.id,
+          }),
+          exact: false,
+        });
       }
-
-      updatePostCache(mutationQueryClient, post.id, {
-        userState: {
-          ...post.userState,
-          awarded: true,
-        },
-        numAwards: (post.numAwards || 0) + 1,
-      });
     },
   });
 
