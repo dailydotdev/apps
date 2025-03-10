@@ -42,6 +42,7 @@ type PlusInfoProps = {
   description?: string;
   subtitle?: string;
   continueEnabled?: boolean;
+  isContinueLoading?: boolean;
 };
 
 enum PlusType {
@@ -112,6 +113,7 @@ export const PlusInfo = ({
   description,
   subtitle,
   continueEnabled = true,
+  isContinueLoading = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
@@ -246,6 +248,7 @@ export const PlusInfo = ({
             className="w-full"
             onClick={onContinue}
             disabled={!continueEnabled}
+            loading={isContinueLoading}
           >
             Continue »
           </Button>

@@ -27,6 +27,7 @@ export const PlusIOS = ({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { productOptions, openCheckout } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
+  const [isLoading, setIsLoading] = useState(false);
 
   const canContinue = useMemo(
     () => iOSSupportsPlusPurchase() && !!selectedOption && !isPlus,
@@ -55,15 +56,27 @@ export const PlusIOS = ({
       displayToast(DEFAULT_ERROR);
     });
 
+    promisifyEventListener<void, 'true' | 'false'>(
+      'iap-loading',
+      ({ detail }) => {
+        setIsLoading(detail.toLowerCase() === 'true');
+      },
+      {
+        once: false,
+      },
+    );
+
     return () => {
       globalThis?.eventControllers?.['iap-purchase-result']?.abort();
       globalThis?.eventControllers?.['iap-error']?.abort();
+      globalThis?.eventControllers?.['iap-loading']?.abort();
     };
   }, [displayToast, router, selectedOption]);
 
   return (
     <>
       <Toast autoDismissNotifications />
+
       <div
         className="flex flex-col p-6"
         ref={(element) => {
@@ -92,6 +105,7 @@ export const PlusIOS = ({
           shouldShowPlusHeader={shouldShowPlusHeader}
           showGiftButton={false}
           continueEnabled={canContinue}
+          isContinueLoading={isLoading}
         />
         <PlusTrustRefund className="mt-6" />
         <PlusFAQs />
