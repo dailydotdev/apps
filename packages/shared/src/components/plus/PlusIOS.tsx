@@ -59,7 +59,11 @@ export const PlusIOS = ({
     promisifyEventListener<void, 'true' | 'false'>(
       'iap-loading',
       ({ detail }) => {
-        setIsLoading(detail.toLowerCase() === 'true');
+        try {
+          setIsLoading(detail.toLowerCase() === 'true');
+        } catch {
+          setIsLoading(false);
+        }
       },
       {
         once: false,
