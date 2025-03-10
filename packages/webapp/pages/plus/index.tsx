@@ -27,7 +27,7 @@ const PlusDesktop = dynamic(() =>
 
 const PlusIOS = dynamic(() =>
   import(
-    /* webpackChunkName: "PlusIOS" */ '@dailydotdev/shared/src/components/plus/PlusIOS'
+    /* webpackChunkName: "plusIOS" */ '@dailydotdev/shared/src/components/plus/PlusIOS'
   ).then((mod) => mod.PlusIOS),
 );
 
