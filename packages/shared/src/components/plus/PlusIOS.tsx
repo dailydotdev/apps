@@ -65,7 +65,9 @@ export const PlusIOS = ({
       {
         once: false,
       },
-    );
+    ).catch(() => {
+      setIsLoading(false);
+    });
 
     return () => {
       globalThis?.eventControllers?.['iap-purchase-result']?.abort();
