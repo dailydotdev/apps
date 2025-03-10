@@ -6,7 +6,7 @@ import { checkKratosEmail } from '../../lib/kratos';
 import type { AuthFormProps } from './common';
 import { getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
-import LogContext from '../../contexts/LogContext';
+import LogContext, { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
@@ -19,6 +19,14 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { isIOSNative } from '../../lib/func';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingPapercuts } from '../../lib/featureManagement';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
+import { cookiePolicy, termsOfService } from '../../lib/constants';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -27,6 +35,7 @@ interface ClassName {
 }
 
 interface OnboardingRegistrationFormProps extends AuthFormProps {
+  onContinueWithEmail?: () => void;
   onExistingEmail?: (email: string) => unknown;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
@@ -89,7 +98,17 @@ const isWebView = () => {
   return isInAppBrowser || advancedInAppDetection();
 };
 
-const OnboardingRegistrationForm = ({
+const getSignupProviders = () => {
+  if (isIOSNative()) {
+    return [providerMap.google, providerMap.apple];
+  }
+  if (isWebView()) {
+    return [providerMap.github];
+  }
+  return [providerMap.google, providerMap.github];
+};
+
+export const OnboardingRegistrationForm = ({
   onSignup,
   onExistingEmail,
   onProviderClick,
@@ -110,16 +129,6 @@ const OnboardingRegistrationForm = ({
     size: ButtonSize.Large,
     variant: ButtonVariant.Primary,
     ...onboardingSignupButton,
-  };
-
-  const getSignupProviders = () => {
-    if (isIOSNative()) {
-      return [providerMap.google, providerMap.apple];
-    }
-    if (isWebView()) {
-      return [providerMap.github];
-    }
-    return [providerMap.google, providerMap.github];
   };
 
   useEffect(() => {
@@ -249,6 +258,115 @@ const OnboardingRegistrationForm = ({
         ))}
       </div>
     </>
+  );
+};
+
+export const TermAndPrivacy = (): ReactElement => (
+  <Typography color={TypographyColor.Tertiary} type={TypographyType.Footnote}>
+    By continuing, you agree to the{' '}
+    <Typography
+      className="underline hover:no-underline"
+      color={TypographyColor.Tertiary}
+      href={termsOfService}
+      rel="noopener"
+      tag={TypographyTag.Link}
+      target="_blank"
+    >
+      Terms of Service
+    </Typography>{' '}
+    and{' '}
+    <Typography
+      className="underline hover:no-underline"
+      color={TypographyColor.Tertiary}
+      href={cookiePolicy}
+      rel="noopener"
+      tag={TypographyTag.Link}
+      target="_blank"
+    >
+      Privacy Policy
+    </Typography>
+    .
+  </Typography>
+);
+
+const AlreadySignedLogin = ({ onClickLogin }: { onClickLogin: () => void }) => (
+  <Typography
+    className="mt-6"
+    color={TypographyColor.Secondary}
+    type={TypographyType.Callout}
+  >
+    Already have an account?{' '}
+    <ClickableText
+      className="!inline-flex !text-inherit"
+      defaultTypo={false}
+      inverseUnderline
+      onClick={onClickLogin}
+      type="button"
+    >
+      Log in
+    </ClickableText>
+  </Typography>
+);
+
+export const OnboardingRegistrationFormExperiment = ({
+  isReady,
+  onContinueWithEmail,
+  onExistingEmail,
+  onProviderClick,
+  targetId,
+  trigger,
+}: OnboardingRegistrationFormProps): ReactElement => {
+  const { logEvent } = useLogContext();
+  useEffect(() => {
+    logEvent({
+      event_name: AuthEventNames.OpenSignup,
+      extra: JSON.stringify({ trigger }),
+      target_id: targetId,
+    });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div aria-label="Login/Register options" className="flex flex-col gap-4">
+      <ul aria-label="Social login buttons" className="flex flex-col gap-4">
+        {getSignupProviders().map((provider) => (
+          <li key={provider.value}>
+            <Button
+              aria-label={`Continue using ${provider.label}`}
+              className="w-full"
+              icon={provider.icon}
+              loading={!isReady}
+              onClick={() => onProviderClick?.(provider.value, false)}
+              size={ButtonSize.Large}
+              type="button"
+              variant={ButtonVariant.Primary}
+            >
+              Continue with {provider.label}
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <OrDivider
+        className={{
+          text: 'text-text-tertiary typo-footnote',
+        }}
+        label="OR"
+      />
+      <div className="flex flex-col-reverse text-center">
+        <AlreadySignedLogin onClickLogin={() => onExistingEmail?.('')} />
+        <TermAndPrivacy />
+        <Button
+          aria-label="Signup using email"
+          className="mb-8"
+          onClick={onContinueWithEmail}
+          size={ButtonSize.Large}
+          variant={ButtonVariant.Secondary}
+        >
+          Continue with email
+        </Button>
+      </div>
+    </div>
   );
 };
 
