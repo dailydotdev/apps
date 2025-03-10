@@ -46,6 +46,10 @@ export const AwardButton = ({
     });
   };
 
+  if (user && entity.receiver?.id === user.id) {
+    return null;
+  }
+
   return (
     <SimpleTooltip content="Award this user" appendTo={appendTo}>
       <Button
