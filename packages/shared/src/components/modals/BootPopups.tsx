@@ -17,7 +17,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';
-import { isNullOrUndefined } from '../../lib/func';
+import { isIOSNative, isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
@@ -102,12 +102,9 @@ export const BootPopups = (): ReactElement => {
    * Boot popup based on marketing CTA
    */
   useEffect(() => {
-    if (marketingCtaPlus && isValidRegion && !user?.isPlus) {
+    if (marketingCtaPlus && !isIOSNative() && isValidRegion && !user?.isPlus) {
       addBootPopup({
         type: LazyModal.PlusMarketing,
-        onAfterClose: () => {
-          updateLastBootPopup();
-        },
         props: {
           onAfterOpen: () => {
             logEvent({
@@ -115,6 +112,9 @@ export const BootPopups = (): ReactElement => {
               target_type: TargetType.MarketingCtaPlus,
               target_id: marketingCtaPlus.campaignId,
             });
+          },
+          onAfterClose: () => {
+            updateLastBootPopup();
           },
         },
       });

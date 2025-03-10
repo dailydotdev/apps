@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import type { SortCommentsBy } from './comments';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -41,6 +42,7 @@ export type RemoteSettings = {
   optOutReadingStreak: boolean;
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
+  sortCommentsBy: SortCommentsBy;
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
   flags?: SettingsFlags;

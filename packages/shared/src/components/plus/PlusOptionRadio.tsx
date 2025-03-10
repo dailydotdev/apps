@@ -10,6 +10,7 @@ import {
 import { RadioItem } from '../fields/RadioItem';
 import type { ProductOption } from '../../contexts/PaymentContext';
 import { usePaymentContext } from '../../contexts/PaymentContext';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 interface PlusOptionRadioProps {
   option: ProductOption;
@@ -22,15 +23,15 @@ export function PlusOptionRadio({
   checked,
   onChange,
 }: PlusOptionRadioProps): ReactElement {
-  const { earlyAdopterPlanId, giftOneYear } = usePaymentContext();
-  const isYearlyGift = giftOneYear.value === option.value;
+  const { giftOneYear } = usePaymentContext();
+  const isYearlyGift = giftOneYear?.value === option?.value;
 
   if (!option) {
     return null;
   }
 
-  const { label, value, price, currencyCode, extraLabel } = option;
-  const isEarlyAccess = value === earlyAdopterPlanId;
+  const { label, value, price, currencyCode, extraLabel, appsId } = option;
+  const isEarlyAccess = appsId === PlusPriceTypeAppsId.EarlyAdopter;
 
   return (
     <RadioItem

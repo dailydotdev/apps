@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
-import { TruncateText } from '../utilities';
+import { getRoleName, TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 import type { LoggedUser, UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -11,10 +11,11 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import type { Origin } from '../../lib/log';
-import { Separator } from '../cards/common/common';
-import { TopReaderIn } from '../TopReaderIn';
 import { PlusUserBadge } from '../PlusUserBadge';
 import type { CopyType } from '../sources/SourceActions/SourceActionsFollow';
+import UserBadge from '../UserBadge';
+import type { SourceMemberRole } from '../../graphql/sources';
+import { isPrivilegedRole } from '../../graphql/squads';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -30,7 +31,9 @@ export interface UserInfoClassName {
 export interface UserShortInfoProps<
   Tag extends React.ElementType = React.ElementType,
 > {
-  user: UserShortProfile;
+  user: UserShortProfile & {
+    role?: SourceMemberRole;
+  };
   imageSize?: ProfileImageSize;
   className?: UserInfoClassName;
   tag?: Tag;
@@ -56,7 +59,7 @@ const defaultClassName = {
 
 const UserShortInfoComponent = <Tag extends React.ElementType>(
   {
-    imageSize = ProfileImageSize.XLarge,
+    imageSize = ProfileImageSize.Large,
     tag,
     user,
     className = {},
@@ -77,7 +80,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
   ref?: Ref<Tag>,
 ): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
-  const { name, username, bio, companies, topReader, isPlus } = user;
+  const { name, username, bio, companies, isPlus, role } = user;
   const tooltipProps: TooltipProps = {
     appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
@@ -88,7 +91,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       ref={ref}
       {...props}
       className={classNames(
-        'flex flex-row items-center',
+        'flex flex-row',
         className.container ?? defaultClassName.container,
       )}
     >
@@ -110,30 +113,29 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
-          <div className="flex">
-            <TruncateText className="font-bold" title={name}>
+          <div className="flex items-center gap-1">
+            <TruncateText className="font-bold typo-callout" title={name}>
               {name}
             </TruncateText>
             {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
+            <TruncateText
+              className="text-text-tertiary typo-footnote"
+              title={`@${username}`}
+            >
+              {transformUsername ? transformUsername(user) : `@${username}`}
+            </TruncateText>
+          </div>
+          <div className="flex gap-2">
+            <ReputationUserBadge user={user} />
             {companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}
-            <ReputationUserBadge user={user} />
-          </div>
-          <div className="flex text-text-secondary">
-            <TruncateText title={`@${username}`}>
-              {transformUsername ? transformUsername(user) : `@${username}`}
-            </TruncateText>
-
-            {topReader && (
-              <>
-                <Separator />
-                <TopReaderIn topReader={topReader} />
-              </>
+            {isPrivilegedRole(role) && (
+              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             )}
           </div>
           {bio && showDescription && (
-            <span className="mt-1 text-text-tertiary">{bio}</span>
+            <span className="text-text-tertiary typo-footnote">{bio}</span>
           )}
         </div>
       </ProfileTooltip>
@@ -150,7 +152,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           feedId={feedId}
         />
       )}
-      {afterContent}
+      <div className="z-1">{afterContent}</div>
     </Element>
   );
 };

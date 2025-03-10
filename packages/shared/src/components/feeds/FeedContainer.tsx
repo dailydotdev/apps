@@ -21,6 +21,8 @@ import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
+import CustomFeedSlider from './CustomFeedSlider';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -165,6 +167,7 @@ export const FeedContainer = ({
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const { feeds } = useFeeds();
 
@@ -208,6 +211,9 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
+          {customFeedPlacement && feedName === 'following' && (
+            <CustomFeedSlider />
+          )}
           {inlineHeader && header}
           {isSearch && !shouldUseListFeedLayout && (
             <span
@@ -217,7 +223,14 @@ export const FeedContainer = ({
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto">
+                <span
+                  className={classNames(
+                    'flex w-full flex-row gap-3 border-border-subtlest-tertiary laptop:w-auto',
+                    customFeedPlacement
+                      ? 'flex-1 pr-0 laptop:w-full'
+                      : 'mr-auto pr-3',
+                  )}
+                >
                   {actionButtons}
                 </span>
               )}
@@ -254,7 +267,12 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
+                !customFeedPlacement &&
+                  isSearch &&
+                  !shouldUseListFeedLayout &&
+                  !isAnyExplore &&
+                  'mt-8',
+                customFeedPlacement && 'mt-6',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2',
                 gapClass({

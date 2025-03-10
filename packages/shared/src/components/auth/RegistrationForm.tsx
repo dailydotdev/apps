@@ -169,8 +169,8 @@ const RegistrationForm = ({
     });
   };
 
-  const isNameValid = !hints?.['traits.name'] && isSubmitted;
-  const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
+  const isNameValid = !hints?.['traits.name'];
+  const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
 
@@ -312,6 +312,9 @@ const RegistrationForm = ({
           <Turnstile
             ref={ref}
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
+            options={{
+              theme: 'dark',
+            }}
             className="mx-auto"
           />
           {turnstileError ? (

@@ -24,6 +24,8 @@ export interface TextFieldProps extends BaseFieldProps {
   rightIcon?: React.ReactElement<IconProps>;
   hintIcon?: ReactElement<IconProps>;
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
+  showMaxLength?: boolean;
+  inputRef?: (input: HTMLInputElement) => void;
 }
 
 function TextFieldComponent(
@@ -33,6 +35,7 @@ function TextFieldComponent(
     name,
     label,
     maxLength,
+    showMaxLength = true,
     value,
     saveHintSpace = false,
     progress,
@@ -51,14 +54,17 @@ function TextFieldComponent(
     disabled,
     rightIcon,
     required,
+    pressed,
     onBlur: onExternalBlur,
+    focused: focusedProp,
+    inputRef: inputRefProp,
     ...props
   }: TextFieldProps,
   ref?: MutableRefObject<HTMLDivElement>,
 ): ReactElement {
   const {
     validInput,
-    focused,
+    focused: focusedHook,
     hasInput,
     focusInput,
     inputRef,
@@ -72,6 +78,7 @@ function TextFieldComponent(
     valid,
     validityChanged,
   });
+  const focused = focusedProp || focusedHook;
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
@@ -131,7 +138,7 @@ function TextFieldComponent(
           actionButton && 'mr-2',
         )}
       >
-        {isPrimaryField && (focused || hasValue) && (
+        {isPrimaryField && (focusedHook || hasValue) && (
           <label
             className={classNames(
               'typo-caption1',
@@ -152,14 +159,17 @@ function TextFieldComponent(
         <FieldInput
           placeholder={getFieldPlaceholder({
             label,
-            focused,
+            focused: focusedHook,
             placeholder,
             isTertiaryField,
             isSecondaryField,
           })}
           name={name}
           id={inputId.concat(id)}
-          ref={inputRef}
+          ref={(el) => {
+            inputRef.current = el;
+            inputRefProp?.(el);
+          }}
           onFocus={onFocus}
           onBlur={(e) => {
             if (onExternalBlur) {
@@ -171,6 +181,7 @@ function TextFieldComponent(
           readOnly={readOnly}
           size={1}
           className={classNames(
+            styles.input,
             'self-stretch text-ellipsis',
             className?.input,
             getFieldFontColor({
@@ -180,6 +191,7 @@ function TextFieldComponent(
               focused,
               hasActionIcon: !!rightIcon,
             }),
+            { pressed },
           )}
           disabled={disabled}
           required={required}
@@ -200,7 +212,7 @@ function TextFieldComponent(
           />
         )}
       </div>
-      {maxLength && (
+      {maxLength && showMaxLength && (
         <div
           className="ml-2 font-bold typo-callout"
           style={{ color: 'var(--field-placeholder-color)' }}
