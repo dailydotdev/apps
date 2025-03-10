@@ -12,8 +12,8 @@ export type ProductOption = {
   price: {
     amount: number;
     formatted: string;
-    monthlyAmount: number;
-    monthlyFormatted: string;
+    monthlyAmount?: number;
+    monthlyFormatted?: string;
   };
   currencyCode?: string;
   currencySymbol?: string;
@@ -41,6 +41,13 @@ export interface PaymentContextData {
   isPricesPending: boolean;
   isFreeTrialExperiment: boolean;
 }
+
+export type ProductMeta = {
+  label: string;
+  extraLabel?: string;
+  duration: PlusPriceType;
+  appsId?: PlusPriceTypeAppsId;
+};
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);
 
