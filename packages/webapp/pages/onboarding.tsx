@@ -52,7 +52,6 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
@@ -304,10 +303,7 @@ export function OnboardPage(): ReactElement {
       target_id: TargetId.Onboarding,
     });
 
-    setSettings({
-      sidebarExpanded: true,
-      onboardingChecklistView: ChecklistViewState.Open,
-    });
+    setSettings({ sidebarExpanded: true });
 
     return onClickNext();
   };

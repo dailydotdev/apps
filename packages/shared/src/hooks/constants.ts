@@ -7,7 +7,6 @@ export enum ContextMenu {
   SquadMemberContext = 'squad-member-menu-context',
   TagOptionsContext = 'tag-options-context',
   ShortcutContext = 'shortcut-context',
-  SidebarOnboardingChecklistCard = 'sidebar-onboarding-checklist-card-context',
   SourceIntegrationContext = 'source-integration-context',
   CustomFeedContext = 'custom-feed-context',
 }
