@@ -26,14 +26,18 @@ export const PlusIOS = ({
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const { productOptions, openCheckout } = usePaymentContext();
+  const { productOptions, openCheckout, isPlusAvailable } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
   const [isLoading, setIsLoading] = useState(false);
   const [listenForSuccess, setListenForSuccess] = useState(false);
 
   const canContinue = useMemo(
-    () => iOSSupportsPlusPurchase() && !!selectedOption && !isPlus,
-    [isPlus, selectedOption],
+    () =>
+      iOSSupportsPlusPurchase() &&
+      !!selectedOption &&
+      !isPlus &&
+      isPlusAvailable,
+    [isPlus, isPlusAvailable, selectedOption],
   );
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
@@ -71,7 +75,7 @@ export const PlusIOS = ({
       globalThis?.eventControllers?.['iap-error']?.abort();
       globalThis?.eventControllers?.['iap-loading']?.abort();
     };
-  }, [displayToast, router, selectedOption]);
+  }, [displayToast, isPlusAvailable, router, selectedOption]);
 
   useEffect(() => {
     if (!listenForSuccess) {
