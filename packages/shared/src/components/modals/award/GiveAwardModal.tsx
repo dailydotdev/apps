@@ -89,7 +89,7 @@ const IntroScreen = () => {
         ) : null}
       </Modal.Header>
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
-        {type !== 'USER' ? (
+        {type !== 'USER' && !!entity.numAwards && (
           <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
             <Image
               src={cloudinaryAwardUnicorn}
@@ -101,10 +101,10 @@ const IntroScreen = () => {
               bold
               color={TypographyColor.Primary}
             >
-              {entity.numAwards || 0} Awards given
+              {entity.numAwards} Awards given
             </Typography>
           </div>
-        ) : undefined}
+        )}
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
