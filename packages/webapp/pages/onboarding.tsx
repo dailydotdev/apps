@@ -188,10 +188,10 @@ export function OnboardPage(): ReactElement {
 
   const layout = useMemo(
     () => ({
-      hasFooterLinks:
-        showOnboardingPage && (!isReorderExperiment || !onboardingPapercut),
-      hasFooter: onboardingStepsWithFooter.includes(activeScreen),
       hasCta: onboardingStepsWithCTA.includes(activeScreen),
+      hasFooter:
+        showOnboardingPage && (!isReorderExperiment || !onboardingPapercut),
+      hasFooterLinks: onboardingStepsWithFooter.includes(activeScreen),
     }),
     [activeScreen, isReorderExperiment, onboardingPapercut, showOnboardingPage],
   );
@@ -477,8 +477,8 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {layout.hasFooterLinks && <OnboardingFooter />}
-        {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
+        {layout.hasFooter && <OnboardingFooter />}
+        {layout.hasFooterLinks && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
   );
