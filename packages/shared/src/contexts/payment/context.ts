@@ -42,6 +42,13 @@ export interface PaymentContextData {
   isFreeTrialExperiment: boolean;
 }
 
+export type ProductMeta = {
+  label: string;
+  extraLabel?: string;
+  duration: PlusPriceType;
+  appsId?: PlusPriceTypeAppsId;
+};
+
 export const PaymentContext = createContext<PaymentContextData>(undefined);
 
 export const usePaymentContext = (): PaymentContextData => {

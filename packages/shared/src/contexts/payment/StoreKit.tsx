@@ -72,12 +72,11 @@ export const StoreKitSubProvider = ({
 
           return productsRaw
             ?.map((product: IAPProduct): ProductOption => {
-              const duration = productIds[
-                product.attributes.offerName
-              ] as PlusPriceType;
+              const { duration, label, extraLabel, appsId } =
+                productIds[product.attributes.offerName];
 
               return {
-                label: product.attributes.name,
+                label,
                 value: product.attributes.offerName,
                 price: {
                   amount: parseFloat(product.attributes.offers[0].price),
@@ -85,11 +84,8 @@ export const StoreKitSubProvider = ({
                   monthlyAmount: parseFloat(product.attributes.offers[0].price),
                   monthlyFormatted: product.attributes.offers[0].priceFormatted,
                 },
-                extraLabel: product.attributes?.description?.standard,
-                appsId:
-                  product.attributes.offerName === 'annualSpecial'
-                    ? PlusPriceTypeAppsId.EarlyAdopter
-                    : PlusPriceTypeAppsId.Default,
+                extraLabel,
+                appsId: appsId ?? PlusPriceTypeAppsId.Default,
                 duration,
                 durationLabel:
                   duration === PlusPriceType.Yearly ? 'year' : 'month',

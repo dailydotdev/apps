@@ -5,7 +5,8 @@ import {
 } from './image';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
-import { PlusPriceType } from './featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
+import type { ProductMeta } from '../contexts/payment/context';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -41,11 +42,26 @@ const feature = {
   }),
 };
 
-export const featureIAPProducts = new Feature('iap_products', {
-  annualSpecial: PlusPriceType.Yearly,
-  annual: PlusPriceType.Yearly,
-  monthly: PlusPriceType.Monthly,
-});
+export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
+  'iap_products',
+  {
+    annualSpecial: {
+      label: 'Annual Special',
+      extraLabel: '💜 Early bird',
+      duration: PlusPriceType.Yearly,
+      appsId: PlusPriceTypeAppsId.EarlyAdopter,
+    },
+    annual: {
+      label: 'Annual',
+      extraLabel: 'Save 50%',
+      duration: PlusPriceType.Yearly,
+    },
+    monthly: {
+      label: 'Monthly',
+      duration: PlusPriceType.Monthly,
+    },
+  },
+);
 
 export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
