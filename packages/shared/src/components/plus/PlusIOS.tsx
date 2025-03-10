@@ -29,6 +29,7 @@ export const PlusIOS = ({
   const { productOptions, openCheckout } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
   const [isLoading, setIsLoading] = useState(false);
+  const [listenForSuccess, setListenForSuccess] = useState(false);
 
   const canContinue = useMemo(
     () => iOSSupportsPlusPurchase() && !!selectedOption && !isPlus,
@@ -40,20 +41,17 @@ export const PlusIOS = ({
   }, []);
 
   const onContinue = useCallback(() => {
+    setListenForSuccess(true);
     openCheckout({ priceId: selectedOption });
   }, [openCheckout, selectedOption]);
 
   useEffect(() => {
-    promisifyEventListener('iap-purchase-result', (event) => {
-      const result = event.detail;
-      if (result !== 'success') {
+    promisifyEventListener('iap-error', ({ detail }) => {
+      if (detail === 'userCancelled') {
+        setListenForSuccess(false);
         return;
       }
 
-      router.replace(`${webappUrl}plus/success`);
-    });
-
-    promisifyEventListener('iap-error', () => {
       displayToast(DEFAULT_ERROR);
     });
 
@@ -70,11 +68,29 @@ export const PlusIOS = ({
     });
 
     return () => {
-      globalThis?.eventControllers?.['iap-purchase-result']?.abort();
       globalThis?.eventControllers?.['iap-error']?.abort();
       globalThis?.eventControllers?.['iap-loading']?.abort();
     };
   }, [displayToast, router, selectedOption]);
+
+  useEffect(() => {
+    if (!listenForSuccess) {
+      return () => {};
+    }
+
+    promisifyEventListener('iap-purchase-result', (event) => {
+      const result = event.detail;
+      if (result !== 'success') {
+        return;
+      }
+
+      router.replace(`${webappUrl}plus/success`);
+    });
+
+    return () => {
+      globalThis?.eventControllers?.['iap-purchase-result']?.abort();
+    };
+  }, [listenForSuccess, router]);
 
   return (
     <>
