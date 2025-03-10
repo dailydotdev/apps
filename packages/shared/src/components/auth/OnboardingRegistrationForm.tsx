@@ -191,6 +191,10 @@ export const OnboardingRegistrationForm = ({
           type="email"
           name="email"
           focused={onboardingPapercut}
+          pressed={onboardingPapercut}
+          className={{
+            container: onboardingPapercut && 'bg-overlay-active-salt',
+          }}
         />
 
         {shouldLogin && (
@@ -224,6 +228,7 @@ export const OnboardingRegistrationForm = ({
       <OrDivider
         className={{
           container: classNames('mb-8', className?.onboardingDivider),
+          text: onboardingPapercut ? 'text-text-tertiary' : undefined,
         }}
         label="Or sign up with"
         aria-hidden
