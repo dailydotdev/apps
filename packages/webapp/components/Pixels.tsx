@@ -178,7 +178,13 @@ const GtagTracking = ({
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
+export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
+  const { cookieExists: acceptedMarketing } = useConsentCookie(
+    GdprConsentKey.Marketing,
+  );
+  if (!acceptedMarketing) {
+    return null;
+  }
   return (
     <Script strategy="afterInteractive" id="load-hotjar">
       {`
@@ -331,7 +337,7 @@ export const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
+export const Pixels = (): ReactElement => {
   const { cookieExists: acceptedMarketing } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
@@ -350,7 +356,6 @@ export const Pixels = ({ hotjarId }: Partial<HotjarProps>): ReactElement => {
 
   return (
     <>
-      {hotjarId && <HotJarTracking hotjarId={hotjarId} />}
       <FbTracking {...props} />
       <GtagTracking {...props} />
       {consent && (

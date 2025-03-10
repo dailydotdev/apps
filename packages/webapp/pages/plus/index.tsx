@@ -11,6 +11,7 @@ import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plu
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
+import { HotJarTracking } from '../../components/Pixels';
 
 const PlusMobile = dynamic(() =>
   import(
@@ -46,6 +47,7 @@ const PlusPage = ({
 
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
+      <HotJarTracking hotjarId="5215055" />
       {isLaptop ? (
         <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
       ) : (
