@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import classNames from 'classnames';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -14,33 +15,40 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon, CoinIcon } from '../../icons';
 import { Image } from '../../image/Image';
 import { cloudinaryAwardUnicorn } from '../../../lib/image';
-import type { AwardTypes } from '../../../contexts/GiveAwardModalContext';
+import type {
+  AwardEntity,
+  AwardTypes,
+} from '../../../contexts/GiveAwardModalContext';
 import {
   GiveAwardModalContextProvider,
+  maxNoteLength,
   useGiveAwardModalContext,
 } from '../../../contexts/GiveAwardModalContext';
 import { Justify } from '../../utilities';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { termsOfService } from '../../../lib/constants';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
 import { ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
+import type { Product } from '../../../graphql/njord';
+import { award, getProducts } from '../../../graphql/njord';
+import { labels } from '../../../lib';
+import type { ApiErrorResult } from '../../../graphql/common';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
-const AwardItem = () => {
+const AwardItem = ({ item }: { item: Product }) => {
   const { setActiveStep } = useGiveAwardModalContext();
+
   return (
     <Button
       variant={ButtonVariant.Float}
       className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float !p-1"
-      onClick={() => setActiveStep('COMMENT')}
+      onClick={() => setActiveStep({ screen: 'COMMENT', product: item })}
     >
-      <Image
-        src={cloudinaryAwardUnicorn}
-        alt="Award unicorn"
-        className="size-20"
-      />
+      <Image src={item.image} alt={item.name} className="size-20" />
       <div className="flex items-center justify-center">
         <CoinIcon size={IconSize.Size16} />
         <Typography
@@ -48,7 +56,7 @@ const AwardItem = () => {
           color={TypographyColor.Secondary}
           tag={TypographyTag.Span}
         >
-          Free
+          {item.value === 0 ? 'Free' : item.value}
         </Typography>
       </div>
     </Button>
@@ -56,8 +64,15 @@ const AwardItem = () => {
 };
 
 const IntroScreen = () => {
-  const { onRequestClose, type, setActiveModal } = useGiveAwardModalContext();
+  const { onRequestClose, type, entity, setActiveModal } =
+    useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+
+  const { data: awards } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Products),
+    queryFn: () => getProducts(),
+  });
+
   return (
     <>
       <Modal.Header title={' '} showCloseButton={!isMobile}>
@@ -74,7 +89,7 @@ const IntroScreen = () => {
         ) : null}
       </Modal.Header>
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
-        {type !== 'USER' ? (
+        {type !== 'USER' && !!entity.numAwards && (
           <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
             <Image
               src={cloudinaryAwardUnicorn}
@@ -86,10 +101,10 @@ const IntroScreen = () => {
               bold
               color={TypographyColor.Primary}
             >
-              15 Awards given
+              {entity.numAwards} Awards given
             </Typography>
           </div>
-        ) : undefined}
+        )}
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
@@ -102,14 +117,13 @@ const IntroScreen = () => {
             tag={TypographyTag.Span}
             bold
           >
-            John doe
+            {entity.receiver.name || `@${entity.receiver.username}`}
           </Typography>
           !
         </Typography>
         <div className="mt-4 grid grid-cols-3 gap-2 tablet:grid-cols-4">
-          {new Array(30).fill(null).map((item, i) => (
-            /* eslint-disable react/no-array-index-key */
-            <AwardItem key={i} />
+          {awards?.edges?.map(({ node: item }) => (
+            <AwardItem key={item.id} item={item} />
           ))}
         </div>
       </Modal.Body>
@@ -118,15 +132,43 @@ const IntroScreen = () => {
 };
 
 const CommentScreen = () => {
-  const { setActiveStep } = useGiveAwardModalContext();
+  const { updateUser, user } = useAuthContext();
+  const { setActiveStep, type, entity, product, onRequestClose } =
+    useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { displayToast } = useToastNotification();
+  const [note, setNote] = useState('');
+
+  const { mutate: awardMutation, isPending } = useMutation({
+    mutationKey: [
+      'awards',
+      { productId: product?.id, type, entityId: entity.id, note },
+    ],
+    mutationFn: award,
+    onSuccess: (result) => {
+      // TODO feat/transactions animation show award
+      displayToast('Award sent successfully! ❤️');
+
+      updateUser({
+        ...user,
+        balance: result.balance,
+      });
+
+      onRequestClose(undefined);
+    },
+    onError: (data: ApiErrorResult) => {
+      displayToast(
+        data?.response?.errors?.[0]?.message || labels.error.generic,
+      );
+    },
+  });
 
   return (
     <>
       <Modal.Header title="Give an Award" showCloseButton={!isMobile}>
         <Button
           variant={ButtonVariant.Tertiary}
-          onClick={() => setActiveStep('INTRO')}
+          onClick={() => setActiveStep({ screen: 'INTRO' })}
           size={ButtonSize.Small}
           className="mr-2 flex -rotate-90"
           icon={<ArrowIcon />}
@@ -135,7 +177,7 @@ const CommentScreen = () => {
       <Modal.Body>
         <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <Image
-            src={cloudinaryAwardUnicorn}
+            src={product.image}
             alt="Award unicorn"
             className="size-[7.5rem]"
           />
@@ -144,14 +186,14 @@ const CommentScreen = () => {
             color={TypographyColor.Tertiary}
             className="text-center"
           >
-            Awesome choice! We’re sure that{' '}
+            Awesome choice! We&apos;re sure that{' '}
             <Typography
               bold
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
               tag={TypographyTag.Span}
             >
-              John doe
+              {entity.receiver.name || `@${entity.receiver.username}`}
             </Typography>{' '}
             will appreciate this award!
           </Typography>
@@ -164,6 +206,7 @@ const CommentScreen = () => {
               rows: 6,
               placeholder:
                 'Share a few words about why this Award is well deserved (optional)',
+              maxLength: maxNoteLength,
             }}
             className={{
               container: 'flex-1',
@@ -171,12 +214,26 @@ const CommentScreen = () => {
             initialContent=""
             enabledCommand={{ upload: false, link: false, mention: false }}
             showMarkdownGuide={false}
+            onValueUpdate={(value) => setNote(value)}
           />
         </form>
       </Modal.Body>
       <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
-        <Button className="w-full" variant={ButtonVariant.Primary}>
-          Send Award for <CoinIcon /> 50
+        <Button
+          loading={isPending}
+          className="w-full"
+          variant={ButtonVariant.Primary}
+          onClick={() => {
+            awardMutation({
+              productId: product.id,
+              type,
+              entityId: entity.id,
+              note,
+            });
+          }}
+        >
+          Send Award for <CoinIcon />{' '}
+          {product.value === 0 ? 'Free' : product.value}
         </Button>
         <Typography
           type={TypographyType.Footnote}
@@ -239,16 +296,11 @@ const ModalRender = ({ ...props }: ModalProps) => {
 
 type GiveAwardModalProps = ModalProps & {
   type: AwardTypes;
+  entity: AwardEntity;
 };
-const GiveAwardModal = ({
-  type,
-  ...props
-}: GiveAwardModalProps): ReactElement => {
+const GiveAwardModal = (props: GiveAwardModalProps): ReactElement => {
   return (
-    <GiveAwardModalContextProvider
-      onRequestClose={props.onRequestClose}
-      type={type}
-    >
+    <GiveAwardModalContextProvider {...props}>
       <ModalRender {...props} />
     </GiveAwardModalContextProvider>
   );

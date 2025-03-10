@@ -12,17 +12,22 @@ import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import type { AwardTypes } from '../../contexts/GiveAwardModalContext';
+import type {
+  AwardEntity,
+  AwardTypes,
+} from '../../contexts/GiveAwardModalContext';
 
 type AwardButtonProps = {
   appendTo: 'parent' | Element | ((ref: Element) => Element);
   type: AwardTypes;
   className?: string;
+  entity: AwardEntity;
 };
 export const AwardButton = ({
   appendTo,
   type,
   className,
+  entity,
 }: AwardButtonProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { openModal } = useLazyModal();
@@ -36,6 +41,7 @@ export const AwardButton = ({
       type: LazyModal.GiveAward,
       props: {
         type,
+        entity,
       },
     });
   };

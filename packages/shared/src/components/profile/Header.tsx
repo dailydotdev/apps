@@ -173,7 +173,16 @@ export function Header({
             className="flex-row-reverse"
           />
         )}
-        {!isSameUser && <AwardButton appendTo="parent" type="USER" />}
+        {!isSameUser && (
+          <AwardButton
+            appendTo="parent"
+            type="USER"
+            entity={{
+              id: user.id,
+              receiver: user,
+            }}
+          />
+        )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
