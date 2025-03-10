@@ -70,8 +70,9 @@ const RegistrationForm = ({
   const { username, setUsername } = useGenerateUsername(name);
   const ref = useRef<TurnstileInstance>(null);
   const isReorderExperiment = useFeature(featureOnboardingReorder);
-  const isOnboardingExperiment =
-    router.pathname.startsWith('/onboarding') && isReorderExperiment;
+  const isOnboardingExperiment = !!(
+    router.pathname?.startsWith('/onboarding') && isReorderExperiment
+  );
 
   useEffect(() => {
     logEvent({
