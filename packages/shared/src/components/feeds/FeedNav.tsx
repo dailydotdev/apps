@@ -54,7 +54,6 @@ function FeedNav(): ReactElement {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
