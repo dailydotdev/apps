@@ -197,6 +197,7 @@ export enum RequestKey {
   Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
+  Products = 'products',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

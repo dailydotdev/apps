@@ -41,6 +41,12 @@ const actionColors = {
     hover: 'var(--theme-actions-help-hover)',
     active: 'var(--theme-actions-help-active)',
   },
+  cores: {
+    default: 'var(--theme-actions-cores-default)',
+    float: 'var(--theme-actions-cores-float)',
+    hover: 'var(--theme-actions-cores-hover)',
+    active: 'var(--theme-actions-cores-active)',
+  },
 };
 
 export default actionColors;
