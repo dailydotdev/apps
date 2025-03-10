@@ -281,11 +281,10 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    const isNotExtensionRelatedStep = ![OnboardingStep.Extension].includes(
-      activeScreen,
-    );
-
-    if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
+    if (
+      shouldShowExtensionOnboarding &&
+      activeScreen !== OnboardingStep.Extension
+    ) {
       return setActiveScreen(OnboardingStep.Extension);
     }
 
