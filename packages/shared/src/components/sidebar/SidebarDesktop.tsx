@@ -32,7 +32,7 @@ export const SidebarDesktop = ({
   onNavTabClick,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded,  } = useSettingsContext();
+  const { sidebarExpanded } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const activePage = activePageProp || router.asPath || router.pathname;
   const { customFeedPlacement } = useCustomFeedHeader();
