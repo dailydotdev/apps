@@ -22,6 +22,7 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
 import type { SubscriptionCallback } from '../components/notifications/utils';
+import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
 
 export interface PushNotificationsContextData {
   isPushSupported: boolean;
@@ -203,8 +204,8 @@ function NativeAppleSubProvider({
       const promise = promisifyEventListener('push-state', (event) => {
         setIsSubscribed(!!event?.detail);
       });
-      globalThis.webkit.messageHandlers['push-state'].postMessage(null);
-      globalThis.webkit.messageHandlers['push-user-id'].postMessage(user.id);
+      postWebKitMessage(WebKitMessageHandlers.PushState, null);
+      postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
       return promise;
     },
     enabled: isEnabled,
@@ -228,14 +229,14 @@ function NativeAppleSubProvider({
         }
         return subscribed;
       });
-      globalThis.webkit.messageHandlers['push-subscribe'].postMessage(null);
+      postWebKitMessage(WebKitMessageHandlers.PushSubscribe, null);
       return promise;
     },
     [logEvent],
   );
 
   const unsubscribe = useCallback(async () => {
-    globalThis.webkit.messageHandlers['push-unsubscribe'].postMessage(null);
+    postWebKitMessage(WebKitMessageHandlers.PushUnsubscribe, null);
     setIsSubscribed(false);
   }, []);
 

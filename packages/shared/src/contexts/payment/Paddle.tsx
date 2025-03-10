@@ -1,18 +1,12 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import type {
-  Environments,
-  Paddle,
-  PaddleEventData,
-  TimePeriod,
-} from '@paddle/paddle-js';
+import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
   getPaddleInstance,
@@ -20,60 +14,25 @@ import {
 } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { useAuthContext } from './AuthContext';
-import { plusSuccessUrl } from '../lib/constants';
-import { LogEvent } from '../lib/log';
-import { usePlusSubscription } from '../hooks';
-import { feature } from '../lib/featureManagement';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
-import { getPrice } from '../lib';
-import { useFeature } from '../components/GrowthBookProvider';
-import { checkIsExtension } from '../lib/func';
-import { usePixelsContext } from './PixelsContext';
+import { useAuthContext } from '../AuthContext';
+import { plusSuccessUrl } from '../../lib/constants';
+import { LogEvent } from '../../lib/log';
+import { usePlusSubscription } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { getPrice } from '../../lib';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { checkIsExtension } from '../../lib/func';
+import { usePixelsContext } from '../PixelsContext';
+import type {
+  PaymentContextProviderProps,
+  OpenCheckoutProps,
+  PaymentContextData,
+  ProductOption,
+} from './context';
+import { PaymentContext } from './context';
 
-export type ProductOption = {
-  label: string;
-  value: string;
-  price: {
-    amount: number;
-    formatted: string;
-    monthlyAmount: number;
-    monthlyFormatted: string;
-  };
-  currencyCode: string;
-  currencySymbol: string;
-  extraLabel: string;
-  appsId: PlusPriceTypeAppsId;
-  duration: PlusPriceType;
-  trialPeriod: TimePeriod | null;
-};
-
-interface OpenCheckoutProps {
-  priceId: string;
-  giftToUserId?: string;
-}
-
-export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
-
-export interface PaymentContextData {
-  openCheckout?: OpenCheckoutFn;
-  paddle?: Paddle | undefined;
-  productOptions?: ProductOption[];
-  earlyAdopterPlanId?: string | null;
-  isPlusAvailable: boolean;
-  giftOneYear?: ProductOption;
-  isPricesPending: boolean;
-  isFreeTrialExperiment: boolean;
-}
-
-const PaymentContext = React.createContext<PaymentContextData>(undefined);
-export default PaymentContext;
-
-export type PaymentContextProviderProps = {
-  children?: ReactNode;
-};
-
-export const PaymentContextProvider = ({
+export const PaddleSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
@@ -217,6 +176,7 @@ export const PaymentContextProvider = ({
             (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
             PlusPriceTypeAppsId.Default,
           duration,
+          durationLabel: 'month',
           trialPeriod: item.price.trialPeriod,
         };
       }) ?? []
@@ -314,6 +274,3 @@ export const PaymentContextProvider = ({
     </PaymentContext.Provider>
   );
 };
-
-export const usePaymentContext = (): PaymentContextData =>
-  useContext(PaymentContext);

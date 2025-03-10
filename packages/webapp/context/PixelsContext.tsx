@@ -2,6 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { PixelsContextData } from '@dailydotdev/shared/src/contexts/PixelsContext';
 import { PixelsContext } from '@dailydotdev/shared/src/contexts/PixelsContext';
+import {
+  messageHandlerExists,
+  postWebKitMessage,
+  WebKitMessageHandlers,
+} from '@dailydotdev/shared/src/lib/ios';
 import { EXPERIENCE_TO_SENIORITY, Pixels } from '../components/Pixels';
 
 interface PixelsContextProviderProps {
@@ -94,7 +99,7 @@ function IOSPixelsProvider({
 }: PixelsContextProviderProps): ReactElement {
   const context: PixelsContextData = {
     trackSignup({ id, email }) {
-      globalThis.webkit.messageHandlers['track-event'].postMessage({
+      postWebKitMessage(WebKitMessageHandlers.TrackEvent, {
         eventName: 'signup',
         email,
         userId: id,
@@ -102,7 +107,7 @@ function IOSPixelsProvider({
     },
     trackPayment() {},
     trackEvent(eventName: string) {
-      globalThis.webkit.messageHandlers['track-event'].postMessage({
+      postWebKitMessage(WebKitMessageHandlers.TrackEvent, {
         eventName,
       });
     },
@@ -119,7 +124,7 @@ function IOSPixelsProvider({
 export function PixelsProvider(
   props: PixelsContextProviderProps,
 ): ReactElement {
-  if (globalThis.webkit?.messageHandlers?.['track-event']) {
+  if (messageHandlerExists(WebKitMessageHandlers.TrackEvent)) {
     return <IOSPixelsProvider {...props} />;
   }
   return <WebPixelsProvider {...props} />;

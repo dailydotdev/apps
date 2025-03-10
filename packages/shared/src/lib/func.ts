@@ -214,10 +214,13 @@ export const broadcastMessage = (
   channel.close();
 };
 
-export const promisifyEventListener = <T>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const promisifyEventListener = <T, E = any>(
   type: string,
-  listener: (event: CustomEvent) => T | Promise<T>,
+  listener: (event: CustomEvent<E>) => T | Promise<T>,
+  options?: { once?: boolean },
 ): Promise<T> => {
+  const { once = true } = options || {};
   return new Promise((resolve) => {
     if (!globalThis?.eventControllers) {
       globalThis.eventControllers = {};
@@ -235,7 +238,7 @@ export const promisifyEventListener = <T>(
         globalThis.eventControllers[type] = null;
         resolve(await listener(event));
       },
-      { once: true, signal: controller.signal },
+      { once, signal: controller.signal },
     );
   });
 };

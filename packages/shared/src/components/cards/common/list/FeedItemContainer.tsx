@@ -53,6 +53,9 @@ function FeedItemContainer(
   const showTypeLabel = !!adAttribution || !!type;
   const [focus, setFocus] = useState(false);
 
+  // TODO:: Remove this before merging
+  const href = new URL(linkProps.href).pathname;
+
   return (
     <ListCard
       {...domProps}
@@ -69,9 +72,10 @@ function FeedItemContainer(
       }}
     >
       {linkProps && (
-        <Link href={linkProps.href}>
+        <Link href={href}>
           <CardLink
             {...linkProps}
+            href={href}
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
           />
