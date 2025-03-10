@@ -4,7 +4,7 @@ import { TargetType } from '../lib/log';
 import type { LogEvent, TargetId } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import { SubscriptionProvider } from '../lib/plus';
-import { managePlusUrl, plusUrl } from '../lib/constants';
+import { managePlusUrl, plusUrl, webappUrl } from '../lib/constants';
 import { isIOSNative } from '../lib/func';
 
 type LogSubscriptionEvent = {
@@ -52,7 +52,7 @@ export const usePlusSubscription = (): {
     }
 
     // Internal subscription management for other cases
-    return '/account/subscription';
+    return `${webappUrl}account/subscription`;
   }, [isPlus, plusProvider]);
 
   return {
