@@ -102,6 +102,12 @@ const OnboardingPWA = dynamic(() =>
   ).then((mod) => mod.OnboardingPWA),
 );
 
+const OnboardingSignup = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingSignup" */ '@dailydotdev/shared/src/components/onboarding/OnboardingSignup'
+  ).then((mod) => mod.OnboardingSignup),
+);
+
 const OnboardingExtension = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
@@ -184,7 +190,9 @@ export function OnboardPage(): ReactElement {
 
   const isReorderExperiment = useFeature(featureOnboardingReorder);
   const showOnboardingPage =
-    !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
+    !isAuthenticating &&
+    [OnboardingStep.Intro, OnboardingStep.Signup].includes(activeScreen) &&
+    !shouldVerify;
 
   const layout = useMemo(
     () => ({
@@ -373,11 +381,11 @@ export function OnboardPage(): ReactElement {
     return undefined;
   }, [activeScreen, layout.hasCta]);
 
+  const isIntro = activeScreen === OnboardingStep.Intro;
+  const showBackgroundImage =
+    OnboardingStep.Signup === activeScreen || showOnboardingPage;
   const showGenerigLoader =
-    isAuthenticating &&
-    isAuthLoading &&
-    activeScreen === OnboardingStep.Intro &&
-    !isOnboardingReady;
+    isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
 
   if (!isPageReady) {
     return null;
@@ -391,10 +399,14 @@ export function OnboardPage(): ReactElement {
           layout.hasCta && 'fixed',
         )}
       >
-        {showOnboardingPage && (
+        {showBackgroundImage && (
           <img
             alt="Onboarding background"
-            className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
+            className={classNames(
+              'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center',
+              activeScreen === OnboardingStep.Signup &&
+                'opacity-[.24] transition-opacity duration-300',
+            )}
             fetchPriority="high"
             loading="eager"
             role="presentation"
@@ -416,7 +428,9 @@ export function OnboardPage(): ReactElement {
         <div
           className={classNames(
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-            activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
+            [OnboardingStep.Intro, OnboardingStep.Signup].includes(
+              activeScreen,
+            ) && wrapperMaxWidth,
             !isAuthenticating && 'mt-7.5 flex-1 content-center',
             [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
@@ -424,27 +438,42 @@ export function OnboardPage(): ReactElement {
           {showOnboardingPage && (
             <>
               <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-                <OnboardingHeadline
-                  className={{
-                    title: 'tablet:typo-mega-1 typo-large-title',
-                    description: 'mb-8 typo-body tablet:typo-title2',
-                  }}
-                />
-                <AuthOptions {...authOptionProps} />
-                {onboardingPapercut && <SignupDisclaimer />}
+                {isIntro ? (
+                  <>
+                    <OnboardingHeadline
+                      className={{
+                        title: 'tablet:typo-mega-1 typo-large-title',
+                        description: 'mb-8 typo-body tablet:typo-title2',
+                      }}
+                    />
+                    <AuthOptions
+                      {...authOptionProps}
+                      setOnboardingStep={setActiveScreen}
+                    />
+                  </>
+                ) : (
+                  <OnboardingSignup
+                    authOptions={{
+                      ...authOptionProps,
+                      defaultDisplay: AuthDisplay.Registration,
+                      forceDefaultDisplay: true,
+                    }}
+                    onBackClick={() => setActiveScreen(OnboardingStep.Intro)}
+                  />
+                )}
               </div>
               {!onboardingPapercut && (
                 <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
               )}
             </>
           )}
-          {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
+          {isAuthenticating && isIntro ? (
             <AuthOptions {...authOptionProps} />
           ) : (
             <div
               className={classNames(
                 'flex tablet:flex-1',
-                activeScreen === OnboardingStep.Intro
+                isIntro
                   ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                   : 'mb-10 ml-0 w-full flex-col items-center justify-start',
                 layout.hasCta &&

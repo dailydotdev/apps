@@ -35,6 +35,7 @@ interface ClassName {
 }
 
 interface OnboardingRegistrationFormProps extends AuthFormProps {
+  onContinueWithEmail?: () => void;
   onExistingEmail?: (email: string) => unknown;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
@@ -309,6 +310,7 @@ const AlreadySignedLogin = ({ onClickLogin }: { onClickLogin: () => void }) => (
 
 export const OnboardingRegistrationFormExperiment = ({
   isReady,
+  onContinueWithEmail,
   onExistingEmail,
   onProviderClick,
   targetId,
@@ -357,6 +359,7 @@ export const OnboardingRegistrationFormExperiment = ({
         <Button
           aria-label="Signup using email"
           className="mb-8"
+          onClick={onContinueWithEmail}
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
         >

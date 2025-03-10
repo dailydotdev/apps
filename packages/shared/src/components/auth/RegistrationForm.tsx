@@ -3,6 +3,7 @@ import type { MutableRefObject, ReactElement } from 'react';
 import React, { useContext, useEffect, useId, useRef, useState } from 'react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { useRouter } from 'next/router';
 import type {
   AuthTriggersType,
   RegistrationError,
@@ -28,6 +29,8 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import Alert, { AlertType } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingReorder } from '../../lib/featureManagement';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -58,6 +61,7 @@ const RegistrationForm = ({
   onUpdateHints,
   simplified,
 }: RegistrationFormProps): ReactElement => {
+  const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -65,6 +69,9 @@ const RegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const ref = useRef<TurnstileInstance>(null);
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isOnboardingExperiment =
+    router.pathname.startsWith('/onboarding') && isReorderExperiment;
 
   useEffect(() => {
     logEvent({
@@ -178,16 +185,19 @@ const RegistrationForm = ({
 
   return (
     <>
-      <AuthHeader
-        id={headingId}
-        simplified={simplified}
-        title="Sign up"
-        onBack={onBack}
-      />
+      {!isOnboardingExperiment && (
+        <AuthHeader
+          id={headingId}
+          simplified={simplified}
+          title="Sign up"
+          onBack={onBack}
+        />
+      )}
       <AuthForm
         aria-labelledby={headingId}
         className={classNames(
-          'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
+          'w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
+          isOnboardingExperiment ? 'mt-10' : 'mt-6 px-6 tablet:px-[3.75rem]',
         )}
         data-testid="registration_form"
         id="auth-form"
@@ -196,6 +206,7 @@ const RegistrationForm = ({
       >
         <TokenInput token={token} />
         <TextField
+          autoFocus={!!isOnboardingExperiment}
           autoComplete="email"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -205,7 +216,7 @@ const RegistrationForm = ({
           label="Email"
           type="email"
           value={email}
-          readOnly
+          readOnly={!isOnboardingExperiment}
           rightIcon={
             <VIcon
               aria-hidden
@@ -214,8 +225,21 @@ const RegistrationForm = ({
             />
           }
         />
+        {isOnboardingExperiment && (
+          <PasswordField
+            required
+            minLength={6}
+            maxLength={72}
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            name="password"
+            inputId="password"
+            label="Create a password"
+            autoComplete="new-password"
+          />
+        )}
         <TextField
-          autoFocus
+          autoFocus={!isOnboardingExperiment}
           autoComplete="name"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -241,17 +265,19 @@ const RegistrationForm = ({
             )
           }
         />
-        <PasswordField
-          required
-          minLength={6}
-          maxLength={72}
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          name="password"
-          inputId="password"
-          label="Create a password"
-          autoComplete="new-password"
-        />
+        {!isOnboardingExperiment && (
+          <PasswordField
+            required
+            minLength={6}
+            maxLength={72}
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            name="password"
+            inputId="password"
+            label="Create a password"
+            autoComplete="new-password"
+          />
+        )}
         <TextField
           autoComplete="user"
           saveHintSpace
@@ -315,7 +341,7 @@ const RegistrationForm = ({
             options={{
               theme: 'dark',
             }}
-            className="mx-auto"
+            className="mx-auto min-h-[71px]"
           />
           {turnstileError ? (
             <Alert
@@ -329,7 +355,7 @@ const RegistrationForm = ({
             className="w-full"
             variant={ButtonVariant.Primary}
           >
-            Sign up
+            {!isOnboardingExperiment ? 'Sign up' : 'Create account'}
           </Button>
         </ConditionalWrapper>
       </AuthForm>
