@@ -81,8 +81,6 @@ export const StoreKitSubProvider = ({
                 price: {
                   amount: parseFloat(product.attributes.offers[0].price),
                   formatted: product.attributes.offers[0].priceFormatted,
-                  monthlyAmount: parseFloat(product.attributes.offers[0].price),
-                  monthlyFormatted: product.attributes.offers[0].priceFormatted,
                 },
                 extraLabel,
                 appsId: appsId ?? PlusPriceTypeAppsId.Default,

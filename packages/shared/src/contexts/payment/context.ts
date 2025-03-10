@@ -12,8 +12,8 @@ export type ProductOption = {
   price: {
     amount: number;
     formatted: string;
-    monthlyAmount: number;
-    monthlyFormatted: string;
+    monthlyAmount?: number;
+    monthlyFormatted?: string;
   };
   currencyCode?: string;
   currencySymbol?: string;

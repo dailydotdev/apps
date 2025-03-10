@@ -95,7 +95,9 @@ export function PlusOptionRadio({
           color={TypographyColor.Primary}
           bold
         >
-          {isYearlyGift ? price.formatted : price.monthlyFormatted}
+          {isYearlyGift
+            ? price.formatted
+            : price.monthlyFormatted ?? price.formatted}
         </Typography>
         {currencyCode && (
           <Typography
