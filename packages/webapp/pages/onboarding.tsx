@@ -182,12 +182,18 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const showOnboardingPage =
+    !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
+
   const layout = useMemo(
     () => ({
+      hasFooterLinks:
+        showOnboardingPage && (!isReorderExperiment || !onboardingPapercut),
       hasFooter: onboardingStepsWithFooter.includes(activeScreen),
       hasCta: onboardingStepsWithCTA.includes(activeScreen),
     }),
-    [activeScreen],
+    [activeScreen, isReorderExperiment, onboardingPapercut, showOnboardingPage],
   );
 
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
@@ -368,10 +374,6 @@ export function OnboardPage(): ReactElement {
     return undefined;
   }, [activeScreen, layout.hasCta]);
 
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
-  const showOnboardingPage =
-    !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
-
   const showGenerigLoader =
     isAuthenticating &&
     isAuthLoading &&
@@ -476,7 +478,7 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {showOnboardingPage && (!isReorderExperiment || !onboardingPapercut) && <OnboardingFooter />}
+        {layout.hasFooterLinks && <OnboardingFooter />}
         {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
