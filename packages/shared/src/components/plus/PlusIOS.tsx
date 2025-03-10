@@ -12,6 +12,7 @@ import { iOSSupportsPlusPurchase } from '../../lib/ios';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import Toast from '../notifications/Toast';
+import { stringToBoolean } from '../../lib/utils';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -59,11 +60,7 @@ export const PlusIOS = ({
     promisifyEventListener<void, 'true' | 'false'>(
       'iap-loading',
       ({ detail }) => {
-        try {
-          setIsLoading(detail.toLowerCase() === 'true');
-        } catch {
-          setIsLoading(false);
-        }
+        setIsLoading(stringToBoolean(detail));
       },
       {
         once: false,
