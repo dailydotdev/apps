@@ -8,10 +8,55 @@ permissions:
   contents: read
 
 jobs:
+  comment-jira-ticket:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Comment with the jira ticket
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            const branch = `${{ github.head_ref }}`
+            const match = branch.match(/\b(MI|AS)-\d+\b/i);
+            const jiraTicket = match ? match[0].toUpperCase() : null;
+
+            if (!jiraTicket) {
+              console.log('No Jira ticket found')
+              return
+            }
+            console.log(`Found ticket ${jiraTicket}`)
+
+            const knownString = '### Jira ticket'
+            const pullRequest = await github.rest.pulls.get({
+              pull_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            const hasAlreadyCommented = pullRequest.data.body ? pullRequest.data.body.includes(knownString) : false
+
+            if (hasAlreadyCommented) {
+              console.log('Already commented once')
+            } else {
+              console.log('Creating comment for the first time')
+              const body = pullRequest.data.body
+                ? `${pullRequest.data.body}\n\n${knownString}\n${jiraTicket}`
+                : `${knownString}\n${jiraTicket}`
+
+              await github.rest.pulls.update({
+                pull_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              })
+            }
+
   assign-preview-domain:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+    needs:
+      - comment-jira-ticket
     steps:
       - name: Prepare domain
         id: prepare

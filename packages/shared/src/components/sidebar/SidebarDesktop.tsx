@@ -15,10 +15,9 @@ import { ResourceSection } from './sections/ResourceSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
-import { featureCustomFeedPlacement } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -40,7 +39,7 @@ export const SidebarDesktop = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const defaultRenderSectionProps = useMemo(
     () => ({
