@@ -1,19 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
-import { TextField } from '../fields/TextField';
+import { Button, ButtonVariant } from '../buttons/Button';
 import type { AuthFormProps } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import AuthForm from './AuthForm';
-import { KeyIcon, MailIcon, VIcon } from '../icons';
 import { AuthEventNames } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { LogEvent, TargetType } from '../../lib/log';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 import {
   Typography,
   TypographyColor,
@@ -31,17 +27,15 @@ interface EmailCodeVerificationProps extends AuthFormProps {
 
 function EmailCodeVerification({
   code: codeProp,
-  email: emailProp,
+  email,
   flowId,
   onSubmit,
   className,
 }: EmailCodeVerificationProps): ReactElement {
-  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const { logEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
-  const [email, setEmail] = useState(emailProp);
   const { sendEmail, verifyCode, resendTimer, autoResend, isVerifyingCode } =
     useAccountEmailFlow({
       flow: AuthFlow.Verification,
@@ -100,103 +94,54 @@ function EmailCodeVerification({
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >
-      {!onboardingPapercuts && (
-        <TextField
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          leftIcon={<MailIcon />}
+      <div className="flex w-full flex-col items-center gap-4">
+        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
+          A verification code has been sent to:
+        </Typography>
+        <Typography type={TypographyType.Body}>{email}</Typography>
+      </div>
+      <div className="my-10 flex w-full flex-col items-center gap-4">
+        <input
+          type="text"
+          id="email"
           name="email"
-          inputId="email"
-          label="Email"
-          type="email"
           value={email}
-          readOnly={!!flowId}
-          valueChanged={setEmail}
-          rightIcon={<VIcon className="text-accent-avocado-default" />}
+          hidden
+          readOnly
         />
-      )}
-      {onboardingPapercuts && (
-        <div className="flex w-full flex-col items-center gap-4">
+        <CodeField
+          onSubmit={onCodeSubmit}
+          onChange={onCodeChange}
+          disabled={isVerifyingCode}
+        />
+        {hint && (
           <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Tertiary}
+            type={TypographyType.Footnote}
+            color={TypographyColor.StatusError}
+            className="px-4 text-center"
           >
-            A verification code has been sent to:
+            {hint}
           </Typography>
-          <Typography type={TypographyType.Body}>{email}</Typography>
-        </div>
-      )}
-      {!onboardingPapercuts && (
-        <TextField
-          autoFocus
-          className={{ container: 'w-full' }}
-          defaultValue={code}
-          hint={hint}
-          inputId="code"
-          label="Code"
-          leftIcon={<KeyIcon aria-hidden role="presentation" />}
-          name="code"
-          onChange={() => hint && setHint('')}
-          type="code"
-          valid={!hint}
-          valueChanged={setCode}
-          actionButton={
-            <Button
-              className="btn-primary"
-              type="button"
-              onClick={onSendCode}
-              disabled={resendTimer > 0}
-            >
-              {resendTimer === 0 ? 'Resend' : `Resend code: ${resendTimer}s`}
-            </Button>
-          }
-        />
-      )}
-      {onboardingPapercuts && (
-        <div className="my-10 flex w-full flex-col items-center gap-4">
-          <input
-            type="text"
-            id="email"
-            name="email"
-            value={email}
-            hidden
-            readOnly
-          />
-          <CodeField
-            onSubmit={onCodeSubmit}
-            onChange={onCodeChange}
-            disabled={isVerifyingCode}
-          />
-          {hint && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.StatusError}
-              className="px-4 text-center"
-            >
-              {hint}
-            </Typography>
-          )}
-          <span className="text-text-tertiary">
-            Didn&#39;t get a verification code?{' '}
-            <button
-              type="button"
-              disabled={resendTimer > 0}
-              onClick={onSendCode}
-              className={
-                resendTimer === 0 ? 'text-text-link' : 'text-text-disabled'
-              }
-            >
-              Resend code
-              {resendTimer > 0 && ` ${resendTimer}s`}
-            </button>
-          </span>
-        </div>
-      )}
+        )}
+        <span className="text-text-tertiary">
+          Didn&#39;t get a verification code?{' '}
+          <button
+            type="button"
+            disabled={resendTimer > 0}
+            onClick={onSendCode}
+            className={
+              resendTimer === 0 ? 'text-text-link' : 'text-text-disabled'
+            }
+          >
+            Resend code
+            {resendTimer > 0 && ` ${resendTimer}s`}
+          </button>
+        </span>
+      </div>
       <Button
-        className={classNames('btn-primary w-full', {
-          'mt-6': !onboardingPapercuts,
-        })}
+        className="w-full"
         type="submit"
+        variant={ButtonVariant.Primary}
         loading={isVerifyingCode}
         disabled={autoResend}
       >
