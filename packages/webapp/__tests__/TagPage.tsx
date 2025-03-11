@@ -27,6 +27,7 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -37,6 +38,7 @@ jest.mock('next/router', () => ({
     () =>
       ({
         isFallback: false,
+        pathname: '/tags',
         query: {},
       } as unknown as NextRouter),
   ),
@@ -138,7 +140,9 @@ const renderComponent = (
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>
           <SettingsContext.Provider value={settingsContext}>
-            <TagPage tag="react" initialData={initialData} />
+            <InteractiveFeedProvider>
+              <TagPage tag="react" initialData={initialData} />
+            </InteractiveFeedProvider>
           </SettingsContext.Provider>
         </AlertContextProvider>
       </AuthContext.Provider>
