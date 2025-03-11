@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { checkKratosEmail } from '../../lib/kratos';
 import type { AuthFormProps } from './common';
 import { getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
-import LogContext, { useLogContext } from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
@@ -106,6 +106,77 @@ const getSignupProviders = () => {
   return [providerMap.google, providerMap.github];
 };
 
+export interface UseCheckExistingEmail {
+  email: {
+    value: string;
+    alreadyExists: boolean;
+    isCheckPending: boolean;
+  };
+  onEmailSignup: (e: React.FormEvent) => Promise<void>;
+}
+
+export const useCheckExistingEmail = ({
+  onSignup,
+  targetId,
+  trigger,
+}: Pick<
+  OnboardingRegistrationFormProps,
+  'onSignup' | 'trigger' | 'targetId'
+>): UseCheckExistingEmail => {
+  const [shouldLogin, setShouldLogin] = useState(false);
+  const [registerEmail, setRegisterEmail] = useState<string>(null);
+  const { logEvent } = useLogContext();
+  const { mutateAsync: checkEmail, isPending: isCheckPending } = useMutation({
+    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
+    onSuccess: (res, emailValue) => {
+      const emailExists = !!res?.result;
+
+      setShouldLogin(emailExists);
+      logEvent({
+        event_name: emailExists
+          ? AuthEventNames.OpenLogin
+          : AuthEventNames.OpenSignup,
+        extra: JSON.stringify({ trigger }),
+        target_id: targetId,
+      });
+
+      if (emailExists) {
+        setRegisterEmail(emailValue);
+        return null;
+      }
+
+      return onSignup(emailValue);
+    },
+  });
+
+  const onEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const emailValue = getFormEmail(e);
+    if (isCheckPending || !emailValue) {
+      return;
+    }
+
+    logEvent({
+      event_name: 'click',
+      target_type: AuthEventNames.SignUpProvider,
+      target_id: 'email',
+      extra: JSON.stringify({ trigger }),
+    });
+
+    await checkEmail(emailValue);
+  };
+
+  return {
+    email: {
+      alreadyExists: shouldLogin,
+      isCheckPending,
+      value: registerEmail,
+    },
+    onEmailSignup,
+  };
+};
+
 export const OnboardingRegistrationForm = ({
   onSignup,
   onExistingEmail,
@@ -116,11 +187,10 @@ export const OnboardingRegistrationForm = ({
   className,
   onboardingSignupButton,
 }: OnboardingRegistrationFormProps): ReactElement => {
-  const { logEvent } = useContext(LogContext);
-  const [shouldLogin, setShouldLogin] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState<string>(null);
-  const { mutateAsync: checkEmail, isPending: isLoading } = useMutation({
-    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
+  const { email, onEmailSignup } = useCheckExistingEmail({
+    onSignup,
+    targetId,
+    trigger,
   });
   const onboardingSignupButtonProps = {
     size: ButtonSize.Large,
@@ -128,48 +198,8 @@ export const OnboardingRegistrationForm = ({
     ...onboardingSignupButton,
   };
 
-  useEffect(() => {
-    logEvent({
-      event_name: shouldLogin
-        ? AuthEventNames.OpenLogin
-        : AuthEventNames.OpenSignup,
-      extra: JSON.stringify({ trigger }),
-      target_id: targetId,
-    });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLogin]);
-
-  const onEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading) {
-      return null;
-    }
-
-    logEvent({
-      event_name: 'click',
-      target_type: AuthEventNames.SignUpProvider,
-      target_id: 'email',
-      extra: JSON.stringify({ trigger }),
-    });
-
-    const email = getFormEmail(e);
-
-    if (!email) {
-      return null;
-    }
-    const res = await checkEmail(email);
-
-    if (res?.result) {
-      setRegisterEmail(email);
-      return setShouldLogin(true);
-    }
-
-    return onSignup(email);
-  };
-
   const onSocialClick = (provider: string) => {
-    onProviderClick?.(provider, shouldLogin);
+    onProviderClick?.(provider, email.alreadyExists);
   };
 
   return (
@@ -177,7 +207,7 @@ export const OnboardingRegistrationForm = ({
       <AuthForm
         className={classNames('mb-8 gap-8', className?.onboardingForm)}
         onSubmit={onEmailSignup}
-        aria-label={shouldLogin ? 'Login form' : 'Signup form'}
+        aria-label={email.alreadyExists ? 'Login form' : 'Signup form'}
       >
         <TextField
           leftIcon={
@@ -193,7 +223,7 @@ export const OnboardingRegistrationForm = ({
           className={{ container: 'bg-overlay-active-salt' }}
         />
 
-        {shouldLogin && (
+        {email.alreadyExists && (
           <>
             <Alert type={AlertType.Error} flexDirection="flex-row">
               <AlertParagraph className="!mt-0 flex-1">
@@ -201,7 +231,7 @@ export const OnboardingRegistrationForm = ({
                 <button
                   type="button"
                   onClick={() => {
-                    onExistingEmail(registerEmail);
+                    onExistingEmail(email.value);
                   }}
                   className="font-bold underline"
                 >
@@ -214,7 +244,7 @@ export const OnboardingRegistrationForm = ({
 
         <Button
           className="w-full"
-          loading={!isReady || isLoading}
+          loading={!isReady || email.isCheckPending}
           type="submit"
           variant={ButtonVariant.Primary}
         >
@@ -239,7 +269,7 @@ export const OnboardingRegistrationForm = ({
       >
         {getSignupProviders().map((provider) => (
           <Button
-            aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${
+            aria-label={`${email.alreadyExists ? 'Login' : 'Signup'} using ${
               provider.label
             }`}
             icon={provider.icon}
