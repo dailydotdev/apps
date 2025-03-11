@@ -5,9 +5,6 @@ import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useBanner } from '../../hooks/useBanner';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { SidebarOnboardingChecklistCard } from '../checklist/SidebarOnboardingChecklistCard';
-import { ChecklistViewState } from '../../lib/checklist';
 import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
@@ -15,10 +12,9 @@ import { ResourceSection } from './sections/ResourceSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
-import { featureCustomFeedPlacement } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -36,11 +32,10 @@ export const SidebarDesktop = ({
   onNavTabClick,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded, onboardingChecklistView } = useSettingsContext();
+  const { sidebarExpanded } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -69,9 +64,6 @@ export const SidebarDesktop = ({
     ];
     return customFeedPlacement ? sections.reverse() : sections;
   }, [defaultRenderSectionProps, customFeedPlacement, isNavButtons]);
-
-  const isHiddenOnboardingChecklistView =
-    onboardingChecklistView === ChecklistViewState.Hidden;
 
   return (
     <SidebarAside
@@ -121,12 +113,6 @@ export const SidebarDesktop = ({
             isItemsButton={false}
           />
         </Nav>
-        {isLoggedIn && sidebarExpanded && !isHiddenOnboardingChecklistView && (
-          <>
-            <div className="flex-1" />
-            <SidebarOnboardingChecklistCard />
-          </>
-        )}
       </SidebarScrollWrapper>
     </SidebarAside>
   );

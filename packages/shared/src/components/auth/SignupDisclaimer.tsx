@@ -2,22 +2,17 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 
 interface SignupDisclaimerProps {
   className?: string;
 }
 
 function SignupDisclaimer({ className }: SignupDisclaimerProps): ReactElement {
-  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
-
   return (
     <p
       className={classNames(
-        'w-full text-center typo-caption1',
+        'w-full text-center text-text-secondary typo-caption1',
         className,
-        onboardingPapercuts ? 'text-text-secondary' : 'text-text-quaternary',
       )}
     >
       By signing up I accept the{' '}

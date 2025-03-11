@@ -30,10 +30,9 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useFeature } from '../GrowthBookProvider';
-import { featureCustomFeedPlacement } from '../../lib/featureManagement';
 import CustomFeedSlider from '../feeds/CustomFeedSlider';
 import type { ButtonProps } from '../buttons/Button';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -78,7 +77,7 @@ export const SearchControlHeader = ({
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const customFeedPlacement = useFeature(featureCustomFeedPlacement);
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   if (isMobile) {
     return null;

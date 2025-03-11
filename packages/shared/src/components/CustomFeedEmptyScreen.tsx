@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { EmptyScreenIcon } from './EmptyScreen';
 import { DevPlusIcon, HashtagIcon } from './icons';
 import { PageContainer, SharedFeedPage } from './utilities';
@@ -22,6 +23,7 @@ import { Button } from './buttons/Button';
 import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
+import useCustomFeedHeader from '../hooks/feed/useCustomFeedHeader';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -37,9 +39,16 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const { customFeedPlacement } = useCustomFeedHeader();
+
   return (
     <div className="flex w-full flex-col">
-      <div className="mr-auto mt-0 flex gap-3 tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto">
+      <div
+        className={
+          (classNames('mt-0 flex gap-3 tablet:mr-0 tablet:mt-2'),
+          !customFeedPlacement && 'mr-auto laptop:mr-auto laptop:w-auto')
+        }
+      >
         <SearchControlHeader
           algoState={[selectedAlgo, setSelectedAlgo]}
           feedName={SharedFeedPage.Custom}

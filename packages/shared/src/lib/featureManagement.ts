@@ -31,7 +31,6 @@ const feature = {
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
-  onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted
@@ -62,11 +61,6 @@ export const featureOnboardingAndroid = new Feature(
   false,
 );
 
-export const featureOnboardingPapercuts = new Feature(
-  'onboarding_papercuts',
-  false,
-);
-
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
     adStart: 2,
@@ -91,11 +85,6 @@ export const featurePlusButtonColors = new Feature<
 >('plus_button_colors', '');
 
 export const featureSocialShare = new Feature('social_share', false);
-
-export const featurePersonalizedOnboarding = new Feature(
-  'personalized_onboarding',
-  false,
-);
 
 export const featureCustomFeedPlacement = new Feature(
   'custom_feed_placement',
