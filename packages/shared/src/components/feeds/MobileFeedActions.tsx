@@ -55,7 +55,7 @@ export function MobileFeedActions(): ReactElement {
           }}
         />
         {user && (
-          <Link href={`${webappUrl}/${user.username}`} passHref>
+          <Link href={user.permalink} passHref>
             <a>
               <ProfilePicture
                 user={user}
