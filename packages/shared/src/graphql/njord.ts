@@ -3,6 +3,7 @@ import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
+import { PRODUCT_FRAGMENT } from './fragments';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -67,18 +68,12 @@ export const PRODUCTS_QUERY = gql`
     products(first: $first) {
       edges {
         node {
-          id
-          type
-          name
-          image
-          value
-          flags {
-            description
-          }
+          ...ProductFragment
         }
       }
     }
   }
+  ${PRODUCT_FRAGMENT}
 `;
 
 export const getProducts = async ({

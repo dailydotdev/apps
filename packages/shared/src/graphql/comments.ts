@@ -7,6 +7,7 @@ import type { Post, UserVote } from './posts';
 import type { Company } from '../lib/userCompany';
 import type { ContentPreference } from './contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
+import type { Product } from './njord';
 
 export interface Author {
   __typename?: string;
@@ -49,6 +50,7 @@ export interface Comment {
   parentId?: string;
   userState?: CommentUserState;
   fromAward?: boolean;
+  award?: Pick<Product, 'name' | 'image'>;
 }
 
 export const getCommentHash = (id: string): string => `#c-${id}`;

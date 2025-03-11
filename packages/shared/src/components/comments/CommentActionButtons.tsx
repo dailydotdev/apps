@@ -373,6 +373,7 @@ export default function CommentActionButtons({
           color={TypographyColor.Tertiary}
           bold
         >
+          {/* TODO feat/transactions show most expensive award image next to count */}
           {comment.numAwards} Award{comment.numAwards > 1 ? 's' : ''}
         </Typography>
       )}
