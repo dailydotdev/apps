@@ -63,7 +63,7 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
     (additional, toRemove) => {
       if (isExtension) {
         // eslint-disable-next-line no-console
-        console.log('we don not store cookies in extension');
+        console.log('we do not store cookies in the extension');
         return;
       }
 
