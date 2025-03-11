@@ -112,7 +112,10 @@ export interface UseCheckExistingEmail {
     alreadyExists: boolean;
     isCheckPending: boolean;
   };
-  onEmailSignup: (e: React.FormEvent) => Promise<void>;
+  onEmailSignup: (e: React.FormEvent) => Promise<{
+    emailExists: boolean;
+    emailValue: string;
+  } | null>;
 }
 
 export const useCheckExistingEmail = ({
@@ -154,7 +157,7 @@ export const useCheckExistingEmail = ({
 
     const emailValue = getFormEmail(e);
     if (isCheckPending || !emailValue) {
-      return;
+      return null;
     }
 
     logEvent({
@@ -164,7 +167,9 @@ export const useCheckExistingEmail = ({
       extra: JSON.stringify({ trigger }),
     });
 
-    await checkEmail(emailValue);
+    const res = await checkEmail(emailValue);
+    const emailExists = !!res?.result;
+    return { emailExists, emailValue };
   };
 
   return {

@@ -27,10 +27,11 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import Alert, { AlertType } from '../widgets/Alert';
+import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
+import { useCheckExistingEmail } from './OnboardingRegistrationForm';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -41,6 +42,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
   trigger: AuthTriggersType;
+  onExistingEmailLoginClick?: () => void;
 }
 
 export type RegistrationFormValues = Omit<
@@ -54,6 +56,7 @@ const RegistrationForm = ({
   email,
   formRef,
   onBack,
+  onExistingEmailLoginClick,
   onSignup,
   token,
   hints,
@@ -96,8 +99,20 @@ const RegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hints]);
 
+  const {
+    email: { isCheckPending, alreadyExists },
+    onEmailSignup,
+  } = useCheckExistingEmail({
+    onSignup: () => null,
+    trigger,
+  });
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isOnboardingExperiment && (isCheckPending || alreadyExists)) {
+      return;
+    }
 
     setTurnstileError(false);
     logEvent({
@@ -177,6 +192,23 @@ const RegistrationForm = ({
     });
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    if (!isOnboardingExperiment) {
+      onSubmit(e);
+      return;
+    }
+
+    const emailCheck = await onEmailSignup(e);
+
+    if (!emailCheck) {
+      return;
+    }
+
+    if (emailCheck.emailValue && !emailCheck.emailExists) {
+      onSubmit(e);
+    }
+  };
+
   const isNameValid = !hints?.['traits.name'];
   const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
@@ -195,14 +227,14 @@ const RegistrationForm = ({
         />
       )}
       <AuthForm
-        aria-labelledby={headingId}
+        aria-labelledby={!isOnboardingExperiment && headingId}
         className={classNames(
           'w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
           isOnboardingExperiment ? 'mt-10' : 'mt-6 px-6 tablet:px-[3.75rem]',
         )}
         data-testid="registration_form"
         id="auth-form"
-        onSubmit={onSubmit}
+        onSubmit={handleFormSubmit}
         ref={formRef}
       >
         <TokenInput token={token} />
@@ -226,6 +258,24 @@ const RegistrationForm = ({
             />
           }
         />
+        {isOnboardingExperiment && alreadyExists && (
+          <Alert
+            className="-mt-4 mb-3 min-w-full"
+            type={AlertType.Error}
+            flexDirection="flex-row"
+          >
+            <AlertParagraph className="!mt-0 flex-1">
+              Email is taken. Existing user?{' '}
+              <button
+                type="button"
+                onClick={() => onExistingEmailLoginClick?.()}
+                className="font-bold underline"
+              >
+                Log in.
+              </button>
+            </AlertParagraph>
+          </Alert>
+        )}
         {isOnboardingExperiment && (
           <PasswordField
             required
@@ -237,6 +287,7 @@ const RegistrationForm = ({
             inputId="password"
             label="Create a password"
             autoComplete="new-password"
+            value="ciaociao"
           />
         )}
         <TextField
@@ -351,9 +402,10 @@ const RegistrationForm = ({
             />
           ) : undefined}
           <Button
+            className="w-full"
+            disabled={isCheckPending}
             form="auth-form"
             type="submit"
-            className="w-full"
             variant={ButtonVariant.Primary}
           >
             {!isOnboardingExperiment ? 'Sign up' : 'Create account'}

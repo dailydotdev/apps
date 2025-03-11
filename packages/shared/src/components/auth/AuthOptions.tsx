@@ -504,6 +504,14 @@ function AuthOptions({
               registration &&
               getNodeValue('csrf_token', registration?.ui?.nodes)
             }
+            onExistingEmailLoginClick={() => {
+              setOnboardingStep?.(OnboardingStep.Intro);
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                defaultDisplay: AuthDisplay.Default,
+              });
+            }}
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>

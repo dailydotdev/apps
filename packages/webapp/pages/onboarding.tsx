@@ -348,6 +348,7 @@ export function OnboardPage(): ReactElement {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
       },
+      setOnboardingStep: setActiveScreen,
     };
   }, [
     defaultDisplay,
@@ -432,10 +433,7 @@ export function OnboardPage(): ReactElement {
                         description: 'mb-8 typo-body tablet:typo-title2',
                       }}
                     />
-                    <AuthOptions
-                      {...authOptionProps}
-                      setOnboardingStep={setActiveScreen}
-                    />
+                    <AuthOptions {...authOptionProps} />
                     <SignupDisclaimer className="mb-4" />
                   </>
                 ) : (
