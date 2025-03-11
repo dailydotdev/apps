@@ -390,9 +390,8 @@ export function OnboardPage(): ReactElement {
           <img
             alt="Onboarding background"
             className={classNames(
-              'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center',
-              activeScreen === OnboardingStep.Signup &&
-                'opacity-[.24] transition-opacity duration-300',
+              'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
+              activeScreen === OnboardingStep.Signup && 'opacity-[.24] ',
             )}
             fetchPriority="high"
             loading="eager"
