@@ -53,6 +53,11 @@ import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { GiftIcon } from '../icons/gift';
 import { AwardButton } from '../award/AwardButton';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -351,17 +356,25 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {!comment.userState?.awarded && (
-        <AwardButton
+      <AwardButton
+        appendTo={appendTo}
+        type="COMMENT"
+        entity={{
+          id: comment.id,
+          receiver: comment.author,
+          numAwards: comment.numAwards,
+        }}
+        pressed={!!comment.userState?.awarded}
+      />
+      {!!comment.numAwards && (
+        <Typography
           className="mr-3"
-          appendTo={appendTo}
-          type="COMMENT"
-          entity={{
-            id: comment.id,
-            receiver: comment.author,
-            numAwards: comment.numAwards,
-          }}
-        />
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          {comment.numAwards} Award{comment.numAwards > 1 ? 's' : ''}
+        </Typography>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button

@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
+import type { ButtonProps } from '../buttons/Button';
 import {
   Button,
   ButtonColor,
@@ -16,19 +18,24 @@ import type {
   AwardEntity,
   AwardTypes,
 } from '../../contexts/GiveAwardModalContext';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { getCompanionWrapper } from '../../lib/extension';
 
 type AwardButtonProps = {
-  appendTo: 'parent' | Element | ((ref: Element) => Element);
+  appendTo?: 'parent' | Element | ((ref: Element) => Element);
   type: AwardTypes;
   className?: string;
   entity: AwardEntity;
-};
+} & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
 export const AwardButton = ({
-  appendTo,
+  appendTo: appendToProps,
   type,
   className,
   entity,
+  pressed,
+  variant = ButtonVariant.Tertiary,
 }: AwardButtonProps): ReactElement => {
+  const { isCompanion } = useRequestProtocol();
   const { user, showLogin } = useAuthContext();
   const { openModal } = useLazyModal();
 
@@ -50,16 +57,29 @@ export const AwardButton = ({
     return null;
   }
 
+  const defaultAppendTo = isCompanion ? getCompanionWrapper : 'parent';
+  const appendTo = appendToProps || defaultAppendTo;
+
   return (
-    <SimpleTooltip content="Award this user" appendTo={appendTo}>
-      <Button
-        size={ButtonSize.Small}
-        icon={<MedalBadgeIcon secondary />}
-        className={className}
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Bun}
-        onClick={openGiveAwardModal}
-      />
+    <SimpleTooltip
+      content={
+        pressed
+          ? `You already awarded this ${type.toLowerCase()}!`
+          : 'Award this user'
+      }
+      appendTo={appendTo}
+    >
+      <div>
+        <Button
+          pressed={pressed}
+          size={ButtonSize.Small}
+          icon={<MedalBadgeIcon secondary />}
+          className={classNames(className, pressed && 'pointer-events-none')}
+          variant={variant}
+          color={ButtonColor.Cabbage}
+          onClick={openGiveAwardModal}
+        />
+      </div>
     </SimpleTooltip>
   );
 };

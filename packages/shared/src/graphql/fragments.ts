@@ -318,6 +318,7 @@ export const COMMENT_FRAGMENT = gql`
       vote
       awarded
     }
+    fromAward
   }
   ${USER_AUTHOR_FRAGMENT}
 `;

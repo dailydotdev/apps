@@ -48,6 +48,7 @@ export interface Comment {
   post?: Post;
   parentId?: string;
   userState?: CommentUserState;
+  fromAward?: boolean;
 }
 
 export const getCommentHash = (id: string): string => `#c-${id}`;

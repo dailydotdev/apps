@@ -21,6 +21,8 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { ProfileImageSize } from '../ProfilePicture';
+import { AwardButton } from '../award/AwardButton';
+import { ButtonVariant } from '../buttons/common';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -157,6 +159,20 @@ export default function CommentContainer({
         />
         {actions}
       </div>
+      {!!comment.fromAward && (
+        <div className="absolute right-3 top-3 z-[10000] h-10 w-10">
+          <AwardButton
+            type="COMMENT"
+            entity={{
+              id: comment.id,
+              receiver: comment.parent?.author,
+              numAwards: comment.numAwards,
+            }}
+            pressed
+            variant={ButtonVariant.Float}
+          />
+        </div>
+      )}
     </article>
   );
 }
