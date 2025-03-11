@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CookieOptions } from '../lib/cookie';
 import { expireCookie, getCookies, setCookie } from '../lib/cookie';
-import { disabledRefetch } from '../lib/func';
+import { checkIsExtension, disabledRefetch } from '../lib/func';
 
 export type AcceptCookiesCallback = (
   additional?: string[],
@@ -42,11 +42,12 @@ const getBrowserCookie = (key: string) =>
   globalThis?.document?.cookie.split('; ').find((row) => row.startsWith(key));
 
 export const useConsentCookie = (key: string): UseConsentCookie => {
+  const isExtension = checkIsExtension();
   const queryKey = useMemo(() => ['cookie', key], [key]);
   const client = useQueryClient();
   const { data: exists } = useQuery({
     queryKey,
-    initialData: () => !!getBrowserCookie(key),
+    initialData: () => isExtension || !!getBrowserCookie(key),
     ...disabledRefetch,
   });
 
@@ -60,6 +61,12 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
 
   const saveCookies: AcceptCookiesCallback = useCallback(
     (additional, toRemove) => {
+      if (isExtension) {
+        // eslint-disable-next-line no-console
+        console.log('we don not store cookies in extension');
+        return;
+      }
+
       onCookieAccepted(key);
 
       if (additional) {
@@ -70,7 +77,7 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
         toRemove.forEach(expireBrowserCookie);
       }
     },
-    [key, onCookieAccepted],
+    [key, onCookieAccepted, isExtension],
   );
 
   return { saveCookies, cookieExists: exists };
