@@ -29,8 +29,6 @@ import { OtherFeedPage } from '../../lib/query';
 import { ChecklistViewState } from '../../lib/checklist';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 
 const OnboardingChecklistBar = dynamic(
   () =>
@@ -80,7 +78,6 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const isHiddenOnboardingChecklistView =
     onboardingChecklistView === ChecklistViewState.Hidden;
 
@@ -161,21 +158,14 @@ function FeedNav(): ReactElement {
       <OnboardingChecklistBar />
     ) : null;
 
-  const featureClasses = onboardingPapercuts
-    ? classNames(
-        'transition-transform',
-        isHeaderVisible
-          ? 'translate-y-0 duration-200'
-          : '-translate-y-26 duration-[800ms]',
-      )
-    : '';
-
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full tablet:pl-16',
+        'sticky top-0 z-header w-full transition-transform tablet:pl-16',
         scrollClassName,
-        featureClasses,
+        isHeaderVisible
+          ? 'translate-y-0 duration-200'
+          : '-translate-y-26 duration-[800ms]',
       )}
     >
       {!isMobile && checklistBarElement}

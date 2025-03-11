@@ -62,11 +62,6 @@ export const featureOnboardingAndroid = new Feature(
   false,
 );
 
-export const featureOnboardingPapercuts = new Feature(
-  'onboarding_papercuts',
-  false,
-);
-
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
     adStart: 2,

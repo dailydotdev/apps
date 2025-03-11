@@ -39,7 +39,6 @@ import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
 import {
-  featureOnboardingPapercuts,
   featureOnboardingReorder,
 } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
@@ -177,7 +176,6 @@ function AuthOptions({
   const { syncSettings } = useSettingsContext();
   const { trackSignup } = usePixelsContext();
   const { logEvent } = useLogContext();
-  const onboardingPapercuts = useFeature(featureOnboardingPapercuts);
   const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
@@ -594,9 +592,7 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          {onboardingPapercuts && (
-            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
-          )}
+          <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
           <AuthHeader simplified={simplified} title="Verify your email" />
           <EmailCodeVerification
             email={email}
