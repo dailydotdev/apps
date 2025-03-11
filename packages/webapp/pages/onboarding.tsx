@@ -193,8 +193,7 @@ export function OnboardPage(): ReactElement {
   const layout = useMemo(
     () => ({
       hasCta: onboardingStepsWithCTA.includes(activeScreen),
-      hasFooter:
-        showOnboardingPage && (!isReorderExperiment),
+      hasFooter: showOnboardingPage && !isReorderExperiment,
       hasFooterLinks: onboardingStepsWithFooter.includes(activeScreen),
     }),
     [activeScreen, isReorderExperiment, showOnboardingPage],
@@ -432,27 +431,28 @@ export function OnboardPage(): ReactElement {
               <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
                 {isIntro ? (
                   <>
-                <OnboardingHeadline
-                  className={{
-                    title: 'tablet:typo-mega-1 typo-large-title',
-                    description: 'mb-8 typo-body tablet:typo-title2',
-                  }}
-                />
-                <AuthOptions
-                  {...authOptionProps}
-                  setOnboardingStep={setActiveScreen}
-                />
-                <SignupDisclaimer className="mb-4" />
+                    <OnboardingHeadline
+                      className={{
+                        title: 'tablet:typo-mega-1 typo-large-title',
+                        description: 'mb-8 typo-body tablet:typo-title2',
+                      }}
+                    />
+                    <AuthOptions
+                      {...authOptionProps}
+                      setOnboardingStep={setActiveScreen}
+                    />
+                    <SignupDisclaimer className="mb-4" />
                   </>
                 ) : (
                   <OnboardingSignup
-                    authOptions={{
-                      ...authOptionProps,
-                      defaultDisplay: AuthDisplay.Registration,
-                      forceDefaultDisplay: true,
-                    }}
                     onBackClick={() => setActiveScreen(OnboardingStep.Intro)}
-                  />
+                  >
+                    <AuthOptions
+                      {...authOptionProps}
+                      defaultDisplay={AuthDisplay.Registration}
+                      forceDefaultDisplay
+                    />
+                  </OnboardingSignup>
                 )}
               </div>
             </>

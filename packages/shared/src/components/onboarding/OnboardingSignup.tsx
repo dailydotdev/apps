@@ -10,16 +10,13 @@ import {
   TypographyTag,
 } from '../typography/Typography';
 import { onboardingGradientClasses } from './common';
-import AuthOptions from '../auth/AuthOptions';
-import type { AuthOptionsProps } from '../auth/AuthOptions';
 
 interface OnboardingSignupProps extends ComponentProps<'section'> {
   onBackClick?: () => void;
-  authOptions?: AuthOptionsProps;
 }
 
 export const OnboardingSignup = ({
-  authOptions,
+  children,
   onBackClick,
   ...attrs
 }: OnboardingSignupProps): ReactElement => {
@@ -41,7 +38,7 @@ export const OnboardingSignup = ({
           Join daily.dev
         </Typography>
       </div>
-      <AuthOptions {...authOptions} />
+      {children}
     </section>
   );
 };

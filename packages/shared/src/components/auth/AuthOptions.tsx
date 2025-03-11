@@ -38,9 +38,7 @@ import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
-import {
-  featureOnboardingReorder,
-} from '../../lib/featureManagement';
+import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { OnboardingStep } from '../onboarding/common';
 
