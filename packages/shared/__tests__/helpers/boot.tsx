@@ -18,7 +18,6 @@ import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import LogContext from '../../src/contexts/LogContext';
 import type { LogContextData } from '../../src/hooks/log/useLogContextData';
-import { ChecklistViewState } from '../../src/lib/checklist';
 import { PaymentContextProvider } from '../../src/contexts/payment';
 
 interface TestBootProviderProps {
@@ -38,11 +37,9 @@ export const settingsContext: SettingsContextData = {
   insaneMode: false,
   loadedSettings: true,
   onToggleHeaderPlacement: jest.fn(),
-  onboardingChecklistView: ChecklistViewState.Hidden,
   openNewTab: true,
   optOutCompanion: false,
   optOutReadingStreak: true,
-  setOnboardingChecklistView: jest.fn(),
   setSettings: jest.fn(),
   setSpaciness: jest.fn(),
   setTheme: jest.fn(),

@@ -43,7 +43,6 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
   featureOnboardingPlusCheckout,
-  featureOnboardingPapercuts,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
@@ -52,7 +51,6 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
@@ -74,21 +72,19 @@ const ContentTypes = dynamic(() =>
     /* webpackChunkName: "contentTypes" */ '@dailydotdev/shared/src/components/onboarding/ContentTypes/ContentTypes'
   ).then((mod) => mod.ContentTypes),
 );
+
 const EditTag = dynamic(() =>
   import(
     /* webpackChunkName: "editTag" */ '@dailydotdev/shared/src/components/onboarding/EditTag'
   ).then((mod) => mod.EditTag),
 );
+
 const ReadingReminder = dynamic(() =>
   import(
     /* webpackChunkName: "readingReminder" */ '@dailydotdev/shared/src/components/onboarding/ReadingReminder'
   ).then((mod) => mod.ReadingReminder),
 );
-const OnboardingFooter = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingFooter" */ '@dailydotdev/shared/src/components/onboarding/OnboardingFooter'
-  ).then((mod) => mod.OnboardingFooter),
-);
+
 const OnboardingPlusStep = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
@@ -169,7 +165,6 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onboardingPapercut = useFeature(featureOnboardingPapercuts);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -290,12 +285,8 @@ export function OnboardPage(): ReactElement {
 
     const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
-    const query = onboardingPapercut ? undefined : { ua: 'true' };
 
-    return router.replace({
-      pathname: afterAuth || '/',
-      query,
-    });
+    return router.replace({ pathname: afterAuth || '/' });
   };
 
   const onClickCreateFeed = () => {
@@ -304,10 +295,7 @@ export function OnboardPage(): ReactElement {
       target_id: TargetId.Onboarding,
     });
 
-    setSettings({
-      sidebarExpanded: true,
-      onboardingChecklistView: ChecklistViewState.Open,
-    });
+    setSettings({ sidebarExpanded: true });
 
     return onClickNext();
   };
@@ -419,21 +407,16 @@ export function OnboardPage(): ReactElement {
           )}
         >
           {showOnboardingPage && (
-            <>
-              <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-                <OnboardingHeadline
-                  className={{
-                    title: 'tablet:typo-mega-1 typo-large-title',
-                    description: 'mb-8 typo-body tablet:typo-title2',
-                  }}
-                />
-                <AuthOptions {...authOptionProps} />
-                {onboardingPapercut && <SignupDisclaimer />}
-              </div>
-              {!onboardingPapercut && (
-                <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
-              )}
-            </>
+            <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+              <OnboardingHeadline
+                className={{
+                  title: 'tablet:typo-mega-1 typo-large-title',
+                  description: 'mb-8 typo-body tablet:typo-title2',
+                }}
+              />
+              <AuthOptions {...authOptionProps} />
+              <SignupDisclaimer className="mb-4" />
+            </div>
           )}
           {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
             <AuthOptions {...authOptionProps} />
@@ -474,7 +457,6 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {showOnboardingPage && !onboardingPapercut && <OnboardingFooter />}
         {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>

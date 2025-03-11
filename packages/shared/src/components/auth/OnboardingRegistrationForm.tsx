@@ -17,8 +17,6 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { isIOSNative } from '../../lib/func';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingPapercuts } from '../../lib/featureManagement';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -102,7 +100,6 @@ const OnboardingRegistrationForm = ({
   const { logEvent } = useContext(LogContext);
   const [shouldLogin, setShouldLogin] = useState(false);
   const [registerEmail, setRegisterEmail] = useState<string>(null);
-  const onboardingPapercut = useFeature(featureOnboardingPapercuts);
   const { mutateAsync: checkEmail, isPending: isLoading } = useMutation({
     mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
   });
@@ -182,11 +179,9 @@ const OnboardingRegistrationForm = ({
           label="Email"
           type="email"
           name="email"
-          focused={onboardingPapercut}
-          pressed={onboardingPapercut}
-          className={{
-            container: onboardingPapercut && 'bg-overlay-active-salt',
-          }}
+          focused
+          pressed
+          className={{ container: 'bg-overlay-active-salt' }}
         />
 
         {shouldLogin && (
@@ -220,7 +215,7 @@ const OnboardingRegistrationForm = ({
       <OrDivider
         className={{
           container: classNames('mb-8', className?.onboardingDivider),
-          text: onboardingPapercut ? 'text-text-tertiary' : undefined,
+          text: 'text-text-tertiary',
         }}
         label="Or sign up with"
         aria-hidden
