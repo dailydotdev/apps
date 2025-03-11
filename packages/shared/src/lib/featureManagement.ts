@@ -31,7 +31,6 @@ const feature = {
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
-  onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted

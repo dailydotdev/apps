@@ -32,7 +32,6 @@ const defaultSettings: RemoteSettings = {
     'http://custom4.com',
     'http://custom5.com',
   ],
-  onboardingChecklistView: ChecklistViewState.Hidden,
 };
 
 const defaultBootData: actual.BootCacheData = {
