@@ -24,7 +24,6 @@ type InteractiveFeedContextProps = {
   hidePost: (postId: string) => void;
   approvePost: (post: Post) => void;
   interactiveFeedExp: boolean;
-  isFeedPreview: boolean;
 };
 
 const InteractiveFeedContext = React.createContext(null);
@@ -125,7 +124,6 @@ export const InteractiveFeedProvider = ({
         hidePost,
         approvePost,
         interactiveFeedExp,
-        isFeedPreview,
       }}
     >
       {children}

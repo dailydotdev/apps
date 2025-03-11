@@ -21,7 +21,7 @@ export const TagElement = ({
   isSelected = false,
   isHighlighted = false,
 }: OnboardingTagProps): ReactElement => {
-  const interactiveCtx = useInteractiveFeedContext();
+  const { interactiveFeedExp } = useInteractiveFeedContext();
 
   return (
     <Button
@@ -30,8 +30,8 @@ export const TagElement = ({
           'btn-tag': !isSelected,
         },
         'relative',
-        interactiveCtx?.interactiveFeedExp && '!px-3',
-        isSelected && interactiveCtx?.interactiveFeedExp
+        interactiveFeedExp && '!px-3',
+        isSelected && interactiveFeedExp
           ? 'btn-primary'
           : 'btn-primary-cabbage',
       )}

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
+import { useFeedPreviewMode } from '../useFeedPreviewMode';
 
 type UseInteractiveFeed = {
   showInteractiveFeedOverlay: boolean;
@@ -14,8 +15,9 @@ type UseInteractiveFeed = {
 };
 
 const useInteractiveFeed = ({ post }: { post: Post }): UseInteractiveFeed => {
-  const { isFeedPreview, interactiveFeedExp, hiddenPosts, approvedPosts } =
+  const { interactiveFeedExp, hiddenPosts, approvedPosts } =
     useInteractiveFeedContext();
+  const isFeedPreview = useFeedPreviewMode();
   const router = useRouter();
   const [hasClosed, setHasClosed] = useState(false);
   const isOnboarding = router.pathname.includes('/onboarding');
