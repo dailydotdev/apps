@@ -98,7 +98,7 @@ export const CollectionList = forwardRef(function CollectionCard(
               {title}
             </CardTitle>
             <div className="flex flex-1 tablet:hidden" />
-            <PostTags tags={post.tags} />
+            <PostTags post={post} />
             <div className="hidden flex-1 tablet:flex" />
             {!isMobile && actionButtons}
           </div>

@@ -11,7 +11,7 @@ function SignupDisclaimer({ className }: SignupDisclaimerProps): ReactElement {
   return (
     <p
       className={classNames(
-        'w-full text-center text-text-quaternary typo-caption1',
+        'w-full text-center text-text-secondary typo-caption1',
         className,
       )}
     >

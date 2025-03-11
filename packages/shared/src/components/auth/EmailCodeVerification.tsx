@@ -1,17 +1,21 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
-import { TextField } from '../fields/TextField';
+import { Button, ButtonVariant } from '../buttons/Button';
 import type { AuthFormProps } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import AuthForm from './AuthForm';
-import { KeyIcon, MailIcon, VIcon } from '../icons';
 import { AuthEventNames } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { LogEvent, TargetType } from '../../lib/log';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { CodeField } from '../fields/CodeField';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
@@ -23,7 +27,7 @@ interface EmailCodeVerificationProps extends AuthFormProps {
 
 function EmailCodeVerification({
   code: codeProp,
-  email: emailProp,
+  email,
   flowId,
   onSubmit,
   className,
@@ -32,8 +36,7 @@ function EmailCodeVerification({
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
-  const [email, setEmail] = useState(emailProp);
-  const { sendEmail, verifyCode, resendTimer, isLoading, autoResend } =
+  const { sendEmail, verifyCode, resendTimer, autoResend, isVerifyingCode } =
     useAccountEmailFlow({
       flow: AuthFlow.Verification,
       flowId,
@@ -72,53 +75,74 @@ function EmailCodeVerification({
     sendEmail(email);
   };
 
+  const onCodeSubmit = async (newCode: string) => {
+    if (newCode.length === 6) {
+      setCode(newCode);
+      await verifyCode({ code: newCode });
+    }
+  };
+
+  const onCodeChange = async () => {
+    if (hint?.length > 0) {
+      setHint('');
+    }
+  };
+
   return (
     <AuthForm
       className={classNames('flex flex-col items-end px-14 py-8', className)}
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >
-      <TextField
-        saveHintSpace
-        className={{ container: 'w-full' }}
-        leftIcon={<MailIcon />}
-        name="email"
-        inputId="email"
-        label="Email"
-        type="email"
-        value={email}
-        readOnly={!!flowId}
-        valueChanged={setEmail}
-        rightIcon={<VIcon className="text-accent-avocado-default" />}
-      />
-      <TextField
-        autoFocus
-        className={{ container: 'w-full' }}
-        defaultValue={code}
-        hint={hint}
-        inputId="code"
-        label="Code"
-        leftIcon={<KeyIcon aria-hidden role="presentation" />}
-        name="code"
-        onChange={() => hint && setHint('')}
-        type="code"
-        valid={!hint}
-        valueChanged={setCode}
-        actionButton={
-          <Button
-            className="btn-primary"
-            type="button"
-            onClick={onSendCode}
-            disabled={resendTimer > 0}
+      <div className="flex w-full flex-col items-center gap-4">
+        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
+          A verification code has been sent to:
+        </Typography>
+        <Typography type={TypographyType.Body}>{email}</Typography>
+      </div>
+      <div className="my-10 flex w-full flex-col items-center gap-4">
+        <input
+          type="text"
+          id="email"
+          name="email"
+          value={email}
+          hidden
+          readOnly
+        />
+        <CodeField
+          onSubmit={onCodeSubmit}
+          onChange={onCodeChange}
+          disabled={isVerifyingCode}
+        />
+        {hint && (
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.StatusError}
+            className="px-4 text-center"
           >
-            {resendTimer === 0 ? 'Resend' : `Resend code: ${resendTimer}s`}
-          </Button>
-        }
-      />
+            {hint}
+          </Typography>
+        )}
+        <span className="text-text-tertiary">
+          Didn&#39;t get a verification code?{' '}
+          <button
+            type="button"
+            disabled={resendTimer > 0}
+            onClick={onSendCode}
+            className={
+              resendTimer === 0 ? 'text-text-link' : 'text-text-disabled'
+            }
+          >
+            Resend code
+            {resendTimer > 0 && ` ${resendTimer}s`}
+          </button>
+        </span>
+      </div>
       <Button
-        className="btn-primary mt-6 w-full"
+        className="w-full"
         type="submit"
-        loading={isLoading}
+        variant={ButtonVariant.Primary}
+        loading={isVerifyingCode}
         disabled={autoResend}
       >
         Verify

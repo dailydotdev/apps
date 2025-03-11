@@ -105,9 +105,6 @@ export const BootPopups = (): ReactElement => {
     if (marketingCtaPlus && !isIOSNative() && isValidRegion && !user?.isPlus) {
       addBootPopup({
         type: LazyModal.PlusMarketing,
-        onAfterClose: () => {
-          updateLastBootPopup();
-        },
         props: {
           onAfterOpen: () => {
             logEvent({
@@ -115,6 +112,9 @@ export const BootPopups = (): ReactElement => {
               target_type: TargetType.MarketingCtaPlus,
               target_id: marketingCtaPlus.campaignId,
             });
+          },
+          onAfterClose: () => {
+            updateLastBootPopup();
           },
         },
       });

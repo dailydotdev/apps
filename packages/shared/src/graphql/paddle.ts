@@ -7,11 +7,21 @@ const PRICE_FRAGMENT = gql`
   fragment Price on Price {
     label
     value
-    price
-    priceUnformatted
+    price {
+      amount
+      formatted
+      monthlyAmount
+      monthlyFormatted
+    }
     currencyCode
+    currencySymbol
     extraLabel
     appsId
+    duration
+    trialPeriod {
+      interval
+      frequency
+    }
   }
 `;
 

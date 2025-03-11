@@ -29,7 +29,7 @@ export const FeedPreviewControls = ({
     <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Primary}
         disabled={isDisabled}
         icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
         iconPosition={ButtonIconPosition.Right}

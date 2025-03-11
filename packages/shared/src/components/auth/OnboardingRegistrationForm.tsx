@@ -179,6 +179,9 @@ const OnboardingRegistrationForm = ({
           label="Email"
           type="email"
           name="email"
+          focused
+          pressed
+          className={{ container: 'bg-overlay-active-salt' }}
         />
 
         {shouldLogin && (
@@ -212,6 +215,7 @@ const OnboardingRegistrationForm = ({
       <OrDivider
         className={{
           container: classNames('mb-8', className?.onboardingDivider),
+          text: 'text-text-tertiary',
         }}
         label="Or sign up with"
         aria-hidden

@@ -7,7 +7,6 @@ import type { SourceMember } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
-import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { CardLink } from '../cards/common/Card';
 import { PlusIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
@@ -27,6 +26,8 @@ import type { Connection } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
 import { webappUrl } from '../../lib/constants';
+import { getRoleName } from '../utilities';
+import UserBadge from '../UserBadge';
 
 export interface SquadsListProps {
   memberships?: Connection<SourceMember>;
@@ -97,11 +98,9 @@ function SquadItem({
         <div className="mt-1 flex h-6 items-center text-text-tertiary typo-caption2 tablet:h-auto">
           {membership.role !== SourceMemberRole.Member && (
             <>
-              <SquadMemberBadge
-                role={membership.role}
-                removeMargins
-                disableResponsive
-              />
+              <UserBadge role={membership.role}>
+                {getRoleName(membership.role)}
+              </UserBadge>
               <span className="mx-0.5">&#x2022;</span>
             </>
           )}

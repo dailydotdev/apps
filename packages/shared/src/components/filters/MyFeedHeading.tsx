@@ -12,6 +12,7 @@ import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { useShortcutsUser } from '../../hooks/useShortcutsUser';
+import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
@@ -26,14 +27,23 @@ function MyFeedHeading({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { customFeedPlacement } = useCustomFeedHeader();
+
+  const getSetttingsVariant = () => {
+    if (customFeedPlacement) {
+      return ButtonVariant.Tertiary;
+    }
+
+    return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
+  };
 
   return (
     <>
       <FeedSettingsButton
         onClick={onOpenFeedFilters}
-        className="mr-auto"
+        className={!customFeedPlacement ? 'mr-auto' : ''}
         size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        variant={getSetttingsVariant()}
         icon={<FilterIcon />}
         iconPosition={
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined

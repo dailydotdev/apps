@@ -1,12 +1,11 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useEventListener, useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -24,18 +23,9 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
-import { ChecklistViewState } from '../../lib/checklist';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
-
-const OnboardingChecklistBar = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
-    ),
-);
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -56,11 +46,14 @@ const StickyNavIconWrapper = classed(
   'sticky flex h-11 w-20 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
+const MIN_SCROLL_BEFORE_HIDING = 60;
+
 function FeedNav(): ReactElement {
   const router = useRouter();
-  const { isLoggedIn } = useAuthContext();
+  const [, startTransition] = useTransition();
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { feedName } = useActiveFeedNameContext();
-  const { sortingEnabled, onboardingChecklistView } = useSettingsContext();
+  const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -74,10 +67,6 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-
-  const isHiddenOnboardingChecklistView =
-    onboardingChecklistView === ChecklistViewState.Hidden;
-
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
@@ -123,29 +112,44 @@ function FeedNav(): ReactElement {
     isCustomDefaultFeed,
   ]);
 
+  const previousScrollY = React.useRef(0);
+
+  useEventListener(globalThis, 'scroll', () => {
+    // when scrolled down we should hide the header
+    // when scrolled up, we should bring it back
+    const { scrollY } = window;
+    const shouldHeaderBeVisible = scrollY < previousScrollY.current;
+
+    previousScrollY.current = scrollY;
+
+    if (shouldHeaderBeVisible === isHeaderVisible) {
+      return;
+    }
+
+    if (!shouldHeaderBeVisible && scrollY < MIN_SCROLL_BEFORE_HIDING) {
+      return;
+    }
+
+    startTransition(() => {
+      setIsHeaderVisible(shouldHeaderBeVisible);
+    });
+  });
+
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
 
-  const checklistBarElement =
-    isLoggedIn && !isHiddenOnboardingChecklistView ? (
-      <OnboardingChecklistBar />
-    ) : null;
-
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full tablet:pl-16',
+        'sticky top-0 z-header w-full transition-transform tablet:pl-16',
         scrollClassName,
+        isHeaderVisible
+          ? 'translate-y-0 duration-200'
+          : '-translate-y-26 duration-[800ms]',
       )}
     >
-      {!isMobile && checklistBarElement}
-      {isMobile && (
-        <>
-          <MobileFeedActions />
-          {checklistBarElement}
-        </>
-      )}
+      {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:mb-0">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}

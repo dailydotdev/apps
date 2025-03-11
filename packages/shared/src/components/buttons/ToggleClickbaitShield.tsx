@@ -19,8 +19,10 @@ import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 
 export const ToggleClickbaitShield = ({
   origin,
+  buttonProps = {},
 }: {
   origin: Origin;
+  buttonProps?: ButtonProps<'button'>;
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
@@ -35,6 +37,7 @@ export const ToggleClickbaitShield = ({
     size: ButtonSize.Medium,
     variant: ButtonVariant.Float,
     iconSecondaryOnHover: true,
+    ...buttonProps,
   };
 
   if (!isPlus) {

@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { EyeIcon, HotIcon, SquadIcon } from '../../icons';
+import { EyeIcon, HomeIcon, HotIcon, SquadIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -12,6 +12,7 @@ import { webappUrl } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
+import useCustomFeedHeader from '../../../hooks/feed/useCustomFeedHeader';
 
 export const MainSection = ({
   isItemsButton,
@@ -19,24 +20,34 @@ export const MainSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
-  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { customFeedPlacement } = useCustomFeedHeader();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
     // is not using webappUrl so it gets selected
     let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
 
-    if (isExtension) {
+    if (isExtension && !customFeedPlacement) {
       myFeedPath = '/my-feed';
+    }
+
+    if (isCustomDefaultFeed && customFeedPlacement) {
+      myFeedPath = `/feeds/${defaultFeedId}`;
     }
 
     const myFeed = isLoggedIn
       ? {
-          title: 'My feed',
+          title: customFeedPlacement ? 'Home' : 'My feed',
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
-          icon: <ProfilePicture size={ProfileImageSize.XSmall} user={user} />,
+          icon: (active: boolean) =>
+            customFeedPlacement ? (
+              <HomeIcon secondary={active} />
+            ) : (
+              <ProfilePicture size={ProfileImageSize.XSmall} user={user} />
+            ),
         }
       : undefined;
 
@@ -70,7 +81,14 @@ export const MainSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [isLoggedIn, user, isCustomDefaultFeed, onNavTabClick]);
+  }, [
+    isLoggedIn,
+    user,
+    isCustomDefaultFeed,
+    onNavTabClick,
+    customFeedPlacement,
+    defaultFeedId,
+  ]);
 
   return (
     <Section
