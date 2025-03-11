@@ -14,7 +14,10 @@ import {
   WebKitMessageHandlers,
 } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
-import { useFeature } from '../../components/GrowthBookProvider';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '../../components/GrowthBookProvider';
 import { featureIAPProducts } from '../../lib/featureManagement';
 import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
@@ -49,6 +52,7 @@ export const StoreKitSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();
+  const { growthbook } = useGrowthBookContext();
   const productIds = useFeature(featureIAPProducts);
   const productList = useMemo(() => Object.keys(productIds), [productIds]);
 
@@ -57,7 +61,8 @@ export const StoreKitSubProvider = ({
     enabled:
       !!productIds &&
       messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest) &&
-      !!user?.isTeamMember,
+      !!user?.isTeamMember &&
+      !!growthbook?.ready,
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
