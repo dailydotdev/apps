@@ -23,8 +23,8 @@ import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/o
 import {
   onboardingStepsWithCTA,
   onboardingStepsWithFooter,
-  OnboardingStep,
   wrapperMaxWidth,
+  OnboardingStep,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
@@ -43,7 +43,6 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
   featureOnboardingPlusCheckout,
-  featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
@@ -184,22 +183,25 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const showOnboardingPage =
     !isAuthenticating &&
-    [OnboardingStep.Intro, OnboardingStep.Signup].includes(activeScreen) &&
-    !shouldVerify;
+    !shouldVerify &&
+    [OnboardingStep.Intro, OnboardingStep.Signup].includes(activeScreen);
+
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
+  const isIntro = activeScreen === OnboardingStep.Intro;
+  const showBackgroundImage =
+    OnboardingStep.Signup === activeScreen || showOnboardingPage;
+  const showGenerigLoader =
+    isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
 
   const layout = useMemo(
     () => ({
       hasCta: onboardingStepsWithCTA.includes(activeScreen),
-      hasFooter: showOnboardingPage && !isReorderExperiment,
       hasFooterLinks: onboardingStepsWithFooter.includes(activeScreen),
     }),
-    [activeScreen, isReorderExperiment, showOnboardingPage],
+    [activeScreen],
   );
-
-  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
     if (
@@ -372,12 +374,6 @@ export function OnboardPage(): ReactElement {
     return undefined;
   }, [activeScreen, layout.hasCta]);
 
-  const isIntro = activeScreen === OnboardingStep.Intro;
-  const showBackgroundImage =
-    OnboardingStep.Signup === activeScreen || showOnboardingPage;
-  const showGenerigLoader =
-    isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
-
   if (!isPageReady) {
     return null;
   }
@@ -496,7 +492,7 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
+        {layout.hasFooterLinks && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
   );
