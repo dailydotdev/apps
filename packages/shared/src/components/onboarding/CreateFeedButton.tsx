@@ -30,7 +30,6 @@ export const CreateFeedButton = ({
   const CTAStep = [OnboardingStep.PWA, OnboardingStep.Extension].includes(
     activeScreen,
   );
-  const interactiveFeed = activeScreen === OnboardingStep.InteractiveFeed;
 
   const contentTypeNotEmpty =
     !!getContentTypeNotEmpty({
