@@ -31,13 +31,22 @@ export const InteractiveFeedProvider = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
   const { hasCompletedEditTags, hasCompletedContentTypes } = useOnboarding();
-  const { value: interactiveFeedExp } = useConditionalFeature({
-    feature: featureInteractiveFeed,
-    shouldEvaluate:
+  const shouldEvaluate = useMemo(() => {
+    return (
       isLaptop &&
       router.pathname.includes('/onboarding') &&
       hasCompletedContentTypes &&
-      !hasCompletedEditTags,
+      !hasCompletedEditTags
+    );
+  }, [
+    isLaptop,
+    router.pathname,
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+  ]);
+  const { value: interactiveFeedExp } = useConditionalFeature({
+    feature: featureInteractiveFeed,
+    shouldEvaluate,
   });
   const { feedSettings } = useFeedSettings({});
   const { hidePost: handleHidePost } = useReportPost();
