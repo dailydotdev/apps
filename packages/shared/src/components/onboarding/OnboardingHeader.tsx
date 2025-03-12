@@ -49,7 +49,7 @@ export const OnboardingHeader = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
-  const { interactiveFeedExp, completion } = useInteractiveFeedContext();
+  const { completion } = useInteractiveFeedContext();
 
   const getImage = () => {
     if (isMobile) {
@@ -68,6 +68,9 @@ export const OnboardingHeader = ({
     OnboardingStep.InteractiveFeed,
   ];
   const isPlusStep = activeScreen === OnboardingStep.Plus;
+  const fullWidth =
+    activeScreen === OnboardingStep.InteractiveFeed ||
+    activeScreen === OnboardingStep.PreviewFeed;
 
   const getCompletionColor = () => {
     if (completion < 25) {
@@ -97,7 +100,7 @@ export const OnboardingHeader = ({
           <div
             className={classNames(
               'flex w-full items-center justify-between !px-4 py-10 tablet:!px-6',
-              !interactiveFeedExp && ' max-w-4xl ',
+              !fullWidth && ' max-w-4xl ',
             )}
           >
             <ConditionalWrapper

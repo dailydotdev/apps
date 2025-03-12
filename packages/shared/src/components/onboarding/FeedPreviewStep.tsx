@@ -29,7 +29,7 @@ const FeedPreviewStep = ({
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[85rem] flex-col gap-6">
+    <div className="mx-auto flex w-full flex-col gap-6">
       <div className="flex flex-col items-center gap-4">
         <Typography bold type={TypographyType.Title3}>
           Your personalized feed is live. Well done! 🎉
