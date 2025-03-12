@@ -40,6 +40,10 @@ body {
   }
 }
 
+.conversejs * {
+  flex-shrink: 1;
+}
+
 @define-mixin dark-mode {
   /* Background colors */
   --theme-background-default: theme('colors.raw.pepper.90');

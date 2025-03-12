@@ -79,6 +79,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
+  const isInitialized = useRef(false);
 
   useEffect(() => {
     if (
@@ -96,14 +97,29 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   ]);
 
   useEffect(() => {
-    converse?.initialize({
-      // Please use this connection manager only for testing purposes
+    // Only initialize once
+    if (isInitialized.current || !window.converse) {
+      return;
+    }
+
+    // Initialize Converse.js
+    window.converse.initialize({
       bosh_service_url: 'https://chat.daily.dev/bosh/',
       websocket_url: 'wss://chat.daily.dev/ws/',
-      show_controlbox_by_default: true,
-      view_mode: 'fullscreen',
+      auto_login: true,
+      jid: 'chris@chat.daily.dev',
+      password: '90MqasdYa58',
     });
-  });
+
+    isInitialized.current = true;
+
+    return () => {
+      // Cleanup when component unmounts
+      if (window.converse && window.converse.initialized) {
+        window.converse.disconnect();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (
