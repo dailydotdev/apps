@@ -8,7 +8,6 @@ import type { Post } from '../graphql/posts';
 import { LogEvent, Origin } from '../lib/log';
 import { useConditionalFeature, useViewSize, ViewSize } from '../hooks';
 import { featureInteractiveFeed } from '../lib/featureManagement';
-import { useOnboarding } from '../hooks/auth';
 import { useLogContext } from './LogContext';
 
 export const ONBOARDING_PREVIEW_KEY = 'onboarding-preview';
@@ -32,14 +31,9 @@ export const InteractiveFeedProvider = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { hasCompletedEditTags } = useOnboarding();
   const shouldEvaluate = useMemo(() => {
-    return (
-      isLaptop &&
-      router.pathname.includes('/onboarding') &&
-      !hasCompletedEditTags
-    );
-  }, [isLaptop, router.pathname, hasCompletedEditTags]);
+    return isLaptop && router.pathname.includes('/onboarding');
+  }, [isLaptop, router.pathname]);
   const { value: interactiveFeedExp } = useConditionalFeature({
     feature: featureInteractiveFeed,
     shouldEvaluate,
