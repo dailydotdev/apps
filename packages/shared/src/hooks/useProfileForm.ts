@@ -91,7 +91,6 @@ export const onValidateHandles = (
     if (after.username.length > 38) {
       return { username: errorMessage.profile.usernameLength };
     }
-    
     const isValid = handleRegex.test(after.username);
 
     if (!isValid) {
