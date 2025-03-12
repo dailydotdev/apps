@@ -106,9 +106,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     window.converse.initialize({
       bosh_service_url: 'https://chat.daily.dev/bosh/',
       websocket_url: 'wss://chat.daily.dev/ws/',
-      auto_login: true,
-      jid: 'chris@chat.daily.dev',
-      password: '90MqasdYa58',
     });
 
     isInitialized.current = true;
