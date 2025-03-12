@@ -36,6 +36,11 @@ import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structu
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
+import {
+  messageHandlerExists,
+  postWebKitMessage,
+  WebKitMessageHandlers,
+} from '@dailydotdev/shared/src/lib/ios';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -110,10 +115,22 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     const id = user?.id || trackingId;
-    if (id && globalThis.webkit?.messageHandlers?.['update-user-id']) {
-      globalThis.webkit.messageHandlers['update-user-id'].postMessage(id);
+    if (id && messageHandlerExists(WebKitMessageHandlers.UpdateUserId)) {
+      postWebKitMessage(WebKitMessageHandlers.UpdateUserId, id);
     }
   }, [user?.id, trackingId]);
+
+  useEffect(() => {
+    if (
+      user?.subscriptionFlags?.appAccountToken &&
+      messageHandlerExists(WebKitMessageHandlers.IAPSetAppAccountToken)
+    ) {
+      postWebKitMessage(
+        WebKitMessageHandlers.IAPSetAppAccountToken,
+        user.subscriptionFlags.appAccountToken,
+      );
+    }
+  }, [user?.subscriptionFlags?.appAccountToken]);
 
   useEffect(() => {
     if (!modal) {

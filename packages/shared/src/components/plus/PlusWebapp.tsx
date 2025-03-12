@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { MarketingCtaVariant } from '../marketingCta/common';

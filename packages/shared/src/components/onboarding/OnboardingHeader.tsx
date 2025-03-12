@@ -22,10 +22,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
-import { usePaymentContext } from '../../contexts/PaymentContext';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
