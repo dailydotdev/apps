@@ -37,6 +37,8 @@ const FeedPreviewStep = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiPiecesRef = useRef<ConfettiPiece[]>([]);
   const animationFrameRef = useRef<number | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
 
   const generateConfetti = useCallback(() => {
     const confettiPieces: ConfettiPiece[] = [];
@@ -53,53 +55,75 @@ const FeedPreviewStep = ({
       '#ffffff', // white
     ];
 
-    // Center position for confetti to shoot from
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2; // Start from middle of screen
+    // Use the button's position as the source
+    const sourceX = buttonPosition.x;
+    const sourceY = buttonPosition.y;
 
+    // For better distribution in a circle, we'll use different strategy
     for (let i = 0; i < confettiCount; i += 1) {
-      // This creates a range from about PI*1.25 to PI*1.75 (mostly upward)
-      // with higher probability of being close to straight up
-      const randomBase = Math.random();
-      // Squaring the random value weights it toward smaller values (closer to straight up)
-      const weightedRandom = randomBase * randomBase;
-      // Map to a range from -0.25 to 0.25
-      const angleOffset = (weightedRandom - 0.5) * 0.5;
-      // Center around PI*1.5 (up) with the offset
-      const angle = Math.PI * 1.5 + angleOffset * Math.PI;
+      // To distribute angles more evenly, we'll divide the circle into sections
+      // and add some randomness within each section
+      const sectionCount = 12; // Divide the circle into 12 sections
+      const sectionIndex = Math.floor(Math.random() * sectionCount);
+      const sectionAngle = (Math.PI * 2) / sectionCount;
+      const baseAngle = sectionIndex * sectionAngle;
+      const angleWithinSection = Math.random() * sectionAngle;
+      const angle = baseAngle + angleWithinSection;
 
-      // Initial velocity - stronger in the Y direction
-      const speed = Math.random() * 10 + 15; // Base speed
-      const upwardBoost = 1.4; // Boost upward velocity
+      // We'll bias toward the sections that are more horizontal and upward
+      // by controlling how many confetti pieces go into each section
+      const direction = baseAngle / (Math.PI * 2); // 0-1 representing direction around the circle
 
-      // Add small variance to the starting position
-      const startVariance = 20;
-      const startX =
-        centerX + (Math.random() * startVariance - startVariance / 2);
-      const startY =
-        centerY + (Math.random() * startVariance - startVariance / 2);
+      // Instead of using continue (which is causing the error),
+      // we'll use a conditional to decide whether to add this piece
+      const shouldAddPiece = !(
+        direction > 0.3 &&
+        direction < 0.7 &&
+        Math.random() < 0.5
+      );
 
-      const isCircle = Math.random() > 0.7; // 30% chance to be a circle
+      if (shouldAddPiece) {
+        // Adjust speed based on direction
+        // Downward angle is around 0.5 (when normalized to 0-1)
+        // Give more velocity to upward trajectories
+        let speedMultiplier = 1.0;
+        if (direction < 0.25 || direction > 0.75) {
+          // Top half gets more speed
+          speedMultiplier = 1.3;
+        }
 
-      confettiPieces.push({
-        x: startX,
-        y: startY,
-        velocityX: Math.cos(angle) * speed * (0.2 + Math.random() * 0.6),
-        velocityY:
-          Math.sin(angle) * speed * upwardBoost * (0.8 + Math.random() * 0.2),
-        size: Math.random() * 8 + 3, // Smaller pieces, varying sizes
-        color: colors[Math.floor(Math.random() * colors.length)],
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.2,
-        shape: isCircle ? 'circle' : 'rect',
-        drag: 0.975 - Math.random() * 0.02, // Increased drag to slow down falling
-        gravity: 0.11 + Math.random() * 0.08, // Reduced gravity for slower fall
-        opacity: 0.9 + Math.random() * 0.1,
-      });
+        // Initial velocity
+        const baseSpeed = Math.random() * 10 + 15;
+        const speed = baseSpeed * speedMultiplier;
+
+        // Add small variance to the starting position
+        const startVariance = 20;
+        const startX =
+          sourceX + (Math.random() * startVariance - startVariance / 2);
+        const startY =
+          sourceY + (Math.random() * startVariance - startVariance / 2);
+
+        const isCircle = Math.random() > 0.7; // 30% chance to be a circle
+
+        confettiPieces.push({
+          x: startX,
+          y: startY,
+          velocityX: Math.cos(angle) * speed * (0.2 + Math.random() * 0.8),
+          velocityY: Math.sin(angle) * speed * (0.2 + Math.random() * 0.8),
+          size: Math.random() * 8 + 3, // Smaller pieces, varying sizes
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 0.2,
+          shape: isCircle ? 'circle' : 'rect',
+          drag: 0.975 - Math.random() * 0.02, // Increased drag to slow down falling
+          gravity: 0.11 + Math.random() * 0.08, // Reduced gravity for slower fall
+          opacity: 0.9 + Math.random() * 0.1,
+        });
+      }
     }
 
     return confettiPieces;
-  }, []);
+  }, [buttonPosition]);
 
   const drawConfetti = useCallback(
     (ctx: CanvasRenderingContext2D, confetti: ConfettiPiece) => {
@@ -241,9 +265,21 @@ const FeedPreviewStep = ({
   };
 
   const handleComplete = () => {
+    // Get the button's position right before showing confetti
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      // Use the center of the button as the origin
+      setButtonPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+    }
+
+    // Show confetti after position is set
     setShowConfetti(true);
+
     // Give time for the confetti animation to play
-    setTimeout(completeOnboarding, 1500); // Increased to 2500ms to account for slower falling
+    setTimeout(completeOnboarding, 1500);
   };
 
   return (
@@ -256,7 +292,11 @@ const FeedPreviewStep = ({
           <Button onClick={onEdit} variant={ButtonVariant.Secondary}>
             Make changes
           </Button>
-          <Button onClick={handleComplete} variant={ButtonVariant.Primary}>
+          <Button
+            onClick={handleComplete}
+            variant={ButtonVariant.Primary}
+            ref={buttonRef}
+          >
             Looks great, let&apos;s go
           </Button>
         </div>
