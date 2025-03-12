@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import Feed from '../Feed';
 import { SharedFeedPage } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -7,9 +7,8 @@ import { Typography, TypographyType } from '../typography/Typography';
 import { FeedLayoutProvider } from '../../contexts/FeedContext';
 import { FEED_QUERY } from '../../graphql/feed';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { useOnboarding } from '../../hooks/auth';
-import { ActionType } from '../../graphql/actions';
 import { ONBOARDING_PREVIEW_KEY } from '../../contexts/InteractiveFeedContext';
+import ConfettiSvg from '../../svg/ConfettiSvg';
 
 const FeedPreviewStep = ({
   onEdit,
@@ -18,14 +17,15 @@ const FeedPreviewStep = ({
   onEdit: () => void;
   onComplete: () => void;
 }): ReactElement => {
-  const { completeStep } = useOnboarding();
   const { user } = useAuthContext();
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleComplete = () => {
-    // TODO: Add some confetti
-    completeStep(ActionType.EditTag);
-    onComplete();
-    localStorage.setItem(ONBOARDING_PREVIEW_KEY, '');
+    setShowConfetti(true);
+    setTimeout(() => {
+      onComplete();
+      localStorage.setItem(ONBOARDING_PREVIEW_KEY, '');
+    }, 1200);
   };
 
   return (
@@ -43,6 +43,11 @@ const FeedPreviewStep = ({
           </Button>
         </div>
       </div>
+      {showConfetti && (
+        <div className="z-10 pointer-events-none fixed inset-0 z-modal flex items-center justify-center ">
+          <ConfettiSvg className="h-full max-h-[400px] w-full max-w-[400px]" />
+        </div>
+      )}
       <FeedLayoutProvider>
         <Feed
           feedName={SharedFeedPage.MyFeed}
