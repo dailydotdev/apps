@@ -6,12 +6,7 @@ import useReportPost from '../hooks/useReportPost';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import type { Post } from '../graphql/posts';
 import { Origin } from '../lib/log';
-import {
-  useConditionalFeature,
-  useFeedPreviewMode,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useConditionalFeature, useViewSize, ViewSize } from '../hooks';
 import { featureInteractiveFeed } from '../lib/featureManagement';
 import { useOnboarding } from '../hooks/auth';
 
@@ -34,13 +29,11 @@ export const InteractiveFeedProvider = ({
   children,
 }: PropsWithChildren): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isFeedPreview = useFeedPreviewMode();
   const router = useRouter();
   const { hasCompletedEditTags, hasCompletedContentTypes } = useOnboarding();
   const { value: interactiveFeedExp } = useConditionalFeature({
     feature: featureInteractiveFeed,
     shouldEvaluate:
-      isFeedPreview &&
       isLaptop &&
       router.pathname.includes('/onboarding') &&
       hasCompletedContentTypes &&
