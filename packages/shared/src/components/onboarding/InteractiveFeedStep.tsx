@@ -119,7 +119,7 @@ const InteractiveFeedStep = (): ReactElement => {
               />
             ) : (
               <Image
-                className="mt-10"
+                className="mt-10 px-4"
                 src={interactiveFeedEmpty}
                 alt="Empty feed"
               />

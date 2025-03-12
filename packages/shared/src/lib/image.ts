@@ -254,4 +254,4 @@ export const plusRedBackgroundImage =
   'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';
 
 export const interactiveFeedEmpty =
-  'https://daily-now-res.cloudinary.com/image/upload/s--HJOor5DY--/f_auto/v1740903470/Interactive_feed_settings_as_onboarding_cards_evlldf_zvzzjo';
+  'https://media.daily.dev/image/upload/s--I40-3-Oa--/f_auto/v1741779283/public/cards';
