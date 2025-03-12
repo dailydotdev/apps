@@ -183,15 +183,11 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
-  const showOnboardingPage =
-    !isAuthenticating &&
-    !shouldVerify &&
-    [OnboardingStep.Intro, OnboardingStep.Signup].includes(activeScreen);
-
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
   const isIntro = activeScreen === OnboardingStep.Intro;
-  const showBackgroundImage =
-    OnboardingStep.Signup === activeScreen || showOnboardingPage;
+  const isIntroOrSignup = isIntro || activeScreen === OnboardingStep.Signup;
+
+  const showOnboardingPage = !isAuthenticating && !shouldVerify && isIntro;
   const showGenerigLoader =
     isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
 
@@ -387,7 +383,7 @@ export function OnboardPage(): ReactElement {
           layout.hasCta && 'fixed',
         )}
       >
-        {showBackgroundImage && (
+        {isIntroOrSignup && (
           <img
             alt="Onboarding background"
             className={classNames(
@@ -415,40 +411,22 @@ export function OnboardPage(): ReactElement {
         <div
           className={classNames(
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-            [OnboardingStep.Intro, OnboardingStep.Signup].includes(
-              activeScreen,
-            ) && wrapperMaxWidth,
+            isIntroOrSignup && wrapperMaxWidth,
             !isAuthenticating && 'mt-7.5 flex-1 content-center',
             [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
         >
           {showOnboardingPage && (
-            <>
-              <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-                {isIntro ? (
-                  <>
-                    <OnboardingHeadline
-                      className={{
-                        title: 'tablet:typo-mega-1 typo-large-title',
-                        description: 'mb-8 typo-body tablet:typo-title2',
-                      }}
-                    />
-                    <AuthOptions {...authOptionProps} />
-                    <SignupDisclaimer className="mb-4" />
-                  </>
-                ) : (
-                  <OnboardingSignup
-                    onBackClick={() => setActiveScreen(OnboardingStep.Intro)}
-                  >
-                    <AuthOptions
-                      {...authOptionProps}
-                      defaultDisplay={AuthDisplay.Registration}
-                      forceDefaultDisplay
-                    />
-                  </OnboardingSignup>
-                )}
-              </div>
-            </>
+            <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+              <OnboardingHeadline
+                className={{
+                  title: 'tablet:typo-mega-1 typo-large-title',
+                  description: 'mb-8 typo-body tablet:typo-title2',
+                }}
+              />
+              <AuthOptions {...authOptionProps} />
+              <SignupDisclaimer className="mb-4" />
+            </div>
           )}
           {isAuthenticating && isIntro ? (
             <AuthOptions {...authOptionProps} />

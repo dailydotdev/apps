@@ -488,21 +488,14 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
+            formRef={formRef}
+            simplified={simplified}
+            email={email}
+            hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
                 ? () => onSetActiveDisplay(defaultDisplay)
                 : undefined
-            }
-            formRef={formRef}
-            simplified={simplified}
-            email={email}
-            onSignup={onRegister}
-            hints={registrationHints}
-            onUpdateHints={setRegistrationHints}
-            trigger={trigger}
-            token={
-              registration &&
-              getNodeValue('csrf_token', registration?.ui?.nodes)
             }
             onExistingEmailLoginClick={() => {
               setOnboardingStep?.(OnboardingStep.Intro);
@@ -512,6 +505,15 @@ function AuthOptions({
                 defaultDisplay: AuthDisplay.Default,
               });
             }}
+            onSignup={(params) => {
+              onRegister(params);
+            }}
+            onUpdateHints={setRegistrationHints}
+            trigger={trigger}
+            token={
+              registration &&
+              getNodeValue('csrf_token', registration?.ui?.nodes)
+            }
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>
