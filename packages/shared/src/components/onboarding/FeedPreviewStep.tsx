@@ -58,10 +58,19 @@ const FeedPreviewStep = ({
     const centerY = window.innerHeight / 2; // Start from middle of screen
 
     for (let i = 0; i < confettiCount; i += 1) {
-      // Create a spread pattern that shoots in all directions (360 degrees)
-      const angle = Math.random() * Math.PI * 2;
+      // This creates a range from about PI*1.25 to PI*1.75 (mostly upward)
+      // with higher probability of being close to straight up
+      const randomBase = Math.random();
+      // Squaring the random value weights it toward smaller values (closer to straight up)
+      const weightedRandom = randomBase * randomBase;
+      // Map to a range from -0.25 to 0.25
+      const angleOffset = (weightedRandom - 0.5) * 0.5;
+      // Center around PI*1.5 (up) with the offset
+      const angle = Math.PI * 1.5 + angleOffset * Math.PI;
 
-      const speed = Math.random() * 10 + 15; // Initial velocity
+      // Initial velocity - stronger in the Y direction
+      const speed = Math.random() * 10 + 15; // Base speed
+      const upwardBoost = 1.4; // Boost upward velocity
 
       // Add small variance to the starting position
       const startVariance = 20;
@@ -75,15 +84,16 @@ const FeedPreviewStep = ({
       confettiPieces.push({
         x: startX,
         y: startY,
-        velocityX: Math.cos(angle) * speed * (0.2 + Math.random() * 0.8),
-        velocityY: Math.sin(angle) * speed * (0.2 + Math.random() * 0.8),
+        velocityX: Math.cos(angle) * speed * (0.2 + Math.random() * 0.6),
+        velocityY:
+          Math.sin(angle) * speed * upwardBoost * (0.8 + Math.random() * 0.2),
         size: Math.random() * 8 + 3, // Smaller pieces, varying sizes
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.2,
         shape: isCircle ? 'circle' : 'rect',
-        drag: 0.97 - Math.random() * 0.03, // Slightly lower drag for longer flight
-        gravity: 0.15 + Math.random() * 0.1, // Gravity for faster fall
+        drag: 0.975 - Math.random() * 0.02, // Increased drag to slow down falling
+        gravity: 0.11 + Math.random() * 0.08, // Reduced gravity for slower fall
         opacity: 0.9 + Math.random() * 0.1,
       });
     }
@@ -137,9 +147,10 @@ const FeedPreviewStep = ({
         // Gently rotate the confetti
         updatedConfetti.rotation += updatedConfetti.rotationSpeed;
 
-        // Fade out as it falls, faster if moving quickly downward
-        const fallFactor = updatedConfetti.velocityY > 0 ? 1.5 : 1;
-        updatedConfetti.opacity -= (0.003 + Math.random() * 0.002) * fallFactor;
+        // Fade out as it falls, slower to match the slower fall
+        const fallFactor = updatedConfetti.velocityY > 0 ? 1.2 : 1; // Reduced from 1.5 to 1.2
+        updatedConfetti.opacity -=
+          (0.0025 + Math.random() * 0.0015) * fallFactor; // Reduced fade rate (was 0.003)
 
         return updatedConfetti;
       })
@@ -232,7 +243,7 @@ const FeedPreviewStep = ({
   const handleComplete = () => {
     setShowConfetti(true);
     // Give time for the confetti animation to play
-    setTimeout(completeOnboarding, 1500);
+    setTimeout(completeOnboarding, 1500); // Increased to 2500ms to account for slower falling
   };
 
   return (

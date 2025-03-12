@@ -213,11 +213,6 @@ export function OnboardPage(): ReactElement {
 
     isLogged.current = true;
 
-    if (interactiveFeedExp && !hasCompletedContentTypes) {
-      setActiveScreen(OnboardingStep.ContentTypes);
-      return;
-    }
-
     if (!hasCompletedEditTags) {
       if (interactiveFeedExp) {
         setActiveScreen(OnboardingStep.InteractiveFeed);
@@ -256,7 +251,23 @@ export function OnboardPage(): ReactElement {
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
+    if (
+      activeScreen === OnboardingStep.InteractiveFeed &&
+      !hasCompletedContentTypes
+    ) {
+      completeStep(ActionType.EditTag);
+      return setActiveScreen(OnboardingStep.ContentTypes);
+    }
+
+    if (activeScreen === OnboardingStep.InteractiveFeed) {
+      return setActiveScreen(OnboardingStep.PreviewFeed);
+    }
+
     if (activeScreen === OnboardingStep.Intro) {
+      if (interactiveFeedExp) {
+        return setActiveScreen(OnboardingStep.InteractiveFeed);
+      }
+
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
@@ -304,15 +315,9 @@ export function OnboardPage(): ReactElement {
     }
 
     if (
-      interactiveFeedExp &&
-      activeScreen !== OnboardingStep.InteractiveFeed &&
-      !hasCompletedEditTags
+      !shouldShowExtensionOnboarding ||
+      activeScreen === OnboardingStep.Extension
     ) {
-      return setActiveScreen(OnboardingStep.InteractiveFeed);
-    }
-
-    if (activeScreen === OnboardingStep.InteractiveFeed) {
-      completeStep(ActionType.EditTag);
       return setActiveScreen(OnboardingStep.PreviewFeed);
     }
 
@@ -385,7 +390,10 @@ export function OnboardPage(): ReactElement {
   ]);
 
   const customActionName = useMemo(() => {
-    if (activeScreen === OnboardingStep.EditTag) {
+    if (
+      activeScreen === OnboardingStep.EditTag ||
+      activeScreen === OnboardingStep.InteractiveFeed
+    ) {
       return 'Continue';
     }
 
@@ -394,10 +402,6 @@ export function OnboardPage(): ReactElement {
     }
     if (layout.hasCta) {
       return 'Not now →';
-    }
-
-    if (activeScreen === OnboardingStep.InteractiveFeed) {
-      return 'Preview your feed ➞';
     }
 
     return undefined;
