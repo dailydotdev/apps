@@ -37,7 +37,7 @@ const InteractiveFeedStep = (): ReactElement => {
   const hasMinimumTags = tagsCount >= REQUIRED_TAGS_THRESHOLD;
 
   return (
-    <div className="flex w-full flex-row gap-6">
+    <div className="flex w-full max-w-[85rem] flex-row gap-6">
       <section className="flex w-1/4 flex-col gap-6">
         <div className="flex flex-col gap-2">
           <Typography
@@ -79,8 +79,8 @@ const InteractiveFeedStep = (): ReactElement => {
         />
       </section>
 
-      <section className="mx-auto flex w-full max-w-[85rem] flex-1 flex-col">
-        <div className="flex flex-col gap-2">
+      <section className="max-w-3/4 mx-auto flex w-full flex-1 flex-col">
+        <div className="flex flex-col gap-2 px-4">
           <Typography
             type={TypographyType.Callout}
             className="text-left"

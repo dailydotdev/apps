@@ -5,10 +5,11 @@ import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import type { Post } from '../graphql/posts';
-import { Origin } from '../lib/log';
+import { LogEvent, Origin } from '../lib/log';
 import { useConditionalFeature, useViewSize, ViewSize } from '../hooks';
 import { featureInteractiveFeed } from '../lib/featureManagement';
 import { useOnboarding } from '../hooks/auth';
+import { useLogContext } from './LogContext';
 
 export const ONBOARDING_PREVIEW_KEY = 'onboarding-preview';
 
@@ -30,6 +31,7 @@ export const InteractiveFeedProvider = ({
 }: PropsWithChildren): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
+  const { logEvent } = useLogContext();
   const { hasCompletedEditTags } = useOnboarding();
   const shouldEvaluate = useMemo(() => {
     return (
@@ -89,6 +91,13 @@ export const InteractiveFeedProvider = ({
       ...posts,
       hidden: [...posts.hidden, postId],
     };
+    logEvent({
+      event_name: LogEvent.HidePost,
+      origin: Origin.Feed,
+      extra: JSON.stringify({
+        feed: 'onboarding',
+      }),
+    });
     setPosts(updatedPosts);
     localStorage.setItem(ONBOARDING_PREVIEW_KEY, JSON.stringify(updatedPosts));
   };
