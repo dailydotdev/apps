@@ -5,9 +5,13 @@ import { SharedFeedPage } from '../utilities';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Typography, TypographyType } from '../typography/Typography';
 import { FeedLayoutProvider } from '../../contexts/FeedContext';
-import { FEED_QUERY } from '../../graphql/feed';
+import { FEED_QUERY, RankingAlgorithm } from '../../graphql/feed';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ONBOARDING_PREVIEW_KEY } from '../../contexts/InteractiveFeedContext';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { generateQueryKey } from '../../lib/query';
+import { isDevelopment } from '../../lib/constants';
 
 // Interface for confetti pieces
 interface ConfettiPiece {
@@ -34,6 +38,7 @@ const FeedPreviewStep = ({
 }): ReactElement => {
   const { user } = useAuthContext();
   const [showConfetti, setShowConfetti] = useState(false);
+  const feedVersion = useFeature(feature.feedVersion);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiPiecesRef = useRef<ConfettiPiece[]>([]);
   const animationFrameRef = useRef<number | null>(null);
@@ -311,7 +316,12 @@ const FeedPreviewStep = ({
       <FeedLayoutProvider>
         <Feed
           feedName={SharedFeedPage.MyFeed}
-          feedQueryKey={[SharedFeedPage.MyFeed, user?.id, 1, 'POPULARITY']}
+          feedQueryKey={generateQueryKey(
+            SharedFeedPage.MyFeed,
+            user,
+            isDevelopment ? 1 : feedVersion,
+            RankingAlgorithm.Popularity,
+          )}
           query={FEED_QUERY}
           showSearch={false}
           options={{ refetchOnMount: true }}

@@ -9,6 +9,7 @@ import { LogEvent, Origin } from '../lib/log';
 import { useConditionalFeature, useViewSize, ViewSize } from '../hooks';
 import { featureInteractiveFeed } from '../lib/featureManagement';
 import { useLogContext } from './LogContext';
+import { useAuthContext } from './AuthContext';
 
 export const ONBOARDING_PREVIEW_KEY = 'onboarding-preview';
 
@@ -28,12 +29,13 @@ export const useInteractiveFeedContext = (): InteractiveFeedContextProps =>
 export const InteractiveFeedProvider = ({
   children,
 }: PropsWithChildren): ReactElement => {
+  const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
   const { logEvent } = useLogContext();
   const shouldEvaluate = useMemo(() => {
-    return isLaptop && router.pathname.includes('/onboarding');
-  }, [isLaptop, router.pathname]);
+    return isLaptop && router.pathname.includes('/onboarding') && !!user?.id;
+  }, [isLaptop, router.pathname, user]);
   const { value: interactiveFeedExp } = useConditionalFeature({
     feature: featureInteractiveFeed,
     shouldEvaluate,
