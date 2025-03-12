@@ -1,5 +1,18 @@
 import { gql } from 'graphql-request';
 
+export const PRODUCT_FRAGMENT = gql`
+  fragment ProductFragment on Product {
+    id
+    type
+    name
+    image
+    value
+    flags {
+      description
+    }
+  }
+`;
+
 export const CURRENT_MEMBER_FRAGMENT = gql`
   fragment CurrentMember on SourceMember {
     user {
@@ -310,11 +323,18 @@ export const COMMENT_FRAGMENT = gql`
     lastUpdatedAt
     permalink
     numUpvotes
+    numAwards
     author {
       ...UserAuthor
     }
     userState {
       vote
+      awarded
+    }
+    fromAward
+    award {
+      name
+      image
     }
   }
   ${USER_AUTHOR_FRAGMENT}
