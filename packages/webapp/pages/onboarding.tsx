@@ -339,11 +339,15 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulRegistration = () => {
-    setActiveScreen(OnboardingStep.EditTag);
-  };
-
   const authOptionProps: AuthOptionsProps = useMemo(() => {
+    const onSuccessfulRegistration = () => {
+      if (interactiveFeedExp) {
+        setActiveScreen(OnboardingStep.InteractiveFeed);
+      } else {
+        setActiveScreen(OnboardingStep.EditTag);
+      }
+    };
+
     return {
       simplified: true,
       className: {
@@ -377,6 +381,7 @@ export function OnboardPage(): ReactElement {
     isMobile,
     targetId,
     loginState,
+    interactiveFeedExp,
   ]);
 
   const customActionName = useMemo(() => {
