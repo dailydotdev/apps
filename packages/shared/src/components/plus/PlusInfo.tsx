@@ -9,11 +9,11 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 import type {
   OpenCheckoutFn,
   ProductOption,
-} from '../../contexts/PaymentContext';
+} from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -41,6 +41,8 @@ type PlusInfoProps = {
   title?: string;
   description?: string;
   subtitle?: string;
+  continueEnabled?: boolean;
+  isContinueLoading?: boolean;
 };
 
 enum PlusType {
@@ -110,6 +112,8 @@ export const PlusInfo = ({
   title,
   description,
   subtitle,
+  continueEnabled = true,
+  isContinueLoading = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftOneYear } = usePaymentContext();
@@ -243,6 +247,8 @@ export const PlusInfo = ({
             variant={ButtonVariant.Primary}
             className="w-full"
             onClick={onContinue}
+            disabled={!continueEnabled}
+            loading={isContinueLoading}
           >
             Continue »
           </Button>
