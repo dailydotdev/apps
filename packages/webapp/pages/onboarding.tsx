@@ -315,8 +315,9 @@ export function OnboardPage(): ReactElement {
     }
 
     if (
-      !shouldShowExtensionOnboarding ||
-      activeScreen === OnboardingStep.Extension
+      interactiveFeedExp &&
+      (!shouldShowExtensionOnboarding ||
+        activeScreen === OnboardingStep.Extension)
     ) {
       return setActiveScreen(OnboardingStep.PreviewFeed);
     }
