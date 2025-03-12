@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactElement, Dispatch } from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -40,7 +40,6 @@ import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
-import { OnboardingStep } from '../onboarding/common';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -146,7 +145,6 @@ export interface AuthOptionsProps {
   targetId?: string;
   ignoreMessages?: boolean;
   onboardingSignupButton?: ButtonProps<'button'>;
-  setOnboardingStep?: Dispatch<OnboardingStep>;
 }
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
@@ -168,7 +166,6 @@ function AuthOptions({
   initialEmail = '',
   ignoreMessages = false,
   onboardingSignupButton,
-  setOnboardingStep,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -497,13 +494,17 @@ function AuthOptions({
                 ? () => onSetActiveDisplay(defaultDisplay)
                 : undefined
             }
-            onExistingEmailLoginClick={() => {
-              setOnboardingStep?.(OnboardingStep.Intro);
+            onBackToIntro={() => {
               onAuthStateUpdate({
-                isAuthenticating: true,
-                isLoginFlow: true,
-                defaultDisplay: AuthDisplay.Default,
+                isAuthenticating: undefined,
+                defaultDisplay: AuthDisplay.OnboardingSignup,
               });
+            }}
+            onExistingEmailLoginClick={() => {
+              onAuthStateUpdate({
+                isLoginFlow: true,
+              });
+              setActiveDisplay(AuthDisplay.Default);
             }}
             onSignup={(params) => {
               onRegister(params);
@@ -519,7 +520,10 @@ function AuthOptions({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <RegistrationFormComponent
             onContinueWithEmail={() => {
-              setOnboardingStep(OnboardingStep.Signup);
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                defaultDisplay: AuthDisplay.Registration,
+              });
             }}
             onSignup={(signupEmail) => {
               onAuthStateUpdate({

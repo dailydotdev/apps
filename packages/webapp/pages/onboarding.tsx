@@ -43,6 +43,7 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
   featureOnboardingPlusCheckout,
+  featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
@@ -95,12 +96,6 @@ const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
   ).then((mod) => mod.OnboardingPWA),
-);
-
-const OnboardingSignup = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingSignup" */ '@dailydotdev/shared/src/components/onboarding/OnboardingSignup'
-  ).then((mod) => mod.OnboardingSignup),
 );
 
 const OnboardingExtension = dynamic(() =>
@@ -182,11 +177,20 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
   const isIntro = activeScreen === OnboardingStep.Intro;
-  const isIntroOrSignup = isIntro || activeScreen === OnboardingStep.Signup;
+
+  const isExperimental = {
+    reorder: {
+      registration:
+        isReorderExperiment && defaultDisplay === AuthDisplay.Registration,
+    },
+  };
 
   const showOnboardingPage = !isAuthenticating && !shouldVerify && isIntro;
+  const showBackground =
+    showOnboardingPage || isExperimental.reorder.registration;
   const showGenerigLoader =
     isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
 
@@ -220,7 +224,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    if (activeScreen === OnboardingStep.Intro) {
+    if (isIntro) {
       const params = new URLSearchParams(window.location.search);
       const afterAuth = params.get(AFTER_AUTH_PARAM);
       params.delete(AFTER_AUTH_PARAM);
@@ -230,12 +234,12 @@ export function OnboardPage(): ReactElement {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    isIntro,
     isPageReady,
     user,
     isOnboardingReady,
     hasCompletedEditTags,
     hasCompletedContentTypes,
-    activeScreen,
   ]);
 
   const onClickNext: OnboardingOnClickNext = () => {
@@ -321,8 +325,7 @@ export function OnboardPage(): ReactElement {
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
-          isAuthenticating && 'h-full',
-          !isAuthenticating && 'max-w-full',
+          isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
@@ -340,7 +343,6 @@ export function OnboardPage(): ReactElement {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
       },
-      setOnboardingStep: setActiveScreen,
     };
   }, [
     defaultDisplay,
@@ -379,12 +381,12 @@ export function OnboardPage(): ReactElement {
           layout.hasCta && 'fixed',
         )}
       >
-        {isIntroOrSignup && (
+        {showBackground && (
           <img
             alt="Onboarding background"
             className={classNames(
               'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
-              activeScreen === OnboardingStep.Signup && 'opacity-[.24] ',
+              isExperimental.reorder.registration && 'opacity-[.24] ',
             )}
             fetchPriority="high"
             loading="eager"
@@ -407,8 +409,9 @@ export function OnboardPage(): ReactElement {
         <div
           className={classNames(
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-            isIntroOrSignup && wrapperMaxWidth,
-            !isAuthenticating && 'mt-7.5 flex-1 content-center',
+            (isIntro || isExperimental.reorder.registration) && wrapperMaxWidth,
+            (!isAuthenticating || isExperimental.reorder.registration) &&
+              'mt-7.5 flex-1 content-center',
             [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
         >
@@ -421,11 +424,16 @@ export function OnboardPage(): ReactElement {
                 }}
               />
               <AuthOptions {...authOptionProps} />
-              <SignupDisclaimer className="mb-4" />
+              {!isReorderExperiment && <SignupDisclaimer className="mb-4" />}
             </div>
           )}
           {isAuthenticating && isIntro ? (
-            <AuthOptions {...authOptionProps} />
+            <>
+              <AuthOptions {...authOptionProps} />
+              {isExperimental.reorder.registration && (
+                <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+              )}
+            </>
           ) : (
             <div
               className={classNames(

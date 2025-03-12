@@ -292,7 +292,7 @@ export const OnboardingRegistrationForm = ({
 };
 
 export const TermAndPrivacy = (): ReactElement => (
-  <Typography color={TypographyColor.Tertiary} type={TypographyType.Footnote}>
+  <Typography color={TypographyColor.Secondary} type={TypographyType.Footnote}>
     By continuing, you agree to the{' '}
     <Typography
       className="underline hover:no-underline"

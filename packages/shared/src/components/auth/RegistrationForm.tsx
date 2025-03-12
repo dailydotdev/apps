@@ -11,10 +11,17 @@ import type {
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, VIcon, AtIcon, TwitterIcon } from '../icons';
+import {
+  MailIcon,
+  UserIcon,
+  VIcon,
+  AtIcon,
+  TwitterIcon,
+  ArrowIcon,
+} from '../icons';
 import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
@@ -32,6 +39,12 @@ import { isDevelopment } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { useCheckExistingEmail } from './OnboardingRegistrationForm';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
+import { onboardingGradientClasses } from '../onboarding/common';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -43,6 +56,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   token: string;
   trigger: AuthTriggersType;
   onExistingEmailLoginClick?: () => void;
+  onBackToIntro?: () => void;
 }
 
 export type RegistrationFormValues = Omit<
@@ -56,6 +70,7 @@ const RegistrationForm = ({
   email,
   formRef,
   onBack,
+  onBackToIntro,
   onExistingEmailLoginClick,
   onSignup,
   token,
@@ -218,13 +233,30 @@ const RegistrationForm = ({
 
   return (
     <>
-      {!isOnboardingExperiment && (
+      {!isOnboardingExperiment ? (
         <AuthHeader
           id={headingId}
           simplified={simplified}
           title="Sign up"
           onBack={onBack}
         />
+      ) : (
+        <div className="flex gap-4">
+          <Button
+            className="border-border-subtlest-tertiary text-text-secondary"
+            icon={<ArrowIcon className="-rotate-90" />}
+            onClick={onBackToIntro}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Secondary}
+          />
+          <Typography
+            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+            tag={TypographyTag.H2}
+            type={TypographyType.Title1}
+          >
+            Join daily.dev
+          </Typography>
+        </div>
       )}
       <AuthForm
         aria-labelledby={!isOnboardingExperiment && headingId}
@@ -287,7 +319,6 @@ const RegistrationForm = ({
             inputId="password"
             label="Create a password"
             autoComplete="new-password"
-            value="ciaociao"
           />
         )}
         <TextField
