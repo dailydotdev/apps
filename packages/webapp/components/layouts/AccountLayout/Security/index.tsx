@@ -228,8 +228,7 @@ function AccountSecurityDefault({
       <AccountLoginSection
         buttonVariant={ButtonVariant.Primary}
         title="Add login account"
-        description="Add more accounts to ensure you never lose access to your daily.dev
-        profile and to make login quick and easy cross device"
+        description="Add more accounts to ensure you never lose access to your daily.dev profile and to make logging in quick and easy across devices"
         providerActionType="link"
         providerAction={manageSocialProviders}
         providers={providers.filter(
