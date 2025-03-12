@@ -8,6 +8,7 @@ import { FeedLayoutProvider } from '../../contexts/FeedContext';
 import { FEED_QUERY } from '../../graphql/feed';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ONBOARDING_PREVIEW_KEY } from '../../contexts/InteractiveFeedContext';
+import { generateQueryKey } from '../../lib/query';
 
 // Interface for confetti pieces
 interface ConfettiPiece {
@@ -311,7 +312,7 @@ const FeedPreviewStep = ({
       <FeedLayoutProvider>
         <Feed
           feedName={SharedFeedPage.MyFeed}
-          feedQueryKey={[SharedFeedPage.MyFeed, user?.id]}
+          feedQueryKey={generateQueryKey(SharedFeedPage.MyFeed, user)}
           query={FEED_QUERY}
           showSearch={false}
           options={{ refetchOnMount: true }}
