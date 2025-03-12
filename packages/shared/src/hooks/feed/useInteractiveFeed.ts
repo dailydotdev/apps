@@ -14,7 +14,7 @@ type UseInteractiveFeed = {
   showRelevancyTag: boolean;
 };
 
-const useInteractiveFeed = ({ post }: { post: Post }): UseInteractiveFeed => {
+const useInteractiveFeed = ({ post }: { post?: Post }): UseInteractiveFeed => {
   const { interactiveFeedExp, hiddenPosts, approvedPosts } =
     useInteractiveFeedContext();
   const isFeedPreview = useFeedPreviewMode();
@@ -24,12 +24,12 @@ const useInteractiveFeed = ({ post }: { post: Post }): UseInteractiveFeed => {
   const isInteractive = isOnboarding && isFeedPreview && interactiveFeedExp;
 
   const postIrrelevant = useMemo(() => {
-    return hiddenPosts.includes(post.id);
-  }, [hiddenPosts, post.id]);
+    return hiddenPosts.includes(post?.id);
+  }, [hiddenPosts, post?.id]);
 
   const postRelevant = useMemo(() => {
-    return isInteractive && approvedPosts.includes(post.id);
-  }, [isInteractive, approvedPosts, post.id]);
+    return isInteractive && approvedPosts.includes(post?.id);
+  }, [isInteractive, approvedPosts, post?.id]);
 
   const showInteractiveFeedOverlay = useMemo(() => {
     return isInteractive && postIrrelevant && !hasClosed;

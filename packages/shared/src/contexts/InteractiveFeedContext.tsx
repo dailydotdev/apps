@@ -30,20 +30,14 @@ export const InteractiveFeedProvider = ({
 }: PropsWithChildren): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
-  const { hasCompletedEditTags, hasCompletedContentTypes } = useOnboarding();
+  const { hasCompletedEditTags } = useOnboarding();
   const shouldEvaluate = useMemo(() => {
     return (
       isLaptop &&
       router.pathname.includes('/onboarding') &&
-      hasCompletedContentTypes &&
       !hasCompletedEditTags
     );
-  }, [
-    isLaptop,
-    router.pathname,
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-  ]);
+  }, [isLaptop, router.pathname, hasCompletedEditTags]);
   const { value: interactiveFeedExp } = useConditionalFeature({
     feature: featureInteractiveFeed,
     shouldEvaluate,
