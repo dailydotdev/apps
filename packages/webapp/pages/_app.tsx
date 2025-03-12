@@ -96,6 +96,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   ]);
 
   useEffect(() => {
+    converse?.initialize({
+      // Please use this connection manager only for testing purposes
+      bosh_service_url: 'https://chat.daily.dev/bosh/',
+      websocket_url: 'wss://chat.daily.dev/ws/',
+      show_controlbox_by_default: true,
+      view_mode: 'fullscreen',
+    });
+  });
+
+  useEffect(() => {
     if (
       user &&
       !didRegisterSwRef.current &&
@@ -192,7 +202,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     });`,
           }}
         />
-
+        <link
+          rel="stylesheet"
+          type="text/css"
+          media="screen"
+          href="https://cdn.conversejs.org/10.1.8/dist/converse.min.css"
+        />
+        <script
+          src="https://cdn.conversejs.org/10.1.8/dist/converse.min.js"
+          charset="utf-8"
+        />
         <link rel="preconnect" href="https://api.daily.dev" />
         <link rel="preconnect" href="https://sso.daily.dev" />
         <link rel="preconnect" href="https://media.daily.dev" />

@@ -97,6 +97,9 @@ importers:
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
+      converse.js:
+        specifier: ^7.0.5
+        version: 7.0.6
       date-fns:
         specifier: ^2.25.0
         version: 2.30.0
@@ -4149,6 +4152,9 @@ packages:
 
   confusing-browser-globals@1.0.11:
     resolution: {integrity: sha512-JsPKdmh8ZkmnHxDk55FZ1TqVLvEQTvoByJZRN9jzI0UjxK/QgAmsphz7PGtqgPieQZ/CQcHWXCR7ATDNhGe+YA==}
+
+  converse.js@7.0.6:
+    resolution: {integrity: sha512-fcuj6H44F4RTg+WTpX6gsuSfARxL/lXlISeHBJfYfevOD+mFHOgN0tfI7PvoC25DmKCiZRXhm1iIdpfoiKvM3A==}
 
   convert-source-map@1.9.0:
     resolution: {integrity: sha512-ASFBup0Mz1uyiIjANan1jzLQami9z1PoYSZCiiYW2FczPbenXc45FZdBZLzOT+r6+iciuEModtmCti+hjaAk0A==}
@@ -12288,6 +12294,8 @@ snapshots:
 
   confusing-browser-globals@1.0.11: {}
 
+  converse.js@7.0.6: {}
+
   convert-source-map@1.9.0: {}
 
   convert-source-map@2.0.0: {}
@@ -14321,11 +14329,7 @@ snapshots:
       pretty-format: 26.6.2
       throat: 5.0.0
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   jest-junit@12.3.0:
     dependencies:
