@@ -18,7 +18,7 @@ import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import LogContext from '../../src/contexts/LogContext';
 import type { LogContextData } from '../../src/hooks/log/useLogContextData';
-import { PaymentContextProvider } from '../../src/contexts/PaymentContext';
+import { PaymentContextProvider } from '../../src/contexts/payment';
 
 interface TestBootProviderProps {
   children: ReactNode;

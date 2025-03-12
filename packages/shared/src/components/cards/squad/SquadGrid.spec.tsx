@@ -26,7 +26,7 @@ import {
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
-import { PaymentContextProvider } from '../../../contexts/PaymentContext';
+import { PaymentContextProvider } from '../../../contexts/payment';
 
 const routerReplace = jest.fn();
 const squads = [generateTestSquad()];
