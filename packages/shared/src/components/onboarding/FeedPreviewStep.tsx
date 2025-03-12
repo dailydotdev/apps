@@ -287,6 +287,8 @@ const FeedPreviewStep = ({
     setTimeout(completeOnboarding, 1500);
   };
 
+  const version = isDevelopment ? 1 : feedVersion;
+
   return (
     <div className="mx-auto flex w-full flex-col gap-6">
       <div className="flex flex-col items-center gap-4">
@@ -319,10 +321,16 @@ const FeedPreviewStep = ({
           feedQueryKey={generateQueryKey(
             SharedFeedPage.MyFeed,
             user,
-            isDevelopment ? 1 : feedVersion,
+            version,
             RankingAlgorithm.Popularity,
           )}
           query={FEED_QUERY}
+          variables={{
+            RankingAlgorithm: RankingAlgorithm.Popularity,
+            feedVersion: version,
+            first: 25,
+            loggedIn: true,
+          }}
           showSearch={false}
           options={{ refetchOnMount: true }}
           disableAds
