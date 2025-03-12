@@ -327,7 +327,7 @@ const FeedPreviewStep = ({
           query={FEED_QUERY}
           variables={{
             ranking: RankingAlgorithm.Popularity,
-            feedVersion: version,
+            version,
             first: 25,
             loggedIn: true,
           }}
