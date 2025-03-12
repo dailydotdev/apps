@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -24,18 +23,9 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { OtherFeedPage } from '../../lib/query';
-import { ChecklistViewState } from '../../lib/checklist';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
-
-const OnboardingChecklistBar = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
-    ),
-);
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -62,9 +52,8 @@ function FeedNav(): ReactElement {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
-  const { sortingEnabled, onboardingChecklistView } = useSettingsContext();
+  const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -78,9 +67,6 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const isHiddenOnboardingChecklistView =
-    onboardingChecklistView === ChecklistViewState.Hidden;
-
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
@@ -153,11 +139,6 @@ function FeedNav(): ReactElement {
     return null;
   }
 
-  const checklistBarElement =
-    isLoggedIn && !isHiddenOnboardingChecklistView ? (
-      <OnboardingChecklistBar />
-    ) : null;
-
   return (
     <div
       className={classNames(
@@ -168,13 +149,7 @@ function FeedNav(): ReactElement {
           : '-translate-y-26 duration-[800ms]',
       )}
     >
-      {!isMobile && checklistBarElement}
-      {isMobile && (
-        <>
-          <MobileFeedActions />
-          {checklistBarElement}
-        </>
-      )}
+      {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:mb-0">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}
