@@ -423,7 +423,7 @@ const RegistrationForm = ({
             options={{
               theme: 'dark',
             }}
-            className="mx-auto min-h-[71px]"
+            className="mx-auto min-h-[4.5rem]"
           />
           {turnstileError ? (
             <Alert
