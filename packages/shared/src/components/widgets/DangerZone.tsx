@@ -17,6 +17,7 @@ interface DangerZoneProps {
   cta: string;
   onClick: () => void;
   className?: string;
+  buttonDisabled?: boolean;
 }
 
 export function DangerZone({
@@ -27,6 +28,7 @@ export function DangerZone({
   className,
   onClick,
   children,
+  buttonDisabled = false,
 }: DangerZoneProps): ReactElement {
   return (
     <section
@@ -56,6 +58,7 @@ export function DangerZone({
         color={ButtonColor.Ketchup}
         className="mt-6 self-start"
         type="button"
+        disabled={buttonDisabled}
       >
         {cta}
       </Button>

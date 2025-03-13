@@ -2,6 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { DangerZone } from '../widgets/DangerZone';
 import { anchorDefaultRel } from '../../lib/strings';
+import { usePlusSubscription } from '../../hooks';
+import { SubscriptionProvider, UserSubscriptionStatus } from '../../lib/plus';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;
@@ -29,6 +31,13 @@ function AccountDangerZone({
   onDelete,
   className,
 }: AccountDangerZoneProps): ReactElement {
+  const { isPlus, status, plusProvider } = usePlusSubscription();
+
+  const disableDeletion =
+    isPlus &&
+    status === UserSubscriptionStatus.Active &&
+    plusProvider === SubscriptionProvider.AppleStoreKit;
+
   return (
     <DangerZone
       onClick={onDelete}
@@ -41,6 +50,7 @@ function AccountDangerZone({
         'Allow your username to become available to anyone.',
       ]}
       important={<Important />}
+      buttonDisabled={disableDeletion}
     />
   );
 }
