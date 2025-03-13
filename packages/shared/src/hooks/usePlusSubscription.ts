@@ -16,16 +16,15 @@ type LogSubscriptionEvent = {
 
 export const usePlusSubscription = (): {
   isPlus: boolean;
-  plusProvider: SubscriptionProvider | null;
+  plusProvider?: SubscriptionProvider;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
   plusHref: string | undefined;
-  status: UserSubscriptionStatus;
+  status?: UserSubscriptionStatus;
 } => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isPlus = user?.isPlus || false;
-  const plusProvider = user?.subscriptionFlags?.provider || null;
-  const { status } = user.subscriptionFlags;
+  const { status, provider: plusProvider } = user?.subscriptionFlags || {};
 
   const logSubscriptionEvent = useCallback(
     ({ event_name, target_id, extra }: LogSubscriptionEvent) => {
