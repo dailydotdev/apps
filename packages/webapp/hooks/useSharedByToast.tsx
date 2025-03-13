@@ -19,6 +19,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
   TypographyTag,
+  TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
 const useSharedByToast = (): void => {
@@ -63,10 +64,19 @@ const useSharedByToast = (): void => {
           >
             <ProfilePicture user={user} size={ProfileImageSize.Medium} />
             <span>
-              <Typography tag={TypographyTag.Span} bold>
+              <Typography
+                type={TypographyType.Subhead}
+                tag={TypographyTag.Span}
+                bold
+              >
                 {user.name}
               </Typography>{' '}
-              <Typography tag={TypographyTag.Span}>shared this post</Typography>
+              <Typography
+                type={TypographyType.Subhead}
+                tag={TypographyTag.Span}
+              >
+                shared this post
+              </Typography>
             </span>
           </Link>
           {showFollow && (
