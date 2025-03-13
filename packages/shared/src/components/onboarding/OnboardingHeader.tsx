@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React, { useId } from 'react';
-import { useViewSize, ViewSize, useConditionalFeature } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import {
   cloudinaryFeedBgLaptop,
   cloudinaryFeedBgMobile,
@@ -19,8 +19,8 @@ import { IconSize } from '../Icon';
 import { TypographyType } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
 import { usePaymentContext } from '../../contexts/payment/context';
+import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -40,11 +40,7 @@ export const OnboardingHeader = ({
   showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
   const { isFreeTrialExperiment } = usePaymentContext();
-  const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { value: isReorderExperiment } = useConditionalFeature({
-    feature: featureOnboardingReorder,
-    shouldEvaluate: isAuthReady && !isLoggedIn,
-  });
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
