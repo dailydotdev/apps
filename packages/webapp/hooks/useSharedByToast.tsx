@@ -38,7 +38,13 @@ const useSharedByToast = (): void => {
   const isDataReady = isAuthReady || (currentUser && !isPending);
 
   useEffect(() => {
-    if (!user || isSameUser || !isDataReady || hasShownToast.current) {
+    if (
+      !user ||
+      isSameUser ||
+      !isDataReady ||
+      hasShownToast.current ||
+      contentPreference?.status === ContentPreferenceStatus.Blocked
+    ) {
       return undefined;
     }
 
