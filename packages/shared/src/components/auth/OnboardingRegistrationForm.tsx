@@ -269,7 +269,7 @@ export const OnboardingRegistrationFormExperiment = ({
           className="mb-8"
           onClick={onContinueWithEmail}
           size={ButtonSize.Large}
-          variant={ButtonVariant.Secondary}
+          variant={ButtonVariant.Float}
         >
           Continue with email
         </Button>
