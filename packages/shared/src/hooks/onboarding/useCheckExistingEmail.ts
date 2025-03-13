@@ -31,7 +31,7 @@ export const useCheckExistingEmail = ({
   trigger,
 }: UseCheckExistingEmailProps): UseCheckExistingEmail => {
   const [shouldLogin, setShouldLogin] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState<string>(null);
+  const [registerEmail, setRegisterEmail] = useState<string>('');
   const { logEvent } = useLogContext();
   const { mutateAsync: checkEmail, isPending: isCheckPending } = useMutation({
     mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
