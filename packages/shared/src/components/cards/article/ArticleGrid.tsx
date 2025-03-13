@@ -156,7 +156,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             showFeedback={showFeedback}
           />
           <CardTitle
-            className={interactiveFeedExp ? 'typo-callout' : ''}
+            className={
+              interactiveFeedExp && isFeedPreview ? 'typo-callout' : ''
+            }
             lineClamp={showFeedback ? 'line-clamp-2' : undefined}
           >
             {title}
@@ -169,7 +171,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
             </div>
-            {!interactiveFeedExp && (
+            {!(interactiveFeedExp && isFeedPreview) && (
               <PostMetadata
                 createdAt={post.createdAt}
                 readTime={post.readTime}
@@ -188,7 +190,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             className={{
               image: classNames(
                 showFeedback && 'mb-0',
-                smallCard && ' !my-0 h-26',
+                smallCard && ' !my-0 !h-26',
               ),
             }}
             eagerLoadImage={eagerLoadImage}
