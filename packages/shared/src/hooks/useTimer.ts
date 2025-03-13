@@ -27,6 +27,8 @@ export default function useTimer<T = unknown>(
     }
   }, 1000);
 
+  // if the initial timer is greater than 0, then we start it on load.
+  // we utilized a `ref` to ensure this will only be triggered once
   useEffect(() => {
     if (initRef.current) {
       return;
