@@ -175,10 +175,14 @@ export async function logout(reason: string): Promise<void> {
 }
 
 export async function deleteAccount(): Promise<void> {
-  await fetch(`${apiUrl}/v1/users/me`, {
+  const res = await fetch(`${apiUrl}/v1/users/me`, {
     method: 'DELETE',
     credentials: 'include',
   });
+
+  if (!res.ok) {
+    throw new Error('Failed to delete account');
+  }
 }
 
 const getProfileRequest = async (id: string) => {
