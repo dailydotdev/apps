@@ -39,14 +39,14 @@ const useSharedByToast = (): void => {
 
   useEffect(() => {
     if (!user || isSameUser || !isDataReady || hasShownToast.current) {
-      return;
+      return undefined;
     }
 
     const showFollow =
       !!currentUser &&
       contentPreference?.status !== ContentPreferenceStatus.Follow;
 
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       hasShownToast.current = true;
       displayToast(
         <div className="flex items-center gap-4 ">
@@ -82,6 +82,8 @@ const useSharedByToast = (): void => {
       );
       // Set a small timeout to ensure its shown after the page is loaded and won't be cleared by updates.
     }, 1000);
+
+    return () => clearTimeout(timeout);
   }, [
     user,
     contentPreference?.status,
