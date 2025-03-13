@@ -49,6 +49,7 @@ import {
   useActions,
   useViewSize,
   ViewSize,
+  useConditionalFeature,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -177,8 +178,11 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
+  const isReorderExperiment = useConditionalFeature({
+    feature: featureOnboardingReorder,
+    shouldEvaluate: isOnboardingReady && !user,
+  });
   const isIntro = activeScreen === OnboardingStep.Intro;
 
   const isExperimental = {
