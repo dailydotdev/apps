@@ -263,7 +263,7 @@ export const OnboardingRegistrationFormExperiment = ({
             login: '!text-inherit',
           }}
         />
-        <SignupDisclaimer className="!typo-footnote" />
+        <SignupDisclaimer className="!text-text-tertiary !typo-footnote" />
         <Button
           aria-label="Signup using email"
           className="mb-8"

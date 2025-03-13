@@ -10,6 +10,7 @@ interface ClassName {
 
 interface MemberAlreadyProps {
   className?: ClassName;
+
   onLogin(): void;
 }
 
@@ -19,7 +20,7 @@ export function MemberAlready({
 }: MemberAlreadyProps): ReactElement {
   return (
     <span className={classNames('flex items-center', className?.container)}>
-      Already using daily.dev?
+      Already have an account?
       <ClickableText
         className={classNames('ml-1', className?.login)}
         onClick={onLogin}
