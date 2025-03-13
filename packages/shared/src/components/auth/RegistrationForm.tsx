@@ -28,7 +28,7 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { useGenerateUsername } from '../../hooks';
+import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -38,7 +38,6 @@ import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
-import { useCheckExistingEmail } from './OnboardingRegistrationForm';
 import {
   Typography,
   TypographyTag,

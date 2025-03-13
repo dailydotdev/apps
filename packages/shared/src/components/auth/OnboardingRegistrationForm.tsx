@@ -1,10 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
-import { checkKratosEmail } from '../../lib/kratos';
 import type { AuthFormProps } from './common';
-import { getFormEmail, providerMap } from './common';
+import { providerMap } from './common';
 import OrDivider from './OrDivider';
 import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
@@ -25,6 +23,7 @@ import {
 } from '../typography/Typography';
 import { cookiePolicy, termsOfService } from '../../lib/constants';
 import { ClickableText } from '../buttons/ClickableText';
+import { useCheckExistingEmail } from '../../hooks';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -104,82 +103,6 @@ const getSignupProviders = () => {
     return [providerMap.github];
   }
   return [providerMap.google, providerMap.github];
-};
-
-export interface UseCheckExistingEmail {
-  email: {
-    value: string;
-    alreadyExists: boolean;
-    isCheckPending: boolean;
-  };
-  onEmailSignup: (e: React.FormEvent) => Promise<{
-    emailExists: boolean;
-    emailValue: string;
-  } | null>;
-}
-
-export const useCheckExistingEmail = ({
-  onSignup,
-  targetId,
-  trigger,
-}: Pick<
-  OnboardingRegistrationFormProps,
-  'onSignup' | 'trigger' | 'targetId'
->): UseCheckExistingEmail => {
-  const [shouldLogin, setShouldLogin] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState<string>(null);
-  const { logEvent } = useLogContext();
-  const { mutateAsync: checkEmail, isPending: isCheckPending } = useMutation({
-    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
-    onSuccess: (res, emailValue) => {
-      const emailExists = !!res?.result;
-
-      setShouldLogin(emailExists);
-      logEvent({
-        event_name: emailExists
-          ? AuthEventNames.OpenLogin
-          : AuthEventNames.OpenSignup,
-        extra: JSON.stringify({ trigger }),
-        target_id: targetId,
-      });
-
-      if (emailExists) {
-        setRegisterEmail(emailValue);
-        return null;
-      }
-
-      return onSignup(emailValue);
-    },
-  });
-
-  const onEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const emailValue = getFormEmail(e);
-    if (isCheckPending || !emailValue) {
-      return null;
-    }
-
-    logEvent({
-      event_name: 'click',
-      target_type: AuthEventNames.SignUpProvider,
-      target_id: 'email',
-      extra: JSON.stringify({ trigger }),
-    });
-
-    const res = await checkEmail(emailValue);
-    const emailExists = !!res?.result;
-    return { emailExists, emailValue };
-  };
-
-  return {
-    email: {
-      alreadyExists: shouldLogin,
-      isCheckPending,
-      value: registerEmail,
-    },
-    onEmailSignup,
-  };
 };
 
 export const OnboardingRegistrationForm = ({
