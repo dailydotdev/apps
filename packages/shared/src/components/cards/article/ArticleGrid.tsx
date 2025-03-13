@@ -1,7 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useState } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
@@ -28,14 +27,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import useInteractiveFeed from '../../../hooks/feed/useInteractiveFeed';
 import RelevancyTag from '../../tags/RelevancyTag';
-
-const InteractiveFeedTagOverlay = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "interactiveFeedOverlay" */ '../../post/tags/InteractiveFeedTagOverlay'
-    ),
-  { ssr: false },
-);
+import InteractiveFeedTagOverlay from '../../post/tags/InteractiveFeedTagOverlay';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {

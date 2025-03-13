@@ -284,7 +284,7 @@ const FeedPreviewStep = ({
     setShowConfetti(true);
 
     // Give time for the confetti animation to play
-    setTimeout(completeOnboarding, 1500);
+    setTimeout(completeOnboarding, 1000);
   };
 
   const version = isDevelopment ? 1 : feedVersion;
