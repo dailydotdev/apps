@@ -15,15 +15,10 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { isIOSNative } from '../../lib/func';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
-import { cookiePolicy, termsOfService } from '../../lib/constants';
-import { ClickableText } from '../buttons/ClickableText';
+
 import { useCheckExistingEmail } from '../../hooks';
+import { MemberAlready } from '../onboarding/MemberAlready';
+import SignupDisclaimer from './SignupDisclaimer';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -214,53 +209,6 @@ export const OnboardingRegistrationForm = ({
   );
 };
 
-export const TermAndPrivacy = (): ReactElement => (
-  <Typography color={TypographyColor.Secondary} type={TypographyType.Footnote}>
-    By continuing, you agree to the{' '}
-    <Typography
-      className="underline hover:no-underline"
-      color={TypographyColor.Tertiary}
-      href={termsOfService}
-      rel="noopener"
-      tag={TypographyTag.Link}
-      target="_blank"
-    >
-      Terms of Service
-    </Typography>{' '}
-    and{' '}
-    <Typography
-      className="underline hover:no-underline"
-      color={TypographyColor.Tertiary}
-      href={cookiePolicy}
-      rel="noopener"
-      tag={TypographyTag.Link}
-      target="_blank"
-    >
-      Privacy Policy
-    </Typography>
-    .
-  </Typography>
-);
-
-const AlreadySignedLogin = ({ onClickLogin }: { onClickLogin: () => void }) => (
-  <Typography
-    className="mt-6"
-    color={TypographyColor.Secondary}
-    type={TypographyType.Callout}
-  >
-    Already have an account?{' '}
-    <ClickableText
-      className="!inline-flex !text-inherit"
-      defaultTypo={false}
-      inverseUnderline
-      onClick={onClickLogin}
-      type="button"
-    >
-      Log in
-    </ClickableText>
-  </Typography>
-);
-
 export const OnboardingRegistrationFormExperiment = ({
   isReady,
   onContinueWithEmail,
@@ -307,8 +255,15 @@ export const OnboardingRegistrationFormExperiment = ({
         label="OR"
       />
       <div className="flex flex-col-reverse text-center">
-        <AlreadySignedLogin onClickLogin={() => onExistingEmail?.('')} />
-        <TermAndPrivacy />
+        <MemberAlready
+          onLogin={() => onExistingEmail?.('')}
+          className={{
+            container:
+              'mx-auto mt-6 text-center text-text-secondary typo-callout',
+            login: '!text-inherit',
+          }}
+        />
+        <SignupDisclaimer className="!typo-footnote" />
         <Button
           aria-label="Signup using email"
           className="mb-8"
