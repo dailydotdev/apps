@@ -179,11 +179,11 @@ export function OnboardPage(): ReactElement {
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
 
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
+  const isIntro = activeScreen === OnboardingStep.Intro;
   const { value: isReorderExperiment } = useConditionalFeature({
     feature: featureOnboardingReorder,
-    shouldEvaluate: isOnboardingReady && !user,
+    shouldEvaluate: isOnboardingReady && !user && isIntro && !shouldVerify,
   });
-  const isIntro = activeScreen === OnboardingStep.Intro;
 
   const isExperimental = {
     reorder: {
