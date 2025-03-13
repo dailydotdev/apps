@@ -1,19 +1,25 @@
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useAuthContext } from '../contexts/AuthContext';
-import { useToastNotification } from './useToastNotification';
-import { useContentPreferenceStatusQuery } from './contentPreference/useContentPreferenceStatusQuery';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useContentPreferenceStatusQuery } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreferenceStatusQuery';
 import {
   ContentPreferenceStatus,
   ContentPreferenceType,
-} from '../graphql/contentPreference';
-import { useUserShortByIdQuery } from './user/useUserShortByIdQuery';
-import { useContentPreference } from './contentPreference/useContentPreference';
-import { ButtonSize } from '../components/buttons/common';
-import { ProfileImageSize, ProfilePicture } from '../components/ProfilePicture';
-import { Button } from '../components/buttons/Button';
-import { Typography, TypographyTag } from '../components/typography/Typography';
+} from '@dailydotdev/shared/src/graphql/contentPreference';
+import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
+import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Typography,
+  TypographyTag,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 
 const useSharedByToast = (): void => {
   const hasShownToast = useRef(false);

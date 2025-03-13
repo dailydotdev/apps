@@ -21,7 +21,6 @@ import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
-import useSharedByToast from '../../../hooks/useSharedByToast';
 import { PostTagList } from '../tags/PostTagList';
 
 const CollectionPostContentRaw = ({
@@ -67,7 +66,6 @@ const CollectionPostContentRaw = ({
     inlineActions,
     onRemovePost,
   };
-  useSharedByToast();
 
   const onSendViewPost = useViewPost();
 

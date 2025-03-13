@@ -25,7 +25,6 @@ import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SmartPrompt } from './smartPrompts/SmartPrompt';
-import useSharedByToast from '../../hooks/useSharedByToast';
 import { PostTagList } from './tags/PostTagList';
 
 export const SCROLL_OFFSET = 80;
@@ -71,7 +70,6 @@ export function PostContentRaw({
     'laptop:flex-row laptop:pb-0',
     className?.container,
   );
-  useSharedByToast();
 
   const navigationProps: PostNavigationProps = {
     postPosition,
