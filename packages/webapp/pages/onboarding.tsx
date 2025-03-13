@@ -183,8 +183,9 @@ export function OnboardPage(): ReactElement {
 
   const isExperimental = {
     reorder: {
-      registration:
-        isReorderExperiment && defaultDisplay === AuthDisplay.Registration,
+      registration: !!(
+        isReorderExperiment && defaultDisplay === AuthDisplay.Registration
+      ),
     },
   };
 
