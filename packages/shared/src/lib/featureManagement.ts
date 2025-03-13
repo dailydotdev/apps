@@ -7,6 +7,7 @@ import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
 import type { ProductMeta } from '../contexts/payment/context';
+import { plusFeatureList } from '../components/plus/PlusList';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -61,6 +62,20 @@ export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
     },
   },
 );
+
+export const plusTakeoverContent = new Feature('plus_takeover_content', {
+  title: 'Fast-track your growth',
+  description:
+    'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+  features: plusFeatureList as Array<{
+    label: string;
+    status: string;
+    tooltip: string;
+  }>,
+  cta: 'Get started',
+  shouldShowRefund: true,
+  shouldShowReviews: true,
+});
 
 export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
