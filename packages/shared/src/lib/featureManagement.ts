@@ -63,15 +63,16 @@ export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
   },
 );
 
+const defaultFeatures = plusFeatureList.map(({ label, status }) => ({
+  label,
+  status,
+}));
+
 export const plusTakeoverContent = new Feature('plus_takeover_content', {
   title: 'Fast-track your growth',
   description:
     'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
-  features: plusFeatureList as Array<{
-    label: string;
-    status: string;
-    tooltip: string;
-  }>,
+  features: defaultFeatures,
   cta: 'Get started',
   shouldShowRefund: true,
   shouldShowReviews: true,
