@@ -27,7 +27,11 @@ import useProfileForm from '../../hooks/useProfileForm';
 import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useToastNotification, useEventListener } from '../../hooks';
+import {
+  useToastNotification,
+  useEventListener,
+  useConditionalFeature,
+} from '../../hooks';
 import { broadcastChannel, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
@@ -37,7 +41,6 @@ import type { ButtonProps } from '../buttons/Button';
 import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
-import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 
@@ -177,8 +180,10 @@ function AuthOptions({
   );
   const { refetchBoot, user } = useAuthContext();
   const router = useRouter();
-  const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isReorderExperiment = useConditionalFeature({
+    feature: featureOnboardingReorder,
+    shouldEvaluate: !!router?.pathname?.startsWith('/onboarding'),
+  });
   const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
@@ -434,10 +439,9 @@ function AuthOptions({
     onPasswordLogin(params);
   };
 
-  const RegistrationFormComponent =
-    isReorderExperiment && isOnboardingPage
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
+  const RegistrationFormComponent = isReorderExperiment
+    ? OnboardingRegistrationFormExperiment
+    : OnboardingRegistrationForm;
 
   return (
     <div

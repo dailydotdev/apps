@@ -28,7 +28,11 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
+import {
+  useGenerateUsername,
+  useCheckExistingEmail,
+  useConditionalFeature,
+} from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -36,7 +40,6 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import {
   Typography,
@@ -86,10 +89,10 @@ const RegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const ref = useRef<TurnstileInstance>(null);
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
-  const isOnboardingExperiment = !!(
-    router.pathname?.startsWith('/onboarding') && isReorderExperiment
-  );
+  const { value: isReorderExperiment } = useConditionalFeature({
+    feature: featureOnboardingReorder,
+    shouldEvaluate: router.pathname?.startsWith('/onboarding'),
+  });
 
   useEffect(() => {
     logEvent({
@@ -124,7 +127,7 @@ const RegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isOnboardingExperiment && (isCheckPending || alreadyExists)) {
+    if (isReorderExperiment && (isCheckPending || alreadyExists)) {
       return;
     }
 
@@ -207,7 +210,7 @@ const RegistrationForm = ({
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
-    if (!isOnboardingExperiment) {
+    if (!isReorderExperiment) {
       onSubmit(e);
       return;
     }
@@ -232,7 +235,7 @@ const RegistrationForm = ({
 
   return (
     <>
-      {!isOnboardingExperiment ? (
+      {!isReorderExperiment ? (
         <AuthHeader
           id={headingId}
           simplified={simplified}
@@ -258,10 +261,10 @@ const RegistrationForm = ({
         </div>
       )}
       <AuthForm
-        aria-labelledby={!isOnboardingExperiment && headingId}
+        aria-labelledby={!isReorderExperiment && headingId}
         className={classNames(
           'w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
-          isOnboardingExperiment ? 'mt-10' : 'mt-6 px-6 tablet:px-[3.75rem]',
+          isReorderExperiment ? 'mt-10' : 'mt-6 px-6 tablet:px-[3.75rem]',
         )}
         data-testid="registration_form"
         id="auth-form"
@@ -270,7 +273,7 @@ const RegistrationForm = ({
       >
         <TokenInput token={token} />
         <TextField
-          autoFocus={!!isOnboardingExperiment}
+          autoFocus={!!isReorderExperiment}
           autoComplete="email"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -280,7 +283,7 @@ const RegistrationForm = ({
           label="Email"
           type="email"
           value={email}
-          readOnly={!isOnboardingExperiment}
+          readOnly={!isReorderExperiment}
           rightIcon={
             <VIcon
               aria-hidden
@@ -289,7 +292,7 @@ const RegistrationForm = ({
             />
           }
         />
-        {isOnboardingExperiment && alreadyExists && (
+        {isReorderExperiment && alreadyExists && (
           <Alert
             className="-mt-4 mb-3 min-w-full"
             type={AlertType.Error}
@@ -307,7 +310,7 @@ const RegistrationForm = ({
             </AlertParagraph>
           </Alert>
         )}
-        {isOnboardingExperiment && (
+        {isReorderExperiment && (
           <PasswordField
             required
             minLength={6}
@@ -321,7 +324,7 @@ const RegistrationForm = ({
           />
         )}
         <TextField
-          autoFocus={!isOnboardingExperiment}
+          autoFocus={!isReorderExperiment}
           autoComplete="name"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -347,7 +350,7 @@ const RegistrationForm = ({
             )
           }
         />
-        {!isOnboardingExperiment && (
+        {!isReorderExperiment && (
           <PasswordField
             required
             minLength={6}
@@ -438,7 +441,7 @@ const RegistrationForm = ({
             type="submit"
             variant={ButtonVariant.Primary}
           >
-            {!isOnboardingExperiment ? 'Sign up' : 'Create account'}
+            {!isReorderExperiment ? 'Sign up' : 'Create account'}
           </Button>
         </ConditionalWrapper>
       </AuthForm>
