@@ -1,17 +1,27 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
-import type { ProductOption } from '../contexts/PaymentContext';
+import type { ProductOption } from '../contexts/payment/context';
 import { gqlClient } from './common';
 
 const PRICE_FRAGMENT = gql`
   fragment Price on Price {
     label
     value
-    price
-    priceUnformatted
+    price {
+      amount
+      formatted
+      monthlyAmount
+      monthlyFormatted
+    }
     currencyCode
+    currencySymbol
     extraLabel
     appsId
+    duration
+    trialPeriod {
+      interval
+      frequency
+    }
   }
 `;
 

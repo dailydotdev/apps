@@ -15,6 +15,8 @@ import {
 } from '../typography/Typography';
 import { useScrollManagement } from '../HorizontalScroll/useScrollManagement';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { webappUrl } from '../../lib/constants';
+import Link from '../utilities/Link';
 
 const CustomFeedSlider = (): ReactElement => {
   const { feeds } = useFeeds();
@@ -26,15 +28,20 @@ const CustomFeedSlider = (): ReactElement => {
   const router = useRouter();
 
   const urlToTab: Record<string, string> = useMemo(() => {
-    const myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+    const myFeedPath = isCustomDefaultFeed ? `${webappUrl}my-feed` : '/';
+    const followingPath = `${webappUrl}following`;
+    const newFeedPath = `${webappUrl}feeds/new`;
+
     return {
       [myFeedPath]: 'For you',
+      [followingPath]: 'Following',
       ...sortedFeeds.reduce((acc, { node: feed }) => {
-        const feedPath = defaultFeedId === feed.id ? '/' : `/feeds/${feed.id}`;
+        const feedPath =
+          defaultFeedId === feed.id ? '/' : `${webappUrl}feeds/${feed.id}`;
         acc[feedPath] = feed.flags?.name || `Feed ${feed.id}`;
         return acc;
       }, {}),
-      '/feeds/new': 'New feed',
+      [newFeedPath]: 'New feed',
     };
   }, [sortedFeeds, isCustomDefaultFeed, defaultFeedId]);
 
@@ -82,30 +89,33 @@ const CustomFeedSlider = (): ReactElement => {
       >
         {Object.entries(urlToTab).map(([url, label]) => {
           const isActive = router.asPath === url;
-          const isNewFeed = url === '/feeds/new';
+          const isNewFeed = url === `${webappUrl}feeds/new`;
+
           return (
-            <Button
-              key={url}
-              ref={isActive ? activeButtonRef : undefined}
-              variant={isActive ? ButtonVariant.Primary : ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              tag="a"
-              href={url}
-              icon={isNewFeed && <PlusIcon size={IconSize.Small} />}
-            >
-              {label}
-              {!isPlus && isNewFeed && (
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  className="ml-1 flex items-center rounded-4 bg-action-plus-float px-1"
-                  bold
-                  color={TypographyColor.Plus}
-                >
-                  Plus
-                </Typography>
-              )}
-            </Button>
+            <Link key={url} href={url} passHref>
+              <Button
+                ref={isActive ? activeButtonRef : undefined}
+                variant={
+                  isActive ? ButtonVariant.Primary : ButtonVariant.Subtle
+                }
+                size={ButtonSize.Small}
+                tag="a"
+                icon={isNewFeed && <PlusIcon size={IconSize.Small} />}
+              >
+                {label}
+                {!isPlus && isNewFeed && (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    className="ml-1 flex items-center rounded-4 bg-action-plus-float px-1"
+                    bold
+                    color={TypographyColor.Plus}
+                  >
+                    Plus
+                  </Typography>
+                )}
+              </Button>
+            </Link>
           );
         })}
       </div>

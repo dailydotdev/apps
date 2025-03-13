@@ -15,17 +15,10 @@ import {
   AppIcon,
   DevPlusIcon,
   PrivacyIcon,
-  DownloadIcon,
   MegaphoneIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
-import {
-  businessWebsiteUrl,
-  docs,
-  feedback,
-  managePlusUrl,
-  plusUrl,
-} from '../../lib/constants';
+import { businessWebsiteUrl, docs, feedback } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -40,23 +33,18 @@ import { GooglePlayIcon } from '../icons/Google/Play';
 import { checkIsBrowser, isIOSNative, UserAgent } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks';
 import {
-  featureAndroidPWA,
   featureOnboardingAndroid,
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
-import { useInstallPWA } from '../onboarding/PWA/useInstallPWA';
+import { SubscriptionProvider } from '../../lib/plus';
+import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { promptToInstall, isAvailable } = useInstallPWA();
-  const { logout, isAndroidApp } = useAuthContext();
-  const { value: androidPWAExperiment } = useConditionalFeature({
-    feature: featureAndroidPWA,
-    shouldEvaluate:
-      checkIsBrowser(UserAgent.Android) && isAvailable && !isAndroidApp,
-  });
+  const { logout, isAndroidApp, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
+    usePlusSubscription();
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -81,14 +69,6 @@ const useMenuItems = (): NavItemProps[] => {
   }, [logout, showPrompt]);
 
   return useMemo(() => {
-    const getAndroidPWA = androidPWAExperiment
-      ? {
-          label: 'Add to Home Screen',
-          icon: <DownloadIcon />,
-          onClick: async () => await promptToInstall?.(),
-        }
-      : undefined;
-
     const downloadAndroidApp = appExperiment
       ? {
           label: 'Download mobile app',
@@ -107,14 +87,32 @@ const useMenuItems = (): NavItemProps[] => {
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     ];
 
-    if (!isIOSNative()) {
+    if (
+      !isIOSNative() ||
+      (isIOSNative() && user.isTeamMember)
+      // iOSSupportsPlusPurchase()
+    ) {
       items.push({
         label: isPlus ? 'Manage plus' : plusCta,
         icon: <DevPlusIcon />,
-        href: isPlus ? managePlusUrl : plusUrl,
+        href: plusHref,
         className: isPlus ? undefined : 'text-action-plus-default',
-        target: isPlus ? '_blank' : undefined,
+        target:
+          isPlus && plusProvider === SubscriptionProvider.Paddle
+            ? '_blank'
+            : undefined,
         onClick: () => {
+          if (
+            isPlus &&
+            isIOSNative() &&
+            plusProvider === SubscriptionProvider.AppleStoreKit
+          ) {
+            postWebKitMessage(
+              WebKitMessageHandlers.IAPSubscriptionManage,
+              null,
+            );
+          }
+
           logSubscriptionEvent({
             event_name: isPlus
               ? LogEvent.ManageSubscription
@@ -184,7 +182,6 @@ const useMenuItems = (): NavItemProps[] => {
         target: '_blank',
         rel: anchorDefaultRel,
       },
-      getAndroidPWA,
       downloadAndroidApp,
       {
         label: 'Docs',
@@ -207,14 +204,15 @@ const useMenuItems = (): NavItemProps[] => {
       },
     ].filter(Boolean);
   }, [
+    appExperiment,
     isPlus,
     logSubscriptionEvent,
     onLogout,
     openModal,
-    appExperiment,
-    promptToInstall,
-    androidPWAExperiment,
     plusCta,
+    plusHref,
+    plusProvider,
+    user.isTeamMember,
   ]);
 };
 

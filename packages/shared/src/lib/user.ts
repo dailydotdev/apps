@@ -7,6 +7,7 @@ import {
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
+import type { SubscriptionProvider } from './plus';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -119,6 +120,13 @@ export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
 }>;
 
+export type UserSubscriptionFlags = Partial<{
+  provider: SubscriptionProvider;
+
+  // StoreKit flags
+  appAccountToken?: string; // StoreKit app account token (UUID)
+}>;
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
@@ -141,6 +149,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   contentPreference?: ContentPreference;
   defaultFeedId?: string;
   flags?: UserFlagsPublic;
+  subscriptionFlags?: UserSubscriptionFlags;
 }
 
 interface BaseError {

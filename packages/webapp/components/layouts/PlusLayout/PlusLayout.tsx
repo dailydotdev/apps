@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import { cloudinaryPlusBackground } from '@dailydotdev/shared/src/lib/image';
-import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';

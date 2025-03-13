@@ -8,8 +8,9 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
-import type { ProductOption } from '../../contexts/PaymentContext';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import type { ProductOption } from '../../contexts/payment/context';
+import { usePaymentContext } from '../../contexts/payment/context';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 interface PlusOptionRadioProps {
   option: ProductOption;
@@ -22,15 +23,23 @@ export function PlusOptionRadio({
   checked,
   onChange,
 }: PlusOptionRadioProps): ReactElement {
-  const { earlyAdopterPlanId, giftOneYear } = usePaymentContext();
+  const { giftOneYear } = usePaymentContext();
   const isYearlyGift = giftOneYear?.value === option?.value;
 
   if (!option) {
     return null;
   }
 
-  const { label, value, price, currencyCode, extraLabel } = option;
-  const isEarlyAccess = value === earlyAdopterPlanId;
+  const {
+    label,
+    value,
+    price,
+    currencyCode,
+    extraLabel,
+    appsId,
+    durationLabel,
+  } = option;
+  const isEarlyAccess = appsId === PlusPriceTypeAppsId.EarlyAdopter;
 
   return (
     <RadioItem
@@ -86,23 +95,27 @@ export function PlusOptionRadio({
           color={TypographyColor.Primary}
           bold
         >
-          {isYearlyGift ? price.formatted : price.monthlyFormatted}
+          {isYearlyGift
+            ? price.formatted
+            : price.monthlyFormatted ?? price.formatted}
         </Typography>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className="font-normal"
-        >
-          {currencyCode}
-        </Typography>
+        {currencyCode && (
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className="font-normal"
+          >
+            {currencyCode}
+          </Typography>
+        )}
         {!isYearlyGift && (
           <Typography
             className="font-normal"
             color={TypographyColor.Quaternary}
             type={TypographyType.Footnote}
           >
-            /month
+            /{durationLabel}
           </Typography>
         )}
       </div>

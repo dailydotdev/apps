@@ -18,7 +18,7 @@ import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
 import { TypographyType } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -56,8 +56,6 @@ export const OnboardingHeader = ({
     OnboardingStep.PWA,
     OnboardingStep.Plus,
     OnboardingStep.Extension,
-    OnboardingStep.InstallDesktop,
-    OnboardingStep.AndroidPWA,
   ];
   const isPlusStep = activeScreen === OnboardingStep.Plus;
 

@@ -5,7 +5,8 @@ import {
 } from './image';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
-import { PlusPriceType } from './featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
+import type { ProductMeta } from '../contexts/payment/context';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -31,7 +32,6 @@ const feature = {
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
-  onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted
@@ -40,6 +40,27 @@ const feature = {
     pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly, // One-Year Gift
   }),
 };
+
+export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
+  'iap_products',
+  {
+    annualSpecial: {
+      label: 'Annual Special',
+      extraLabel: '💜 Early bird',
+      duration: PlusPriceType.Yearly,
+      appsId: PlusPriceTypeAppsId.EarlyAdopter,
+    },
+    annual: {
+      label: 'Annual',
+      extraLabel: 'Save 50%',
+      duration: PlusPriceType.Yearly,
+    },
+    monthly: {
+      label: 'Monthly',
+      duration: PlusPriceType.Monthly,
+    },
+  },
+);
 
 export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
@@ -57,18 +78,8 @@ export const featureOnboardingPlusCheckout = new Feature(
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
-export const featureOnboardingDesktopPWA = new Feature(
-  'onboarding_desktop_pwa',
-  false,
-);
-
 export const featureOnboardingAndroid = new Feature(
   'onboarding_android',
-  false,
-);
-
-export const featureOnboardingPapercuts = new Feature(
-  'onboarding_papercuts',
   false,
 );
 
@@ -78,7 +89,6 @@ export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   },
 } as Record<FeedSettingsKeys, FeedAdTemplate>);
 
-export const featureAndroidPWA = new Feature('android_pwa_onboarding', false);
 export const featureValidLanguages = new Feature('valid_languages', {
   en: 'English',
   es: 'Spanish',
@@ -97,11 +107,6 @@ export const featurePlusButtonColors = new Feature<
 >('plus_button_colors', '');
 
 export const featureSocialShare = new Feature('social_share', false);
-
-export const featurePersonalizedOnboarding = new Feature(
-  'personalized_onboarding',
-  false,
-);
 
 export const featureCustomFeedPlacement = new Feature(
   'custom_feed_placement',

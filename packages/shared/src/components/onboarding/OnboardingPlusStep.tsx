@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
-import { usePaymentContext } from '../../contexts/PaymentContext';
+import { usePaymentContext } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,
@@ -58,7 +58,7 @@ export const OnboardingPlusStep = ({
           if (appsId === PlusPriceTypeAppsId.EarlyAdopter) {
             return -1;
           }
-          return duration === PlusPriceType.Yearly ? -1 : 0;
+          return duration === PlusPriceType.Yearly ? 0 : 1;
         })
         .at(0),
     [productOptions],
