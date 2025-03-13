@@ -30,15 +30,15 @@ export const useCheckExistingEmail = ({
   targetId,
   trigger,
 }: UseCheckExistingEmailProps): UseCheckExistingEmail => {
-  const [shouldLogin, setShouldLogin] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState<string>('');
+  const [emailToCheck, setEmailToCheck] = useState<string>('');
+  const [emailAlreadyExists, setEmailAlreadyExists] = useState(false);
   const { logEvent } = useLogContext();
   const { mutateAsync: checkEmail, isPending: isCheckPending } = useMutation({
     mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
     onSuccess: (res, emailValue) => {
       const emailExists = !!res?.result;
 
-      setShouldLogin(emailExists);
+      setEmailAlreadyExists(emailExists);
       logEvent({
         event_name: emailExists
           ? AuthEventNames.OpenLogin
@@ -48,7 +48,7 @@ export const useCheckExistingEmail = ({
       });
 
       if (emailExists) {
-        setRegisterEmail(emailValue);
+        setEmailToCheck(emailValue);
         return null;
       }
 
@@ -78,9 +78,9 @@ export const useCheckExistingEmail = ({
 
   return {
     email: {
-      alreadyExists: shouldLogin,
+      alreadyExists: emailAlreadyExists,
       isCheckPending,
-      value: registerEmail,
+      value: emailToCheck,
     },
     onEmailSignup,
   };
