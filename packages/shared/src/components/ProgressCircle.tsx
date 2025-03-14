@@ -22,7 +22,7 @@ const ProgressCircle = ({
 
   return (
     <div
-      className="inline-flex h-10 w-10 items-center justify-center"
+      className="inline-flex size-10 items-center justify-center"
       style={{ width: size, height: size }}
     >
       {isComplete ? (
