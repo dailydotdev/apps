@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'classnames';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -38,15 +38,22 @@ import { labels } from '../../../lib';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { Origin } from '../../../lib/log';
+import type { Post } from '../../../graphql/posts';
 
 const AwardItem = ({ item }: { item: Product }) => {
-  const { setActiveStep } = useGiveAwardModalContext();
+  const { setActiveStep, logAwardEvent } = useGiveAwardModalContext();
+
+  const onClick = useCallback(() => {
+    logAwardEvent({ awardEvent: 'PICK', extra: { award: item.value } });
+    setActiveStep({ screen: 'COMMENT', product: item });
+  }, [item, logAwardEvent, setActiveStep]);
 
   return (
     <Button
       variant={ButtonVariant.Float}
       className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float !p-1"
-      onClick={() => setActiveStep({ screen: 'COMMENT', product: item })}
+      onClick={onClick}
     >
       <Image src={item.image} alt={item.name} className="size-20" />
       <div className="flex items-center justify-center">
@@ -133,8 +140,14 @@ const IntroScreen = () => {
 
 const CommentScreen = () => {
   const { updateUser, user } = useAuthContext();
-  const { setActiveStep, type, entity, product, onRequestClose } =
-    useGiveAwardModalContext();
+  const {
+    setActiveStep,
+    type,
+    entity,
+    product,
+    onRequestClose,
+    logAwardEvent,
+  } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { displayToast } = useToastNotification();
   const [note, setNote] = useState('');
@@ -162,6 +175,24 @@ const CommentScreen = () => {
       );
     },
   });
+
+  const onAwardClick = useCallback(() => {
+    logAwardEvent({ awardEvent: 'AWARD', extra: { award: product.value } });
+    awardMutation({
+      productId: product.id,
+      type,
+      entityId: entity.id,
+      note,
+    });
+  }, [
+    awardMutation,
+    entity.id,
+    logAwardEvent,
+    note,
+    product.id,
+    product.value,
+    type,
+  ]);
 
   return (
     <>
@@ -223,14 +254,7 @@ const CommentScreen = () => {
           loading={isPending}
           className="w-full"
           variant={ButtonVariant.Primary}
-          onClick={() => {
-            awardMutation({
-              productId: product.id,
-              type,
-              entityId: entity.id,
-              note,
-            });
-          }}
+          onClick={onAwardClick}
         >
           Send Award for <CoinIcon />{' '}
           {product.value === 0 ? 'Free' : product.value}
@@ -269,7 +293,15 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeModal, setActiveModal } = useGiveAwardModalContext();
+  const { activeModal, setActiveModal, logAwardEvent } =
+    useGiveAwardModalContext();
+  const trackingRef = useRef(false);
+  useEffect(() => {
+    if (!trackingRef.current) {
+      trackingRef.current = true;
+      logAwardEvent({ awardEvent: 'START' });
+    }
+  }, [logAwardEvent]);
 
   const onCompletion = useCallback(() => {
     setActiveModal('AWARD');
@@ -288,7 +320,11 @@ const ModalRender = ({ ...props }: ModalProps) => {
         </Modal>
       ) : null}
       {activeModal === 'BUY_CORES' ? (
-        <BuyCoresModal {...props} onCompletion={onCompletion} />
+        <BuyCoresModal
+          {...props}
+          onCompletion={onCompletion}
+          origin={Origin.Award}
+        />
       ) : null}
     </>
   );
@@ -297,6 +333,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
 type GiveAwardModalProps = ModalProps & {
   type: AwardTypes;
   entity: AwardEntity;
+  post?: Post;
 };
 const GiveAwardModal = (props: GiveAwardModalProps): ReactElement => {
   return (

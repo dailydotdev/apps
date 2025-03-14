@@ -18,6 +18,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoinIcon } from '@dailydotdev/shared/src/components/icons';
 import { CoreFAQ } from '@dailydotdev/shared/src/components/cores/CoreFAQ';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
@@ -78,7 +79,8 @@ const CoresPage = (): ReactElement => {
   }
 
   return (
-    <BuyCoresContextProvider>
+    // TODO: Take correct origin from referrer
+    <BuyCoresContextProvider origin={Origin.EarningsPageCTA}>
       {isLaptop ? <CorePageDesktop /> : <CorePageMobile />}
     </BuyCoresContextProvider>
   );

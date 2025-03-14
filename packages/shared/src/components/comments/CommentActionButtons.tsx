@@ -365,6 +365,7 @@ export default function CommentActionButtons({
           numAwards: comment.numAwards,
         }}
         pressed={!!comment.userState?.awarded}
+        post={post}
       />
       {!!comment.numAwards && (
         <Typography

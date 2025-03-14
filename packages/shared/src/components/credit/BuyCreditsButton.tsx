@@ -7,6 +7,8 @@ import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { isIOSNative } from '../../lib/func';
+import { LogEvent, Origin } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 type BuyCreditsButtonProps = {
   onPlusClick: () => void;
@@ -17,6 +19,15 @@ export const BuyCreditsButton = ({
   hideBuyButton,
 }: BuyCreditsButtonProps): ReactElement => {
   const renderBuyButton = !isIOSNative() && !hideBuyButton;
+  const { logEvent } = useLogContext();
+  const trackBuyCredits = () => {
+    logEvent({
+      event_name: LogEvent.StartBuyingCredits,
+      extra: JSON.stringify({ origin: Origin.Award }),
+    });
+    onPlusClick();
+  };
+
   return (
     <div className="flex items-center rounded-10 bg-surface-float">
       <Link href={`${webappUrl}/earnings`} passHref>
@@ -38,7 +49,7 @@ export const BuyCreditsButton = ({
             variant={ButtonVariant.Tertiary}
             icon={<PlusIcon />}
             size={ButtonSize.Small}
-            onClick={onPlusClick}
+            onClick={trackBuyCredits}
           />
         </>
       ) : null}

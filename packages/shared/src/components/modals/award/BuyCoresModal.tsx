@@ -24,6 +24,7 @@ import { IconSize } from '../../Icon';
 import useDebounceFn from '../../../hooks/useDebounceFn';
 import { CoreOptionList } from '../../cores/CoreOptionList';
 import { CoreAmountNeeded } from '../../cores/CoreAmountNeeded';
+import type { Origin } from '../../../lib/log';
 
 const CoreOptions = () => {
   return (
@@ -182,14 +183,20 @@ const ModalRender = ({ ...props }: ModalProps) => {
 };
 
 type BuyCoresModalProps = ModalProps & {
+  origin: Origin;
   onCompletion?: () => void;
 };
 export const BuyCoresModal = ({
+  origin,
   onCompletion,
   ...props
 }: BuyCoresModalProps): ReactElement => {
   return (
-    <BuyCoresContextProvider amountNeeded={40} onCompletion={onCompletion}>
+    <BuyCoresContextProvider
+      amountNeeded={40}
+      onCompletion={onCompletion}
+      origin={origin}
+    >
       <ModalRender {...props} />
     </BuyCoresContextProvider>
   );

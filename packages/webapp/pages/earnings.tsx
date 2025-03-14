@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import {
@@ -18,7 +18,11 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { docs, searchDocs } from '@dailydotdev/shared/src/lib/constants';
+import {
+  docs,
+  searchDocs,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import {
   CoinIcon,
   DevPlusIcon,
@@ -42,28 +46,50 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
+type LogStartBuyingCreditsProps = {
+  origin: Origin;
+  target_id?: string;
+  amount?: number;
+};
+
 type BuyCoreProps = {
+  onBuyCoresClick: (props: LogStartBuyingCreditsProps) => void;
   amount: number;
   price: number;
 };
-const BuyCore = ({ amount, price }: BuyCoreProps): ReactElement => {
+const BuyCore = ({
+  onBuyCoresClick,
+  amount,
+  price,
+}: BuyCoreProps): ReactElement => {
   return (
-    <div className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2">
-      <CoinIcon size={IconSize.XLarge} className="mb-1" />
-      <Typography type={TypographyType.Title3} bold>
-        {amount}
-      </Typography>
-      <Typography
-        type={TypographyType.Caption2}
-        color={TypographyColor.Tertiary}
+    <Link href={`${webappUrl}/cores`}>
+      <a
+        href={`${webappUrl}/cores`}
+        className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2"
+        onClick={() =>
+          onBuyCoresClick({ amount, origin: Origin.EarningsPagePackage })
+        }
       >
-        ${price}
-      </Typography>
-    </div>
+        <CoinIcon size={IconSize.XLarge} className="mb-1" />
+        <Typography type={TypographyType.Title3} bold>
+          {amount}
+        </Typography>
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
+        >
+          ${price}
+        </Typography>
+      </a>
+    </Link>
   );
 };
 
@@ -166,6 +192,22 @@ const TransactionItem = ({
 };
 
 const Earnings = (): ReactElement => {
+  const { logEvent } = useLogContext();
+  const onBuyCoresClick = useCallback(
+    ({
+      origin = Origin.EarningsPageCTA,
+      amount,
+      target_id,
+    }: Partial<LogStartBuyingCreditsProps>) => {
+      logEvent({
+        event_name: LogEvent.StartBuyingCredits,
+        target_id,
+        extra: JSON.stringify({ origin, amount }),
+      });
+    },
+    [logEvent],
+  );
+
   return (
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
@@ -174,7 +216,13 @@ const Earnings = (): ReactElement => {
             <Typography type={TypographyType.Title3} bold>
               Core wallet
             </Typography>
-            <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
+              tag="a"
+              href={`${webappUrl}/cores`}
+            >
               Buy Cores
             </Button>
           </header>
@@ -333,11 +381,30 @@ const Earnings = (): ReactElement => {
               </Typography>
             </div>
             <div className="flex gap-3">
-              <BuyCore amount={100} price={3.99} />
-              <BuyCore amount={500} price={50} />
-              <BuyCore amount={1000} price={100} />
+              <BuyCore
+                onBuyCoresClick={onBuyCoresClick}
+                amount={100}
+                price={3.99}
+              />
+              <BuyCore
+                onBuyCoresClick={onBuyCoresClick}
+                amount={500}
+                price={50}
+              />
+              <BuyCore
+                onBuyCoresClick={onBuyCoresClick}
+                amount={1000}
+                price={100}
+              />
             </div>
-            <Button variant={ButtonVariant.Float}>See more options</Button>
+            <Button
+              variant={ButtonVariant.Float}
+              onClick={() => onBuyCoresClick({ target_id: 'See more options' })}
+              tag="a"
+              href={`${webappUrl}/cores`}
+            >
+              See more options
+            </Button>
           </WidgetContainer>
           <WidgetContainer className="flex flex-col gap-4 p-6">
             <div className="flex justify-between">
