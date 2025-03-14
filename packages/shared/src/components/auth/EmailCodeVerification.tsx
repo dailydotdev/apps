@@ -40,6 +40,7 @@ function EmailCodeVerification({
     useAccountEmailFlow({
       flow: AuthFlow.Verification,
       flowId,
+      timerOnLoad: 60,
       onError: setHint,
       onVerifyCodeSuccess: () => {
         logEvent({

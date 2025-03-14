@@ -2,6 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { DangerZone } from '../widgets/DangerZone';
 import { anchorDefaultRel } from '../../lib/strings';
+import { usePlusSubscription } from '../../hooks';
+import { SubscriptionProvider, UserSubscriptionStatus } from '../../lib/plus';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;
@@ -25,10 +27,35 @@ const Important = () => (
   </>
 );
 
+const ImportantActiveAppleSubscription = () => {
+  return (
+    <>
+      You have an active subscription. To proceed with account deletion,
+      you&apos;ll need to cancel your subscription first (via Apple). Contact{' '}
+      <a
+        className="text-text-link"
+        href="mailto:support@daily.dev?subject=I have a question about deleting my account"
+        target="_blank"
+        rel={anchorDefaultRel}
+      >
+        support@daily.dev
+      </a>{' '}
+      with any questions.
+    </>
+  );
+};
+
 function AccountDangerZone({
   onDelete,
   className,
 }: AccountDangerZoneProps): ReactElement {
+  const { isPlus, status, plusProvider } = usePlusSubscription();
+
+  const disableDeletion =
+    isPlus &&
+    status === UserSubscriptionStatus.Active &&
+    plusProvider === SubscriptionProvider.AppleStoreKit;
+
   return (
     <DangerZone
       onClick={onDelete}
@@ -40,7 +67,10 @@ function AccountDangerZone({
         'Permanently delete all your content, including your posts, bookmarks, comments, upvotes, etc.',
         'Allow your username to become available to anyone.',
       ]}
-      important={<Important />}
+      important={
+        disableDeletion ? <ImportantActiveAppleSubscription /> : <Important />
+      }
+      buttonDisabled={disableDeletion}
     />
   );
 }
