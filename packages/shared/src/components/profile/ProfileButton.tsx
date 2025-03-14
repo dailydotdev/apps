@@ -5,13 +5,14 @@ import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { SettingsIcon } from '../icons';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { CoinIcon, SettingsIcon } from '../icons';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
+import { webappUrl } from '../../lib/constants';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -48,6 +49,17 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
+          <SimpleTooltip content="Earnings dashboard">
+            <Button
+              icon={<CoinIcon className="text-accent-bun-default" />}
+              tag="a"
+              href={`${webappUrl}/earnings`}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+            >
+              350
+            </Button>
+          </SimpleTooltip>
           <SimpleTooltip placement="bottom" content="Profile settings">
             <button
               type="button"
