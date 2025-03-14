@@ -22,5 +22,8 @@
                 ]
             }
         ]
-    }
+    },
+    "webcredentials": {
+        "apps": [ "C97TTQ7W57.dev.daily.app" ]
+    },
 }
