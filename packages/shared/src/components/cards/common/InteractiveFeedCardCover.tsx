@@ -21,7 +21,7 @@ const InteractiveFeedCardCover = ({ post }: { post: Post }): ReactElement => {
         <button
           onClick={() => approvePost(post)}
           type="button"
-          className="flex h-10 w-10 items-center  justify-center rounded-full bg-action-upvote-default"
+          className="flex size-10 items-center  justify-center rounded-full bg-action-upvote-default"
         >
           <VIcon size={IconSize.Medium} />
         </button>
