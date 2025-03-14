@@ -1,16 +1,13 @@
 import type React from 'react';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useLogContext } from '../../contexts/LogContext';
 import { checkKratosEmail } from '../../lib/kratos';
-import { AuthEventNames } from '../../lib/auth';
 import { getFormEmail } from '../../components/auth/common';
-import type { AuthTriggersType } from '../../lib/auth';
 
 interface UseCheckExistingEmailProps {
-  onSignup?: (email: string) => unknown;
-  targetId?: string;
-  trigger: AuthTriggersType;
+  onAfterEmailCheck?: (exists: boolean) => unknown;
+  onBeforeEmailCheck?: (email: string) => unknown;
+  onValidEmail?: (email: string) => unknown;
 }
 
 export interface UseCheckExistingEmail {
@@ -19,44 +16,36 @@ export interface UseCheckExistingEmail {
     alreadyExists: boolean;
     isCheckPending: boolean;
   };
-  onEmailSignup: (e: React.FormEvent) => Promise<{
+  onEmailCheck: (e: React.FormEvent) => Promise<{
     emailExists: boolean;
     emailValue: string;
   } | null>;
 }
 
 export const useCheckExistingEmail = ({
-  onSignup,
-  targetId,
-  trigger,
+  onAfterEmailCheck,
+  onBeforeEmailCheck,
+  onValidEmail,
 }: UseCheckExistingEmailProps): UseCheckExistingEmail => {
   const [emailToCheck, setEmailToCheck] = useState<string>('');
   const [emailAlreadyExists, setEmailAlreadyExists] = useState(false);
-  const { logEvent } = useLogContext();
   const { mutateAsync: checkEmail, isPending: isCheckPending } = useMutation({
     mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
     onSuccess: (res, emailValue) => {
       const emailExists = !!res?.result;
 
       setEmailAlreadyExists(emailExists);
-      logEvent({
-        event_name: emailExists
-          ? AuthEventNames.OpenLogin
-          : AuthEventNames.OpenSignup,
-        extra: JSON.stringify({ trigger }),
-        target_id: targetId,
-      });
 
       if (emailExists) {
         setEmailToCheck(emailValue);
         return null;
       }
 
-      return onSignup(emailValue);
+      return onValidEmail(emailValue);
     },
   });
 
-  const onEmailSignup = async (e: React.FormEvent) => {
+  const onEmailCheck = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const emailValue = getFormEmail(e);
@@ -64,15 +53,13 @@ export const useCheckExistingEmail = ({
       return null;
     }
 
-    logEvent({
-      event_name: 'click',
-      target_type: AuthEventNames.SignUpProvider,
-      target_id: 'email',
-      extra: JSON.stringify({ trigger }),
-    });
+    onBeforeEmailCheck?.(emailValue);
 
     const res = await checkEmail(emailValue);
     const emailExists = !!res?.result;
+
+    onAfterEmailCheck?.(emailExists);
+
     return { emailExists, emailValue };
   };
 
@@ -82,6 +69,6 @@ export const useCheckExistingEmail = ({
       isCheckPending,
       value: emailToCheck,
     },
-    onEmailSignup,
+    onEmailCheck,
   };
 };

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
@@ -110,10 +110,26 @@ export const OnboardingRegistrationForm = ({
   className,
   onboardingSignupButton,
 }: OnboardingRegistrationFormProps): ReactElement => {
-  const { email, onEmailSignup } = useCheckExistingEmail({
-    onSignup,
-    targetId,
-    trigger,
+  const { logEvent } = useLogContext();
+  const { email, onEmailCheck } = useCheckExistingEmail({
+    onBeforeEmailCheck: () => {
+      logEvent({
+        event_name: 'click',
+        target_type: AuthEventNames.SignUpProvider,
+        target_id: 'email',
+        extra: JSON.stringify({ trigger }),
+      });
+    },
+    onAfterEmailCheck: (emailExists) => {
+      logEvent({
+        event_name: emailExists
+          ? AuthEventNames.OpenLogin
+          : AuthEventNames.OpenSignup,
+        extra: JSON.stringify({ trigger }),
+        target_id: targetId,
+      });
+    },
+    onValidEmail: onSignup,
   });
   const onboardingSignupButtonProps = {
     size: ButtonSize.Large,
@@ -129,7 +145,7 @@ export const OnboardingRegistrationForm = ({
     <>
       <AuthForm
         className={classNames('mb-8 gap-8', className?.onboardingForm)}
-        onSubmit={onEmailSignup}
+        onSubmit={onEmailCheck}
         aria-label={email.alreadyExists ? 'Login form' : 'Signup form'}
       >
         <TextField
@@ -199,6 +215,7 @@ export const OnboardingRegistrationForm = ({
             key={provider.value}
             loading={!isReady}
             onClick={() => onSocialClick(provider.value)}
+            type="button"
             {...onboardingSignupButtonProps}
           >
             {provider.label}
@@ -218,15 +235,20 @@ export const OnboardingRegistrationFormExperiment = ({
   trigger,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
-  useEffect(() => {
+
+  const trackOpenSignup = () => {
+    logEvent({
+      event_name: 'click',
+      target_type: AuthEventNames.SignUpProvider,
+      target_id: 'email',
+      extra: JSON.stringify({ trigger }),
+    });
     logEvent({
       event_name: AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
       target_id: targetId,
     });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
@@ -267,7 +289,10 @@ export const OnboardingRegistrationFormExperiment = ({
         <Button
           aria-label="Signup using email"
           className="mb-8"
-          onClick={onContinueWithEmail}
+          onClick={() => {
+            trackOpenSignup();
+            onContinueWithEmail?.();
+          }}
           size={ButtonSize.Large}
           variant={ButtonVariant.Float}
         >

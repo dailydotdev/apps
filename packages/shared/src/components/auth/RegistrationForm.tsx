@@ -56,6 +56,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   trigger: AuthTriggersType;
   onExistingEmailLoginClick?: () => void;
   onBackToIntro?: () => void;
+  targetId?: string;
 }
 
 export type RegistrationFormValues = Omit<
@@ -77,6 +78,7 @@ const RegistrationForm = ({
   trigger,
   onUpdateHints,
   simplified,
+  targetId,
 }: RegistrationFormProps): ReactElement => {
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
@@ -115,10 +117,18 @@ const RegistrationForm = ({
 
   const {
     email: { isCheckPending, alreadyExists },
-    onEmailSignup,
+    onEmailCheck,
   } = useCheckExistingEmail({
-    onSignup: () => null,
-    trigger,
+    onValidEmail: () => null,
+    onAfterEmailCheck: (emailExists) => {
+      if (emailExists && isOnboardingExperiment) {
+        logEvent({
+          event_name: AuthEventNames.OpenLogin,
+          extra: JSON.stringify({ trigger }),
+          target_id: targetId,
+        });
+      }
+    },
   });
 
   const onSubmit = (e: React.FormEvent) => {
@@ -212,13 +222,8 @@ const RegistrationForm = ({
       return;
     }
 
-    const emailCheck = await onEmailSignup(e);
-
-    if (!emailCheck) {
-      return;
-    }
-
-    if (emailCheck.emailValue && !emailCheck.emailExists) {
+    const emailCheck = await onEmailCheck(e);
+    if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
       onSubmit(e);
     }
   };

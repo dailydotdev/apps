@@ -515,6 +515,7 @@ function AuthOptions({
               registration &&
               getNodeValue('csrf_token', registration?.ui?.nodes)
             }
+            targetId={targetId}
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>
