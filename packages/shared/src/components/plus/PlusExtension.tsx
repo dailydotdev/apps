@@ -12,7 +12,7 @@ import { useBoot } from '../../hooks';
 import { getPricePreviews } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import PlusListModalSection from './PlusListModalSection';
-import { useFeature, useFeatureIsOn } from '../GrowthBookProvider';
+import { useFeature } from '../GrowthBookProvider';
 import { plusTakeoverContent } from '../../lib/featureManagement';
 
 const PlusExtension = (): ReactElement => {
@@ -41,7 +41,6 @@ const PlusExtension = (): ReactElement => {
     });
   };
 
-  const isExperiment = useFeatureIsOn(plusTakeoverContent);
   const experiment = useFeature(plusTakeoverContent);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
@@ -50,10 +49,8 @@ const PlusExtension = (): ReactElement => {
       <div className="flex flex-1 flex-col pr-10 pt-6">
         <PlusInfo
           productOptions={productOptions || []}
-          title={isExperiment ? experiment.title : flags.title}
-          description={
-            isExperiment ? experiment.description : flags.description
-          }
+          title={experiment?.title ?? flags.title}
+          description={experiment?.description ?? flags.description}
           selectedOption={selectedOption}
           onChange={({ priceId }) => {
             setSelectedOption(priceId);
@@ -71,17 +68,13 @@ const PlusExtension = (): ReactElement => {
           className="mt-8"
           onClick={handleClick}
         >
-          {isExperiment ? experiment.cta : flags.ctaText}
+          {experiment?.cta ?? flags.ctaText}
         </Button>
       </div>
       <PlusListModalSection
-        items={isExperiment ? experiment.features : undefined}
-        shouldShowRefund={
-          isExperiment ? experiment.shouldShowRefund : undefined
-        }
-        shouldShowReviews={
-          isExperiment ? experiment.shouldShowReviews : undefined
-        }
+        items={experiment?.features}
+        shouldShowRefund={experiment?.shouldShowRefund}
+        shouldShowReviews={experiment?.shouldShowReviews}
       />
     </div>
   );
