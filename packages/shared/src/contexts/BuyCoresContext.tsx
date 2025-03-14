@@ -13,7 +13,7 @@ import {
   initializePaddle,
 } from '@paddle/paddle-js';
 import { checkIsExtension } from '../lib/func';
-import type { OpenCheckoutFn } from './PaymentContext';
+import type { OpenCheckoutFn } from './payment/context';
 import { useAuthContext } from './AuthContext';
 
 const SCREENS = {
