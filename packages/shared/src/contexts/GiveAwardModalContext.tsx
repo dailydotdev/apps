@@ -50,9 +50,9 @@ const AwardTypeToTrackingEvent: Record<
     AWARD: LogEvent.AwardPost,
   },
   COMMENT: {
-    START: LogEvent.StartAwardPost,
-    PICK: LogEvent.PickAwardPost,
-    AWARD: LogEvent.AwardPost,
+    START: LogEvent.StartAwardComment,
+    PICK: LogEvent.PickAwardComment,
+    AWARD: LogEvent.AwardComment,
   },
 };
 
