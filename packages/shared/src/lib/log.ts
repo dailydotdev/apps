@@ -65,6 +65,7 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  HidePost = 'hide post',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',

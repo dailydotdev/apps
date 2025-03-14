@@ -41,12 +41,13 @@ export const CreateFeedButton = ({
 
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const tagsCountMatch =
-    tagsCount >= REQUIRED_TAGS_THRESHOLD &&
+    (tagsCount >= REQUIRED_TAGS_THRESHOLD &&
+      activeScreen === OnboardingStep.InteractiveFeed) ||
     activeScreen === OnboardingStep.EditTag;
-
   const isPlusStep = activeScreen === OnboardingStep.Plus;
   const canCreateFeed =
     tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
+
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??

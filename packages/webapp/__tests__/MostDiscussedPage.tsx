@@ -17,6 +17,7 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { CommentFeedData } from '@dailydotdev/shared/src/graphql/comments';
 import { COMMENT_FEED_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import Discussed from '../pages/discussed';
 import { defaultCommentsPage } from './ProfileRepliesPage';
 
@@ -84,7 +85,9 @@ const renderComponent = (
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
+      <InteractiveFeedProvider>
+        {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
+      </InteractiveFeedProvider>
     </TestBootProvider>,
   );
 };

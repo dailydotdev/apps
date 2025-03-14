@@ -15,11 +15,28 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import ProfilePage from '../pages/[userId]/posts';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/',
+        query: {},
+        isFallback: false,
+      } as unknown as NextRouter),
+  );
 });
 
 const createFeedMock = (
@@ -68,7 +85,9 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      <ProfilePage user={{ ...defaultProfile, ...profile }} />
+      <InteractiveFeedProvider>
+        <ProfilePage user={{ ...defaultProfile, ...profile }} />
+      </InteractiveFeedProvider>
     </TestBootProvider>,
   );
 };

@@ -64,6 +64,7 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import { useInteractiveFeedContext } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -105,6 +106,20 @@ const OnboardingExtension = dynamic(() =>
 
 const PlusPage = dynamic(
   () => import(/* webpackChunkName: "plusPage" */ './plus'),
+);
+
+const InteractiveFeedStep = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "interactiveFeedStep" */ '@dailydotdev/shared/src/components/onboarding/InteractiveFeedStep'
+    ),
+);
+
+const FeedPreviewStep = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedPreviewStep" */ '@dailydotdev/shared/src/components/onboarding/FeedPreviewStep'
+    ),
 );
 
 type OnboardingVisual = {
@@ -175,7 +190,7 @@ export function OnboardPage(): ReactElement {
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-
+  const { interactiveFeedExp } = useInteractiveFeedContext();
   const layout = useMemo(
     () => ({
       hasFooter: onboardingStepsWithFooter.includes(activeScreen),
@@ -199,7 +214,11 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
 
     if (!hasCompletedEditTags) {
-      setActiveScreen(OnboardingStep.EditTag);
+      if (interactiveFeedExp) {
+        setActiveScreen(OnboardingStep.InteractiveFeed);
+      } else {
+        setActiveScreen(OnboardingStep.EditTag);
+      }
       return;
     }
 
@@ -232,7 +251,23 @@ export function OnboardPage(): ReactElement {
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
+    if (
+      activeScreen === OnboardingStep.InteractiveFeed &&
+      !hasCompletedContentTypes
+    ) {
+      completeStep(ActionType.EditTag);
+      return setActiveScreen(OnboardingStep.ContentTypes);
+    }
+
+    if (activeScreen === OnboardingStep.InteractiveFeed) {
+      return setActiveScreen(OnboardingStep.PreviewFeed);
+    }
+
     if (activeScreen === OnboardingStep.Intro) {
+      if (interactiveFeedExp) {
+        return setActiveScreen(OnboardingStep.InteractiveFeed);
+      }
+
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
@@ -269,12 +304,22 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    const isNotExtensionRelatedStep = ![OnboardingStep.Extension].includes(
-      activeScreen,
-    );
+    const isNotExtensionRelatedStep = ![
+      OnboardingStep.Extension,
+      OnboardingStep.InteractiveFeed,
+      OnboardingStep.PreviewFeed,
+    ].includes(activeScreen);
 
     if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    if (
+      interactiveFeedExp &&
+      (!shouldShowExtensionOnboarding ||
+        activeScreen === OnboardingStep.Extension)
+    ) {
+      return setActiveScreen(OnboardingStep.PreviewFeed);
     }
 
     logEvent({
@@ -300,11 +345,15 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulRegistration = () => {
-    setActiveScreen(OnboardingStep.EditTag);
-  };
-
   const authOptionProps: AuthOptionsProps = useMemo(() => {
+    const onSuccessfulRegistration = () => {
+      if (interactiveFeedExp) {
+        setActiveScreen(OnboardingStep.InteractiveFeed);
+      } else {
+        setActiveScreen(OnboardingStep.EditTag);
+      }
+    };
+
     return {
       simplified: true,
       className: {
@@ -338,10 +387,14 @@ export function OnboardPage(): ReactElement {
     isMobile,
     targetId,
     loginState,
+    interactiveFeedExp,
   ]);
 
   const customActionName = useMemo(() => {
-    if (activeScreen === OnboardingStep.EditTag) {
+    if (
+      activeScreen === OnboardingStep.EditTag ||
+      activeScreen === OnboardingStep.InteractiveFeed
+    ) {
       return 'Continue';
     }
 
@@ -453,6 +506,15 @@ export function OnboardPage(): ReactElement {
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
+              )}
+              {activeScreen === OnboardingStep.InteractiveFeed && (
+                <InteractiveFeedStep />
+              )}
+              {activeScreen === OnboardingStep.PreviewFeed && (
+                <FeedPreviewStep
+                  onComplete={onClickNext}
+                  onEdit={() => setActiveScreen(OnboardingStep.InteractiveFeed)}
+                />
               )}
             </div>
           )}

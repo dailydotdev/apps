@@ -27,6 +27,7 @@ export type ToggleBookmarkProps = {
   origin: Origin;
   post: Post | ReadHistoryPost;
   opts?: PostLogEventFnOptions;
+  disableToast?: boolean;
 };
 
 export type UseBookmarkPostMutationProps = {
@@ -122,7 +123,7 @@ const useBookmarkPost = ({
   );
 
   const toggleBookmark = useCallback(
-    async ({ post, origin, opts }: ToggleBookmarkProps) => {
+    async ({ post, origin, opts, disableToast }: ToggleBookmarkProps) => {
       if (!post) {
         return;
       }
@@ -140,6 +141,9 @@ const useBookmarkPost = ({
 
       if (post.bookmarked) {
         logEvent(postLogEvent(LogEvent.RemovePostBookmark, post, logOptions));
+        if (disableToast) {
+          return;
+        }
         await removeBookmark({ id: post.id });
         displayToast('Post was removed from your bookmarks');
         return;
@@ -150,6 +154,9 @@ const useBookmarkPost = ({
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
 
+      if (disableToast) {
+        return;
+      }
       displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
         undoCopy: 'Change folder',
         onUndo: () => {

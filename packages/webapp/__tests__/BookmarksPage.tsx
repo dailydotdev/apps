@@ -19,6 +19,7 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import BookmarksPage from '../pages/bookmarks';
 
 const routerReplace = jest.fn();
@@ -76,11 +77,13 @@ const renderComponent = (
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      {BookmarksPage.getLayout(
-        <BookmarksPage />,
-        {},
-        BookmarksPage.layoutProps,
-      )}
+      <InteractiveFeedProvider>
+        {BookmarksPage.getLayout(
+          <BookmarksPage />,
+          {},
+          BookmarksPage.layoutProps,
+        )}
+      </InteractiveFeedProvider>
     </TestBootProvider>,
   );
 };

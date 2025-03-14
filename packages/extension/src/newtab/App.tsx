@@ -30,6 +30,7 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -136,7 +137,9 @@ export default function App({
             >
               <SubscriptionContextProvider>
                 <LazyModalElement />
-                <InternalAppWithFeaturesBoundary />
+                <InteractiveFeedProvider>
+                  <InternalAppWithFeaturesBoundary />
+                </InteractiveFeedProvider>
               </SubscriptionContextProvider>
             </BootDataProvider>
           </ExtensionContextProvider>
