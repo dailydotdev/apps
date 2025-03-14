@@ -312,19 +312,6 @@ const RegistrationForm = ({
             </AlertParagraph>
           </Alert>
         )}
-        {isOnboardingExperiment && (
-          <PasswordField
-            required
-            minLength={6}
-            maxLength={72}
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            name="password"
-            inputId="password"
-            label="Create a password"
-            autoComplete="new-password"
-          />
-        )}
         <TextField
           autoFocus={!isOnboardingExperiment}
           autoComplete="name"
@@ -352,19 +339,17 @@ const RegistrationForm = ({
             )
           }
         />
-        {!isOnboardingExperiment && (
-          <PasswordField
-            required
-            minLength={6}
-            maxLength={72}
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            name="password"
-            inputId="password"
-            label="Create a password"
-            autoComplete="new-password"
-          />
-        )}
+        <PasswordField
+          required
+          minLength={6}
+          maxLength={72}
+          saveHintSpace
+          className={{ container: 'w-full' }}
+          name="password"
+          inputId="password"
+          label="Create a password"
+          autoComplete="new-password"
+        />
         <TextField
           autoComplete="user"
           saveHintSpace
