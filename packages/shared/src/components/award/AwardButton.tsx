@@ -20,12 +20,14 @@ import type {
 } from '../../contexts/GiveAwardModalContext';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
+import type { Post } from '../../graphql/posts';
 
 type AwardButtonProps = {
   appendTo?: 'parent' | Element | ((ref: Element) => Element);
   type: AwardTypes;
   className?: string;
   entity: AwardEntity;
+  post?: Post;
 } & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
 export const AwardButton = ({
   appendTo: appendToProps,
@@ -34,6 +36,7 @@ export const AwardButton = ({
   entity,
   pressed,
   variant = ButtonVariant.Tertiary,
+  post,
 }: AwardButtonProps): ReactElement => {
   const { isCompanion } = useRequestProtocol();
   const { user, showLogin } = useAuthContext();
@@ -49,6 +52,7 @@ export const AwardButton = ({
       props: {
         type,
         entity,
+        post,
       },
     });
   };

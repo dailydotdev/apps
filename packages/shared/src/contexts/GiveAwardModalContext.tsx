@@ -1,8 +1,12 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { ModalProps } from '../components/modals/common/Modal';
 import type { Product } from '../graphql/njord';
 import type { PublicProfile } from '../lib/user';
+import { useLogContext } from './LogContext';
+import { postLogEvent } from '../lib/feed';
+import { LogEvent } from '../lib/log';
+import type { Post } from '../graphql/posts';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -24,6 +28,34 @@ export type ModalRenders = keyof typeof MODALRENDERS;
 
 export type Screens = keyof typeof SCREENS;
 
+const AWARD_EVENTS = {
+  START: 'START',
+  PICK: 'PICK',
+  AWARD: 'AWARD',
+};
+type AwardEvents = keyof typeof AWARD_EVENTS;
+
+const AwardTypeToTrackingEvent: Record<
+  AwardTypes,
+  Record<AwardEvents, LogEvent>
+> = {
+  USER: {
+    START: LogEvent.StartAwardUser,
+    PICK: LogEvent.PickAwardUser,
+    AWARD: LogEvent.AwardUser,
+  },
+  POST: {
+    START: LogEvent.StartAwardPost,
+    PICK: LogEvent.PickAwardPost,
+    AWARD: LogEvent.AwardPost,
+  },
+  COMMENT: {
+    START: LogEvent.StartAwardPost,
+    PICK: LogEvent.PickAwardPost,
+    AWARD: LogEvent.AwardPost,
+  },
+};
+
 export const maxNoteLength = 400;
 
 export type AwardEntity = {
@@ -42,6 +74,10 @@ export type GiveAwardModalContextData = {
   type: AwardTypes;
   entity: AwardEntity;
   product?: Product;
+  logAwardEvent: (args: {
+    awardEvent: AwardEvents;
+    extra?: Record<string, unknown>;
+  }) => void;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -52,6 +88,7 @@ export type GiveAwardModalContextProviderProps = {
   children?: ReactNode;
   type: AwardTypes;
   entity: AwardEntity;
+  post?: Post;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 export const GiveAwardModalContextProvider = ({
@@ -59,7 +96,9 @@ export const GiveAwardModalContextProvider = ({
   onRequestClose,
   type,
   entity,
+  post,
 }: GiveAwardModalContextProviderProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const [activeStep, setActiveStep] = useState<{
     screen: Screens;
     product?: Product;
@@ -68,6 +107,28 @@ export const GiveAwardModalContextProvider = ({
   });
   const [activeModal, setActiveModal] = useState<ModalRenders>(
     MODALRENDERS.AWARD,
+  );
+
+  const logAwardEvent = useCallback(
+    ({
+      awardEvent,
+      extra,
+    }: {
+      awardEvent: AwardEvents;
+      extra?: Record<string, unknown>;
+    }): void => {
+      const eventName = AwardTypeToTrackingEvent[type]?.[awardEvent];
+      if (type === 'USER') {
+        // User is a non post event
+        logEvent({
+          event_name: eventName,
+          extra: JSON.stringify({ ...extra }),
+        });
+      } else {
+        logEvent(postLogEvent(eventName, post, { extra }));
+      }
+    },
+    [logEvent, post, type],
   );
 
   const contextData = useMemo<GiveAwardModalContextData>(
@@ -80,8 +141,17 @@ export const GiveAwardModalContextProvider = ({
       setActiveStep,
       type,
       entity,
+      logAwardEvent,
     }),
-    [activeModal, activeStep, onRequestClose, type, entity],
+    [
+      activeModal,
+      onRequestClose,
+      activeStep.screen,
+      activeStep.product,
+      type,
+      entity,
+      logAwardEvent,
+    ],
   );
 
   return (
