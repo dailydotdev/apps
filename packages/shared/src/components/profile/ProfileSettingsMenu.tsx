@@ -37,10 +37,14 @@ import {
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
 import { SubscriptionProvider } from '../../lib/plus';
-import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
+import {
+  iOSSupportsPlusPurchase,
+  postWebKitMessage,
+  WebKitMessageHandlers,
+} from '../../lib/ios';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout, isAndroidApp, user } = useAuthContext();
+  const { logout, isAndroidApp } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
@@ -87,11 +91,7 @@ const useMenuItems = (): NavItemProps[] => {
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     ];
 
-    if (
-      !isIOSNative() ||
-      (isIOSNative() && user.isTeamMember)
-      // iOSSupportsPlusPurchase()
-    ) {
+    if (!isIOSNative() || iOSSupportsPlusPurchase()) {
       items.push({
         label: isPlus ? 'Manage plus' : plusCta,
         icon: <DevPlusIcon />,
@@ -212,7 +212,6 @@ const useMenuItems = (): NavItemProps[] => {
     plusCta,
     plusHref,
     plusProvider,
-    user.isTeamMember,
   ]);
 };
 
