@@ -151,6 +151,9 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   defaultFeedId?: string;
   flags?: UserFlagsPublic;
   subscriptionFlags?: UserSubscriptionFlags;
+  balance: {
+    amount: number;
+  };
 }
 
 interface BaseError {
