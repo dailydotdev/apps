@@ -9,6 +9,7 @@ import type {
 } from './context';
 import { PaymentContext } from './context';
 import {
+  iOSSupportsPlusPurchase,
   messageHandlerExists,
   postWebKitMessage,
   WebKitMessageHandlers,
@@ -58,11 +59,7 @@ export const StoreKitSubProvider = ({
 
   const { data: productOptions } = useQuery({
     queryKey: ['iap-products'],
-    enabled:
-      !!productIds &&
-      messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest) &&
-      !!user?.isTeamMember &&
-      !!growthbook?.ready,
+    enabled: !!productIds && !!growthbook?.ready && iOSSupportsPlusPurchase(),
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
