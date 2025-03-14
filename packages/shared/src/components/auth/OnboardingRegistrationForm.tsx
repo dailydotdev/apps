@@ -120,15 +120,6 @@ export const OnboardingRegistrationForm = ({
         extra: JSON.stringify({ trigger }),
       });
     },
-    onAfterEmailCheck: (emailExists) => {
-      logEvent({
-        event_name: emailExists
-          ? AuthEventNames.OpenLogin
-          : AuthEventNames.OpenSignup,
-        extra: JSON.stringify({ trigger }),
-        target_id: targetId,
-      });
-    },
     onValidEmail: onSignup,
   });
   const onboardingSignupButtonProps = {
@@ -143,13 +134,15 @@ export const OnboardingRegistrationForm = ({
 
   useEffect(() => {
     logEvent({
-      event_name: AuthEventNames.OpenSignup,
+      event_name: email.alreadyExists
+        ? AuthEventNames.OpenLogin
+        : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
       target_id: targetId,
     });
-    // Need to run only once on mount
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [email.alreadyExists]);
 
   return (
     <>
@@ -252,11 +245,6 @@ export const OnboardingRegistrationFormExperiment = ({
       target_type: AuthEventNames.SignUpProvider,
       target_id: 'email',
       extra: JSON.stringify({ trigger }),
-    });
-    logEvent({
-      event_name: AuthEventNames.OpenSignup,
-      extra: JSON.stringify({ trigger }),
-      target_id: targetId,
     });
   };
 
