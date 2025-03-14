@@ -183,7 +183,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
 };
 
 type BuyCoresModalProps = ModalProps & {
-  origin: typeof Origin;
+  origin: Origin;
   onCompletion?: () => void;
 };
 export const BuyCoresModal = ({

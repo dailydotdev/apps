@@ -33,7 +33,7 @@ export const CoreOptionButton = ({
     if (!isMobile) {
       openCheckout({ priceId: id });
     }
-  }, [id, isMobile, openCheckout, setSelectedProduct]);
+  }, [id, isMobile, logEvent, openCheckout, origin, setSelectedProduct]);
   return (
     <Button
       className={classNames(

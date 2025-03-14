@@ -54,7 +54,7 @@ import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
 type LogStartBuyingCreditsProps = {
-  origin: typeof Origin;
+  origin: Origin;
   target_id?: string;
   amount?: number;
 };

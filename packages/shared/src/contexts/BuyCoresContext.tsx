@@ -33,7 +33,7 @@ export type BuyCoresContextData = {
   setSelectedProduct: (product: string) => void;
   activeStep: Screens;
   setActiveStep: (step: Screens) => void;
-  origin?: typeof Origin;
+  origin?: Origin;
 };
 
 const BuyCoresContext = React.createContext<BuyCoresContextData>(undefined);
@@ -41,7 +41,7 @@ export default BuyCoresContext;
 
 export type BuyCoresContextProviderProps = {
   children?: ReactNode;
-  origin: typeof Origin;
+  origin: Origin;
   amountNeeded?: number;
   onCompletion?: () => void;
 };
