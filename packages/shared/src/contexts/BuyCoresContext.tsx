@@ -6,7 +6,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
+import type {
+  CheckoutCustomer,
+  CheckoutLineItem,
+  Environments,
+  Paddle,
+  PaddleEventData,
+} from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
   getPaddleInstance,
@@ -52,12 +58,16 @@ export const BuyCoresContextProvider = ({
   const [activeStep, setActiveStep] = useState<Screens>(SCREENS.INTRO);
   const [selectedProduct, setSelectedProduct] = useState<string>();
   const [paddle, setPaddle] = useState<Paddle>();
+  const isCheckoutOpenRef = React.useRef(false);
 
   useEffect(() => {
     if (checkIsExtension()) {
       // Payment not available on extension
       return;
     }
+
+    isCheckoutOpenRef.current = false;
+
     const existingPaddleInstance = getPaddleInstance();
     if (existingPaddleInstance) {
       setPaddle(existingPaddleInstance);
@@ -80,9 +90,25 @@ export const BuyCoresContextProvider = ({
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
             break;
+          case CheckoutEventNames.CHECKOUT_LOADED:
+            isCheckoutOpenRef.current = true;
+            break;
+          case CheckoutEventNames.CHECKOUT_CLOSED:
+            isCheckoutOpenRef.current = false;
+            break;
           default:
             break;
         }
+      },
+      checkout: {
+        settings: {
+          displayMode: 'inline',
+          frameTarget: 'checkout-container',
+          frameInitialHeight: 500,
+          frameStyle:
+            'width: 100%; background-color: transparent; border: none;',
+          theme: 'dark',
+        },
       },
     }).then((paddleInstance: Paddle | undefined) => {
       if (paddleInstance) {
@@ -93,22 +119,31 @@ export const BuyCoresContextProvider = ({
 
   const openCheckout = useCallback(
     ({ priceId }) => {
+      const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
+      const customer: CheckoutCustomer = {
+        email: user?.email,
+      };
+      const customData = {
+        user_id: user?.id,
+      };
+
+      if (isCheckoutOpenRef.current) {
+        paddle?.Checkout.updateCheckout({
+          items,
+          customer,
+          customData,
+        });
+
+        return;
+      }
+
       paddle?.Checkout.open({
-        items: [{ priceId, quantity: 1 }],
-        customer: {
-          email: user?.email,
-        },
-        settings: {
-          displayMode: 'inline',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-        },
+        items,
+        customer,
+        customData,
       });
     },
-    [paddle?.Checkout, user?.email],
+    [paddle?.Checkout, user?.email, user?.id],
   );
 
   const contextData = useMemo<BuyCoresContextData>(
