@@ -37,6 +37,7 @@ interface UseAccountEmailProps {
   onVerifyCodeSuccess?: () => void;
   onError?: (error: string) => void;
   onTimerFinished?: () => void;
+  timerOnLoad?: number;
 }
 
 type EmailFlow = AuthFlow.Recovery | AuthFlow.Verification;
@@ -53,10 +54,11 @@ function useAccountEmailFlow({
   onVerifyCodeSuccess,
   onError,
   onTimerFinished,
+  timerOnLoad = 0,
 }: UseAccountEmailProps): UseAccountEmail {
   const [activeFlow, setActiveFlow] = useState(flowId);
   const [autoResend, setAutoResend] = useState(false);
-  const { timer, setTimer, runTimer } = useTimer(onTimerFinished, 0);
+  const { timer, setTimer, runTimer } = useTimer(onTimerFinished, timerOnLoad);
 
   const existingEnabled = flow === AuthFlow.Verification && !flowId;
 
