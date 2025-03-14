@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { OnboardingGradientClasses } from '../onboarding/common';
+import { onboardingGradientClasses } from '../onboarding/common';
 import { Typography } from '../typography/Typography';
 import ConditionalWrapper from '../ConditionalWrapper';
 
@@ -54,7 +54,7 @@ export function OnboardingHeadline({
       <Typography
         className={classNames(
           'mb-4',
-          OnboardingGradientClasses,
+          onboardingGradientClasses,
           className?.title,
         )}
       >

@@ -59,8 +59,8 @@ export interface AuthFormProps {
 
 export const getFormEmail = (e: React.FormEvent): string => {
   const form = e.currentTarget as HTMLFormElement;
-  const input = Array.from(form.elements).find(
-    (el) => el.getAttribute('name') === 'email',
+  const input = Array.from(form.elements).find((el) =>
+    ['email', 'traits.email'].includes(el.getAttribute('name')),
   ) as HTMLInputElement;
 
   return input?.value?.trim();
