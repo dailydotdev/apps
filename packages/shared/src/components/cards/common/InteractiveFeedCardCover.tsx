@@ -14,7 +14,7 @@ const InteractiveFeedCardCover = ({ post }: { post: Post }): ReactElement => {
         <button
           onClick={() => hidePost(post.id)}
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-status-error"
+          className="flex size-10 items-center justify-center rounded-full bg-status-error"
         >
           <BlockIcon className="m-auto" size={IconSize.Medium} />
         </button>
