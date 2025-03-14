@@ -7,6 +7,7 @@ import {
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
+import type { SubscriptionProvider, UserSubscriptionStatus } from './plus';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -119,6 +120,14 @@ export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
 }>;
 
+export type UserSubscriptionFlags = Partial<{
+  provider: SubscriptionProvider;
+  status: UserSubscriptionStatus;
+
+  // StoreKit flags
+  appAccountToken?: string; // StoreKit app account token (UUID)
+}>;
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
@@ -141,6 +150,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   contentPreference?: ContentPreference;
   defaultFeedId?: string;
   flags?: UserFlagsPublic;
+  subscriptionFlags?: UserSubscriptionFlags;
   balance: {
     amount: number;
   };
@@ -168,10 +178,14 @@ export async function logout(reason: string): Promise<void> {
 }
 
 export async function deleteAccount(): Promise<void> {
-  await fetch(`${apiUrl}/v1/users/me`, {
+  const res = await fetch(`${apiUrl}/v1/users/me`, {
     method: 'DELETE',
     credentials: 'include',
   });
+
+  if (!res.ok) {
+    throw new Error('Failed to delete account');
+  }
 }
 
 const getProfileRequest = async (id: string) => {

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
-import { usePaymentContext } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
 
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';

@@ -51,12 +51,11 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/PaymentContext';
+import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
@@ -296,10 +295,7 @@ export function OnboardPage(): ReactElement {
       target_id: TargetId.Onboarding,
     });
 
-    setSettings({
-      sidebarExpanded: true,
-      onboardingChecklistView: ChecklistViewState.Open,
-    });
+    setSettings({ sidebarExpanded: true });
 
     return onClickNext();
   };

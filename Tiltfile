@@ -3,6 +3,7 @@ load('ext://uibutton', 'cmd_button', 'location')
 include('../daily-api/Tiltfile')
 include('../heimdall/Tiltfile')
 include('../post-scraper-one-ai/Tiltfile')
+include('../njord/Tiltfile')
 
 def get_daily_dir(app=""):
   parent = os.path.dirname(os.getcwd())

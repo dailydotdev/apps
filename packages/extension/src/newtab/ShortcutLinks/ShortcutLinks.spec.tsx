@@ -26,7 +26,6 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import * as actionHook from '@dailydotdev/shared/src/hooks/useActions';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as libFuncs from '@dailydotdev/shared/src/lib/func';
@@ -95,7 +94,6 @@ const defaultSettings: RemoteSettings = {
     'http://custom3.com',
     'http://custom4.com',
   ],
-  onboardingChecklistView: ChecklistViewState.Hidden,
 };
 
 const defaultBootData: BootCacheData = {

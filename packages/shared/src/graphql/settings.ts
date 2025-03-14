@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import type { ChecklistViewState } from '../lib/checklist';
 import type { SortCommentsBy } from './comments';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
@@ -46,7 +45,6 @@ export type RemoteSettings = {
   sortCommentsBy: SortCommentsBy;
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
-  onboardingChecklistView: ChecklistViewState;
   flags?: SettingsFlags;
 };
 
