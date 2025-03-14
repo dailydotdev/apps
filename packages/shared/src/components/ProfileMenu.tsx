@@ -26,7 +26,7 @@ import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useLazyModal } from '../hooks/useLazyModal';
-import { checkIsExtension } from '../lib/func';
+import { checkIsExtension, isIOSNative } from '../lib/func';
 import { useDndContext } from '../contexts/DndContext';
 import { LazyModal } from './modals/common/types';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
@@ -35,6 +35,7 @@ import { featurePlusCtaCopy } from '../lib/featureManagement';
 import { GiftIcon } from './icons/gift';
 import { useConditionalFeature } from '../hooks';
 import { SubscriptionProvider } from '../lib/plus';
+import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
 
 interface ListItem {
   title: string;
@@ -85,6 +86,17 @@ export default function ProfileMenu({
             ? '_blank'
             : undefined,
         onClick: () => {
+          if (
+            isPlus &&
+            isIOSNative() &&
+            plusProvider === SubscriptionProvider.AppleStoreKit
+          ) {
+            postWebKitMessage(
+              WebKitMessageHandlers.IAPSubscriptionManage,
+              null,
+            );
+          }
+
           logSubscriptionEvent({
             event_name: isPlus
               ? LogEvent.ManageSubscription
