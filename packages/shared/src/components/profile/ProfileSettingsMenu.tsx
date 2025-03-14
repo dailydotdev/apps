@@ -44,7 +44,7 @@ import {
 } from '../../lib/ios';
 
 const useMenuItems = (): NavItemProps[] => {
-  const { logout, isAndroidApp, user } = useAuthContext();
+  const { logout, isAndroidApp } = useAuthContext();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
