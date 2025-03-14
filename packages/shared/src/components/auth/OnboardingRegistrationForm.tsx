@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
@@ -141,6 +141,16 @@ export const OnboardingRegistrationForm = ({
     onProviderClick?.(provider, email.alreadyExists);
   };
 
+  useEffect(() => {
+    logEvent({
+      event_name: AuthEventNames.OpenSignup,
+      extra: JSON.stringify({ trigger }),
+      target_id: targetId,
+    });
+    // Need to run only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <AuthForm
@@ -249,6 +259,16 @@ export const OnboardingRegistrationFormExperiment = ({
       target_id: targetId,
     });
   };
+
+  useEffect(() => {
+    logEvent({
+      event_name: AuthEventNames.OpenSignup,
+      extra: JSON.stringify({ trigger }),
+      target_id: targetId,
+    });
+    // Need to run only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
