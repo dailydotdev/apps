@@ -22,10 +22,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
-import {
-  useInteractiveCompletion,
-  useInteractiveFeedContext,
-} from '../../contexts/InteractiveFeedContext';
+import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePaymentContext } from '../../contexts/payment/context';
@@ -49,7 +46,6 @@ export const OnboardingHeader = ({
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
   const { isFreeTrialExperiment } = usePaymentContext();
-  const { interactiveFeedExp } = useInteractiveFeedContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
@@ -98,7 +94,7 @@ export const OnboardingHeader = ({
         <header
           className={classNames(
             'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',
-            interactiveFeedExp &&
+            completion > 0 &&
               activeScreen === OnboardingStep.InteractiveFeed &&
               'text-status-help',
           )}

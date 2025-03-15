@@ -148,9 +148,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             showFeedback={showFeedback}
           />
           <CardTitle
-            className={
-              interactiveFeedExp && isFeedPreview ? 'typo-callout' : ''
-            }
+            className={smallCard ? 'typo-callout' : ''}
             lineClamp={showFeedback ? 'line-clamp-2' : undefined}
           >
             {title}
@@ -163,7 +161,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
             </div>
-            {!(interactiveFeedExp && isFeedPreview) && (
+            {!smallCard && (
               <PostMetadata
                 createdAt={post.createdAt}
                 readTime={post.readTime}

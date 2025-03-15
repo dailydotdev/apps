@@ -1,6 +1,5 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
-import { useRouter } from 'next/router';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import {
   useConditionalFeature,
@@ -119,8 +118,6 @@ const FeedContext = React.createContext<FeedContextData>(
 export function FeedLayoutProvider({
   children,
 }: PropsWithChildren): ReactElement {
-  const router = useRouter();
-  const isOnboarding = router.pathname.includes('/onboarding');
   const isLaptopL = useViewSize(ViewSize.LaptopL);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { interactiveFeedExp } = useInteractiveFeedContext();
@@ -210,13 +207,12 @@ export function FeedLayoutProvider({
     };
   };
 
-  const finalSettings =
-    isOnboarding && interactiveFeedExp
-      ? {
-          ...currentSettings,
-          numCards: getExpNumCards(),
-        }
-      : currentSettings;
+  const finalSettings = interactiveFeedExp
+    ? {
+        ...currentSettings,
+        numCards: getExpNumCards(),
+      }
+    : currentSettings;
 
   return (
     <FeedContext.Provider value={finalSettings}>
