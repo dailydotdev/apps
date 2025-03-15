@@ -122,6 +122,7 @@ export function FeedLayoutProvider({
   const router = useRouter();
   const isOnboarding = router.pathname.includes('/onboarding');
   const isLaptopL = useViewSize(ViewSize.LaptopL);
+  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { interactiveFeedExp } = useInteractiveFeedContext();
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -185,15 +186,35 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
+  const getExpNumCards = () => {
+    if (isLaptopXL) {
+      return {
+        eco: 4,
+        roomy: 4,
+        cozy: 4,
+      };
+    }
+
+    if (isLaptopL) {
+      return {
+        eco: 3,
+        roomy: 3,
+        cozy: 3,
+      };
+    }
+
+    return {
+      eco: 2,
+      roomy: 2,
+      cozy: 2,
+    };
+  };
+
   const finalSettings =
     isOnboarding && interactiveFeedExp
       ? {
           ...currentSettings,
-          numCards: {
-            cozy: isLaptopL ? 4 : 3,
-            eco: isLaptopL ? 4 : 3,
-            roomy: isLaptopL ? 4 : 3,
-          },
+          numCards: getExpNumCards(),
         }
       : currentSettings;
 
