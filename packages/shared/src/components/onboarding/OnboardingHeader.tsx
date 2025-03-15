@@ -46,6 +46,7 @@ export const OnboardingHeader = ({
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
   const { isFreeTrialExperiment } = usePaymentContext();
+  const { interactiveFeedExp } = useInteractiveFeedContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
@@ -91,7 +92,14 @@ export const OnboardingHeader = ({
         {activeScreen === OnboardingStep.Plus && isFreeTrialExperiment && (
           <PlusFreeTrialAlert />
         )}
-        <header className="sticky top-0 z-3 mb-10 flex w-full justify-center text-status-help backdrop-blur-sm">
+        <header
+          className={classNames(
+            'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',
+            interactiveFeedExp &&
+              activeScreen === OnboardingStep.InteractiveFeed &&
+              'text-status-help',
+          )}
+        >
           <img
             className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
             src={getImage()}
