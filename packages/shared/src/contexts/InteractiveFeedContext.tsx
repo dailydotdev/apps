@@ -20,6 +20,7 @@ type InteractiveFeedContextProps = {
   hidePost: (postId: string) => void;
   approvePost: (post: Post) => void;
   interactiveFeedExp: boolean;
+  isOnboarding: boolean;
 };
 
 const InteractiveFeedContext = React.createContext(null);
@@ -33,9 +34,10 @@ export const InteractiveFeedProvider = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
   const { logEvent } = useLogContext();
+  const isOnboarding = router.pathname.includes('/onboarding');
   const shouldEvaluate = useMemo(() => {
-    return isLaptop && router.pathname.includes('/onboarding') && !!user?.id;
-  }, [isLaptop, router.pathname, user]);
+    return isLaptop && isOnboarding && !!user?.id;
+  }, [isLaptop, isOnboarding, user]);
   const { value: interactiveFeedExp } = useConditionalFeature({
     feature: featureInteractiveFeed,
     shouldEvaluate,
@@ -125,6 +127,7 @@ export const InteractiveFeedProvider = ({
         hidePost,
         approvePost,
         interactiveFeedExp,
+        isOnboarding,
       }}
     >
       {children}
