@@ -35,7 +35,6 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import {
   messageHandlerExists,
   postWebKitMessage,
@@ -266,9 +265,7 @@ export default function App(props: AppProps): ReactElement {
           <PixelsProvider>
             <PushNotificationContextProvider>
               <SubscriptionContextProvider>
-                <InteractiveFeedProvider>
-                  <InternalApp {...props} />
-                </InteractiveFeedProvider>
+                <InternalApp {...props} />
               </SubscriptionContextProvider>
             </PushNotificationContextProvider>
           </PixelsProvider>

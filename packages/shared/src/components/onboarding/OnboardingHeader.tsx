@@ -22,7 +22,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
-import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
+import {
+  useInteractiveCompletion,
+  useInteractiveFeedContext,
+} from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePaymentContext } from '../../contexts/payment/context';
@@ -50,7 +53,7 @@ export const OnboardingHeader = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
-  const { completion } = useInteractiveFeedContext();
+  const { completion } = useInteractiveCompletion();
 
   const getImage = () => {
     if (isMobile) {

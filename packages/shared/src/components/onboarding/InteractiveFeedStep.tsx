@@ -17,7 +17,7 @@ import { FeedLayoutProvider } from '../../contexts/FeedContext';
 import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
-import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
+import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
 import ProgressCircle from '../ProgressCircle';
 import { interactiveFeedEmpty } from '../../lib/image';
 import { Image } from '../image/Image';
@@ -27,7 +27,7 @@ const InteractiveFeedStep = (): ReactElement => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onSearch] = useDebounceFn(setSearchQuery, 200);
   const { feedSettings } = useFeedSettings({});
-  const { completion } = useInteractiveFeedContext();
+  const { completion } = useInteractiveCompletion();
   const { data: searchResult } = useTagSearch({
     value: searchQuery,
     origin: Origin.EditTag,

@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import type {
   AuthOptionsProps,
@@ -42,6 +48,7 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
+  featureInteractiveFeed,
   featureOnboardingPlusCheckout,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
@@ -64,7 +71,7 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
-import { useInteractiveFeedContext } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 
@@ -190,7 +197,7 @@ export function OnboardPage(): ReactElement {
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
-  const { interactiveFeedExp } = useInteractiveFeedContext();
+  const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
   const layout = useMemo(
     () => ({
       hasFooter: onboardingStepsWithFooter.includes(activeScreen),
@@ -214,7 +221,7 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
 
     if (!hasCompletedEditTags) {
-      if (interactiveFeedExp) {
+      if (getFeatureValue(featureInteractiveFeed)) {
         setActiveScreen(OnboardingStep.InteractiveFeed);
       } else {
         setActiveScreen(OnboardingStep.EditTag);
@@ -243,7 +250,18 @@ export function OnboardPage(): ReactElement {
     hasCompletedEditTags,
     hasCompletedContentTypes,
     activeScreen,
+    getFeatureValue,
   ]);
+
+  const onTagsNext = useCallback(() => {
+    const shouldEnroll = getFeatureValue(featureInteractiveFeed);
+    setIsInteractiveFeed(shouldEnroll);
+    if (shouldEnroll) {
+      return setActiveScreen(OnboardingStep.InteractiveFeed);
+    }
+
+    return setActiveScreen(OnboardingStep.EditTag);
+  }, [getFeatureValue]);
 
   const onClickNext: OnboardingOnClickNext = () => {
     logEvent({
@@ -264,11 +282,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.Intro) {
-      if (interactiveFeedExp) {
-        return setActiveScreen(OnboardingStep.InteractiveFeed);
-      }
-
-      return setActiveScreen(OnboardingStep.EditTag);
+      onTagsNext();
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
@@ -315,7 +329,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (
-      interactiveFeedExp &&
+      isInteractiveFeed &&
       (!shouldShowExtensionOnboarding ||
         activeScreen === OnboardingStep.Extension)
     ) {
@@ -347,11 +361,7 @@ export function OnboardPage(): ReactElement {
 
   const authOptionProps: AuthOptionsProps = useMemo(() => {
     const onSuccessfulRegistration = () => {
-      if (interactiveFeedExp) {
-        setActiveScreen(OnboardingStep.InteractiveFeed);
-      } else {
-        setActiveScreen(OnboardingStep.EditTag);
-      }
+      onTagsNext();
     };
 
     return {
@@ -387,7 +397,7 @@ export function OnboardPage(): ReactElement {
     isMobile,
     targetId,
     loginState,
-    interactiveFeedExp,
+    onTagsNext,
   ]);
 
   const customActionName = useMemo(() => {
@@ -508,7 +518,9 @@ export function OnboardPage(): ReactElement {
                 <OnboardingExtension onClickNext={onClickNext} />
               )}
               {activeScreen === OnboardingStep.InteractiveFeed && (
-                <InteractiveFeedStep />
+                <InteractiveFeedProvider>
+                  <InteractiveFeedStep />
+                </InteractiveFeedProvider>
               )}
               {activeScreen === OnboardingStep.PreviewFeed && (
                 <FeedPreviewStep

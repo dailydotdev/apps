@@ -21,9 +21,8 @@ export const TagElement = ({
   isSelected = false,
   isHighlighted = false,
 }: OnboardingTagProps): ReactElement => {
-  const { interactiveFeedExp, isOnboarding } = useInteractiveFeedContext();
-  const isOnboardingInteractiveFeed = isOnboarding && interactiveFeedExp;
-  const isPrimary = isSelected || isOnboardingInteractiveFeed;
+  const { interactiveFeedExp } = useInteractiveFeedContext();
+  const isPrimary = isSelected || interactiveFeedExp;
 
   return (
     <Button
@@ -32,14 +31,10 @@ export const TagElement = ({
           'btn-tag': !isSelected,
         },
         'relative',
-        isOnboardingInteractiveFeed && '!px-3',
+        interactiveFeedExp && '!px-3',
       )}
       variant={isPrimary ? ButtonVariant.Primary : ButtonVariant.Float}
-      color={
-        isSelected || isOnboardingInteractiveFeed
-          ? ButtonColor.Cabbage
-          : undefined
-      }
+      color={isPrimary ? ButtonColor.Cabbage : undefined}
       onClick={() => {
         onClick({ tag });
       }}
