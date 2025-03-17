@@ -12,6 +12,8 @@ import { useBoot } from '../../hooks';
 import { getPricePreviews } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import PlusListModalSection from './PlusListModalSection';
+import { useFeature } from '../GrowthBookProvider';
+import { plusTakeoverContent } from '../../lib/featureManagement';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
@@ -39,6 +41,7 @@ const PlusExtension = (): ReactElement => {
     });
   };
 
+  const experiment = useFeature(plusTakeoverContent);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   return (
@@ -46,8 +49,8 @@ const PlusExtension = (): ReactElement => {
       <div className="flex flex-1 flex-col pr-10 pt-6">
         <PlusInfo
           productOptions={productOptions || []}
-          title={flags.title}
-          description={flags.description}
+          title={experiment?.title ?? flags.title}
+          description={experiment?.description ?? flags.description}
           selectedOption={selectedOption}
           onChange={({ priceId }) => {
             setSelectedOption(priceId);
@@ -65,10 +68,14 @@ const PlusExtension = (): ReactElement => {
           className="mt-8"
           onClick={handleClick}
         >
-          {flags.ctaText}
+          {experiment?.cta ?? flags.ctaText}
         </Button>
       </div>
-      <PlusListModalSection />
+      <PlusListModalSection
+        items={experiment?.features}
+        shouldShowRefund={experiment?.shouldShowRefund}
+        shouldShowReviews={experiment?.shouldShowReviews}
+      />
     </div>
   );
 };

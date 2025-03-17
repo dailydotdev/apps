@@ -26,6 +26,8 @@ import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext'
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePaymentContext } from '../../contexts/payment/context';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingReorder } from '../../lib/featureManagement';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -46,6 +48,7 @@ export const OnboardingHeader = ({
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
   const { isFreeTrialExperiment } = usePaymentContext();
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
@@ -188,30 +191,32 @@ export const OnboardingHeader = ({
         position={LogoPosition.Relative}
         linkDisabled
       />
-      <span className={classNames('flex items-center', 'text-text-tertiary')}>
-        <span
-          className="hidden tablet:block"
-          id={`login-label-${id}`}
-          aria-hidden
-        >
-          Already using daily.dev?
+      {!isReorderExperiment && (
+        <span className={classNames('flex items-center', 'text-text-tertiary')}>
+          <span
+            className="hidden tablet:block"
+            id={`login-label-${id}`}
+            aria-hidden
+          >
+            Already using daily.dev?
+          </span>
+          <Button
+            aria-label="Already using daily.dev? Login now"
+            className="ml-3"
+            onClick={(e) => {
+              e.preventDefault();
+              setAuth({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                defaultDisplay: AuthDisplay.Default,
+              });
+            }}
+            variant={ButtonVariant.Secondary}
+          >
+            Log in
+          </Button>
         </span>
-        <Button
-          aria-label="Already using daily.dev? Login now"
-          className="ml-3"
-          onClick={(e) => {
-            e.preventDefault();
-            setAuth({
-              isAuthenticating: true,
-              isLoginFlow: true,
-              defaultDisplay: AuthDisplay.Default,
-            });
-          }}
-          variant={ButtonVariant.Secondary}
-        >
-          Log in
-        </Button>
-      </span>
+      )}
     </header>
   );
 };

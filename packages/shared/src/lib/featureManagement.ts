@@ -7,6 +7,7 @@ import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
 import type { ProductMeta } from '../contexts/payment/context';
+import type { PlusItemStatus } from '../components/plus/PlusListItem';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -62,6 +63,15 @@ export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
   },
 );
 
+export const plusTakeoverContent = new Feature<{
+  title: string;
+  description: string;
+  features: Array<{ label: string; status: PlusItemStatus }>;
+  cta: string;
+  shouldShowRefund: boolean;
+  shouldShowReviews: boolean;
+}>('plus_takeover_content', null);
+
 export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
 export const visitLinkFeature = new Feature('post_visit_link', false);
@@ -114,5 +124,9 @@ export const featureCustomFeedPlacement = new Feature(
 );
 
 export const featureInteractiveFeed = new Feature('interactive_feed', false);
+export const featureOnboardingReorder = new Feature(
+  'onboarding_reorder',
+  false,
+);
 
 export { feature };

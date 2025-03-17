@@ -11,16 +11,14 @@
                         "comment": "Matches any OAuth callback URL"
                     },
                     {
-                        "/": "/plus*",
-                        "exclude": true,
-                        "comment": "Matches any plus URL"
-                    },
-                    {
                         "/": "/*",
                         "comment": "Matches any URL path under app.daily.dev"
                     }
                 ]
             }
         ]
-    }
+    },
+    "webcredentials": {
+        "apps": [ "C97TTQ7W57.dev.daily.app" ]
+    },
 }

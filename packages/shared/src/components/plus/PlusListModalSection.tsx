@@ -12,8 +12,19 @@ import { Image } from '../image/Image';
 import { PlusTrustReviews } from './PlusTrustReviews';
 import { IconSize } from '../Icon';
 import { PrivacyIcon } from '../icons';
+import type { PlusItem } from './PlusListItem';
 
-const PlusListModalSection = (): ReactElement => {
+interface PlusListModalSectionProps {
+  items?: PlusItem[];
+  shouldShowRefund?: boolean;
+  shouldShowReviews?: boolean;
+}
+
+const PlusListModalSection = ({
+  items,
+  shouldShowRefund = true,
+  shouldShowReviews = true,
+}: PlusListModalSectionProps): ReactElement => {
   return (
     <div className="relative flex h-full flex-1 flex-col gap-6 bg-black pr-6">
       <PlusUser
@@ -31,31 +42,34 @@ const PlusListModalSection = (): ReactElement => {
           className: 'text-white',
         }}
         className="z-1 pb-0 pl-10"
+        items={items}
       />
       <div className="z-1 flex flex-col gap-6">
-        <div
-          aria-label="Refund policy"
-          className="mx-auto flex max-w-fit items-center gap-2 rounded-10 bg-surface-float p-2"
-        >
+        {shouldShowRefund && (
           <div
-            aria-hidden
-            className="grid size-8 place-items-center rounded-10"
+            aria-label="Refund policy"
+            className="mx-auto flex max-w-fit items-center gap-2 rounded-10 bg-surface-float p-2"
           >
-            <PrivacyIcon
-              className="mx-auto rounded-10 bg-action-comment-float text-accent-blueCheese-default"
-              secondary
-              size={IconSize.Medium}
-            />
+            <div
+              aria-hidden
+              className="grid size-8 place-items-center rounded-10"
+            >
+              <PrivacyIcon
+                className="mx-auto rounded-10 bg-action-comment-float text-accent-blueCheese-default"
+                secondary
+                size={IconSize.Medium}
+              />
+            </div>
+            <Typography
+              className="min-w-0 flex-1"
+              color={TypographyColor.Primary}
+              type={TypographyType.Callout}
+            >
+              30 day hassle-free refund. No questions asked.
+            </Typography>
           </div>
-          <Typography
-            className="min-w-0 flex-1"
-            color={TypographyColor.Primary}
-            type={TypographyType.Callout}
-          >
-            30 day hassle-free refund. No questions asked.
-          </Typography>
-        </div>
-        <PlusTrustReviews center />
+        )}
+        {shouldShowReviews && <PlusTrustReviews center />}
       </div>
     </div>
   );

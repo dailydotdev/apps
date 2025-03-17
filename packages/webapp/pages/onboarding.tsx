@@ -29,8 +29,8 @@ import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/o
 import {
   onboardingStepsWithCTA,
   onboardingStepsWithFooter,
-  OnboardingStep,
   wrapperMaxWidth,
+  OnboardingStep,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
@@ -50,11 +50,13 @@ import {
   feature,
   featureInteractiveFeed,
   featureOnboardingPlusCheckout,
+  featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
   useViewSize,
   ViewSize,
+  useConditionalFeature,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -198,15 +200,35 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
+
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
+  const isIntro = activeScreen === OnboardingStep.Intro;
+  const { value: isReorderExperiment } = useConditionalFeature({
+    feature: featureOnboardingReorder,
+    shouldEvaluate: isOnboardingReady && !user && isIntro && !shouldVerify,
+  });
+
+  const isExperimental = {
+    reorder: {
+      registration: !!(
+        isReorderExperiment && defaultDisplay === AuthDisplay.Registration
+      ),
+    },
+  };
+
+  const showOnboardingPage = !isAuthenticating && !shouldVerify && isIntro;
+  const showBackground =
+    showOnboardingPage || isExperimental.reorder.registration;
+  const showGenerigLoader =
+    isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
+
   const layout = useMemo(
     () => ({
-      hasFooter: onboardingStepsWithFooter.includes(activeScreen),
       hasCta: onboardingStepsWithCTA.includes(activeScreen),
+      hasFooterLinks: onboardingStepsWithFooter.includes(activeScreen),
     }),
     [activeScreen],
   );
-
-  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
     if (
@@ -234,7 +256,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    if (activeScreen === OnboardingStep.Intro) {
+    if (isIntro) {
       const params = new URLSearchParams(window.location.search);
       const afterAuth = params.get(AFTER_AUTH_PARAM);
       params.delete(AFTER_AUTH_PARAM);
@@ -244,6 +266,7 @@ export function OnboardPage(): ReactElement {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    isIntro,
     isPageReady,
     user,
     isOnboardingReady,
@@ -369,8 +392,7 @@ export function OnboardPage(): ReactElement {
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
-          isAuthenticating && 'h-full',
-          !isAuthenticating && 'max-w-full',
+          isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
@@ -418,15 +440,6 @@ export function OnboardPage(): ReactElement {
     return undefined;
   }, [activeScreen, layout.hasCta]);
 
-  const showOnboardingPage =
-    !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
-
-  const showGenerigLoader =
-    isAuthenticating &&
-    isAuthLoading &&
-    activeScreen === OnboardingStep.Intro &&
-    !isOnboardingReady;
-
   if (!isPageReady) {
     return null;
   }
@@ -439,10 +452,13 @@ export function OnboardPage(): ReactElement {
           layout.hasCta && 'fixed',
         )}
       >
-        {showOnboardingPage && (
+        {showBackground && (
           <img
             alt="Onboarding background"
-            className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
+            className={classNames(
+              'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
+              isExperimental.reorder.registration && 'opacity-[.24] ',
+            )}
             fetchPriority="high"
             loading="eager"
             role="presentation"
@@ -464,8 +480,9 @@ export function OnboardPage(): ReactElement {
         <div
           className={classNames(
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-            activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-            !isAuthenticating && 'mt-7.5 flex-1 content-center',
+            (isIntro || isExperimental.reorder.registration) && wrapperMaxWidth,
+            (!isAuthenticating || isExperimental.reorder.registration) &&
+              'mt-7.5 flex-1 content-center',
             [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
         >
@@ -478,16 +495,21 @@ export function OnboardPage(): ReactElement {
                 }}
               />
               <AuthOptions {...authOptionProps} />
-              <SignupDisclaimer className="mb-4" />
+              {!isReorderExperiment && <SignupDisclaimer className="mb-4" />}
             </div>
           )}
-          {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
-            <AuthOptions {...authOptionProps} />
+          {isAuthenticating && isIntro ? (
+            <>
+              <AuthOptions {...authOptionProps} />
+              {isExperimental.reorder.registration && (
+                <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+              )}
+            </>
           ) : (
             <div
               className={classNames(
                 'flex tablet:flex-1',
-                activeScreen === OnboardingStep.Intro
+                isIntro
                   ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                   : 'mb-10 ml-0 w-full flex-col items-center justify-start',
                 layout.hasCta &&
@@ -531,7 +553,7 @@ export function OnboardPage(): ReactElement {
             </div>
           )}
         </div>
-        {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
+        {layout.hasFooterLinks && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
   );
