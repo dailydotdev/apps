@@ -7,6 +7,7 @@ import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { isIOSNative } from '../../lib/func';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 type BuyCreditsButtonProps = {
   onPlusClick: () => void;
@@ -16,10 +17,12 @@ export const BuyCreditsButton = ({
   onPlusClick,
   hideBuyButton,
 }: BuyCreditsButtonProps): ReactElement => {
+  const { user } = useAuthContext();
+
   const renderBuyButton = !isIOSNative() && !hideBuyButton;
   return (
     <div className="flex items-center rounded-10 bg-surface-float">
-      <Link href={`${webappUrl}/earnings`} passHref>
+      <Link href={`${webappUrl}earnings`} passHref>
         <Button
           tag="a"
           target="_blank"
@@ -28,7 +31,7 @@ export const BuyCreditsButton = ({
           icon={<CoinIcon />}
           size={ButtonSize.Small}
         >
-          20
+          {user?.balance?.amount || 0}
         </Button>
       </Link>
       {renderBuyButton ? (

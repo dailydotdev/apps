@@ -36,17 +36,23 @@ import type { Product } from '../../../graphql/njord';
 import { award, getProducts } from '../../../graphql/njord';
 import { labels } from '../../../lib';
 import type { ApiErrorResult } from '../../../graphql/common';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
-const AwardItem = ({ item }: { item: Product }) => {
-  const { setActiveStep } = useGiveAwardModalContext();
-
+const AwardItem = ({
+  item,
+  onClick,
+}: {
+  item: Product;
+  onClick: (props: { product: Product; event?: MouseEvent }) => void;
+}) => {
   return (
     <Button
       variant={ButtonVariant.Float}
       className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float !p-1"
-      onClick={() => setActiveStep({ screen: 'COMMENT', product: item })}
+      onClick={(event) => {
+        return onClick({ product: item, event });
+      }}
     >
       <Image src={item.image} alt={item.name} className="size-20" />
       <div className="flex items-center justify-center">
@@ -64,19 +70,33 @@ const AwardItem = ({ item }: { item: Product }) => {
 };
 
 const IntroScreen = () => {
-  const { onRequestClose, type, entity, setActiveModal } =
-    useGiveAwardModalContext();
+  const [showBuyCores, setShowBuyCores] = useState(false);
+  const { user } = useAuthContext();
+  const {
+    onRequestClose,
+    type,
+    entity,
+    setActiveModal,
+    setActiveStep,
+    product,
+  } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const { data: awards } = useQuery({
     queryKey: generateQueryKey(RequestKey.Products),
     queryFn: () => getProducts(),
+    staleTime: StaleTime.Default,
   });
+
+  const onBuyCores = () => {
+    setShowBuyCores(false);
+    setActiveModal('BUY_CORES');
+  };
 
   return (
     <>
       <Modal.Header title={' '} showCloseButton={!isMobile}>
-        <BuyCreditsButton onPlusClick={() => setActiveModal('BUY_CORES')} />
+        <BuyCreditsButton onPlusClick={onBuyCores} />
         {isMobile ? (
           <Button
             onClick={onRequestClose}
@@ -123,10 +143,53 @@ const IntroScreen = () => {
         </Typography>
         <div className="mt-4 grid grid-cols-3 gap-2 tablet:grid-cols-4">
           {awards?.edges?.map(({ node: item }) => (
-            <AwardItem key={item.id} item={item} />
+            <AwardItem
+              key={item.id}
+              item={item}
+              onClick={({ product: clickedProduct }) => {
+                if (clickedProduct.value > user.balance.amount) {
+                  setActiveStep({ screen: 'INTRO', product: clickedProduct });
+                  setShowBuyCores(true);
+
+                  return;
+                }
+
+                setShowBuyCores(false);
+                setActiveStep({ screen: 'COMMENT', product: clickedProduct });
+              }}
+            />
           ))}
         </div>
       </Modal.Body>
+      {showBuyCores && !!product && (
+        <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
+          <Button
+            className="w-full"
+            variant={ButtonVariant.Primary}
+            onClick={onBuyCores}
+          >
+            Buy Cores <CoinIcon />{' '}
+            {product.value === 0 ? 'Free' : product.value}
+          </Button>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Quaternary}
+            className="text-center"
+          >
+            Awards may include a revenue share with the recipient and are
+            subject to our{' '}
+            <a
+              href={termsOfService}
+              target="_blank"
+              rel="noopener"
+              className="font-bold underline"
+            >
+              Terms of Service
+            </a>
+            .
+          </Typography>
+        </Modal.Footer>
+      )}
     </>
   );
 };
@@ -269,7 +332,7 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeModal, setActiveModal } = useGiveAwardModalContext();
+  const { activeModal, setActiveModal, product } = useGiveAwardModalContext();
 
   const onCompletion = useCallback(() => {
     setActiveModal('AWARD');
@@ -288,7 +351,11 @@ const ModalRender = ({ ...props }: ModalProps) => {
         </Modal>
       ) : null}
       {activeModal === 'BUY_CORES' ? (
-        <BuyCoresModal {...props} onCompletion={onCompletion} />
+        <BuyCoresModal
+          {...props}
+          onCompletion={onCompletion}
+          product={product}
+        />
       ) : null}
     </>
   );

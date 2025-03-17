@@ -53,7 +53,7 @@ export default function ProfileButton({
             <Button
               icon={<CoinIcon className="text-accent-bun-default" />}
               tag="a"
-              href={`${webappUrl}/earnings`}
+              href={`${webappUrl}earnings`}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
             >

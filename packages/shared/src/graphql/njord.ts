@@ -3,7 +3,8 @@ import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
-import { PRODUCT_FRAGMENT } from './fragments';
+import { PRODUCT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
+import type { Author } from './comments';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -87,3 +88,66 @@ export const getProducts = async ({
 
   return result.products;
 };
+
+export enum UserTransactionStatus {
+  Success = 0,
+  Created = 201,
+  Processing = 202,
+  Error = 500,
+}
+
+export type UserTransaction = {
+  id: string;
+  product?: Product;
+  status: number;
+  receiver: Author;
+  sender?: Author;
+  value: number;
+  flags: Partial<{
+    note: string;
+    error: string;
+  }>;
+  balance: LoggedUser['balance'];
+};
+
+export const TRANSACTION_BY_PROVIDER_QUERY = gql`
+  query TransactionByProvider($providerId: ID!) {
+    transactionByProvider(id: $providerId) {
+      id
+      product {
+        ...ProductFragment
+      }
+      status
+      receiver {
+        ...UserShortInfo
+      }
+      sender {
+        ...UserShortInfo
+      }
+      value
+      flags {
+        note
+        error
+      }
+      balance {
+        amount
+      }
+    }
+  }
+  ${PRODUCT_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const getTransactionByProvider = async ({
+  providerId,
+}: {
+  providerId: string;
+}): Promise<UserTransaction> => {
+  const result = await gqlClient.request<{
+    transactionByProvider: UserTransaction;
+  }>(TRANSACTION_BY_PROVIDER_QUERY, { providerId });
+
+  return result.transactionByProvider;
+};
+
+export const transactionRefetchIntervalMs = 2500;

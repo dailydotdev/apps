@@ -13,11 +13,7 @@ import type {
   Paddle,
   PaddleEventData,
 } from '@paddle/paddle-js';
-import {
-  CheckoutEventNames,
-  getPaddleInstance,
-  initializePaddle,
-} from '@paddle/paddle-js';
+import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { checkIsExtension } from '../lib/func';
 import type { OpenCheckoutFn } from './payment/context';
 import { useAuthContext } from './AuthContext';
@@ -29,15 +25,27 @@ const SCREENS = {
 } as const;
 export type Screens = keyof typeof SCREENS;
 
+type CoreProductOption = {
+  id: string;
+  value: number;
+};
+
 export type BuyCoresContextData = {
   paddle?: Paddle | undefined;
   openCheckout?: OpenCheckoutFn;
   amountNeeded?: number;
   onCompletion?: () => void;
-  selectedProduct?: string;
-  setSelectedProduct: (product: string) => void;
+  selectedProduct?: CoreProductOption;
+  setSelectedProduct: (product: CoreProductOption) => void;
   activeStep: Screens;
-  setActiveStep: (step: Screens) => void;
+  setActiveStep: ({
+    step,
+    providerTransactionId,
+  }: {
+    step: Screens;
+    providerTransactionId?: string;
+  }) => void;
+  providerTransactionId?: string;
 };
 
 const BuyCoresContext = React.createContext<BuyCoresContextData>(undefined);
@@ -55,8 +63,16 @@ export const BuyCoresContextProvider = ({
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { user } = useAuthContext();
-  const [activeStep, setActiveStep] = useState<Screens>(SCREENS.INTRO);
-  const [selectedProduct, setSelectedProduct] = useState<string>();
+  const [activeStep, setActiveStep] = useState<{
+    step: Screens;
+    providerTransactionId?: string;
+  }>({
+    step: SCREENS.INTRO,
+  });
+  const [selectedProduct, setSelectedProduct] = useState<{
+    id: string;
+    value: number;
+  }>();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = React.useRef(false);
 
@@ -68,11 +84,12 @@ export const BuyCoresContextProvider = ({
 
     isCheckoutOpenRef.current = false;
 
-    const existingPaddleInstance = getPaddleInstance();
-    if (existingPaddleInstance) {
-      setPaddle(existingPaddleInstance);
-      return;
-    }
+    // TODO feat/transactions disabled for now since it looks like existing paddle instance does not load
+    // const existingPaddleInstance = getPaddleInstance();
+    // if (existingPaddleInstance) {
+    //   setPaddle(existingPaddleInstance);
+    //   return;
+    // }
 
     initializePaddle({
       environment:
@@ -84,6 +101,11 @@ export const BuyCoresContextProvider = ({
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
+            setActiveStep({
+              step: SCREENS.PROCESSING,
+              providerTransactionId: event?.data?.id,
+            });
+
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
@@ -151,11 +173,12 @@ export const BuyCoresContextProvider = ({
       paddle,
       amountNeeded,
       onCompletion,
-      activeStep,
+      activeStep: activeStep.step,
       setActiveStep,
       selectedProduct,
       setSelectedProduct,
       openCheckout,
+      providerTransactionId: activeStep.providerTransactionId,
     }),
     [
       activeStep,
