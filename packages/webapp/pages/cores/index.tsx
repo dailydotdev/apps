@@ -19,6 +19,7 @@ import {
 import { CoinIcon } from '@dailydotdev/shared/src/components/icons';
 import { CoreFAQ } from '@dailydotdev/shared/src/components/cores/CoreFAQ';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
@@ -57,7 +58,7 @@ const CorePageDesktop = (): ReactElement => {
                 variant={ButtonVariant.Float}
                 icon={<CoinIcon />}
               >
-                {user?.balance?.amount || 0}
+                {largeNumberFormat(user?.balance?.amount || 0)}
               </Button>
             </div>
             <CoreOptionList />

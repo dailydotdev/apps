@@ -42,6 +42,7 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -92,7 +93,7 @@ const BalanceBlock = ({
         </div>
       </SimpleTooltip>
       <Typography type={TypographyType.Title2} bold>
-        {balance}
+        {largeNumberFormat(balance)}
       </Typography>
     </div>
   );

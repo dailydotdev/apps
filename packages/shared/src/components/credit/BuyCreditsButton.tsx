@@ -8,6 +8,7 @@ import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { isIOSNative } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { largeNumberFormat } from '../../lib';
 
 type BuyCreditsButtonProps = {
   onPlusClick: () => void;
@@ -31,7 +32,7 @@ export const BuyCreditsButton = ({
           icon={<CoinIcon />}
           size={ButtonSize.Small}
         >
-          {user?.balance?.amount || 0}
+          {largeNumberFormat(user?.balance?.amount || 0)}
         </Button>
       </Link>
       {renderBuyButton ? (
