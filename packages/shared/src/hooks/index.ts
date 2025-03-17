@@ -1,4 +1,3 @@
-export * from './useGenerateUsername';
 export * from './squads';
 export * from './vote';
 export * from './useSquadNavigation';
@@ -29,3 +28,5 @@ export * from './useProgressAnimation';
 export * from './feed';
 export * from './useBookmarkProvider';
 export * from './usePlusSubscription';
+export * from './onboarding/useCheckExistingEmail';
+export * from './onboarding/useGenerateUsername';

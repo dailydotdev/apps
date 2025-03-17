@@ -87,7 +87,7 @@ export interface InitializationData {
   error?: KratosError;
 }
 
-interface KratosEmailData {
+export interface KratosEmailData {
   result?: boolean;
   error?: {
     message?: string;

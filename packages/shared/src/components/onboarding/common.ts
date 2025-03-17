@@ -8,6 +8,7 @@ export type OnboardingOnClickNext = (
 
 export enum OnboardingStep {
   Intro = 'intro',
+  Signup = 'signup',
   Topics = 'topics',
   Theme = 'theme',
   EditTag = 'edit_tag',
@@ -32,9 +33,9 @@ export const OnboardingTitle = classed(
   'text-center typo-title2 font-bold px-4',
 );
 
-export const OnboardingGradientClasses =
+export const onboardingGradientClasses =
   'font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default';
-export const OnboardingTitleGradient = classed('h1', OnboardingGradientClasses);
+export const OnboardingTitleGradient = classed('h1', onboardingGradientClasses);
 
 export const REQUIRED_TAGS_THRESHOLD = 5;
 
