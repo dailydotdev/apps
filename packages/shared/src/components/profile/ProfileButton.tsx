@@ -57,7 +57,7 @@ export default function ProfileButton({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
             >
-              350
+              {user?.balance?.amount || 0}
             </Button>
           </SimpleTooltip>
           <SimpleTooltip placement="bottom" content="Profile settings">

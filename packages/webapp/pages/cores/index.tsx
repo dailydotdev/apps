@@ -18,6 +18,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoinIcon } from '@dailydotdev/shared/src/components/icons';
 import { CoreFAQ } from '@dailydotdev/shared/src/components/cores/CoreFAQ';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
@@ -33,6 +34,8 @@ const CorePageMobile = (): ReactElement => {
 };
 
 const CorePageDesktop = (): ReactElement => {
+  const { user } = useAuthContext();
+
   return (
     <>
       <div className="flex flex-1 flex-col justify-center gap-20 pt-10">
@@ -54,7 +57,7 @@ const CorePageDesktop = (): ReactElement => {
                 variant={ButtonVariant.Float}
                 icon={<CoinIcon />}
               >
-                350
+                {user?.balance?.amount || 0}
               </Button>
             </div>
             <CoreOptionList />
