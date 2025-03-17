@@ -34,7 +34,7 @@ import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
 import type { Product } from '../../../graphql/njord';
 import { award, getProducts } from '../../../graphql/njord';
-import { labels } from '../../../lib';
+import { labels, largeNumberFormat } from '../../../lib';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -121,7 +121,7 @@ const IntroScreen = () => {
               bold
               color={TypographyColor.Primary}
             >
-              {entity.numAwards} Awards given
+              {largeNumberFormat(entity.numAwards)} Awards given
             </Typography>
           </div>
         )}
