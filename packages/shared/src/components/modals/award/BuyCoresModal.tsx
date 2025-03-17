@@ -1,7 +1,8 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -37,6 +38,8 @@ import {
   purchaseCoinsCheckoutVideoPoster,
   purchaseCoinsCheckoutVideo,
 } from '../../../lib/image';
+import { webappUrl } from '../../../lib/constants';
+import { Loader } from '../../Loader';
 
 const CoreOptions = ({ className }: { className?: string }) => {
   return (
@@ -55,13 +58,36 @@ const Checkout = ({ className }: { className?: string }) => {
   );
 };
 
-const ProcessingLoading = () => {
+const statusToMessageMap: Record<UserTransactionStatus, ReactNode> = {
+  [UserTransactionStatus.Created]: 'Checking your data...',
+  [UserTransactionStatus.Processing]: 'Processing your payment...',
+  [UserTransactionStatus.Success]: 'Almost done...',
+  [UserTransactionStatus.Error]: (
+    <>
+      Something went wrong!
+      <br />
+      <Link href={`${webappUrl}earnings`}>
+        <Typography type={TypographyType.Footnote}>
+          <u>check status here</u>
+        </Typography>
+      </Link>
+    </>
+  ),
+};
+
+const ProcessingLoading = ({ status }: { status?: UserTransactionStatus }) => {
+  const statusMessage =
+    statusToMessageMap[status] ||
+    statusToMessageMap[UserTransactionStatus.Processing];
+  const isError = status === UserTransactionStatus.Error;
+
   return (
     <>
       <CoinIcon size={IconSize.XXXLarge} />
       <Typography type={TypographyType.Title3} bold>
-        Processing your payment...
+        {statusMessage}
       </Typography>
+      {!isError && <Loader />}
     </>
   );
 };
@@ -188,8 +214,12 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
       }}
       isDrawerOnMobile
     >
-      <Modal.Body className="flex items-center gap-4 text-center">
-        {isProcessing ? <ProcessingLoading /> : <ProcessingCompleted />}
+      <Modal.Body className="flex items-center justify-center gap-4 text-center">
+        {isProcessing ? (
+          <ProcessingLoading status={transaction?.status} />
+        ) : (
+          <ProcessingCompleted />
+        )}
       </Modal.Body>
     </Modal>
   );
