@@ -120,8 +120,7 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
   const { onCompletion, activeStep, setActiveStep } = useBuyCoresContext();
   const isProcessing = activeStep === 'PROCESSING';
 
-  let { providerTransactionId } = useBuyCoresContext();
-  providerTransactionId = 'txn_01jpametenyw8768jzhtkt4d7x';
+  const { providerTransactionId } = useBuyCoresContext();
 
   const { data: transaction } = useQuery({
     queryKey: [RequestKey.Transactions, { providerId: providerTransactionId }],
