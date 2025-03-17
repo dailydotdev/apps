@@ -103,7 +103,7 @@ export const BuyCoresContextProvider = ({
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             setActiveStep({
               step: SCREENS.PROCESSING,
-              providerTransactionId: event?.data?.id,
+              providerTransactionId: event.data.transaction_id,
             });
 
             break;
