@@ -123,4 +123,9 @@ export const featureCustomFeedPlacement = new Feature(
   false,
 );
 
+export const featureOnboardingReorder = new Feature(
+  'onboarding_reorder',
+  false,
+);
+
 export { feature };
