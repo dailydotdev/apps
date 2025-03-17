@@ -12,7 +12,14 @@ export const CoreAmountNeeded = (): ReactElement => {
   const { amountNeeded, selectedProduct } = useBuyCoresContext();
 
   if (!amountNeeded || !selectedProduct) {
-    return null;
+    return (
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+      >
+        Choose how many Cores to buy.
+      </Typography>
+    );
   }
 
   return (
