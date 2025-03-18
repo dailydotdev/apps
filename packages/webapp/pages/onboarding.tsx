@@ -200,7 +200,7 @@ export function OnboardPage(): ReactElement {
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
-
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
   const isIntro = activeScreen === OnboardingStep.Intro;
   const { value: isReorderExperiment } = useConditionalFeature({
@@ -277,14 +277,14 @@ export function OnboardPage(): ReactElement {
   ]);
 
   const onTagsNext = useCallback(() => {
-    const shouldEnroll = getFeatureValue(featureInteractiveFeed);
+    const shouldEnroll = getFeatureValue(featureInteractiveFeed) && isLaptop;
     setIsInteractiveFeed(shouldEnroll);
     if (shouldEnroll) {
       return setActiveScreen(OnboardingStep.InteractiveFeed);
     }
 
     return setActiveScreen(OnboardingStep.EditTag);
-  }, [getFeatureValue]);
+  }, [getFeatureValue, isLaptop]);
 
   const onClickNext: OnboardingOnClickNext = () => {
     logEvent({
