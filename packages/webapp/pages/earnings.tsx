@@ -71,9 +71,9 @@ const BuyCore = ({
   price,
 }: BuyCoreProps): ReactElement => {
   return (
-    <Link href={`${webappUrl}/cores`}>
+    <Link href={`${webappUrl}cores`}>
       <a
-        href={`${webappUrl}/cores`}
+        href={`${webappUrl}cores`}
         className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2"
         onClick={() =>
           onBuyCoresClick({ amount, origin: Origin.EarningsPagePackage })
@@ -222,7 +222,7 @@ const Earnings = (): ReactElement => {
               variant={ButtonVariant.Primary}
               onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
               tag="a"
-              href={`${webappUrl}/cores`}
+              href={`${webappUrl}cores`}
             >
               Buy Cores
             </Button>
@@ -402,7 +402,7 @@ const Earnings = (): ReactElement => {
               variant={ButtonVariant.Float}
               onClick={() => onBuyCoresClick({ target_id: 'See more options' })}
               tag="a"
-              href={`${webappUrl}/cores`}
+              href={`${webappUrl}cores`}
             >
               See more options
             </Button>
