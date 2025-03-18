@@ -79,17 +79,26 @@ const InteractiveFeedStep = (): ReactElement => {
       </section>
 
       <section className="max-w-3/4 mx-auto flex w-full flex-1 flex-col">
-        <div className="flex flex-col gap-2 px-4">
+        <div className="mb-6 flex flex-col gap-2 px-4">
           <Typography
             type={TypographyType.Callout}
             className="text-left"
-            color={TypographyColor.Quaternary}
+            color={
+              hasMinimumTags
+                ? TypographyColor.Quaternary
+                : TypographyColor.Disabled
+            }
           >
             Step 2
           </Typography>
           <Typography
             type={TypographyType.Title3}
             bold
+            color={
+              hasMinimumTags
+                ? TypographyColor.Primary
+                : TypographyColor.Disabled
+            }
             className="mb-2 text-left"
           >
             Give the algorithm a signal on what&apos;s relevant (and what&apos;s
@@ -97,7 +106,11 @@ const InteractiveFeedStep = (): ReactElement => {
           </Typography>
           <Typography
             type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
+            color={
+              hasMinimumTags
+                ? TypographyColor.Tertiary
+                : TypographyColor.Disabled
+            }
           >
             Vote on posts to refine your recommendations. The more signals you
             provide, the better your feed adapts to your interests.
