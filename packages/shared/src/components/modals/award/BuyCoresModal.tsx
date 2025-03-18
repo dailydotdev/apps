@@ -40,6 +40,7 @@ import {
 } from '../../../lib/image';
 import { webappUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
+import { useIsLightTheme } from '../../../hooks/utils';
 
 const CoreOptions = ({ className }: { className?: string }) => {
   return (
@@ -51,8 +52,12 @@ const CoreOptions = ({ className }: { className?: string }) => {
 };
 
 const Checkout = ({ className }: { className?: string }) => {
+  const isLightTheme = useIsLightTheme();
+
   return (
-    <div className={classNames('flex-1', className)}>
+    <div
+      className={classNames('flex-1', isLightTheme && 'bg-black', className)}
+    >
       <div className="checkout-container" />
     </div>
   );
@@ -87,7 +92,7 @@ const ProcessingLoading = ({ status }: { status?: UserTransactionStatus }) => {
       <Typography type={TypographyType.Title3} bold>
         {statusMessage}
       </Typography>
-      {!isError && <Loader />}
+      {!isError && <Loader className="hidden tablet:block" />}
     </>
   );
 };
@@ -235,7 +240,14 @@ const BuyCoresMobile = () => {
   }, [openCheckout, selectedProduct]);
 
   return (
-    <ModalBody>{selectedProduct ? <Checkout /> : <CoreOptions />}</ModalBody>
+    <ModalBody
+      className={classNames(
+        'bg-gradient-to-t from-theme-overlay-to to-transparent',
+        selectedProduct && '!p-0',
+      )}
+    >
+      {selectedProduct ? <Checkout className="p-6" /> : <CoreOptions />}
+    </ModalBody>
   );
 };
 
@@ -243,10 +255,19 @@ const BuyCoreDesktop = () => {
   const { selectedProduct } = useBuyCoresContext();
 
   return (
-    <ModalBody className={classNames(!selectedProduct && '!py-0 !pr-0')}>
-      <div className="flex flex-row gap-6">
-        <CoreOptions className={classNames(!selectedProduct && 'py-6')} />
-        <Checkout className={classNames(!selectedProduct && 'hidden')} />
+    <ModalBody
+      className={classNames(
+        'bg-gradient-to-t from-theme-overlay-to to-transparent !p-0',
+      )}
+    >
+      <div className="flex flex-1 flex-row">
+        <CoreOptions className="p-6" />
+        <Checkout
+          className={classNames(
+            !selectedProduct && 'hidden',
+            'rounded-br-16 p-6',
+          )}
+        />
         <div
           className={classNames(
             'flex flex-1 overflow-hidden rounded-br-16',
