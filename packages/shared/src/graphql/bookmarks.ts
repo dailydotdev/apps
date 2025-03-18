@@ -89,6 +89,27 @@ export const QUERY_BOOKMARK_FOLDER = gql`
   }
 `;
 
+export const QUERY_BOOKMARK_FOLDER_ITEMS = gql`
+  query BookmarkList($id: ID!) {
+    bookmarkList(id: $id) {
+      id
+      bookmarks {
+        postId
+      }
+    }
+  }
+`;
+
+export const getBookmarkFolderItems = async (
+  id: string,
+): Promise<Bookmark[]> => {
+  const res = await gqlClient.request<{
+    bookmarkList: BookmarkFolder;
+  }>(QUERY_BOOKMARK_FOLDER_ITEMS, { id });
+
+  return res.bookmarkList.bookmarks || [];
+};
+
 export const getBookmarkFolder = async (
   id: string,
 ): Promise<BookmarkFolder> => {

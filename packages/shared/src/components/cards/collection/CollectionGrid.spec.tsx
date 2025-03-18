@@ -2,10 +2,18 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import { CollectionGrid } from './CollectionGrid';
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { InteractiveFeedProvider } from '../../../contexts/InteractiveFeedContext';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 const post = collectionPost;
 const defaultProps: PostCardProps = {
@@ -31,12 +39,23 @@ jest.mock('../../../hooks', () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        isFallback: false,
+        pathname: '/posts',
+        isReady: true,
+        query: {},
+      } as unknown as NextRouter),
+  );
 });
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <TestBootProvider client={new QueryClient()}>
-      <CollectionGrid {...defaultProps} {...props} />
+      <InteractiveFeedProvider>
+        <CollectionGrid {...defaultProps} {...props} />
+      </InteractiveFeedProvider>
     </TestBootProvider>,
   );
 };

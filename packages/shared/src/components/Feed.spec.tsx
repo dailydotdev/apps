@@ -11,6 +11,7 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
 import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
@@ -66,6 +67,19 @@ import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
+import { InteractiveFeedProvider } from '../contexts/InteractiveFeedContext';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+mocked(useRouter).mockImplementation(
+  () =>
+    ({
+      pathname: '/',
+      query: {},
+    } as unknown as NextRouter),
+);
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -216,12 +230,14 @@ const renderComponent = (
         <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
           <Toast autoDismissNotifications={false} />
-          <Feed
-            feedQueryKey={['feed']}
-            feedName={feedName}
-            query={ANONYMOUS_FEED_QUERY}
-            variables={variables}
-          />
+          <InteractiveFeedProvider>
+            <Feed
+              feedQueryKey={['feed']}
+              feedName={feedName}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </InteractiveFeedProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
