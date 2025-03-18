@@ -83,6 +83,7 @@ export const PostCardHeader = ({
         className={classNames(
           className,
           highlightBookmarkedPost && headerHiddenClassName,
+          interactiveFeedExp && 'mx-0',
         )}
       >
         <SourceButton
