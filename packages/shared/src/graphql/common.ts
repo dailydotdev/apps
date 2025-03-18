@@ -119,7 +119,8 @@ export const DEFAULT_ERROR = 'An error occurred, please try again';
 
 export const errorMessage = {
   profile: {
-    invalidUsername: 'Invalid characters found in username!',
+    invalidUsername: 'Invalid character detected! Only underscores (_) allowed',
+    usernameLength: 'Username must be between 3-38 characters',
     invalidHandle: 'Invalid character(s) found in social handle',
     invalidSocialLinks:
       'Please follow the appropriate format to add your links',

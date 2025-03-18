@@ -3,6 +3,7 @@ import type { MutableRefObject, ReactElement } from 'react';
 import React, { useContext, useEffect, useId, useRef, useState } from 'react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { useRouter } from 'next/router';
 import type {
   AuthTriggersType,
   RegistrationError,
@@ -10,24 +11,39 @@ import type {
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, VIcon, AtIcon, TwitterIcon } from '../icons';
+import {
+  MailIcon,
+  UserIcon,
+  VIcon,
+  AtIcon,
+  TwitterIcon,
+  ArrowIcon,
+} from '../icons';
 import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
 import LogContext from '../../contexts/LogContext';
-import { useGenerateUsername } from '../../hooks';
+import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import Alert, { AlertType } from '../widgets/Alert';
+import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingReorder } from '../../lib/featureManagement';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
+import { onboardingGradientClasses } from '../onboarding/common';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -38,6 +54,9 @@ export interface RegistrationFormProps extends AuthFormProps {
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
   trigger: AuthTriggersType;
+  onExistingEmailLoginClick?: () => void;
+  onBackToIntro?: () => void;
+  targetId?: string;
 }
 
 export type RegistrationFormValues = Omit<
@@ -51,13 +70,17 @@ const RegistrationForm = ({
   email,
   formRef,
   onBack,
+  onBackToIntro,
+  onExistingEmailLoginClick,
   onSignup,
   token,
   hints,
   trigger,
   onUpdateHints,
   simplified,
+  targetId,
 }: RegistrationFormProps): ReactElement => {
+  const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -65,6 +88,10 @@ const RegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const ref = useRef<TurnstileInstance>(null);
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isOnboardingExperiment = !!(
+    router.pathname?.startsWith('/onboarding') && isReorderExperiment
+  );
 
   useEffect(() => {
     logEvent({
@@ -88,8 +115,28 @@ const RegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hints]);
 
+  const {
+    email: { isCheckPending, alreadyExists },
+    onEmailCheck,
+  } = useCheckExistingEmail({
+    onValidEmail: () => null,
+    onAfterEmailCheck: (emailExists) => {
+      if (emailExists && isOnboardingExperiment) {
+        logEvent({
+          event_name: AuthEventNames.OpenLogin,
+          extra: JSON.stringify({ trigger }),
+          target_id: targetId,
+        });
+      }
+    },
+  });
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isOnboardingExperiment && (isCheckPending || alreadyExists)) {
+      return;
+    }
 
     setTurnstileError(false);
     logEvent({
@@ -169,6 +216,18 @@ const RegistrationForm = ({
     });
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    if (!isOnboardingExperiment) {
+      onSubmit(e);
+      return;
+    }
+
+    const emailCheck = await onEmailCheck(e);
+    if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
+      onSubmit(e);
+    }
+  };
+
   const isNameValid = !hints?.['traits.name'];
   const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
@@ -178,24 +237,45 @@ const RegistrationForm = ({
 
   return (
     <>
-      <AuthHeader
-        id={headingId}
-        simplified={simplified}
-        title="Sign up"
-        onBack={onBack}
-      />
+      {!isOnboardingExperiment ? (
+        <AuthHeader
+          id={headingId}
+          simplified={simplified}
+          title="Sign up"
+          onBack={onBack}
+        />
+      ) : (
+        <div className="flex gap-4">
+          <Button
+            className="border-border-subtlest-tertiary text-text-secondary"
+            icon={<ArrowIcon className="-rotate-90" />}
+            onClick={onBackToIntro}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Secondary}
+          />
+          <Typography
+            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+            tag={TypographyTag.H2}
+            type={TypographyType.Title1}
+          >
+            Join daily.dev
+          </Typography>
+        </div>
+      )}
       <AuthForm
-        aria-labelledby={headingId}
+        aria-labelledby={!isOnboardingExperiment && headingId}
         className={classNames(
-          'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
+          'w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
+          isOnboardingExperiment ? 'mt-10' : 'mt-6 px-6 tablet:px-[3.75rem]',
         )}
         data-testid="registration_form"
         id="auth-form"
-        onSubmit={onSubmit}
+        onSubmit={handleFormSubmit}
         ref={formRef}
       >
         <TokenInput token={token} />
         <TextField
+          autoFocus={!!isOnboardingExperiment}
           autoComplete="email"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -205,7 +285,7 @@ const RegistrationForm = ({
           label="Email"
           type="email"
           value={email}
-          readOnly
+          readOnly={!isOnboardingExperiment}
           rightIcon={
             <VIcon
               aria-hidden
@@ -214,8 +294,26 @@ const RegistrationForm = ({
             />
           }
         />
+        {isOnboardingExperiment && alreadyExists && (
+          <Alert
+            className="-mt-4 mb-3 min-w-full"
+            type={AlertType.Error}
+            flexDirection="flex-row"
+          >
+            <AlertParagraph className="!mt-0 flex-1">
+              Email is taken. Existing user?{' '}
+              <button
+                type="button"
+                onClick={() => onExistingEmailLoginClick?.()}
+                className="font-bold underline"
+              >
+                Log in.
+              </button>
+            </AlertParagraph>
+          </Alert>
+        )}
         <TextField
-          autoFocus
+          autoFocus={!isOnboardingExperiment}
           autoComplete="name"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -315,7 +413,7 @@ const RegistrationForm = ({
             options={{
               theme: 'dark',
             }}
-            className="mx-auto"
+            className="mx-auto min-h-[4.5rem]"
           />
           {turnstileError ? (
             <Alert
@@ -324,12 +422,13 @@ const RegistrationForm = ({
             />
           ) : undefined}
           <Button
+            className="w-full"
+            disabled={isCheckPending}
             form="auth-form"
             type="submit"
-            className="w-full"
             variant={ButtonVariant.Primary}
           >
-            Sign up
+            {!isOnboardingExperiment ? 'Sign up' : 'Create account'}
           </Button>
         </ConditionalWrapper>
       </AuthForm>

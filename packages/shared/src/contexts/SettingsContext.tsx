@@ -22,7 +22,6 @@ import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
-import { ChecklistViewState } from '../lib/checklist';
 import { gqlClient } from '../graphql/common';
 import { SortCommentsBy } from '../graphql/comments';
 
@@ -68,7 +67,6 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   updatePromptFlag: (flag: string, value: boolean) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
   onToggleHeaderPlacement(): Promise<unknown>;
-  setOnboardingChecklistView: (value: ChecklistViewState) => Promise<unknown>;
   setSettings: (newSettings: Partial<RemoteSettings>) => Promise<void>;
   applyThemeMode: (mode?: ThemeMode) => void;
 }
@@ -131,7 +129,6 @@ const defaultSettings: RemoteSettings = {
   sortCommentsBy: SortCommentsBy.OldestFirst,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
-  onboardingChecklistView: ChecklistViewState.Hidden,
   flags: {
     sidebarSquadExpanded: true,
     sidebarCustomFeedsExpanded: true,
@@ -275,11 +272,6 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
         setSettings({ ...settings, sortCommentsBy }),
-      setOnboardingChecklistView: (value: ChecklistViewState) =>
-        setSettings({
-          ...settings,
-          onboardingChecklistView: value,
-        }),
       updateFlag: (flag: keyof SettingsFlags, value: string | boolean) =>
         setSettings({
           ...settings,

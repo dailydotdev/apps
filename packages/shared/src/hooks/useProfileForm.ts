@@ -88,6 +88,9 @@ export const onValidateHandles = (
   after: Partial<Handles>,
 ): Partial<Record<keyof Handles, string>> => {
   if (after.username && after.username !== before.username) {
+    if (after.username.length > 38) {
+      return { username: errorMessage.profile.usernameLength };
+    }
     const isValid = handleRegex.test(after.username);
 
     if (!isValid) {

@@ -15,12 +15,12 @@ function SignupDisclaimer({ className }: SignupDisclaimerProps): ReactElement {
         className,
       )}
     >
-      By signing up I accept the{' '}
+      By continuing, you agree to the{' '}
       <a
         href={termsOfService}
         target="_blank"
         rel="noopener"
-        className="font-bold underline"
+        className="underline hover:no-underline"
       >
         Terms of Service
       </a>{' '}
@@ -29,7 +29,7 @@ function SignupDisclaimer({ className }: SignupDisclaimerProps): ReactElement {
         href={privacyPolicy}
         target="_blank"
         rel="noopener"
-        className="font-bold underline"
+        className="underline hover:no-underline"
       >
         Privacy Policy
       </a>

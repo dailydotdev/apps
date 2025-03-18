@@ -26,9 +26,13 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useEventListener } from '@dailydotdev/shared/src/hooks';
+import {
+  useEventListener,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
+import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { ManageSocialProvidersProps } from '../common';
@@ -115,6 +119,7 @@ function AccountSecurityDefault({
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
   const { deleteAccount } = useContext(AuthContext);
+  const { displayToast } = useToastNotification();
   const { onUpdateSignBack } = useSignBack();
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
@@ -149,7 +154,12 @@ function AccountSecurityDefault({
   };
   const deleteAccountPrompt = async () => {
     if (await showPrompt(deleteAccountPromptOptions)) {
-      await deleteAccount();
+      try {
+        await deleteAccount();
+      } catch (error) {
+        displayToast(DEFAULT_ERROR);
+        return;
+      }
       await onUpdateSignBack(null, null);
       globalThis?.localStorage.removeItem(BOOT_LOCAL_KEY);
       window.location.replace('/');
@@ -228,8 +238,7 @@ function AccountSecurityDefault({
       <AccountLoginSection
         buttonVariant={ButtonVariant.Primary}
         title="Add login account"
-        description="Add more accounts to ensure you never lose access to your daily.dev
-        profile and to make login quick and easy cross device"
+        description="Add more accounts to ensure you never lose access to your daily.dev profile and to make logging in quick and easy across devices"
         providerActionType="link"
         providerAction={manageSocialProviders}
         providers={providers.filter(

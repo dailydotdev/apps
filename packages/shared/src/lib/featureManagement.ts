@@ -5,7 +5,9 @@ import {
 } from './image';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
-import { PlusPriceType } from './featureValues';
+import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
+import type { ProductMeta } from '../contexts/payment/context';
+import type { PlusItemStatus } from '../components/plus/PlusListItem';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -31,7 +33,6 @@ const feature = {
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
-  onboardingChecklist: new Feature('onboarding_checklist', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
     pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted
@@ -40,6 +41,36 @@ const feature = {
     pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly, // One-Year Gift
   }),
 };
+
+export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
+  'iap_products',
+  {
+    annualSpecial: {
+      label: 'Annual Special',
+      extraLabel: '💜 Early bird',
+      duration: PlusPriceType.Yearly,
+      appsId: PlusPriceTypeAppsId.EarlyAdopter,
+    },
+    annual: {
+      label: 'Annual',
+      extraLabel: 'Save 50%',
+      duration: PlusPriceType.Yearly,
+    },
+    monthly: {
+      label: 'Monthly',
+      duration: PlusPriceType.Monthly,
+    },
+  },
+);
+
+export const plusTakeoverContent = new Feature<{
+  title: string;
+  description: string;
+  features: Array<{ label: string; status: PlusItemStatus }>;
+  cta: string;
+  shouldShowRefund: boolean;
+  shouldShowReviews: boolean;
+}>('plus_takeover_content', null);
 
 export const featurePostTagSorting = new Feature('post_tag_sorting', false);
 
@@ -89,6 +120,11 @@ export const featureSocialShare = new Feature('social_share', false);
 
 export const featureCustomFeedPlacement = new Feature(
   'custom_feed_placement',
+  false,
+);
+
+export const featureOnboardingReorder = new Feature(
+  'onboarding_reorder',
   false,
 );
 
