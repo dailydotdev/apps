@@ -79,10 +79,9 @@ const InteractiveFeedStep = (): ReactElement => {
       </section>
 
       <section className="max-w-3/4 mx-auto flex w-full flex-1 flex-col">
-        <div className="mb-6 flex flex-col gap-2 px-4">
+        <div className="flex flex-col gap-2 px-4">
           <Typography
             type={TypographyType.Callout}
-            className="text-left"
             color={
               hasMinimumTags
                 ? TypographyColor.Quaternary
@@ -99,7 +98,6 @@ const InteractiveFeedStep = (): ReactElement => {
                 ? TypographyColor.Primary
                 : TypographyColor.Disabled
             }
-            className="mb-2 text-left"
           >
             Give the algorithm a signal on what&apos;s relevant (and what&apos;s
             not)
