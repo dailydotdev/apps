@@ -25,7 +25,7 @@ import { useGiveAwardModalContext } from '../../../contexts/GiveAwardModalContex
 import { IconSize } from '../../Icon';
 import { CoreOptionList } from '../../cores/CoreOptionList';
 import { CoreAmountNeeded } from '../../cores/CoreAmountNeeded';
-import type { Product } from '../../../graphql/njord';
+import type { Product, UserTransaction } from '../../../graphql/njord';
 import {
   getTransactionByProvider,
   transactionRefetchIntervalMs,
@@ -68,6 +68,7 @@ const statusToMessageMap: Record<UserTransactionStatus, ReactNode> = {
   [UserTransactionStatus.Created]: 'Checking your data...',
   [UserTransactionStatus.Processing]: 'Processing your payment...',
   [UserTransactionStatus.Success]: 'Almost done...',
+  [UserTransactionStatus.ErrorRecoverable]: 'There was an issue, retrying...',
   [UserTransactionStatus.Error]: (
     <>
       Something went wrong!
@@ -81,11 +82,15 @@ const statusToMessageMap: Record<UserTransactionStatus, ReactNode> = {
   ),
 };
 
-const ProcessingLoading = ({ status }: { status?: UserTransactionStatus }) => {
+const ProcessingLoading = ({
+  transaction,
+}: {
+  transaction?: UserTransaction;
+}) => {
   const statusMessage =
-    statusToMessageMap[status] ||
+    statusToMessageMap[transaction?.status] ||
     statusToMessageMap[UserTransactionStatus.Processing];
-  const isError = status === UserTransactionStatus.Error;
+  const isError = transaction?.status === UserTransactionStatus.Error;
 
   return (
     <>
@@ -184,6 +189,7 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
         [
           UserTransactionStatus.Created,
           UserTransactionStatus.Processing,
+          UserTransactionStatus.ErrorRecoverable,
         ].includes(transactionStatus)
       ) {
         return transactionRefetchIntervalMs;
@@ -207,7 +213,6 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
       });
     }
   }, [transaction?.status, providerTransactionId, setActiveStep]);
-
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}
@@ -222,7 +227,7 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
     >
       <Modal.Body className="flex items-center justify-center gap-4 text-center">
         {isProcessing ? (
-          <ProcessingLoading status={transaction?.status} />
+          <ProcessingLoading transaction={transaction} />
         ) : (
           <ProcessingCompleted />
         )}
