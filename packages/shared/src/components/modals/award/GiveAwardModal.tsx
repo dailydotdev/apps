@@ -38,6 +38,7 @@ import { labels, largeNumberFormat } from '../../../lib';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 const AwardItem = ({
   item,
@@ -181,7 +182,7 @@ const IntroScreen = () => {
             <a
               href={termsOfService}
               target="_blank"
-              rel="noopener"
+              rel={anchorDefaultRel}
               className="font-bold underline"
             >
               Terms of Service
