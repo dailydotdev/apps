@@ -37,11 +37,7 @@ import {
   featurePlusCtaCopy,
 } from '../../lib/featureManagement';
 import { SubscriptionProvider } from '../../lib/plus';
-import {
-  iOSSupportsPlusPurchase,
-  postWebKitMessage,
-  WebKitMessageHandlers,
-} from '../../lib/ios';
+import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout, isAndroidApp } = useAuthContext();
@@ -91,37 +87,32 @@ const useMenuItems = (): NavItemProps[] => {
       { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     ];
 
-    if (!isIOSNative() || iOSSupportsPlusPurchase()) {
-      items.push({
-        label: isPlus ? 'Manage plus' : plusCta,
-        icon: <DevPlusIcon />,
-        href: plusHref,
-        className: isPlus ? undefined : 'text-action-plus-default',
-        target:
-          isPlus && plusProvider === SubscriptionProvider.Paddle
-            ? '_blank'
-            : undefined,
-        onClick: () => {
-          if (
-            isPlus &&
-            isIOSNative() &&
-            plusProvider === SubscriptionProvider.AppleStoreKit
-          ) {
-            postWebKitMessage(
-              WebKitMessageHandlers.IAPSubscriptionManage,
-              null,
-            );
-          }
+    items.push({
+      label: isPlus ? 'Manage plus' : plusCta,
+      icon: <DevPlusIcon />,
+      href: plusHref,
+      className: isPlus ? undefined : 'text-action-plus-default',
+      target:
+        isPlus && plusProvider === SubscriptionProvider.Paddle
+          ? '_blank'
+          : undefined,
+      onClick: () => {
+        if (
+          isPlus &&
+          isIOSNative() &&
+          plusProvider === SubscriptionProvider.AppleStoreKit
+        ) {
+          postWebKitMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
+        }
 
-          logSubscriptionEvent({
-            event_name: isPlus
-              ? LogEvent.ManageSubscription
-              : LogEvent.UpgradeSubscription,
-            target_id: TargetId.ProfileDropdown,
-          });
-        },
-      });
-    }
+        logSubscriptionEvent({
+          event_name: isPlus
+            ? LogEvent.ManageSubscription
+            : LogEvent.UpgradeSubscription,
+          target_id: TargetId.ProfileDropdown,
+        });
+      },
+    });
 
     return [
       ...items,

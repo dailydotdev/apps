@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
-import { checkIsExtension } from '../../lib/func';
+import { checkIsExtension, isIOSNative } from '../../lib/func';
 import { useBoot, useViewSize, ViewSize } from '../../hooks';
 import { ModalClose } from '../modals/common/ModalClose';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -25,6 +25,12 @@ const PlusWebapp = dynamic(
   () => import(/* webpackChunkName: "plusWebapp" */ './PlusWebapp'),
 );
 
+const PlusIOS = dynamic(() =>
+  import(/* webpackChunkName: "plusIOS" */ './PlusIOS').then(
+    (mod) => mod.PlusIOS,
+  ),
+);
+
 const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
@@ -44,6 +50,13 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
     closeModal();
   };
 
+  const plusComponent = useMemo(() => {
+    if (isIOSNative()) {
+      return <PlusIOS showModalSection />;
+    }
+    return isExtension ? <PlusExtension /> : <PlusWebapp />;
+  }, [isExtension]);
+
   if (!isTablet) {
     return <PlusMobileDrawer onClose={handleClose} {...modalProps} />;
   }
@@ -58,7 +71,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
       >
         <Modal.Body className="!p-0">
           <ModalClose onClick={handleClose} top="4" />
-          {isExtension ? <PlusExtension /> : <PlusWebapp />}
+          {plusComponent}
         </Modal.Body>
       </Modal>
     </PaymentContextProvider>
