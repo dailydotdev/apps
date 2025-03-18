@@ -25,9 +25,9 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import { checkIsExtension } from '../../lib/func';
 import { usePixelsContext } from '../PixelsContext';
 import type {
-  PaymentContextProviderProps,
   OpenCheckoutProps,
   PaymentContextData,
+  PaymentContextProviderProps,
   ProductOption,
 } from './context';
 import { PaymentContext } from './context';
@@ -63,6 +63,18 @@ export const PaddleSubProvider = ({
       token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
       eventCallback: (event: PaddleEventData) => {
         switch (event?.name) {
+          case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
+            logRef.current({
+              event_name: LogEvent.InitiatePayment,
+              target_id: event?.data?.payment.method_details.type,
+            });
+            break;
+          case CheckoutEventNames.CHECKOUT_LOADED:
+            logRef.current({
+              event_name: LogEvent.InitiateCheckout,
+              target_id: event?.data?.payment.method_details.type,
+            });
+            break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
             logRef.current({
               event_name: LogEvent.SelectCheckoutPayment,
