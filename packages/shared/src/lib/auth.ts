@@ -205,7 +205,9 @@ export const isNativeAuthSupported = (provider: string): boolean =>
 
 export const iosNativeAuth = async (
   provider: string,
-): Promise<{ provider: string; token: string; nonce: string } | undefined> => {
+): Promise<
+  { provider: string; token: string; nonce: string; name?: string } | undefined
+> => {
   const promise = promisifyEventListener(
     'native-auth',
     (event) => event.detail,
