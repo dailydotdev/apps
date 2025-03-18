@@ -67,7 +67,7 @@ const InteractiveFeedTagOverlay = ({
     Object.values(tags).every((tag) => !tag) && !shouldBlockSource;
 
   return (
-    <div className="relative flex flex-col rounded-16 border border-raw-ketchup-30 p-4 pb-0">
+    <div className="relative flex flex-col rounded-16 border border-status-error p-4 pb-0">
       <Typography type={TypographyType.Callout} bold>
         Don&apos;t show me posts from...
       </Typography>

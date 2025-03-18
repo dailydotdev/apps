@@ -50,7 +50,6 @@ export const useConfetti = (): UseConfettiReturn => {
     const sourceX = originPosition.x;
     const sourceY = originPosition.y;
 
-    // For better distribution in a circle, we'll use different strategy
     for (let i = 0; i < confettiCount; i += 1) {
       // To distribute angles more evenly, we'll divide the circle into sections
       // and add some randomness within each section
