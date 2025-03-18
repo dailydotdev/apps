@@ -15,6 +15,7 @@ import {
 import { checkIsExtension } from '../lib/func';
 import type { OpenCheckoutFn } from './payment/context';
 import { useAuthContext } from './AuthContext';
+import type { Origin } from '../lib/log';
 
 const SCREENS = {
   INTRO: 'INTRO',
@@ -32,6 +33,7 @@ export type BuyCoresContextData = {
   setSelectedProduct: (product: string) => void;
   activeStep: Screens;
   setActiveStep: (step: Screens) => void;
+  origin?: Origin;
 };
 
 const BuyCoresContext = React.createContext<BuyCoresContextData>(undefined);
@@ -39,12 +41,14 @@ export default BuyCoresContext;
 
 export type BuyCoresContextProviderProps = {
   children?: ReactNode;
+  origin: Origin;
   amountNeeded?: number;
   onCompletion?: () => void;
 };
 
 export const BuyCoresContextProvider = ({
   onCompletion,
+  origin,
   amountNeeded,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
@@ -121,12 +125,14 @@ export const BuyCoresContextProvider = ({
       selectedProduct,
       setSelectedProduct,
       openCheckout,
+      origin,
     }),
     [
       activeStep,
       amountNeeded,
       onCompletion,
       openCheckout,
+      origin,
       paddle,
       selectedProduct,
     ],
