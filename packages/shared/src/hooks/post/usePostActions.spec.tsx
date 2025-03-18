@@ -1,6 +1,9 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { settingsContext } from '../../../__tests__/helpers/boot';
@@ -10,6 +13,11 @@ import type { PostCardProps } from '../../components/cards/common/common';
 import { ArticleGrid } from '../../components/cards/article/ArticleGrid';
 import { GrowthBookProvider } from '../../components/GrowthBookProvider';
 import { BootApp } from '../../lib/boot';
+import { InteractiveFeedProvider } from '../../contexts/InteractiveFeedContext';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 const defaultProps: PostCardProps = {
   post: sharePost,
@@ -21,6 +29,18 @@ const defaultProps: PostCardProps = {
   onCopyLinkClick: jest.fn(),
   onReadArticleClick: jest.fn(),
 };
+
+beforeEach(() => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        isFallback: false,
+        pathname: '/',
+        isReady: true,
+        query: {},
+      } as unknown as NextRouter),
+  );
+});
 
 const renderComponent = () => {
   return render(
@@ -47,7 +67,9 @@ const renderComponent = () => {
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <ArticleGrid {...defaultProps} />
+            <InteractiveFeedProvider>
+              <ArticleGrid {...defaultProps} />
+            </InteractiveFeedProvider>
           </SettingsContext.Provider>
         </GrowthBookProvider>
       </AuthContextProvider>
@@ -57,6 +79,15 @@ const renderComponent = () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        isFallback: false,
+        pathname: '/posts',
+        isReady: true,
+        query: {},
+      } as unknown as NextRouter),
+  );
 });
 
 describe('usePostActions', () => {

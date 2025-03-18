@@ -252,3 +252,6 @@ export const plusFeaturesImage =
 
 export const plusRedBackgroundImage =
   'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';
+
+export const interactiveFeedEmpty =
+  'https://media.daily.dev/image/upload/s--I40-3-Oa--/f_auto/v1741779283/public/cards';

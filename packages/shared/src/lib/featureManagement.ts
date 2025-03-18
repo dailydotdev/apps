@@ -123,6 +123,7 @@ export const featureCustomFeedPlacement = new Feature(
   false,
 );
 
+export const featureInteractiveFeed = new Feature('interactive_feed', false);
 export const featureOnboardingReorder = new Feature(
   'onboarding_reorder',
   false,

@@ -48,6 +48,7 @@ import {
   COMPLETE_ACTION_MUTATION,
 } from '@dailydotdev/shared/src/graphql/actions';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import SquadPage from '../pages/squads/[handle]';
 
 const defaultSquad: Squad = {
@@ -60,6 +61,7 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
       ({
+        pathname: '/',
         isFallback: false,
         query: {},
       } as unknown as NextRouter),
@@ -167,11 +169,13 @@ const renderComponent = (
         unreadCount: 0,
       }}
     >
-      {SquadPage.getLayout(
-        <SquadPage handle={handle} />,
-        {},
-        SquadPage.layoutProps,
-      )}
+      <InteractiveFeedProvider>
+        {SquadPage.getLayout(
+          <SquadPage handle={handle} />,
+          {},
+          SquadPage.layoutProps,
+        )}
+      </InteractiveFeedProvider>
     </TestBootProvider>,
   );
 };
