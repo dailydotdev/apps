@@ -305,7 +305,7 @@ export function OnboardPage(): ReactElement {
     }
 
     if (activeScreen === OnboardingStep.Intro) {
-      onTagsNext();
+      return onTagsNext();
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
