@@ -10,6 +10,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { LogEvent } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 type CoreOptionButtonProps = {
   id: string;
@@ -25,9 +27,16 @@ export const CoreOptionButton = ({
   label,
 }: CoreOptionButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { selectedProduct, setSelectedProduct, openCheckout } =
+  const { logEvent } = useLogContext();
+  const { selectedProduct, setSelectedProduct, openCheckout, origin } =
     useBuyCoresContext();
   const onSelect = useCallback(() => {
+    // TODO: Amount should be deducted from selected product entity
+    logEvent({
+      event_name: LogEvent.SelectCreditsQuantity,
+      extra: JSON.stringify({ origin, amount: id }),
+    });
+
     setSelectedProduct({
       id,
       value: cores,
@@ -36,7 +45,7 @@ export const CoreOptionButton = ({
     if (!isMobile) {
       openCheckout({ priceId: id });
     }
-  }, [id, isMobile, openCheckout, setSelectedProduct, cores]);
+  }, [logEvent, origin, id, setSelectedProduct, cores, isMobile, openCheckout]);
   return (
     <Button
       className={classNames(

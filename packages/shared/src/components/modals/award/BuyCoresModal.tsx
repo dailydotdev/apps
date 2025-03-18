@@ -41,6 +41,7 @@ import {
 import { webappUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
+import type { Origin } from '../../../lib/log';
 
 const CoreOptions = ({ className }: { className?: string }) => {
   return (
@@ -345,10 +346,12 @@ const ModalRender = ({ ...props }: ModalProps) => {
 };
 
 type BuyCoresModalProps = ModalProps & {
+  origin: Origin;
   onCompletion?: () => void;
   product: Product;
 };
 export const BuyCoresModal = ({
+  origin,
   onCompletion,
   product,
   ...props
@@ -357,6 +360,7 @@ export const BuyCoresModal = ({
     <BuyCoresContextProvider
       amountNeeded={product?.value}
       onCompletion={onCompletion}
+      origin={origin}
     >
       <ModalRender {...props} />
     </BuyCoresContextProvider>

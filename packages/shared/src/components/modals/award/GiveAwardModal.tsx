@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import classNames from 'classnames';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -39,20 +39,26 @@ import type { ApiErrorResult } from '../../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { Origin } from '../../../lib/log';
+import type { Post } from '../../../graphql/posts';
 
 const AwardItem = ({
   item,
-  onClick,
+  onClick: handleClick,
 }: {
   item: Product;
   onClick: (props: { product: Product; event?: MouseEvent }) => void;
 }) => {
+  const { logAwardEvent } = useGiveAwardModalContext();
+
   return (
     <Button
       variant={ButtonVariant.Float}
       className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float !p-1"
       onClick={(event) => {
-        return onClick({ product: item, event });
+        logAwardEvent({ awardEvent: 'PICK', extra: { award: item.value } });
+
+        return handleClick({ product: item, event });
       }}
     >
       <Image src={item.image} alt={item.name} className="size-20" />
@@ -197,8 +203,14 @@ const IntroScreen = () => {
 
 const CommentScreen = () => {
   const { updateUser, user } = useAuthContext();
-  const { setActiveStep, type, entity, product, onRequestClose } =
-    useGiveAwardModalContext();
+  const {
+    setActiveStep,
+    type,
+    entity,
+    product,
+    onRequestClose,
+    logAwardEvent,
+  } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { displayToast } = useToastNotification();
   const [note, setNote] = useState('');
@@ -226,6 +238,24 @@ const CommentScreen = () => {
       );
     },
   });
+
+  const onAwardClick = useCallback(() => {
+    logAwardEvent({ awardEvent: 'AWARD', extra: { award: product.value } });
+    awardMutation({
+      productId: product.id,
+      type,
+      entityId: entity.id,
+      note,
+    });
+  }, [
+    awardMutation,
+    entity.id,
+    logAwardEvent,
+    note,
+    product.id,
+    product.value,
+    type,
+  ]);
 
   return (
     <>
@@ -287,14 +317,7 @@ const CommentScreen = () => {
           loading={isPending}
           className="w-full"
           variant={ButtonVariant.Primary}
-          onClick={() => {
-            awardMutation({
-              productId: product.id,
-              type,
-              entityId: entity.id,
-              note,
-            });
-          }}
+          onClick={onAwardClick}
         >
           Send Award for <CoinIcon />{' '}
           {product.value === 0 ? 'Free' : product.value}
@@ -333,7 +356,17 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeModal, setActiveModal, product } = useGiveAwardModalContext();
+  const { activeModal, setActiveModal, product, logAwardEvent } =
+    useGiveAwardModalContext();
+
+  const trackingRef = useRef(false);
+
+  useEffect(() => {
+    if (!trackingRef.current) {
+      trackingRef.current = true;
+      logAwardEvent({ awardEvent: 'START' });
+    }
+  }, [logAwardEvent]);
 
   const onCompletion = useCallback(() => {
     setActiveModal('AWARD');
@@ -356,6 +389,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
           {...props}
           onCompletion={onCompletion}
           product={product}
+          origin={Origin.Award}
         />
       ) : null}
     </>
@@ -365,6 +399,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
 type GiveAwardModalProps = ModalProps & {
   type: AwardTypes;
   entity: AwardEntity;
+  post?: Post;
 };
 const GiveAwardModal = (props: GiveAwardModalProps): ReactElement => {
   return (
