@@ -229,6 +229,7 @@ export function PostActions({
                         receiver: post.author,
                         numAwards: post.numAwards,
                       },
+                      post,
                     },
                   });
                 }}
