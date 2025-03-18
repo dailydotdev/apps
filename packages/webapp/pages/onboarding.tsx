@@ -337,7 +337,12 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
-    if (isIOS() && !isPWA() && activeScreen !== OnboardingStep.PWA) {
+    if (
+      isIOS() &&
+      !isPWA() &&
+      activeScreen !== OnboardingStep.PWA &&
+      activeScreen !== OnboardingStep.PreviewFeed
+    ) {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
