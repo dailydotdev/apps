@@ -258,6 +258,9 @@ const useRegistration = ({
       const res = await iosNativeAuth(provider);
       postData.id_token = res.token;
       postData.id_token_nonce = res.nonce;
+      if (res.name) {
+        postData['traits.name'] = res.name;
+      }
     }
 
     await onValidateRegistration(postData);
