@@ -55,7 +55,6 @@ const InteractiveFeedStep = (): ReactElement => {
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
-            bold
           >
             These topics will help us generate your first set of
             recommendations. You can refine them anytime after setup.
@@ -84,7 +83,7 @@ const InteractiveFeedStep = (): ReactElement => {
           <Typography
             type={TypographyType.Callout}
             className="text-left"
-            color={TypographyColor.Tertiary}
+            color={TypographyColor.Quaternary}
           >
             Step 2
           </Typography>
@@ -97,9 +96,8 @@ const InteractiveFeedStep = (): ReactElement => {
             not)
           </Typography>
           <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Secondary}
-            bold
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
           >
             Vote on posts to refine your recommendations. The more signals you
             provide, the better your feed adapts to your interests.
