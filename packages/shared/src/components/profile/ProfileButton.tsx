@@ -13,6 +13,7 @@ import { IconSize } from '../Icon';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { webappUrl } from '../../lib/constants';
+import { largeNumberFormat } from '../../lib';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -53,11 +54,11 @@ export default function ProfileButton({
             <Button
               icon={<CoinIcon className="text-accent-bun-default" />}
               tag="a"
-              href={`${webappUrl}/earnings`}
+              href={`${webappUrl}earnings`}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
             >
-              {user?.balance?.amount || 0}
+              {largeNumberFormat(user?.balance?.amount || 0)}
             </Button>
           </SimpleTooltip>
           <SimpleTooltip placement="bottom" content="Profile settings">

@@ -375,7 +375,8 @@ export default function CommentActionButtons({
           bold
         >
           {/* TODO feat/transactions show most expensive award image next to count */}
-          {comment.numAwards} Award{comment.numAwards > 1 ? 's' : ''}
+          {largeNumberFormat(comment.numAwards)} Award
+          {comment.numAwards > 1 ? 's' : ''}
         </Typography>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>

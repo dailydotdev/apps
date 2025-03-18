@@ -46,6 +46,7 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -118,7 +119,7 @@ const BalanceBlock = ({
         </div>
       </SimpleTooltip>
       <Typography type={TypographyType.Title2} bold>
-        {balance}
+        {largeNumberFormat(balance)}
       </Typography>
     </div>
   );

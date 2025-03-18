@@ -15,9 +15,16 @@ import { useLogContext } from '../../contexts/LogContext';
 
 type CoreOptionButtonProps = {
   id: string;
+  priceFormatted: string;
+  cores: number;
+  label: string;
 };
+
 export const CoreOptionButton = ({
   id,
+  priceFormatted,
+  cores,
+  label,
 }: CoreOptionButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { logEvent } = useLogContext();
@@ -29,23 +36,28 @@ export const CoreOptionButton = ({
       event_name: LogEvent.SelectCreditsQuantity,
       extra: JSON.stringify({ origin, amount: id }),
     });
-    setSelectedProduct(id);
+
+    setSelectedProduct({
+      id,
+      value: cores,
+    });
+
     if (!isMobile) {
       openCheckout({ priceId: id });
     }
-  }, [id, isMobile, logEvent, openCheckout, origin, setSelectedProduct]);
+  }, [logEvent, origin, id, setSelectedProduct, cores, isMobile, openCheckout]);
   return (
     <Button
       className={classNames(
         'w-full',
-        selectedProduct === id
+        selectedProduct?.id === id
           ? 'border-action-cores-default bg-action-cores-float'
           : undefined,
       )}
       variant={ButtonVariant.Float}
-      icon={<CoinIcon />}
+      icon={<CoinIcon secondary />}
       size={ButtonSize.Large}
-      aria-checked={selectedProduct === id}
+      aria-checked={selectedProduct?.id === id}
       role="radio"
       onClick={onSelect}
     >
@@ -54,7 +66,7 @@ export const CoreOptionButton = ({
         color={TypographyColor.Primary}
         bold
       >
-        100
+        {label}
       </Typography>
       <div className="flex-1" />
       <Typography
@@ -62,8 +74,25 @@ export const CoreOptionButton = ({
         color={TypographyColor.Tertiary}
         className="font-normal"
       >
-        $0.99
+        {priceFormatted}
       </Typography>
+    </Button>
+  );
+};
+
+export const CoreOptionButtonPlaceholder = (): ReactElement => {
+  return (
+    <Button
+      className="w-full"
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Large}
+      disabled
+    >
+      <Typography
+        type={TypographyType.Body}
+        color={TypographyColor.Primary}
+        bold
+      />
     </Button>
   );
 };

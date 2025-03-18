@@ -9,7 +9,19 @@ import {
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext';
 
 export const CoreAmountNeeded = (): ReactElement => {
-  const { amountNeeded } = useBuyCoresContext();
+  const { amountNeeded, selectedProduct } = useBuyCoresContext();
+
+  if (!amountNeeded || !selectedProduct) {
+    return (
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+      >
+        Choose how many Cores to buy.
+      </Typography>
+    );
+  }
+
   return (
     <>
       <Typography
@@ -29,7 +41,7 @@ export const CoreAmountNeeded = (): ReactElement => {
           color={TypographyColor.Primary}
           bold
         >
-          80 Cores
+          {selectedProduct.value - amountNeeded} Cores
         </Typography>{' '}
         will be added to your balance.
       </Typography>

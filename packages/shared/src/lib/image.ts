@@ -255,3 +255,9 @@ export const plusFeaturesImage =
 
 export const plusRedBackgroundImage =
   'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';
+
+export const purchaseCoinsCheckoutVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/s--1p9Qw5ey--/v1741849174/videos/daily.dev_-_get_cores.mp4';
+
+export const purchaseCoinsCheckoutVideoPoster =
+  'https://media.daily.dev/image/upload/s--A_4rXIh7--/f_auto/v1741779750/public/Giving%20cores';
