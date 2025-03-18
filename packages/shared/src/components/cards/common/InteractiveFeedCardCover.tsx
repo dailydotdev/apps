@@ -14,14 +14,14 @@ const InteractiveFeedCardCover = ({ post }: { post: Post }): ReactElement => {
         <button
           onClick={() => hidePost(post.id)}
           type="button"
-          className="flex size-10 items-center justify-center rounded-full bg-status-error"
+          className="flex size-14 items-center justify-center rounded-full bg-status-error"
         >
           <BlockIcon className="m-auto" size={IconSize.Medium} />
         </button>
         <button
           onClick={() => approvePost(post)}
           type="button"
-          className="flex size-10 items-center  justify-center rounded-full bg-action-upvote-default"
+          className="flex size-14 items-center  justify-center rounded-full bg-action-upvote-default"
         >
           <VIcon size={IconSize.Medium} />
         </button>
