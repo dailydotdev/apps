@@ -243,7 +243,7 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
 
     if (!hasCompletedEditTags) {
-      if (getFeatureValue(featureInteractiveFeed)) {
+      if (getFeatureValue(featureInteractiveFeed) && isLaptop) {
         setActiveScreen(OnboardingStep.InteractiveFeed);
       } else {
         setActiveScreen(OnboardingStep.EditTag);
