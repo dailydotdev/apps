@@ -73,6 +73,7 @@ export const PlusIOS = ({
   }, []);
 
   const onContinue = useCallback(() => {
+    // @DEPRECATED: Remove setListenForSuccess once usage of App v1.8 is low
     setListenForSuccess(true);
     logSubscriptionEvent({
       event_name: LogEvent.InitiateCheckout,
@@ -81,6 +82,7 @@ export const PlusIOS = ({
   }, [logSubscriptionEvent, openCheckout, selectedOption]);
 
   useEffect(() => {
+    // @DEPRECATED: Remove event listener once usage of App v1.8 is low
     promisifyEventListener('iap-error', ({ detail }) => {
       if (detail === 'userCancelled') {
         setListenForSuccess(false);
@@ -103,11 +105,13 @@ export const PlusIOS = ({
     });
 
     return () => {
+      // @DEPRECATED: Remove event listener once usage of App v1.8 is low
       globalThis?.eventControllers?.['iap-error']?.abort();
       globalThis?.eventControllers?.['iap-loading']?.abort();
     };
   }, [displayToast, isPlusAvailable, router, selectedOption]);
 
+  // @DEPRECATED: Remove hook once usage of App v1.8 is low
   useEffect(() => {
     if (!listenForSuccess) {
       return () => {};
