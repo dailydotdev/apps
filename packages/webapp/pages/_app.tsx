@@ -20,6 +20,7 @@ import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -84,6 +85,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
+  useIOSError();
 
   useEffect(() => {
     if (
