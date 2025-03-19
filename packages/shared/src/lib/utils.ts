@@ -8,14 +8,18 @@ export const stringToBoolean = (value: string): boolean => {
   return value.toLowerCase() === 'true';
 };
 
-export const formatCurrency = (value: number): string => {
+export const formatCurrency = (
+  value: number,
+  options?: Intl.NumberFormatOptions,
+): string => {
   if (typeof value !== 'number') {
     return '';
   }
 
   return value.toLocaleString(['en-US'], {
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
+    ...options,
   });
 };
 
@@ -24,5 +28,7 @@ export const formatCoresCurrency = (value: number): string => {
     return largeNumberFormat(value);
   }
 
-  return formatCurrency(value);
+  return formatCurrency(value, {
+    minimumFractionDigits: 0,
+  });
 };

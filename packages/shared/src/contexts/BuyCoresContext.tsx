@@ -14,10 +14,13 @@ import type {
   PaddleEventData,
 } from '@paddle/paddle-js';
 import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
+import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 import { checkIsExtension } from '../lib/func';
 import type { OpenCheckoutFn } from './payment/context';
 import { useAuthContext } from './AuthContext';
 import type { Origin } from '../lib/log';
+import { transactionPricesQueryOptions } from '../graphql/njord';
 
 const SCREENS = {
   INTRO: 'INTRO',
@@ -205,3 +208,29 @@ export const BuyCoresContextProvider = ({
 
 export const useBuyCoresContext = (): BuyCoresContextData =>
   useContext(BuyCoresContext);
+
+export const useCoreProductOptionQuery = (): CoreProductOption => {
+  const { user, isLoggedIn } = useAuthContext();
+  const router = useRouter();
+  const pid = router?.query?.pid;
+
+  const { data: prices } = useQuery(
+    transactionPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
+
+  return useMemo(() => {
+    const price = prices?.find((item) => item.value === pid);
+
+    if (!price) {
+      return undefined;
+    }
+
+    return {
+      id: price.value,
+      value: price.coresValue,
+    };
+  }, [prices, pid]);
+};

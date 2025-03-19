@@ -47,7 +47,6 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -68,49 +67,12 @@ import {
   getTransactionSummary,
 } from '@dailydotdev/shared/src/graphql/njord';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
+import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
-
-type LogStartBuyingCreditsProps = {
-  origin: Origin;
-  target_id?: string;
-  amount?: number;
-};
-
-type BuyCoreProps = {
-  onBuyCoresClick: (props: LogStartBuyingCreditsProps) => void;
-  amount: number;
-  price: number;
-};
-const BuyCore = ({
-  onBuyCoresClick,
-  amount,
-  price,
-}: BuyCoreProps): ReactElement => {
-  return (
-    <Link href={`${webappUrl}cores`}>
-      <a
-        href={`${webappUrl}cores`}
-        className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2"
-        onClick={() =>
-          onBuyCoresClick({ amount, origin: Origin.EarningsPagePackage })
-        }
-      >
-        <CoinIcon size={IconSize.XLarge} className="mb-1" />
-        <Typography type={TypographyType.Title3} bold>
-          {amount}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Tertiary}
-        >
-          ${price}
-        </Typography>
-      </a>
-    </Link>
-  );
-};
 
 type BalanceBlockProps = {
   Icon: ReactElement;
@@ -207,6 +169,7 @@ const TransactionItem = ({
 
 const Earnings = (): ReactElement => {
   const { isLoggedIn, user } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
     ({
@@ -264,7 +227,7 @@ const Earnings = (): ReactElement => {
     return null;
   }
 
-  const minEarningsThreshold = 10_000;
+  const minEarningsThreshold = 100_000;
   const earningsProgressPercentage =
     user.balance.amount / (minEarningsThreshold / 100);
 
@@ -338,7 +301,10 @@ const Earnings = (): ReactElement => {
                 >
                   Earn income by engaging with the daily.dev community,
                   contributing valuable content, and receiving Cores from
-                  others. Once you reach {formatCurrency(minEarningsThreshold)}{' '}
+                  others. Once you reach{' '}
+                  {formatCurrency(minEarningsThreshold, {
+                    minimumFractionDigits: 0,
+                  })}{' '}
                   Cores, you can request a withdrawal. Monetization is still in
                   beta, so additional eligibility steps and requirements may
                   apply.
@@ -358,7 +324,11 @@ const Earnings = (): ReactElement => {
                   />
                   <Typography type={TypographyType.Callout}>
                     {formatCoresCurrency(user.balance.amount)} /{' '}
-                    <strong>{formatCurrency(minEarningsThreshold)}</strong>{' '}
+                    <strong>
+                      {formatCurrency(minEarningsThreshold, {
+                        minimumFractionDigits: 0,
+                      })}
+                    </strong>{' '}
                     Cores (≈ USD $100)
                   </Typography>
                 </div>
@@ -436,71 +406,40 @@ const Earnings = (): ReactElement => {
           </div>
         </main>
         <PageWidgets className="flex gap-4 py-6">
-          <WidgetContainer className="hidden flex-col gap-4 p-6 laptop:flex">
-            <div className="gap-1">
+          <FeaturedCoresWidget
+            className="hidden laptop:flex"
+            origin={Origin.EarningsPagePackage}
+            onClick={onBuyCoresClick}
+            amounts={[100, 300, 600]}
+          />
+          {!isPlus && (
+            <WidgetContainer className="flex flex-col gap-4 p-6">
+              <div className="flex justify-between">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Callout}
+                  bold
+                  className="flex gap-1"
+                  color={TypographyColor.Plus}
+                >
+                  <DevPlusIcon size={IconSize.XSmall} /> Plus
+                </Typography>
+                🎁
+              </div>
               <Typography type={TypographyType.Body} bold>
-                Buy Cores
+                {/* TODO feat/transactions replace with real data */}
+                Get {'{X}'} Cores every month with daily.dev Plus and access pro
+                features to fast-track your growth.
               </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
+              <Button
+                className="mt-2"
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Bacon}
               >
-                Stock up on Cores to engage, reward, and unlock more on
-                daily.dev
-              </Typography>
-            </div>
-            <div className="flex gap-3">
-              <BuyCore
-                onBuyCoresClick={onBuyCoresClick}
-                amount={100}
-                price={3.99}
-              />
-              <BuyCore
-                onBuyCoresClick={onBuyCoresClick}
-                amount={500}
-                price={50}
-              />
-              <BuyCore
-                onBuyCoresClick={onBuyCoresClick}
-                amount={1000}
-                price={100}
-              />
-            </div>
-            <Button
-              variant={ButtonVariant.Float}
-              onClick={() => onBuyCoresClick({ target_id: 'See more options' })}
-              tag="a"
-              href={`${webappUrl}cores`}
-            >
-              See more options
-            </Button>
-          </WidgetContainer>
-          <WidgetContainer className="flex flex-col gap-4 p-6">
-            <div className="flex justify-between">
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Callout}
-                bold
-                className="flex gap-1"
-                color={TypographyColor.Plus}
-              >
-                <DevPlusIcon size={IconSize.XSmall} /> Plus
-              </Typography>
-              🎁
-            </div>
-            <Typography type={TypographyType.Body} bold>
-              {/* TODO feat/transactions replace with real data */}
-              Get {'{X}'} Cores every month with daily.dev Plus and access pro
-              features to fast-track your growth.
-            </Typography>
-            <Button
-              className="mt-2"
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Bacon}
-            >
-              Upgrade to Plus
-            </Button>
-          </WidgetContainer>
+                Upgrade to Plus
+              </Button>
+            </WidgetContainer>
+          )}
           <WidgetContainer className="flex flex-col">
             <div className="flex justify-around p-4">
               <Button

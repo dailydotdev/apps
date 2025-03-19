@@ -91,6 +91,11 @@ export function PostActions({
     }) => {
       const { entityId, type } = mutationVariables as AwardProps;
 
+      mutationQueryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
+
       if (type === 'POST') {
         if (entityId !== post.id) {
           return;
