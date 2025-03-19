@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useViewSizeClient, ViewSize } from '../../../hooks';
 import { ModalBody } from '../common/ModalBody';
 import {
   BuyCoresContextProvider,
@@ -14,7 +14,6 @@ import {
 } from '../../../contexts/BuyCoresContext';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ModalClose } from '../common/ModalClose';
 import {
   Typography,
   TypographyColor,
@@ -43,16 +42,27 @@ import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
 import type { Origin } from '../../../lib/log';
 
-const CoreOptions = ({ className }: { className?: string }) => {
+export const CoreOptions = ({
+  className,
+  title,
+}: {
+  className?: string;
+  title?: ReactNode;
+}): ReactElement => {
   return (
     <div className={classNames('flex-1', className)}>
+      {title}
       <CoreAmountNeeded />
       <CoreOptionList />
     </div>
   );
 };
 
-const Checkout = ({ className }: { className?: string }) => {
+export const BuyCoresCheckout = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => {
   const isLightTheme = useIsLightTheme();
 
   return (
@@ -104,28 +114,7 @@ const ProcessingLoading = ({
 };
 
 const ProcessingCompleted = () => {
-  const { user, updateUser } = useAuthContext();
-  const { onCompletion, selectedProduct, providerTransactionId } =
-    useBuyCoresContext();
-
-  const { data: transaction } = useQuery({
-    queryKey: [RequestKey.Transactions, { providerId: providerTransactionId }],
-    queryFn: () => {
-      return getTransactionByProvider({
-        providerId: providerTransactionId,
-      });
-    },
-    enabled: !!providerTransactionId,
-  });
-
-  useEffect(() => {
-    if (transaction?.balance) {
-      updateUser({
-        ...user,
-        balance: transaction.balance,
-      });
-    }
-  }, [transaction.balance, updateUser, user]);
+  const { onCompletion, selectedProduct } = useBuyCoresContext();
 
   return (
     <>
@@ -153,7 +142,8 @@ const ProcessingCompleted = () => {
   );
 };
 
-const Processing = ({ ...props }: ModalProps): ReactElement => {
+export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
+  const { user, updateUser } = useAuthContext();
   const { onCompletion, activeStep, setActiveStep } = useBuyCoresContext();
   const isProcessing = activeStep === 'PROCESSING';
 
@@ -161,10 +151,19 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
 
   const { data: transaction } = useQuery({
     queryKey: [RequestKey.Transactions, { providerId: providerTransactionId }],
-    queryFn: () => {
-      return getTransactionByProvider({
+    queryFn: async () => {
+      const result = await getTransactionByProvider({
         providerId: providerTransactionId,
       });
+
+      if (result?.balance) {
+        updateUser({
+          ...user,
+          balance: result.balance,
+        });
+      }
+
+      return result;
     },
     enabled: !!providerTransactionId,
     refetchInterval: (query) => {
@@ -213,6 +212,7 @@ const Processing = ({ ...props }: ModalProps): ReactElement => {
       });
     }
   }, [transaction?.status, providerTransactionId, setActiveStep]);
+
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}
@@ -248,12 +248,30 @@ const BuyCoresMobile = () => {
   return (
     <ModalBody
       className={classNames(
-        'bg-gradient-to-t from-theme-overlay-to to-transparent',
+        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
         selectedProduct && '!p-0',
       )}
     >
-      {selectedProduct ? <Checkout className="p-6" /> : <CoreOptions />}
+      {selectedProduct ? <BuyCoresCheckout className="p-6" /> : <CoreOptions />}
     </ModalBody>
+  );
+};
+
+export const CorePageCheckoutVideo = (): ReactElement => {
+  return (
+    <div className="relative flex h-[582px] max-h-full flex-1">
+      <video
+        className="bg-blue-500 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
+        poster={purchaseCoinsCheckoutVideoPoster}
+        src={purchaseCoinsCheckoutVideo}
+        muted
+        autoPlay
+        loop
+        playsInline
+        disablePictureInPicture
+        controls={false}
+      />
+    </div>
   );
 };
 
@@ -263,12 +281,12 @@ const BuyCoreDesktop = () => {
   return (
     <ModalBody
       className={classNames(
-        'bg-gradient-to-t from-theme-overlay-to to-transparent !p-0',
+        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent !p-0',
       )}
     >
       <div className="flex flex-1 flex-row">
         <CoreOptions className="p-6" />
-        <Checkout
+        <BuyCoresCheckout
           className={classNames(
             !selectedProduct && 'hidden',
             'rounded-br-16 p-6',
@@ -280,21 +298,7 @@ const BuyCoreDesktop = () => {
             selectedProduct && 'hidden',
           )}
         >
-          {!selectedProduct && (
-            <div className="relative flex h-[582px] max-h-full flex-1">
-              <video
-                className="bg-blue-500 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-                poster={purchaseCoinsCheckoutVideoPoster}
-                src={purchaseCoinsCheckoutVideo}
-                muted
-                autoPlay
-                loop
-                playsInline
-                disablePictureInPicture
-                controls={false}
-              />
-            </div>
-          )}
+          {!selectedProduct && <CorePageCheckoutVideo />}
         </div>
       </div>
     </ModalBody>
@@ -303,7 +307,7 @@ const BuyCoreDesktop = () => {
 
 const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
   const { setActiveModal } = useGiveAwardModalContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isMobile = useViewSizeClient(ViewSize.MobileL);
 
   return (
     <Modal
@@ -315,12 +319,13 @@ const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
       <Modal.Header
         title="Get more Cores"
         className="mr-auto flex-row-reverse justify-end gap-4"
+        showCloseButton={!isMobile}
       >
         <BuyCreditsButton
           hideBuyButton
           onPlusClick={() => setActiveModal('BUY_CORES')}
         />
-        {isMobile ? (
+        {isMobile && (
           <Button
             onClick={props.onRequestClose}
             variant={ButtonVariant.Tertiary}
@@ -329,25 +334,32 @@ const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
           >
             Close
           </Button>
-        ) : null}
-        <ModalClose onClick={props.onRequestClose} top="2" />
+        )}
       </Modal.Header>
       {isMobile ? <BuyCoresMobile /> : <BuyCoreDesktop />}
     </Modal>
   );
 };
 
-const ModalRender = ({ ...props }: ModalProps) => {
+export const TransactionStatusListener = (props: ModalProps): ReactElement => {
   const { activeStep } = useBuyCoresContext();
 
   if (['PROCESSING', 'COMPLETED'].includes(activeStep)) {
-    return <Processing {...props} />;
+    return <BuyCoresProcessing {...props} />;
   }
 
-  if (activeStep === 'INTRO') {
-    return <BuyFlow {...props} />;
-  }
   return null;
+};
+
+const ModalRender = ({ ...props }: ModalProps) => {
+  const { activeStep } = useBuyCoresContext();
+
+  return (
+    <>
+      <TransactionStatusListener {...props} />
+      {activeStep === 'INTRO' && <BuyFlow {...props} />}
+    </>
+  );
 };
 
 type BuyCoresModalProps = ModalProps & {

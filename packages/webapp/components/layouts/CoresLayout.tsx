@@ -8,14 +8,14 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import type { MainFeedPageProps } from './MainFeedPage';
 
 export default function CoresLayout({
   children,
 }: MainFeedPageProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { back, replace } = useRouter();
 
   const onBackClick = useCallback(() => {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { gql } from 'graphql-request';
 import type { Connection } from './common';
 import { gqlClient } from './common';
@@ -5,6 +6,8 @@ import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
 import { PRODUCT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import type { Author } from './comments';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { getCorePricePreviews } from './paddle';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -152,3 +155,18 @@ export const getTransactionByProvider = async ({
 };
 
 export const transactionRefetchIntervalMs = 2500;
+
+export const transactionPricesQueryOptions = ({
+  isLoggedIn,
+  user,
+}: {
+  isLoggedIn: boolean;
+  user: LoggedUser;
+}) => {
+  return {
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'cores'),
+    queryFn: getCorePricePreviews,
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  };
+};
