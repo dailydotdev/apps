@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AuthFlow,
   getKratosFlow,
@@ -59,6 +59,7 @@ function useAccountEmailFlow({
   const [activeFlow, setActiveFlow] = useState(flowId);
   const [autoResend, setAutoResend] = useState(false);
   const { timer, setTimer, runTimer } = useTimer(onTimerFinished, timerOnLoad);
+  const client = useQueryClient();
 
   const existingEnabled = flow === AuthFlow.Verification && !flowId;
 
@@ -77,7 +78,7 @@ function useAccountEmailFlow({
   }, [activeFlow, existingFlow?.result?.flow_id]);
 
   const enabled = useMemo(() => {
-    return flow === AuthFlow.Recovery
+    return [AuthFlow.Recovery, AuthFlow.Verification].includes(flow)
       ? true
       : !existingFlowLoading && !activeFlow && !autoResend;
   }, [flow, existingFlowLoading, activeFlow, autoResend]);
@@ -85,8 +86,7 @@ function useAccountEmailFlow({
   const { data: emailFlow } = useQuery({
     queryKey: [{ type: flow }],
     queryFn: ({ queryKey: [{ type }] }) =>
-      flowId ? getKratosFlow(flow, flowId) : initializeKratosFlow(type),
-
+      flowId ? getKratosFlow(flow, activeFlow) : initializeKratosFlow(type),
     ...disabledRefetch,
     enabled,
   });
@@ -99,16 +99,20 @@ function useAccountEmailFlow({
   }, [activeFlow, emailFlow?.id]);
 
   const { mutateAsync: sendEmail, isPending: isLoading } = useMutation({
-    mutationFn: (email: string) =>
-      submitKratosFlow({
-        action: emailFlow.ui.action,
-        params: {
-          email,
-          method: 'code',
-          csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
-        },
-      }),
-
+    mutationFn: (email: string) => {
+      return initializeKratosFlow(flow).then((verifyFlow) => {
+        // Manually set query flow as active flow
+        client.setQueryData([{ type: flow }], verifyFlow);
+        return submitKratosFlow({
+          action: verifyFlow.ui.action,
+          params: {
+            email,
+            method: 'code',
+            csrf_token: getNodeValue('csrf_token', verifyFlow.ui.nodes),
+          },
+        });
+      });
+    },
     onSuccess: ({ error }, variables) => {
       if (error) {
         const requestError = getErrorMessage(error.ui.messages);
