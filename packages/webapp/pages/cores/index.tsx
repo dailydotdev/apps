@@ -106,6 +106,7 @@ export const PageCoreOptions = (): ReactElement => {
           Get More Cores
         </Typography>
       }
+      showCoresAtCheckout
     />
   );
 };
@@ -159,8 +160,9 @@ const CorePageDesktop = (): ReactElement => {
 const CoresPage = (): ReactElement => {
   const router = useRouter();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
+  const amountNeeded = +router?.query?.need;
 
-  if (!router.isReady) {
+  if (!router?.isReady) {
     return null;
   }
 
@@ -169,8 +171,9 @@ const CoresPage = (): ReactElement => {
     <BuyCoresContextProvider
       origin={Origin.EarningsPageCTA}
       onCompletion={() => {
-        router.push(webappUrl);
+        router?.push(webappUrl);
       }}
+      amountNeeded={amountNeeded || undefined}
     >
       <TransactionStatusListener isOpen isDrawerOnMobile />
       {isLaptop ? <CorePageDesktop /> : <CorePageMobile />}

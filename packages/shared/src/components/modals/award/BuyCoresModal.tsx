@@ -41,18 +41,34 @@ import { webappUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
 import type { Origin } from '../../../lib/log';
+import { largeNumberFormat } from '../../../lib/numberFormat';
 
 export const CoreOptions = ({
   className,
   title,
+  showCoresAtCheckout,
 }: {
   className?: string;
   title?: ReactNode;
+  showCoresAtCheckout?: boolean;
 }): ReactElement => {
+  const { user } = useAuthContext();
+
   return (
     <div className={classNames('flex-1', className)}>
       {title}
-      <CoreAmountNeeded />
+      <div className="flex flex-1 items-center justify-between gap-4">
+        <CoreAmountNeeded />
+        {!!showCoresAtCheckout && (
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            icon={<CoinIcon />}
+          >
+            {largeNumberFormat(user?.balance?.amount || 0)}
+          </Button>
+        )}
+      </div>
       <CoreOptionList />
     </div>
   );

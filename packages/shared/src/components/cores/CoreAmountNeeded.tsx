@@ -14,6 +14,7 @@ export const CoreAmountNeeded = (): ReactElement => {
   if (!amountNeeded || !selectedProduct) {
     return (
       <Typography
+        className="w-full flex-1"
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
@@ -25,6 +26,7 @@ export const CoreAmountNeeded = (): ReactElement => {
   return (
     <>
       <Typography
+        className="w-full flex-1"
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
