@@ -22,6 +22,7 @@ import { PlusInfo } from './PlusInfo';
 import type { MarketingCtaFlags } from '../marketingCta/common';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { LogEvent } from '../../lib/log';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -41,7 +42,7 @@ export const PlusIOS = ({
   const { displayToast } = useToastNotification();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const { productOptions, openCheckout, isPlusAvailable } = usePaymentContext();
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const [isLoading, setIsLoading] = useState(false);
   const [listenForSuccess, setListenForSuccess] = useState(false);
 
@@ -73,8 +74,11 @@ export const PlusIOS = ({
 
   const onContinue = useCallback(() => {
     setListenForSuccess(true);
+    logSubscriptionEvent({
+      event_name: LogEvent.InitiateCheckout,
+    });
     openCheckout({ priceId: selectedOption });
-  }, [openCheckout, selectedOption]);
+  }, [logSubscriptionEvent, openCheckout, selectedOption]);
 
   useEffect(() => {
     promisifyEventListener('iap-error', ({ detail }) => {
