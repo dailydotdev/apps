@@ -22,6 +22,7 @@ import {
   docs,
   searchDocs,
   webappUrl,
+  withdrawLink,
 } from '@dailydotdev/shared/src/lib/constants';
 import {
   CoinIcon,
@@ -46,10 +47,27 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  formatCoresCurrency,
+  formatCurrency,
+} from '@dailydotdev/shared/src/lib/utils';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
+import {
+  getTransactions,
+  getTransactionSummary,
+} from '@dailydotdev/shared/src/graphql/njord';
+import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -119,7 +137,7 @@ const BalanceBlock = ({
         </div>
       </SimpleTooltip>
       <Typography type={TypographyType.Title2} bold>
-        {largeNumberFormat(balance)}
+        {formatCoresCurrency(balance)}
       </Typography>
     </div>
   );
@@ -128,7 +146,7 @@ const BalanceBlock = ({
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
 type TransactionItemProps = {
-  type: 'tip' | 'awardCredit' | 'awardDebit' | 'purchase';
+  type: 'receive' | 'send' | 'purchase';
   user: UserImageProps;
   date: Date;
   amount: number;
@@ -138,17 +156,12 @@ const TransactionTypeToIcon: Record<
   TransactionItemProps['type'],
   ReactElement
 > = {
-  tip: (
+  receive: (
     <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
       <PlusIcon size={IconSize.Size16} />
     </div>
   ),
-  awardCredit: (
-    <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
-      <PlusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  awardDebit: (
+  send: (
     <div className="size-4 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
       <MinusIcon size={IconSize.Size16} />
     </div>
@@ -159,6 +172,7 @@ const TransactionTypeToIcon: Record<
     </div>
   ),
 };
+
 const TransactionItem = ({
   type,
   user,
@@ -184,7 +198,6 @@ const TransactionItem = ({
       <div className="flex items-center gap-1">
         <CoinIcon />
         <Typography type={TypographyType.Callout} bold>
-          {type === 'awardDebit' ? '-' : '+'}
           {amount}
         </Typography>
       </div>
@@ -193,6 +206,7 @@ const TransactionItem = ({
 };
 
 const Earnings = (): ReactElement => {
+  const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
     ({
@@ -208,6 +222,51 @@ const Earnings = (): ReactElement => {
     },
     [logEvent],
   );
+
+  const { data: transactionSummary } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Transactions, user, 'summary'),
+    queryFn: getTransactionSummary,
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  });
+
+  const transactionsQuery = useInfiniteQuery({
+    queryKey: generateQueryKey(RequestKey.Transactions, user, 'list', {
+      first: 20,
+    }),
+    queryFn: async ({ queryKey, pageParam }) => {
+      const [, , , queryVariables] = queryKey as [
+        RequestKey.Transactions,
+        string,
+        'list',
+        { first: number },
+      ];
+
+      return getTransactions({ ...queryVariables, after: pageParam });
+    },
+    initialPageParam: '',
+    getNextPageParam: (data, allPages, lastPageParam) => {
+      const nextPageparam = getNextPageParam(data?.pageInfo);
+
+      if (lastPageParam === nextPageparam) {
+        return null;
+      }
+
+      return getNextPageParam(data?.pageInfo);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  });
+
+  const { data: transactions } = transactionsQuery;
+
+  if (!user) {
+    return null;
+  }
+
+  const minEarningsThreshold = 10_000;
+  const earningsProgressPercentage =
+    user.balance.amount / (minEarningsThreshold / 100);
 
   return (
     <ProtectedPage>
@@ -232,8 +291,8 @@ const Earnings = (): ReactElement => {
               <BalanceBlock
                 Icon={<CoinIcon size={IconSize.Small} />}
                 title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                description="Your current balance"
+                balance={user.balance.amount}
                 className="bg-surface-float"
               />
               <BalanceBlock
@@ -242,9 +301,9 @@ const Earnings = (): ReactElement => {
                     <CoinIcon size={IconSize.Small} />
                   </div>
                 }
-                title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                title="Purchased"
+                description="Amount of cores you have purchased"
+                balance={transactionSummary?.purchased}
               />
               <BalanceBlock
                 Icon={
@@ -252,9 +311,9 @@ const Earnings = (): ReactElement => {
                     <PlusIcon size={IconSize.Small} />
                   </div>
                 }
-                title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                title="Received"
+                description="Amount of cores you have received"
+                balance={transactionSummary?.received || 0}
               />
               <BalanceBlock
                 Icon={
@@ -262,9 +321,9 @@ const Earnings = (): ReactElement => {
                     <MinusIcon size={IconSize.Small} />
                   </div>
                 }
-                title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                title="Spent"
+                description="Amount of cores you have spent"
+                balance={transactionSummary?.spent || 0}
               />
             </section>
             <Divider />
@@ -279,9 +338,10 @@ const Earnings = (): ReactElement => {
                 >
                   Earn income by engaging with the daily.dev community,
                   contributing valuable content, and receiving Cores from
-                  others. Once you reach 10,000 Cores, you can request a
-                  withdrawal. Monetization is still in beta, so additional
-                  eligibility steps and requirements may apply.
+                  others. Once you reach {formatCurrency(minEarningsThreshold)}{' '}
+                  Cores, you can request a withdrawal. Monetization is still in
+                  beta, so additional eligibility steps and requirements may
+                  apply.
                 </Typography>
               </div>
               <div className="flex gap-2">
@@ -289,7 +349,7 @@ const Earnings = (): ReactElement => {
                 <div className="flex flex-col gap-1.5">
                   <ProgressBar
                     shouldShowBg
-                    percentage={78.65}
+                    percentage={earningsProgressPercentage}
                     className={{
                       wrapper: 'h-2 rounded-8',
                       bar: 'h-full rounded-8',
@@ -297,14 +357,24 @@ const Earnings = (): ReactElement => {
                     }}
                   />
                   <Typography type={TypographyType.Callout}>
-                    7,865 / <strong>10,000</strong> Cores (≈ USD $100)
+                    {formatCoresCurrency(user.balance.amount)} /{' '}
+                    <strong>{formatCurrency(minEarningsThreshold)}</strong>{' '}
+                    Cores (≈ USD $100)
                   </Typography>
                 </div>
               </div>
               <Button
-                variant={ButtonVariant.Secondary}
+                tag="a"
+                variant={
+                  earningsProgressPercentage < 100
+                    ? ButtonVariant.Secondary
+                    : ButtonVariant.Primary
+                }
                 className="mr-auto"
-                disabled
+                disabled={earningsProgressPercentage < 100}
+                href={withdrawLink}
+                target="_blank"
+                rel={anchorDefaultRel}
               >
                 Withdraw
               </Button>
@@ -314,56 +384,54 @@ const Earnings = (): ReactElement => {
               <Typography type={TypographyType.Body} bold>
                 Transaction history
               </Typography>
-              <ul className="flex flex-col gap-4">
-                <TransactionItem
-                  type="tip"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={40}
-                  date={new Date('02-01-2025')}
-                />
-                <TransactionItem
-                  type="awardCredit"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={45}
-                  date={new Date('02-01-2025')}
-                />
-                <TransactionItem
-                  type="purchase"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={100}
-                  date={new Date('02-01-2025')}
-                />
-                <TransactionItem
-                  type="awardDebit"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={1000}
-                  date={new Date('02-01-2025')}
-                />
-              </ul>
+              <InfiniteScrolling
+                isFetchingNextPage={transactionsQuery.isFetchingNextPage}
+                canFetchMore={transactionsQuery.hasNextPage}
+                fetchNextPage={transactionsQuery.fetchNextPage}
+              >
+                <ul className="flex flex-col gap-4">
+                  {transactions?.pages.map((page) => {
+                    return page.edges.map((edge) => {
+                      const { node } = edge;
+
+                      if (!node.sender && !node.product) {
+                        return (
+                          <TransactionItem
+                            key={node.id}
+                            type="purchase"
+                            user={{
+                              id: node.receiver.id,
+                              name: node.receiver.name,
+                              username: node.receiver.username,
+                              image: node.receiver.image,
+                            }}
+                            amount={node.value}
+                            date={new Date(node.createdAt)}
+                          />
+                        );
+                      }
+
+                      const type =
+                        user.id === node.receiver.id ? 'receive' : 'send';
+
+                      return (
+                        <TransactionItem
+                          key={node.id}
+                          type={type}
+                          user={{
+                            id: node.sender.id,
+                            name: node.sender.name,
+                            username: node.sender.username,
+                            image: node.sender.image,
+                          }}
+                          amount={type === 'receive' ? node.value : -node.value}
+                          date={new Date(node.createdAt)}
+                        />
+                      );
+                    });
+                  })}
+                </ul>
+              </InfiniteScrolling>
             </section>
           </div>
         </main>

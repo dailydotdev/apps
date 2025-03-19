@@ -4,7 +4,7 @@ import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
-import { PRODUCT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
+import { PRODUCT_FRAGMENT, TRANSACTION_FRAGMENT } from './fragments';
 import type { Author } from './comments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { getCorePricePreviews } from './paddle';
@@ -112,34 +112,19 @@ export type UserTransaction = {
     error: string;
   }>;
   balance: LoggedUser['balance'];
+  createdAt: Date;
 };
 
 export const TRANSACTION_BY_PROVIDER_QUERY = gql`
   query TransactionByProvider($providerId: ID!) {
     transactionByProvider(id: $providerId) {
-      id
-      product {
-        ...ProductFragment
-      }
-      status
-      receiver {
-        ...UserShortInfo
-      }
-      sender {
-        ...UserShortInfo
-      }
-      value
-      flags {
-        note
-        error
-      }
+      ...TransactionFragment
       balance {
         amount
       }
     }
   }
-  ${PRODUCT_FRAGMENT}
-  ${USER_SHORT_INFO_FRAGMENT}
+  ${TRANSACTION_FRAGMENT}
 `;
 
 export const getTransactionByProvider = async ({
@@ -169,4 +154,60 @@ export const transactionPricesQueryOptions = ({
     enabled: isLoggedIn,
     staleTime: StaleTime.Default,
   };
+};
+
+type UserTransactionSummary = {
+  purchased: number;
+  received: number;
+  spent: number;
+};
+
+export const TRANSACTION_SUMMARY_QUERY = gql`
+  query TransactionSummary {
+    transactionSummary {
+      purchased
+      received
+      spent
+    }
+  }
+`;
+
+export const getTransactionSummary =
+  async (): Promise<UserTransactionSummary> => {
+    const result = await gqlClient.request<{
+      transactionSummary: UserTransactionSummary;
+    }>(TRANSACTION_SUMMARY_QUERY);
+
+    return result.transactionSummary;
+  };
+
+export const TRANSACTIONS_QUERY = gql`
+  query transactions($first: Int, $after: String) {
+    transactions(first: $first, after: $after) {
+      edges {
+        node {
+          ...TransactionFragment
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${TRANSACTION_FRAGMENT}
+`;
+
+export const getTransactions = async ({
+  first = 20,
+  after,
+}: {
+  first?: number;
+  after?: string;
+} = {}): Promise<Connection<UserTransaction>> => {
+  const result = await gqlClient.request<{
+    transactions: Connection<UserTransaction>;
+  }>(TRANSACTIONS_QUERY, { first, after });
+
+  return result.transactions;
 };
