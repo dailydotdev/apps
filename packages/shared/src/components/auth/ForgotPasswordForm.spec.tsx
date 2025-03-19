@@ -86,6 +86,7 @@ it('should post sending email recovery including token', async () => {
   });
   const form = await screen.findByTestId('recovery_form');
   const params = formToJson(form as HTMLFormElement);
+  mockRecoveryFlow();
   mockRecoveryValidationFlow(params);
   fireEvent.submit(form);
   await waitFor(() => {
