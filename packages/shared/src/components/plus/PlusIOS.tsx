@@ -7,7 +7,7 @@ import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { CommonPlusPageProps } from './common';
 import { promisifyEventListener } from '../../lib/func';
-import { webappUrl } from '../../lib/constants';
+import { plusSuccessUrl } from '../../lib/constants';
 import { iOSSupportsPlusPurchase } from '../../lib/ios';
 import {
   useBoot,
@@ -118,8 +118,7 @@ export const PlusIOS = ({
       if (result !== 'success') {
         return;
       }
-
-      router.replace(`${webappUrl}plus/success`);
+      router.push(plusSuccessUrl);
     });
 
     return () => {
