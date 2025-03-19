@@ -40,6 +40,7 @@ export const plusFeatureList: Array<PlusItem> = [
     typographyProps: {
       bold: true,
     },
+    // TODO feat/transactions replace with real data
     label: 'Get {{x}} Cores every {{month/year}}',
     status: PlusItemStatus.Ready,
     tooltip: `Unlock {{x}} Cores every {{month/year}} to access exclusive content, features, and benefits.`,

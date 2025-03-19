@@ -489,7 +489,8 @@ const Earnings = (): ReactElement => {
               🎁
             </div>
             <Typography type={TypographyType.Body} bold>
-              Get 100 Cores every month with daily.dev Plus and access pro
+              {/* TODO feat/transactions replace with real data */}
+              Get {'{X}'} Cores every month with daily.dev Plus and access pro
               features to fast-track your growth.
             </Typography>
             <Button
