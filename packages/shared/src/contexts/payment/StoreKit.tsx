@@ -27,6 +27,7 @@ import { plusSuccessUrl } from '../../lib/constants';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { LogEvent } from '../../lib/log';
 import { DEFAULT_ERROR } from '../../graphql/common';
+import { SubscriptionProvider } from '../../lib/plus';
 
 export type IAPProduct = {
   attributes: {
@@ -65,7 +66,7 @@ export enum PurchaseEventName {
 
 export type PurchaseEvent = {
   name: PurchaseEventName;
-  productId?: string;
+  product?: IAPProduct;
   detail?: string;
 };
 
@@ -154,11 +155,18 @@ export const StoreKitSubProvider = ({
     promisifyEventListener<void, PurchaseEvent>(
       eventName,
       (event) => {
-        const { name, detail } = event.detail;
+        const { name, detail, product } = event.detail;
         switch (name) {
           case PurchaseEventName.PurchaseCompleted:
             logRef.current({
               event_name: LogEvent.CompleteCheckout,
+              extra: {
+                user_id: user?.id,
+                cycle: productIds[product.attributes.offerName].duration,
+                localCost: product.attributes.offers[0].price,
+                localCurrency: product.attributes.offers[0].currencyCode,
+                payment: SubscriptionProvider.AppleStoreKit,
+              },
             });
             router.push(plusSuccessUrl);
             break;
@@ -192,7 +200,7 @@ export const StoreKitSubProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [displayToast, router]);
+  }, [displayToast, productIds, router, user?.id]);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
