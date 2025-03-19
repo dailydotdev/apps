@@ -90,46 +90,52 @@ export const StoreKitSubProvider = ({
         return [];
       }
 
-      const products = promisifyEventListener(
-        'iap-products-result',
-        (event) => {
-          const productsRaw = !isNullOrUndefined(event?.detail)
-            ? JSON.parse(event.detail)
-            : [];
+      const response = promisifyEventListener<
+        ProductOption[],
+        IAPProduct[] | string
+      >('iap-products-result', (event) => {
+        const productsRaw = !isNullOrUndefined(event?.detail)
+          ? event.detail
+          : [];
 
-          return productsRaw
-            ?.map((product: IAPProduct): ProductOption => {
-              const { duration, label, extraLabel, appsId } =
-                productIds[product.attributes.offerName];
+        // Remove JSON parsing once usage of App v1.8 is low
+        const products: IAPProduct[] =
+          typeof productsRaw === 'string'
+            ? JSON.parse(productsRaw)
+            : productsRaw;
 
-              return {
-                label,
-                value: product.attributes.offerName,
-                price: {
-                  amount: parseFloat(product.attributes.offers[0].price),
-                  formatted: product.attributes.offers[0].priceFormatted,
-                },
-                extraLabel,
-                appsId: appsId ?? PlusPriceTypeAppsId.Default,
-                duration,
-                durationLabel:
-                  duration === PlusPriceType.Yearly ? 'year' : 'month',
-                trialPeriod: null,
-              };
-            })
-            .sort((a: { value: string }, b: { value: string }) => {
-              // Make sure that the products are sorted in the same order as the product list
-              // because the native code does not guarantee the order of the products
-              const aIndex = productList.indexOf(a.value);
-              const bIndex = productList.indexOf(b.value);
-              return aIndex - bIndex;
-            });
-        },
-      );
+        return products
+          ?.map((product: IAPProduct): ProductOption => {
+            const { duration, label, extraLabel, appsId } =
+              productIds[product.attributes.offerName];
+
+            return {
+              label,
+              value: product.attributes.offerName,
+              price: {
+                amount: parseFloat(product.attributes.offers[0].price),
+                formatted: product.attributes.offers[0].priceFormatted,
+              },
+              extraLabel,
+              appsId: appsId ?? PlusPriceTypeAppsId.Default,
+              duration,
+              durationLabel:
+                duration === PlusPriceType.Yearly ? 'year' : 'month',
+              trialPeriod: null,
+            };
+          })
+          .sort((a: { value: string }, b: { value: string }) => {
+            // Make sure that the products are sorted in the same order as the product list
+            // because the native code does not guarantee the order of the products
+            const aIndex = productList.indexOf(a.value);
+            const bIndex = productList.indexOf(b.value);
+            return aIndex - bIndex;
+          });
+      });
 
       postWebKitMessage(WebKitMessageHandlers.IAPProductList, productList);
 
-      return products;
+      return response;
     },
   });
 
