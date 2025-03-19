@@ -507,6 +507,7 @@ function AuthOptions({
               setActiveDisplay(AuthDisplay.Default);
             }}
             onSignup={(params) => {
+              setEmail(params['traits.email']);
               onRegister(params);
             }}
             onUpdateHints={setRegistrationHints}
