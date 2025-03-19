@@ -78,7 +78,7 @@ function useAccountEmailFlow({
   }, [activeFlow, existingFlow?.result?.flow_id]);
 
   const enabled = useMemo(() => {
-    return [AuthFlow.Recovery, AuthFlow.Verification].includes(flow)
+    return flow === AuthFlow.Recovery
       ? true
       : !existingFlowLoading && !activeFlow && !autoResend;
   }, [flow, existingFlowLoading, activeFlow, autoResend]);
