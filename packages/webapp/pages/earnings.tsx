@@ -49,6 +49,8 @@ import {
 import {
   getTransactionType,
   getTransactionLabel,
+  coreApproxValueUSD,
+  minCoresEarningsThreshold,
 } from '@dailydotdev/shared/src/lib/transaction';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
@@ -168,9 +170,9 @@ const Earnings = (): ReactElement => {
     return null;
   }
 
-  const minEarningsThreshold = 100_000;
   const earningsProgressPercentage =
-    user.balance.amount / (minEarningsThreshold / 100);
+    user.balance.amount / (minCoresEarningsThreshold / 100);
+  const coresValueUSD = minCoresEarningsThreshold / coreApproxValueUSD;
 
   return (
     <ProtectedPage>
@@ -248,7 +250,7 @@ const Earnings = (): ReactElement => {
                   Earn income by engaging with the daily.dev community,
                   contributing valuable content, and receiving Cores from
                   others. Once you reach{' '}
-                  {formatCurrency(minEarningsThreshold, {
+                  {formatCurrency(minCoresEarningsThreshold, {
                     minimumFractionDigits: 0,
                   })}{' '}
                   Cores, you can request a withdrawal. Monetization is still in
@@ -271,11 +273,15 @@ const Earnings = (): ReactElement => {
                   <Typography type={TypographyType.Callout}>
                     {formatCoresCurrency(user.balance.amount)} /{' '}
                     <strong>
-                      {formatCurrency(minEarningsThreshold, {
+                      {formatCurrency(minCoresEarningsThreshold, {
                         minimumFractionDigits: 0,
                       })}
                     </strong>{' '}
-                    Cores (≈ USD $100)
+                    Cores (≈ USD $
+                    {formatCurrency(coresValueUSD, {
+                      minimumFractionDigits: 0,
+                    })}
+                    )
                   </Typography>
                 </div>
               </div>

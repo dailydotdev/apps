@@ -78,3 +78,7 @@ export const getTransactionLabel = ({
 
   return type.toUpperCase();
 };
+
+export const minCoresEarningsThreshold = 100_000;
+
+export const coreApproxValueUSD = 100;
