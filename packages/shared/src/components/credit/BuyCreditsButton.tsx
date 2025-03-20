@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ReactElement } from 'react';
+import classNames from 'classnames';
 import { CoinIcon, PlusIcon } from '../icons';
 
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -11,15 +12,19 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { largeNumberFormat } from '../../lib';
 import { LogEvent, Origin } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { useModalContext } from '../modals/common/types';
 
 type BuyCreditsButtonProps = {
+  className?: string;
   onPlusClick?: () => void;
   hideBuyButton?: boolean;
 };
 export const BuyCreditsButton = ({
+  className,
   onPlusClick,
   hideBuyButton,
 }: BuyCreditsButtonProps): ReactElement => {
+  const isInsideModal = useModalContext().onRequestClose !== null;
   const { user } = useAuthContext();
 
   const renderBuyButton = !isIOSNative() && !hideBuyButton;
@@ -33,11 +38,16 @@ export const BuyCreditsButton = ({
   };
 
   return (
-    <div className="flex items-center rounded-10 bg-surface-float">
+    <div
+      className={classNames(
+        'flex items-center rounded-10 bg-surface-float',
+        className,
+      )}
+    >
       <Link href={`${webappUrl}earnings`} passHref>
         <Button
           tag="a"
-          target="_blank"
+          target={isInsideModal ? '_blank' : undefined}
           rel={anchorDefaultRel}
           variant={ButtonVariant.Tertiary}
           icon={<CoinIcon className="text-accent-bun-default" />}

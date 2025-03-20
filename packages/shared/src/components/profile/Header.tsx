@@ -28,6 +28,8 @@ import { MenuIcon } from '../MenuIcon';
 import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
+import { BuyCreditsButton } from '../credit/BuyCreditsButton';
+import { webappUrl } from '../../lib/constants';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -171,6 +173,15 @@ export function Header({
             status={contentPreference?.status}
             entityName={`@${user.username}`}
             className="flex-row-reverse"
+          />
+        )}
+        {isSameUser && (
+          <BuyCreditsButton
+            className="laptop:hidden"
+            onPlusClick={() => {
+              router.push(`${webappUrl}/cores`);
+            }}
+            hideBuyButton
           />
         )}
         {!isSameUser && (
