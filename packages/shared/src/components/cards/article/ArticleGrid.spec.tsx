@@ -2,12 +2,30 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import post from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
+import { InteractiveFeedProvider } from '../../../contexts/InteractiveFeedContext';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/',
+      } as unknown as NextRouter),
+  );
+});
 
 const defaultProps: PostCardProps = {
   post,
@@ -27,7 +45,9 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <TestBootProvider client={new QueryClient()}>
-      <ArticleGrid {...defaultProps} {...props} />
+      <InteractiveFeedProvider>
+        <ArticleGrid {...defaultProps} {...props} />
+      </InteractiveFeedProvider>
     </TestBootProvider>,
   );
 };

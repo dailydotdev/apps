@@ -28,6 +28,7 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import SourcePage from '../pages/sources/[source]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -38,6 +39,7 @@ jest.mock('next/router', () => ({
     () =>
       ({
         isFallback: false,
+        pathname: '/',
         query: {},
       } as unknown as NextRouter),
   ),
@@ -156,7 +158,9 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <SourcePage source={source} />
+          <InteractiveFeedProvider>
+            <SourcePage source={source} />
+          </InteractiveFeedProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

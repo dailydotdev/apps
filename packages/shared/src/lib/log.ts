@@ -70,6 +70,7 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  HidePost = 'hide post',
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
@@ -228,9 +229,11 @@ export enum LogEvent {
   ManageSubscription = 'manage subscription',
   SelectBillingCycle = 'select billing cycle',
   SelectCheckoutPayment = 'select checkout payment',
+  InitiateCheckout = 'initiate checkout',
   CompleteCheckout = 'complete checkout',
   WarningCheckout = 'warning checkout',
   ErrorCheckout = 'error checkout',
+  InitiatePayment = 'initiate payment',
   CancelSubscription = 'cancel subscription',
   ReceivePayment = 'receive payment',
   OnboardingSkipPlus = 'skip upgrade subscription',

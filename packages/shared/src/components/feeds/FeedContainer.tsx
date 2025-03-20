@@ -23,6 +23,7 @@ import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import CustomFeedSlider from './CustomFeedSlider';
 import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
+import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -138,6 +139,7 @@ export const FeedContainer = ({
   feedContainerRef,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
+  const { interactiveFeedExp } = useInteractiveFeedContext();
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
@@ -281,6 +283,7 @@ export const FeedContainer = ({
                   space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),
+                interactiveFeedExp && '!gap-3',
               )}
               ref={feedContainerRef}
             >

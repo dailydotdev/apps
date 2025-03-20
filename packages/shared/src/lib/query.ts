@@ -105,6 +105,7 @@ export const generateStorageKey = (
   (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
+  InteractiveFeed = 'InteractiveFeed',
   DevCard = 'devcard',
   Providers = 'providers',
   Bookmarks = 'bookmarks',

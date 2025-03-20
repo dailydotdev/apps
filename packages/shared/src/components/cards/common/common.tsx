@@ -8,6 +8,7 @@ import type { Origin } from '../../../lib/log';
 
 export interface CommonCardCoverProps {
   post?: Post;
+  isHoveringCard?: boolean;
   onShare?: (post: Post) => unknown;
 }
 

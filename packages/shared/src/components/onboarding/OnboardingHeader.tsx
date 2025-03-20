@@ -16,8 +16,15 @@ import { OnboardingStep, wrapperMaxWidth } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PlusUser } from '../PlusUser';
 import { IconSize } from '../Icon';
-import { TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
+import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { usePaymentContext } from '../../contexts/payment/context';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
@@ -39,11 +46,13 @@ export const OnboardingHeader = ({
   customActionName,
   showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
+  const { user } = useAuthContext();
   const { isFreeTrialExperiment } = usePaymentContext();
   const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
+  const { completion } = useInteractiveCompletion();
 
   const getImage = () => {
     if (isMobile) {
@@ -59,8 +68,25 @@ export const OnboardingHeader = ({
     OnboardingStep.PWA,
     OnboardingStep.Plus,
     OnboardingStep.Extension,
+    OnboardingStep.InteractiveFeed,
   ];
   const isPlusStep = activeScreen === OnboardingStep.Plus;
+  const fullWidth =
+    activeScreen === OnboardingStep.InteractiveFeed ||
+    activeScreen === OnboardingStep.PreviewFeed;
+
+  const getCompletionColor = () => {
+    if (completion < 25) {
+      return 'text-text-tertiary';
+    }
+    if (completion < 50) {
+      return 'text-accent-bun-default';
+    }
+    if (completion < 75) {
+      return 'text-status-help';
+    }
+    return 'text-status-success';
+  };
 
   if (activeScreen !== OnboardingStep.Intro) {
     return (
@@ -68,13 +94,25 @@ export const OnboardingHeader = ({
         {activeScreen === OnboardingStep.Plus && isFreeTrialExperiment && (
           <PlusFreeTrialAlert />
         )}
-        <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
+        <header
+          className={classNames(
+            'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',
+            completion > 0 &&
+              activeScreen === OnboardingStep.InteractiveFeed &&
+              'text-status-help',
+          )}
+        >
           <img
             className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
             src={getImage()}
             alt="Gradient background"
           />
-          <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
+          <div
+            className={classNames(
+              'flex w-full items-center justify-between !px-4 py-10 tablet:!px-6',
+              !fullWidth && ' max-w-4xl ',
+            )}
+          >
             <ConditionalWrapper
               condition={showPlusIcon}
               wrapper={(component) => (
@@ -96,6 +134,23 @@ export const OnboardingHeader = ({
               ) : (
                 <LogoWithPlus />
               )}
+              {activeScreen === OnboardingStep.InteractiveFeed && (
+                <div className="z-0 flex flex-col text-center">
+                  <Typography
+                    color={TypographyColor.Primary}
+                    bold
+                    type={TypographyType.Callout}
+                  >
+                    Let&apos;s make your feed work for you
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Body}
+                    className={getCompletionColor()}
+                  >
+                    {completion}% optimized
+                  </Typography>
+                </div>
+              )}
             </ConditionalWrapper>
             {showCreateFeedButton.includes(activeScreen) && (
               <CreateFeedButton
@@ -103,6 +158,9 @@ export const OnboardingHeader = ({
                 customActionName={customActionName}
                 activeScreen={activeScreen}
               />
+            )}
+            {activeScreen === OnboardingStep.PreviewFeed && (
+              <ProfilePicture user={user} size={ProfileImageSize.Medium} />
             )}
           </div>
         </header>

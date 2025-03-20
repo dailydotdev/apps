@@ -2,6 +2,9 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import type { NotificationItemProps } from './NotificationItem';
 import NotificationItem from './NotificationItem';
 import {
@@ -10,6 +13,23 @@ import {
 } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { InteractiveFeedProvider } from '../../contexts/InteractiveFeedContext';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+beforeEach(() => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        isFallback: false,
+        pathname: '/',
+        isReady: true,
+        query: {},
+      } as unknown as NextRouter),
+  );
+});
 
 const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =
@@ -57,7 +77,11 @@ jest.mock(
 
 const renderComponent = (component: ReactNode) => {
   const client = new QueryClient();
-  render(<TestBootProvider client={client}>{component}</TestBootProvider>);
+  render(
+    <TestBootProvider client={client}>
+      <InteractiveFeedProvider>{component}</InteractiveFeedProvider>
+    </TestBootProvider>,
+  );
 };
 
 describe('notification attachment', () => {

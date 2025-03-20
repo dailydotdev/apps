@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import React, { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { usePostActions } from '../post/usePostActions';
 import { CardCoverShare } from '../../components/cards/common/CardCoverShare';
@@ -11,6 +12,12 @@ import SocialIconButton from '../../components/cards/socials/SocialIconButton';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { featureSocialShare } from '../../lib/featureManagement';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
+import useInteractiveFeed from './useInteractiveFeed';
+
+const InteractiveFeedCardCover = dynamic(
+  () => import('../../components/cards/common/InteractiveFeedCardCover'),
+  { ssr: false },
+);
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -18,6 +25,7 @@ interface UseCardCover {
 
 interface UseCardCoverProps {
   post: Post;
+  isHoveringCard?: boolean;
   onShare?: (post: Post) => void;
   className?: {
     bookmark?: {
@@ -29,13 +37,19 @@ interface UseCardCoverProps {
 export const useCardCover = ({
   post,
   onShare,
+  isHoveringCard,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
   const { onInteract, interaction } = usePostActions({ post });
   const { getFeatureValue } = useFeaturesReadyContext();
   const shouldShowReminder = useBookmarkReminderCover(post);
+  const { showCover, interactiveFeedExp } = useInteractiveFeed({ post });
 
   const overlay = useMemo(() => {
+    if (showCover && isHoveringCard) {
+      return <InteractiveFeedCardCover post={post} />;
+    }
+
     if (interaction === 'copy' && getFeatureValue(featureSocialShare)) {
       return (
         <CardCoverContainer title="Why not share it on social, too?">
@@ -65,7 +79,10 @@ export const useCardCover = ({
       );
     }
 
-    if (interaction === 'bookmark' || shouldShowReminder) {
+    if (
+      interaction === 'bookmark' ||
+      (shouldShowReminder && !interactiveFeedExp)
+    ) {
       return (
         <CardCoverContainer
           title="Don’t have time now? Set a reminder"
@@ -92,6 +109,9 @@ export const useCardCover = ({
     post,
     getFeatureValue,
     shouldShowReminder,
+    isHoveringCard,
+    interactiveFeedExp,
+    showCover,
   ]);
 
   return { overlay };

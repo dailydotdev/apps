@@ -256,6 +256,9 @@ export const plusFeaturesImage =
 export const plusRedBackgroundImage =
   'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';
 
+export const interactiveFeedEmpty =
+  'https://media.daily.dev/image/upload/s--I40-3-Oa--/f_auto/v1741779283/public/cards';
+
 export const purchaseCoinsCheckoutVideo =
   'https://daily-now-res.cloudinary.com/video/upload/s--1p9Qw5ey--/v1741849174/videos/daily.dev_-_get_cores.mp4';
 
