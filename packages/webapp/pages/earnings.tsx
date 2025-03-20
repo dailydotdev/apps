@@ -16,7 +16,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  docs,
+  coresDocsLink,
   termsOfService,
   webappUrl,
   withdrawLink,
@@ -414,7 +414,7 @@ const Earnings = (): ReactElement => {
                 tag="a"
                 target="_blank"
                 rel="noopener"
-                href={docs}
+                href={coresDocsLink}
                 icon={<FeedbackIcon />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
