@@ -44,7 +44,11 @@ export const getTransactionLabel = ({
       UserTransactionStatus.ErrorRecoverable,
     ].includes(transaction.status)
   ) {
-    return transaction.flags.error || 'Failed';
+    return (
+      <span className="text-accent-ketchup-default">
+        {transaction.flags.error || 'Failed'}
+      </span>
+    );
   }
 
   if (UserTransactionStatus.Created === transaction.status) {

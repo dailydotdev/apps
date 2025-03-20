@@ -67,10 +67,17 @@ export const TransactionItem = ({
           <Typography type={TypographyType.Subhead} bold>
             {user.name}
           </Typography>
-          <div className="flex text-text-tertiary typo-footnote">
-            <Typography type={TypographyType.Footnote}>{label}</Typography>
-            <Separator />
-            <DateFormat date={date} type={TimeFormatType.Transaction} />
+          <div className="flex flex-wrap gap-1 text-text-tertiary typo-footnote tablet:gap-0">
+            <Typography
+              className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
+              type={TypographyType.Footnote}
+            >
+              {label}
+            </Typography>
+            <div className="flex w-full items-end tablet:w-auto">
+              <Separator className="hidden tablet:inline" />
+              <DateFormat date={date} type={TimeFormatType.Transaction} />
+            </div>
           </div>
         </div>
       </div>
