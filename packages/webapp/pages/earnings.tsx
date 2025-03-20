@@ -67,6 +67,7 @@ import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
 import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -158,7 +159,10 @@ const Earnings = (): ReactElement => {
     staleTime: StaleTime.Default,
   });
 
-  const { data: transactions } = transactionsQuery;
+  const { data: transactions, isPending: isPendingTransactions } =
+    transactionsQuery;
+
+  const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
 
   if (!user) {
     return null;
@@ -296,40 +300,70 @@ const Earnings = (): ReactElement => {
               <Typography type={TypographyType.Body} bold>
                 Transaction history
               </Typography>
-              <InfiniteScrolling
-                isFetchingNextPage={transactionsQuery.isFetchingNextPage}
-                canFetchMore={transactionsQuery.hasNextPage}
-                fetchNextPage={transactionsQuery.fetchNextPage}
-              >
-                <ul className="flex flex-col gap-4">
-                  {transactions?.pages.map((page) => {
-                    return page.edges.map((edge) => {
-                      const { node: transaction } = edge;
-
-                      const type = getTransactionType({ transaction, user });
-
-                      return (
-                        <TransactionItem
-                          key={transaction.id}
-                          type={type}
-                          user={
-                            type === 'receive'
-                              ? transaction.sender
-                              : transaction.receiver
-                          }
-                          amount={
-                            type === 'send'
-                              ? -transaction.value
-                              : transaction.value
-                          }
-                          date={new Date(transaction.createdAt)}
-                          label={getTransactionLabel({ transaction, user })}
-                        />
-                      );
-                    });
+              {isPendingTransactions && (
+                <div className="flex flex-1 flex-col gap-4">
+                  {new Array(5).fill(null).map((_, index) => {
+                    return (
+                      <ElementPlaceholder
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={index}
+                        className="h-10 w-full rounded-10"
+                      />
+                    );
                   })}
-                </ul>
-              </InfiniteScrolling>
+                </div>
+              )}
+              {!isPendingTransactions && (
+                <>
+                  {!hasTransactions && (
+                    <Typography type={TypographyType.Callout}>
+                      You have no transactions yet.
+                    </Typography>
+                  )}
+                  {hasTransactions && (
+                    <InfiniteScrolling
+                      isFetchingNextPage={transactionsQuery.isFetchingNextPage}
+                      canFetchMore={transactionsQuery.hasNextPage}
+                      fetchNextPage={transactionsQuery.fetchNextPage}
+                    >
+                      <ul className="flex flex-col gap-4">
+                        {transactions?.pages.map((page) => {
+                          return page.edges.map((edge) => {
+                            const { node: transaction } = edge;
+
+                            const type = getTransactionType({
+                              transaction,
+                              user,
+                            });
+
+                            return (
+                              <TransactionItem
+                                key={transaction.id}
+                                type={type}
+                                user={
+                                  type === 'receive'
+                                    ? transaction.sender
+                                    : transaction.receiver
+                                }
+                                amount={
+                                  type === 'send'
+                                    ? -transaction.value
+                                    : transaction.value
+                                }
+                                date={new Date(transaction.createdAt)}
+                                label={getTransactionLabel({
+                                  transaction,
+                                  user,
+                                })}
+                              />
+                            );
+                          });
+                        })}
+                      </ul>
+                    </InfiniteScrolling>
+                  )}
+                </>
+              )}
             </section>
           </div>
         </main>
