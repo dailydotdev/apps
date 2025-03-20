@@ -2,10 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
-import {
-  DateFormat,
-  PageWidgets,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
   ButtonColor,
@@ -26,6 +23,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import {
   CoinIcon,
+  CreditCardIcon,
   DevPlusIcon,
   DocsIcon,
   FeedbackIcon,
@@ -40,13 +38,7 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import type { UserImageProps } from '@dailydotdev/shared/src/components/ProfilePicture';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-} from '@dailydotdev/shared/src/components/ProfilePicture';
-import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
+
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -54,6 +46,10 @@ import {
   formatCoresCurrency,
   formatCurrency,
 } from '@dailydotdev/shared/src/lib/utils';
+import {
+  getTransactionType,
+  getTransactionLabel,
+} from '@dailydotdev/shared/src/lib/transaction';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
@@ -69,6 +65,7 @@ import {
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
 import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
+import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
@@ -106,66 +103,6 @@ const BalanceBlock = ({
 };
 
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
-
-type TransactionItemProps = {
-  type: 'receive' | 'send' | 'purchase';
-  user: UserImageProps;
-  date: Date;
-  amount: number;
-};
-
-const TransactionTypeToIcon: Record<
-  TransactionItemProps['type'],
-  ReactElement
-> = {
-  receive: (
-    <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
-      <PlusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  send: (
-    <div className="size-4 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
-      <MinusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  purchase: (
-    <div className="size-4 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-      <CoinIcon size={IconSize.Size16} />
-    </div>
-  ),
-};
-
-const TransactionItem = ({
-  type,
-  user,
-  date,
-  amount,
-}: TransactionItemProps): ReactElement => {
-  return (
-    <li className="flex">
-      <div className="flex flex-1 items-center gap-2">
-        {TransactionTypeToIcon[type]}
-        <ProfilePicture size={ProfileImageSize.Medium} user={user} />{' '}
-        <div className="flex flex-col gap-1">
-          <Typography type={TypographyType.Subhead} bold>
-            {user.name}
-          </Typography>
-          <div className="flex text-text-tertiary typo-footnote">
-            <Typography type={TypographyType.Footnote}>{type}</Typography>
-            <Separator />
-            <DateFormat date={date} type={TimeFormatType.Post} />
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-1">
-        <CoinIcon />
-        <Typography type={TypographyType.Callout} bold>
-          {amount}
-        </Typography>
-      </div>
-    </li>
-  );
-};
 
 const Earnings = (): ReactElement => {
   const { isLoggedIn, user } = useAuthContext();
@@ -252,7 +189,12 @@ const Earnings = (): ReactElement => {
           <div className="flex flex-col gap-6 p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
-                Icon={<CoinIcon size={IconSize.Small} />}
+                Icon={
+                  <CoinIcon
+                    size={IconSize.Small}
+                    className="text-accent-bun-default"
+                  />
+                }
                 title="Balance"
                 description="Your current balance"
                 balance={user.balance.amount}
@@ -261,12 +203,12 @@ const Earnings = (): ReactElement => {
               <BalanceBlock
                 Icon={
                   <div className="size-6 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-                    <CoinIcon size={IconSize.Small} />
+                    <CreditCardIcon size={IconSize.Small} />
                   </div>
                 }
                 title="Purchased"
                 description="Amount of cores you have purchased"
-                balance={transactionSummary?.purchased}
+                balance={transactionSummary?.purchased || 0}
               />
               <BalanceBlock
                 Icon={
@@ -311,7 +253,7 @@ const Earnings = (): ReactElement => {
                 </Typography>
               </div>
               <div className="flex gap-2">
-                <CoinIcon />
+                <CoinIcon className="text-accent-bun-default" />
                 <div className="flex flex-col gap-1.5">
                   <ProgressBar
                     shouldShowBg
@@ -362,40 +304,26 @@ const Earnings = (): ReactElement => {
                 <ul className="flex flex-col gap-4">
                   {transactions?.pages.map((page) => {
                     return page.edges.map((edge) => {
-                      const { node } = edge;
+                      const { node: transaction } = edge;
 
-                      if (!node.sender && !node.product) {
-                        return (
-                          <TransactionItem
-                            key={node.id}
-                            type="purchase"
-                            user={{
-                              id: node.receiver.id,
-                              name: node.receiver.name,
-                              username: node.receiver.username,
-                              image: node.receiver.image,
-                            }}
-                            amount={node.value}
-                            date={new Date(node.createdAt)}
-                          />
-                        );
-                      }
-
-                      const type =
-                        user.id === node.receiver.id ? 'receive' : 'send';
+                      const type = getTransactionType({ transaction, user });
 
                       return (
                         <TransactionItem
-                          key={node.id}
+                          key={transaction.id}
                           type={type}
-                          user={{
-                            id: node.sender.id,
-                            name: node.sender.name,
-                            username: node.sender.username,
-                            image: node.sender.image,
-                          }}
-                          amount={type === 'receive' ? node.value : -node.value}
-                          date={new Date(node.createdAt)}
+                          user={
+                            type === 'receive'
+                              ? transaction.sender
+                              : transaction.receiver
+                          }
+                          amount={
+                            type === 'send'
+                              ? -transaction.value
+                              : transaction.value
+                          }
+                          date={new Date(transaction.createdAt)}
+                          label={getTransactionLabel({ transaction, user })}
                         />
                       );
                     });

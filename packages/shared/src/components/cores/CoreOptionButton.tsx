@@ -55,7 +55,7 @@ export const CoreOptionButton = ({
           : undefined,
       )}
       variant={ButtonVariant.Float}
-      icon={<CoinIcon secondary />}
+      icon={<CoinIcon secondary className="text-accent-bun-default" />}
       size={ButtonSize.Large}
       aria-checked={selectedProduct?.id === id}
       role="radio"

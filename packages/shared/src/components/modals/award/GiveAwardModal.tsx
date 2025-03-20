@@ -63,7 +63,7 @@ const AwardItem = ({
     >
       <Image src={item.image} alt={item.name} className="size-20" />
       <div className="flex items-center justify-center">
-        <CoinIcon size={IconSize.Size16} />
+        <CoinIcon size={IconSize.Size16} className="text-accent-bun-default" />
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Secondary}
@@ -175,7 +175,7 @@ const IntroScreen = () => {
             variant={ButtonVariant.Primary}
             onClick={onBuyCores}
           >
-            Buy Cores <CoinIcon />{' '}
+            Buy Cores <CoinIcon className="text-accent-bun-default" />{' '}
             {product.value === 0 ? 'Free' : product.value}
           </Button>
           <Typography
@@ -319,7 +319,7 @@ const CommentScreen = () => {
           variant={ButtonVariant.Primary}
           onClick={onAwardClick}
         >
-          Send Award for <CoinIcon />{' '}
+          Send Award for <CoinIcon className="text-accent-bun-default" />{' '}
           {product.value === 0 ? 'Free' : product.value}
         </Button>
         <Typography

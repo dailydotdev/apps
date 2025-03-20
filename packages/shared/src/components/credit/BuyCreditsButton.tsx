@@ -40,7 +40,7 @@ export const BuyCreditsButton = ({
           target="_blank"
           rel={anchorDefaultRel}
           variant={ButtonVariant.Tertiary}
-          icon={<CoinIcon />}
+          icon={<CoinIcon className="text-accent-bun-default" />}
           size={ButtonSize.Small}
         >
           {largeNumberFormat(user?.balance?.amount || 0)}

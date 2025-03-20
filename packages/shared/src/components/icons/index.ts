@@ -135,3 +135,4 @@ export * from './EditPrompt';
 export * from './CustomPrompt';
 export * from './TLDR';
 export * from './Privacy';
+export * from './CreditCard';

@@ -47,7 +47,10 @@ export const BuyCore = ({
         className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2"
         onClick={() => onBuyCoresClick({ amount, origin })}
       >
-        <CoinIcon size={IconSize.XLarge} className="mb-1" />
+        <CoinIcon
+          size={IconSize.XLarge}
+          className="mb-1 text-accent-bun-default"
+        />
         <Typography type={TypographyType.Title3} bold>
           {amount}
         </Typography>

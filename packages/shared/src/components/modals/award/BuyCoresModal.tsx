@@ -109,7 +109,7 @@ const ProcessingLoading = ({
 
   return (
     <>
-      <CoinIcon size={IconSize.XXXLarge} />
+      <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
       <Typography type={TypographyType.Title3} bold>
         {statusMessage}
       </Typography>
@@ -123,7 +123,7 @@ const ProcessingCompleted = () => {
 
   return (
     <>
-      <CoinIcon size={IconSize.XXXLarge} />
+      <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
       <Typography type={TypographyType.Body} bold>
         {selectedProduct.value}
       </Typography>
