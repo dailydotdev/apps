@@ -17,7 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   docs,
-  searchDocs,
+  termsOfService,
   webappUrl,
   withdrawLink,
 } from '@dailydotdev/shared/src/lib/constants';
@@ -426,7 +426,7 @@ const Earnings = (): ReactElement => {
                 tag="a"
                 target="_blank"
                 rel="noopener"
-                href={searchDocs}
+                href={termsOfService}
                 icon={<DocsIcon />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
