@@ -423,3 +423,27 @@ export const TOP_READER_BADGE_FRAGMENT = gql`
     }
   }
 `;
+
+export const TRANSACTION_FRAGMENT = gql`
+  fragment TransactionFragment on UserTransaction {
+    id
+    product {
+      ...ProductFragment
+    }
+    status
+    receiver {
+      ...UserShortInfo
+    }
+    sender {
+      ...UserShortInfo
+    }
+    value
+    flags {
+      note
+      error
+    }
+    createdAt
+  }
+  ${PRODUCT_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
+`;

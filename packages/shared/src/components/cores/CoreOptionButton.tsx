@@ -28,7 +28,7 @@ export const CoreOptionButton = ({
 }: CoreOptionButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { logEvent } = useLogContext();
-  const { selectedProduct, setSelectedProduct, openCheckout, origin } =
+  const { selectedProduct, setSelectedProduct, openCheckout, origin, paddle } =
     useBuyCoresContext();
   const onSelect = useCallback(() => {
     // TODO: Amount should be deducted from selected product entity
@@ -55,11 +55,12 @@ export const CoreOptionButton = ({
           : undefined,
       )}
       variant={ButtonVariant.Float}
-      icon={<CoinIcon secondary />}
+      icon={<CoinIcon secondary className="text-accent-bun-default" />}
       size={ButtonSize.Large}
       aria-checked={selectedProduct?.id === id}
       role="radio"
       onClick={onSelect}
+      disabled={!paddle}
     >
       <Typography
         type={TypographyType.Body}

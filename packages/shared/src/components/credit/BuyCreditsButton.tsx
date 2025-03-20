@@ -13,7 +13,7 @@ import { LogEvent, Origin } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 
 type BuyCreditsButtonProps = {
-  onPlusClick: () => void;
+  onPlusClick?: () => void;
   hideBuyButton?: boolean;
 };
 export const BuyCreditsButton = ({
@@ -29,7 +29,7 @@ export const BuyCreditsButton = ({
       event_name: LogEvent.StartBuyingCredits,
       extra: JSON.stringify({ origin: Origin.Award }),
     });
-    onPlusClick();
+    onPlusClick?.();
   };
 
   return (
@@ -40,7 +40,7 @@ export const BuyCreditsButton = ({
           target="_blank"
           rel={anchorDefaultRel}
           variant={ButtonVariant.Tertiary}
-          icon={<CoinIcon />}
+          icon={<CoinIcon className="text-accent-bun-default" />}
           size={ButtonSize.Small}
         >
           {largeNumberFormat(user?.balance?.amount || 0)}

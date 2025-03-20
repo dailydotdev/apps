@@ -1,9 +1,10 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import {
   BuyCoresContextProvider,
   useBuyCoresContext,
+  useCoreProductOptionQuery,
 } from '@dailydotdev/shared/src/contexts/BuyCoresContext';
 import { useRouter } from 'next/router';
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -24,10 +25,8 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { useQuery } from '@tanstack/react-query';
-import { transactionPricesQueryOptions } from '@dailydotdev/shared/src/graphql/njord';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -44,55 +43,25 @@ const MobileContainer = classed(
 );
 
 export const CorePageMobileCheckout = (): ReactElement => {
-  const { isLoggedIn, user } = useAuthContext();
-  const { openCheckout, selectedProduct, setSelectedProduct } =
-    useBuyCoresContext();
-  const router = useRouter();
-  const pid = router?.query?.pid;
+  const { openCheckout, selectedProduct, paddle } = useBuyCoresContext();
 
-  const { data: prices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
+  const productFromQuery = useCoreProductOptionQuery();
 
   useEffect(() => {
-    if (!prices) {
+    if (!paddle) {
       return;
     }
 
-    if (!pid) {
-      return;
+    const productForCheckout = selectedProduct || productFromQuery;
+
+    if (productForCheckout) {
+      openCheckout({ priceId: productForCheckout.id });
     }
-
-    const selectedPrice = prices.find((price) => price.value === pid);
-
-    if (selectedPrice) {
-      setSelectedProduct({
-        id: selectedPrice.value,
-        value: selectedPrice.coresValue,
-      });
-
-      openCheckout({
-        priceId: selectedPrice.value,
-      });
-    }
-  }, [prices, setSelectedProduct, openCheckout, pid]);
-
-  useEffect(() => {
-    if (selectedProduct) {
-      openCheckout({ priceId: selectedProduct.id });
-    }
-  }, [openCheckout, selectedProduct]);
+  }, [openCheckout, selectedProduct, productFromQuery, paddle]);
 
   return (
     <MobileContainer>
-      <BuyCoresCheckout
-        className={classNames(
-          'rounded-16 border border-border-subtlest-tertiary p-6',
-        )}
-      />
+      <BuyCoresCheckout className="p-6" />
     </MobileContainer>
   );
 };
@@ -139,12 +108,12 @@ const CorePageDesktop = (): ReactElement => {
           <BuyCoresCheckout
             className={classNames(
               !selectedProduct && 'hidden',
-              'rounded-br-16 p-6',
+              'rounded-16 border border-border-subtlest-tertiary p-6',
             )}
           />
           <div
             className={classNames(
-              'flex flex-1 overflow-hidden rounded-16',
+              'm-6 flex flex-1 overflow-hidden rounded-16',
               selectedProduct && 'hidden',
             )}
           >
@@ -155,6 +124,47 @@ const CorePageDesktop = (): ReactElement => {
       </div>
     </>
   );
+};
+
+export const CorePageRenderer = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode => {
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
+  const { setSelectedProduct, openCheckout, paddle } = useBuyCoresContext();
+  const router = useRouter();
+
+  const productFromQuery = useCoreProductOptionQuery();
+
+  useEffect(() => {
+    if (!paddle) {
+      return;
+    }
+
+    if (!productFromQuery) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    params.delete('pid');
+    router?.replace(getPathnameWithQuery(router?.pathname, params));
+
+    if (isLaptop) {
+      setSelectedProduct(productFromQuery);
+
+      openCheckout({ priceId: productFromQuery.id });
+    }
+  }, [
+    isLaptop,
+    openCheckout,
+    productFromQuery,
+    router,
+    setSelectedProduct,
+    paddle,
+  ]);
+
+  return children;
 };
 
 const CoresPage = (): ReactElement => {
@@ -176,7 +186,9 @@ const CoresPage = (): ReactElement => {
       amountNeeded={amountNeeded || undefined}
     >
       <TransactionStatusListener isOpen isDrawerOnMobile />
-      {isLaptop ? <CorePageDesktop /> : <CorePageMobile />}
+      <CorePageRenderer>
+        {isLaptop ? <CorePageDesktop /> : <CorePageMobile />}
+      </CorePageRenderer>
     </BuyCoresContextProvider>
   );
 };

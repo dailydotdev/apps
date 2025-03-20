@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
@@ -30,7 +30,7 @@ import {
   transactionRefetchIntervalMs,
   UserTransactionStatus,
 } from '../../../graphql/njord';
-import { RequestKey } from '../../../lib/query';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { oneMinute } from '../../../lib/dateFormat';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
@@ -41,7 +41,6 @@ import { webappUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
 import type { Origin } from '../../../lib/log';
-import { largeNumberFormat } from '../../../lib/numberFormat';
 
 export const CoreOptions = ({
   className,
@@ -52,22 +51,12 @@ export const CoreOptions = ({
   title?: ReactNode;
   showCoresAtCheckout?: boolean;
 }): ReactElement => {
-  const { user } = useAuthContext();
-
   return (
     <div className={classNames('flex-1', className)}>
       {title}
       <div className="flex flex-1 items-center justify-between gap-4">
         <CoreAmountNeeded />
-        {!!showCoresAtCheckout && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-            icon={<CoinIcon />}
-          >
-            {largeNumberFormat(user?.balance?.amount || 0)}
-          </Button>
-        )}
+        {!!showCoresAtCheckout && <BuyCreditsButton hideBuyButton />}
       </div>
       <CoreOptionList />
     </div>
@@ -120,7 +109,7 @@ const ProcessingLoading = ({
 
   return (
     <>
-      <CoinIcon size={IconSize.XXXLarge} />
+      <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
       <Typography type={TypographyType.Title3} bold>
         {statusMessage}
       </Typography>
@@ -134,7 +123,7 @@ const ProcessingCompleted = () => {
 
   return (
     <>
-      <CoinIcon size={IconSize.XXXLarge} />
+      <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
       <Typography type={TypographyType.Body} bold>
         {selectedProduct.value}
       </Typography>
@@ -162,6 +151,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
   const { user, updateUser } = useAuthContext();
   const { onCompletion, activeStep, setActiveStep } = useBuyCoresContext();
   const isProcessing = activeStep === 'PROCESSING';
+  const queryClient = useQueryClient();
 
   const { providerTransactionId } = useBuyCoresContext();
 
@@ -178,6 +168,11 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
           balance: result.balance,
         });
       }
+
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
 
       return result;
     },
@@ -253,13 +248,17 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
 };
 
 const BuyCoresMobile = () => {
-  const { selectedProduct, openCheckout } = useBuyCoresContext();
+  const { selectedProduct, openCheckout, paddle } = useBuyCoresContext();
 
   useEffect(() => {
+    if (!paddle) {
+      return;
+    }
+
     if (selectedProduct) {
       openCheckout({ priceId: selectedProduct.id });
     }
-  }, [openCheckout, selectedProduct]);
+  }, [openCheckout, selectedProduct, paddle]);
 
   return (
     <ModalBody

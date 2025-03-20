@@ -2,10 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
-import {
-  DateFormat,
-  PageWidgets,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
   ButtonColor,
@@ -22,9 +19,11 @@ import {
   docs,
   searchDocs,
   webappUrl,
+  withdrawLink,
 } from '@dailydotdev/shared/src/lib/constants';
 import {
   CoinIcon,
+  CreditCardIcon,
   DevPlusIcon,
   DocsIcon,
   FeedbackIcon,
@@ -39,60 +38,39 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import type { UserImageProps } from '@dailydotdev/shared/src/components/ProfilePicture';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-} from '@dailydotdev/shared/src/components/ProfilePicture';
-import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
-import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
+
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  formatCoresCurrency,
+  formatCurrency,
+} from '@dailydotdev/shared/src/lib/utils';
+import {
+  getTransactionType,
+  getTransactionLabel,
+} from '@dailydotdev/shared/src/lib/transaction';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
+import {
+  getTransactions,
+  getTransactionSummary,
+} from '@dailydotdev/shared/src/graphql/njord';
+import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
+import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
+import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
-
-type LogStartBuyingCreditsProps = {
-  origin: Origin;
-  target_id?: string;
-  amount?: number;
-};
-
-type BuyCoreProps = {
-  onBuyCoresClick: (props: LogStartBuyingCreditsProps) => void;
-  amount: number;
-  price: number;
-};
-const BuyCore = ({
-  onBuyCoresClick,
-  amount,
-  price,
-}: BuyCoreProps): ReactElement => {
-  return (
-    <Link href={`${webappUrl}cores`}>
-      <a
-        href={`${webappUrl}cores`}
-        className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2"
-        onClick={() =>
-          onBuyCoresClick({ amount, origin: Origin.EarningsPagePackage })
-        }
-      >
-        <CoinIcon size={IconSize.XLarge} className="mb-1" />
-        <Typography type={TypographyType.Title3} bold>
-          {amount}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Tertiary}
-        >
-          ${price}
-        </Typography>
-      </a>
-    </Link>
-  );
-};
 
 type BalanceBlockProps = {
   Icon: ReactElement;
@@ -119,7 +97,7 @@ const BalanceBlock = ({
         </div>
       </SimpleTooltip>
       <Typography type={TypographyType.Title2} bold>
-        {largeNumberFormat(balance)}
+        {formatCoresCurrency(balance)}
       </Typography>
     </div>
   );
@@ -127,72 +105,9 @@ const BalanceBlock = ({
 
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
-type TransactionItemProps = {
-  type: 'tip' | 'awardCredit' | 'awardDebit' | 'purchase';
-  user: UserImageProps;
-  date: Date;
-  amount: number;
-};
-
-const TransactionTypeToIcon: Record<
-  TransactionItemProps['type'],
-  ReactElement
-> = {
-  tip: (
-    <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
-      <PlusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  awardCredit: (
-    <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
-      <PlusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  awardDebit: (
-    <div className="size-4 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
-      <MinusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  purchase: (
-    <div className="size-4 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-      <CoinIcon size={IconSize.Size16} />
-    </div>
-  ),
-};
-const TransactionItem = ({
-  type,
-  user,
-  date,
-  amount,
-}: TransactionItemProps): ReactElement => {
-  return (
-    <li className="flex">
-      <div className="flex flex-1 items-center gap-2">
-        {TransactionTypeToIcon[type]}
-        <ProfilePicture size={ProfileImageSize.Medium} user={user} />{' '}
-        <div className="flex flex-col gap-1">
-          <Typography type={TypographyType.Subhead} bold>
-            {user.name}
-          </Typography>
-          <div className="flex text-text-tertiary typo-footnote">
-            <Typography type={TypographyType.Footnote}>{type}</Typography>
-            <Separator />
-            <DateFormat date={date} type={TimeFormatType.Post} />
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-1">
-        <CoinIcon />
-        <Typography type={TypographyType.Callout} bold>
-          {type === 'awardDebit' ? '-' : '+'}
-          {amount}
-        </Typography>
-      </div>
-    </li>
-  );
-};
-
 const Earnings = (): ReactElement => {
+  const { isLoggedIn, user } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
     ({
@@ -208,6 +123,54 @@ const Earnings = (): ReactElement => {
     },
     [logEvent],
   );
+
+  const { data: transactionSummary } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Transactions, user, 'summary'),
+    queryFn: getTransactionSummary,
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  });
+
+  const transactionsQuery = useInfiniteQuery({
+    queryKey: generateQueryKey(RequestKey.Transactions, user, 'list', {
+      first: 20,
+    }),
+    queryFn: async ({ queryKey, pageParam }) => {
+      const [, , , queryVariables] = queryKey as [
+        RequestKey.Transactions,
+        string,
+        'list',
+        { first: number },
+      ];
+
+      return getTransactions({ ...queryVariables, after: pageParam });
+    },
+    initialPageParam: '',
+    getNextPageParam: (data, allPages, lastPageParam) => {
+      const nextPageparam = getNextPageParam(data?.pageInfo);
+
+      if (lastPageParam === nextPageparam) {
+        return null;
+      }
+
+      return getNextPageParam(data?.pageInfo);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  });
+
+  const { data: transactions, isPending: isPendingTransactions } =
+    transactionsQuery;
+
+  const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
+
+  if (!user) {
+    return null;
+  }
+
+  const minEarningsThreshold = 100_000;
+  const earningsProgressPercentage =
+    user.balance.amount / (minEarningsThreshold / 100);
 
   return (
     <ProtectedPage>
@@ -230,21 +193,26 @@ const Earnings = (): ReactElement => {
           <div className="flex flex-col gap-6 p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
-                Icon={<CoinIcon size={IconSize.Small} />}
+                Icon={
+                  <CoinIcon
+                    size={IconSize.Small}
+                    className="text-accent-bun-default"
+                  />
+                }
                 title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                description="Your current balance"
+                balance={user.balance.amount}
                 className="bg-surface-float"
               />
               <BalanceBlock
                 Icon={
                   <div className="size-6 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-                    <CoinIcon size={IconSize.Small} />
+                    <CreditCardIcon size={IconSize.Small} />
                   </div>
                 }
-                title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                title="Purchased"
+                description="Amount of cores you have purchased"
+                balance={transactionSummary?.purchased || 0}
               />
               <BalanceBlock
                 Icon={
@@ -252,9 +220,9 @@ const Earnings = (): ReactElement => {
                     <PlusIcon size={IconSize.Small} />
                   </div>
                 }
-                title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                title="Received"
+                description="Amount of cores you have received"
+                balance={transactionSummary?.received || 0}
               />
               <BalanceBlock
                 Icon={
@@ -262,9 +230,9 @@ const Earnings = (): ReactElement => {
                     <MinusIcon size={IconSize.Small} />
                   </div>
                 }
-                title="Balance"
-                description="Lorem Ipsum Dollar Si Amet"
-                balance={4500}
+                title="Spent"
+                description="Amount of cores you have spent"
+                balance={transactionSummary?.spent || 0}
               />
             </section>
             <Divider />
@@ -279,17 +247,21 @@ const Earnings = (): ReactElement => {
                 >
                   Earn income by engaging with the daily.dev community,
                   contributing valuable content, and receiving Cores from
-                  others. Once you reach 10,000 Cores, you can request a
-                  withdrawal. Monetization is still in beta, so additional
-                  eligibility steps and requirements may apply.
+                  others. Once you reach{' '}
+                  {formatCurrency(minEarningsThreshold, {
+                    minimumFractionDigits: 0,
+                  })}{' '}
+                  Cores, you can request a withdrawal. Monetization is still in
+                  beta, so additional eligibility steps and requirements may
+                  apply.
                 </Typography>
               </div>
               <div className="flex gap-2">
-                <CoinIcon />
+                <CoinIcon className="text-accent-bun-default" />
                 <div className="flex flex-col gap-1.5">
                   <ProgressBar
                     shouldShowBg
-                    percentage={78.65}
+                    percentage={earningsProgressPercentage}
                     className={{
                       wrapper: 'h-2 rounded-8',
                       bar: 'h-full rounded-8',
@@ -297,14 +269,28 @@ const Earnings = (): ReactElement => {
                     }}
                   />
                   <Typography type={TypographyType.Callout}>
-                    7,865 / <strong>10,000</strong> Cores (≈ USD $100)
+                    {formatCoresCurrency(user.balance.amount)} /{' '}
+                    <strong>
+                      {formatCurrency(minEarningsThreshold, {
+                        minimumFractionDigits: 0,
+                      })}
+                    </strong>{' '}
+                    Cores (≈ USD $100)
                   </Typography>
                 </div>
               </div>
               <Button
-                variant={ButtonVariant.Secondary}
+                tag="a"
+                variant={
+                  earningsProgressPercentage < 100
+                    ? ButtonVariant.Secondary
+                    : ButtonVariant.Primary
+                }
                 className="mr-auto"
-                disabled
+                disabled={earningsProgressPercentage < 100}
+                href={withdrawLink}
+                target="_blank"
+                rel={anchorDefaultRel}
               >
                 Withdraw
               </Button>
@@ -314,124 +300,108 @@ const Earnings = (): ReactElement => {
               <Typography type={TypographyType.Body} bold>
                 Transaction history
               </Typography>
-              <ul className="flex flex-col gap-4">
-                <TransactionItem
-                  type="tip"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={40}
-                  date={new Date('02-01-2025')}
-                />
-                <TransactionItem
-                  type="awardCredit"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={45}
-                  date={new Date('02-01-2025')}
-                />
-                <TransactionItem
-                  type="purchase"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={100}
-                  date={new Date('02-01-2025')}
-                />
-                <TransactionItem
-                  type="awardDebit"
-                  user={{
-                    id: '123',
-                    name: 'John Doe',
-                    username: 'johndoe',
-                    image:
-                      'https://lh3.googleusercontent.com/a/ACg8ocKC0Gt247CSHrl-ndg5h9d87sLqRh6sppbf_a3jX5ciOQ2VSSs=s64-c',
-                  }}
-                  amount={1000}
-                  date={new Date('02-01-2025')}
-                />
-              </ul>
+              {isPendingTransactions && (
+                <div className="flex flex-1 flex-col gap-4">
+                  {new Array(5).fill(null).map((_, index) => {
+                    return (
+                      <ElementPlaceholder
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={index}
+                        className="h-10 w-full rounded-10"
+                      />
+                    );
+                  })}
+                </div>
+              )}
+              {!isPendingTransactions && (
+                <>
+                  {!hasTransactions && (
+                    <Typography type={TypographyType.Callout}>
+                      You have no transactions yet.
+                    </Typography>
+                  )}
+                  {hasTransactions && (
+                    <InfiniteScrolling
+                      isFetchingNextPage={transactionsQuery.isFetchingNextPage}
+                      canFetchMore={transactionsQuery.hasNextPage}
+                      fetchNextPage={transactionsQuery.fetchNextPage}
+                    >
+                      <ul className="flex flex-col gap-4">
+                        {transactions?.pages.map((page) => {
+                          return page.edges.map((edge) => {
+                            const { node: transaction } = edge;
+
+                            const type = getTransactionType({
+                              transaction,
+                              user,
+                            });
+
+                            return (
+                              <TransactionItem
+                                key={transaction.id}
+                                type={type}
+                                user={
+                                  type === 'receive'
+                                    ? transaction.sender
+                                    : transaction.receiver
+                                }
+                                amount={
+                                  type === 'send'
+                                    ? -transaction.value
+                                    : transaction.value
+                                }
+                                date={new Date(transaction.createdAt)}
+                                label={getTransactionLabel({
+                                  transaction,
+                                  user,
+                                })}
+                              />
+                            );
+                          });
+                        })}
+                      </ul>
+                    </InfiniteScrolling>
+                  )}
+                </>
+              )}
             </section>
           </div>
         </main>
         <PageWidgets className="flex gap-4 py-6">
-          <WidgetContainer className="hidden flex-col gap-4 p-6 laptop:flex">
-            <div className="gap-1">
+          <FeaturedCoresWidget
+            className="hidden laptop:flex"
+            origin={Origin.EarningsPagePackage}
+            onClick={onBuyCoresClick}
+            amounts={[100, 300, 600]}
+          />
+          {!isPlus && (
+            <WidgetContainer className="flex flex-col gap-4 p-6">
+              <div className="flex justify-between">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Callout}
+                  bold
+                  className="flex gap-1"
+                  color={TypographyColor.Plus}
+                >
+                  <DevPlusIcon size={IconSize.XSmall} /> Plus
+                </Typography>
+                🎁
+              </div>
               <Typography type={TypographyType.Body} bold>
-                Buy Cores
+                {/* TODO feat/transactions replace with real data */}
+                Get {'{X}'} Cores every month with daily.dev Plus and access pro
+                features to fast-track your growth.
               </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
+              <Button
+                className="mt-2"
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Bacon}
               >
-                Stock up on Cores to engage, reward, and unlock more on
-                daily.dev
-              </Typography>
-            </div>
-            <div className="flex gap-3">
-              <BuyCore
-                onBuyCoresClick={onBuyCoresClick}
-                amount={100}
-                price={3.99}
-              />
-              <BuyCore
-                onBuyCoresClick={onBuyCoresClick}
-                amount={500}
-                price={50}
-              />
-              <BuyCore
-                onBuyCoresClick={onBuyCoresClick}
-                amount={1000}
-                price={100}
-              />
-            </div>
-            <Button
-              variant={ButtonVariant.Float}
-              onClick={() => onBuyCoresClick({ target_id: 'See more options' })}
-              tag="a"
-              href={`${webappUrl}cores`}
-            >
-              See more options
-            </Button>
-          </WidgetContainer>
-          <WidgetContainer className="flex flex-col gap-4 p-6">
-            <div className="flex justify-between">
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Callout}
-                bold
-                className="flex gap-1"
-                color={TypographyColor.Plus}
-              >
-                <DevPlusIcon size={IconSize.XSmall} /> Plus
-              </Typography>
-              🎁
-            </div>
-            <Typography type={TypographyType.Body} bold>
-              Get 100 Cores every month with daily.dev Plus and access pro
-              features to fast-track your growth.
-            </Typography>
-            <Button
-              className="mt-2"
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Bacon}
-            >
-              Upgrade to Plus
-            </Button>
-          </WidgetContainer>
+                Upgrade to Plus
+              </Button>
+            </WidgetContainer>
+          )}
           <WidgetContainer className="flex flex-col">
             <div className="flex justify-around p-4">
               <Button
