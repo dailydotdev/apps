@@ -16,7 +16,6 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -50,7 +49,6 @@ export function Header({
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isPlus } = usePlusSubscription();
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -159,13 +157,6 @@ export function Header({
             Edit profile
           </Button>
         )}
-        {isSameUser && !isPlus && (
-          <UpgradeToPlus
-            className="max-w-fit laptop:hidden"
-            size={ButtonSize.Small}
-            target={TargetId.MyProfile}
-          />
-        )}
         {!blocked && (
           <FollowButton
             entityId={user.id}
@@ -181,7 +172,6 @@ export function Header({
             onPlusClick={() => {
               router.push(`${webappUrl}/cores`);
             }}
-            hideBuyButton
           />
         )}
         {!isSameUser && (
