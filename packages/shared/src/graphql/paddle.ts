@@ -22,6 +22,7 @@ const PRICE_FRAGMENT = gql`
       interval
       frequency
     }
+    coresValue
   }
 `;
 
@@ -43,3 +44,19 @@ export const getPricePreviews = async (): Promise<ProductOption[]> => {
 
 export type PaddleProductLineItem =
   PricePreviewResponse['data']['details']['lineItems'][0];
+
+export const CORE_PRICE_PREVIEWS = gql`
+  query CorePricePreviews {
+    corePricePreviews {
+      items {
+        ...Price
+      }
+    }
+  }
+  ${PRICE_FRAGMENT}
+`;
+
+export const getCorePricePreviews = async (): Promise<ProductOption[]> => {
+  const response = await gqlClient.request(CORE_PRICE_PREVIEWS);
+  return response.corePricePreviews.items;
+};

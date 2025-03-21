@@ -22,6 +22,7 @@ export type ProductOption = {
   duration: PlusPriceType;
   durationLabel: 'month' | 'year';
   trialPeriod: TimePeriod | null;
+  coresValue?: number;
 };
 
 export interface OpenCheckoutProps {

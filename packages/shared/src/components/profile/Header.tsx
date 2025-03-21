@@ -16,7 +16,6 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -27,6 +26,9 @@ import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
 import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
+import { AwardButton } from '../award/AwardButton';
+import { BuyCreditsButton } from '../credit/BuyCreditsButton';
+import { webappUrl } from '../../lib/constants';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -47,7 +49,6 @@ export function Header({
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isPlus } = usePlusSubscription();
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -156,13 +157,6 @@ export function Header({
             Edit profile
           </Button>
         )}
-        {isSameUser && !isPlus && (
-          <UpgradeToPlus
-            className="max-w-fit laptop:hidden"
-            size={ButtonSize.Small}
-            target={TargetId.MyProfile}
-          />
-        )}
         {!blocked && (
           <FollowButton
             entityId={user.id}
@@ -170,6 +164,24 @@ export function Header({
             status={contentPreference?.status}
             entityName={`@${user.username}`}
             className="flex-row-reverse"
+          />
+        )}
+        {isSameUser && (
+          <BuyCreditsButton
+            className="laptop:hidden"
+            onPlusClick={() => {
+              router.push(`${webappUrl}/cores`);
+            }}
+          />
+        )}
+        {!isSameUser && (
+          <AwardButton
+            appendTo="parent"
+            type="USER"
+            entity={{
+              id: user.id,
+              receiver: user,
+            }}
           />
         )}
         {!isSameUser && (
