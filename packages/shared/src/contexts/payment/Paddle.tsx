@@ -258,6 +258,7 @@ export const PaddleSubProvider = ({
       paddle?.Checkout,
       user?.email,
       user?.id,
+      geo?.region,
     ],
   );
 
