@@ -203,9 +203,16 @@ export const isNativeAuthSupported = (provider: string): boolean =>
   messageHandlerExists(WebKitMessageHandlers.NativeAuth) &&
   ['apple', 'google'].includes(provider);
 
+export type NativeAuthResponse = {
+  provider: string;
+  token: string;
+  nonce: string;
+  name?: string;
+};
+
 export const iosNativeAuth = async (
   provider: string,
-): Promise<{ provider: string; token: string; nonce: string } | undefined> => {
+): Promise<NativeAuthResponse | undefined> => {
   const promise = promisifyEventListener(
     'native-auth',
     (event) => event.detail,
