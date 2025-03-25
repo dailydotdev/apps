@@ -143,6 +143,7 @@ export interface RegistrationParameters {
   optOutMarketing?: boolean;
   id_token?: string;
   id_token_nonce?: string;
+  'traits.region'?: string;
 }
 
 export interface SettingsParameters extends AuthPostParams {
