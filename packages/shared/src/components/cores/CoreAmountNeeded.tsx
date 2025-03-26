@@ -7,6 +7,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext';
+import { formatCoresCurrency } from '../../lib/utils';
 
 export const CoreAmountNeeded = (): ReactElement => {
   const { amountNeeded, selectedProduct } = useBuyCoresContext();
@@ -35,7 +36,7 @@ export const CoreAmountNeeded = (): ReactElement => {
           color={TypographyColor.Primary}
           bold
         >
-          {amountNeeded} Cores
+          {formatCoresCurrency(amountNeeded)} Cores
         </Typography>{' '}
         will be used to give the Award. The remaining{' '}
         <Typography
@@ -43,7 +44,7 @@ export const CoreAmountNeeded = (): ReactElement => {
           color={TypographyColor.Primary}
           bold
         >
-          {selectedProduct.value - amountNeeded} Cores
+          {formatCoresCurrency(selectedProduct.value - amountNeeded)} Cores
         </Typography>{' '}
         will be added to your balance.
       </Typography>

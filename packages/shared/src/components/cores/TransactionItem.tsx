@@ -16,6 +16,7 @@ import { DateFormat } from '../utilities/DateFormat';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { IconSize } from '../Icon';
 import type { TransactionItemType } from '../../lib/transaction';
+import { formatCoresCurrency } from '../../lib/utils';
 
 export type TransactionItemProps = {
   type: TransactionItemType;
@@ -86,7 +87,7 @@ export const TransactionItem = ({
           className={classNames(amount >= 0 && 'text-accent-bun-default')}
         />
         <Typography type={TypographyType.Callout} bold>
-          {`${amount >= 0 ? '+' : ''}${amount}`}
+          {`${amount >= 0 ? '+' : ''}${formatCoresCurrency(amount)}`}
         </Typography>
       </div>
     </li>

@@ -41,6 +41,7 @@ import { webappUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
 import type { Origin } from '../../../lib/log';
+import { formatCoresCurrency } from '../../../lib/utils';
 
 export const CoreOptions = ({
   className,
@@ -125,7 +126,7 @@ const ProcessingCompleted = () => {
     <>
       <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
       <Typography type={TypographyType.Body} bold>
-        {selectedProduct.value}
+        {formatCoresCurrency(selectedProduct.value)}
       </Typography>
       <Typography type={TypographyType.Title3} bold>
         You got your Cores!

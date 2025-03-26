@@ -10,7 +10,7 @@ import {
   TypographyType,
   TypographyColor,
 } from '../typography/Typography';
-import { formatCurrency } from '../../lib/utils';
+import { formatCoresCurrency, formatCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { getPathnameWithQuery } from '../../lib';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -52,7 +52,7 @@ export const BuyCore = ({
           className="mb-1 text-accent-bun-default"
         />
         <Typography type={TypographyType.Title3} bold>
-          {amount}
+          {formatCoresCurrency(amount)}
         </Typography>
         <Typography
           type={TypographyType.Caption2}
