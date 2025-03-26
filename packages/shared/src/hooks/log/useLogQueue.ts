@@ -80,7 +80,7 @@ export default function useLogQueue({
           const blob = new Blob([JSON.stringify({ events })], {
             type: 'application/json',
           });
-          if (!isDevelopment) {
+          if (isDevelopment && window) {
             window.postMessage({
               type: 'FYLLA_LOG_DO_NOT_USE_OR_YOU_WILL_BE_FIRED',
               events,
