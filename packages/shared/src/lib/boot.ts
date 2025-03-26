@@ -1,4 +1,6 @@
 import type { FeatureDefinition } from '@growthbook/growthbook';
+import { queryOptions } from '@tanstack/react-query';
+import { atomWithQuery } from 'jotai-tanstack-query';
 import type { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import type { Alerts } from '../graphql/alerts';
@@ -9,6 +11,9 @@ import { decrypt } from '../components/crypto';
 import type { MarketingCta } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
+import { BOOT_QUERY_KEY } from '../contexts/common';
+import { STALE_TIME } from './query';
+import { getQueryClient } from '../graphql/queryClient';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -112,3 +117,21 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
 
   return result;
 }
+
+export const appBootDataQuery = queryOptions<Boot>({
+  queryKey: BOOT_QUERY_KEY,
+  queryFn: async () => {
+    const data = await getBootData(BootApp.Webapp);
+    console.log('appBootDataQuery user:', data?.user);
+    return data;
+  },
+  staleTime: STALE_TIME,
+});
+
+export const appBootDataAtom = atomWithQuery(() => {
+  return {
+    ...appBootDataQuery,
+    staleTime: STALE_TIME,
+    refetchOnWindowFocus: true,
+  };
+}, getQueryClient);

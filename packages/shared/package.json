@@ -108,6 +108,8 @@
     "check-password-strength": "^2.0.10",
     "fetch-event-stream": "^0.1.5",
     "graphql-ws": "^5.5.5",
+    "jotai": "^2.12.2",
+    "jotai-tanstack-query": "^0.9.0",
     "node-fetch": "^2.6.6",
     "react-markdown": "^8.0.7",
     "react-onesignal": "^3.0.1",

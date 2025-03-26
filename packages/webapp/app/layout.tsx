@@ -1,13 +1,14 @@
 import Providers from './providers';
+import { Provider as JotaiProvider } from 'jotai/react';
 
-function RootLayout({ children }) {
+export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+    <JotaiProvider>
+      <html lang="en">
+        <body>
+          <Providers>{children}</Providers>
+        </body>
+      </html>
+    </JotaiProvider>
   );
 }
-
-export default RootLayout;
