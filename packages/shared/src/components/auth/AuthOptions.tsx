@@ -40,6 +40,7 @@ import { MailIcon } from '../icons';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
+import { AuthDataProvider, useAuthData } from '../../contexts/AuthDataContext';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -179,7 +180,6 @@ function AuthOptions({
   const router = useRouter();
   const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
   const isReorderExperiment = useFeature(featureOnboardingReorder);
-  const [email, setEmail] = useState(initialEmail);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
@@ -187,435 +187,446 @@ function AuthOptions({
       : defaultDisplay,
   );
 
-  const onSetActiveDisplay = (display: AuthDisplay) => {
-    onDisplayChange?.(display);
-    onAuthStateUpdate?.({ isLoading: false });
-    setActiveDisplay(display);
-  };
+  function AuthOptionsWithContext() {
+    const { setEmail } = useAuthData();
 
-  const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
-  const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
-  const [chosenProvider, setChosenProvider] = usePersistentState(
-    CHOSEN_PROVIDER_KEY,
-    null,
-  );
-  const [isRegistration, setIsRegistration] = useState(false);
-  const windowPopup = useRef<Window>(null);
-  const onLoginCheck = (shouldVerify?: boolean) => {
-    if (shouldVerify) {
-      onSetActiveDisplay(AuthDisplay.EmailVerification);
-      return;
-    }
-    if (isRegistration) {
-      return;
-    }
+    const onSetActiveDisplay = (display: AuthDisplay) => {
+      onDisplayChange?.(display);
+      onAuthStateUpdate?.({ isLoading: false });
+      setActiveDisplay(display);
+    };
 
-    if (!user || handleLoginCheck === false) {
-      return;
-    }
-
-    setHandleLoginCheck(handleLoginCheck === null);
-
-    if (user.infoConfirmed) {
-      logEvent({
-        event_name: AuthEventNames.LoginSuccessfully,
-      });
-      onSuccessfulLogin?.();
-    } else {
-      onSetActiveDisplay(AuthDisplay.SocialRegistration);
-    }
-  };
-
-  useEffect(() => {
-    onLoginCheck();
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const { onUpdateSignBack: onSignBackLogin } = useSignBack();
-  const {
-    isReady: isRegistrationReady,
-    registration,
-    verificationFlowId,
-    validateRegistration,
-    onSocialRegistration,
-  } = useRegistration({
-    key: ['registration_form'],
-    onInitializeVerification: () => {
-      onSetActiveDisplay(AuthDisplay.EmailVerification);
-    },
-    onInvalidRegistration: setRegistrationHints,
-    onRedirectFail: () => {
-      windowPopup.current.close();
-      windowPopup.current = null;
-    },
-    onRedirect: (redirect) => {
-      windowPopup.current.location.href = redirect;
-    },
-  });
-
-  const {
-    isReady: isLoginReady,
-    loginHint,
-    onPasswordLogin,
-    isPasswordLoginLoading,
-  } = useLogin({
-    onSuccessfulLogin: onLoginCheck,
-    ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
-    trigger,
-    provider: chosenProvider,
-    onLoginError: () => {
-      return displayToast(labels.auth.error.generic);
-    },
-  });
-  const onProfileSuccess = async (options: { redirect?: string } = {}) => {
-    setIsRegistration(true);
-    const { redirect } = options;
-    const { data } = await refetchBoot();
-
-    if (data.user) {
-      const provider = chosenProvider || 'password';
-      onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
-    }
-
-    logEvent({
-      event_name: AuthEventNames.SignupSuccessfully,
-    });
-    const loggedUser = data?.user as LoggedUser;
-    trackSignup(loggedUser);
-
-    // if redirect is set move before modal close
-    if (redirect) {
-      await router.push(redirect);
-    }
-
-    onSuccessfulRegistration?.(data?.user);
-    onClose?.(null, true);
-  };
-  const {
-    updateUserProfile,
-    hint,
-    onUpdateHint,
-    isLoading: isProfileUpdateLoading,
-  } = useProfileForm({ onSuccess: onProfileSuccess });
-
-  const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
-  const onProviderClick = async (provider: string, login = true) => {
-    logEvent({
-      event_name: 'click',
-      target_type: login
-        ? AuthEventNames?.LoginProvider
-        : AuthEventNames.SignUpProvider,
-      target_id: provider,
-      extra: JSON.stringify({ trigger }),
-    });
-    // Only web auth requires a popup
-    if (!isNativeAuthSupported(provider)) {
-      windowPopup.current = window.open();
-    }
-    setChosenProvider(provider);
-    await onSocialRegistration(provider);
-    onAuthStateUpdate?.({ isLoading: true });
-  };
-
-  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
-    setEmail(inputEmail);
-    setFlow(inputFlow);
-    onSetActiveDisplay(AuthDisplay.CodeVerification);
-  };
-
-  const onProviderMessage = async (e: MessageEvent) => {
-    if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
-      return undefined;
-    }
-
-    if (e.data?.flow) {
-      const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
-
-      logEvent({
-        event_name: AuthEventNames.RegistrationError,
-        extra: JSON.stringify({
-          error: {
-            flowId: connected?.id,
-            messages: connected?.ui?.messages,
-          },
-          origin: 'window registration flow error',
-        }),
-      });
-
-      if (
-        [
-          KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
-          KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
-          KRATOS_ERROR.EXISTING_USER,
-        ].includes(connected?.ui?.messages?.[0]?.id)
-      ) {
-        const registerUser = {
-          name: getNodeValue('traits.name', connected.ui.nodes),
-          email: getNodeValue('traits.email', connected.ui.nodes),
-          image: getNodeValue('traits.image', connected.ui.nodes),
-        };
-        // Native auth doesn't return traits, so we must validate that it exists
-        if (registerUser.email) {
-          const { result } = await getKratosProviders(connected.id);
-          setIsConnected(true);
-          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
-          return onSetActiveDisplay(AuthDisplay.SignBack);
-        }
-        onSetActiveDisplay(AuthDisplay.SignBack);
-        return displayToast(labels.auth.error.existingEmail);
+    const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
+    const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
+    const [chosenProvider, setChosenProvider] = usePersistentState(
+      CHOSEN_PROVIDER_KEY,
+      null,
+    );
+    const [isRegistration, setIsRegistration] = useState(false);
+    const windowPopup = useRef<Window>(null);
+    const onLoginCheck = (shouldVerify?: boolean) => {
+      if (shouldVerify) {
+        onSetActiveDisplay(AuthDisplay.EmailVerification);
+        return;
+      }
+      if (isRegistration) {
+        return;
       }
 
-      return displayToast(labels.auth.error.generic);
-    }
-    const bootResponse = await refetchBoot();
-    if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
+      if (!user || handleLoginCheck === false) {
+        return;
+      }
+
+      setHandleLoginCheck(handleLoginCheck === null);
+
+      if (user.infoConfirmed) {
+        logEvent({
+          event_name: AuthEventNames.LoginSuccessfully,
+        });
+        onSuccessfulLogin?.();
+      } else {
+        onSetActiveDisplay(AuthDisplay.SocialRegistration);
+      }
+    };
+
+    useEffect(() => {
+      onLoginCheck();
+      // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
+
+    const { onUpdateSignBack: onSignBackLogin } = useSignBack();
+    const {
+      isReady: isRegistrationReady,
+      registration,
+      verificationFlowId,
+      validateRegistration,
+      onSocialRegistration,
+    } = useRegistration({
+      key: ['registration_form'],
+      onInitializeVerification: () => {
+        onSetActiveDisplay(AuthDisplay.EmailVerification);
+      },
+      onInvalidRegistration: setRegistrationHints,
+      onRedirectFail: () => {
+        windowPopup.current.close();
+        windowPopup.current = null;
+      },
+      onRedirect: (redirect) => {
+        windowPopup.current.location.href = redirect;
+      },
+    });
+
+    const {
+      isReady: isLoginReady,
+      loginHint,
+      onPasswordLogin,
+      isPasswordLoginLoading,
+    } = useLogin({
+      onSuccessfulLogin: onLoginCheck,
+      ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
+      trigger,
+      provider: chosenProvider,
+      onLoginError: () => {
+        return displayToast(labels.auth.error.generic);
+      },
+    });
+    const onProfileSuccess = async (options: { redirect?: string } = {}) => {
+      setIsRegistration(true);
+      const { redirect } = options;
+      const { data } = await refetchBoot();
+
+      if (data.user) {
+        const provider = chosenProvider || 'password';
+        onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
+      }
+
       logEvent({
-        event_name: AuthEventNames.SubmitSignUpFormError,
-        extra: JSON.stringify({
-          error: 'Could not find email on social registration',
-        }),
+        event_name: AuthEventNames.SignupSuccessfully,
       });
-      return displayToast(labels.auth.error.generic);
-    }
+      const loggedUser = data?.user as LoggedUser;
+      trackSignup(loggedUser);
 
-    const { data: boot } = bootResponse;
+      // if redirect is set move before modal close
+      if (redirect) {
+        await router.push(redirect);
+      }
 
-    // If user is confirmed we can proceed with logging them in
-    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
-      onSignBackLogin(
-        boot.user as LoggedUser,
-        chosenProvider as SignBackProvider,
-      );
-      return onSuccessfulLogin?.();
-    }
+      onSuccessfulRegistration?.(data?.user);
+      onClose?.(null, true);
+    };
+    const {
+      updateUserProfile,
+      hint,
+      onUpdateHint,
+      isLoading: isProfileUpdateLoading,
+    } = useProfileForm({ onSuccess: onProfileSuccess });
 
-    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
-  };
+    const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
+    const onProviderClick = async (provider: string, login = true) => {
+      logEvent({
+        event_name: 'click',
+        target_type: login
+          ? AuthEventNames?.LoginProvider
+          : AuthEventNames.SignUpProvider,
+        target_id: provider,
+        extra: JSON.stringify({ trigger }),
+      });
+      // Only web auth requires a popup
+      if (!isNativeAuthSupported(provider)) {
+        windowPopup.current = window.open();
+      }
+      setChosenProvider(provider);
+      await onSocialRegistration(provider);
+      onAuthStateUpdate?.({ isLoading: true });
+    };
 
-  useEventListener(broadcastChannel, 'message', onProviderMessage);
+    const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
+      setEmail(inputEmail);
+      setFlow(inputFlow);
+      onSetActiveDisplay(AuthDisplay.CodeVerification);
+    };
 
-  useEventListener(globalThis, 'message', onProviderMessage);
+    const onProviderMessage = async (e: MessageEvent) => {
+      if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
+        return undefined;
+      }
 
-  const onEmailRegistration = (emailAd: string) => {
-    // before displaying registration, ensure the email doesn't exist
-    onSetActiveDisplay(AuthDisplay.Registration);
-    setEmail(emailAd);
-  };
+      if (e.data?.flow) {
+        const connected = await getKratosFlow(
+          AuthFlow.Registration,
+          e.data.flow,
+        );
 
-  const onSocialCompletion = async (params) => {
-    await updateUserProfile({ ...params });
-    await syncSettings();
-  };
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: {
+              flowId: connected?.id,
+              messages: connected?.ui?.messages,
+            },
+            origin: 'window registration flow error',
+          }),
+        });
 
-  const onRegister = (params: RegistrationFormValues) => {
-    validateRegistration({
-      ...params,
-      method: 'password',
-    });
-  };
+        if (
+          [
+            KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
+            KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
+            KRATOS_ERROR.EXISTING_USER,
+          ].includes(connected?.ui?.messages?.[0]?.id)
+        ) {
+          const registerUser = {
+            name: getNodeValue('traits.name', connected.ui.nodes),
+            email: getNodeValue('traits.email', connected.ui.nodes),
+            image: getNodeValue('traits.image', connected.ui.nodes),
+          };
+          // Native auth doesn't return traits, so we must validate that it exists
+          if (registerUser.email) {
+            const { result } = await getKratosProviders(connected.id);
+            setIsConnected(true);
+            await onSignBackLogin(registerUser, result[0] as SignBackProvider);
+            return onSetActiveDisplay(AuthDisplay.SignBack);
+          }
+          onSetActiveDisplay(AuthDisplay.SignBack);
+          return displayToast(labels.auth.error.existingEmail);
+        }
 
-  const onForgotPassword = (withEmail?: string) => {
-    logEvent({
-      event_name: 'click',
-      target_type: AuthEventNames.ForgotPassword,
-    });
-    setEmail(withEmail);
-    onSetActiveDisplay(AuthDisplay.ForgotPassword);
-  };
+        return displayToast(labels.auth.error.generic);
+      }
+      const bootResponse = await refetchBoot();
+      if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
+        logEvent({
+          event_name: AuthEventNames.SubmitSignUpFormError,
+          extra: JSON.stringify({
+            error: 'Could not find email on social registration',
+          }),
+        });
+        return displayToast(labels.auth.error.generic);
+      }
 
-  const onForgotPasswordBack = () => {
-    setIsForgotPasswordReturn(true);
-    onSetActiveDisplay(defaultDisplay);
-  };
+      const { data: boot } = bootResponse;
 
-  const onEmailLogin: typeof onPasswordLogin = (params) => {
-    setEmail(params.identifier);
-    onPasswordLogin(params);
-  };
+      // If user is confirmed we can proceed with logging them in
+      if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
+        onSignBackLogin(
+          boot.user as LoggedUser,
+          chosenProvider as SignBackProvider,
+        );
+        return onSuccessfulLogin?.();
+      }
 
-  const RegistrationFormComponent =
-    isReorderExperiment && isOnboardingPage
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
+      return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    };
+
+    useEventListener(broadcastChannel, 'message', onProviderMessage);
+
+    useEventListener(globalThis, 'message', onProviderMessage);
+
+    const onEmailRegistration = (emailAd: string) => {
+      // before displaying registration, ensure the email doesn't exist
+      onSetActiveDisplay(AuthDisplay.Registration);
+      setEmail(emailAd);
+    };
+
+    const onSocialCompletion = async (params) => {
+      await updateUserProfile({ ...params });
+      await syncSettings();
+    };
+
+    const onRegister = (params: RegistrationFormValues) => {
+      validateRegistration({
+        ...params,
+        method: 'password',
+      });
+    };
+
+    const onForgotPassword = (withEmail?: string) => {
+      logEvent({
+        event_name: 'click',
+        target_type: AuthEventNames.ForgotPassword,
+      });
+      setEmail(withEmail);
+      onSetActiveDisplay(AuthDisplay.ForgotPassword);
+    };
+
+    const onForgotPasswordBack = () => {
+      setIsForgotPasswordReturn(true);
+      onSetActiveDisplay(defaultDisplay);
+    };
+
+    const onEmailLogin: typeof onPasswordLogin = (params) => {
+      setEmail(params.identifier);
+      onPasswordLogin(params);
+    };
+
+    const RegistrationFormComponent =
+      isReorderExperiment && isOnboardingPage
+        ? OnboardingRegistrationFormExperiment
+        : OnboardingRegistrationForm;
+
+    return (
+      <div
+        className={classNames(
+          'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
+          !simplified && 'bg-accent-pepper-subtlest',
+          defaultDisplay === AuthDisplay.OnboardingSignup
+            ? 'min-h-[21.25rem]'
+            : undefined,
+          className?.container,
+        )}
+      >
+        <TabContainer<AuthDisplay>
+          controlledActive={
+            forceDefaultDisplay ? defaultDisplay : activeDisplay
+          }
+          onActiveChange={(active) => onSetActiveDisplay(active)}
+          showHeader={false}
+          shouldFocusTabOnChange
+        >
+          <Tab label={AuthDisplay.Default}>
+            <AuthDefault
+              isLoading={isPasswordLoginLoading}
+              isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+              isReady={isReady}
+              loginHint={loginHint}
+              onForgotPassword={onForgotPassword}
+              onPasswordLogin={onEmailLogin}
+              onProviderClick={onProviderClick}
+              onSignup={onEmailRegistration}
+              providers={providers}
+              simplified={simplified}
+              trigger={trigger}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.SocialRegistration}>
+            <SocialRegistrationForm
+              formRef={formRef}
+              provider={chosenProvider}
+              onSignup={onSocialCompletion}
+              hints={hint}
+              isLoading={isProfileUpdateLoading}
+              onUpdateHints={onUpdateHint}
+              trigger={trigger}
+              simplified={simplified}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.Registration}>
+            <RegistrationForm
+              formRef={formRef}
+              simplified={simplified}
+              hints={registrationHints}
+              onBack={
+                defaultDisplay !== AuthDisplay.Registration
+                  ? () => onSetActiveDisplay(defaultDisplay)
+                  : undefined
+              }
+              onBackToIntro={() => {
+                onAuthStateUpdate({
+                  isAuthenticating: undefined,
+                  defaultDisplay: AuthDisplay.OnboardingSignup,
+                });
+              }}
+              onExistingEmailLoginClick={() => {
+                onAuthStateUpdate({
+                  isLoginFlow: true,
+                });
+                setActiveDisplay(AuthDisplay.Default);
+              }}
+              onSignup={(params) => {
+                setEmail(params['traits.email']);
+                onRegister(params);
+              }}
+              onUpdateHints={setRegistrationHints}
+              trigger={trigger}
+              token={
+                registration &&
+                getNodeValue('csrf_token', registration?.ui?.nodes)
+              }
+              targetId={targetId}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.OnboardingSignup}>
+            <RegistrationFormComponent
+              onContinueWithEmail={() => {
+                onAuthStateUpdate({
+                  isAuthenticating: true,
+                  defaultDisplay: AuthDisplay.Registration,
+                });
+              }}
+              onSignup={(signupEmail) => {
+                onAuthStateUpdate({
+                  isAuthenticating: true,
+                  email: signupEmail,
+                  defaultDisplay: AuthDisplay.Registration,
+                });
+              }}
+              onExistingEmail={(existingEmail) => {
+                onAuthStateUpdate({
+                  isAuthenticating: true,
+                  isLoginFlow: true,
+                  email: existingEmail,
+                });
+              }}
+              onProviderClick={onProviderClick}
+              trigger={trigger}
+              isReady={isReady}
+              simplified={simplified}
+              targetId={targetId}
+              className={className}
+              onboardingSignupButton={onboardingSignupButton}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.SignBack}>
+            <AuthSignBack
+              onRegister={() => {
+                if (isLoginFlow) {
+                  onAuthStateUpdate?.({ isLoginFlow: false });
+                }
+                setIsConnected(false);
+                onSetActiveDisplay(AuthDisplay.Default);
+              }}
+              isLoginFlow={isLoginFlow}
+              isConnectedAccount={isConnected}
+              onProviderClick={onProviderClick}
+              simplified={simplified}
+              onShowLoginOptions={() => {
+                if (!isLoginFlow && onAuthStateUpdate) {
+                  onAuthStateUpdate({ isLoginFlow: true });
+                }
+                setIsConnected(false);
+                setActiveDisplay(AuthDisplay.Default);
+              }}
+              loginFormProps={{
+                isReady,
+                loginHint,
+                onPasswordLogin,
+                onForgotPassword,
+                isLoading: isPasswordLoginLoading,
+                autoFocus: false,
+                onSignup: onForgotPasswordBack,
+                className: 'w-full',
+              }}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.ForgotPassword}>
+            <ForgotPasswordForm
+              onBack={onForgotPasswordBack}
+              onSubmit={onForgotPasswordSubmit}
+              simplified={simplified}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.CodeVerification}>
+            <CodeVerificationForm
+              initialFlow={flow}
+              onBack={onForgotPasswordBack}
+              onSubmit={() => setActiveDisplay(AuthDisplay.ChangePassword)}
+              simplified={simplified}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.ChangePassword}>
+            <ChangePasswordForm
+              onSubmit={() => onProfileSuccess({ redirect: '/' })}
+              simplified={simplified}
+            />
+          </Tab>
+          <Tab label={AuthDisplay.EmailVerification}>
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+            <AuthHeader simplified={simplified} title="Verify your email" />
+            <EmailCodeVerification
+              flowId={verificationFlowId}
+              onSubmit={onProfileSuccess}
+            />
+          </Tab>
+        </TabContainer>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={classNames(
-        'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-accent-pepper-subtlest',
-        defaultDisplay === AuthDisplay.OnboardingSignup
-          ? 'min-h-[21.25rem]'
-          : undefined,
-        className?.container,
-      )}
-    >
-      <TabContainer<AuthDisplay>
-        controlledActive={forceDefaultDisplay ? defaultDisplay : activeDisplay}
-        onActiveChange={(active) => onSetActiveDisplay(active)}
-        showHeader={false}
-        shouldFocusTabOnChange
-      >
-        <Tab label={AuthDisplay.Default}>
-          <AuthDefault
-            isLoading={isPasswordLoginLoading}
-            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
-            isReady={isReady}
-            loginHint={loginHint}
-            onForgotPassword={onForgotPassword}
-            onPasswordLogin={onEmailLogin}
-            onProviderClick={onProviderClick}
-            onSignup={onEmailRegistration}
-            providers={providers}
-            simplified={simplified}
-            trigger={trigger}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.SocialRegistration}>
-          <SocialRegistrationForm
-            formRef={formRef}
-            provider={chosenProvider}
-            onSignup={onSocialCompletion}
-            hints={hint}
-            isLoading={isProfileUpdateLoading}
-            onUpdateHints={onUpdateHint}
-            trigger={trigger}
-            simplified={simplified}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.Registration}>
-          <RegistrationForm
-            formRef={formRef}
-            simplified={simplified}
-            email={email}
-            hints={registrationHints}
-            onBack={
-              defaultDisplay !== AuthDisplay.Registration
-                ? () => onSetActiveDisplay(defaultDisplay)
-                : undefined
-            }
-            onBackToIntro={() => {
-              onAuthStateUpdate({
-                isAuthenticating: undefined,
-                defaultDisplay: AuthDisplay.OnboardingSignup,
-              });
-            }}
-            onExistingEmailLoginClick={() => {
-              onAuthStateUpdate({
-                isLoginFlow: true,
-              });
-              setActiveDisplay(AuthDisplay.Default);
-            }}
-            onSignup={(params) => {
-              setEmail(params['traits.email']);
-              onRegister(params);
-            }}
-            onUpdateHints={setRegistrationHints}
-            trigger={trigger}
-            token={
-              registration &&
-              getNodeValue('csrf_token', registration?.ui?.nodes)
-            }
-            targetId={targetId}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.OnboardingSignup}>
-          <RegistrationFormComponent
-            onContinueWithEmail={() => {
-              onAuthStateUpdate({
-                isAuthenticating: true,
-                defaultDisplay: AuthDisplay.Registration,
-              });
-            }}
-            onSignup={(signupEmail) => {
-              onAuthStateUpdate({
-                isAuthenticating: true,
-                email: signupEmail,
-                defaultDisplay: AuthDisplay.Registration,
-              });
-            }}
-            onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
-                isAuthenticating: true,
-                isLoginFlow: true,
-                email: existingEmail,
-              });
-            }}
-            onProviderClick={onProviderClick}
-            trigger={trigger}
-            isReady={isReady}
-            simplified={simplified}
-            targetId={targetId}
-            className={className}
-            onboardingSignupButton={onboardingSignupButton}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.SignBack}>
-          <AuthSignBack
-            onRegister={() => {
-              if (isLoginFlow) {
-                onAuthStateUpdate?.({ isLoginFlow: false });
-              }
-              setIsConnected(false);
-              onSetActiveDisplay(AuthDisplay.Default);
-            }}
-            isLoginFlow={isLoginFlow}
-            isConnectedAccount={isConnected}
-            onProviderClick={onProviderClick}
-            simplified={simplified}
-            onShowLoginOptions={() => {
-              if (!isLoginFlow && onAuthStateUpdate) {
-                onAuthStateUpdate({ isLoginFlow: true });
-              }
-              setIsConnected(false);
-              setActiveDisplay(AuthDisplay.Default);
-            }}
-            loginFormProps={{
-              isReady,
-              loginHint,
-              onPasswordLogin,
-              onForgotPassword,
-              isLoading: isPasswordLoginLoading,
-              autoFocus: false,
-              onSignup: onForgotPasswordBack,
-              className: 'w-full',
-            }}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.ForgotPassword}>
-          <ForgotPasswordForm
-            initialEmail={email}
-            onBack={onForgotPasswordBack}
-            onSubmit={onForgotPasswordSubmit}
-            simplified={simplified}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.CodeVerification}>
-          <CodeVerificationForm
-            initialEmail={email}
-            initialFlow={flow}
-            onBack={onForgotPasswordBack}
-            onSubmit={() => setActiveDisplay(AuthDisplay.ChangePassword)}
-            simplified={simplified}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.ChangePassword}>
-          <ChangePasswordForm
-            onSubmit={() => onProfileSuccess({ redirect: '/' })}
-            simplified={simplified}
-          />
-        </Tab>
-        <Tab label={AuthDisplay.EmailVerification}>
-          <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
-          <AuthHeader simplified={simplified} title="Verify your email" />
-          <EmailCodeVerification
-            email={email}
-            flowId={verificationFlowId}
-            onSubmit={onProfileSuccess}
-          />
-        </Tab>
-      </TabContainer>
-    </div>
+    <AuthDataProvider initialEmail={initialEmail}>
+      <AuthOptionsWithContext />
+    </AuthDataProvider>
   );
 }
 
