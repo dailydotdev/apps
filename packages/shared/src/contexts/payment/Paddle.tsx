@@ -230,6 +230,11 @@ export const PaddleSubProvider = ({
         items: [{ priceId, quantity: 1 }],
         customer: {
           email: user?.email,
+          ...(geo?.region && {
+            address: {
+              countryCode: geo?.region,
+            },
+          }),
         },
         customData: {
           user_id: giftToUserId ?? user?.id,
@@ -237,6 +242,7 @@ export const PaddleSubProvider = ({
         },
         settings: {
           displayMode: 'inline',
+          variant: 'one-page',
           frameTarget: 'checkout-container',
           frameInitialHeight: 500,
           frameStyle:
@@ -252,6 +258,7 @@ export const PaddleSubProvider = ({
       paddle?.Checkout,
       user?.email,
       user?.id,
+      geo?.region,
     ],
   );
 
