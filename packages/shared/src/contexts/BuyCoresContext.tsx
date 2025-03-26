@@ -69,7 +69,7 @@ export const BuyCoresContextProvider = ({
   amountNeeded,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, geo } = useAuthContext();
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
     providerTransactionId?: string;
@@ -137,6 +137,7 @@ export const BuyCoresContextProvider = ({
           frameStyle:
             'width: 100%; background-color: transparent; border: none;',
           theme: 'dark',
+          variant: 'one-page',
         },
       },
     }).then((paddleInstance: Paddle | undefined) => {
@@ -151,6 +152,11 @@ export const BuyCoresContextProvider = ({
       const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
       const customer: CheckoutCustomer = {
         email: user?.email,
+        ...(geo?.region && {
+          address: {
+            countryCode: geo?.region,
+          },
+        }),
       };
       const customData = {
         user_id: user?.id,
@@ -172,7 +178,7 @@ export const BuyCoresContextProvider = ({
         customData,
       });
     },
-    [paddle?.Checkout, user?.email, user?.id],
+    [paddle?.Checkout, user?.email, user?.id, geo?.region],
   );
 
   const contextData = useMemo<BuyCoresContextData>(
