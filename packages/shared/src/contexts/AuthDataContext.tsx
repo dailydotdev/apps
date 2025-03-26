@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { createContext, useContext, useState } from 'react';
 
 interface AuthDataContextData {
