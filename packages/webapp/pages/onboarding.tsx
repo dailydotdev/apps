@@ -64,6 +64,10 @@ import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import type {
+  AuthOptionsProps,
+  AuthProps,
+} from '@dailydotdev/shared/src/components/auth/common';
 import {
   AFTER_AUTH_PARAM,
   AuthDisplay,

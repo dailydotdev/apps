@@ -117,7 +117,6 @@ function AuthOptionsInner({
   isLoginFlow,
   targetId,
   simplified = false,
-  initialEmail = '',
   ignoreMessages = false,
   onboardingSignupButton,
 }: AuthOptionsProps): ReactElement {
