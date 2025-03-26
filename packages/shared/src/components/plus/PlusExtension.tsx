@@ -18,7 +18,7 @@ import { plusTakeoverContent } from '../../lib/featureManagement';
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
-  const { flags } = marketingCta;
+  const { flags } = marketingCta || {};
   const { logEvent } = useLogContext();
   const { data: productOptions } = useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview),
@@ -49,8 +49,8 @@ const PlusExtension = (): ReactElement => {
       <div className="flex flex-1 flex-col pr-10 pt-6">
         <PlusInfo
           productOptions={productOptions || []}
-          title={experiment?.title ?? flags.title}
-          description={experiment?.description ?? flags.description}
+          title={experiment?.title ?? flags?.title}
+          description={experiment?.description ?? flags?.description}
           selectedOption={selectedOption}
           onChange={({ priceId }) => {
             setSelectedOption(priceId);
@@ -68,7 +68,7 @@ const PlusExtension = (): ReactElement => {
           className="mt-8"
           onClick={handleClick}
         >
-          {experiment?.cta ?? flags.ctaText}
+          {experiment?.cta ?? flags?.ctaText}
         </Button>
       </div>
       <PlusListModalSection

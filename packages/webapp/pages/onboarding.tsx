@@ -444,7 +444,6 @@ export function OnboardPage(): ReactElement {
 
   return (
     <PaymentContextProvider>
-      <HotJarTracking hotjarId="3871311" />
       <div
         className={classNames(
           'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
@@ -487,6 +486,7 @@ export function OnboardPage(): ReactElement {
         >
           {showOnboardingPage && (
             <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+              <HotJarTracking hotjarId="3871311" />
               <OnboardingHeadline
                 className={{
                   title: 'tablet:typo-mega-1 typo-large-title',
