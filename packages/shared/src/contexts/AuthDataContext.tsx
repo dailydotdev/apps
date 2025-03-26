@@ -16,7 +16,7 @@ interface AuthDataProviderProps {
 export const AuthDataProvider = ({
   children,
   initialEmail = '',
-}: AuthDataProviderProps): JSX.Element => {
+}: AuthDataProviderProps): ReactElement => {
   const [email, setEmail] = useState(initialEmail);
 
   return (
