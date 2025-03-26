@@ -4,7 +4,7 @@ import { useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounceFn from '../useDebounceFn';
 import { ExtensionMessageType } from '../../lib/extension';
-import { isTesting } from '../../lib/constants';
+import { isDevelopment } from '../../lib/constants';
 
 export interface LogEvent extends Record<string, unknown> {
   visit_id?: string;
@@ -80,7 +80,7 @@ export default function useLogQueue({
           const blob = new Blob([JSON.stringify({ events })], {
             type: 'application/json',
           });
-          if (!isTesting && window) {
+          if (!isDevelopment) {
             window.postMessage({
               type: 'FYLLA_LOG_DO_NOT_USE_OR_YOU_WILL_BE_FIRED',
               events,
