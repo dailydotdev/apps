@@ -1,20 +1,18 @@
-import { appBootDataQuery } from '@dailydotdev/shared/src/lib/boot';
 import { ClientTest } from './client/client';
-import { getQueryClient } from '@dailydotdev/shared/src/graphql/queryClient';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { setAppBootData } from '../app-boot';
+import { HydrationBoundary } from '@tanstack/react-query';
+import { cookies } from 'next/headers';
 
 export default async function Page() {
-  const queryClient = getQueryClient();
-  // get boot data
-  await queryClient.prefetchQuery(appBootDataQuery);
-  const state = dehydrate(queryClient, { shouldDehydrateQuery: () => true }); // to also include Errors
-
-  const user = queryClient.getQueryData(appBootDataQuery.queryKey)?.user;
-
+  const allCookies = (await cookies()).toString();
+  const { state, boot } = await setAppBootData({ cookies: allCookies });
   return (
     <HydrationBoundary state={state}>
       <h1 className="text-xl font-bold mb-4">Hello world funnel</h1>
-      <p><strong>Server</strong>  says user is {user?.id ?? 'not logged'}</p>
+      <p>
+        <strong>Server</strong> says user is {boot?.user?.id ?? 'not logged'} -{' '}
+        {boot?.user?.email ?? 'no email'}
+      </p>
       <ClientTest />
     </HydrationBoundary>
   );

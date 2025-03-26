@@ -1,17 +1,20 @@
 'use client';
 
-import { appBootDataAtom } from '@dailydotdev/shared/src/lib/boot';
-import { useAtomValue } from 'jotai/react';
+import { appBootDataQuery } from '@dailydotdev/shared/src/lib/boot';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const ClientTest = () => {
-  const { data } = useAtomValue(appBootDataAtom);
-  const user = data?.user;
-  const isLoggedIn = !!user?.id;
+  const queryClient = useQueryClient();
+  const boot = queryClient.getQueryData(appBootDataQuery.queryKey);
+  const user = boot?.user;
+
+  if (!boot) {
+    return null;
+  }
 
   return (
     <p>
-      <strong>Client</strong> says that user is{' '}
-      {isLoggedIn ? 'logged' : 'not logged'}
+      <strong>Client</strong> says user is {user?.id ?? 'not logged'}
     </p>
   );
 };
