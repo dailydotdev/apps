@@ -67,7 +67,7 @@ export const FeaturedCoresWidget = ({
           })}
         {!isPendingPrices &&
           prices
-            .filter((item) => amounts.includes(item.coresValue))
+            ?.filter((item) => amounts.includes(item.coresValue))
             .map((item) => {
               return (
                 <BuyCore
