@@ -7,13 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import type {
-  AuthOptionsProps,
-  AuthProps,
-} from '@dailydotdev/shared/src/components/auth/AuthOptions';
-import AuthOptions, {
-  AuthDisplay,
-} from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
@@ -70,7 +64,10 @@ import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AFTER_AUTH_PARAM,
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
