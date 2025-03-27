@@ -76,6 +76,7 @@ import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
+import { HotJarTracking } from '../components/Pixels';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -488,6 +489,7 @@ export function OnboardPage(): ReactElement {
         >
           {showOnboardingPage && (
             <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+              <HotJarTracking hotjarId="3871311" />
               <OnboardingHeadline
                 className={{
                   title: 'tablet:typo-mega-1 typo-large-title',
