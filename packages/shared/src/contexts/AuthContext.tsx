@@ -1,7 +1,9 @@
+'use client';
+
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import {
   deleteAccount,

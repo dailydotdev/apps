@@ -403,6 +403,12 @@ importers:
       graphql-ws:
         specifier: ^5.5.5
         version: 5.16.0(graphql@16.9.0)
+      jotai:
+        specifier: ^2.12.2
+        version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
+      jotai-tanstack-query:
+        specifier: ^0.9.0
+        version: 0.9.0(@tanstack/query-core@5.62.2)(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1))
       node-fetch:
         specifier: ^2.6.6
         version: 2.7.0
@@ -831,6 +837,12 @@ importers:
       idb-keyval:
         specifier: ^5.1.5
         version: 5.1.5
+      jotai:
+        specifier: ^2.12.2
+        version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
+      jotai-tanstack-query:
+        specifier: ^0.9.0
+        version: 0.9.0(@tanstack/query-core@5.62.2)(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1))
       next:
         specifier: 15.0.1
         version: 15.0.1(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
@@ -5951,6 +5963,24 @@ packages:
   jiti@1.21.6:
     resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
+
+  jotai-tanstack-query@0.9.0:
+    resolution: {integrity: sha512-8n7/xV14+ZE63dyqngtmqs6aV1bNnQJF9bJN5Bj70USc2cMFRmsVhGGzL1cSvp5E/xXasU37czFFaZ0vavmyfA==}
+    peerDependencies:
+      '@tanstack/query-core': '*'
+      jotai: '>=2.0.0'
+
+  jotai@2.12.2:
+    resolution: {integrity: sha512-oN8715y7MkjXlSrpyjlR887TOuc/NLZMs9gvgtfWH/JP47ChwO0lR2ijSwBvPMYyXRAPT+liIAhuBavluKGgtA==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -14548,6 +14578,16 @@ snapshots:
       - utf-8-validate
 
   jiti@1.21.6: {}
+
+  jotai-tanstack-query@0.9.0(@tanstack/query-core@5.62.2)(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1)):
+    dependencies:
+      '@tanstack/query-core': 5.62.2
+      jotai: 2.12.2(@types/react@18.3.12)(react@18.3.1)
+
+  jotai@2.12.2(@types/react@18.3.12)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 18.3.12
+      react: 18.3.1
 
   js-tokens@4.0.0: {}
 

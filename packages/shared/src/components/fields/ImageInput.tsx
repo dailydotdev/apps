@@ -8,6 +8,11 @@ import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
+import {
+  MEGABYTE,
+  acceptedTypesList,
+  ACCEPTED_TYPES,
+} from '../../graphql/posts';
 
 type Size = 'medium' | 'large' | 'cover';
 
@@ -34,8 +39,6 @@ interface ImageInputProps {
   fileSizeLimitMB?: number;
 }
 
-export const MEGABYTE = 1024 * 1024;
-
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
   large: 'w-40 h-40 rounded-40',
@@ -46,8 +49,6 @@ const sizeToIconSize: Record<Size, IconSize> = {
   large: IconSize.Medium,
   cover: IconSize.Small,
 };
-export const ACCEPTED_TYPES = 'image/png,image/jpeg';
-export const acceptedTypesList = ACCEPTED_TYPES.split(',');
 
 function ImageInput({
   initialValue,

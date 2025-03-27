@@ -1,4 +1,8 @@
 import type { FeatureDefinition } from '@growthbook/growthbook';
+import { queryOptions } from '@tanstack/react-query';
+import type { AtomWithQueryResult } from 'jotai-tanstack-query';
+import { atomWithQuery } from 'jotai-tanstack-query';
+import { useAtomValue } from 'jotai/react';
 import type { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import type { Alerts } from '../graphql/alerts';
@@ -9,6 +13,9 @@ import { decrypt } from '../components/crypto';
 import type { MarketingCta } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
+import { BOOT_QUERY_KEY } from '../contexts/common';
+import { STALE_TIME } from './query';
+import { getQueryClient } from '../graphql/queryClient';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -86,7 +93,7 @@ export type BootCacheData = Pick<
   | 'geo'
 > & { lastModifier?: string; isAndroidApp?: boolean };
 
-export async function getBootData(app: string, url?: string): Promise<Boot> {
+const getBootURL = (app: string, url?: string) => {
   const appRoute = app === 'companion' ? '/companion' : '';
   const params = new URLSearchParams();
   params.append('v', process.env.CURRENT_VERSION);
@@ -94,21 +101,51 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
     params.append('url', url);
   }
 
-  const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: { app, 'Content-Type': 'application/json' },
-  });
-  const result = await res.json();
+  return `${apiUrl}/boot${appRoute}?${params}`;
+};
 
+const enrichBootWithFeatures = async (boot: Boot): Promise<Boot> => {
   const features = await decrypt(
-    result.exp.f,
+    boot.exp.f,
     process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
     'AES-CBC',
     128,
   );
 
-  result.exp.features = JSON.parse(features);
+  return { ...boot, exp: { ...boot.exp, features: JSON.parse(features) } };
+};
 
-  return result;
+export async function getBootData(
+  app: string,
+  url?: string,
+  options?: Record<'cookies', string>,
+): Promise<Boot> {
+  const bootURL = getBootURL(app, url);
+  const res = await fetch(bootURL, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      app,
+      'Content-Type': 'application/json',
+      ...(options?.cookies && { Cookie: options.cookies }),
+    },
+  });
+  const result = await res.json();
+  return await enrichBootWithFeatures(result);
 }
+
+export const appBootDataQuery = queryOptions<Boot>({
+  queryKey: BOOT_QUERY_KEY,
+  queryFn: async () => await getBootData(BootApp.Webapp),
+  staleTime: STALE_TIME,
+});
+
+export const appBootDataQueryAtom = atomWithQuery(() => {
+  return {
+    ...appBootDataQuery,
+    staleTime: STALE_TIME,
+  };
+}, getQueryClient);
+
+export const useWebBootData = (): AtomWithQueryResult<Boot> =>
+  useAtomValue(appBootDataQueryAtom);
