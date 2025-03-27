@@ -15,8 +15,7 @@ export const FooterLinks = ({ className }: FooterLinksProps): ReactElement => {
         <ul
           className={classNames(
             className,
-            'flex flex-row flex-wrap justify-center gap-3 text-text-tertiary typo-caption1',
-            'mb-4', // Ensure bottom margin is always present
+            'flex flex-row flex-wrap justify-center gap-3 mb-4 text-text-tertiary typo-caption1'
           )}
         >
           <li>&copy; {new Date().getFullYear()} Daily Dev Ltd.</li>
