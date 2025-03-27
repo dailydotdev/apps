@@ -13,21 +13,21 @@ import { AuthEventNames } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { KeyIcon } from '../icons';
+import { useAuthData } from '../../contexts/AuthDataContext';
 
 interface CodeVerificationFormProps extends AuthFormProps {
-  initialEmail: string;
   initialFlow: string;
   onBack?: CloseModalFunc;
   onSubmit?: () => void;
 }
 
 function CodeVerificationForm({
-  initialEmail,
   initialFlow,
   onBack,
   onSubmit,
   simplified,
 }: CodeVerificationFormProps): ReactElement {
+  const { email } = useAuthData();
   const { logEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const [emailSent, setEmailSent] = useState(false);
@@ -60,7 +60,7 @@ function CodeVerificationForm({
     logEvent({
       event_name: AuthEventNames.SubmitForgotPassword,
     });
-    await sendEmail(initialEmail);
+    await sendEmail(email);
   };
 
   return (
@@ -76,7 +76,7 @@ function CodeVerificationForm({
         data-testid="recovery_form"
       >
         <AuthModalText className="text-center">
-          We just sent the verification code to {initialEmail}
+          We just sent the verification code to {email}
         </AuthModalText>
         <TextField
           aria-label="Verification code for password recovery"

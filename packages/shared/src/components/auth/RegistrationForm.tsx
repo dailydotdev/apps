@@ -44,9 +44,9 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { onboardingGradientClasses } from '../onboarding/common';
+import { useAuthData } from '../../contexts/AuthDataContext';
 
 export interface RegistrationFormProps extends AuthFormProps {
-  email: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   onBack?: CloseModalFunc;
   hints?: RegistrationError;
@@ -67,7 +67,6 @@ export type RegistrationFormValues = Omit<
 };
 
 const RegistrationForm = ({
-  email,
   formRef,
   onBack,
   onBackToIntro,
@@ -80,6 +79,7 @@ const RegistrationForm = ({
   simplified,
   targetId,
 }: RegistrationFormProps): ReactElement => {
+  const { email } = useAuthData();
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
@@ -397,7 +397,7 @@ const RegistrationForm = ({
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing">
-          I don’t want to receive updates and promotions via email
+          I don&apos;t want to receive updates and promotions via email
         </Checkbox>
         <ConditionalWrapper
           condition={simplified}

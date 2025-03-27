@@ -13,6 +13,7 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { authUrl } from '../../lib/constants';
+import { AuthDataProvider } from '../../contexts/AuthDataContext';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -62,7 +63,9 @@ const renderComponent = (): RenderResult => {
         loadingUser={false}
         loadedUserFromCache
       >
-        <ForgotPasswordForm onSubmit={onSubmit} />
+        <AuthDataProvider initialEmail="">
+          <ForgotPasswordForm onSubmit={onSubmit} />
+        </AuthDataProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
