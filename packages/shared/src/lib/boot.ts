@@ -131,7 +131,6 @@ export async function getBootData(
     },
   });
   const result = await res.json();
-  console.log('getBootData', result);
   return await enrichBootWithFeatures(result);
 }
 
