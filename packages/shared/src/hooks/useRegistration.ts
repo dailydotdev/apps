@@ -70,7 +70,7 @@ const useRegistration = ({
   const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout } =
+  const { trackingId, referral, referralOrigin, logout, geo } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -216,6 +216,7 @@ const useRegistration = ({
       'traits.userId': trackingId,
       ...referralTraits,
       'traits.timezone': timezone,
+      'traits.region': geo?.region,
     };
 
     await validate({ action, params: postData });
