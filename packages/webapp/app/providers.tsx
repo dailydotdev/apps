@@ -1,5 +1,7 @@
 'use client';
 
+import type { PropsWithChildren, ReactElement } from 'react';
+import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getQueryClient } from '@dailydotdev/shared/src/graphql/queryClient';
 import { queryClientAtom } from 'jotai-tanstack-query';
@@ -12,7 +14,9 @@ const HydrateAtoms = ({ children }) => {
   return children;
 };
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({
+  children,
+}: PropsWithChildren): ReactElement {
   const queryClient = getQueryClient();
 
   return (

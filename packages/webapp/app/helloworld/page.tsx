@@ -1,3 +1,6 @@
+import type { AppPageProps } from '@dailydotdev/shared/src/features/common/types/page';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { cookies } from 'next/headers';
 import { HydrationBoundary } from '@tanstack/react-query';
 import { getAppBootData } from '../app-boot';
@@ -13,7 +16,7 @@ async function getIdAndVersion({
   return { id, version };
 }
 
-export default async function Page(props) {
+export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const allCookies = (await cookies()).toString();
   const { state, boot } = await getAppBootData({ cookies: allCookies });
   const { id, version } = await getIdAndVersion(props);
@@ -22,7 +25,7 @@ export default async function Page(props) {
 
   return (
     <HydrationBoundary state={state}>
-      <h1 className="text-xl font-bold mb-4">Hello world funnel</h1>
+      <h1 className="mb-4 text-xl font-bold">Hello world funnel</h1>
       <p>
         <strong>Server</strong> says user is {boot?.user?.id ?? 'not logged'} -{' '}
         {boot?.user?.email ?? 'no email'}

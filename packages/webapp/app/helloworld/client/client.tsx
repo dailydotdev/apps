@@ -1,9 +1,11 @@
 'use client';
 
+import type { FC } from 'react';
+import React from 'react';
 import { appBootDataQuery } from '@dailydotdev/shared/src/lib/boot';
 import { useQueryClient } from '@tanstack/react-query';
 
-export const ClientTest = () => {
+export const ClientTest: FC = () => {
   const queryClient = useQueryClient();
   const boot = queryClient.getQueryData(appBootDataQuery.queryKey);
   const user = boot?.user;
