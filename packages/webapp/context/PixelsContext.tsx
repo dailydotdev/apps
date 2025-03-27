@@ -60,21 +60,21 @@ function WebPixelsProvider({
         globalThis.ttq.track('CompletePayment', { value: 1 });
       }
     },
-    trackPayment(value, currency, transactionId) {
-      if (typeof globalThis.gtag === 'function') {
-        globalThis.gtag('event', 'purchase', {
-          transaction_id: transactionId,
-          value,
-          currency,
-        });
-      }
-
-      if (typeof globalThis.fbq === 'function') {
-        globalThis.fbq('track', 'Purchase', {
-          value,
-          currency,
-        });
-      }
+    trackPayment() {
+      // if (typeof globalThis.gtag === 'function') {
+      //   globalThis.gtag('event', 'purchase', {
+      //     transaction_id: transactionId,
+      //     value,
+      //     currency,
+      //   });
+      // }
+      //
+      // if (typeof globalThis.fbq === 'function') {
+      //   globalThis.fbq('track', 'Purchase', {
+      //     value,
+      //     currency,
+      //   });
+      // }
     },
     trackEvent(eventName: string) {
       if (typeof globalThis.gtag === 'function') {
