@@ -18,9 +18,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <JotaiProvider>
-        <HydrateAtoms>
-          {children}
-        </HydrateAtoms>
+        <HydrateAtoms>{children}</HydrateAtoms>
       </JotaiProvider>
     </QueryClientProvider>
   );

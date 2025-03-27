@@ -1,11 +1,25 @@
-import { ClientTest } from './client/client';
-import { setAppBootData } from '../app-boot';
-import { HydrationBoundary } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
+import { HydrationBoundary } from '@tanstack/react-query';
+import { getAppBootData } from '../app-boot';
+import { ClientTest } from './client/client';
 
-export default async function Page() {
+async function getIdAndVersion({
+  params,
+  searchParams,
+}): Promise<Partial<Record<'id' | 'version', string>>> {
+  const { id } = await params;
+  const { version } = await searchParams;
+
+  return { id, version };
+}
+
+export default async function Page(props) {
   const allCookies = (await cookies()).toString();
-  const { state, boot } = await setAppBootData({ cookies: allCookies });
+  const { state, boot } = await getAppBootData({ cookies: allCookies });
+  const { id, version } = await getIdAndVersion(props);
+
+  console.log('Id & Version:', { id, version });
+
   return (
     <HydrationBoundary state={state}>
       <h1 className="text-xl font-bold mb-4">Hello world funnel</h1>

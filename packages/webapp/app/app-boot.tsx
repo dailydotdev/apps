@@ -6,7 +6,7 @@ import {
 import { dehydrate } from '@tanstack/react-query';
 import { getQueryClient } from '@dailydotdev/shared/src/graphql/queryClient';
 
-export const setAppBootData = async ({
+export const getAppBootData = async ({
   cookies,
 }: Record<'cookies', string>) => {
   const queryClient = getQueryClient();
