@@ -28,7 +28,11 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
-import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { awardMutationOptions } from '../../graphql/njord';
+import { useQuerySubscription } from '../../hooks/useQuerySubscription';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
+import { postByIdQueryOptions } from '../../hooks/usePostById';
 
 interface PostActionsProps {
   post: Post;
@@ -77,6 +81,31 @@ export function PostActions({
     await toggleDownvote({ payload: post, origin });
   };
 
+  const [getPost, updatePost] = useUpdateQuery(
+    postByIdQueryOptions({
+      id: post.id,
+    }),
+  );
+
+  useQuerySubscription(({ variables }) => {
+    const { type, entityId } = variables;
+
+    if (type === 'POST') {
+      if (entityId !== post.id) {
+        return;
+      }
+
+      const newPost = getPost();
+      newPost.post.userState = {
+        ...newPost.post.userState,
+        awarded: true,
+      };
+      newPost.post.numAwards = (newPost.post.numAwards || 0) + 1;
+
+      updatePost(newPost);
+    }
+  }, awardMutationOptions());
+
   useMutationSubscription({
     matcher: ({ mutation }) => {
       const [requestKey] = Array.isArray(mutation.options.mutationKey)
@@ -89,7 +118,7 @@ export function PostActions({
       variables: mutationVariables,
       queryClient: mutationQueryClient,
     }) => {
-      const { entityId, type } = mutationVariables as AwardProps;
+      const { type } = mutationVariables as AwardProps;
 
       mutationQueryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Transactions, user),
@@ -97,18 +126,6 @@ export function PostActions({
       });
 
       if (type === 'POST') {
-        if (entityId !== post.id) {
-          return;
-        }
-
-        updatePostCache(mutationQueryClient, post.id, {
-          userState: {
-            ...post.userState,
-            awarded: true,
-          },
-          numAwards: (post.numAwards || 0) + 1,
-        });
-
         return;
       }
 

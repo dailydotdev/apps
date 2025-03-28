@@ -33,7 +33,7 @@ import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
 import type { Product } from '../../../graphql/njord';
-import { award, getProducts } from '../../../graphql/njord';
+import { awardMutationOptions, getProducts } from '../../../graphql/njord';
 import { labels, largeNumberFormat } from '../../../lib';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -216,11 +216,7 @@ const CommentScreen = () => {
   const [note, setNote] = useState('');
 
   const { mutate: awardMutation, isPending } = useMutation({
-    mutationKey: [
-      'awards',
-      { productId: product?.id, type, entityId: entity.id, note },
-    ],
-    mutationFn: award,
+    ...awardMutationOptions(),
     onSuccess: (result) => {
       // TODO feat/transactions animation show award
       displayToast('Award sent successfully! ❤️');
