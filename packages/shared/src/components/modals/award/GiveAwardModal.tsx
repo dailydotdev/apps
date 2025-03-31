@@ -118,26 +118,24 @@ const IntroScreen = () => {
         ) : null}
       </Modal.Header>
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
-        {type !== 'USER' && (
-          <div className="flex flex-col items-center justify-center gap-2 p-4">
-            <Image
-              src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
-              alt="Award unicorn"
-              className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
-            />
-            <Typography
-              type={TypographyType.Title3}
-              bold
-              color={TypographyColor.Primary}
-            >
-              {hasAwards ? (
-                <>{largeNumberFormat(entity.numAwards)} Awards given</>
-              ) : (
-                <>Give an Award</>
-              )}
-            </Typography>
-          </div>
-        )}
+        <div className="flex flex-col items-center justify-center gap-2 p-4">
+          <Image
+            src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
+            alt="Award unicorn"
+            className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
+          />
+          <Typography
+            type={TypographyType.Title3}
+            bold
+            color={TypographyColor.Primary}
+          >
+            {hasAwards ? (
+              <>{largeNumberFormat(entity.numAwards)} Awards given</>
+            ) : (
+              <>Give an Award</>
+            )}
+          </Typography>
+        </div>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
