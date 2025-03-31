@@ -79,14 +79,8 @@ const AwardItem = ({
 const IntroScreen = () => {
   const [showBuyCores, setShowBuyCores] = useState(false);
   const { user } = useAuthContext();
-  const {
-    onRequestClose,
-    type,
-    entity,
-    setActiveModal,
-    setActiveStep,
-    product,
-  } = useGiveAwardModalContext();
+  const { onRequestClose, entity, setActiveModal, setActiveStep, product } =
+    useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const { data: awards } = useQuery({
