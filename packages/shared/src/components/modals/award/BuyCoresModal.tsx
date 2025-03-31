@@ -80,7 +80,7 @@ export const BuyCoresCheckout = ({
   );
 };
 
-const statusToMessageMap: Record<UserTransactionStatus, ReactNode> = {
+const statusToMessageMap: Partial<Record<UserTransactionStatus, ReactNode>> = {
   [UserTransactionStatus.Created]: 'Checking your data...',
   [UserTransactionStatus.Processing]: 'Processing your payment...',
   [UserTransactionStatus.Success]: 'Almost done...',

@@ -38,12 +38,7 @@ export const getTransactionLabel = ({
 }): ReactNode => {
   const type = getTransactionType({ transaction, user });
 
-  if (
-    [
-      UserTransactionStatus.Error,
-      UserTransactionStatus.ErrorRecoverable,
-    ].includes(transaction.status)
-  ) {
+  if (transaction.flags.error) {
     return (
       <span className="text-accent-ketchup-default">
         {transaction.flags.error || 'Failed'}

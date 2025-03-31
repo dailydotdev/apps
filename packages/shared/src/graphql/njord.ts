@@ -94,6 +94,8 @@ export const getProducts = async ({
 
 export enum UserTransactionStatus {
   Success = 0,
+  InsufficientFunds = 1,
+  InternalError = 100,
   Created = 201,
   Processing = 202,
   Error = 500,
