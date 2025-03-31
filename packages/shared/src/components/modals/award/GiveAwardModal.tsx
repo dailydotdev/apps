@@ -263,6 +263,8 @@ const CommentScreen = () => {
     type,
   ]);
 
+  const hasAwards = !!entity.numAwards;
+
   return (
     <>
       <Modal.Header title="Give an Award" showCloseButton={!isMobile}>
@@ -277,9 +279,9 @@ const CommentScreen = () => {
       <Modal.Body>
         <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <Image
-            src={product.image}
+            src={hasAwards ? product.image : entity.receiver.image}
             alt="Award unicorn"
-            className="size-[7.5rem]"
+            className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
           />
           <Typography
             type={TypographyType.Callout}
