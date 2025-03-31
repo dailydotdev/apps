@@ -119,7 +119,7 @@ const IntroScreen = () => {
       </Modal.Header>
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
         {type !== 'USER' && (
-          <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
+          <div className="flex flex-col items-center justify-center gap-2 p-4">
             <Image
               src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
               alt="Award unicorn"
