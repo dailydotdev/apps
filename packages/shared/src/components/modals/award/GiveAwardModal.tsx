@@ -100,6 +100,8 @@ const IntroScreen = () => {
     setActiveModal('BUY_CORES');
   };
 
+  const hasAwards = !!entity.numAwards;
+
   return (
     <>
       <Modal.Header title={' '} showCloseButton={!isMobile}>
@@ -116,19 +118,23 @@ const IntroScreen = () => {
         ) : null}
       </Modal.Header>
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
-        {type !== 'USER' && !!entity.numAwards && (
+        {type !== 'USER' && (
           <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
             <Image
-              src={cloudinaryAwardUnicorn}
+              src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
               alt="Award unicorn"
-              className="size-[7.5rem]"
+              className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
             />
             <Typography
               type={TypographyType.Title3}
               bold
               color={TypographyColor.Primary}
             >
-              {largeNumberFormat(entity.numAwards)} Awards given
+              {hasAwards ? (
+                <>{largeNumberFormat(entity.numAwards)} Awards given</>
+              ) : (
+                <>Give an Award</>
+              )}
             </Typography>
           </div>
         )}
