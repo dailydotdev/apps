@@ -21,7 +21,7 @@ export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const { state, boot } = await getAppBootData({ cookies: allCookies });
   const { id, version } = await getIdAndVersion(props);
 
-  console.log('Id & Version:', { id, version });
+  console.log('Id & Version:', { id, version, boot });
 
   return (
     <HydrationBoundary state={state}>
