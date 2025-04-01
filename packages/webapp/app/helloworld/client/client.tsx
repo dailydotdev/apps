@@ -5,7 +5,7 @@ import React from 'react';
 import {
   useAppAuth,
   AppAuthActionsKeys,
-} from '@dailydotdev/shared/src/features/common/hooks/auth/useAppAuth';
+} from '@dailydotdev/shared/src/features/common/hooks/useAppAuth';
 
 export const ClientTest: FC = () => {
   const { user, isLoggedIn, dispatch } = useAppAuth();

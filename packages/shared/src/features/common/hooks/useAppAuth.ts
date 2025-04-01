@@ -1,9 +1,9 @@
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import type { Boot } from '../../../../lib/boot';
-import type { LoggedUser } from '../../../../lib/user';
-import { appBootDataQuery } from '../../../../lib/boot';
-import { useRefreshToken } from '../../../../hooks/useRefreshToken';
-import { logout } from '../../../../contexts/AuthContext';
+import type { Boot } from '../../../lib/boot';
+import type { LoggedUser } from '../../../lib/user';
+import { appBootDataQuery } from '../../../lib/boot';
+import { useRefreshToken } from '../../../hooks/useRefreshToken';
+import { logout } from '../../../contexts/AuthContext';
 
 export enum AppAuthActionsKeys {
   REFRESH = 'refresh',
