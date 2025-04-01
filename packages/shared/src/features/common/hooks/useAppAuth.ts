@@ -1,13 +1,14 @@
-import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Boot } from '../../../lib/boot';
-import type { LoggedUser } from '../../../lib/user';
+import type { LoggedUser, AnonymousUser } from '../../../lib/user';
 import { appBootDataQuery } from '../../../lib/boot';
-import { useRefreshToken } from '../../../hooks/useRefreshToken';
 import { logout } from '../../../contexts/AuthContext';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 export enum AppAuthActionsKeys {
-  REFRESH = 'refresh',
   LOGOUT = 'logout',
+  REFRESH = 'refresh',
+  UPDATE_USER = 'updateUser',
 }
 
 export type AppAuthActions = Record<
@@ -27,17 +28,25 @@ function checkIfUserIsLoggedIn(user: Boot['user']): user is LoggedUser {
 }
 
 export const useAppAuth = (): UseAppAuthReturn => {
-  const queryClient = useQueryClient();
-  const { refetch } = useQuery(appBootDataQuery);
-  const boot = queryClient.getQueryData(appBootDataQuery.queryKey);
+  const client = useQueryClient();
+  const initialData = client.getQueryData(appBootDataQuery.queryKey);
+  const { data: boot, refetch } = useQuery({
+    ...appBootDataQuery,
+    initialData,
+  });
   const user = boot && checkIfUserIsLoggedIn(boot.user) ? boot.user : null;
   const isLoggedIn = !!user;
 
-  useRefreshToken(boot?.accessToken, refetch);
-
   const actions: Readonly<AppAuthActions> = {
-    [AppAuthActionsKeys.REFRESH]: refetch,
     [AppAuthActionsKeys.LOGOUT]: logout,
+    [AppAuthActionsKeys.REFRESH]: refetch,
+    [AppAuthActionsKeys.UPDATE_USER]: async (
+      newUser: LoggedUser | AnonymousUser,
+    ) => {
+      await client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Profile, newUser),
+      });
+    },
   };
 
   return {

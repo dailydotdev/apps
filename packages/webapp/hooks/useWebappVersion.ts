@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import type { ParsedUrlQuery } from 'querystring';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { useRouterQuery } from '@dailydotdev/shared/src/features/common/hooks/useRouterQuery';
 
 const getVersion = (query: ParsedUrlQuery): string | undefined => {
   if (isIOSNative()) {
@@ -17,7 +17,7 @@ const getVersion = (query: ParsedUrlQuery): string | undefined => {
 };
 
 export default function useWebappVersion(): string {
-  const { query } = useRouter();
+  const { query } = useRouterQuery();
   const [version, setVersion] = useState<string>();
 
   useEffect(() => {
