@@ -79,14 +79,8 @@ const AwardItem = ({
 const IntroScreen = () => {
   const [showBuyCores, setShowBuyCores] = useState(false);
   const { user } = useAuthContext();
-  const {
-    onRequestClose,
-    type,
-    entity,
-    setActiveModal,
-    setActiveStep,
-    product,
-  } = useGiveAwardModalContext();
+  const { onRequestClose, entity, setActiveModal, setActiveStep, product } =
+    useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const { data: awards } = useQuery({
@@ -99,6 +93,8 @@ const IntroScreen = () => {
     setShowBuyCores(false);
     setActiveModal('BUY_CORES');
   };
+
+  const hasAwards = !!entity.numAwards;
 
   return (
     <>
@@ -116,22 +112,24 @@ const IntroScreen = () => {
         ) : null}
       </Modal.Header>
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
-        {type !== 'USER' && !!entity.numAwards && (
-          <div className="mb-4 flex flex-col items-center justify-center gap-2 p-4">
-            <Image
-              src={cloudinaryAwardUnicorn}
-              alt="Award unicorn"
-              className="size-[7.5rem]"
-            />
-            <Typography
-              type={TypographyType.Title3}
-              bold
-              color={TypographyColor.Primary}
-            >
-              {largeNumberFormat(entity.numAwards)} Awards given
-            </Typography>
-          </div>
-        )}
+        <div className="flex flex-col items-center justify-center gap-2 p-4">
+          <Image
+            src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
+            alt="Award unicorn"
+            className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
+          />
+          <Typography
+            type={TypographyType.Title3}
+            bold
+            color={TypographyColor.Primary}
+          >
+            {hasAwards ? (
+              <>{largeNumberFormat(entity.numAwards)} Awards given</>
+            ) : (
+              <>Give an Award</>
+            )}
+          </Typography>
+        </div>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
@@ -257,6 +255,8 @@ const CommentScreen = () => {
     type,
   ]);
 
+  const hasAwards = !!entity.numAwards;
+
   return (
     <>
       <Modal.Header title="Give an Award" showCloseButton={!isMobile}>
@@ -271,9 +271,9 @@ const CommentScreen = () => {
       <Modal.Body>
         <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <Image
-            src={product.image}
+            src={hasAwards ? product.image : entity.receiver.image}
             alt="Award unicorn"
-            className="size-[7.5rem]"
+            className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
           />
           <Typography
             type={TypographyType.Callout}
