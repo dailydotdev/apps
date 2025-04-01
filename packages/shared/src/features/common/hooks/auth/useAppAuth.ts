@@ -1,17 +1,23 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai/react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import type { Boot } from '../../../../lib/boot';
 import type { LoggedUser } from '../../../../lib/user';
-import { bootQueryAtom, appBootDataQuery } from '../../../../lib/boot';
+import { appBootDataQuery } from '../../../../lib/boot';
 import { useRefreshToken } from '../../../../hooks/useRefreshToken';
+import { logout } from '../../../../contexts/AuthContext';
 
-export enum AppAuthActions {
-  REFETCH = 'refetch',
+export enum AppAuthActionsKeys {
+  REFRESH = 'refresh',
+  LOGOUT = 'logout',
 }
+
+export type AppAuthActions = Record<
+  AppAuthActionsKeys,
+  (data?: unknown) => void
+>;
 
 interface UseAppAuthReturn {
   boot: Boot;
-  dispatch: (action: { type: AppAuthActions; data?: unknown }) => void;
+  dispatch: <Data>(action: { type: AppAuthActionsKeys; data?: Data }) => void;
   isLoggedIn: boolean;
   user: LoggedUser | null;
 }
@@ -22,16 +28,17 @@ function checkIfUserIsLoggedIn(user: Boot['user']): user is LoggedUser {
 
 export const useAppAuth = (): UseAppAuthReturn => {
   const queryClient = useQueryClient();
-  const { refetch } = useAtomValue(bootQueryAtom);
+  const { refetch } = useQuery(appBootDataQuery);
   const boot = queryClient.getQueryData(appBootDataQuery.queryKey);
   const user = boot && checkIfUserIsLoggedIn(boot.user) ? boot.user : null;
   const isLoggedIn = !!user;
 
   useRefreshToken(boot?.accessToken, refetch);
 
-  const actions: Record<AppAuthActions, (data?: unknown) => void> = {
-    [AppAuthActions.REFETCH]: refetch,
-  } as const;
+  const actions: Readonly<AppAuthActions> = {
+    [AppAuthActionsKeys.REFRESH]: refetch,
+    [AppAuthActionsKeys.LOGOUT]: logout,
+  };
 
   return {
     boot,

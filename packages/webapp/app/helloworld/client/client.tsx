@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import React from 'react';
 import {
   useAppAuth,
-  AppAuthActions,
+  AppAuthActionsKeys,
 } from '@dailydotdev/shared/src/features/common/hooks/auth/useAppAuth';
 
 export const ClientTest: FC = () => {
@@ -19,9 +19,15 @@ export const ClientTest: FC = () => {
       <strong>Client</strong> says user is {user?.id ?? 'not logged'}
       <button
         type="button"
-        onClick={() => dispatch({ type: AppAuthActions.REFETCH })}
+        onClick={() => dispatch({ type: AppAuthActionsKeys.REFRESH })}
       >
         Refetch user
+      </button>
+      <button
+        type="button"
+        onClick={() => dispatch({ type: AppAuthActionsKeys.LOGOUT })}
+      >
+        Logout
       </button>
     </p>
   );

@@ -79,14 +79,12 @@ export const getQueryParams = (): Record<string, string> => {
   }
 
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-
-  return params;
+  return Object.fromEntries(urlSearchParams.entries());
 };
 
 export const REGISTRATION_PATH = '/register';
 
-const logout = async (reason: string): Promise<void> => {
+export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
