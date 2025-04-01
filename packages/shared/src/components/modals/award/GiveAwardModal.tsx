@@ -111,7 +111,7 @@ const IntroScreen = () => {
           </Button>
         ) : null}
       </Modal.Header>
-      <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent">
+      <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
         <div className="flex flex-col items-center justify-center gap-2 p-4">
           <Image
             src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}

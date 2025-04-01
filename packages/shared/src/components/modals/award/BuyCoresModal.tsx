@@ -297,7 +297,7 @@ const BuyCoreDesktop = () => {
   return (
     <ModalBody
       className={classNames(
-        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent !p-0',
+        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent !p-0 tablet:rounded-b-16',
       )}
     >
       <div className="flex flex-1 flex-row">
