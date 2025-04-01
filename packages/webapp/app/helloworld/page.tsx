@@ -18,9 +18,12 @@ async function getIdAndVersion({
 
 export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const allCookies = (await cookies()).toString();
-  const { state, boot } = await getAppBootData({ cookies: allCookies });
+  const { state, boot } = await getAppBootData({
+    cookies: allCookies,
+  });
   const { id, version } = await getIdAndVersion(props);
 
+  // eslint-disable-next-line no-console
   console.log('Id & Version:', { id, version, boot });
 
   return (
