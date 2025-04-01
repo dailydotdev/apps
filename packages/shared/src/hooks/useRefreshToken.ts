@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect } from 'react';
 import { differenceInMilliseconds } from 'date-fns';
 import type { AccessToken } from '../lib/boot';
