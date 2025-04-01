@@ -14,6 +14,7 @@ import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
+import { formatCurrency } from '../../lib/utils';
 import { checkCoresRoleNotNone } from '../../lib/cores';
 
 const ProfileMenu = dynamic(
@@ -32,6 +33,10 @@ export default function ProfileButton({
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+
+  const preciseBalance = formatCurrency(user?.balance?.amount, {
+    minimumFractionDigits: 0,
+  });
 
   return (
     <>
@@ -52,7 +57,12 @@ export default function ProfileButton({
             />
           )}
           {checkCoresRoleNotNone(user) && (
-            <SimpleTooltip content="Earnings dashboard">
+            <SimpleTooltip
+              content={
+                // eslint-disable-next-line react/jsx-key
+                ['Earnings dashboard', <br />, `${preciseBalance} Cores`]
+              }
+            >
               <Button
                 icon={<CoinIcon className="text-accent-bun-default" />}
                 tag="a"
