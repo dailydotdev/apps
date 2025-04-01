@@ -10,12 +10,12 @@ export type FooterLinksProps = {
 
 export const FooterLinks = ({ className }: FooterLinksProps): ReactElement => {
   return (
-    <footer className="z-1">
+    <footer className="z-1 pb-4">
       <nav>
         <ul
           className={classNames(
             className,
-            'flex flex-row flex-wrap justify-center gap-3 text-text-tertiary typo-caption1',
+            'mb-4 flex flex-row flex-wrap justify-center gap-3 text-text-tertiary typo-caption1',
           )}
         >
           <li>&copy; {new Date().getFullYear()} Daily Dev Ltd.</li>
