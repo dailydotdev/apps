@@ -128,6 +128,13 @@ export type UserSubscriptionFlags = Partial<{
   appAccountToken?: string; // StoreKit app account token (UUID)
 }>;
 
+export enum CoresRole {
+  None = 0,
+  ReadOnly = 1,
+  User = 2,
+  Creator = 3,
+}
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
@@ -151,6 +158,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   defaultFeedId?: string;
   flags?: UserFlagsPublic;
   subscriptionFlags?: UserSubscriptionFlags;
+  coresRole?: CoresRole;
   balance: {
     amount: number;
   };
