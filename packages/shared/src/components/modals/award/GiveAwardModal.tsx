@@ -26,7 +26,6 @@ import {
 } from '../../../contexts/GiveAwardModalContext';
 import { Justify } from '../../utilities';
 import MarkdownInput from '../../fields/MarkdownInput';
-import { termsOfService } from '../../../lib/constants';
 import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
 import { ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
@@ -38,9 +37,9 @@ import { labels, largeNumberFormat } from '../../../lib';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { anchorDefaultRel } from '../../../lib/strings';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
+import { AwardFeesNote } from '../../cores/AwardFeesNote';
 
 const AwardItem = ({
   item,
@@ -176,23 +175,7 @@ const IntroScreen = () => {
             Buy Cores <CoinIcon className="text-accent-bun-default" />{' '}
             {product.value === 0 ? 'Free' : product.value}
           </Button>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
-            className="text-center"
-          >
-            Awards may include a revenue share with the recipient and are
-            subject to our{' '}
-            <a
-              href={termsOfService}
-              target="_blank"
-              rel={anchorDefaultRel}
-              className="font-bold underline"
-            >
-              Terms of Service
-            </a>
-            .
-          </Typography>
+          <AwardFeesNote />
         </Modal.Footer>
       )}
     </>
@@ -322,23 +305,7 @@ const CommentScreen = () => {
           Send Award for <CoinIcon className="text-accent-bun-default" />{' '}
           {product.value === 0 ? 'Free' : product.value}
         </Button>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Quaternary}
-          className="text-center"
-        >
-          Awards may include a revenue share with the recipient and are subject
-          to our{' '}
-          <a
-            href={termsOfService}
-            target="_blank"
-            rel="noopener"
-            className="font-bold underline"
-          >
-            Terms of Service
-          </a>
-          .
-        </Typography>
+        <AwardFeesNote />
       </Modal.Footer>
     </>
   );
