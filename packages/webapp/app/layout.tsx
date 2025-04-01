@@ -9,7 +9,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <>{children}</>
+         {children}
         </Providers>
       </body>
     </html>
