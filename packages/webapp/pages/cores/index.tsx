@@ -26,7 +26,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import classed from '@dailydotdev/shared/src/lib/classed';
 
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
+import {
+  getPathnameWithQuery,
+  getRedirectNextPath,
+} from '@dailydotdev/shared/src/lib/links';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -43,20 +46,25 @@ const MobileContainer = classed(
 );
 
 export const CorePageMobileCheckout = (): ReactElement => {
-  const { openCheckout, selectedProduct, paddle } = useBuyCoresContext();
+  const { openCheckout, selectedProduct, paddle, setSelectedProduct } =
+    useBuyCoresContext();
 
   const productFromQuery = useCoreProductOptionQuery();
+
+  useEffect(() => {
+    setSelectedProduct(productFromQuery);
+  }, [productFromQuery, setSelectedProduct]);
 
   useEffect(() => {
     if (!paddle) {
       return;
     }
 
-    const productForCheckout = selectedProduct || productFromQuery;
-
-    if (productForCheckout) {
-      openCheckout({ priceId: productForCheckout.id });
+    if (!selectedProduct) {
+      return;
     }
+
+    openCheckout({ priceId: selectedProduct.id });
   }, [openCheckout, selectedProduct, productFromQuery, paddle]);
 
   return (
@@ -86,7 +94,18 @@ const CorePageMobile = (): ReactElement => {
 
   useEffect(() => {
     if (selectedProduct) {
-      router?.push(`${webappUrl}cores/payment?pid=${selectedProduct?.id}`);
+      const searchParams = new URLSearchParams(window.location.search);
+      const nextParams = new URLSearchParams();
+
+      if (searchParams.get('next')) {
+        nextParams.set('next', searchParams.get('next'));
+      }
+
+      nextParams.append('pid', selectedProduct.id);
+
+      router?.push(
+        getPathnameWithQuery(`${webappUrl}cores/payment`, nextParams),
+      );
     }
   }, [router, selectedProduct]);
 
@@ -126,11 +145,7 @@ const CorePageDesktop = (): ReactElement => {
   );
 };
 
-export const CorePageRenderer = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode => {
+const CorePageRenderer = ({ children }: { children: ReactNode }): ReactNode => {
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const { setSelectedProduct, openCheckout, paddle } = useBuyCoresContext();
   const router = useRouter();
@@ -181,7 +196,9 @@ const CoresPage = (): ReactElement => {
     <BuyCoresContextProvider
       origin={Origin.EarningsPageCTA}
       onCompletion={() => {
-        router?.push(webappUrl);
+        router?.push(
+          getRedirectNextPath(new URLSearchParams(window.location.search)),
+        );
       }}
       amountNeeded={amountNeeded || undefined}
     >
