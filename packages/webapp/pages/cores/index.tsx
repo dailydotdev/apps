@@ -27,6 +27,8 @@ import {
 import classed from '@dailydotdev/shared/src/lib/classed';
 
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
+import { checkCoresRoleNotNone } from '@dailydotdev/shared/src/lib/cores';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -131,6 +133,7 @@ export const CorePageRenderer = ({
 }: {
   children: ReactNode;
 }): ReactNode => {
+  const { user } = useAuthContext();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const { setSelectedProduct, openCheckout, paddle } = useBuyCoresContext();
   const router = useRouter();
@@ -163,6 +166,18 @@ export const CorePageRenderer = ({
     setSelectedProduct,
     paddle,
   ]);
+
+  useEffect(() => {
+    if (checkCoresRoleNotNone(user)) {
+      return;
+    }
+
+    router.push(webappUrl);
+  }, [router, user]);
+
+  if (!router.isReady) {
+    return null;
+  }
 
   return children;
 };

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
@@ -70,6 +70,8 @@ import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/Fe
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { useRouter } from 'next/router';
+import { checkCoresRoleNotNone } from '@dailydotdev/shared/src/lib/cores';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -108,6 +110,7 @@ const BalanceBlock = ({
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
 const Earnings = (): ReactElement => {
+  const router = useRouter();
   const { isLoggedIn, user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
@@ -166,7 +169,15 @@ const Earnings = (): ReactElement => {
 
   const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
 
-  if (!user) {
+  useEffect(() => {
+    if (checkCoresRoleNotNone(user)) {
+      return;
+    }
+
+    router.push(webappUrl);
+  }, [router, user]);
+
+  if (!user || !router.isReady) {
     return null;
   }
 
