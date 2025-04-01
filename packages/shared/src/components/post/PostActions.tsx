@@ -29,6 +29,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
+import { checkCoresRoleNotNone } from '../../lib/cores';
 
 interface PostActionsProps {
   post: Post;
@@ -206,7 +207,7 @@ export function PostActions({
           >
             Copy
           </QuaternaryButton>
-          {!!post.author && (
+          {!!post.author && checkCoresRoleNotNone(user) && (
             <ConditionalWrapper
               condition={post?.userState?.awarded}
               wrapper={(children) => {

@@ -58,6 +58,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { checkCoresRoleNotNone } from '../../lib/cores';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -356,28 +357,32 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      <AwardButton
-        appendTo={appendTo}
-        type="COMMENT"
-        entity={{
-          id: comment.id,
-          receiver: comment.author,
-          numAwards: comment.numAwards,
-        }}
-        pressed={!!comment.userState?.awarded}
-        post={post}
-      />
-      {!!comment.numAwards && (
-        <Typography
-          className="mr-3"
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          bold
-        >
-          {/* TODO feat/transactions show most expensive award image next to count */}
-          {largeNumberFormat(comment.numAwards)} Award
-          {comment.numAwards > 1 ? 's' : ''}
-        </Typography>
+      {checkCoresRoleNotNone(user) && (
+        <>
+          <AwardButton
+            appendTo={appendTo}
+            type="COMMENT"
+            entity={{
+              id: comment.id,
+              receiver: comment.author,
+              numAwards: comment.numAwards,
+            }}
+            pressed={!!comment.userState?.awarded}
+            post={post}
+          />
+          {!!comment.numAwards && (
+            <Typography
+              className="mr-3"
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              {/* TODO feat/transactions show most expensive award image next to count */}
+              {largeNumberFormat(comment.numAwards)} Award
+              {comment.numAwards > 1 ? 's' : ''}
+            </Typography>
+          )}
+        </>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button

@@ -29,6 +29,8 @@ import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
+import { checkCoresRoleNotNone } from '../../lib/cores';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -46,6 +48,7 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
+  const { user: myUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -174,7 +177,7 @@ export function Header({
             }}
           />
         )}
-        {!isSameUser && (
+        {!isSameUser && checkCoresRoleNotNone(myUser) && (
           <AwardButton
             appendTo="parent"
             type="USER"

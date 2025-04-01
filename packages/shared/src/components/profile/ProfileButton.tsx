@@ -14,6 +14,7 @@ import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
+import { checkCoresRoleNotNone } from '../../lib/cores';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -50,17 +51,19 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
-          <SimpleTooltip content="Earnings dashboard">
-            <Button
-              icon={<CoinIcon className="text-accent-bun-default" />}
-              tag="a"
-              href={`${webappUrl}earnings`}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-            >
-              {largeNumberFormat(user?.balance?.amount || 0)}
-            </Button>
-          </SimpleTooltip>
+          {checkCoresRoleNotNone(user) && (
+            <SimpleTooltip content="Earnings dashboard">
+              <Button
+                icon={<CoinIcon className="text-accent-bun-default" />}
+                tag="a"
+                href={`${webappUrl}earnings`}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              >
+                {largeNumberFormat(user?.balance?.amount || 0)}
+              </Button>
+            </SimpleTooltip>
+          )}
           <SimpleTooltip placement="bottom" content="Profile settings">
             <button
               type="button"
