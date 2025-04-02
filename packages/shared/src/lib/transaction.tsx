@@ -60,11 +60,11 @@ export const getTransactionLabel = ({
 
   if (['receive', 'send'].includes(type)) {
     return (
-      <div className="flex gap-1">
+      <div className="flex items-center gap-1">
         <Image
           src={transaction.product.image}
           alt={transaction.product.name}
-          className="size-4"
+          className="size-5"
         />
         Award{' '}
       </div>

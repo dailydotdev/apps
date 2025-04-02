@@ -189,14 +189,8 @@ const IntroScreen = () => {
 
 const CommentScreen = () => {
   const { updateUser, user } = useAuthContext();
-  const {
-    setActiveStep,
-    type,
-    entity,
-    product,
-    onRequestClose,
-    logAwardEvent,
-  } = useGiveAwardModalContext();
+  const { setActiveStep, type, entity, product, logAwardEvent } =
+    useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { displayToast } = useToastNotification();
   const [note, setNote] = useState('');
@@ -207,16 +201,15 @@ const CommentScreen = () => {
       { productId: product?.id, type, entityId: entity.id, note },
     ],
     mutationFn: award,
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       // TODO feat/transactions animation show award
-      displayToast('Award sent successfully! ❤️');
 
-      updateUser({
+      await updateUser({
         ...user,
         balance: result.balance,
       });
 
-      onRequestClose(undefined);
+      setActiveStep({ screen: 'SUCCESS', product });
     },
     onError: (data: ApiErrorResult) => {
       displayToast(
@@ -316,19 +309,83 @@ const CommentScreen = () => {
   );
 };
 
+const SuccessScreen = () => {
+  const { entity, product, onRequestClose } = useGiveAwardModalContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  return (
+    <Modal.Body>
+      <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-col gap-2">
+          <Image
+            src={product.image}
+            alt={product?.flags?.description}
+            className="size-20"
+          />
+          <div className="flex items-center justify-center gap-1">
+            <CoinIcon
+              size={IconSize.Size16}
+              className="text-accent-bun-default"
+            />
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+              tag={TypographyTag.Span}
+            >
+              {product.value === 0 ? 'Free' : product.value}
+            </Typography>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Primary}
+            bold
+            className="text-center"
+          >
+            Congrats! Your Award has been sent to{' '}
+            {entity.receiver.name || `@${entity.receiver.username}`}
+          </Typography>
+
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            className="text-center"
+          >
+            Thanks for supporting the community!
+          </Typography>
+        </div>
+
+        {!isMobile && (
+          <Button
+            variant={ButtonVariant.Primary}
+            className="w-full"
+            onClick={() => {
+              onRequestClose(undefined);
+            }}
+          >
+            Close
+          </Button>
+        )}
+      </div>
+    </Modal.Body>
+  );
+};
+
 const ModalBody = () => {
   const { activeStep } = useGiveAwardModalContext();
   return (
     <>
       {activeStep === 'INTRO' ? <IntroScreen /> : null}
       {activeStep === 'COMMENT' ? <CommentScreen /> : null}
+      {activeStep === 'SUCCESS' ? <SuccessScreen /> : null}
     </>
   );
 };
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeModal, setActiveModal, product, logAwardEvent } =
+  const { activeStep, activeModal, setActiveModal, product, logAwardEvent } =
     useGiveAwardModalContext();
 
   const trackingRef = useRef(false);
@@ -350,7 +407,13 @@ const ModalRender = ({ ...props }: ModalProps) => {
         <Modal
           kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
           size={Modal.Size.Small}
-          className={classNames(!isMobile ? '!h-[40rem]' : undefined)}
+          className={classNames(
+            !isMobile && activeStep !== 'SUCCESS' ? '!h-[40rem]' : undefined,
+          )}
+          isDrawerOnMobile={activeStep === 'SUCCESS'}
+          drawerProps={{
+            instantOpen: true,
+          }}
           {...props}
         >
           <ModalBody />

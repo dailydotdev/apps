@@ -15,3 +15,8 @@ export type LogStartBuyingCreditsProps = {
   target_id?: string;
   amount?: number;
 };
+
+export type FAQItem = {
+  question: string;
+  answer: React.ReactNode;
+};

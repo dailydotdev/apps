@@ -73,6 +73,7 @@ export * from './Menu';
 export * from './Microsoft';
 export * from './MiniClose';
 export * from './Moon';
+export * from './MoveTo';
 export * from './NewSquad';
 export * from './OpenLink';
 export * from './Pause';

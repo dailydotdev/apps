@@ -22,6 +22,7 @@ export type AwardTypes = keyof typeof AWARD_TYPES;
 const SCREENS = {
   INTRO: 'INTRO',
   COMMENT: 'COMMENT',
+  SUCCESS: 'SUCCESS',
 } as const;
 
 const MODALRENDERS = {

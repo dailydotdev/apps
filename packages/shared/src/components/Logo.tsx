@@ -22,6 +22,7 @@ export enum LogoPosition {
   Absolute = 'absolute',
   Relative = 'relative',
   Initial = 'initial',
+  Empty = 'empty',
 }
 
 const logoPositionToClassName: Record<LogoPosition, string> = {
@@ -30,7 +31,8 @@ const logoPositionToClassName: Record<LogoPosition, string> = {
     'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:mt-0 laptop:translate-x-[unset]',
   ),
   [LogoPosition.Relative]: classNames('relative mt-0.5', 'laptop:mt-0'),
-  [LogoPosition.Initial]: '',
+  [LogoPosition.Initial]: 'relative',
+  [LogoPosition.Empty]: '',
 };
 
 interface LogoSvgElemProps {
@@ -103,7 +105,7 @@ export default function Logo({
       <a
         aria-disabled={linkDisabled}
         className={classNames(
-          'relative flex items-center',
+          'flex items-center',
           logoPositionToClassName[position],
           className,
           linkDisabled && 'pointer-events-none',
