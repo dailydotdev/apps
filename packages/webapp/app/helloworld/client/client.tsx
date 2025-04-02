@@ -6,7 +6,6 @@ import {
   useAppAuth,
   AppAuthActionsKeys,
 } from '@dailydotdev/shared/src/features/common/hooks/useAppAuth';
-import { FormInputRating } from '@dailydotdev/shared/src/features/common/components/FormInputRating';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 export const ClientTest: FC = () => {
@@ -27,13 +26,6 @@ export const ClientTest: FC = () => {
       >
         Logout
       </Button>
-      <hr />
-      <div>
-        <FormInputRating max={5} min={1} name="rating">
-          <div>Not at all</div>
-          <div>very much</div>
-        </FormInputRating>
-      </div>
     </div>
   );
 };

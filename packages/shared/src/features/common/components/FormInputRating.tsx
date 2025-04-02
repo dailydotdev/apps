@@ -7,7 +7,13 @@ type RatingValue = number;
 
 export interface FormInputRatingProps
   extends PropsWithChildren<ComponentProps<'div'>> {
+  /**
+   * @default 5
+   */
   max: number;
+  /**
+   * @default 1
+   */
   min: number;
   name: string;
   onValueChange?: (value: RatingValue) => void;
@@ -32,6 +38,7 @@ export const FormInputRating = ({
   name,
   onValueChange,
   value,
+  ...attrs
 }: FormInputRatingProps): ReactElement => {
   const [checkedValue, setCheckedValue] = useState<RatingValue | undefined>(
     defaultValue,
@@ -54,7 +61,7 @@ export const FormInputRating = ({
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" {...attrs}>
       <div className="flex flex-row gap-2" role="radiogroup">
         {items.map((itemValue) => {
           const isSelected = itemValue === inputValue;
