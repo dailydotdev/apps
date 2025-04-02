@@ -1,13 +1,13 @@
 export enum FunnelStepType {
-  LandingPage = 'landing_page',
+  LandingPage = 'landingPage',
   Fact = 'fact',
   Quiz = 'quiz',
-  Signup = 'sign_up',
+  Signup = 'signUp',
   Pricing = 'pricing',
   Checkout = 'checkout',
-  TagSelection = 'tags_selection',
-  ReadingReminder = 'reading_reminder',
-  AppPromotion = 'app_promotion',
+  TagSelection = 'tagsSelection',
+  ReadingReminder = 'readingReminder',
+  AppPromotion = 'appPromotion',
 }
 
 enum FunnelStepTransitionType {
