@@ -163,6 +163,8 @@
 .btn-quaternary {
   & label {
     color: var(--button-color, var(--button-default-color));
+    transition: 0.2s ease-in-out;
+    transition-property: color;
   }
 
   & [aria-pressed="true"] ~ label {
