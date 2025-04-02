@@ -30,8 +30,11 @@ function checkIfUserIsLoggedIn(user: Boot['user']): user is LoggedUser {
 
 export const useAppAuth = (): UseAppAuthReturn => {
   const queryClient = useQueryClient();
-  const { refetch } = useQuery(appBootDataQuery);
-  const boot = queryClient.getQueryData(appBootDataQuery.queryKey);
+  const initialData = queryClient.getQueryData(appBootDataQuery.queryKey);
+  const { data: boot, refetch } = useQuery({
+    ...appBootDataQuery,
+    initialData,
+  });
   const user = boot && checkIfUserIsLoggedIn(boot.user) ? boot.user : null;
   const isLoggedIn = !!user;
 
