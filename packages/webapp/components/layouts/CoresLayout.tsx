@@ -35,7 +35,10 @@ export default function CoresLayout({
   }, [back, replace]);
 
   useEffect(() => {
-    if ((hasAccessToCores(user) && isLoggedIn) || !isPageReady) {
+    if (!isPageReady) {
+      return;
+    }
+    if (hasAccessToCores(user) && isLoggedIn) {
       return;
     }
 

@@ -172,7 +172,10 @@ const Earnings = (): ReactElement => {
   const isPageReady = router?.isReady && isAuthReady;
 
   useEffect(() => {
-    if ((hasAccessToCores(user) && isLoggedIn) || !isPageReady) {
+    if (!isPageReady) {
+      return;
+    }
+    if (hasAccessToCores(user) && isLoggedIn) {
       return;
     }
 
