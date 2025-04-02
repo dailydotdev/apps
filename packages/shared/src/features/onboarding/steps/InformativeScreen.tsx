@@ -27,7 +27,7 @@ InformativeScreenProps): ReactElement => {
         }
       />
       {/* Content container */}
-      <div className="flex min-h-screen flex-col px-6 pb-20 pt-10">
+      <div className="flex min-h-dvh flex-col px-6 pb-20 pt-10">
         <div
           className={classNames(
             'flex flex-1 items-center gap-6',
