@@ -83,7 +83,7 @@ export const FormInputCheckboxGroup = ({
             aria-checked={isSelected}
             aria-describedby={item.label}
             aria-label={item.label}
-            className={classNames(isVertical && 'typo-subhead')}
+            className={classNames(isVertical ? 'typo-subhead' : 'typo-body')}
             pressed={isSelected}
             name={name}
             onClick={() => onSelect(item.value)}

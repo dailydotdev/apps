@@ -35,77 +35,71 @@ const meta: Meta<typeof FormInputCheckboxGroup> = {
       </div>
     );
   },
+  tags: ['autodocs']
 };
 
 export default meta;
 
 type Story = StoryObj<typeof FormInputCheckboxGroup>;
 
+const options = [
+  {
+    label: 'JavaScript',
+    value: 'js',
+    image: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png',
+      alt: 'JavaScript',
+    },
+  },
+  {
+    label: 'Python',
+    value: 'py',
+    image: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg',
+      alt: 'Python',
+    },
+  },
+  {
+    label: 'Go',
+    value: 'go',
+    image: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Go_Logo_Blue.svg',
+      alt: 'Go',
+    },
+  },
+];
+
+
 export const Default: Story = {
   args: {
-    options: [
-      {
-        label: 'JavaScript', value: 'js',
-      },
-      {
-        label: 'Python',
-        value: 'py',
-      },
-      {
-        label: 'Go', value: 'go',
-      },
-    ],
+    options: options.map(({ label, value }) => ({ label, value })),
   },
 };
-export const WithImages: Story = {
+
+export const HorizontalWithImages: Story = {
   args: {
-    options: [
-      {
-        label: 'JavaScript', value: 'js',
-        image: {
-          src: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgss-technology.com%2Fwp-content%2Fuploads%2F2021%2F07%2F04.png&f=1&nofb=1&ipt=1ebbe741885867ff8c9ca748d0d711db7990fb3083ce1fdb2fddfc8e9864acf7&ipo=images',
-        },
-      },
-      {
-        label: 'Python',
-        value: 'py',
-        image: {
-          src: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgss-technology.com%2Fwp-content%2Fuploads%2F2021%2F07%2F04.png&f=1&nofb=1&ipt=1ebbe741885867ff8c9ca748d0d711db7990fb3083ce1fdb2fddfc8e9864acf7&ipo=images',
-        },
-      },
-      {
-        label: 'Go', value: 'go',
-        image: {
-          src: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgss-technology.com%2Fwp-content%2Fuploads%2F2021%2F07%2F04.png&f=1&nofb=1&ipt=1ebbe741885867ff8c9ca748d0d711db7990fb3083ce1fdb2fddfc8e9864acf7&ipo=images',
-        },
-      },
-    ],
+    options,
+  },
+};
+
+export const HorizontalDoubleColumn: Story = {
+  args: {
+    cols: 2,
+    options,
   },
 };
 
 export const Vertical: Story = {
   args: {
-    options: [
-      {
-        label: 'JavaScript', value: 'js',
-        image: {
-          src: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgss-technology.com%2Fwp-content%2Fuploads%2F2021%2F07%2F04.png&f=1&nofb=1&ipt=1ebbe741885867ff8c9ca748d0d711db7990fb3083ce1fdb2fddfc8e9864acf7&ipo=images',
-        },
-      },
-      {
-        label: 'Python',
-        value: 'py',
-        image: {
-          src: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgss-technology.com%2Fwp-content%2Fuploads%2F2021%2F07%2F04.png&f=1&nofb=1&ipt=1ebbe741885867ff8c9ca748d0d711db7990fb3083ce1fdb2fddfc8e9864acf7&ipo=images',
-        },
-      },
-      {
-        label: 'Go', value: 'go',
-        image: {
-          src: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fgss-technology.com%2Fwp-content%2Fuploads%2F2021%2F07%2F04.png&f=1&nofb=1&ipt=1ebbe741885867ff8c9ca748d0d711db7990fb3083ce1fdb2fddfc8e9864acf7&ipo=images',
-        },
-      },
-    ],
+    options,
+    variant: CheckboxGroupVariant.Vertical,
+  },
+};
+
+export const VerticalDoubleColumn: Story = {
+  args: {
+    options,
+    cols: 2,
     variant: CheckboxGroupVariant.Vertical,
   },
 };

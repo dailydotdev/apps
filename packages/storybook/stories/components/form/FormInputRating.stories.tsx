@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FormInputRating } from '@dailydotdev/shared/src/features/common/components/FormInputRating';
+import {
+  FormInputRating,
+} from '@dailydotdev/shared/src/features/common/components/FormInputRating';
 import { useState } from 'react';
 import { fn } from '@storybook/test';
 import {
@@ -23,11 +25,12 @@ const meta: Meta<typeof FormInputRating> = {
   },
   render: (props) => {
     return (
-      <div className="max-w-lg">
+      <div className='max-w-lg'>
         <FormInputRating {...props} />
       </div>
     );
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
