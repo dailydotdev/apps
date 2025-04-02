@@ -187,19 +187,6 @@
     pointer-events: none;
   }
 
-  & label {
-    padding-left: 0.25rem;
-    padding-right: 1.5rem;
-  }
-
-  &.small > label {
-    padding-right: 1rem;
-  }
-
-  &.large > label {
-    padding-right: 2rem;
-  }
-
   &.reverse {
     flex-direction: row-reverse;
 

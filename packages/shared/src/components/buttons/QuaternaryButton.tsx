@@ -72,7 +72,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
           htmlFor={id}
           {...labelProps}
           className={classNames(
-            'cursor-pointer items-center font-bold typo-callout',
+            'cursor-pointer items-center pl-1 font-bold typo-callout',
             labelDisplay,
             { readOnly: props.disabled },
             labelClassName,
