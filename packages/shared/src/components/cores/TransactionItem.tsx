@@ -87,7 +87,9 @@ export const TransactionItem = ({
           className={classNames(amount >= 0 && 'text-accent-bun-default')}
         />
         <Typography type={TypographyType.Callout} bold>
-          {`${amount >= 0 ? '+' : ''}${formatCoresCurrency(amount)}`}
+          {amount === 0 && 'Free'}
+          {amount !== 0 &&
+            `${amount > 0 ? '+' : ''}${formatCoresCurrency(amount)}`}
         </Typography>
       </div>
     </li>
