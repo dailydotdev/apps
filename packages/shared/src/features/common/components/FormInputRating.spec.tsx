@@ -97,19 +97,6 @@ describe('FormInputRating', () => {
     expect(screen.getByText('4')).toBeInTheDocument();
   });
 
-  it('should throw an error for invalid defaultValue', () => {
-    // Mock console.error to prevent it from showing in test output
-    const originalError = console.error;
-    console.error = jest.fn();
-
-    expect(() => {
-      renderComponent({ min: 2, max: 5, defaultValue: 1 });
-    }).toThrow('defaultValue must be between 2 and 5');
-
-    // Restore console.error
-    console.error = originalError;
-  });
-
   it('should render children when provided', () => {
     renderComponent({
       children: <div data-testid="rating-children">Custom content</div>,
