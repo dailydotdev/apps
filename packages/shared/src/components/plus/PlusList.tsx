@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import type { WithClassNameProps } from '../utilities';
 import type { PlusItem, PlusListItemProps } from './PlusListItem';
 import { PlusItemStatus, PlusListItem } from './PlusListItem';
-import { CoinIcon } from '../icons';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
@@ -35,16 +34,6 @@ export const defaultFeatureList: Array<PlusItem> = [
 ];
 
 export const plusFeatureList: Array<PlusItem> = [
-  {
-    icon: CoinIcon,
-    typographyProps: {
-      bold: true,
-    },
-    // TODO feat/transactions replace with real data
-    label: 'Get {{x}} Cores every {{month/year}}',
-    status: PlusItemStatus.Ready,
-    tooltip: `Unlock {{x}} Cores every {{month/year}} to access exclusive content, features, and benefits.`,
-  },
   {
     label: 'Run prompts on any post',
     status: PlusItemStatus.Ready,

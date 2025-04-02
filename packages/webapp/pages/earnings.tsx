@@ -5,14 +5,12 @@ import type { WithClassNameProps } from '@dailydotdev/shared/src/components/util
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
@@ -25,7 +23,6 @@ import {
 import {
   CoinIcon,
   CreditCardIcon,
-  DevPlusIcon,
   DocsIcon,
   FeedbackIcon,
   InfoIcon,
@@ -69,7 +66,6 @@ import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/Inf
 import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
 import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useRouter } from 'next/router';
 import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
@@ -113,7 +109,6 @@ const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 const Earnings = (): ReactElement => {
   const router = useRouter();
   const { isLoggedIn, user, isAuthReady } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
     ({
@@ -399,34 +394,6 @@ const Earnings = (): ReactElement => {
             onClick={onBuyCoresClick}
             amounts={[100, 300, 600]}
           />
-          {!isPlus && (
-            <WidgetContainer className="flex flex-col gap-4 p-6">
-              <div className="flex justify-between">
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Callout}
-                  bold
-                  className="flex gap-1"
-                  color={TypographyColor.Plus}
-                >
-                  <DevPlusIcon size={IconSize.XSmall} /> Plus
-                </Typography>
-                🎁
-              </div>
-              <Typography type={TypographyType.Body} bold>
-                {/* TODO feat/transactions replace with real data */}
-                Get {'{X}'} Cores every month with daily.dev Plus and access pro
-                features to fast-track your growth.
-              </Typography>
-              <Button
-                className="mt-2"
-                variant={ButtonVariant.Primary}
-                color={ButtonColor.Bacon}
-              >
-                Upgrade to Plus
-              </Button>
-            </WidgetContainer>
-          )}
           <WidgetContainer className="flex flex-col">
             <div className="flex justify-around p-4">
               <Button
