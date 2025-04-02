@@ -1,5 +1,5 @@
 import type { ReactElement, PropsWithChildren, ComponentProps } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 
@@ -17,8 +17,8 @@ export interface FormInputRatingProps
 
 const validateRatingValue = (
   value: number,
-  min: number,
-  max: number,
+  min?: number,
+  max?: number,
 ): boolean => {
   return value >= min && value <= max;
 };
@@ -27,8 +27,8 @@ export const FormInputRating = ({
   children,
   className,
   defaultValue,
-  max,
-  min,
+  max = 5,
+  min = 1,
   name,
   onValueChange,
   value,
@@ -38,22 +38,15 @@ export const FormInputRating = ({
   );
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
+  const maxValue = max > min ? max : min + 1;
 
-  if (max < min) {
-    throw new Error('max must be greater than or equal to min');
-  }
-
-  if (inputValue && !validateRatingValue(inputValue, min, max)) {
-    throw new Error(`defaultValue must be between ${min} and ${max}`);
-  }
-
-  const items = useMemo(
-    () => Array.from({ length: max - min + 1 }, (_, index) => index + min),
-    [min, max],
+  const items = Array.from(
+    { length: maxValue - min + 1 },
+    (_, index) => index + min,
   );
 
   const onSelect = (selectedValue: RatingValue) => {
-    if (!validateRatingValue(selectedValue, min, max)) {
+    if (!validateRatingValue(selectedValue, min, maxValue)) {
       return;
     }
     setCheckedValue(selectedValue);
@@ -62,7 +55,6 @@ export const FormInputRating = ({
 
   return (
     <div className="flex flex-col gap-3">
-      Active: {inputValue}
       <div className="flex flex-row gap-2" role="radiogroup">
         {items.map((itemValue) => {
           const isSelected = itemValue === inputValue;
