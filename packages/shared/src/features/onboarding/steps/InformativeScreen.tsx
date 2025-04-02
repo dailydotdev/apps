@@ -9,13 +9,13 @@ import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import type { FunnelStepFact } from '../types/funnel';
 
 type InformativeScreenProps = FunnelStepFact & {
-  // onTransition: () => void;
+  onTransition: () => void;
 };
 
 const InformativeScreen = ({
   parameters,
-}: // onTransition,
-InformativeScreenProps): ReactElement => {
+  onTransition,
+}: InformativeScreenProps): ReactElement => {
   return (
     <>
       {/* Background gradient */}
@@ -29,6 +29,7 @@ InformativeScreenProps): ReactElement => {
       {/* Content container */}
       <div className="flex min-h-dvh flex-col px-6 pb-20 pt-10">
         <div
+          data-testid="informative-content"
           className={classNames(
             'flex flex-1 items-center gap-6',
             parameters?.reverse
@@ -54,7 +55,7 @@ InformativeScreenProps): ReactElement => {
           <Button
             className="w-full"
             variant={ButtonVariant.Primary}
-            // onClick={onTransition}
+            onClick={onTransition}
           >
             {parameters?.cta ?? 'Next'}
           </Button>

@@ -24,6 +24,7 @@ const StepHeadline = ({
 }: StepHeadlineProps): ReactElement => {
   return (
     <div
+      data-testid="step-headline-container"
       className={classNames(
         'flex flex-col gap-2',
         align === 'center' ? 'text-center' : 'text-left',
@@ -33,6 +34,7 @@ const StepHeadline = ({
         {headline}
       </Typography>
       <Typography
+        data-testid="step-headline-explainer"
         type={TypographyType.Body}
         color={
           type === FunnelStepType.Quiz
