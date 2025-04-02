@@ -10,6 +10,10 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { BuyCoresContextProvider } from '@dailydotdev/shared/src/contexts/BuyCoresContext';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { TransactionStatusListener } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
+import {
+  getPathnameWithQuery,
+  getRedirectNextPath,
+} from '@dailydotdev/shared/src/lib/links';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
@@ -32,7 +36,14 @@ const CoresPaymentPage = (): ReactElement => {
     }
 
     if (isLaptop || !pid) {
-      router?.replace(`${webappUrl}cores`);
+      const searchParams = new URLSearchParams(window.location.search);
+      const nextParams = new URLSearchParams();
+
+      if (searchParams.get('next')) {
+        nextParams.set('next', searchParams.get('next'));
+      }
+
+      router?.replace(getPathnameWithQuery(`${webappUrl}cores`, nextParams));
     }
   }, [pid, router, isLaptop]);
 
@@ -49,7 +60,9 @@ const CoresPaymentPage = (): ReactElement => {
     <BuyCoresContextProvider
       origin={Origin.EarningsPageCTA}
       onCompletion={() => {
-        router?.push(webappUrl);
+        router?.push(
+          getRedirectNextPath(new URLSearchParams(window.location.search)),
+        );
       }}
     >
       <TransactionStatusListener isOpen isDrawerOnMobile />

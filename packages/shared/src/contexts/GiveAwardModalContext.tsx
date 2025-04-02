@@ -1,5 +1,6 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { ModalProps } from '../components/modals/common/Modal';
 import type { Product } from '../graphql/njord';
 import type { PublicProfile } from '../lib/user';
@@ -7,6 +8,9 @@ import { useLogContext } from './LogContext';
 import { postLogEvent } from '../lib/feed';
 import { LogEvent } from '../lib/log';
 import type { Post } from '../graphql/posts';
+import { checkIsExtension } from '../lib/func';
+import { webappUrl } from '../lib/constants';
+import { getPathnameWithQuery } from '../lib';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -98,6 +102,7 @@ export const GiveAwardModalContextProvider = ({
   entity,
   post,
 }: GiveAwardModalContextProviderProps): ReactElement => {
+  const router = useRouter();
   const { logEvent } = useLogContext();
   const [activeStep, setActiveStep] = useState<{
     screen: Screens;
@@ -134,7 +139,23 @@ export const GiveAwardModalContextProvider = ({
   const contextData = useMemo<GiveAwardModalContextData>(
     () => ({
       activeModal,
-      setActiveModal,
+      setActiveModal: (modal) => {
+        if (modal === 'BUY_CORES' && checkIsExtension()) {
+          const searchParams = new URLSearchParams();
+
+          if (post?.id) {
+            searchParams.append('next', `/posts/${post.id}`);
+          }
+
+          router?.replace(
+            getPathnameWithQuery(`${webappUrl}cores`, searchParams),
+          );
+
+          return;
+        }
+
+        setActiveModal(modal);
+      },
       onRequestClose,
       activeStep: activeStep.screen,
       product: activeStep.product,
@@ -151,6 +172,8 @@ export const GiveAwardModalContextProvider = ({
       type,
       entity,
       logAwardEvent,
+      router,
+      post,
     ],
   );
 
