@@ -37,7 +37,7 @@ const InformativeScreen = ({ parameters }: FunnelStepFact): ReactElement => {
       </div>
       <div className="px-4">
         <Button className="w-full" variant={ButtonVariant.Primary}>
-          Show me how
+          {parameters?.cta ?? 'Next'}
         </Button>
       </div>
     </div>
