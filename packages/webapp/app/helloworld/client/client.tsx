@@ -34,7 +34,10 @@ export const ClientTest: FC = () => {
           min={1}
           name="rating"
           onValueChange={console.log}
-        />
+        >
+          <div>Not at all</div>
+          <div>very much</div>
+        </FormInputRating>
       </div>
     </div>
   );
