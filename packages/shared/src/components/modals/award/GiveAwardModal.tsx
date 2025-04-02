@@ -14,7 +14,7 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon, CoinIcon } from '../../icons';
 import { Image } from '../../image/Image';
-import { cloudinaryAwardUnicorn } from '../../../lib/image';
+import { featuredAwardImage } from '../../../lib/image';
 import type {
   AwardEntity,
   AwardTypes,
@@ -118,8 +118,8 @@ const IntroScreen = () => {
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
         <div className="flex flex-col items-center justify-center gap-2 p-4">
           <Image
-            src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
-            alt="Award unicorn"
+            src={hasAwards ? featuredAwardImage : entity.receiver.image}
+            alt="Award user"
             className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
           />
           <Typography
@@ -260,7 +260,7 @@ const CommentScreen = () => {
         <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <Image
             src={hasAwards ? product.image : entity.receiver.image}
-            alt="Award unicorn"
+            alt="Award user"
             className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
           />
           <Typography

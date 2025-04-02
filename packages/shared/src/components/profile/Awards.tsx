@@ -9,7 +9,7 @@ import {
 import { topReaderBadgeDocs } from '../../lib/constants';
 import { ClickableText } from '../buttons/ClickableText';
 import { Image } from '../image/Image';
-import { cloudinaryAwardUnicorn } from '../../lib/image';
+import { featuredAwardImage } from '../../lib/image';
 
 type AwardProps = {
   image: string;
@@ -18,7 +18,7 @@ type AwardProps = {
 const Award = ({ image, amount }: AwardProps): ReactElement => {
   return (
     <div className="flex size-fit flex-col items-center justify-center rounded-14 bg-surface-float p-1">
-      <Image src={image} alt="Award unicorn" className="size-20" />
+      <Image src={image} alt="Award" className="size-20" />
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Secondary}
@@ -48,14 +48,14 @@ export const Awards = (): ReactElement => {
         </ClickableText>
       </Typography>
       <div className="mt-6 flex flex-wrap gap-2">
-        <Award image={cloudinaryAwardUnicorn} amount={102} />
-        <Award image={cloudinaryAwardUnicorn} amount={43} />
-        <Award image={cloudinaryAwardUnicorn} amount={456} />
-        <Award image={cloudinaryAwardUnicorn} amount={5} />
-        <Award image={cloudinaryAwardUnicorn} amount={102} />
-        <Award image={cloudinaryAwardUnicorn} amount={43} />
-        <Award image={cloudinaryAwardUnicorn} amount={456} />
-        <Award image={cloudinaryAwardUnicorn} amount={5} />
+        <Award image={featuredAwardImage} amount={102} />
+        <Award image={featuredAwardImage} amount={43} />
+        <Award image={featuredAwardImage} amount={456} />
+        <Award image={featuredAwardImage} amount={5} />
+        <Award image={featuredAwardImage} amount={102} />
+        <Award image={featuredAwardImage} amount={43} />
+        <Award image={featuredAwardImage} amount={456} />
+        <Award image={featuredAwardImage} amount={5} />
       </div>
     </ActivityContainer>
   );
