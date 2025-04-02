@@ -73,6 +73,15 @@ Object.defineProperty(global, 'BroadcastChannel', {
   })),
 });
 
+global.ResizeObserver = jest.fn(() => {
+  return {
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+    trigger: jest.fn(),
+  };
+});
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
