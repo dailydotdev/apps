@@ -17,7 +17,10 @@ import {
   CorePageCheckoutVideo,
   TransactionStatusListener,
 } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  onboardingUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
 import {
@@ -133,7 +136,6 @@ export const CorePageRenderer = ({
 }: {
   children: ReactNode;
 }): ReactNode => {
-  const { user } = useAuthContext();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const { setSelectedProduct, openCheckout, paddle } = useBuyCoresContext();
   const router = useRouter();
@@ -167,27 +169,25 @@ export const CorePageRenderer = ({
     paddle,
   ]);
 
-  useEffect(() => {
-    if (hasAccessToCores(user)) {
-      return;
-    }
-
-    router.push(webappUrl);
-  }, [router, user]);
-
-  if (!router.isReady || !hasAccessToCores(user)) {
-    return null;
-  }
-
   return children;
 };
 
 const CoresPage = (): ReactElement => {
   const router = useRouter();
+  const { user, isAuthReady, isLoggedIn } = useAuthContext();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const amountNeeded = +router?.query?.need;
+  const isPageReady = router?.isReady && isAuthReady;
 
-  if (!router?.isReady) {
+  useEffect(() => {
+    if ((hasAccessToCores(user) && isLoggedIn) || !isPageReady) {
+      return;
+    }
+
+    router.push(user ? webappUrl : onboardingUrl);
+  }, [isLoggedIn, isPageReady, router, user]);
+
+  if (!user || !isPageReady || !hasAccessToCores(user)) {
     return null;
   }
 

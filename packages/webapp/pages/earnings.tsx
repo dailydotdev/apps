@@ -17,6 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   coresDocsLink,
+  onboardingUrl,
   termsOfService,
   webappUrl,
   withdrawLink,
@@ -111,7 +112,7 @@ const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
 const Earnings = (): ReactElement => {
   const router = useRouter();
-  const { isLoggedIn, user } = useAuthContext();
+  const { isLoggedIn, user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
@@ -168,16 +169,17 @@ const Earnings = (): ReactElement => {
     transactionsQuery;
 
   const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
+  const isPageReady = router?.isReady && isAuthReady;
 
   useEffect(() => {
-    if (hasAccessToCores(user)) {
+    if ((hasAccessToCores(user) && isLoggedIn) || !isPageReady) {
       return;
     }
 
-    router.push(webappUrl);
-  }, [router, user]);
+    router.push(user ? webappUrl : onboardingUrl);
+  }, [isLoggedIn, isPageReady, router, user]);
 
-  if (!user || !router.isReady || !hasAccessToCores(user)) {
+  if (!user || !isPageReady || !hasAccessToCores(user)) {
     return null;
   }
 
