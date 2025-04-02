@@ -46,7 +46,7 @@ const getButtonColor = (colorExperiment: string) => {
       };
     case 'cheesebacon':
       return {
-        className: 'border-none',
+        className: 'border-none text-surface-invert',
         color: ButtonColor.Bacon,
         style: {
           background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 100%)`,
@@ -54,7 +54,7 @@ const getButtonColor = (colorExperiment: string) => {
       };
     case 'onionbacon':
       return {
-        className: 'border-none',
+        className: 'border-none text-white',
         color: ButtonColor.Onion,
         style: {
           background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-bacon-default) 0%, var(--theme-accent-onion-default) 100%)`,
@@ -115,7 +115,9 @@ export const UpgradeToPlus = ({
         tag="a"
         variant={ButtonVariant.Secondary}
         className={classNames(
-          !color && 'border-action-plus-default text-action-plus-default',
+          !color &&
+            !colorExperiment &&
+            'border-action-plus-default text-action-plus-default',
           !iconOnly && 'flex-1',
           className,
         )}
