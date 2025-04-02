@@ -130,7 +130,7 @@ export function PostActions({
       return;
     }
 
-    const labels = actions.querySelectorAll('label');
+    const labels = actions.querySelectorAll('.btn-quaternary label');
     labels.forEach((label) => label.classList.remove('hidden'));
 
     const isOverflowing = actions.scrollWidth > actions.clientWidth;
