@@ -27,14 +27,21 @@ function ProgressBar({
   const progressPercentage = (currentStep / currentChapterSteps) * 100;
 
   return (
-    <div className={classNames('mt-2 flex h-1 w-full gap-2 px-4', className)}>
+    <div
+      className={classNames('mt-2 flex h-1 w-full gap-2 px-4', className)}
+      data-testid="progress-bar-container"
+    >
       {chapters.map((_, index) => {
-        const isCurrentChapter = index + 1 === currentChapter;
-        const isPastChapter = index + 1 < currentChapter;
+        const isCurrentChapter = index === currentChapter;
+        const isPastChapter = index < currentChapter;
 
         return (
-          // eslint-disable-next-line react/no-array-index-key
-          <div key={index} className="h-1 flex-1 rounded-50">
+          <div
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            className="h-1 flex-1 rounded-50"
+            data-testid="progress-bar-chapter"
+          >
             <div className="relative h-full w-full overflow-hidden rounded-50 bg-background-subtle">
               {(isPastChapter || isCurrentChapter) && (
                 <div
@@ -42,6 +49,11 @@ function ProgressBar({
                   style={{
                     width: `${isCurrentChapter ? progressPercentage : 100}%`,
                   }}
+                  data-testid={
+                    isPastChapter
+                      ? 'progress-bar-complete'
+                      : 'progress-bar-current'
+                  }
                 />
               )}
             </div>
@@ -72,7 +84,7 @@ export function Header({
   onSkip,
   className,
 }: HeaderProps): ReactElement {
-  const isFirstStep = currentChapter === 1 && currentStep === 1;
+  const isFirstStep = currentChapter === 0 && currentStep === 0;
 
   return (
     <div className={classNames('flex flex-col', className)}>
