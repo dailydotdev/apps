@@ -287,7 +287,10 @@ const Earnings = (): ReactElement => {
                     }}
                   />
                   <Typography type={TypographyType.Callout}>
-                    {formatCoresCurrency(user.balance.amount)} /{' '}
+                    {formatCurrency(user.balance.amount, {
+                      minimumFractionDigits: 0,
+                    })}{' '}
+                    /{' '}
                     <strong>
                       {formatCurrency(minCoresEarningsThreshold, {
                         minimumFractionDigits: 0,
