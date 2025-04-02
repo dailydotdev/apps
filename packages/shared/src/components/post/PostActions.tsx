@@ -30,6 +30,7 @@ import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import { hasAccessToCores } from '../../lib/cores';
+import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 
 interface PostActionsProps {
   post: Post;
@@ -47,7 +48,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const { showLogin, user, checkIsSameUser } = useAuthContext();
+  const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -55,6 +56,8 @@ export function PostActions({
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
   const { toggleBookmark } = useBookmarkPost();
+
+  const isSpecialUser = useIsSpecialUser({ userId: post.author.id });
 
   const onToggleBookmark = async () => {
     await toggleBookmark({ post, origin });
@@ -77,8 +80,6 @@ export function PostActions({
 
     await toggleDownvote({ payload: post, origin });
   };
-
-  const isSameUser = checkIsSameUser(post.author);
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -209,7 +210,7 @@ export function PostActions({
           >
             Copy
           </QuaternaryButton>
-          {!!post.author && hasAccessToCores(user) && !isSameUser && (
+          {!!post.author && hasAccessToCores(user) && !isSpecialUser && (
             <ConditionalWrapper
               condition={post?.userState?.awarded}
               wrapper={(children) => {

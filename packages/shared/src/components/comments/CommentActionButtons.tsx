@@ -88,7 +88,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
-  const { isLoggedIn, user, showLogin, checkIsSameUser } = useAuthContext();
+  const { isLoggedIn, user, showLogin } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
   const id = `comment-actions-menu-${comment.id}`;
@@ -107,7 +107,7 @@ export default function CommentActionButtons({
   const { follow, unfollow, block, unblock } = useContentPreference();
   const appendTo = isCompanion ? getCompanionWrapper : 'parent';
 
-  const isSameUser = checkIsSameUser(comment.author);
+  const isSpecialUser = useIsSpecialUser({ userId: comment?.author?.id });
 
   useEffect(() => {
     setVoteState({
@@ -358,7 +358,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {hasAccessToCores(user) && !isSameUser && (
+      {hasAccessToCores(user) && !isSpecialUser && (
         <>
           <AwardButton
             appendTo={appendTo}
