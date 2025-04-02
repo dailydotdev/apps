@@ -48,7 +48,7 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
-  const { user: myUser } = useAuthContext();
+  const { user: loggedUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -169,7 +169,7 @@ export function Header({
             className="flex-row-reverse"
           />
         )}
-        {isSameUser && hasAccessToCores(myUser) && (
+        {isSameUser && hasAccessToCores(loggedUser) && (
           <BuyCreditsButton
             className="laptop:hidden"
             onPlusClick={() => {
@@ -177,7 +177,7 @@ export function Header({
             }}
           />
         )}
-        {!isSameUser && hasAccessToCores(myUser) && (
+        {!isSameUser && hasAccessToCores(loggedUser) && (
           <AwardButton
             appendTo="parent"
             type="USER"

@@ -36,7 +36,7 @@ const ProfilePage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
-  const { user: myUser, tokenRefreshed } = useAuthContext();
+  const { user: loggedUser, tokenRefreshed } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
@@ -73,7 +73,7 @@ const ProfilePage = ({
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
         <Readme user={user} />
-        {hasAccessToCores(myUser) && <Awards />}
+        {hasAccessToCores(loggedUser) && <Awards />}
         <TopReaderWidget user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
