@@ -90,7 +90,7 @@ export function PostActions({
       variables: mutationVariables,
       queryClient: mutationQueryClient,
     }) => {
-      const { entityId, type } = mutationVariables as AwardProps;
+      const { entityId, type, note } = mutationVariables as AwardProps;
 
       mutationQueryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Transactions, user),
@@ -109,11 +109,9 @@ export function PostActions({
           },
           numAwards: (post.numAwards || 0) + 1,
         });
-
-        return;
       }
 
-      if (type === 'COMMENT') {
+      if (note) {
         mutationQueryClient.invalidateQueries({
           queryKey: generateQueryKey(RequestKey.PostComments, undefined, {
             postId: post.id,
