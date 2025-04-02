@@ -30,6 +30,7 @@ import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import { hasAccessToCores } from '../../lib/cores';
+import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 
 interface PostActionsProps {
   post: Post;
@@ -55,6 +56,8 @@ export function PostActions({
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
   const { toggleBookmark } = useBookmarkPost();
+
+  const isSpecialUser = useIsSpecialUser({ userId: post?.author?.id });
 
   const onToggleBookmark = async () => {
     await toggleBookmark({ post, origin });
@@ -205,7 +208,7 @@ export function PostActions({
           >
             Copy
           </QuaternaryButton>
-          {!!post.author && hasAccessToCores(user) && (
+          {!!post.author && hasAccessToCores(user) && !isSpecialUser && (
             <ConditionalWrapper
               condition={post?.userState?.awarded}
               wrapper={(children) => {

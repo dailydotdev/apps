@@ -105,6 +105,9 @@ export default function CommentActionButtons({
     };
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
+  const appendTo = isCompanion ? getCompanionWrapper : 'parent';
+
+  const isSpecialUser = useIsSpecialUser({ userId: comment?.author?.id });
 
   useEffect(() => {
     setVoteState({
@@ -298,8 +301,6 @@ export default function CommentActionButtons({
     });
   }
 
-  const appendTo = isCompanion ? getCompanionWrapper : 'parent';
-
   return (
     <div className={classNames('flex flex-row items-center', className)}>
       <SimpleTooltip content="Upvote" appendTo={appendTo}>
@@ -357,7 +358,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {hasAccessToCores(user) && (
+      {hasAccessToCores(user) && !isSpecialUser && (
         <>
           <AwardButton
             appendTo={appendTo}
