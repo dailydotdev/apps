@@ -59,6 +59,8 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { hasAccessToCores } from '../../lib/cores';
+import { featuredAwardImage } from '../../lib/image';
+import { Image } from '../image/Image';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -360,17 +362,26 @@ export default function CommentActionButtons({
       </SimpleTooltip>
       {hasAccessToCores(user) && !isSpecialUser && (
         <>
-          <AwardButton
-            appendTo={appendTo}
-            type="COMMENT"
-            entity={{
-              id: comment.id,
-              receiver: comment.author,
-              numAwards: comment.numAwards,
-            }}
-            pressed={!!comment.userState?.awarded}
-            post={post}
-          />
+          {!comment.userState?.awarded && (
+            <AwardButton
+              appendTo={appendTo}
+              type="COMMENT"
+              entity={{
+                id: comment.id,
+                receiver: comment.author,
+                numAwards: comment.numAwards,
+              }}
+              pressed={!!comment.userState?.awarded}
+              post={post}
+            />
+          )}
+          {!!comment.userState?.awarded && (
+            <Image
+              src={featuredAwardImage}
+              alt="Award"
+              className="mr-1 size-6"
+            />
+          )}
           {!!comment.numAwards && (
             <Typography
               className="mr-3"
@@ -378,7 +389,6 @@ export default function CommentActionButtons({
               color={TypographyColor.Tertiary}
               bold
             >
-              {/* TODO feat/transactions show most expensive award image next to count */}
               {largeNumberFormat(comment.numAwards)} Award
               {comment.numAwards > 1 ? 's' : ''}
             </Typography>

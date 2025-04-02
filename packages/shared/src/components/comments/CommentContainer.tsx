@@ -164,7 +164,7 @@ export default function CommentContainer({
           <Image
             src={comment.award.image}
             alt={comment.award.name}
-            className="size-4"
+            className="size-8"
           />
         </div>
       )}

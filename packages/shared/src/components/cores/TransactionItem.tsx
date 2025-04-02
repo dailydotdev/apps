@@ -68,7 +68,7 @@ export const TransactionItem = ({
           <Typography type={TypographyType.Subhead} bold>
             {user.name}
           </Typography>
-          <div className="flex flex-wrap gap-1 text-text-tertiary typo-footnote tablet:gap-0">
+          <div className="flex flex-wrap items-center gap-1 text-text-tertiary typo-footnote tablet:gap-0">
             <Typography
               className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
               type={TypographyType.Footnote}

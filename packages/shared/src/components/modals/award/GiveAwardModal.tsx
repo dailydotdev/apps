@@ -14,7 +14,7 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon, CoinIcon } from '../../icons';
 import { Image } from '../../image/Image';
-import { cloudinaryAwardUnicorn } from '../../../lib/image';
+import { featuredAwardImage } from '../../../lib/image';
 import type {
   AwardEntity,
   AwardTypes,
@@ -40,6 +40,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
+import { formatCoresCurrency } from '../../../lib/utils';
 
 const AwardItem = ({
   item,
@@ -53,14 +54,18 @@ const AwardItem = ({
   return (
     <Button
       variant={ButtonVariant.Float}
-      className="flex !h-auto flex-col items-center justify-center gap-2 rounded-14 bg-surface-float !p-1"
+      className="flex !h-auto flex-col items-center justify-center rounded-14 bg-surface-float !p-1"
       onClick={(event) => {
         logAwardEvent({ awardEvent: 'PICK', extra: { award: item.value } });
 
         return handleClick({ product: item, event });
       }}
     >
-      <Image src={item.image} alt={item.name} className="size-20" />
+      <Image
+        src={item.image}
+        alt={item.name}
+        className="size-20 object-contain"
+      />
       <div className="flex items-center justify-center gap-1">
         <CoinIcon size={IconSize.Size16} className="text-accent-bun-default" />
         <Typography
@@ -68,7 +73,7 @@ const AwardItem = ({
           color={TypographyColor.Secondary}
           tag={TypographyTag.Span}
         >
-          {item.value === 0 ? 'Free' : item.value}
+          {item.value === 0 ? 'Free' : formatCoresCurrency(item.value)}
         </Typography>
       </div>
     </Button>
@@ -113,8 +118,8 @@ const IntroScreen = () => {
       <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
         <div className="flex flex-col items-center justify-center gap-2 p-4">
           <Image
-            src={hasAwards ? cloudinaryAwardUnicorn : entity.receiver.image}
-            alt="Award unicorn"
+            src={hasAwards ? featuredAwardImage : entity.receiver.image}
+            alt="Award user"
             className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
           />
           <Typography
@@ -248,7 +253,7 @@ const CommentScreen = () => {
         <div className="mb-4 flex flex-col items-center justify-center gap-2">
           <Image
             src={hasAwards ? product.image : entity.receiver.image}
-            alt="Award unicorn"
+            alt="Award user"
             className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
           />
           <Typography
