@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
@@ -124,22 +124,22 @@ export function PostActions({
     },
   });
 
-  const adjustActions = useCallback(() => {
-    const actions = actionsRef.current;
-    if (!actions) {
-      return;
-    }
-
-    const labels = actions.querySelectorAll('.btn-quaternary label');
-    labels.forEach((label) => label.classList.remove('hidden'));
-
-    const isOverflowing = actions.scrollWidth > actions.clientWidth;
-    if (isOverflowing) {
-      labels.forEach((label) => label.classList.add('hidden'));
-    }
-  }, []);
-
   useEffect(() => {
+    const adjustActions = () => {
+      const actions = actionsRef.current;
+      if (!actions) {
+        return;
+      }
+
+      const labels = actions.querySelectorAll('.btn-quaternary label');
+      labels.forEach((label) => label.classList.remove('hidden'));
+
+      const isOverflowing = actions.scrollWidth > actions.clientWidth;
+      if (isOverflowing) {
+        labels.forEach((label) => label.classList.add('hidden'));
+      }
+    };
+
     const resizeObserver = new ResizeObserver(() => {
       adjustActions();
     });
@@ -151,7 +151,7 @@ export function PostActions({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [adjustActions]);
+  }, []);
 
   return (
     <ConditionalWrapper
