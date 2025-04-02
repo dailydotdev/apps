@@ -196,14 +196,15 @@ const CommentScreen = () => {
       { productId: product?.id, type, entityId: entity.id, note },
     ],
     mutationFn: award,
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       // TODO feat/transactions animation show award
-      setActiveStep({ screen: 'SUCCESS', product });
 
-      updateUser({
+      await updateUser({
         ...user,
         balance: result.balance,
       });
+
+      setActiveStep({ screen: 'SUCCESS', product });
     },
     onError: (data: ApiErrorResult) => {
       displayToast(
