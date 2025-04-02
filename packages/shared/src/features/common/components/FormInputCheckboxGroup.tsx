@@ -5,7 +5,6 @@ import {
   Button,
   ButtonVariant,
   ButtonSize,
-  ButtonColor,
 } from '../../../components/buttons/Button';
 
 type CheckboxValue = string;
@@ -84,13 +83,7 @@ export const FormInputCheckboxGroup = ({
             aria-checked={isSelected}
             aria-describedby={item.label}
             aria-label={item.label}
-            className={classNames(
-              `flex min-h-12 gap-2 border border-border-subtlest-tertiary`,
-              isVertical
-                ? 'flex-col items-center py-2'
-                : 'flex-row justify-start',
-            )}
-            color={isSelected ? ButtonColor.Cabbage : undefined}
+            className={classNames(isVertical && 'typo-subhead')}
             pressed={isSelected}
             name={name}
             onClick={() => onSelect(item.value)}
@@ -98,26 +91,35 @@ export const FormInputCheckboxGroup = ({
             size={ButtonSize.XLarge}
             type="button"
             value={item.value}
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Checkbox}
           >
-            {(isVertical || item.image) && (
-              <div
-                className={classNames(
-                  'relative',
-                  isVertical ? 'size-14' : 'size-6',
-                )}
-              >
-                {!!item.image && (
-                  <img
-                    alt={item.label}
-                    className="absolute left-0 top-0 h-full w-full object-contain"
-                    loading="lazy"
-                    {...item.image}
-                  />
-                )}
-              </div>
-            )}
-            <span>{item.label}</span>
+            <div
+              className={classNames(
+                'flex min-h-12 items-center gap-2',
+                isVertical
+                  ? 'min-w-full flex-col justify-center py-2'
+                  : 'flex-row justify-start',
+              )}
+            >
+              {(isVertical || item.image) && (
+                <div
+                  className={classNames(
+                    'relative',
+                    isVertical ? 'size-14' : 'size-6',
+                  )}
+                >
+                  {!!item.image && (
+                    <img
+                      alt={item.label}
+                      className="absolute left-0 top-0 h-full w-full object-contain object-center"
+                      loading="lazy"
+                      {...item.image}
+                    />
+                  )}
+                </div>
+              )}
+              <span>{item.label}</span>
+            </div>
           </Button>
         );
       })}

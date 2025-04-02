@@ -80,11 +80,9 @@ export const FormInputRating = ({
               onClick={() => onSelect(itemValue)}
               role="radio"
               type="button"
-              variant={
-                isSelected ? ButtonVariant.Tertiary : ButtonVariant.Float
-              }
+              variant={ButtonVariant.Checkbox}
             >
-              {itemValue}
+              <span className="inline-block min-w-full">{itemValue}</span>
             </Button>
           );
         })}

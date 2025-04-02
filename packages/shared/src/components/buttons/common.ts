@@ -20,6 +20,7 @@ export enum ButtonVariant {
   Float = 'tertiaryFloat',
   Subtle = 'subtle',
   Option = 'option',
+  Checkbox = 'checkbox',
 }
 
 export enum ButtonIconPosition {
@@ -51,6 +52,7 @@ export const VariantToClassName: Record<ButtonVariant, string> = {
   [ButtonVariant.Float]: 'btn-tertiaryFloat',
   [ButtonVariant.Subtle]: 'btn-subtle',
   [ButtonVariant.Option]: 'btn-option gap-1',
+  [ButtonVariant.Checkbox]: 'btn-checkbox',
 };
 
 export const VariantColorToClassName: Record<
@@ -182,6 +184,27 @@ export const VariantColorToClassName: Record<
     [ButtonColor.Twitter]: 'btn-option-twitter',
     [ButtonColor.Water]: 'btn-option-water',
     [ButtonColor.WhatsApp]: 'btn-option-whatsapp',
+  },
+  [ButtonVariant.Checkbox]: {
+    [ButtonColor.Avocado]: 'btn-checkbox-avocado',
+    [ButtonColor.Bacon]: 'btn-checkbox-bacon',
+    [ButtonColor.BlueCheese]: 'btn-checkbox-blueCheese',
+    [ButtonColor.Bun]: 'btn-checkbox-bun',
+    [ButtonColor.Burger]: 'btn-checkbox-burger',
+    [ButtonColor.Cabbage]: 'btn-checkbox-cabbage',
+    [ButtonColor.Cheese]: 'btn-checkbox-cheese',
+    [ButtonColor.Facebook]: 'btn-checkbox-facebook',
+    [ButtonColor.Ketchup]: 'btn-checkbox-ketchup',
+    [ButtonColor.LinkedIn]: 'btn-checkbox-linkedin',
+    [ButtonColor.Lettuce]: 'btn-checkbox-lettuce',
+    [ButtonColor.Onion]: 'btn-checkbox-onion',
+    [ButtonColor.Pepper]: 'btn-checkbox-pepper',
+    [ButtonColor.Salt]: 'btn-checkbox-salt',
+    [ButtonColor.Reddit]: 'btn-checkbox-reddit',
+    [ButtonColor.Telegram]: 'btn-checkbox-telegram',
+    [ButtonColor.Twitter]: 'btn-checkbox-twitter',
+    [ButtonColor.Water]: 'btn-checkbox-water',
+    [ButtonColor.WhatsApp]: 'btn-checkbox-whatsapp',
   },
 };
 
