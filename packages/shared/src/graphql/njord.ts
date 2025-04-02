@@ -213,3 +213,10 @@ export const getTransactions = async ({
 
   return result.transactions;
 };
+
+export const awardMutationOptions = () => {
+  return {
+    mutationKey: ['awards'],
+    mutationFn: award,
+  };
+};

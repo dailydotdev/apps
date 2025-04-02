@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useMemo } from 'react';
 import type {
   QueryClient,
@@ -89,6 +90,17 @@ export const removePostComments = (
   keys.forEach((key) => {
     client.setQueryData(key, removeCachedComment);
   });
+};
+
+export const postByIdQueryOptions = ({ id }: { id: string }) => {
+  return {
+    queryKey: getPostByIdKey(id),
+    queryFn: async () => {
+      const res = await gqlClient.request<PostData>(POST_BY_ID_QUERY, { id });
+
+      return res;
+    },
+  };
 };
 
 const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {

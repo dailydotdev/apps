@@ -25,7 +25,7 @@ export enum ServerEvents {
   Error = 'error',
 }
 
-type UseTranslation = (props: {
+export type UseTranslation = (props: {
   queryKey?: QueryKey;
   queryType?: 'post' | 'feed';
   clickbaitShieldEnabled?: boolean;
