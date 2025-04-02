@@ -42,7 +42,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
   const { onUnfollowTags } = useTagAndSource({
     origin: Origin.CustomFeed,
     feedId: feed?.id,
-    shouldFilterLocally: true,
+    shouldFilterLocally: false,
     shouldUpdateAlerts: true,
   });
 

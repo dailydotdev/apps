@@ -28,11 +28,18 @@ export default function RouterPostsSearch(
     });
   };
 
+  const onClearQuery = () => {
+    return router.replace({
+      pathname: router?.pathname ? router?.pathname : '/search',
+    });
+  };
+
   return (
     <PostsSearch
       {...props}
       initialQuery={router.query.q?.toString()}
       onSubmitQuery={onSubmitQuery}
+      onClearQuery={onClearQuery}
       onFocus={() => {
         logEvent({ event_name: LogEvent.FocusSearch });
       }}
