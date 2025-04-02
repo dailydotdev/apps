@@ -10,7 +10,7 @@ export interface FormInputRatingProps
   max: number;
   min: number;
   name: string;
-  onValueChange: (value: RatingValue) => void;
+  onValueChange?: (value: RatingValue) => void;
   value?: RatingValue;
   defaultValue?: RatingValue;
 }
@@ -50,7 +50,7 @@ export const FormInputRating = ({
       return;
     }
     setCheckedValue(selectedValue);
-    onValueChange(selectedValue);
+    onValueChange?.(selectedValue);
   };
 
   return (

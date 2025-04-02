@@ -29,12 +29,7 @@ export const ClientTest: FC = () => {
       </Button>
       <hr />
       <div>
-        <FormInputRating
-          max={5}
-          min={1}
-          name="rating"
-          onValueChange={console.log}
-        >
+        <FormInputRating max={5} min={1} name="rating">
           <div>Not at all</div>
           <div>very much</div>
         </FormInputRating>
