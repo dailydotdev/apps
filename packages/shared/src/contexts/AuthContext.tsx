@@ -16,6 +16,7 @@ import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
 import { invalidPlusRegions } from '../lib/constants';
+import type { Author } from '../graphql/comments';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -65,6 +66,7 @@ export interface AuthContextData {
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
+  checkIsSameUser?: (user: LoggedUser | Author) => boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -202,6 +204,10 @@ export const AuthContextProvider = ({
           geo?.continent === Continent.Europe ||
           !outsideGdpr.includes(geo?.region) ||
           isIOSNative(),
+        checkIsSameUser: useCallback(
+          (compareToUser) => !!endUser?.id && endUser?.id === compareToUser?.id,
+          [endUser],
+        ),
       }}
     >
       {children}
