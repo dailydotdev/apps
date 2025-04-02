@@ -47,7 +47,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const { showLogin, user } = useAuthContext();
+  const { showLogin, user, checkIsSameUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -77,6 +77,8 @@ export function PostActions({
 
     await toggleDownvote({ payload: post, origin });
   };
+
+  const isSameUser = checkIsSameUser(post.author);
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -207,7 +209,7 @@ export function PostActions({
           >
             Copy
           </QuaternaryButton>
-          {!!post.author && hasAccessToCores(user) && (
+          {!!post.author && hasAccessToCores(user) && !isSameUser && (
             <ConditionalWrapper
               condition={post?.userState?.awarded}
               wrapper={(children) => {
