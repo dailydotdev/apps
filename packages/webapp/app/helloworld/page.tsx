@@ -34,7 +34,7 @@ const funnelStepFact: FunnelStepFact = {
 
 export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const allCookies = (await cookies()).toString();
-  const { state, boot } = await getAppBootData({
+  const { state } = await getAppBootData({
     cookies: allCookies,
   });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
