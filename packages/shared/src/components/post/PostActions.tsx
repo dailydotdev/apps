@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
@@ -35,7 +35,6 @@ import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 interface PostActionsProps {
   post: Post;
   postQueryKey: QueryKey;
-  actionsClassName?: string;
   onComment?: () => unknown;
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
@@ -44,7 +43,6 @@ interface PostActionsProps {
 export function PostActions({
   onCopyLinkClick,
   post,
-  actionsClassName = 'hidden mobileL:flex',
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
@@ -52,6 +50,7 @@ export function PostActions({
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
+  const actionsRef = useRef<HTMLDivElement>(null);
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
@@ -125,6 +124,35 @@ export function PostActions({
     },
   });
 
+  const adjustActions = useCallback(() => {
+    const actions = actionsRef.current;
+    if (!actions) {
+      return;
+    }
+
+    const labels = actions.querySelectorAll('label');
+    labels.forEach((label) => label.classList.remove('hidden'));
+
+    const isOverflowing = actions.scrollWidth > actions.clientWidth;
+    if (isOverflowing) {
+      labels.forEach((label) => label.classList.add('hidden'));
+    }
+  }, []);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      adjustActions();
+    });
+
+    if (actionsRef.current && globalThis) {
+      resizeObserver.observe(actionsRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [adjustActions]);
+
   return (
     <ConditionalWrapper
       condition={showTagsPanel !== undefined}
@@ -155,7 +183,6 @@ export function PostActions({
               <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
             }
             aria-label="Upvote"
-            responsiveLabelClass={actionsClassName}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Avocado}
           />
@@ -169,19 +196,20 @@ export function PostActions({
               />
             }
             aria-label="Downvote"
-            responsiveLabelClass={actionsClassName}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Ketchup}
           />
         </Card>
-        <div className="flex flex-1 items-center justify-between px-4 py-2">
+        <div
+          className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden px-4 py-2"
+          ref={actionsRef}
+        >
           <QuaternaryButton
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
             icon={<CommentIcon secondary={post.commented} />}
             aria-label="Comment"
-            responsiveLabelClass={actionsClassName}
             className="btn-tertiary-blueCheese"
           >
             Comment
@@ -219,7 +247,6 @@ export function PostActions({
                   });
                 }}
                 icon={<MedalBadgeIcon />}
-                responsiveLabelClass={actionsClassName}
                 className={classNames(
                   'btn-tertiary-cabbage',
                   post?.userState?.awarded && 'pointer-events-none',
@@ -236,7 +263,6 @@ export function PostActions({
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
-              responsiveLabelClass: actionsClassName,
               className: 'btn-tertiary-bun',
             }}
           >
@@ -246,7 +272,6 @@ export function PostActions({
             id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
-            responsiveLabelClass={actionsClassName}
             className="btn-tertiary-cabbage"
           >
             Copy
