@@ -265,6 +265,7 @@ body {
 
   --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
   --theme-gradient-onion: theme('colors.raw.onion.10')66;
+  --theme-gradient-purple: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, rgba(113, 71, 237, 0.72) 50%, rgba(113, 71, 237, 0.00) 100%), var(--theme-background-default);
 
   --theme-rank-highlight: theme('colors.raw.salt.10');
 
@@ -535,6 +536,7 @@ body {
 
   --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
   --theme-gradient-onion: theme('colors.raw.onion.10')66;
+  --theme-gradient-purple: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, rgba(113, 71, 237, 0.72) 50%, rgba(113, 71, 237, 0.00) 100%), var(--theme-background-default);
 
   --theme-rank-highlight: theme('colors.raw.salt.10');
 
@@ -801,5 +803,31 @@ details.right-icon {
 
 .hide-ms-reveal::-ms-reveal {
   display: none;
+}
+
+.bg-gradient-purple {
+  background: var(--theme-gradient-purple);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  height: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+.bg-gradient-purple-reverse {
+  background: radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-cabbage-default) 0%, rgba(113, 71, 237, 0.72) 50%, rgba(113, 71, 237, 0.00) 100%), var(--theme-background-default);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  height: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
 }
 
