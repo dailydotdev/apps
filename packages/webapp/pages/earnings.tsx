@@ -175,12 +175,12 @@ const Earnings = (): ReactElement => {
     if (!isPageReady) {
       return;
     }
-    if (hasAccessToCores(user) && isLoggedIn) {
+    if (hasAccessToCores(user)) {
       return;
     }
 
     router.push(user ? webappUrl : onboardingUrl);
-  }, [isLoggedIn, isPageReady, router, user]);
+  }, [isPageReady, router, user]);
 
   if (!user || !isPageReady || !hasAccessToCores(user)) {
     return null;

@@ -22,7 +22,7 @@ export default function CoresLayout({
 }: MainFeedPageProps): ReactElement {
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { back, replace, push, isReady } = useRouter();
-  const { user, isAuthReady, isLoggedIn } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
 
   const isPageReady = isReady && isAuthReady;
 
@@ -38,12 +38,12 @@ export default function CoresLayout({
     if (!isPageReady) {
       return;
     }
-    if (hasAccessToCores(user) && isLoggedIn) {
+    if (hasAccessToCores(user)) {
       return;
     }
 
     push(user ? webappUrl : onboardingUrl);
-  }, [isLoggedIn, isPageReady, push, user]);
+  }, [isPageReady, push, user]);
 
   if (!user || !isPageReady || !hasAccessToCores(user)) {
     return null;
