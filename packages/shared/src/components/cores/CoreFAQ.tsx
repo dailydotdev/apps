@@ -9,7 +9,7 @@ import {
 import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
-import { plusFAQItems } from '../plus/common';
+import { coresFAQItems } from './common';
 
 interface FAQ {
   question: string;
@@ -37,7 +37,7 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
 export const CoreFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
-  const items = plusFAQItems;
+  const items = coresFAQItems;
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography
