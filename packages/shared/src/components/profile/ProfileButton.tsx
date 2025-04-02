@@ -15,7 +15,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
-import { checkCoresRoleNotNone } from '../../lib/cores';
+import { hasAccessToCores } from '../../lib/cores';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -56,7 +56,7 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
-          {checkCoresRoleNotNone(user) && (
+          {hasAccessToCores(user) && (
             <SimpleTooltip
               content={
                 // eslint-disable-next-line react/jsx-key

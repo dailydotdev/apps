@@ -27,7 +27,7 @@ import {
 import classed from '@dailydotdev/shared/src/lib/classed';
 
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
-import { checkCoresRoleNotNone } from '@dailydotdev/shared/src/lib/cores';
+import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -168,14 +168,14 @@ export const CorePageRenderer = ({
   ]);
 
   useEffect(() => {
-    if (checkCoresRoleNotNone(user)) {
+    if (hasAccessToCores(user)) {
       return;
     }
 
     router.push(webappUrl);
   }, [router, user]);
 
-  if (!router.isReady) {
+  if (!router.isReady || !hasAccessToCores(user)) {
     return null;
   }
 

@@ -29,7 +29,7 @@ import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
-import { checkCoresRoleNotNone } from '../../lib/cores';
+import { hasAccessToCores } from '../../lib/cores';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
@@ -177,7 +177,7 @@ export function Header({
             }}
           />
         )}
-        {!isSameUser && checkCoresRoleNotNone(myUser) && (
+        {!isSameUser && hasAccessToCores(myUser) && (
           <AwardButton
             appendTo="parent"
             type="USER"

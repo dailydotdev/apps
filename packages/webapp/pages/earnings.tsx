@@ -71,7 +71,7 @@ import { TransactionItem } from '@dailydotdev/shared/src/components/cores/Transa
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useRouter } from 'next/router';
-import { checkCoresRoleNotNone } from '@dailydotdev/shared/src/lib/cores';
+import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -170,14 +170,14 @@ const Earnings = (): ReactElement => {
   const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
 
   useEffect(() => {
-    if (checkCoresRoleNotNone(user)) {
+    if (hasAccessToCores(user)) {
       return;
     }
 
     router.push(webappUrl);
   }, [router, user]);
 
-  if (!user || !router.isReady) {
+  if (!user || !router.isReady || !hasAccessToCores(user)) {
     return null;
   }
 

@@ -58,7 +58,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { checkCoresRoleNotNone } from '../../lib/cores';
+import { hasAccessToCores } from '../../lib/cores';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -357,7 +357,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {checkCoresRoleNotNone(user) && (
+      {hasAccessToCores(user) && (
         <>
           <AwardButton
             appendTo={appendTo}

@@ -6,5 +6,5 @@ export const verifyCoresRole = (
   coresRole: CoresRole,
 ): boolean => user?.coresRole === coresRole;
 
-export const checkCoresRoleNotNone = (user: LoggedUser): boolean =>
+export const hasAccessToCores = (user: LoggedUser): boolean =>
   !verifyCoresRole(user, CoresRole.None);
