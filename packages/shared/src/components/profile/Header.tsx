@@ -169,7 +169,7 @@ export function Header({
             className="flex-row-reverse"
           />
         )}
-        {isSameUser && (
+        {isSameUser && hasAccessToCores(myUser) && (
           <BuyCreditsButton
             className="laptop:hidden"
             onPlusClick={() => {
