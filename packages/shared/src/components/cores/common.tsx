@@ -34,7 +34,7 @@ export const coresFAQItems: FAQItem[] = [
   {
     question: 'Are Cores included in the daily.dev Plus subscription?',
     answer:
-      'No. Cores are sold separately and are not bundled with daily.dev Plus. ',
+      'No. Cores are sold separately and are not bundled with daily.dev Plus.',
   },
   {
     question: 'What happens if I don’t have enough Cores?',
