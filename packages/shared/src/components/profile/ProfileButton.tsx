@@ -15,6 +15,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
+import { hasAccessToCores } from '../../lib/cores';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -55,22 +56,24 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
-          <SimpleTooltip
-            content={
-              // eslint-disable-next-line react/jsx-key
-              ['Earnings dashboard', <br />, `${preciseBalance} Cores`]
-            }
-          >
-            <Button
-              icon={<CoinIcon className="text-accent-bun-default" />}
-              tag="a"
-              href={`${webappUrl}earnings`}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
+          {hasAccessToCores(user) && (
+            <SimpleTooltip
+              content={
+                // eslint-disable-next-line react/jsx-key
+                ['Earnings dashboard', <br />, `${preciseBalance} Cores`]
+              }
             >
-              {largeNumberFormat(user?.balance?.amount || 0)}
-            </Button>
-          </SimpleTooltip>
+              <Button
+                icon={<CoinIcon className="text-accent-bun-default" />}
+                tag="a"
+                href={`${webappUrl}earnings`}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              >
+                {largeNumberFormat(user?.balance?.amount || 0)}
+              </Button>
+            </SimpleTooltip>
+          )}
           <SimpleTooltip placement="bottom" content="Profile settings">
             <button
               type="button"

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
@@ -17,6 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   coresDocsLink,
+  onboardingUrl,
   termsOfService,
   webappUrl,
   withdrawLink,
@@ -70,6 +71,8 @@ import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/Fe
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { useRouter } from 'next/router';
+import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -108,7 +111,8 @@ const BalanceBlock = ({
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
 const Earnings = (): ReactElement => {
-  const { isLoggedIn, user } = useAuthContext();
+  const router = useRouter();
+  const { isLoggedIn, user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
@@ -165,8 +169,20 @@ const Earnings = (): ReactElement => {
     transactionsQuery;
 
   const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
+  const isPageReady = router?.isReady && isAuthReady;
 
-  if (!user) {
+  useEffect(() => {
+    if (!isPageReady) {
+      return;
+    }
+    if (hasAccessToCores(user)) {
+      return;
+    }
+
+    router.push(user ? webappUrl : onboardingUrl);
+  }, [isPageReady, router, user]);
+
+  if (!user || !isPageReady || !hasAccessToCores(user)) {
     return null;
   }
 

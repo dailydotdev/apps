@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import {
   Button,
@@ -7,16 +7,24 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  onboardingUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
+import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { MainFeedPageProps } from './MainFeedPage';
 
 export default function CoresLayout({
   children,
 }: MainFeedPageProps): ReactElement {
   const isMobile = useViewSizeClient(ViewSize.MobileL);
-  const { back, replace } = useRouter();
+  const { back, replace, push, isReady } = useRouter();
+  const { user, isAuthReady } = useAuthContext();
+
+  const isPageReady = isReady && isAuthReady;
 
   const onBackClick = useCallback(() => {
     if (window.history?.length > 1) {
@@ -25,6 +33,21 @@ export default function CoresLayout({
       replace(webappUrl);
     }
   }, [back, replace]);
+
+  useEffect(() => {
+    if (!isPageReady) {
+      return;
+    }
+    if (hasAccessToCores(user)) {
+      return;
+    }
+
+    push(user ? webappUrl : onboardingUrl);
+  }, [isPageReady, push, user]);
+
+  if (!user || !isPageReady || !hasAccessToCores(user)) {
+    return null;
+  }
 
   return (
     <main className="relative flex min-h-dvh flex-col">

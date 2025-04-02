@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ProfileReadingData } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
 import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
 import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
@@ -19,6 +19,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { Awards } from '@dailydotdev/shared/src/components/profile/Awards';
+import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -35,7 +36,7 @@ const ProfilePage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
-  const { tokenRefreshed } = useContext(AuthContext);
+  const { user: loggedUser, tokenRefreshed } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
@@ -72,7 +73,7 @@ const ProfilePage = ({
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
         <Readme user={user} />
-        <Awards />
+        {hasAccessToCores(loggedUser) && <Awards />}
         <TopReaderWidget user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget

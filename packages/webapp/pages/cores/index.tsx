@@ -172,10 +172,6 @@ const CoresPage = (): ReactElement => {
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const amountNeeded = +router?.query?.need;
 
-  if (!router?.isReady) {
-    return null;
-  }
-
   return (
     // TODO: Take correct origin from referrer
     <BuyCoresContextProvider
