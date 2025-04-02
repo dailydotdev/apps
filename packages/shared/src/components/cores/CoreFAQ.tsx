@@ -71,7 +71,7 @@ export const CoreFAQ = (): ReactElement => {
         or email us at{' '}
         <a
           className="underline"
-          href="mailto:support@daily.dev?subject=I have a question about Plus membership"
+          href="mailto:support@daily.dev?subject=I have a question about Cores"
           target="_blank"
           rel={anchorDefaultRel}
         >
