@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import type { Client } from 'graphql-ws';

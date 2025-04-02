@@ -24,7 +24,7 @@ export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const { id, version } = await getIdAndVersion(props);
 
   // eslint-disable-next-line no-console
-  console.log('Id & Version:', { id, version, boot });
+  console.log('Id & Version:', { id, version, boot, state });
 
   return (
     <HydrationBoundary state={state}>
