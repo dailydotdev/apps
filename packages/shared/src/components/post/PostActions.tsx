@@ -57,7 +57,7 @@ export function PostActions({
 
   const { toggleBookmark } = useBookmarkPost();
 
-  const isSpecialUser = useIsSpecialUser({ userId: post.author.id });
+  const isSpecialUser = useIsSpecialUser({ userId: post?.author?.id });
 
   const onToggleBookmark = async () => {
     await toggleBookmark({ post, origin });
