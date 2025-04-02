@@ -4,6 +4,7 @@ import type { LoggedUser, AnonymousUser } from '../../../lib/user';
 import { appBootDataQuery } from '../../../lib/boot';
 import { logout } from '../../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useRefreshToken } from '../../../hooks/useRefreshToken';
 
 export enum AppAuthActionsKeys {
   LOGOUT = 'logout',
@@ -28,8 +29,8 @@ function checkIfUserIsLoggedIn(user: Boot['user']): user is LoggedUser {
 }
 
 export const useAppAuth = (): UseAppAuthReturn => {
-  const client = useQueryClient();
-  const initialData = client.getQueryData(appBootDataQuery.queryKey);
+  const queryClient = useQueryClient();
+  const initialData = queryClient.getQueryData(appBootDataQuery.queryKey);
   const { data: boot, refetch } = useQuery({
     ...appBootDataQuery,
     initialData,
@@ -37,13 +38,15 @@ export const useAppAuth = (): UseAppAuthReturn => {
   const user = boot && checkIfUserIsLoggedIn(boot.user) ? boot.user : null;
   const isLoggedIn = !!user;
 
+  useRefreshToken(boot?.accessToken, refetch);
+
   const actions: Readonly<AppAuthActions> = {
     [AppAuthActionsKeys.LOGOUT]: logout,
     [AppAuthActionsKeys.REFRESH]: refetch,
     [AppAuthActionsKeys.UPDATE_USER]: async (
       newUser: LoggedUser | AnonymousUser,
     ) => {
-      await client.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Profile, newUser),
       });
     },

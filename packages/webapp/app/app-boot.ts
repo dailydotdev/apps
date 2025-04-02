@@ -2,8 +2,8 @@ import type { Boot } from '@dailydotdev/shared/src/lib/boot';
 import type { DehydratedState } from '@tanstack/react-query';
 import {
   appBootDataQuery,
-  BootApp,
   getBootData,
+  BootApp,
 } from '@dailydotdev/shared/src/lib/boot';
 import { dehydrate } from '@tanstack/react-query';
 import { getQueryClient } from '@dailydotdev/shared/src/graphql/queryClient';
@@ -22,10 +22,9 @@ export const getAppBootData = async ({
   cookies,
 }: GetAppBootDataProps): Promise<GetAppBootDataReturn> => {
   const queryClient = getQueryClient();
-  const boot = await getBootData(BootApp.Webapp, undefined, { cookies });
-  await queryClient.prefetchQuery({
+  const boot = await queryClient.fetchQuery({
     ...appBootDataQuery,
-    queryFn: async () => Promise.resolve(boot),
+    queryFn: () => getBootData(BootApp.Webapp, undefined, { cookies }),
   });
   const state = dehydrate(queryClient, { shouldDehydrateQuery: () => true }); // to also include Errors
 

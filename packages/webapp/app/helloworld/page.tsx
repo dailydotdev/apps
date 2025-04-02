@@ -37,10 +37,8 @@ export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const { state, boot } = await getAppBootData({
     cookies: allCookies,
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, version } = await getIdAndVersion(props);
-
-  // eslint-disable-next-line no-console
-  console.log('Id & Version:', { id, version, boot });
 
   return (
     <HydrationBoundary state={state}>
