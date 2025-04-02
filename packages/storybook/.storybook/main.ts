@@ -55,7 +55,9 @@ const config: StorybookConfig = {
         },
       },
       define: {
-        'process.env': {},
+        'process.env': {
+          NEXT_PUBLIC_WEBAPP_URL: 'https://app.daily.dev',
+        },
         browser,
       },
       plugins: [
