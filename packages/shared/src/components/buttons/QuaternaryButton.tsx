@@ -12,7 +12,6 @@ import { Button } from './Button';
 export type QuaternaryButtonProps<TagName extends AllowedTags> =
   ButtonProps<TagName> & {
     reverse?: boolean;
-    responsiveLabelClass?: string;
     labelClassName?: string;
   };
 
@@ -23,7 +22,6 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
     style,
     className,
     reverse,
-    responsiveLabelClass,
     tag = 'button',
     labelClassName,
     ...props
@@ -45,7 +43,6 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
           onClick: onLabelClick,
         }
       : {};
-  const labelDisplay = responsiveLabelClass ?? 'flex';
   return (
     <div
       style={style}
@@ -72,8 +69,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
           htmlFor={id}
           {...labelProps}
           className={classNames(
-            'cursor-pointer items-center font-bold typo-callout',
-            labelDisplay,
+            'flex cursor-pointer items-center pl-1 font-bold typo-callout',
             { readOnly: props.disabled },
             labelClassName,
           )}
