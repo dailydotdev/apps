@@ -373,18 +373,15 @@ export default function CommentActionButtons({
               }}
               pressed={!!comment.userState?.awarded}
               post={post}
+              className={!comment.numAwards ? 'mr-3' : undefined}
             />
           )}
           {!!comment.userState?.awarded && (
-            <Image
-              src={featuredAwardImage}
-              alt="Award"
-              className="mr-1 size-6"
-            />
+            <Image src={featuredAwardImage} alt="Award" className="size-6" />
           )}
           {!!comment.numAwards && (
             <Typography
-              className="mr-3"
+              className="ml-1 mr-3"
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
               bold
