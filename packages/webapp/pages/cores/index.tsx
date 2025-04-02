@@ -17,10 +17,7 @@ import {
   CorePageCheckoutVideo,
   TransactionStatusListener,
 } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
-import {
-  onboardingUrl,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
 import {
@@ -30,8 +27,6 @@ import {
 import classed from '@dailydotdev/shared/src/lib/classed';
 
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
-import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -174,22 +169,8 @@ export const CorePageRenderer = ({
 
 const CoresPage = (): ReactElement => {
   const router = useRouter();
-  const { user, isAuthReady, isLoggedIn } = useAuthContext();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const amountNeeded = +router?.query?.need;
-  const isPageReady = router?.isReady && isAuthReady;
-
-  useEffect(() => {
-    if ((hasAccessToCores(user) && isLoggedIn) || !isPageReady) {
-      return;
-    }
-
-    router.push(user ? webappUrl : onboardingUrl);
-  }, [isLoggedIn, isPageReady, router, user]);
-
-  if (!user || !isPageReady || !hasAccessToCores(user)) {
-    return null;
-  }
 
   return (
     // TODO: Take correct origin from referrer
