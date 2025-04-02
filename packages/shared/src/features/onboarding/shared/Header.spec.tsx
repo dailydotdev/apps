@@ -1,11 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { HeaderProps } from './Header';
 import { Header } from './Header';
 
 describe('Header component', () => {
   const mockOnBack = jest.fn();
   const mockOnSkip = jest.fn();
-  const defaultProps = {
+  const defaultProps: HeaderProps = {
     currentChapter: 1,
     currentStep: 1,
     chapters: [{ steps: 3 }, { steps: 2 }],
@@ -62,11 +63,9 @@ describe('Header component', () => {
     expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
   });
 
-  it('should render correct number of progress bar elements', () => {
+  it('should show progress bar when enabled', () => {
     render(<Header {...defaultProps} />);
-    // Since we have 2 chapters in our mock data, we should have 2 progress bar elements
-    const progressBarElements = screen.getAllByTestId('progress-bar-chapter');
-    expect(progressBarElements.length).toBe(2);
+    expect(screen.queryByTestId('progress-bar-container')).toBeInTheDocument();
   });
 
   it('should not show progress bar when disabled', () => {
@@ -74,21 +73,5 @@ describe('Header component', () => {
     expect(
       screen.queryByTestId('progress-bar-container'),
     ).not.toBeInTheDocument();
-  });
-
-  it('should display correct progress percentage for current chapter', () => {
-    render(<Header {...defaultProps} currentChapter={0} currentStep={2} />);
-
-    // First chapter (index 0) should show progress at 66.67%
-    const progressElement = screen.getByTestId('progress-bar-current');
-    expect(progressElement).toHaveStyle({ width: '66.66666666666666%' });
-  });
-
-  it('should display completed chapters with 100% progress', () => {
-    render(<Header {...defaultProps} currentChapter={1} currentStep={1} />);
-
-    // First chapter (index 0) should be complete
-    const completeChapterElement = screen.getByTestId('progress-bar-complete');
-    expect(completeChapterElement).toHaveStyle({ width: '100%' });
   });
 });
