@@ -186,28 +186,6 @@ export function PostActions({
           >
             Comment
           </QuaternaryButton>
-          <BookmarkButton
-            post={post}
-            contextMenuId="post-content-bookmark"
-            buttonProps={{
-              id: 'bookmark-post-btn',
-              pressed: post.bookmarked,
-              onClick: onToggleBookmark,
-              responsiveLabelClass: actionsClassName,
-              className: 'btn-tertiary-bun',
-            }}
-          >
-            Bookmark
-          </BookmarkButton>
-          <QuaternaryButton
-            id="copy-post-btn"
-            onClick={() => onCopyLinkClick(post)}
-            icon={<LinkIcon />}
-            responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-cabbage"
-          >
-            Copy
-          </QuaternaryButton>
           {!!post.author && hasAccessToCores(user) && !isSpecialUser && (
             <ConditionalWrapper
               condition={post?.userState?.awarded}
@@ -251,6 +229,28 @@ export function PostActions({
               </QuaternaryButton>
             </ConditionalWrapper>
           )}
+          <BookmarkButton
+            post={post}
+            contextMenuId="post-content-bookmark"
+            buttonProps={{
+              id: 'bookmark-post-btn',
+              pressed: post.bookmarked,
+              onClick: onToggleBookmark,
+              responsiveLabelClass: actionsClassName,
+              className: 'btn-tertiary-bun',
+            }}
+          >
+            Bookmark
+          </BookmarkButton>
+          <QuaternaryButton
+            id="copy-post-btn"
+            onClick={() => onCopyLinkClick(post)}
+            icon={<LinkIcon />}
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-cabbage"
+          >
+            Copy
+          </QuaternaryButton>
         </div>
       </div>
     </ConditionalWrapper>
