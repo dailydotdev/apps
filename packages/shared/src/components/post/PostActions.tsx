@@ -201,7 +201,7 @@ export function PostActions({
           />
         </Card>
         <div
-          className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden px-4 py-2"
+          className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
           <QuaternaryButton
