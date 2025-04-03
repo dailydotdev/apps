@@ -10,7 +10,10 @@ import {
 import { coresDocsLink } from '../../lib/constants';
 import { ClickableText } from '../buttons/ClickableText';
 import { Image } from '../image/Image';
-import { productSummaryQueryOptions, ProductType } from '../../graphql/njord';
+import {
+  userProductSummaryQueryOptions,
+  ProductType,
+} from '../../graphql/njord';
 
 type AwardProps = {
   image: string;
@@ -32,7 +35,7 @@ const Award = ({ image, amount }: AwardProps): ReactElement => {
 
 export const Awards = ({ userId }: { userId: string }): ReactElement => {
   const { data: awards } = useQuery({
-    ...productSummaryQueryOptions({
+    ...userProductSummaryQueryOptions({
       userId,
       type: ProductType.Award,
     }),

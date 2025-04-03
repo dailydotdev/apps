@@ -219,8 +219,12 @@ export const getTransactions = async ({
 };
 
 export const PRODUCTS_SUMMARY_QUERY = gql`
-  query productSummary($userId: ID!, $limit: Int = 24, $type: ProductType!) {
-    productSummary(userId: $userId, limit: $limit, type: $type) {
+  query userProductSummary(
+    $userId: ID!
+    $limit: Int = 24
+    $type: ProductType!
+  ) {
+    userProductSummary(userId: $userId, limit: $limit, type: $type) {
       id
       name
       image
@@ -229,11 +233,11 @@ export const PRODUCTS_SUMMARY_QUERY = gql`
   }
 `;
 
-export type ProductSummary = Pick<Product, 'id' | 'name' | 'image'> & {
+export type UserProductSummary = Pick<Product, 'id' | 'name' | 'image'> & {
   count: number;
 };
 
-export const productSummaryQueryOptions = ({
+export const userProductSummaryQueryOptions = ({
   userId,
   limit,
   type,
@@ -250,10 +254,11 @@ export const productSummaryQueryOptions = ({
     }),
     queryFn: async () => {
       const result = await gqlClient.request<{
-        productSummary: ProductSummary[];
+        userProductSummary: UserProductSummary[];
       }>(PRODUCTS_SUMMARY_QUERY, { userId, limit, type });
 
-      return result.productSummary;
+      return result.userProductSummary;
     },
+    staleTIme: StaleTime.Default,
   };
 };
