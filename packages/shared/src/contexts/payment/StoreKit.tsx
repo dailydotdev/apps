@@ -6,7 +6,6 @@ import type {
   PaymentContextProviderProps,
   OpenCheckoutProps,
   PaymentContextData,
-  ProductOption,
 } from './context';
 import { PaymentContext } from './context';
 import {
@@ -16,18 +15,20 @@ import {
   WebKitMessageHandlers,
 } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '../../components/GrowthBookProvider';
-import { featureIAPProducts } from '../../lib/featureManagement';
+import { useGrowthBookContext } from '../../components/GrowthBookProvider';
 import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { PlusPriceType } from '../../lib/featureValues';
 import { plusSuccessUrl } from '../../lib/constants';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { LogEvent } from '../../lib/log';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import { SubscriptionProvider } from '../../lib/plus';
+import type {
+  PlusPricingPreview,
+  PlusPricingMetadata,
+} from '../../graphql/paddle';
+import { fetchPlusPricingMetadata } from '../../graphql/paddle';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 export type IAPProduct = {
   attributes: {
@@ -70,6 +71,48 @@ export type PurchaseEvent = {
   detail?: string;
 };
 
+const getApplePlusPricing = (metadata: PlusPricingMetadata[]) => {
+  const response = promisifyEventListener<
+    PlusPricingPreview[],
+    IAPProduct[] | string
+  >('iap-products-result', (event) => {
+    const productsRaw = !isNullOrUndefined(event?.detail) ? event.detail : [];
+
+    // Remove JSON parsing once usage of App v1.8 is low
+    const products: IAPProduct[] =
+      typeof productsRaw === 'string' ? JSON.parse(productsRaw) : productsRaw;
+
+    return metadata
+      .map((item) => {
+        const product = products.find(
+          (p) => p.attributes.offerName === item.idMap.ios,
+        );
+
+        if (!product) {
+          return null;
+        }
+
+        const duration =
+          product.attributes.offers[0].recurringSubscriptionPeriod;
+
+        return {
+          metadata: item,
+          productId: item.idMap.ios,
+          price: {
+            amount: parseFloat(product.attributes.offers[0].price),
+            formatted: product.attributes.offers[0].priceFormatted,
+          },
+          duration: duration === PlusPriceType.Yearly ? 'year' : 'month',
+          trialPeriod: null,
+          currency: null,
+        } as PlusPricingPreview;
+      })
+      .filter((item) => !!item);
+  });
+
+  return response;
+};
+
 export const StoreKitSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
@@ -78,63 +121,27 @@ export const StoreKitSubProvider = ({
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { growthbook } = useGrowthBookContext();
-  const productIds = useFeature(featureIAPProducts);
-  const productList = useMemo(() => Object.keys(productIds), [productIds]);
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
 
+  const { data } = useQuery<PlusPricingMetadata[]>({
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
+    queryFn: fetchPlusPricingMetadata,
+    enabled: !!user && !!growthbook?.ready && iOSSupportsPlusPurchase(),
+    staleTime: StaleTime.Default,
+  });
   const { data: productOptions } = useQuery({
     queryKey: ['iap-products'],
-    enabled: !!productIds && !!growthbook?.ready && iOSSupportsPlusPurchase(),
+    enabled: !!data?.length && !!growthbook?.ready && iOSSupportsPlusPurchase(),
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
       }
 
-      const response = promisifyEventListener<
-        ProductOption[],
-        IAPProduct[] | string
-      >('iap-products-result', (event) => {
-        const productsRaw = !isNullOrUndefined(event?.detail)
-          ? event.detail
-          : [];
+      const response = getApplePlusPricing(data);
+      const ids = data.map(({ idMap }) => idMap.ios);
 
-        // Remove JSON parsing once usage of App v1.8 is low
-        const products: IAPProduct[] =
-          typeof productsRaw === 'string'
-            ? JSON.parse(productsRaw)
-            : productsRaw;
-
-        return products
-          ?.map((product: IAPProduct): ProductOption => {
-            const { duration, label, extraLabel, appsId } =
-              productIds[product.attributes.offerName];
-
-            return {
-              label,
-              value: product.attributes.offerName,
-              price: {
-                amount: parseFloat(product.attributes.offers[0].price),
-                formatted: product.attributes.offers[0].priceFormatted,
-              },
-              extraLabel,
-              appsId: appsId ?? PlusPriceTypeAppsId.Default,
-              duration,
-              durationLabel:
-                duration === PlusPriceType.Yearly ? 'year' : 'month',
-              trialPeriod: null,
-            };
-          })
-          .sort((a: { value: string }, b: { value: string }) => {
-            // Make sure that the products are sorted in the same order as the product list
-            // because the native code does not guarantee the order of the products
-            const aIndex = productList.indexOf(a.value);
-            const bIndex = productList.indexOf(b.value);
-            return aIndex - bIndex;
-          });
-      });
-
-      postWebKitMessage(WebKitMessageHandlers.IAPProductList, productList);
+      postWebKitMessage(WebKitMessageHandlers.IAPProductList, ids);
 
       return response;
     },
@@ -162,7 +169,7 @@ export const StoreKitSubProvider = ({
               event_name: LogEvent.CompleteCheckout,
               extra: {
                 user_id: user?.id,
-                cycle: productIds[product.attributes.offerName].duration,
+                cycle: product.attributes.offers[0].recurringSubscriptionPeriod,
                 localCost: product.attributes.offers[0].price,
                 localCurrency: product.attributes.offers[0].currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
@@ -200,7 +207,7 @@ export const StoreKitSubProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [displayToast, productIds, router, user?.id]);
+  }, [displayToast, data, router, user?.id]);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({

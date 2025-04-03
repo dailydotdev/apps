@@ -28,7 +28,7 @@ import type {
 } from './context';
 import { PaymentContext } from './context';
 import type { PlusPricingPreview } from '../../graphql/paddle';
-import { fetchPricingPreview } from '../../graphql/paddle';
+import { fetchPlusPricingPreview } from '../../graphql/paddle';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 export const PaddleSubProvider = ({
@@ -42,7 +42,7 @@ export const PaddleSubProvider = ({
   const logRef = useRef<typeof logSubscriptionEvent>();
   const { data, isPending: isPricesPending } = useQuery<PlusPricingPreview[]>({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, 'paddle', 'plus'),
-    queryFn: fetchPricingPreview,
+    queryFn: fetchPlusPricingPreview,
     enabled: !!paddle && !!geo && !!user && isPlusAvailable,
     staleTime: StaleTime.Default,
   });
