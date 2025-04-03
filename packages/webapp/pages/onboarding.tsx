@@ -431,11 +431,8 @@ export function OnboardPage(): ReactElement {
       return 'Continue';
     }
 
-    if (activeScreen === OnboardingStep.Plus) {
-      return 'Skip for now ➞';
-    }
-    if (layout.hasCta) {
-      return 'Not now →';
+    if (layout.hasCta || activeScreen === OnboardingStep.Plus) {
+      return 'Skip →';
     }
 
     return undefined;
