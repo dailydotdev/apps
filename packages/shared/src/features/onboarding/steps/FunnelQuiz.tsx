@@ -30,7 +30,7 @@ export const FunnelQuiz = ({
 }: FunnelStepQuiz): ReactElement => {
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
-  const [innerValue, setInnerValue] = useState<string | string[]>([]);
+  const [stepValue, setStepValue] = useState<string | string[]>([]);
   const Component = useMemo(() => quizComponentsMap[type], [type]);
   const inputOptions = useMemo(
     () =>
@@ -42,8 +42,10 @@ export const FunnelQuiz = ({
   );
 
   const onChange = useCallback(
-    (value: string | string[]) => {
-      setInnerValue(value);
+    (input: string | string[]) => {
+      const value =
+        isSingleChoice && Array.isArray(input) ? input.at(-1) : input;
+      setStepValue(value);
 
       if (isSingleChoice) {
         onTransition?.({
@@ -56,14 +58,14 @@ export const FunnelQuiz = ({
   );
 
   const onCtaClick = useCallback(() => {
-    if (isSingleChoice || !innerValue.length) {
+    if (isSingleChoice || !stepValue.length) {
       return;
     }
     onTransition?.({
       type: FunnelStepTransitionType.Complete,
-      details: { value: innerValue },
+      details: { value: stepValue },
     });
-  }, [isSingleChoice, innerValue, onTransition]);
+  }, [isSingleChoice, stepValue, onTransition]);
 
   return (
     <ConditionalWrapper

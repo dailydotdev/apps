@@ -15,7 +15,7 @@ const meta: Meta<typeof FunnelQuiz> = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/someDesignUrl', // Replace with actual Figma URL if available
+      url: 'https://www.figma.com/design/nmfWPS7x3kzLUvYMkBx2kW/daily.dev---Dev-Mode?node-id=27351-6350&t=UeJIDL1A5X9DEOIM-0',
     },
     controls: {
       expanded: true,
@@ -27,11 +27,6 @@ const meta: Meta<typeof FunnelQuiz> = {
 export default meta;
 
 type Story = StoryObj<typeof FunnelQuiz>;
-
-type TransitionDetails = {
-  type: FunnelStepTransitionType;
-  details: { value: string | string[] };
-};
 
 const commonProps = {
   parameters: {},
@@ -54,7 +49,7 @@ export const RatingQuestion: Story = {
   },
 };
 
-export const RadioQuestion: Story = {
+export const SingleChoice: Story = {
   args: {
     id: 'radio-question',
     ...commonProps,
@@ -72,7 +67,7 @@ export const RadioQuestion: Story = {
   },
 };
 
-export const CheckboxQuestion: Story = {
+export const MultipleChoice: Story = {
   args: {
     id: 'checkbox-question',
     ...commonProps,
@@ -96,7 +91,7 @@ export const QuestionWithImage: Story = {
     id: 'question-with-image',
     ...commonProps,
     question: {
-      type: FunnelStepQuizQuestionType.Radio,
+      type: FunnelStepQuizQuestionType.Checkbox,
       text: 'Which feature would you like to see next?',
       options: [
         { label: 'Better AI integration' },
