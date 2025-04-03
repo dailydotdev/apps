@@ -1,6 +1,5 @@
 import type { FeatureDefinition } from '@growthbook/growthbook';
 import { queryOptions } from '@tanstack/react-query';
-import { atomWithQuery } from 'jotai-tanstack-query';
 import type { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import type { Alerts } from '../graphql/alerts';
@@ -13,7 +12,6 @@ import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { STALE_TIME } from './query';
-import { getQueryClient } from '../graphql/queryClient';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -137,8 +135,3 @@ export const appBootDataQuery = queryOptions<Boot>({
   queryFn: async () => await getBootData(BootApp.Webapp),
   staleTime: STALE_TIME,
 });
-
-export const bootQueryAtom = atomWithQuery(
-  () => appBootDataQuery,
-  () => getQueryClient(),
-);

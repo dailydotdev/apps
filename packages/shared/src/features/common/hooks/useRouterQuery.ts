@@ -1,10 +1,14 @@
 import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 export const useRouterQuery = (): {
   query: Record<string, string>;
 } => {
   const params = useSearchParams();
-  return {
-    query: Object.fromEntries(params.entries()),
-  };
+  return useMemo(
+    () => ({
+      query: Object.fromEntries(params.entries()),
+    }),
+    [params],
+  );
 };

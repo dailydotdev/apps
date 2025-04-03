@@ -3,7 +3,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { cookies } from 'next/headers';
 import { HydrationBoundary } from '@tanstack/react-query';
-import { getAppBootData } from '../app-boot';
+import Head from 'next/head';
+import { getAppBootData } from '../appBoot';
 import { ClientTest } from './client/client';
 
 async function getIdAndVersion({
@@ -21,13 +22,15 @@ export default async function Page(props: AppPageProps): Promise<ReactElement> {
   const { state, boot } = await getAppBootData({
     cookies: allCookies,
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, version } = await getIdAndVersion(props);
-
-  // eslint-disable-next-line no-console
-  console.log('Id & Version:', { id, version, boot, state });
 
   return (
     <HydrationBoundary state={state}>
+      <Head>
+        <meta name="robots" content="noindex" />
+      </Head>
+
       <h1 className="mb-4 text-xl font-bold">Hello world funnel</h1>
       <p>
         <strong>Server</strong> says user is {boot?.user?.id ?? 'not logged'} -{' '}
