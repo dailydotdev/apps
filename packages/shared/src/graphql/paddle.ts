@@ -1,45 +1,74 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
-import type { ProductOption } from '../contexts/payment/context';
+import type { TimePeriod } from '@paddle/paddle-js';
 import { gqlClient } from './common';
-
-const PRICE_FRAGMENT = gql`
-  fragment Price on Price {
-    label
-    value
-    price {
-      amount
-      formatted
-      monthlyAmount
-      monthlyFormatted
-    }
-    currencyCode
-    currencySymbol
-    extraLabel
-    appsId
-    duration
-    trialPeriod {
-      interval
-      frequency
-    }
-  }
-`;
-
-export const PRICE_PREVIEWS = gql`
-  query PricePreviews {
-    pricePreviews {
-      items {
-        ...Price
-      }
-    }
-  }
-  ${PRICE_FRAGMENT}
-`;
-
-export const getPricePreviews = async (): Promise<ProductOption[]> => {
-  const response = await gqlClient.request(PRICE_PREVIEWS);
-  return response.pricePreviews.items;
-};
+import type { PlusPriceTypeAppsId, PlusPriceType } from '../lib/featureValues';
 
 export type PaddleProductLineItem =
   PricePreviewResponse['data']['details']['lineItems'][0];
+
+interface Price {
+  amount: number;
+  formatted: string;
+}
+
+export interface PlusPricingPreview {
+  metadata: {
+    appsId: PlusPriceTypeAppsId;
+    title: string;
+    caption?: {
+      copy: string;
+      color: string;
+    };
+  };
+  productId: string;
+  price: Price & { monthly?: Price };
+  currency: {
+    code: string;
+    symbol: string;
+  };
+  duration: PlusPriceType;
+  trialPeriod: TimePeriod | null;
+}
+
+const PLUS_PRICING_PREVIEW_QUERY = gql`
+  query PlusPricingPreview {
+    plusPricingPreview {
+      metadata {
+        appsId
+        title
+      }
+      productId
+      price {
+        amount
+        formatted
+        monthly {
+          amount
+          formatted
+        }
+      }
+      currency {
+        code
+        symbol
+      }
+      duration
+      trialPeriod {
+        days
+        type
+      }
+    }
+  }
+`;
+
+interface PlusPricingPreviewResponse {
+  plusPricingPreview: PlusPricingPreview[];
+}
+
+export const fetchPricingPreview = async (): Promise<PlusPricingPreview[]> => {
+  const { plusPricingPreview } =
+    await gqlClient.request<PlusPricingPreviewResponse>(
+      PLUS_PRICING_PREVIEW_QUERY,
+    );
+
+  return plusPricingPreview;
+};

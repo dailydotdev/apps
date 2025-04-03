@@ -12,25 +12,24 @@ import {
   getPaddleInstance,
   initializePaddle,
 } from '@paddle/paddle-js';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../AuthContext';
 import { plusSuccessUrl } from '../../lib/constants';
 import { LogEvent } from '../../lib/log';
 import { usePlusSubscription } from '../../hooks';
-import { feature } from '../../lib/featureManagement';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
-import { getPrice } from '../../lib';
-import { useFeature } from '../../components/GrowthBookProvider';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { checkIsExtension } from '../../lib/func';
 import { usePixelsContext } from '../PixelsContext';
 import type {
   OpenCheckoutProps,
   PaymentContextData,
   PaymentContextProviderProps,
-  ProductOption,
 } from './context';
 import { PaymentContext } from './context';
+import type { PlusPricingPreview } from '../../graphql/paddle';
+import { fetchPricingPreview } from '../../graphql/paddle';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 export const PaddleSubProvider = ({
   children,
@@ -38,10 +37,15 @@ export const PaddleSubProvider = ({
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const { trackPayment } = usePixelsContext();
-  const planTypes = useFeature(feature.pricingIds);
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
+  const { data, isPending: isPricesPending } = useQuery<PlusPricingPreview[]>({
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'paddle', 'plus'),
+    queryFn: fetchPricingPreview,
+    enabled: !!paddle && !!geo && !!user && isPlusAvailable,
+    staleTime: StaleTime.Default,
+  });
 
   logRef.current = logSubscriptionEvent;
   // Download and initialize Paddle instance from CDN
@@ -129,96 +133,30 @@ export const PaddleSubProvider = ({
     });
   }, [router, trackPayment]);
 
-  const getPrices = useCallback(async () => {
-    return paddle?.PricePreview({
-      items: Object.keys(planTypes).map((priceId) => ({
-        priceId,
-        quantity: 1,
-      })),
-      address: geo?.region && {
-        countryCode: geo.region,
-      },
-    });
-  }, [paddle, planTypes, geo?.region]);
-
-  const { data: productPrices, isLoading: isPricesPending } = useQuery({
-    queryKey: ['productPrices', user, planTypes],
-    queryFn: getPrices,
-    enabled: !!paddle && !!planTypes && !!geo && !!user,
-  });
-
-  const productOptions: Array<ProductOption> = useMemo(() => {
-    const priceFormatter = new Intl.NumberFormat(
-      globalThis?.navigator?.language ?? 'en-US',
-      {
-        minimumFractionDigits: 2,
-      },
-    );
-    return (
-      productPrices?.data?.details?.lineItems?.map((item) => {
-        const isOneOff = !item.price?.billingCycle?.interval;
-        const isYearly = item.price?.billingCycle?.interval === 'year';
-        const duration =
-          isOneOff || isYearly ? PlusPriceType.Yearly : PlusPriceType.Monthly;
-        const priceAmount = getPrice(item);
-        const months = duration === PlusPriceType.Yearly ? 12 : 1;
-        const monthlyPrice = Number(
-          (priceAmount / months).toString().match(/^-?\d+(?:\.\d{0,2})?/)[0],
-        );
-        const currencyCode = productPrices?.data.currencyCode;
-        const currencySymbol = item.formattedTotals.total.replace(
-          /\d|\.|\s|,/g,
-          '',
-        );
-        return {
-          label: item.price.name,
-          value: item.price.id,
-          price: {
-            amount: priceAmount,
-            formatted: item.formattedTotals.total,
-            monthlyAmount: monthlyPrice,
-            monthlyFormatted: `${currencySymbol}${priceFormatter.format(
-              monthlyPrice,
-            )}`,
-          },
-          currencyCode,
-          currencySymbol,
-          extraLabel: item.price.customData?.label as string,
-          appsId:
-            (item.price.customData?.appsId as PlusPriceTypeAppsId) ??
-            PlusPriceTypeAppsId.Default,
-          duration,
-          durationLabel: 'month',
-          trialPeriod: item.price.trialPeriod,
-        };
-      }) ?? []
-    );
-  }, [productPrices?.data]);
-
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>
-      productOptions.find(
-        ({ appsId }) => appsId === PlusPriceTypeAppsId.EarlyAdopter,
-      )?.value,
-    [productOptions],
+      data.find(
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      )?.productId,
+    [data],
   );
 
-  const giftOneYear: ProductOption = useMemo(
+  const giftOneYear = useMemo(
     () =>
-      productOptions.find(
-        ({ appsId }) => appsId === PlusPriceTypeAppsId.GiftOneYear,
+      data.find(
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.GiftOneYear,
       ),
-    [productOptions],
+    [data],
   );
 
   const isFreeTrialExperiment = useMemo(
-    () => productOptions.some(({ trialPeriod }) => !!trialPeriod),
-    [productOptions],
+    () => data.some(({ trialPeriod }) => !!trialPeriod),
+    [data],
   );
 
   const openCheckout = useCallback(
     ({ priceId, giftToUserId }: OpenCheckoutProps) => {
-      if (isPlus && priceId !== giftOneYear?.value) {
+      if (isPlus && priceId !== giftOneYear?.productId) {
         return;
       }
 
@@ -252,22 +190,21 @@ export const PaddleSubProvider = ({
       });
     },
     [
-      giftOneYear?.value,
+      paddle,
       isPlus,
+      giftOneYear?.productId,
       isPlusAvailable,
-      paddle?.Checkout,
-      user?.email,
-      user?.id,
+      user,
       geo?.region,
     ],
   );
 
-  const contextData = useMemo<PaymentContextData>(
+  const value = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       paddle,
-      productOptions: productOptions.filter(
-        ({ value }) => value !== giftOneYear?.value,
+      productOptions: data.filter(
+        ({ productId }) => productId !== giftOneYear?.productId,
       ),
       earlyAdopterPlanId,
       isPlusAvailable,
@@ -276,11 +213,11 @@ export const PaddleSubProvider = ({
       isFreeTrialExperiment,
     }),
     [
-      giftOneYear,
-      earlyAdopterPlanId,
       openCheckout,
       paddle,
-      productOptions,
+      data,
+      giftOneYear,
+      earlyAdopterPlanId,
       isPlusAvailable,
       isPricesPending,
       isFreeTrialExperiment,
@@ -288,8 +225,6 @@ export const PaddleSubProvider = ({
   );
 
   return (
-    <PaymentContext.Provider value={contextData}>
-      {children}
-    </PaymentContext.Provider>
+    <PaymentContext.Provider value={value}>{children}</PaymentContext.Provider>
   );
 };
