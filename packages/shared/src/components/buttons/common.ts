@@ -20,7 +20,7 @@ export enum ButtonVariant {
   Float = 'tertiaryFloat',
   Subtle = 'subtle',
   Option = 'option',
-  Checkbox = 'checkbox',
+  Quiz = 'quiz',
 }
 
 export enum ButtonIconPosition {
@@ -52,7 +52,7 @@ export const VariantToClassName: Record<ButtonVariant, string> = {
   [ButtonVariant.Float]: 'btn-tertiaryFloat',
   [ButtonVariant.Subtle]: 'btn-subtle',
   [ButtonVariant.Option]: 'btn-option gap-1',
-  [ButtonVariant.Checkbox]: 'btn-checkbox',
+  [ButtonVariant.Quiz]: 'btn-quiz',
 };
 
 export const VariantColorToClassName: Record<
@@ -185,7 +185,7 @@ export const VariantColorToClassName: Record<
     [ButtonColor.Water]: 'btn-option-water',
     [ButtonColor.WhatsApp]: 'btn-option-whatsapp',
   },
-  [ButtonVariant.Checkbox]: {
+  [ButtonVariant.Quiz]: {
     [ButtonColor.Avocado]: 'btn-checkbox-avocado',
     [ButtonColor.Bacon]: 'btn-checkbox-bacon',
     [ButtonColor.BlueCheese]: 'btn-checkbox-blueCheese',

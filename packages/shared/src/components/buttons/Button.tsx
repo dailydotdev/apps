@@ -93,7 +93,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         `btn focus-outline inline-flex cursor-pointer select-none flex-row
         items-center border no-underline shadow-none transition
         duration-200 ease-in-out typo-callout`,
-        ![ButtonVariant.Option, ButtonVariant.Checkbox].includes(variant) &&
+        ![ButtonVariant.Option, ButtonVariant.Quiz].includes(variant) &&
           'justify-center font-bold',
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
