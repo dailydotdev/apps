@@ -15,23 +15,23 @@ import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
 import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
+import { useAuthData } from '../../contexts/AuthDataContext';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
 );
 
 interface ForgotPasswordFormProps extends AuthFormProps {
-  initialEmail?: string;
   onBack?: CloseModalFunc;
   onSubmit?: (email: string, flow: string) => void;
 }
 
 function ForgotPasswordForm({
-  initialEmail,
   onBack,
   onSubmit,
   simplified,
 }: ForgotPasswordFormProps): ReactElement {
+  const { email: initialEmail, setEmail } = useAuthData();
   const { logEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const { sendEmail, isLoading, token } = useAccountEmailFlow({
@@ -46,6 +46,7 @@ function ForgotPasswordForm({
       event_name: AuthEventNames.SubmitForgotPassword,
     });
     const { email } = formToJson<{ email: string }>(e.currentTarget);
+    setEmail(email);
     await sendEmail(email);
   };
 
