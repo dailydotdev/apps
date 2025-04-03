@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
 import classNames from 'classnames';
-import type { ProductOption } from '../../contexts/payment/context';
+import type { PlusPricingPreview } from '../../graphql/paddle';
 import { usePaymentContext } from '../../contexts/payment/context';
 import {
   Typography,
@@ -17,7 +17,7 @@ import { plusUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
-import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -27,7 +27,7 @@ export enum OnboardingPlans {
 interface PlusCardProps {
   currency: string;
   onClickNext: () => void;
-  productOption?: ProductOption;
+  productOption?: PlusPricingPreview;
 }
 
 const cardContent = {
@@ -67,7 +67,7 @@ const PlusCard = ({
   const { heading, features } = cardContent[cardContentName];
 
   const price = {
-    amount: plan?.price.monthlyFormatted ?? '0',
+    amount: plan?.price.monthly?.formatted ?? '0',
   };
 
   return (
@@ -90,14 +90,14 @@ const PlusCard = ({
           {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
-        {plan?.extraLabel && (
+        {plan?.metadata.caption && (
           <PlusPlanExtraLabel
-            color={
+            color={plan?.metadata.caption.color}
+            label={
               isFreeTrialExperiment
-                ? PlusLabelColor.Success
-                : PlusLabelColor.Help
+                ? '7-day free trial'
+                : plan?.metadata.caption.copy
             }
-            label={isFreeTrialExperiment ? '7-day free trial' : plan.extraLabel}
             className="ml-3"
             typographyProps={{
               color: isFreeTrialExperiment
@@ -138,7 +138,7 @@ const PlusCard = ({
       ) : (
         <Button
           className="my-4 block w-full"
-          href={`${plusUrl}?selectedPlan=${plan?.value}`}
+          href={`${plusUrl}?selectedPlan=${plan?.productId}`}
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.OnboardingUpgradePlus,
@@ -197,14 +197,14 @@ const PlusCard = ({
 
 interface PlusComparingCardsProps {
   onClickNext: () => void;
-  productOption?: ProductOption;
+  productOption?: PlusPricingPreview;
 }
 
 export const PlusComparingCards = ({
   productOption,
   onClickNext,
 }: PlusComparingCardsProps): ReactElement => {
-  const currency = productOption.currencySymbol;
+  const currency = productOption?.currency?.symbol ?? '';
 
   return (
     <ul

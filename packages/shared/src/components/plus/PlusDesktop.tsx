@@ -49,14 +49,14 @@ export const PlusDesktop = ({
         return;
       }
 
-      const { value } = giftOneYear;
-      setSelectedOption(value);
-      openCheckout({ priceId: value, giftToUserId: giftToUser.id });
+      const { productId } = giftOneYear;
+      setSelectedOption(productId);
+      openCheckout({ priceId: productId, giftToUserId: giftToUser.id });
 
       return;
     }
 
-    const option = initialPaymentOption || productOptions?.[0]?.value;
+    const option = initialPaymentOption || productOptions?.[0]?.productId;
     if (option && !selectedOption) {
       setSelectedOption(option);
       openCheckout({ priceId: option });

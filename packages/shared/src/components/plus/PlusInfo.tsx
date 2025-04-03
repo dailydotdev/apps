@@ -10,10 +10,7 @@ import {
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
-import type {
-  OpenCheckoutFn,
-  ProductOption,
-} from '../../contexts/payment/context';
+import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -28,9 +25,10 @@ import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
+import type { PlusPricingPreview } from '../../graphql/paddle';
 
 type PlusInfoProps = {
-  productOptions: ProductOption[];
+  productOptions: PlusPricingPreview[];
   selectedOption: string | null;
   onChange: OpenCheckoutFn;
   onContinue?: () => void;
@@ -60,13 +58,13 @@ const copy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
     title: 'Fast-track your growth',
     description:
-      'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+      "Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn't a long-term strategy.",
     subtitle: 'Billing cycle',
   },
   [PlusType.Gift]: {
     title: 'Gift daily.dev Plus 🎁',
     description:
-      'Gifting daily.dev Plus to a friend is the ultimate way to say, ‘I’ve got your back.’ It unlocks an ad-free experience, advanced content filtering and customizations, plus AI superpowers to supercharge their daily.dev journey.',
+      "Gifting daily.dev Plus to a friend is the ultimate way to say, 'I've got your back.' It unlocks an ad-free experience, advanced content filtering and customizations, plus AI superpowers to supercharge their daily.dev journey.",
     subtitle: "Who's it for?",
   },
 };
@@ -172,7 +170,7 @@ export const PlusInfo = ({
                     props: {
                       onSelected: (user) => {
                         onChange({
-                          priceId: productOptions[0].value,
+                          priceId: productOptions[0].productId,
                           giftToUserId: user.id,
                         });
                       },
@@ -201,7 +199,7 @@ export const PlusInfo = ({
           className="mb-6"
           onClose={() => {
             router.push('/plus');
-            onChange({ priceId: productOptions[0].value });
+            onChange({ priceId: productOptions[0].productId });
           }}
         />
       )}
@@ -213,30 +211,27 @@ export const PlusInfo = ({
       >
         {giftToUser ? (
           <PlusOptionRadio
-            key={giftOneYear?.value}
+            key={giftOneYear?.productId}
             option={giftOneYear}
             checked
           />
         ) : (
           <>
             {productOptions.length === 0 && <RadioGroupSkeleton />}
-            {productOptions.map((option) => {
-              const { label, value } = option;
-              return (
-                <PlusOptionRadio
-                  key={value}
-                  option={option}
-                  checked={selectedOption === value}
-                  onChange={() => {
-                    onChange({ priceId: value });
-                    logSubscriptionEvent({
-                      event_name: LogEvent.SelectBillingCycle,
-                      target_id: label.toLowerCase(),
-                    });
-                  }}
-                />
-              );
-            })}
+            {productOptions.map((option) => (
+              <PlusOptionRadio
+                key={option.productId}
+                option={option}
+                checked={selectedOption === option.productId}
+                onChange={() => {
+                  onChange({ priceId: option.productId });
+                  logSubscriptionEvent({
+                    event_name: LogEvent.SelectBillingCycle,
+                    target_id: option.metadata.title.toLowerCase(),
+                  });
+                }}
+              />
+            ))}
           </>
         )}
       </div>
@@ -253,7 +248,7 @@ export const PlusInfo = ({
             Continue »
           </Button>
         </div>
-      ) : undefined}
+      ) : null}
       {showPlusList && <PlusList />}
       {showTrustReviews && <PlusTrustReviews />}
     </>

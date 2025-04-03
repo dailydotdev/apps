@@ -8,12 +8,12 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
-import type { ProductOption } from '../../contexts/payment/context';
 import { usePaymentContext } from '../../contexts/payment/context';
-import { PlusPriceTypeAppsId } from '../../lib/featureValues';
+import type { PlusPricingPreview } from '../../graphql/paddle';
+import { captionToColor, captionToTypographyColor } from './PlusPlanExtraLabel';
 
 interface PlusOptionRadioProps {
-  option: ProductOption;
+  option: PlusPricingPreview;
   checked: boolean;
   onChange?: (value: string) => void;
 }
@@ -24,31 +24,22 @@ export function PlusOptionRadio({
   onChange,
 }: PlusOptionRadioProps): ReactElement {
   const { giftOneYear } = usePaymentContext();
-  const isYearlyGift = giftOneYear?.value === option?.value;
+  const isYearlyGift = giftOneYear?.productId === option?.productId;
 
   if (!option) {
     return null;
   }
 
-  const {
-    label,
-    value,
-    price,
-    currencyCode,
-    extraLabel,
-    appsId,
-    durationLabel,
-  } = option;
-  const isEarlyAccess = appsId === PlusPriceTypeAppsId.EarlyAdopter;
+  const { metadata, productId, price, duration } = option;
 
   return (
     <RadioItem
-      key={label}
-      name={label}
-      id={`${label}-${value}`}
-      value={value}
+      key={productId}
+      name={metadata.title}
+      id={`${metadata.title}-${productId}`}
+      value={productId}
       checked={checked}
-      onChange={() => onChange(value)}
+      onChange={() => onChange(productId)}
       className={{
         content: classNames(
           'min-h-12 rounded-10 !p-2',
@@ -64,27 +55,21 @@ export function PlusOptionRadio({
           type={TypographyType.Callout}
           color={TypographyColor.Primary}
         >
-          {option.label}
+          {metadata.title}
         </Typography>
 
-        {extraLabel && (
+        {metadata.caption && (
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
-            color={
-              isEarlyAccess
-                ? TypographyColor.StatusHelp
-                : TypographyColor.StatusSuccess
-            }
+            color={captionToTypographyColor[metadata.caption.copy]}
             className={classNames(
               'rounded-10 px-2 py-1',
-              isEarlyAccess
-                ? 'whitespace-nowrap bg-action-help-float'
-                : 'bg-action-upvote-float',
+              captionToColor[metadata.caption.copy],
             )}
             bold
           >
-            {extraLabel}
+            {metadata.caption.copy}
           </Typography>
         )}
       </div>
@@ -95,18 +80,16 @@ export function PlusOptionRadio({
           color={TypographyColor.Primary}
           bold
         >
-          {isYearlyGift
-            ? price.formatted
-            : price.monthlyFormatted ?? price.formatted}
+          {isYearlyGift ? price.formatted : price.formatted}
         </Typography>
-        {currencyCode && (
+        {option.currency && (
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Body}
             color={TypographyColor.Secondary}
             className="font-normal"
           >
-            {currencyCode}
+            {option.currency.code}
           </Typography>
         )}
         {!isYearlyGift && (
@@ -115,7 +98,7 @@ export function PlusOptionRadio({
             color={TypographyColor.Quaternary}
             type={TypographyType.Footnote}
           >
-            /{durationLabel}
+            /{duration}
           </Typography>
         )}
       </div>

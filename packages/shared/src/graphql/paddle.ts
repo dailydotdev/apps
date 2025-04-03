@@ -17,7 +17,7 @@ export interface PlusPricingMetadata {
   title: string;
   caption?: {
     copy: string;
-    color: string;
+    color: PricingCaptionColor;
   };
   idMap: {
     paddle: string;
@@ -113,3 +113,8 @@ export const fetchPlusPricingMetadata = async (): Promise<
 
   return plusPricingMetadata;
 };
+
+export enum PricingCaptionColor {
+  Success = 'success',
+  Help = 'help',
+}
