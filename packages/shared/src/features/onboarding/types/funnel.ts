@@ -40,8 +40,26 @@ export interface FunnelStepFact extends FunnelStepCommon {
   type: FunnelStepType.Fact;
 }
 
+export enum FunnelStepQuizQuestionType {
+  Radio = 'singleChoice',
+  Checkbox = 'multipleChoice',
+  Rating = 'rating',
+}
+
+export interface FunnelStepQuizQuestion {
+  type: FunnelStepQuizQuestionType;
+  text: string;
+  placeholder?: string;
+  options: Array<{
+    label: string;
+  }>;
+  imageUrl?: string;
+}
+
 export interface FunnelStepQuiz extends FunnelStepCommon {
   type: FunnelStepType.Quiz;
+  question: FunnelStepQuizQuestion;
+  explainer: string;
 }
 
 export interface FunnelStepSignup extends FunnelStepCommon {
