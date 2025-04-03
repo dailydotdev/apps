@@ -5,7 +5,7 @@ import { CoreIcon, PlusIcon } from '../icons';
 
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
-import { webappUrl } from '../../lib/constants';
+import { walletUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { isIOSNative } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -44,7 +44,7 @@ export const BuyCreditsButton = ({
         className,
       )}
     >
-      <Link href={`${webappUrl}earnings`} passHref>
+      <Link href={walletUrl} passHref>
         <Button
           tag="a"
           target={isInsideModal ? '_blank' : undefined}
