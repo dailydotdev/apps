@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
-import AuthOptions, { AuthDisplay } from './AuthOptions';
+import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -15,6 +15,7 @@ import {
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
 } from '../../lib/image';
+import { AuthDisplay } from './common';
 
 const Section = classed('div', 'flex flex-col');
 

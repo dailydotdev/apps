@@ -8,8 +8,6 @@ import {
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
-import type { AuthProps } from '../auth/AuthOptions';
-import { AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
@@ -28,6 +26,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { usePaymentContext } from '../../contexts/payment/context';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
+import type { AuthProps } from '../auth/common';
+import { AuthDisplay } from '../auth/common';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;

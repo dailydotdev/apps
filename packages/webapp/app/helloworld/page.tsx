@@ -4,7 +4,7 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { HydrationBoundary } from '@tanstack/react-query';
 import Head from 'next/head';
-import { getAppBootData } from '../app-boot';
+import { getAppBootData } from '../appBoot';
 import { ClientTest } from './client/client';
 
 async function getIdAndVersion({
