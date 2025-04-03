@@ -28,10 +28,6 @@ export const getAppBootData = async ({
   });
   const state = dehydrate(queryClient, { shouldDehydrateQuery: () => true }); // to also include Errors
 
-  if (!boot) {
-    throw new Error('Failed to fetch boot data');
-  }
-
   return {
     state,
     queryClient,
