@@ -7,8 +7,8 @@ import {
 } from '../types/funnel';
 import { FormInputRating } from '../../common/components/FormInputRating';
 import { FormInputCheckboxGroup } from '../../common/components/FormInputCheckboxGroup';
-import type { ButtonProps } from '../../../components/buttons/Button';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
 
 const quizComponentsMap = {
   [FunnelStepQuizQuestionType.Rating]: FormInputRating,
@@ -22,23 +22,6 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
     type === FunnelStepQuizQuestionType.Rating
   );
 };
-
-function CtaWrapper({
-  children,
-  ...props
-}: ButtonProps<'button'>): ReactElement {
-  return (
-    <div className="relative">
-      {children}
-
-      <div className="sticky bottom-2">
-        <Button type="button" variant={ButtonVariant.Primary} {...props}>
-          Next
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 export const FunnelQuiz = ({
   id,
@@ -83,17 +66,28 @@ export const FunnelQuiz = ({
   }, [isSingleChoice, innerValue, onTransition]);
 
   return (
-    <CtaWrapper onClick={onCtaClick}>
-      <h2>{text}</h2>
-      {imageUrl && (
-        <img
-          alt="Question additional context"
-          aria-hidden
-          role="presentation"
-          src={imageUrl}
-        />
+    <ConditionalWrapper
+      condition={!isSingleChoice}
+      wrapper={(component) => (
+        <FunnelStepCtaWrapper onClick={onCtaClick}>
+          {component}
+        </FunnelStepCtaWrapper>
       )}
-      <Component name={id} options={inputOptions} onValueChange={onChange} />
-    </CtaWrapper>
+    >
+      {/* todo: add Step Headline component once ready */}
+      <div className="flex flex-col gap-4">
+        <h2>{text}</h2>
+        {imageUrl && (
+          <img
+            alt="Question additional context"
+            aria-hidden
+            className="max-w-lg object-contain object-center"
+            role="presentation"
+            src={imageUrl}
+          />
+        )}
+        <Component name={id} options={inputOptions} onValueChange={onChange} />
+      </div>
+    </ConditionalWrapper>
   );
 };
