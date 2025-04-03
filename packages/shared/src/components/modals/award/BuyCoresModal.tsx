@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { useViewSizeClient, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalBody } from '../common/ModalBody';
 import {
   BuyCoresContextProvider,
@@ -323,7 +323,7 @@ const BuyCoreDesktop = () => {
 
 const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
   const { setActiveModal } = useGiveAwardModalContext();
-  const isMobile = useViewSizeClient(ViewSize.MobileL);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <Modal

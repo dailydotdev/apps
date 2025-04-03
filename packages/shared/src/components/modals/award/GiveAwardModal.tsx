@@ -401,6 +401,10 @@ const ModalRender = ({ ...props }: ModalProps) => {
     setActiveModal('AWARD');
   }, [setActiveModal]);
 
+  const onRequestClose = useCallback(() => {
+    setActiveModal('AWARD');
+  }, [setActiveModal]);
+
   return (
     <>
       {activeModal === 'AWARD' ? (
@@ -423,6 +427,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
         <BuyCoresModal
           {...props}
           onCompletion={onCompletion}
+          onRequestClose={onRequestClose}
           product={product}
           origin={Origin.Award}
         />
