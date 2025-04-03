@@ -133,7 +133,7 @@ export const FormInputCheckboxGroup = ({
   };
 
   return (
-    <div className={`grid-cols-${cols} grid gap-2`}>
+    <div className={`grid-cols-${cols} grid gap-2`} role="group">
       {options.map((item) => (
         <FormInputCheckbox
           isSelected={inputValue.includes(item.value)}
