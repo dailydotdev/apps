@@ -30,7 +30,11 @@ describe('FormInputRating', () => {
   });
 
   it('should render with custom options', () => {
-    renderComponent({ options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] });
+    const customOptions = Array.from({ length: 11 }, (_, i) => ({
+      label: i.toString(),
+      value: i.toString(),
+    }));
+    renderComponent({ options: customOptions });
 
     // Should have 11 buttons for options 0-10
     const buttons = screen.getAllByRole('radio');
@@ -43,7 +47,7 @@ describe('FormInputRating', () => {
   });
 
   it('should render with defaultValue', () => {
-    renderComponent({ defaultValue: 3 });
+    renderComponent({ defaultValue: '3' });
 
     // The button with value 3 should be selected
     const selectedButton = screen.getByRole('radio', { checked: true });
@@ -51,7 +55,7 @@ describe('FormInputRating', () => {
   });
 
   it('should render with controlled value', () => {
-    renderComponent({ value: 4 });
+    renderComponent({ value: '4' });
 
     // The button with value 4 should be selected
     const selectedButton = screen.getByRole('radio', { checked: true });
@@ -67,7 +71,7 @@ describe('FormInputRating', () => {
     fireEvent.click(button);
 
     // onValueChange should be called with the selected value
-    expect(onValueChange).toHaveBeenCalledWith(3);
+    expect(onValueChange).toHaveBeenCalledWith('3');
   });
 
   it('should handle button click correctly', () => {
@@ -76,15 +80,19 @@ describe('FormInputRating', () => {
 
     // Click on button with value 2
     fireEvent.click(screen.getByText('2'));
-    expect(onValueChange).toHaveBeenCalledWith(2);
+    expect(onValueChange).toHaveBeenCalledWith('2');
 
     // Click on button with value 4
     fireEvent.click(screen.getByText('4'));
-    expect(onValueChange).toHaveBeenCalledWith(4);
+    expect(onValueChange).toHaveBeenCalledWith('4');
   });
 
   it('should render with custom options set', () => {
-    renderComponent({ options: [3, 4] });
+    const customOptions = [
+      { label: '3', value: '3' },
+      { label: '4', value: '4' },
+    ];
+    renderComponent({ options: customOptions });
 
     // Should have 2 buttons for options [3, 4]
     const buttons = screen.getAllByRole('radio');
