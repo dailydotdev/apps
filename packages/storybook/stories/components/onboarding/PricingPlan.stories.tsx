@@ -34,7 +34,7 @@ export const Default: Story = {
   args: {
     badge: {
       text: 'Popular',
-      background: '#6E87F5',
+      background: '#CE3DF3',
     },
     checked: false,
   },
@@ -45,7 +45,7 @@ export const DefaultSelected: Story = {
   args: {
     badge: {
       text: 'Popular',
-      background: '#6E87F5',
+      background: '#CE3DF3',
     },
     checked: true,
     perks: [
