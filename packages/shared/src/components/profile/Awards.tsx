@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import {
   Typography,
@@ -9,7 +10,7 @@ import {
 import { topReaderBadgeDocs } from '../../lib/constants';
 import { ClickableText } from '../buttons/ClickableText';
 import { Image } from '../image/Image';
-import { featuredAwardImage } from '../../lib/image';
+import { productSummaryQueryOptions, ProductType } from '../../graphql/njord';
 
 type AwardProps = {
   image: string;
@@ -29,7 +30,19 @@ const Award = ({ image, amount }: AwardProps): ReactElement => {
   );
 };
 
-export const Awards = (): ReactElement => {
+export const Awards = ({ userId }: { userId: string }): ReactElement => {
+  const { data: awards } = useQuery({
+    ...productSummaryQueryOptions({
+      userId,
+      type: ProductType.Award,
+    }),
+    enabled: !!userId,
+  });
+
+  if (!awards?.length) {
+    return null;
+  }
+
   return (
     <ActivityContainer>
       <ActivitySectionHeader title="Awards" className="!mb-2" />
@@ -48,14 +61,11 @@ export const Awards = (): ReactElement => {
         </ClickableText>
       </Typography>
       <div className="mt-6 flex flex-wrap gap-2">
-        <Award image={featuredAwardImage} amount={102} />
-        <Award image={featuredAwardImage} amount={43} />
-        <Award image={featuredAwardImage} amount={456} />
-        <Award image={featuredAwardImage} amount={5} />
-        <Award image={featuredAwardImage} amount={102} />
-        <Award image={featuredAwardImage} amount={43} />
-        <Award image={featuredAwardImage} amount={456} />
-        <Award image={featuredAwardImage} amount={5} />
+        {awards?.map((award) => {
+          return (
+            <Award key={award.id} image={award.image} amount={award.count} />
+          );
+        })}
       </div>
     </ActivityContainer>
   );
