@@ -125,7 +125,7 @@ const ProcessingCompleted = () => {
   return (
     <>
       <CoreIcon size={IconSize.XXXLarge} />
-      <Typography type={TypographyType.Body} bold>
+      <Typography type={TypographyType.LargeTitle} bold>
         {formatCoresCurrency(selectedProduct.value)}
       </Typography>
       <Typography type={TypographyType.Title3} bold>
