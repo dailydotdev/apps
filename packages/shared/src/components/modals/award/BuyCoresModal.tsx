@@ -37,7 +37,7 @@ import {
   purchaseCoinsCheckoutVideoPoster,
   purchaseCoinsCheckoutVideo,
 } from '../../../lib/image';
-import { webappUrl } from '../../../lib/constants';
+import { walletUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
 import type { Origin } from '../../../lib/log';
@@ -89,7 +89,7 @@ const statusToMessageMap: Partial<Record<UserTransactionStatus, ReactNode>> = {
     <>
       Something went wrong!
       <br />
-      <Link href={`${webappUrl}earnings`}>
+      <Link href={walletUrl}>
         <Typography type={TypographyType.Footnote}>
           <u>check status here</u>
         </Typography>
@@ -191,7 +191,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       const maxRetries = (oneMinute * 1000) / transactionRefetchIntervalMs;
 
       if (retries > maxRetries) {
-        // TODO feat/transactions redirect user to /earnings to monitor their transaction there if they want
+        // TODO feat/transactions redirect user to /wallet to monitor their transaction there if they want
 
         return false;
       }
@@ -231,7 +231,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       size={Modal.Size.XSmall}
       {...props}
       onRequestClose={() => {
-        // TODO feat/transactions if processing interupt the modal close, tell user can check transaction in /earnings
+        // TODO feat/transactions if processing interupt the modal close, tell user can check transaction in /wallet
 
         return onCompletion();
       }}

@@ -12,7 +12,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
-import { webappUrl } from '../../lib/constants';
+import { walletUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
 import { hasAccessToCores } from '../../lib/cores';
@@ -60,13 +60,13 @@ export default function ProfileButton({
             <SimpleTooltip
               content={
                 // eslint-disable-next-line react/jsx-key
-                ['Earnings dashboard', <br />, `${preciseBalance} Cores`]
+                ['Wallet dashboard', <br />, `${preciseBalance} Cores`]
               }
             >
               <Button
                 icon={<CoreIcon />}
                 tag="a"
-                href={`${webappUrl}earnings`}
+                href={walletUrl}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
               >
