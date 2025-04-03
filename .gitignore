@@ -45,3 +45,6 @@ webapp.xml
 
 # IDE
 .idea/
+
+# Figma MCP
+figma-images/

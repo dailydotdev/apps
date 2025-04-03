@@ -30,6 +30,9 @@ const config: StorybookConfig = {
     );
 
     return mergeConfig(config, {
+      core: {
+        disableTelemetry: true,
+      },
       server: {
         fs: {
           strict: false,
@@ -55,7 +58,9 @@ const config: StorybookConfig = {
         },
       },
       define: {
-        'process.env': {},
+        'process.env': {
+          NEXT_PUBLIC_WEBAPP_URL: 'https://app.daily.dev',
+        },
         browser,
       },
       plugins: [
