@@ -49,6 +49,8 @@ describe('StepHeadline', () => {
 
   it('should not render explainer when not provided', () => {
     renderComponent({ explainer: undefined });
-    expect(screen.queryByTestId('step-headline-explainer')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('step-headline-explainer'),
+    ).not.toBeInTheDocument();
   });
 });
