@@ -246,7 +246,7 @@ export function PostActions({
                     },
                   });
                 }}
-                icon={<MedalBadgeIcon />}
+                icon={<MedalBadgeIcon secondary={!post?.userState?.awarded} />}
                 className={classNames(
                   'btn-tertiary-cabbage',
                   post?.userState?.awarded && 'pointer-events-none',
