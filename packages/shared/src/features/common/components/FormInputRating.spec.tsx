@@ -8,8 +8,6 @@ const renderComponent = (
   props: Partial<FormInputRatingProps> = {},
 ): RenderResult => {
   const defaultProps: FormInputRatingProps = {
-    max: 5,
-    min: 1,
     name: 'rating',
     onValueChange: jest.fn(),
   };
@@ -21,7 +19,7 @@ describe('FormInputRating', () => {
     const onValueChange = jest.fn();
     renderComponent({ onValueChange });
 
-    // Should have 5 buttons (min=1, max=5)
+    // Should have 5 buttons (default options [1, 2, 3, 4, 5])
     const buttons = screen.getAllByRole('radio');
     expect(buttons).toHaveLength(5);
 
@@ -31,10 +29,10 @@ describe('FormInputRating', () => {
     }
   });
 
-  it('should render with custom min and max', () => {
-    renderComponent({ min: 0, max: 10 });
+  it('should render with custom options', () => {
+    renderComponent({ options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] });
 
-    // Should have 11 buttons (min=0, max=10)
+    // Should have 11 buttons for options 0-10
     const buttons = screen.getAllByRole('radio');
     expect(buttons).toHaveLength(11);
 
@@ -85,10 +83,10 @@ describe('FormInputRating', () => {
     expect(onValueChange).toHaveBeenCalledWith(4);
   });
 
-  it('should fix max value when max < min', () => {
-    renderComponent({ min: 3, max: 2 });
+  it('should render with custom options set', () => {
+    renderComponent({ options: [3, 4] });
 
-    // Should have 2 buttons (min=3, max=4)
+    // Should have 2 buttons for options [3, 4]
     const buttons = screen.getAllByRole('radio');
     expect(buttons).toHaveLength(2);
 

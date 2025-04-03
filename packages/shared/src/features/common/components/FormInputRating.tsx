@@ -3,40 +3,33 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 
-type RatingValue = number;
+type RatingValue = string;
+type OptionItem = {
+  label: string;
+  value: RatingValue;
+};
 
 export interface FormInputRatingProps
   extends PropsWithChildren<ComponentProps<'div'>> {
-  /**
-   * @default 5
-   */
-  max: number;
-  /**
-   * @default 1
-   */
-  min: number;
+  defaultValue?: RatingValue;
   name: string;
   onValueChange?: (value: RatingValue) => void;
+  options?: OptionItem[];
   value?: RatingValue;
-  defaultValue?: RatingValue;
 }
 
-const validateRatingValue = (
-  value: number,
-  min?: number,
-  max?: number,
-): boolean => {
-  return value >= min && value <= max;
-};
+const defaultOptions: OptionItem[] = Array.from({ length: 5 }, (_, i) => ({
+  label: `${i + 1}`,
+  value: `${i + 1}`,
+}));
 
 export const FormInputRating = ({
   children,
   className,
   defaultValue,
-  max = 5,
-  min = 1,
   name,
   onValueChange,
+  options = defaultOptions,
   value,
   ...attrs
 }: FormInputRatingProps): ReactElement => {
@@ -45,17 +38,8 @@ export const FormInputRating = ({
   );
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
-  const maxValue = max > min ? max : min + 1;
-
-  const items = Array.from(
-    { length: maxValue - min + 1 },
-    (_, index) => index + min,
-  );
 
   const onSelect = (selectedValue: RatingValue) => {
-    if (!validateRatingValue(selectedValue, min, maxValue)) {
-      return;
-    }
     setCheckedValue(selectedValue);
     onValueChange?.(selectedValue);
   };
@@ -63,26 +47,26 @@ export const FormInputRating = ({
   return (
     <div className="flex flex-col gap-3" {...attrs}>
       <div className="flex flex-row gap-2" role="radiogroup">
-        {items.map((itemValue) => {
-          const isSelected = itemValue === inputValue;
+        {options.map((item, index) => {
+          const isSelected = item.value === inputValue;
           return (
             <Button
               aria-checked={isSelected}
-              aria-label={`${itemValue} stars`}
-              aria-posinset={itemValue}
-              aria-setsize={items.length}
+              aria-label={`${item.label} stars`}
+              aria-posinset={index + 1}
+              aria-setsize={options.length}
               className={classNames(
                 'h-16 min-w-10 flex-1 border border-border-subtlest-tertiary',
                 className,
               )}
-              key={itemValue}
+              key={item.value}
               name={name}
-              onClick={() => onSelect(itemValue)}
+              onClick={() => onSelect(item.value)}
               role="radio"
               type="button"
               variant={ButtonVariant.Quiz}
             >
-              <span className="inline-block min-w-full">{itemValue}</span>
+              <span className="inline-block min-w-full">{item.label}</span>
             </Button>
           );
         })}
