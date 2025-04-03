@@ -141,8 +141,8 @@ export const PlusIOS = ({
             return;
           }
 
-          if (productOptions?.[0]?.value && !selectedOption) {
-            setSelectedOption(productOptions?.[0]?.value);
+          if (productOptions?.[0]?.productId && !selectedOption) {
+            setSelectedOption(productOptions?.[0]?.productId);
           }
         }}
       >
