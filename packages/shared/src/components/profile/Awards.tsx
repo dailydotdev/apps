@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { topReaderBadgeDocs } from '../../lib/constants';
+import { coresDocsLink } from '../../lib/constants';
 import { ClickableText } from '../buttons/ClickableText';
 import { Image } from '../image/Image';
 import { productSummaryQueryOptions, ProductType } from '../../graphql/njord';
@@ -55,7 +55,7 @@ export const Awards = ({ userId }: { userId: string }): ReactElement => {
           className="!inline"
           tag="a"
           target="_blank"
-          href={topReaderBadgeDocs}
+          href={coresDocsLink}
         >
           daily.dev docs
         </ClickableText>
