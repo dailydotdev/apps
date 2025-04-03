@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import createDOMPurify from 'dompurify';
+import { addMinutes } from 'date-fns';
 
 /**
  * Formats seconds to MM:SS format
@@ -32,7 +33,7 @@ const calculateTimeLeft = (
   durationInMinutes: number,
 ): number => {
   const now = new Date();
-  const endTime = new Date(startDate.getTime() + durationInMinutes * 60 * 1000);
+  const endTime = addMinutes(startDate, durationInMinutes);
   return Math.max(0, Math.floor((endTime.getTime() - now.getTime()) / 1000));
 };
 
