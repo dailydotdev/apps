@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import createDOMPurify from 'dompurify';
 import { addMinutes } from 'date-fns';
+import useTimer from '../../../hooks/useTimer';
 
 /**
  * Formats seconds to MM:SS format
@@ -62,36 +63,15 @@ export function DiscountTimer({
   className,
   onTimerEnd,
 }: DiscountTimerProps): ReactElement {
-  const [timeLeft, setTimeLeft] = useState(
+  const { timer: timeLeft } = useTimer(
+    onTimerEnd,
     calculateTimeLeft(startDate, durationInMinutes),
   );
+
   const sanitizedMessage = useMemo(
     () => sanitizeMessage(discountMessage),
     [discountMessage],
   );
-
-  useEffect(() => {
-    const endTime = new Date(
-      startDate.getTime() + durationInMinutes * 60 * 1000,
-    );
-
-    const interval = setInterval(() => {
-      const now = new Date();
-      const diff = Math.max(
-        0,
-        Math.floor((endTime.getTime() - now.getTime()) / 1000),
-      );
-
-      setTimeLeft(diff);
-
-      if (diff <= 0) {
-        clearInterval(interval);
-        onTimerEnd?.();
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [startDate, durationInMinutes, onTimerEnd]);
 
   return (
     <div

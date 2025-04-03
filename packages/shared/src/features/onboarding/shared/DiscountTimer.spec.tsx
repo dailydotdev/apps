@@ -110,7 +110,9 @@ describe('DiscountTimer component', () => {
     );
 
     expect(mockOnTimerEnd).not.toHaveBeenCalled();
-    act(() => increaseTimeByMinutes(2));
+    for (let i = 0; i < 2; i += 1) {
+      act(() => increaseTimeByMinutes(1));
+    }
     expect(mockOnTimerEnd).toHaveBeenCalledTimes(1);
   });
 });
