@@ -1,9 +1,14 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import type { FunnelStepQuiz } from '../types/funnel';
-import { FunnelStepQuizQuestionType } from '../types/funnel';
+import {
+  FunnelStepQuizQuestionType,
+  FunnelStepTransitionType,
+} from '../types/funnel';
 import { FormInputRating } from '../../common/components/FormInputRating';
 import { FormInputCheckboxGroup } from '../../common/components/FormInputCheckboxGroup';
+import type { ButtonProps } from '../../../components/buttons/Button';
+import { Button, ButtonVariant } from '../../../components/buttons/Button';
 
 const quizComponentsMap = {
   [FunnelStepQuizQuestionType.Rating]: FormInputRating,
@@ -18,9 +23,31 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
   );
 };
 
-export const FunnelQuiz = ({ id, question }: FunnelStepQuiz): ReactElement => {
+function CtaWrapper({
+  children,
+  ...props
+}: ButtonProps<'button'>): ReactElement {
+  return (
+    <div className="relative">
+      {children}
+
+      <div className="sticky bottom-2">
+        <Button type="button" variant={ButtonVariant.Primary} {...props}>
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export const FunnelQuiz = ({
+  id,
+  question,
+  onTransition,
+}: FunnelStepQuiz): ReactElement => {
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
+  const [innerValue, setInnerValue] = useState<string | string[]>([]);
   const Component = useMemo(() => quizComponentsMap[type], [type]);
   const inputOptions = useMemo(
     () =>
@@ -31,19 +58,32 @@ export const FunnelQuiz = ({ id, question }: FunnelStepQuiz): ReactElement => {
     [options],
   );
 
-  const onChange = (value: unknown) => {
-    if (isSingleChoice) {
-      console.log('Selected single choice value:', value);
-      // transition
-      console.log('Transitioning to next step...');
+  const onChange = useCallback(
+    (value: string | string[]) => {
+      setInnerValue(value);
+
+      if (isSingleChoice) {
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { value },
+        });
+      }
+    },
+    [isSingleChoice, onTransition],
+  );
+
+  const onCtaClick = useCallback(() => {
+    if (isSingleChoice || !innerValue.length) {
       return;
     }
-
-    console.log('Selected value:', value);
-  };
+    onTransition?.({
+      type: FunnelStepTransitionType.Complete,
+      details: { value: innerValue },
+    });
+  }, [isSingleChoice, innerValue, onTransition]);
 
   return (
-    <section>
+    <CtaWrapper onClick={onCtaClick}>
       <h2>{text}</h2>
       {imageUrl && (
         <img
@@ -54,6 +94,6 @@ export const FunnelQuiz = ({ id, question }: FunnelStepQuiz): ReactElement => {
         />
       )}
       <Component name={id} options={inputOptions} onValueChange={onChange} />
-    </section>
+    </CtaWrapper>
   );
 };

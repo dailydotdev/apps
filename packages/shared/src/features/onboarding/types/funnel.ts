@@ -10,10 +10,15 @@ export enum FunnelStepType {
   AppPromotion = 'appPromotion',
 }
 
-enum FunnelStepTransitionType {
+export enum FunnelStepTransitionType {
   Skip = 'skip',
   Complete = 'complete',
 }
+
+type FunnelStepTransitionCallback<Details = unknown> = (transition: {
+  type: FunnelStepTransitionType;
+  details: Details;
+}) => void;
 
 type FunnelStepParameters = Record<string, string>;
 
@@ -60,6 +65,7 @@ export interface FunnelStepQuiz extends FunnelStepCommon {
   type: FunnelStepType.Quiz;
   question: FunnelStepQuizQuestion;
   explainer: string;
+  onTransition: FunnelStepTransitionCallback<{ value: string | string[] }>;
 }
 
 export interface FunnelStepSignup extends FunnelStepCommon {
