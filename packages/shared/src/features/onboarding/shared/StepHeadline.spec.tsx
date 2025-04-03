@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import StepHeadline from './StepHeadline';
-import { FunnelStepType } from '../types/funnel';
+import StepHeadline, { StepHeadlineAlign } from './StepHeadline';
+import { TypographyType } from '../../../components/typography/Typography';
 
 const defaultProps = {
   headline: 'Test Headline',
@@ -20,26 +20,35 @@ describe('StepHeadline', () => {
   });
 
   it('should have text-center class when align is center', () => {
-    renderComponent({ align: 'center' });
+    renderComponent({ align: StepHeadlineAlign.Center });
     const container = screen.getByTestId('step-headline-container');
     expect(container).toHaveClass('text-center');
   });
 
   it('should have text-left class when align is left', () => {
-    renderComponent({ align: 'left' });
+    renderComponent({ align: StepHeadlineAlign.Left });
     const container = screen.getByTestId('step-headline-container');
     expect(container).toHaveClass('text-left');
   });
 
-  it('should use tertiary color for quiz type', () => {
-    renderComponent({ type: FunnelStepType.Quiz });
-    const explainer = screen.getByTestId('step-headline-explainer');
-    expect(explainer).toHaveClass('text-text-tertiary');
+  it('should have text-right class when align is right', () => {
+    renderComponent({ align: StepHeadlineAlign.Right });
+    const container = screen.getByTestId('step-headline-container');
+    expect(container).toHaveClass('text-right');
   });
 
-  it('should use primary color for non-quiz types', () => {
-    renderComponent({ type: FunnelStepType.Fact });
+  it('should apply custom props to explainer text', () => {
+    renderComponent({
+      explainer: 'Test explainer text',
+      explainerProps: { type: TypographyType.Subhead },
+    });
     const explainer = screen.getByTestId('step-headline-explainer');
-    expect(explainer).toHaveClass('text-text-primary');
+    expect(explainer).toBeInTheDocument();
+    expect(explainer).toHaveClass('typo-subhead');
+  });
+
+  it('should not render explainer when not provided', () => {
+    renderComponent({ explainer: undefined });
+    expect(screen.queryByTestId('step-headline-explainer')).not.toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import StepHeadline from '@dailydotdev/shared/src/features/onboarding/shared/StepHeadline';
-import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import StepHeadline, {
+  StepHeadlineAlign,
+} from '@dailydotdev/shared/src/features/onboarding/shared/StepHeadline';
 
 const meta: Meta<typeof StepHeadline> = {
   title: 'Components/Onboarding/StepHeadline',
@@ -20,13 +20,10 @@ const meta: Meta<typeof StepHeadline> = {
     },
     align: {
       control: 'radio',
-      options: ['left', 'center'],
-    },
-    type: {
-      control: 'select',
-      options: Object.values(FunnelStepType),
+      options: Object.values(StepHeadlineAlign),
     },
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -36,30 +33,29 @@ type Story = StoryObj<typeof StepHeadline>;
 export const Default: Story = {
   args: {
     headline: 'Welcome to daily.dev',
-    explainer: 'The professional network for developers to learn, grow, and get inspired.',
-    align: 'center',
+    explainer:
+      'The professional network for developers to learn, grow, and get inspired.',
+    align: StepHeadlineAlign.Center,
   },
 };
 
 export const LeftAligned: Story = {
   args: {
     ...Default.args,
-    align: 'left',
+    align: StepHeadlineAlign.Left,
   },
 };
 
-export const QuizType: Story = {
+export const RightAligned: Story = {
   args: {
     ...Default.args,
-    type: FunnelStepType.Quiz,
-    headline: 'Pop Quiz Time!',
-    explainer: 'Test your knowledge with this quick quiz.',
+    align: StepHeadlineAlign.Right,
   },
 };
 
-export const WithVisual: Story = {
+export const WithoutExplainer: Story = {
   args: {
     ...Default.args,
-    visualUrl: 'https://daily.dev/daily-logo.svg',
+    explainer: undefined,
   },
-}; 
+};

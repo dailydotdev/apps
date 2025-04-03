@@ -3,47 +3,47 @@ import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
-  TypographyColor,
   TypographyType,
+  TypographyTag,
 } from '../../../components/typography/Typography';
-import { FunnelStepType } from '../types/funnel';
+import type { TypographyProps } from '../../../components/typography/Typography';
+
+export enum StepHeadlineAlign {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
 
 export type StepHeadlineProps = {
+  align?: StepHeadlineAlign;
+  explainer?: string;
+  explainerProps?: TypographyProps<TypographyTag.P>;
   headline: string;
-  explainer: string;
-  align?: 'left' | 'center';
-  visualUrl?: string;
-  type?: FunnelStepType;
 };
 
 const StepHeadline = ({
-  headline,
+  align = StepHeadlineAlign.Center,
   explainer,
-  type,
-  align = 'center',
+  explainerProps,
+  headline,
 }: StepHeadlineProps): ReactElement => {
   return (
     <div
       data-testid="step-headline-container"
-      className={classNames(
-        'flex flex-col gap-2',
-        align === 'center' ? 'text-center' : 'text-left',
-      )}
+      className={classNames('flex flex-col gap-2', `text-${align}`)}
     >
-      <Typography bold type={TypographyType.Title1}>
+      <Typography bold tag={TypographyTag.H2} type={TypographyType.Title1}>
         {headline}
       </Typography>
-      <Typography
-        data-testid="step-headline-explainer"
-        type={TypographyType.Body}
-        color={
-          type === FunnelStepType.Quiz
-            ? TypographyColor.Tertiary
-            : TypographyColor.Primary
-        }
-      >
-        {explainer}
-      </Typography>
+      {!!explainer?.length && (
+        <Typography
+          data-testid="step-headline-explainer"
+          type={TypographyType.Body}
+          {...explainerProps}
+        >
+          {explainer}
+        </Typography>
+      )}
     </div>
   );
 };
