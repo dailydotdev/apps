@@ -30,6 +30,9 @@ const config: StorybookConfig = {
     );
 
     return mergeConfig(config, {
+      core: {
+        disableTelemetry: true,
+      },
       server: {
         fs: {
           strict: false,
