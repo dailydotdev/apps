@@ -1,0 +1,47 @@
+/*
+* Had to CSS to hack my way with the best value variant.
+* First, we need to expand the label using the wrapper of the radio item which isn't highly customizable
+* Second, we need to add a title of "Best value" in the wrapper of the radio item which isn't possible with React right now
+* Lastly, the label background is semi-transparent so we need to add a solid background to the label so it will not look funky
+*/
+.bestValue {
+
+  &::after {
+    @apply typo-caption1 font-bold text-text-primary;
+
+    content: 'Best value';
+    position: absolute;
+    text-transform: uppercase;
+    top: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+  &::before {
+    background: linear-gradient(135.18deg, #E769FB 0%, #9E70F8 24.16%, #68A6FD 40%, #9E70F8 71.33%, #D473F4 100%);
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  & label {
+    overflow: hidden;
+    z-index: 1;
+
+    &::before {
+        @apply bg-background-default;
+
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+    }
+  }
+}

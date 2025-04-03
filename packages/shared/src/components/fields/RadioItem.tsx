@@ -30,7 +30,10 @@ export function RadioItem<T extends string>({
     <ConditionalWrapper
       condition={!!className?.wrapper}
       wrapper={(component) => (
-        <div className={classNames('flex flex-col', className?.wrapper)}>
+        <div
+          className={classNames('flex flex-col', className?.wrapper)}
+          data-testid="radio-item-wrapper"
+        >
           {component}
         </div>
       )}
