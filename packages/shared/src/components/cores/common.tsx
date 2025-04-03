@@ -27,6 +27,11 @@ export const coresFAQItems: FAQItem[] = [
       'No. Cores never expire. You can hold them, spend them, or gift them whenever you want. They stay in your account until you’re ready to use them. No pressure, no countdown.',
   },
   {
+    question: 'Can I get a refund for Cores?',
+    answer:
+      'Cores are non-refundable once purchased. Please double-check your selected bundle before completing the transaction. If you run into any issues, you can always reach out to support@daily.dev and we’ll do our best to help.',
+  },
+  {
     question: 'Can I convert Cores into real money?',
     answer:
       'We’re currently experimenting with monetization. In some cases, eligible users may request withdrawals once they meet minimum thresholds. This feature may require identity verification, isn’t available in all countries, and is subject to platform policies and changes.',
