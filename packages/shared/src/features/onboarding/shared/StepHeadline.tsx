@@ -16,16 +16,16 @@ export enum StepHeadlineAlign {
 
 export type StepHeadlineProps = {
   align?: StepHeadlineAlign;
-  explainer?: string;
-  explainerProps?: TypographyProps<TypographyTag.P>;
-  headline: string;
+  description?: string;
+  descriptionProps?: TypographyProps<TypographyTag.P>;
+  heading: string;
 };
 
 const StepHeadline = ({
   align = StepHeadlineAlign.Center,
-  explainer,
-  explainerProps,
-  headline,
+  description,
+  descriptionProps,
+  heading,
 }: StepHeadlineProps): ReactElement => {
   return (
     <div
@@ -33,15 +33,15 @@ const StepHeadline = ({
       className={classNames('flex flex-col gap-2', `text-${align}`)}
     >
       <Typography bold tag={TypographyTag.H2} type={TypographyType.Title1}>
-        {headline}
+        {heading}
       </Typography>
-      {!!explainer?.length && (
+      {!!description?.length && (
         <Typography
-          data-testid="step-headline-explainer"
+          data-testid="step-headline-description"
           type={TypographyType.Body}
-          {...explainerProps}
+          {...descriptionProps}
         >
-          {explainer}
+          {description}
         </Typography>
       )}
     </div>

@@ -12,10 +12,10 @@ const meta: Meta<typeof StepHeadline> = {
     },
   },
   argTypes: {
-    headline: {
+    heading: {
       control: 'text',
     },
-    explainer: {
+    description: {
       control: 'text',
     },
     align: {
@@ -32,8 +32,8 @@ type Story = StoryObj<typeof StepHeadline>;
 
 export const Default: Story = {
   args: {
-    headline: 'Welcome to daily.dev',
-    explainer:
+    heading: 'Welcome to daily.dev',
+    description:
       'The professional network for developers to learn, grow, and get inspired.',
     align: StepHeadlineAlign.Center,
   },
@@ -56,6 +56,6 @@ export const RightAligned: Story = {
 export const WithoutExplainer: Story = {
   args: {
     ...Default.args,
-    explainer: undefined,
+    description: undefined,
   },
 };

@@ -4,8 +4,8 @@ import StepHeadline, { StepHeadlineAlign } from './StepHeadline';
 import { TypographyType } from '../../../components/typography/Typography';
 
 const defaultProps = {
-  headline: 'Test Headline',
-  explainer: 'Test explainer text',
+  heading: 'Test Headline',
+  description: 'Test description text',
 };
 
 const renderComponent = (props = {}) => {
@@ -13,10 +13,10 @@ const renderComponent = (props = {}) => {
 };
 
 describe('StepHeadline', () => {
-  it('should render headline and explainer text', () => {
+  it('should render headline and description text', () => {
     renderComponent();
     expect(screen.getByText('Test Headline')).toBeInTheDocument();
-    expect(screen.getByText('Test explainer text')).toBeInTheDocument();
+    expect(screen.getByText('Test description text')).toBeInTheDocument();
   });
 
   it('should have text-center class when align is center', () => {
@@ -37,20 +37,20 @@ describe('StepHeadline', () => {
     expect(container).toHaveClass('text-right');
   });
 
-  it('should apply custom props to explainer text', () => {
+  it('should apply custom props to description text', () => {
     renderComponent({
-      explainer: 'Test explainer text',
-      explainerProps: { type: TypographyType.Subhead },
+      description: 'Test description text',
+      descriptionProps: { type: TypographyType.Subhead },
     });
-    const explainer = screen.getByTestId('step-headline-explainer');
-    expect(explainer).toBeInTheDocument();
-    expect(explainer).toHaveClass('typo-subhead');
+    const description = screen.getByTestId('step-headline-description');
+    expect(description).toBeInTheDocument();
+    expect(description).toHaveClass('typo-subhead');
   });
 
-  it('should not render explainer when not provided', () => {
-    renderComponent({ explainer: undefined });
+  it('should not render description when not provided', () => {
+    renderComponent({ description: undefined });
     expect(
-      screen.queryByTestId('step-headline-explainer'),
+      screen.queryByTestId('step-headline-description'),
     ).not.toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
+import type { StepHeadlineAlign } from '../shared/StepHeadline';
 import StepHeadline from '../shared/StepHeadline';
 import { Image } from '../../../components/image/Image';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
@@ -38,10 +39,9 @@ const InformativeScreen = ({
           )}
         >
           <StepHeadline
-            headline={parameters?.headline}
-            explainer={parameters?.explainer}
-            align={parameters?.align as 'center' | 'left'}
-            visualUrl={parameters?.visualUrl}
+            heading={parameters?.headline}
+            description={parameters?.explainer}
+            align={parameters?.align as StepHeadlineAlign}
           />
           {parameters?.visualUrl && (
             <Image
