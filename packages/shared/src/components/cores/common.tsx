@@ -19,7 +19,7 @@ export const coresFAQItems: FAQItem[] = [
   {
     question: 'How do I buy Cores?',
     answer:
-      'Open your Earnings Dashboard and choose from preset Core bundles. Payments are processed securely using credit cards, PayPal, and other local payment methods. Buying Cores is quick, and you’ll be ready to support others or unlock upcoming features in seconds.',
+      'Open your Wallet Dashboard and choose from preset Core bundles. Payments are processed securely using credit cards, PayPal, and other local payment methods. Buying Cores is quick, and you’ll be ready to support others or unlock upcoming features in seconds.',
   },
   {
     question: 'Do Cores expire?',

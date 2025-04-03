@@ -106,13 +106,13 @@ const BalanceBlock = ({
 
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
 
-const Earnings = (): ReactElement => {
+const Wallet = (): ReactElement => {
   const router = useRouter();
   const { isLoggedIn, user, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const onBuyCoresClick = useCallback(
     ({
-      origin = Origin.EarningsPageCTA,
+      origin = Origin.WalletPageCTA,
       amount,
       target_id,
     }: Partial<LogStartBuyingCreditsProps>) => {
@@ -385,7 +385,7 @@ const Earnings = (): ReactElement => {
         <PageWidgets className="flex gap-4 py-6">
           <FeaturedCoresWidget
             className="hidden laptop:flex"
-            origin={Origin.EarningsPagePackage}
+            origin={Origin.WalletPagePackage}
             onClick={onBuyCoresClick}
             amounts={[100, 300, 600]}
           />
@@ -422,12 +422,12 @@ const Earnings = (): ReactElement => {
   );
 };
 
-const getEarningsLayout: typeof getLayout = (...props) =>
+const getWalletLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
-const seo: NextSeoProps = { title: 'Earnings', nofollow: true, noindex: true };
+const seo: NextSeoProps = { title: 'Wallet', nofollow: true, noindex: true };
 
-Earnings.getLayout = getEarningsLayout;
-Earnings.layoutProps = { seo, screenCentered: false };
+Wallet.getLayout = getWalletLayout;
+Wallet.layoutProps = { seo, screenCentered: false };
 
-export default Earnings;
+export default Wallet;

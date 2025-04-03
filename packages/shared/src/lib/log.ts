@@ -63,8 +63,8 @@ export enum Origin {
   InAppPromotion = 'in app promotion',
   Suggestions = 'suggestions',
   // Start Credits
-  EarningsPageCTA = 'earnings page cta',
-  EarningsPagePackage = 'earnings page package',
+  WalletPageCTA = 'wallet page cta',
+  WalletPagePackage = 'wallet page package',
   Award = 'award',
   // End Credits
 }

@@ -58,7 +58,7 @@ const CoresPaymentPage = (): ReactElement => {
   return (
     // TODO: Take correct origin from referrer
     <BuyCoresContextProvider
-      origin={Origin.EarningsPageCTA}
+      origin={Origin.WalletPageCTA}
       onCompletion={() => {
         router?.push(
           getRedirectNextPath(new URLSearchParams(window.location.search)),
