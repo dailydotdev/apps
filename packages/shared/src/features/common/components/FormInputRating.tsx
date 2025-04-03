@@ -80,7 +80,7 @@ export const FormInputRating = ({
               onClick={() => onSelect(itemValue)}
               role="radio"
               type="button"
-              variant={ButtonVariant.Checkbox}
+              variant={ButtonVariant.Quiz}
             >
               <span className="inline-block min-w-full">{itemValue}</span>
             </Button>
