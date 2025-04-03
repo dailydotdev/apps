@@ -1,4 +1,4 @@
-import type { ComponentProps, PropsWithChildren } from 'react';
+import type { ComponentProps, PropsWithChildren, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -6,6 +6,7 @@ import {
   ButtonVariant,
   ButtonSize,
 } from '../../../components/buttons/Button';
+import type { ButtonProps } from '../../../components/buttons/Button';
 
 type CheckboxValue = string;
 type CheckboxValues = string[];
@@ -23,6 +24,9 @@ export enum CheckboxGroupVariant {
 
 export interface FormInputCheckboxGroupProps
   extends PropsWithChildren<ComponentProps<'div'>> {
+  /**
+   * @default []
+   */
   defaultValue?: CheckboxValues;
   name: string;
   onValueChange?: (value: CheckboxValues) => void;
@@ -51,6 +55,61 @@ const getChangedValue = (
     : [...value, selectedValue];
 };
 
+const FormInputCheckbox = ({
+  isSelected,
+  isVertical,
+  name,
+  item,
+  ...props
+}: ButtonProps<'button'> & {
+  isSelected: boolean;
+  isVertical: boolean;
+  name: string;
+  item: CheckboxItem;
+}) => {
+  return (
+    <Button
+      aria-checked={isSelected}
+      aria-label={item.label}
+      className={classNames(isVertical ? 'typo-subhead' : 'typo-body')}
+      pressed={isSelected}
+      name={name}
+      role="checkbox"
+      type="button"
+      value={item.value}
+      {...props}
+    >
+      <div
+        className={classNames(
+          'flex min-h-12 items-center gap-2',
+          isVertical
+            ? 'min-w-full flex-col justify-center py-2'
+            : 'flex-row justify-start',
+        )}
+      >
+        {(isVertical || item.image) && (
+          <div
+            className={classNames(
+              'relative',
+              isVertical ? 'size-14' : 'size-6',
+            )}
+          >
+            {!!item.image && (
+              <img
+                alt={item.label}
+                className="absolute left-0 top-0 h-full w-full object-contain object-center"
+                loading="lazy"
+                {...item.image}
+              />
+            )}
+          </div>
+        )}
+        <span>{item.label}</span>
+      </div>
+    </Button>
+  );
+};
+
 export const FormInputCheckboxGroup = ({
   defaultValue = [],
   name,
@@ -59,7 +118,7 @@ export const FormInputCheckboxGroup = ({
   cols = 1,
   value,
   variant = CheckboxGroupVariant.Horizontal,
-}: FormInputCheckboxGroupProps) => {
+}: FormInputCheckboxGroupProps): ReactElement => {
   const [checkedValue, setCheckedValue] = useState<CheckboxValues | undefined>(
     defaultValue,
   );
@@ -75,54 +134,18 @@ export const FormInputCheckboxGroup = ({
 
   return (
     <div className={`grid-cols-${cols} grid gap-2`}>
-      {options.map((item) => {
-        const isSelected = inputValue?.includes(item.value);
-        return (
-          <Button
-            key={item.value}
-            aria-checked={isSelected}
-            aria-describedby={item.label}
-            aria-label={item.label}
-            className={classNames(isVertical ? 'typo-subhead' : 'typo-body')}
-            pressed={isSelected}
-            name={name}
-            onClick={() => onSelect(item.value)}
-            role="checkbox"
-            size={ButtonSize.XLarge}
-            type="button"
-            value={item.value}
-            variant={ButtonVariant.Checkbox}
-          >
-            <div
-              className={classNames(
-                'flex min-h-12 items-center gap-2',
-                isVertical
-                  ? 'min-w-full flex-col justify-center py-2'
-                  : 'flex-row justify-start',
-              )}
-            >
-              {(isVertical || item.image) && (
-                <div
-                  className={classNames(
-                    'relative',
-                    isVertical ? 'size-14' : 'size-6',
-                  )}
-                >
-                  {!!item.image && (
-                    <img
-                      alt={item.label}
-                      className="absolute left-0 top-0 h-full w-full object-contain object-center"
-                      loading="lazy"
-                      {...item.image}
-                    />
-                  )}
-                </div>
-              )}
-              <span>{item.label}</span>
-            </div>
-          </Button>
-        );
-      })}
+      {options.map((item) => (
+        <FormInputCheckbox
+          isSelected={inputValue.includes(item.value)}
+          isVertical={isVertical}
+          item={item}
+          key={item.value}
+          name={name}
+          onClick={() => onSelect(item.value)}
+          size={ButtonSize.XLarge}
+          variant={ButtonVariant.Quiz}
+        />
+      ))}
     </div>
   );
 };
