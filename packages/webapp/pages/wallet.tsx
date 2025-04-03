@@ -88,7 +88,10 @@ const BalanceBlock = ({
 }: BalanceBlockProps): ReactElement => {
   return (
     <div
-      className={classNames('flex flex-1 flex-col rounded-14 p-4', className)}
+      className={classNames(
+        'flex flex-1 flex-col rounded-14 border border-border-subtlest-tertiary p-4',
+        className,
+      )}
     >
       {Icon}
       <SimpleTooltip content={description} appendTo="parent">
@@ -210,7 +213,6 @@ const Wallet = (): ReactElement => {
                 title="Balance"
                 description="Your current balance"
                 balance={user.balance.amount}
-                className="bg-surface-float"
               />
               <BalanceBlock
                 Icon={
@@ -382,7 +384,7 @@ const Wallet = (): ReactElement => {
             </section>
           </div>
         </main>
-        <PageWidgets className="flex gap-4 py-6">
+        <PageWidgets className="flex gap-4 py-4">
           <FeaturedCoresWidget
             className="hidden laptop:flex"
             origin={Origin.WalletPagePackage}
