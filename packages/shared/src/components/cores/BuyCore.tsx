@@ -4,13 +4,13 @@ import type { LogStartBuyingCreditsProps } from '../../types';
 import { webappUrl } from '../../lib/constants';
 import type { Origin } from '../../lib/log';
 import { IconSize } from '../Icon';
-import { CoinIcon } from '../icons';
+import { CoreIcon } from '../icons';
 import {
   Typography,
   TypographyType,
   TypographyColor,
 } from '../typography/Typography';
-import { formatCoresCurrency, formatCurrency } from '../../lib/utils';
+import { formatCoresCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { getPathnameWithQuery } from '../../lib';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -18,7 +18,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 type BuyCoreProps = {
   onBuyCoresClick: (props: LogStartBuyingCreditsProps) => void;
   amount: number;
-  price?: number;
+  priceFormatted?: string;
   origin: Origin;
   pid?: string;
 };
@@ -26,7 +26,7 @@ type BuyCoreProps = {
 export const BuyCore = ({
   onBuyCoresClick,
   amount,
-  price,
+  priceFormatted,
   origin,
   pid,
 }: BuyCoreProps): ReactElement => {
@@ -47,10 +47,7 @@ export const BuyCore = ({
         className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2"
         onClick={() => onBuyCoresClick({ amount, origin })}
       >
-        <CoinIcon
-          size={IconSize.XLarge}
-          className="mb-1 text-accent-bun-default"
-        />
+        <CoreIcon size={IconSize.XLarge} className="mb-1" />
         <Typography type={TypographyType.Title3} bold>
           {formatCoresCurrency(amount)}
         </Typography>
@@ -58,9 +55,7 @@ export const BuyCore = ({
           type={TypographyType.Caption2}
           color={TypographyColor.Tertiary}
         >
-          {typeof price !== 'undefined'
-            ? formatCurrency(price, { currency: 'USD' })
-            : '~'}
+          {typeof priceFormatted !== 'undefined' ? priceFormatted : '~'}
         </Typography>
       </a>
     </Link>

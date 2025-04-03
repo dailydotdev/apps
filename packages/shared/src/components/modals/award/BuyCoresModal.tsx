@@ -19,7 +19,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { CoinIcon } from '../../icons';
+import { CoreIcon } from '../../icons';
 import { useGiveAwardModalContext } from '../../../contexts/GiveAwardModalContext';
 import { IconSize } from '../../Icon';
 import { CoreOptionList } from '../../cores/CoreOptionList';
@@ -110,7 +110,7 @@ const ProcessingLoading = ({
 
   return (
     <>
-      <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
+      <CoreIcon size={IconSize.XXXLarge} />
       <Typography type={TypographyType.Title3} bold>
         {statusMessage}
       </Typography>
@@ -124,7 +124,7 @@ const ProcessingCompleted = () => {
 
   return (
     <>
-      <CoinIcon size={IconSize.XXXLarge} className="text-accent-bun-default" />
+      <CoreIcon size={IconSize.XXXLarge} />
       <Typography type={TypographyType.Body} bold>
         {formatCoresCurrency(selectedProduct.value)}
       </Typography>

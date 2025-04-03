@@ -21,7 +21,7 @@ import {
   withdrawLink,
 } from '@dailydotdev/shared/src/lib/constants';
 import {
-  CoinIcon,
+  CoreIcon,
   CreditCardIcon,
   DocsIcon,
   FeedbackIcon,
@@ -206,12 +206,7 @@ const Earnings = (): ReactElement => {
           <div className="flex flex-col gap-6 p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
-                Icon={
-                  <CoinIcon
-                    size={IconSize.Small}
-                    className="text-accent-bun-default"
-                  />
-                }
+                Icon={<CoreIcon size={IconSize.Small} />}
                 title="Balance"
                 description="Your current balance"
                 balance={user.balance.amount}
@@ -270,7 +265,7 @@ const Earnings = (): ReactElement => {
                 </Typography>
               </div>
               <div className="flex gap-2">
-                <CoinIcon className="text-accent-bun-default" />
+                <CoreIcon />
                 <div className="flex flex-col gap-1.5">
                   <ProgressBar
                     shouldShowBg

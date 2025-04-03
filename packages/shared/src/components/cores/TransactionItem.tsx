@@ -1,8 +1,7 @@
 import React from 'react';
 import type { ReactElement, ReactNode } from 'react';
-import classNames from 'classnames';
 import {
-  CoinIcon,
+  CoreIcon,
   CreditCardIcon,
   InfoIcon,
   MinusIcon,
@@ -83,9 +82,7 @@ export const TransactionItem = ({
         </div>
       </div>
       <div className="flex items-center gap-1">
-        <CoinIcon
-          className={classNames(amount >= 0 && 'text-accent-bun-default')}
-        />
+        <CoreIcon secondary={amount < 0} />
         <Typography type={TypographyType.Callout} bold>
           {amount === 0 && 'Free'}
           {amount !== 0 &&

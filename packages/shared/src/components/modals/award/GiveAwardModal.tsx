@@ -12,7 +12,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ArrowIcon, CoinIcon } from '../../icons';
+import { ArrowIcon, CoreIcon } from '../../icons';
 import { Image } from '../../image/Image';
 import { featuredAwardImage } from '../../../lib/image';
 import type {
@@ -67,7 +67,7 @@ const AwardItem = ({
         className="size-20 object-contain"
       />
       <div className="flex items-center justify-center gap-1">
-        <CoinIcon size={IconSize.Size16} className="text-accent-bun-default" />
+        <CoreIcon size={IconSize.Size16} />
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Secondary}
@@ -177,7 +177,7 @@ const IntroScreen = () => {
             variant={ButtonVariant.Primary}
             onClick={onBuyCores}
           >
-            Buy Cores <CoinIcon className="text-accent-bun-default" />{' '}
+            Buy Cores <CoreIcon />{' '}
             {product.value === 0 ? 'Free' : product.value}
           </Button>
           <AwardFeesNote />
@@ -300,7 +300,7 @@ const CommentScreen = () => {
           variant={ButtonVariant.Primary}
           onClick={onAwardClick}
         >
-          Send Award for <CoinIcon className="text-accent-bun-default" />{' '}
+          Send Award for <CoreIcon />{' '}
           {product.value === 0 ? 'Free' : product.value}
         </Button>
         <AwardFeesNote />
@@ -323,7 +323,7 @@ const SuccessScreen = () => {
             className="size-20"
           />
           <div className="flex items-center justify-center gap-1">
-            <CoinIcon
+            <CoreIcon
               size={IconSize.Size16}
               className="text-accent-bun-default"
             />

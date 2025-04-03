@@ -264,3 +264,41 @@ export const purchaseCoinsCheckoutVideoPoster =
 
 export const featuredAwardImage =
   'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
+
+export const disabledCoreImage =
+  'https://media.daily.dev/image/upload/s--kTMWrmJV--/f_auto/v1743599810/public/Core-disabled';
+
+export const coreImage =
+  'https://media.daily.dev/image/upload/s--YAvJnCmq--/f_auto/v1743599810/public/Core-front';
+
+const coreValueMap = [
+  {
+    maxValue: 200,
+    image:
+      'https://media.daily.dev/image/upload/s--9IXwSmB---/f_auto/v1743599811/public/Core1',
+  },
+  {
+    maxValue: 1_000,
+    image:
+      'https://media.daily.dev/image/upload/s--ybFIBUnx--/f_auto/v1743599810/public/Core2',
+  },
+  {
+    maxValue: 10_000,
+    image:
+      'https://media.daily.dev/image/upload/s--kai_mE1u--/f_auto/v1743599810/public/Core3',
+  },
+  {
+    maxValue: 20_000,
+    image:
+      'https://media.daily.dev/image/upload/s--bSCtv96n--/f_auto/v1743599810/public/Core4',
+  },
+  {
+    maxValue: Infinity,
+    image:
+      'https://media.daily.dev/image/upload/s--54JYAftK--/f_auto/v1743599810/public/Core5',
+  },
+];
+
+export const getCoreCurrencyImage = (value: number): string => {
+  return coreValueMap.find((core) => core.maxValue > value).image;
+};

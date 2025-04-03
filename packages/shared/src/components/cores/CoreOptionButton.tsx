@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CoinIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -12,6 +11,8 @@ import {
 } from '../typography/Typography';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { Image } from '../image/Image';
+import { getCoreCurrencyImage } from '../../lib/image';
 
 type CoreOptionButtonProps = {
   id: string;
@@ -55,7 +56,7 @@ export const CoreOptionButton = ({
           : undefined,
       )}
       variant={ButtonVariant.Float}
-      icon={<CoinIcon secondary className="text-accent-bun-default" />}
+      icon={<Image className="mr-2 size-8" src={getCoreCurrencyImage(cores)} />}
       size={ButtonSize.Large}
       aria-checked={selectedProduct?.id === id}
       role="radio"

@@ -74,7 +74,7 @@ export const FeaturedCoresWidget = ({
                   key={item.value}
                   onBuyCoresClick={onClick}
                   amount={item.coresValue}
-                  price={item.price.amount}
+                  priceFormatted={item.price.formatted}
                   origin={origin}
                   pid={item.value}
                 />
