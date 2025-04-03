@@ -59,8 +59,11 @@ export default function ProfileButton({
           {hasAccessToCores(user) && (
             <SimpleTooltip
               content={
-                // eslint-disable-next-line react/jsx-key
-                ['Wallet dashboard', <br />, `${preciseBalance} Cores`]
+                <>
+                  Wallet
+                  <br />
+                  {preciseBalance} Cores
+                </>
               }
             >
               <Button
