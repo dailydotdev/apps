@@ -20,7 +20,7 @@ const FunnelInformative = ({
 }: FunnelStepFact): ReactElement => {
   const bgVariant = parameters?.reverse
     ? FunnelBackgroundVariant.Top
-    : FunnelBackgroundVariant.Default;
+    : FunnelBackgroundVariant.Bottom;
   return (
     <FunnelStepBackground variant={bgVariant}>
       <FunnelStepCtaWrapper
