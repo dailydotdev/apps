@@ -474,7 +474,6 @@ export function OnboardPage(): ReactElement {
           customActionName={customActionName}
           onClick={onClickCreateFeed}
           activeScreen={activeScreen}
-          showPlusIcon={isPlusCheckout && activeScreen === OnboardingStep.Plus}
         />
         <div
           className={classNames(
