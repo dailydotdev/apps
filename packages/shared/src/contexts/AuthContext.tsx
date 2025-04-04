@@ -1,7 +1,9 @@
+'use client';
+
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import {
   deleteAccount,
@@ -77,14 +79,12 @@ export const getQueryParams = (): Record<string, string> => {
   }
 
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-
-  return params;
+  return Object.fromEntries(urlSearchParams.entries());
 };
 
 export const REGISTRATION_PATH = '/register';
 
-const logout = async (reason: string): Promise<void> => {
+export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {

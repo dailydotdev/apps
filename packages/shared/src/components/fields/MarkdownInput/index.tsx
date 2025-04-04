@@ -27,7 +27,6 @@ import type {
   UseMarkdownInputProps,
 } from '../../../hooks/input';
 import { useMarkdownInput } from '../../../hooks/input';
-import { ACCEPTED_TYPES } from '../ImageInput';
 import { MarkdownUploadLabel } from './MarkdownUploadLabel';
 import { markdownGuide } from '../../../lib/constants';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
@@ -43,6 +42,7 @@ import { Divider } from '../../utilities';
 import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
+import { ACCEPTED_TYPES } from '../../../graphql/posts';
 
 interface ClassName {
   container?: string;

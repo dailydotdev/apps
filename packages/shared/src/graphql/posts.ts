@@ -12,10 +12,12 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
-import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 
+export const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const acceptedTypesList = ACCEPTED_TYPES.split(',');
+export const MEGABYTE = 1024 * 1024;
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
