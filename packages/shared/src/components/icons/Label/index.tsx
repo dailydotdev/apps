@@ -5,6 +5,6 @@ import Icon from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-export const FolderIcon = (props: IconProps): ReactElement => (
+export const LabelIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );

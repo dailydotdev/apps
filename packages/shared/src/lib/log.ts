@@ -229,6 +229,9 @@ export enum LogEvent {
   WarningCheckout = 'warning checkout',
   ErrorCheckout = 'error checkout',
   InitiatePayment = 'initiate payment',
+  HoverPlusFeature = 'hover plus feature',
+  ClickPlusFeature = 'click plus feature',
+  ClosePlusFeature = 'close plus feature',
   CancelSubscription = 'cancel subscription',
   ReceivePayment = 'receive payment',
   OnboardingSkipPlus = 'skip upgrade subscription',
@@ -302,6 +305,8 @@ export enum TargetType {
   // Browsers
   Chrome = 'chrome',
   Edge = 'edge',
+  List = 'list',
+  Grid = 'grid',
 }
 
 export enum TargetId {

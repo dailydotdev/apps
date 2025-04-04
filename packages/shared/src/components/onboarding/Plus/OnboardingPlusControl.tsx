@@ -1,22 +1,19 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { useViewSize, ViewSize } from '../../hooks';
-import { usePaymentContext } from '../../contexts/payment/context';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { usePaymentContext } from '../../../contexts/payment/context';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../typography/Typography';
-import { PlusComparingCards } from '../plus/PlusComparingCards';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
-
-interface OnboardingStepProps {
-  onClickNext: () => void;
-}
+} from '../../typography/Typography';
+import { PlusComparingCards } from '../../plus/PlusComparingCards';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
+import type { OnboardingStepProps } from './common';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -46,7 +43,7 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
-export const OnboardingPlusStep = ({
+export const OnboardingPlusControl = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -82,8 +79,8 @@ export const OnboardingPlusStep = ({
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn’t a long-term
-          strategy.
+          feeds, and pro features. Because copy-pasting code isn&apos;t a
+          long-term strategy.
         </Typography>
       </header>
       {item ? (
