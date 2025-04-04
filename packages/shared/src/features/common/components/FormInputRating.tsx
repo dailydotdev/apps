@@ -33,9 +33,7 @@ export const FormInputRating = ({
   value,
   ...attrs
 }: FormInputRatingProps): ReactElement => {
-  const [checkedValue, setCheckedValue] = useState<RatingValue | undefined>(
-    defaultValue,
-  );
+  const [checkedValue, setCheckedValue] = useState(defaultValue);
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
 
