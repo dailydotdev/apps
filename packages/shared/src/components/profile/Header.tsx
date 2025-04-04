@@ -185,6 +185,7 @@ export function Header({
               id: user.id,
               receiver: user,
             }}
+            variant={ButtonVariant.Float}
           />
         )}
         {!isSameUser && (
