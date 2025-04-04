@@ -16,10 +16,6 @@ export function hasAccessToCores(user: LoggedUser): boolean {
 }
 
 export function canReceiveCores(user: LoggedUser): boolean {
-  if (isNullOrUndefined(user?.coresRole)) {
-    return false;
-  }
-
   return verifyCoresRole(user, CoresRole.Creator);
 }
 
