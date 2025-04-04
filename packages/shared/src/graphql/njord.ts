@@ -56,6 +56,10 @@ export const award = async ({
   return result.award;
 };
 
+export enum ProductType {
+  Award = 'award',
+}
+
 export type Product = {
   id: string;
   type: string;
@@ -212,4 +216,49 @@ export const getTransactions = async ({
   }>(TRANSACTIONS_QUERY, { first, after });
 
   return result.transactions;
+};
+
+export const PRODUCTS_SUMMARY_QUERY = gql`
+  query userProductSummary(
+    $userId: ID!
+    $limit: Int = 24
+    $type: ProductType!
+  ) {
+    userProductSummary(userId: $userId, limit: $limit, type: $type) {
+      id
+      name
+      image
+      count
+    }
+  }
+`;
+
+export type UserProductSummary = Pick<Product, 'id' | 'name' | 'image'> & {
+  count: number;
+};
+
+export const userProductSummaryQueryOptions = ({
+  userId,
+  limit,
+  type,
+}: {
+  userId: string;
+  limit?: number;
+  type: ProductType;
+}) => {
+  return {
+    queryKey: generateQueryKey(RequestKey.Products, null, 'summary', {
+      userId,
+      limit,
+      type,
+    }),
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        userProductSummary: UserProductSummary[];
+      }>(PRODUCTS_SUMMARY_QUERY, { userId, limit, type });
+
+      return result.userProductSummary;
+    },
+    staleTIme: StaleTime.Default,
+  };
 };
