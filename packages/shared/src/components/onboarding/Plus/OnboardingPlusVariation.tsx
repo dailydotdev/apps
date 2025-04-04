@@ -32,7 +32,7 @@ type VariationCardOptionProps = {
   price: string;
   button: {
     copy: string;
-  } & ButtonProps<HTMLLinkElement>;
+  } & ButtonProps<'a' | 'button'>;
   note?: string;
 };
 const VariationCardOption = ({
@@ -253,7 +253,6 @@ export const OnboardingPlusVariation = ({
       </div>
 
       <Button
-        copy="Continue with Plus"
         variant={ButtonVariant.Primary}
         target="_blank"
         tag="a"

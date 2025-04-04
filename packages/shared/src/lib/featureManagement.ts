@@ -83,7 +83,7 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 
 export const featureOnboardingPlusCheckout = new Feature(
   'onboarding_plus_checkout',
-  true,
+  false,
 );
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);

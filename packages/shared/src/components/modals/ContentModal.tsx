@@ -11,7 +11,8 @@ import {
 } from '../typography/Typography';
 
 interface ContentModalProps extends ReactModal.Props {
-  mediaUrl?: string;
+  videoUrl?: string;
+  imageUrl?: string;
   mediaType?: 'video' | 'image';
   title: string;
   description: string;
@@ -52,7 +53,7 @@ export default function ContentModal({
               title={title}
             />
           ) : (
-            <img src={imageUrl} alt={title} className="h-56 w-full" />
+            <img src={imageUrl} alt={title} className="h-70 w-full" />
           )}
         </div>
         <div className="flex w-full flex-col gap-4 p-6">
