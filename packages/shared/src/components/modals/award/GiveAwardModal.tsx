@@ -178,7 +178,7 @@ const IntroScreen = () => {
             onClick={onBuyCores}
           >
             Buy Cores <CoreIcon />{' '}
-            {product.value === 0 ? 'Free' : product.value}
+            {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
           </Button>
           <AwardFeesNote />
         </Modal.Footer>
@@ -301,7 +301,7 @@ const CommentScreen = () => {
           onClick={onAwardClick}
         >
           Send Award for <CoreIcon />{' '}
-          {product.value === 0 ? 'Free' : product.value}
+          {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
         </Button>
         <AwardFeesNote />
       </Modal.Footer>
@@ -332,7 +332,9 @@ const SuccessScreen = () => {
               color={TypographyColor.Secondary}
               tag={TypographyTag.Span}
             >
-              {product.value === 0 ? 'Free' : product.value}
+              {product.value === 0
+                ? 'Free'
+                : formatCoresCurrency(product.value)}
             </Typography>
           </div>
         </div>
