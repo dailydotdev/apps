@@ -63,7 +63,7 @@ export const Awards = ({ userId }: { userId: string }): ReactElement => {
           daily.dev docs
         </ClickableText>
       </Typography>
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="no-scrollbar mt-6 flex flex-nowrap gap-2 overflow-x-scroll scroll-smooth tablet:flex-wrap tablet:overflow-x-auto">
         {awards?.map((award) => {
           return (
             <Award key={award.id} image={award.image} amount={award.count} />
