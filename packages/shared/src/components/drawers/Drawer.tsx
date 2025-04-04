@@ -50,6 +50,7 @@ export interface DrawerProps
   onClose: PopupCloseFunc;
   displayCloseButton?: boolean;
   appendOnRoot?: boolean;
+  instantOpen?: boolean;
 }
 
 export interface DrawerOnMobileProps {
@@ -83,10 +84,11 @@ function BaseDrawer({
   displayCloseButton,
   onAfterOpen,
   onAfterClose,
+  instantOpen = false,
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement>();
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);

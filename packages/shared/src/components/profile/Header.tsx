@@ -2,7 +2,11 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import type { PublicProfile, UserShortProfile } from '../../lib/user';
+import type {
+  LoggedUser,
+  PublicProfile,
+  UserShortProfile,
+} from '../../lib/user';
 import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -16,7 +20,6 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -27,6 +30,11 @@ import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
 import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
+import { AwardButton } from '../award/AwardButton';
+import { BuyCreditsButton } from '../credit/BuyCreditsButton';
+import { webappUrl } from '../../lib/constants';
+import { hasAccessToCores, canAwardUser } from '../../lib/cores';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -44,10 +52,10 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
+  const { user: loggedUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isPlus } = usePlusSubscription();
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -156,13 +164,6 @@ export function Header({
             Edit profile
           </Button>
         )}
-        {isSameUser && !isPlus && (
-          <UpgradeToPlus
-            className="max-w-fit laptop:hidden"
-            size={ButtonSize.Small}
-            target={TargetId.MyProfile}
-          />
-        )}
         {!blocked && (
           <FollowButton
             entityId={user.id}
@@ -172,6 +173,29 @@ export function Header({
             className="flex-row-reverse"
           />
         )}
+        {isSameUser && hasAccessToCores(loggedUser) && (
+          <BuyCreditsButton
+            className="laptop:hidden"
+            onPlusClick={() => {
+              router.push(`${webappUrl}/cores`);
+            }}
+          />
+        )}
+        {!isSameUser &&
+          canAwardUser({
+            sendingUser: loggedUser,
+            receivingUser: user as LoggedUser,
+          }) && (
+            <AwardButton
+              appendTo="parent"
+              type="USER"
+              entity={{
+                id: user.id,
+                receiver: user,
+              }}
+              variant={ButtonVariant.Float}
+            />
+          )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>

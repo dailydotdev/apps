@@ -1,6 +1,7 @@
 import React from 'react';
 import { feedback } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
+import type { FAQItem } from '../../types';
 
 export interface CommonPlusPageProps {
   shouldShowPlusHeader?: boolean;
@@ -27,7 +28,7 @@ export const plusFAQTrialItem = {
   ),
 };
 
-export const plusFAQItems = [
+export const plusFAQItems: FAQItem[] = [
   {
     question: 'Why should I get the Annual Special Plan now?',
     answer: (

@@ -95,7 +95,13 @@ export const PlusList = ({
   return (
     <ul className={classNames('flex flex-col gap-0.5 py-6', className)}>
       {items.map((item) => (
-        <PlusListItem key={item.label} item={item} {...props} />
+        <PlusListItem
+          key={item.label}
+          item={item}
+          icon={item.icon}
+          typographyProps={item.typographyProps}
+          {...props}
+        />
       ))}
     </ul>
   );

@@ -1,4 +1,5 @@
 import { webappUrl } from './constants';
+import { checkIsExtension } from './func';
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
@@ -96,4 +97,26 @@ export const withPrefix = (prefix: string, url?: string): string => {
 
 export const fromCDN = (path: string): string => {
   return `${process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''}${path}`;
+};
+
+export const getRedirectNextPath = (params: URLSearchParams): string => {
+  const next = params.get('next');
+
+  let nextPath = '/';
+
+  if (next) {
+    try {
+      const nextUrl = new URL(next, 'http://localhost');
+      // infinite redirect loop prevention
+      nextUrl.searchParams.delete('next');
+
+      // we ignore url origin since we don't allow cross-origin redirects
+      nextPath = getPathnameWithQuery(nextUrl.pathname, nextUrl.searchParams);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }
+
+  return checkIsExtension() ? `${webappUrl}${nextPath}` : nextPath;
 };

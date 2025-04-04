@@ -19,6 +19,7 @@ const FURTHER_READING_FRAGMENT = gql`
     readTime
     numComments
     numUpvotes
+    numAwards
     source {
       ...SourceShortInfo
     }

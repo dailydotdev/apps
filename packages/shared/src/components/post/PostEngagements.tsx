@@ -119,7 +119,6 @@ function PostEngagements({
         onComment={() =>
           commentRef.current.onShowInput(Origin.PostCommentButton)
         }
-        actionsClassName="hidden laptop:flex"
         origin={logOrigin}
       />
       <PostContentReminder post={post} />

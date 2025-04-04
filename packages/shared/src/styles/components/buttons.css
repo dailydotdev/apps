@@ -163,6 +163,8 @@
 .btn-quaternary {
   & label {
     color: var(--button-color, var(--button-default-color));
+    transition: 0.2s ease-in-out;
+    transition-property: color;
   }
 
   & [aria-pressed="true"] ~ label {
@@ -183,19 +185,6 @@
 
   & [disabled] ~ label {
     pointer-events: none;
-  }
-
-  & label {
-    padding-left: 0.25rem;
-    padding-right: 1.5rem;
-  }
-
-  &.small > label {
-    padding-right: 1rem;
-  }
-
-  &.large > label {
-    padding-right: 2rem;
   }
 
   &.reverse {
