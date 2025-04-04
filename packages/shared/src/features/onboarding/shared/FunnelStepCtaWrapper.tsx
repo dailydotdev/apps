@@ -3,10 +3,17 @@ import React from 'react';
 import type { ButtonProps } from '../../../components/buttons/Button';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 
+export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
+  cta?: {
+    label?: string;
+  };
+};
+
 export function FunnelStepCtaWrapper({
   children,
+  cta,
   ...props
-}: ButtonProps<'button'>): ReactElement {
+}: FunnelStepCtaWrapperProps): ReactElement {
   return (
     <div className="relative flex flex-col gap-4">
       {children}
@@ -17,7 +24,7 @@ export function FunnelStepCtaWrapper({
           variant={ButtonVariant.Primary}
           {...props}
         >
-          Next
+          {cta?.label ?? 'Next'}
         </Button>
       </div>
     </div>
