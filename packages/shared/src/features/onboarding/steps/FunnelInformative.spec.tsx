@@ -1,11 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import InformativeScreen from './InformativeScreen';
+import FunnelInformative from './FunnelInformative';
 import { FunnelStepType } from '../types/funnel';
+import type { FunnelInformativeProps } from './FunnelInformative';
 
 const mockOnTransition = jest.fn();
 
-const defaultProps = {
+const defaultProps: FunnelInformativeProps = {
   id: 'test-id',
   type: FunnelStepType.Fact,
   transitions: [],
@@ -19,10 +20,10 @@ const defaultProps = {
 };
 
 const renderComponent = (props = {}) => {
-  return render(<InformativeScreen {...defaultProps} {...props} />);
+  return render(<FunnelInformative {...defaultProps} {...props} />);
 };
 
-describe('InformativeScreen', () => {
+describe('FunnelInformative', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
