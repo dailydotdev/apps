@@ -29,7 +29,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
-import { showAwardButton } from '../../lib/cores';
+import { canAwardUser } from '../../lib/cores';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import type { LoggedUser } from '../../lib/user';
 
@@ -216,7 +216,7 @@ export function PostActions({
             Comment
           </QuaternaryButton>
           {!!post.author &&
-            showAwardButton({
+            canAwardUser({
               sendingUser: user,
               receivingUser: post.author as LoggedUser,
             }) &&

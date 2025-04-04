@@ -58,7 +58,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { showAwardButton } from '../../lib/cores';
+import { canAwardUser } from '../../lib/cores';
 import { featuredAwardImage } from '../../lib/image';
 import { Image } from '../image/Image';
 
@@ -360,7 +360,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {showAwardButton({
+      {canAwardUser({
         sendingUser: user,
         receivingUser: comment.author as LoggedUser,
       }) &&

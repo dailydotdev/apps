@@ -19,7 +19,7 @@ export function canReceiveCores(user: LoggedUser): boolean {
   return verifyCoresRole(user, CoresRole.Creator);
 }
 
-export function showAwardButton({
+export function canAwardUser({
   sendingUser,
   receivingUser,
 }: {

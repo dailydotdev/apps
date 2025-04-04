@@ -33,7 +33,7 @@ import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
-import { hasAccessToCores, showAwardButton } from '../../lib/cores';
+import { hasAccessToCores, canAwardUser } from '../../lib/cores';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
@@ -182,7 +182,7 @@ export function Header({
           />
         )}
         {!isSameUser &&
-          showAwardButton({
+          canAwardUser({
             sendingUser: loggedUser,
             receivingUser: user as LoggedUser,
           }) && (
