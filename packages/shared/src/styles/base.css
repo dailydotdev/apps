@@ -822,7 +822,7 @@ details.right-icon {
   }
 
   &-hourglass {
-    background: radial-gradient(192.5% 100% at 50% 100%, #CE3DF3 0%, rgba(206, 61, 243, 0) 50%),
-    radial-gradient(192.5% 100% at 50% 0%, #7147ED 0%, rgba(113, 71, 237, 0) 50%);
+    background: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 50%),
+    radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);
   }
 }
