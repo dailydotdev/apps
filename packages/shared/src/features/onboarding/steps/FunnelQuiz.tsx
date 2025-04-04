@@ -76,7 +76,7 @@ export const FunnelQuiz = ({
         </FunnelStepCtaWrapper>
       )}
     >
-      {/* todo: add Step Headline component once ready */}
+      {/* todo: MI-854 add Step Headline component once ready */}
       <div className="flex flex-col gap-4">
         <h2>{text}</h2>
         {imageUrl && (

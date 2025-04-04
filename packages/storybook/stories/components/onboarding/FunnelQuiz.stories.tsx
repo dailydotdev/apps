@@ -10,7 +10,7 @@ import {
 import { fn } from '@storybook/test';
 
 const meta: Meta<typeof FunnelQuiz> = {
-  title: 'Components/Onboarding/FunnelQuiz',
+  title: 'Components/Onboarding/Steps/Quiz',
   component: FunnelQuiz,
   parameters: {
     design: {
