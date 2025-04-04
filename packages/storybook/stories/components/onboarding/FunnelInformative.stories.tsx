@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import InformativeScreen
   from '@dailydotdev/shared/src/features/onboarding/steps/FunnelInformative';
@@ -16,6 +15,11 @@ const meta: Meta<typeof InformativeScreen> = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
+  render: (props) => (
+    <div className='invert'>
+      <InformativeScreen {...props} />
+    </div>
+  ),
 };
 
 export default meta;
