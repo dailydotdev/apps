@@ -71,10 +71,7 @@ export const CreateFeedButton = ({
   };
 
   const getButtonVariant = () => {
-    if (isPlusStep) {
-      return ButtonVariant.Secondary;
-    }
-    if (CTAStep) {
+    if (CTAStep || isPlusStep) {
       return ButtonVariant.Tertiary;
     }
     return ButtonVariant.Primary;

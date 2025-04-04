@@ -55,7 +55,7 @@ export function Header({
 
         {showSkipButton && (
           <Button
-            className="ml-auto"
+            className="ml-auto font-normal"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Large}
             onClick={onSkip}
