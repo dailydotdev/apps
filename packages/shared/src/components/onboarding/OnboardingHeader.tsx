@@ -11,9 +11,6 @@ import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { PlusUser } from '../PlusUser';
-import { IconSize } from '../Icon';
 import {
   Typography,
   TypographyColor,
@@ -35,7 +32,6 @@ type OnboardingHeaderProps = {
   onClick: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
-  showPlusIcon?: boolean;
 };
 
 export const OnboardingHeader = ({
@@ -44,7 +40,6 @@ export const OnboardingHeader = ({
   setAuth,
   onClick,
   customActionName,
-  showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
   const { isFreeTrialExperiment } = usePaymentContext();
@@ -113,45 +108,32 @@ export const OnboardingHeader = ({
               !fullWidth && ' max-w-4xl ',
             )}
           >
-            <ConditionalWrapper
-              condition={showPlusIcon}
-              wrapper={(component) => (
-                <div className="flex flex-row items-center gap-1">
-                  {component}
-                  <PlusUser
-                    iconSize={IconSize.Small}
-                    typographyType={TypographyType.Title3}
-                  />
-                </div>
-              )}
-            >
-              {!isPlusStep ? (
-                <Logo
-                  logoClassName={{ container: 'h-6' }}
-                  position={LogoPosition.Relative}
-                  linkDisabled
-                />
-              ) : (
-                <LogoWithPlus />
-              )}
-              {activeScreen === OnboardingStep.InteractiveFeed && (
-                <div className="z-0 flex flex-col text-center">
-                  <Typography
-                    color={TypographyColor.Primary}
-                    bold
-                    type={TypographyType.Callout}
-                  >
-                    Let&apos;s make your feed work for you
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Body}
-                    className={getCompletionColor()}
-                  >
-                    {completion}% optimized
-                  </Typography>
-                </div>
-              )}
-            </ConditionalWrapper>
+            {!isPlusStep ? (
+              <Logo
+                logoClassName={{ container: 'h-6' }}
+                position={LogoPosition.Relative}
+                linkDisabled
+              />
+            ) : (
+              <LogoWithPlus />
+            )}
+            {activeScreen === OnboardingStep.InteractiveFeed && (
+              <div className="z-0 flex flex-col text-center">
+                <Typography
+                  color={TypographyColor.Primary}
+                  bold
+                  type={TypographyType.Callout}
+                >
+                  Let&apos;s make your feed work for you
+                </Typography>
+                <Typography
+                  type={TypographyType.Body}
+                  className={getCompletionColor()}
+                >
+                  {completion}% optimized
+                </Typography>
+              </div>
+            )}
             {showCreateFeedButton.includes(activeScreen) && (
               <CreateFeedButton
                 onClick={onClick}
