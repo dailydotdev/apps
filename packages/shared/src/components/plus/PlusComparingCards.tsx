@@ -93,11 +93,7 @@ const PlusCard = ({
         {plan?.metadata.caption && (
           <PlusPlanExtraLabel
             color={plan?.metadata.caption.color}
-            label={
-              isFreeTrialExperiment
-                ? '7-day free trial'
-                : plan?.metadata.caption.copy
-            }
+            label={plan?.metadata.caption.copy}
             className="ml-3"
             typographyProps={{
               color: isFreeTrialExperiment
