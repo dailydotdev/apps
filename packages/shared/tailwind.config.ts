@@ -70,8 +70,6 @@ export default {
         gradient: {
           cabbage: 'var(--theme-gradient-cabbage)',
           onion: 'var(--theme-gradient-onion)',
-          purple:
-            'radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, rgba(113, 71, 237, 0.72) 50%, rgba(113, 71, 237, 0.00) 100%), var(--theme-background-default)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
         highlight: {
