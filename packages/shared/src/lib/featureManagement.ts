@@ -83,7 +83,7 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 
 export const featureOnboardingPlusCheckout = new Feature(
   'onboarding_plus_checkout',
-  false,
+  true,
 );
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
@@ -127,6 +127,11 @@ export const featureInteractiveFeed = new Feature('interactive_feed', false);
 export const featureOnboardingReorder = new Feature(
   'onboarding_reorder',
   false,
+);
+
+export const featureOnboardingPlusFeatureGrid = new Feature(
+  'onboarding_plus_feature_grid',
+  true,
 );
 
 export { feature };
