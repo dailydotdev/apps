@@ -2,7 +2,11 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import type { PublicProfile, UserShortProfile } from '../../lib/user';
+import type {
+  LoggedUser,
+  PublicProfile,
+  UserShortProfile,
+} from '../../lib/user';
 import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -29,7 +33,7 @@ import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
-import { hasAccessToCores } from '../../lib/cores';
+import { hasAccessToCores, canAwardUser } from '../../lib/cores';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
@@ -177,17 +181,21 @@ export function Header({
             }}
           />
         )}
-        {!isSameUser && hasAccessToCores(loggedUser) && (
-          <AwardButton
-            appendTo="parent"
-            type="USER"
-            entity={{
-              id: user.id,
-              receiver: user,
-            }}
-            variant={ButtonVariant.Float}
-          />
-        )}
+        {!isSameUser &&
+          canAwardUser({
+            sendingUser: loggedUser,
+            receivingUser: user as LoggedUser,
+          }) && (
+            <AwardButton
+              appendTo="parent"
+              type="USER"
+              entity={{
+                id: user.id,
+                receiver: user,
+              }}
+              variant={ButtonVariant.Float}
+            />
+          )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
