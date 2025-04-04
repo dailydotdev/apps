@@ -6,19 +6,23 @@ import classNames from 'classnames';
 import type { StepHeadlineAlign } from '../shared/StepHeadline';
 import StepHeadline from '../shared/StepHeadline';
 import { Image } from '../../../components/image/Image';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import type { FunnelStepFact } from '../types/funnel';
-
-export type FunnelInformativeProps = FunnelStepFact & {
-  onTransition: () => void;
-};
+import { FunnelStepTransitionType } from '../types/funnel';
+import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
 
 const FunnelInformative = ({
   parameters,
   onTransition,
-}: FunnelInformativeProps): ReactElement => {
+}: FunnelStepFact): ReactElement => {
   return (
-    <div className="flex min-h-dvh flex-col px-6 pb-20 pt-10">
+    <FunnelStepCtaWrapper
+      onClick={() =>
+        onTransition({
+          type: FunnelStepTransitionType.Complete,
+        })
+      }
+      cta={{ label: parameters?.cta ?? 'Next' }}
+    >
       <div
         data-testid="informative-content"
         className={classNames(
@@ -41,16 +45,7 @@ const FunnelInformative = ({
           />
         )}
       </div>
-      <div className="absolute inset-x-0 bottom-4 w-full px-4">
-        <Button
-          className="w-full"
-          variant={ButtonVariant.Primary}
-          onClick={onTransition}
-        >
-          {parameters?.cta ?? 'Next'}
-        </Button>
-      </div>
-    </div>
+    </FunnelStepCtaWrapper>
   );
 };
 

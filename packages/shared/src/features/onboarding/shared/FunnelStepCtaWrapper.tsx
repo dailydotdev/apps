@@ -15,7 +15,7 @@ export function FunnelStepCtaWrapper({
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   return (
-    <div className="relative flex flex-col gap-4">
+    <div className="relative flex min-h-dvh flex-col gap-4">
       {children}
       <div className="sticky bottom-2">
         <Button
