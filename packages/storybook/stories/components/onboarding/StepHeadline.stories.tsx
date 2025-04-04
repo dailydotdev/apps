@@ -4,7 +4,7 @@ import StepHeadline, {
 } from '@dailydotdev/shared/src/features/onboarding/shared/StepHeadline';
 
 const meta: Meta<typeof StepHeadline> = {
-  title: 'Components/Onboarding/StepHeadline',
+  title: 'Components/Onboarding/Shared/StepHeadline',
   component: StepHeadline,
   parameters: {
     controls: {
