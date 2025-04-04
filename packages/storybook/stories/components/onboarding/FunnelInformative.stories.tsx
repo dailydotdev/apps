@@ -1,10 +1,13 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import InformativeScreen from '@dailydotdev/shared/src/features/onboarding/steps/InformativeScreen';
-import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import InformativeScreen
+  from '@dailydotdev/shared/src/features/onboarding/steps/FunnelInformative';
+import {
+  FunnelStepType,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 
 const meta: Meta<typeof InformativeScreen> = {
-  title: 'Components/Onboarding/InformativeScreen',
+  title: 'Components/Onboarding/Steps/Informative',
   component: InformativeScreen,
   parameters: {
     controls: {
@@ -12,6 +15,7 @@ const meta: Meta<typeof InformativeScreen> = {
     },
     layout: 'fullscreen',
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -64,4 +68,4 @@ export const LeftAligned: Story = {
       align: 'left',
     },
   } as any,
-}; 
+};
