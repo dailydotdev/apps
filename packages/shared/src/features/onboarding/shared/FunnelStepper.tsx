@@ -2,7 +2,7 @@ import type { ReactElement, PropsWithChildren } from 'react';
 import React from 'react';
 import type { FunnelJSON } from '../types/funnel';
 import { Header } from './Header';
-import { useLogContext } from '../../../contexts/LogContext';
+import { useFunnelTracking } from '../hooks/useFunnelTracking';
 
 interface FunnelStepperProps extends PropsWithChildren {
   funnel: FunnelJSON;
@@ -16,9 +16,9 @@ const initialState = {
 
 const funnelReducer = (state: any, action: any) => {
   switch (action.type) {
-    case 'NEXT':
+    case 'NEXT_STEP':
       return { ...state, step: state.step + 1 };
-    case 'PREVIOUS':
+    case 'PREVIOUS_STEP':
       return { ...state, step: state.step - 1 };
     default:
       throw new Error(`Unknown action: ${action.type}`);
@@ -30,25 +30,9 @@ export const FunnelStepper = ({
   funnel,
 }: FunnelStepperProps): ReactElement => {
   const [state, dispatch] = React.useReducer(funnelReducer, initialState);
-  const { logEvent } = useLogContext();
-
-  const handleClickTracking = (event: React.MouseEvent<HTMLElement>) => {
-    console.log('Funnel stepper clicked');
-
-    if (!(event.target instanceof HTMLElement)) {
-      return;
-    }
-    const trackedElement = event.target.closest('[data-tracking]');
-
-    if (!trackedElement) {
-      return;
-    }
-
-    console.log('Funnel stepper tracking event:', {}, logEvent);
-  };
-
+  const { trackOnClickCapture, trackOnScroll } = useFunnelTracking();
   return (
-    <section onClickCapture={handleClickTracking}>
+    <section onClickCapture={trackOnClickCapture} onScroll={trackOnScroll}>
       <Header
         currentChapter={state.chapter}
         currentStep={state.step}
