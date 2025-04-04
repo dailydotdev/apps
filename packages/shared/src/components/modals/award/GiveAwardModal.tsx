@@ -32,9 +32,18 @@ import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
 import type { Product } from '../../../graphql/njord';
-import { award, getProducts } from '../../../graphql/njord';
+import {
+  award,
+  getProducts,
+  UserTransactionStatus,
+} from '../../../graphql/njord';
 import { labels, largeNumberFormat } from '../../../lib';
-import type { ApiErrorResult } from '../../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiUserTransactionErrorExtension,
+} from '../../../graphql/common';
+import { ApiError } from '../../../graphql/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Origin } from '../../../lib/log';
@@ -211,7 +220,26 @@ const CommentScreen = () => {
 
       setActiveStep({ screen: 'SUCCESS', product });
     },
-    onError: (data: ApiErrorResult) => {
+    onError: async (data: ApiErrorResult) => {
+      if (
+        data.response.errors?.[0]?.extensions?.code ===
+        ApiError.BalanceTransactionError
+      ) {
+        const errorExtensions = data.response
+          .errors[0] as ApiResponseError<ApiUserTransactionErrorExtension>;
+
+        if (
+          errorExtensions.extensions.status ===
+            UserTransactionStatus.InsufficientFunds &&
+          errorExtensions.extensions.balance
+        ) {
+          await updateUser({
+            ...user,
+            balance: errorExtensions.extensions.balance,
+          });
+        }
+      }
+
       displayToast(
         data?.response?.errors?.[0]?.message || labels.error.generic,
       );
