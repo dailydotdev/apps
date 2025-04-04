@@ -30,7 +30,11 @@ const StepHeadline = ({
   return (
     <div
       data-testid="step-headline-container"
-      className={classNames('flex flex-col gap-2', `text-${align}`)}
+      className={classNames('flex flex-col gap-2', {
+        'text-left': align === StepHeadlineAlign.Left,
+        'text-center': align === StepHeadlineAlign.Center,
+        'text-right': align === StepHeadlineAlign.Right,
+      })}
     >
       <Typography bold tag={TypographyTag.H2} type={TypographyType.Title1}>
         {heading}
