@@ -131,7 +131,7 @@ export const featureOnboardingReorder = new Feature(
 
 export const featureOnboardingPlusFeatureGrid = new Feature(
   'onboarding_plus_feature_grid',
-  true,
+  false,
 );
 
 export { feature };
