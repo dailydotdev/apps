@@ -15,7 +15,7 @@ import {
   BlockIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
-import type { UserShortProfile } from '../../lib/user';
+import type { LoggedUser, UserShortProfile } from '../../lib/user';
 import { Roles } from '../../lib/user';
 import {
   Button,
@@ -58,7 +58,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { hasAccessToCores } from '../../lib/cores';
+import { showAwardButton } from '../../lib/cores';
 import { featuredAwardImage } from '../../lib/image';
 import { Image } from '../image/Image';
 
@@ -360,38 +360,42 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {hasAccessToCores(user) && !isSpecialUser && (
-        <>
-          {!comment.userState?.awarded && (
-            <AwardButton
-              appendTo={appendTo}
-              type="COMMENT"
-              entity={{
-                id: comment.id,
-                receiver: comment.author,
-                numAwards: comment.numAwards,
-              }}
-              pressed={!!comment.userState?.awarded}
-              post={post}
-              className={!comment.numAwards ? 'mr-3' : undefined}
-            />
-          )}
-          {!!comment.userState?.awarded && (
-            <Image src={featuredAwardImage} alt="Award" className="size-6" />
-          )}
-          {!!comment.numAwards && (
-            <Typography
-              className="ml-1 mr-3"
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              bold
-            >
-              {largeNumberFormat(comment.numAwards)} Award
-              {comment.numAwards > 1 ? 's' : ''}
-            </Typography>
-          )}
-        </>
-      )}
+      {showAwardButton({
+        sendingUser: user,
+        receivingUser: comment.author as LoggedUser,
+      }) &&
+        !isSpecialUser && (
+          <>
+            {!comment.userState?.awarded && (
+              <AwardButton
+                appendTo={appendTo}
+                type="COMMENT"
+                entity={{
+                  id: comment.id,
+                  receiver: comment.author,
+                  numAwards: comment.numAwards,
+                }}
+                pressed={!!comment.userState?.awarded}
+                post={post}
+                className={!comment.numAwards ? 'mr-3' : undefined}
+              />
+            )}
+            {!!comment.userState?.awarded && (
+              <Image src={featuredAwardImage} alt="Award" className="size-6" />
+            )}
+            {!!comment.numAwards && (
+              <Typography
+                className="ml-1 mr-3"
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                bold
+              >
+                {largeNumberFormat(comment.numAwards)} Award
+                {comment.numAwards > 1 ? 's' : ''}
+              </Typography>
+            )}
+          </>
+        )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}

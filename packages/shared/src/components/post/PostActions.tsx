@@ -29,8 +29,9 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
-import { hasAccessToCores } from '../../lib/cores';
+import { showAwardButton } from '../../lib/cores';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
+import type { LoggedUser } from '../../lib/user';
 
 interface PostActionsProps {
   post: Post;
@@ -214,48 +215,55 @@ export function PostActions({
           >
             Comment
           </QuaternaryButton>
-          {!!post.author && hasAccessToCores(user) && !isSpecialUser && (
-            <ConditionalWrapper
-              condition={post?.userState?.awarded}
-              wrapper={(children) => {
-                return (
-                  <SimpleTooltip content="You already awarded this post!">
-                    <div>{children}</div>
-                  </SimpleTooltip>
-                );
-              }}
-            >
-              <QuaternaryButton
-                id="award-post-btn"
-                pressed={post?.userState?.awarded}
-                onClick={() => {
-                  if (!user) {
-                    return showLogin({ trigger: AuthTriggers.GiveAward });
-                  }
-
-                  return openModal({
-                    type: LazyModal.GiveAward,
-                    props: {
-                      type: 'POST',
-                      entity: {
-                        id: post.id,
-                        receiver: post.author,
-                        numAwards: post.numAwards,
-                      },
-                      post,
-                    },
-                  });
+          {!!post.author &&
+            showAwardButton({
+              sendingUser: user,
+              receivingUser: post.author as LoggedUser,
+            }) &&
+            !isSpecialUser && (
+              <ConditionalWrapper
+                condition={post?.userState?.awarded}
+                wrapper={(children) => {
+                  return (
+                    <SimpleTooltip content="You already awarded this post!">
+                      <div>{children}</div>
+                    </SimpleTooltip>
+                  );
                 }}
-                icon={<MedalBadgeIcon secondary={!post?.userState?.awarded} />}
-                className={classNames(
-                  'btn-tertiary-cabbage',
-                  post?.userState?.awarded && 'pointer-events-none',
-                )}
               >
-                Award
-              </QuaternaryButton>
-            </ConditionalWrapper>
-          )}
+                <QuaternaryButton
+                  id="award-post-btn"
+                  pressed={post?.userState?.awarded}
+                  onClick={() => {
+                    if (!user) {
+                      return showLogin({ trigger: AuthTriggers.GiveAward });
+                    }
+
+                    return openModal({
+                      type: LazyModal.GiveAward,
+                      props: {
+                        type: 'POST',
+                        entity: {
+                          id: post.id,
+                          receiver: post.author,
+                          numAwards: post.numAwards,
+                        },
+                        post,
+                      },
+                    });
+                  }}
+                  icon={
+                    <MedalBadgeIcon secondary={!post?.userState?.awarded} />
+                  }
+                  className={classNames(
+                    'btn-tertiary-cabbage',
+                    post?.userState?.awarded && 'pointer-events-none',
+                  )}
+                >
+                  Award
+                </QuaternaryButton>
+              </ConditionalWrapper>
+            )}
           <BookmarkButton
             post={post}
             contextMenuId="post-content-bookmark"
