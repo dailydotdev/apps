@@ -3,6 +3,7 @@ html, #daily-companion-wrapper {
   color: var(--theme-text-primary);
   height: stretch;
 }
+
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -81,6 +82,7 @@ body {
   --theme-accent-salt-default: theme('colors.raw.salt.90');
   --theme-accent-salt-bolder: theme('colors.raw.pepper.10');
   /* Onion */
+  --theme-accent-onion-baseline: theme('colors.raw.onion.0');
   --theme-accent-onion-subtlest: theme('colors.raw.onion.10');
   --theme-accent-onion-subtler: theme('colors.raw.onion.20');
   --theme-accent-onion-subtle: theme('colors.raw.onion.30');
@@ -118,6 +120,7 @@ body {
   --theme-accent-ketchup-default: theme('colors.raw.ketchup.40');
   --theme-accent-ketchup-bolder: theme('colors.raw.ketchup.50');
   /* Cabbage */
+  --theme-accent-cabbage-baseline: theme('colors.raw.cabbage.0');
   --theme-accent-cabbage-subtlest: theme('colors.raw.cabbage.10');
   --theme-accent-cabbage-subtler: theme('colors.raw.cabbage.20');
   --theme-accent-cabbage-subtle: theme('colors.raw.cabbage.30');
@@ -238,9 +241,9 @@ body {
   --theme-blur-blur-bg: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
   --theme-blur-blur-glass: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 92%);
 
-/**
-  * Current old colors, these should all be changed to one of the above matching ones.
- */
+  /**
+    * Current old colors, these should all be changed to one of the above matching ones.
+   */
   --theme-active: theme('colors.raw.salt.90')33;
 
   --theme-shadow2: theme('boxShadow.2-black');
@@ -602,7 +605,7 @@ body {
 html,
 html.light .invert,
 html .invert .invert,
-#daily-companion-wrapper{
+#daily-companion-wrapper {
   @mixin dark-mode;
 }
 
@@ -728,6 +731,7 @@ details {
     }
   }
 }
+
 details.right-icon {
   & summary .icon {
     --tw-rotate: 90deg;
@@ -803,3 +807,22 @@ details.right-icon {
   display: none;
 }
 
+.bg-gradient-funnel {
+  &-default {
+    background: radial-gradient(100% 22.49% at 100% -10%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 100%),
+    radial-gradient(100% 22.49% at 0% -10%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 100%);
+  }
+
+  &-top {
+    background: radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-onion-default) 50%, var(--theme-accent-onion-baseline) 100%);
+  }
+
+  &-circle {
+    background: radial-gradient(94% 48.83% at 50% 0%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-onion-default) 75.12%, var(--theme-accent-onion-baseline) 100%);
+  }
+
+  &-hourglass {
+    background: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 50%),
+    radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);
+  }
+}

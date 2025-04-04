@@ -9,6 +9,9 @@ import { FormInputRating } from '../../common/components/FormInputRating';
 import { FormInputCheckboxGroup } from '../../common/components/FormInputCheckboxGroup';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
+import { FunnelStepBackground } from '../shared/FunnelStepBackground';
+import StepHeadline from '../shared/StepHeadline';
+import { Image } from '../../../components/image/Image';
 
 const quizComponentsMap = {
   [FunnelStepQuizQuestionType.Rating]: FormInputRating,
@@ -26,6 +29,7 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
 export const FunnelQuiz = ({
   id,
   question,
+  explainer,
   onTransition,
 }: FunnelStepQuiz): ReactElement => {
   const { type, text, options, imageUrl } = question;
@@ -68,28 +72,33 @@ export const FunnelQuiz = ({
   }, [isSingleChoice, stepValue, onTransition]);
 
   return (
-    <ConditionalWrapper
-      condition={!isSingleChoice}
-      wrapper={(component) => (
-        <FunnelStepCtaWrapper onClick={onCtaClick}>
-          {component}
-        </FunnelStepCtaWrapper>
-      )}
-    >
-      {/* todo: MI-854 add Step Headline component once ready */}
-      <div className="flex flex-col gap-4">
-        <h2>{text}</h2>
-        {imageUrl && (
-          <img
-            alt="Question additional context"
-            aria-hidden
-            className="max-w-lg object-contain object-center"
-            role="presentation"
-            src={imageUrl}
-          />
+    <FunnelStepBackground>
+      <ConditionalWrapper
+        condition={!isSingleChoice}
+        wrapper={(component) => (
+          <FunnelStepCtaWrapper onClick={onCtaClick}>
+            {component}
+          </FunnelStepCtaWrapper>
         )}
-        <Component name={id} options={inputOptions} onValueChange={onChange} />
-      </div>
-    </ConditionalWrapper>
+      >
+        <div className="flex flex-col gap-4 px-4 py-6">
+          <StepHeadline heading={text} description={explainer} />
+          {imageUrl && (
+            <Image
+              alt="Question additional context"
+              aria-hidden
+              className="mx-auto max-w-lg object-contain object-center"
+              role="presentation"
+              src={imageUrl}
+            />
+          )}
+          <Component
+            name={id}
+            options={inputOptions}
+            onValueChange={onChange}
+          />
+        </div>
+      </ConditionalWrapper>
+    </FunnelStepBackground>
   );
 };

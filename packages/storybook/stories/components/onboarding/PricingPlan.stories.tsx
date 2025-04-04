@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { PricingPlan, PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
 
 const meta: Meta<typeof PricingPlan> = {
-  title: 'Components/Onboarding/PricingPlan',
+  title: 'Components/Onboarding/Shared/PricingPlan',
   component: PricingPlan,
   parameters: {
     design: {
@@ -23,6 +23,7 @@ const meta: Meta<typeof PricingPlan> = {
       subtitle: 'per day',
     },
   },
+  tags: ['autodocs'],
 };
 
 export default meta;

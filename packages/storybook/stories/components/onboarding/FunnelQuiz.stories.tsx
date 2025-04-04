@@ -20,8 +20,14 @@ const meta: Meta<typeof FunnelQuiz> = {
     controls: {
       expanded: true,
     },
+    layout: 'fullscreen',
   },
   tags: ['autodocs'],
+  render: (props) => (
+    <div className='invert'>
+      <FunnelQuiz {...props} />
+    </div>
+  ),
 };
 
 export default meta;

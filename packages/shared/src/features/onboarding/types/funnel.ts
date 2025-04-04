@@ -17,7 +17,7 @@ export enum FunnelStepTransitionType {
 
 type FunnelStepTransitionCallback<Details = unknown> = (transition: {
   type: FunnelStepTransitionType;
-  details: Details;
+  details?: Details;
 }) => void;
 
 type FunnelStepParameters = Record<string, string>;
@@ -43,6 +43,7 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
 
 export interface FunnelStepFact extends FunnelStepCommon {
   type: FunnelStepType.Fact;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export enum FunnelStepQuizQuestionType {

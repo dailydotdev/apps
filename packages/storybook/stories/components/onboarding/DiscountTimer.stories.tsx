@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { DiscountTimer } from '@dailydotdev/shared/src/features/onboarding/shared/DiscountTimer';
 
 const meta: Meta<typeof DiscountTimer> = {
-  title: 'Components/Onboarding/DiscountTimer',
+  title: 'Components/Onboarding/Shared/DiscountTimer',
   component: DiscountTimer,
   parameters: {
     design: {
@@ -21,6 +21,7 @@ const meta: Meta<typeof DiscountTimer> = {
     className: '',
     onTimerEnd: () => console.log('Timer ended'),
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
