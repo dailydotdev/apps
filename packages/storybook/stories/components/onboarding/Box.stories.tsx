@@ -8,7 +8,7 @@ import {
 
 // Define the base Meta for all Box components
 const meta = {
-  title: 'Components/Onboarding/Box',
+  title: 'Components/Onboarding/Shared/Box',
   parameters: {
     design: {
       type: 'figma',
@@ -18,6 +18,7 @@ const meta = {
       expanded: true,
     },
   },
+  tags: ['autodocs'],
 } as const;
 
 export default meta;

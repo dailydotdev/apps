@@ -20,6 +20,7 @@ export enum ButtonVariant {
   Float = 'tertiaryFloat',
   Subtle = 'subtle',
   Option = 'option',
+  Quiz = 'quiz',
 }
 
 export enum ButtonIconPosition {
@@ -51,6 +52,7 @@ export const VariantToClassName: Record<ButtonVariant, string> = {
   [ButtonVariant.Float]: 'btn-tertiaryFloat',
   [ButtonVariant.Subtle]: 'btn-subtle',
   [ButtonVariant.Option]: 'btn-option gap-1',
+  [ButtonVariant.Quiz]: 'btn-quiz',
 };
 
 export const VariantColorToClassName: Record<
@@ -182,6 +184,27 @@ export const VariantColorToClassName: Record<
     [ButtonColor.Twitter]: 'btn-option-twitter',
     [ButtonColor.Water]: 'btn-option-water',
     [ButtonColor.WhatsApp]: 'btn-option-whatsapp',
+  },
+  [ButtonVariant.Quiz]: {
+    [ButtonColor.Avocado]: 'btn-quiz-avocado',
+    [ButtonColor.Bacon]: 'btn-quiz-bacon',
+    [ButtonColor.BlueCheese]: 'btn-quiz-blueCheese',
+    [ButtonColor.Bun]: 'btn-quiz-bun',
+    [ButtonColor.Burger]: 'btn-quiz-burger',
+    [ButtonColor.Cabbage]: 'btn-quiz-cabbage',
+    [ButtonColor.Cheese]: 'btn-quiz-cheese',
+    [ButtonColor.Facebook]: 'btn-quiz-facebook',
+    [ButtonColor.Ketchup]: 'btn-quiz-ketchup',
+    [ButtonColor.LinkedIn]: 'btn-quiz-linkedin',
+    [ButtonColor.Lettuce]: 'btn-quiz-lettuce',
+    [ButtonColor.Onion]: 'btn-quiz-onion',
+    [ButtonColor.Pepper]: 'btn-quiz-pepper',
+    [ButtonColor.Salt]: 'btn-quiz-salt',
+    [ButtonColor.Reddit]: 'btn-quiz-reddit',
+    [ButtonColor.Telegram]: 'btn-quiz-telegram',
+    [ButtonColor.Twitter]: 'btn-quiz-twitter',
+    [ButtonColor.Water]: 'btn-quiz-water',
+    [ButtonColor.WhatsApp]: 'btn-quiz-whatsapp',
   },
 };
 
