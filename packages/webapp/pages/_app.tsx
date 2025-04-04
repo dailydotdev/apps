@@ -63,10 +63,10 @@ interface ComponentGetLayout {
   layoutProps?: Record<string, unknown>;
 }
 
-const getRedirectUri = () =>
+export const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
 
-const getPage = () => window.location.pathname;
+export const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const {
