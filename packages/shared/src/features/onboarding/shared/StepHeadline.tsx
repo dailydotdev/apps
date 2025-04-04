@@ -5,6 +5,7 @@ import {
   Typography,
   TypographyType,
   TypographyTag,
+  TypographyColor,
 } from '../../../components/typography/Typography';
 import type { TypographyProps } from '../../../components/typography/Typography';
 
@@ -36,12 +37,18 @@ const StepHeadline = ({
         'text-right': align === StepHeadlineAlign.Right,
       })}
     >
-      <Typography bold tag={TypographyTag.H2} type={TypographyType.Title1}>
+      <Typography
+        bold
+        color={TypographyColor.Primary}
+        tag={TypographyTag.H2}
+        type={TypographyType.Title1}
+      >
         {heading}
       </Typography>
       {!!description?.length && (
         <Typography
           data-testid="step-headline-description"
+          color={TypographyColor.Primary}
           type={TypographyType.Body}
           {...descriptionProps}
         >
