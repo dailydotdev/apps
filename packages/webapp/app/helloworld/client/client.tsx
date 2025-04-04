@@ -6,29 +6,26 @@ import {
   useAppAuth,
   AppAuthActionsKeys,
 } from '@dailydotdev/shared/src/features/common/hooks/useAppAuth';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 export const ClientTest: FC = () => {
-  const { user, isLoggedIn, dispatch } = useAppAuth();
-
-  if (!isLoggedIn) {
-    return null;
-  }
+  const { user, dispatch } = useAppAuth();
 
   return (
-    <p>
+    <div>
       <strong>Client</strong> says user is {user?.id ?? 'not logged'}
-      <button
+      <Button
         type="button"
         onClick={() => dispatch({ type: AppAuthActionsKeys.REFRESH })}
       >
         Refetch user
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
         onClick={() => dispatch({ type: AppAuthActionsKeys.LOGOUT })}
       >
         Logout
-      </button>
-    </p>
+      </Button>
+    </div>
   );
 };
