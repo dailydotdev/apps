@@ -365,7 +365,7 @@ const Wallet = (): ReactElement => {
                                 amount={
                                   type === 'send'
                                     ? -transaction.value
-                                    : transaction.value
+                                    : transaction.valueIncFees
                                 }
                                 date={new Date(transaction.createdAt)}
                                 label={getTransactionLabel({
