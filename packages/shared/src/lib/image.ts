@@ -264,7 +264,7 @@ export const plusShowcaseTeamImage =
 export const plusShowcaseTeamVideo =
   'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/team.mp4';
 export const plusShowcaseCustomFeedsImage =
-  'media.daily.dev/image/upload/s--OU22D-Xf--/f_auto/v1741690961/public/customfeed';
+  'https://media.daily.dev/image/upload/s--OU22D-Xf--/f_auto/v1741690961/public/customfeed';
 export const plusShowcaseCustomFeedsVideo =
   'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/customfeeds.webm';
 export const plusShowcaseSmartPrompsImage =

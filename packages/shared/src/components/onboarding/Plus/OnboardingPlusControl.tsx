@@ -48,7 +48,6 @@ export const OnboardingPlusControl = ({
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { productOptions } = usePaymentContext();
-  console.log(productOptions);
   const item = useMemo(
     () =>
       [...productOptions]
@@ -80,8 +79,8 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn't a long-term
-          strategy.
+          feeds, and pro features. Because copy-pasting code isn&apos;t a
+          long-term strategy.
         </Typography>
       </header>
       {item ? (
