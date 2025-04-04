@@ -221,6 +221,8 @@ export const PlusInfo = ({
             {productOptions.map((option) => (
               <PlusOptionRadio
                 key={option.productId}
+                shouldShowMonthlyPrice
+                shoouldShowDuration
                 option={option}
                 checked={selectedOption === option.productId}
                 onChange={() => {

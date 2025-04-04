@@ -73,8 +73,8 @@ const PLUS_PRICING_PREVIEW_QUERY = gql`
       }
       duration
       trialPeriod {
-        days
-        type
+        interval
+        frequency
       }
     }
   }

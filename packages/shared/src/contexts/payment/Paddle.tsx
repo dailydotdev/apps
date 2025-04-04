@@ -135,7 +135,7 @@ export const PaddleSubProvider = ({
 
   const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
     () =>
-      data.find(
+      data?.find(
         ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
       )?.productId,
     [data],
@@ -143,14 +143,14 @@ export const PaddleSubProvider = ({
 
   const giftOneYear = useMemo(
     () =>
-      data.find(
+      data?.find(
         ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.GiftOneYear,
       ),
     [data],
   );
 
   const isFreeTrialExperiment = useMemo(
-    () => data.some(({ trialPeriod }) => !!trialPeriod),
+    () => data?.some(({ trialPeriod }) => !!trialPeriod),
     [data],
   );
 
@@ -203,9 +203,9 @@ export const PaddleSubProvider = ({
     () => ({
       openCheckout,
       paddle,
-      productOptions: data.filter(
-        ({ productId }) => productId !== giftOneYear?.productId,
-      ),
+      productOptions:
+        data?.filter(({ productId }) => productId !== giftOneYear?.productId) ??
+        [],
       earlyAdopterPlanId,
       isPlusAvailable,
       giftOneYear,

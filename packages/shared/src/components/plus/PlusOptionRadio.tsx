@@ -8,7 +8,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
-import { usePaymentContext } from '../../contexts/payment/context';
 import type { PlusPricingPreview } from '../../graphql/paddle';
 import { captionToColor, captionToTypographyColor } from './PlusPlanExtraLabel';
 
@@ -16,21 +15,25 @@ interface PlusOptionRadioProps {
   option: PlusPricingPreview;
   checked: boolean;
   onChange?: (value: string) => void;
+  shouldShowMonthlyPrice?: boolean;
+  shoouldShowDuration?: boolean;
 }
 
 export function PlusOptionRadio({
   option,
   checked,
   onChange,
+  shouldShowMonthlyPrice,
+  shoouldShowDuration,
 }: PlusOptionRadioProps): ReactElement {
-  const { giftOneYear } = usePaymentContext();
-  const isYearlyGift = giftOneYear?.productId === option?.productId;
-
   if (!option) {
     return null;
   }
 
-  const { metadata, productId, price, duration } = option;
+  const { metadata, productId, price } = option;
+  const finalPrice = shouldShowMonthlyPrice
+    ? price.monthly?.formatted || price.formatted
+    : price.formatted;
 
   return (
     <RadioItem
@@ -80,7 +83,7 @@ export function PlusOptionRadio({
           color={TypographyColor.Primary}
           bold
         >
-          {isYearlyGift ? price.formatted : price.formatted}
+          {finalPrice}
         </Typography>
         {option.currency && (
           <Typography
@@ -92,13 +95,13 @@ export function PlusOptionRadio({
             {option.currency.code}
           </Typography>
         )}
-        {!isYearlyGift && (
+        {shoouldShowDuration && (
           <Typography
             className="font-normal"
             color={TypographyColor.Quaternary}
             type={TypographyType.Footnote}
           >
-            /{duration}
+            /{shouldShowMonthlyPrice ? 'month' : 'yearly'}
           </Typography>
         )}
       </div>
