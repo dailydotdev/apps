@@ -23,7 +23,7 @@ import { RecommendedMention } from '../RecommendedMention';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { captionToColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import Link from '../utilities/Link';
@@ -231,7 +231,7 @@ export function GiftPlusModalComponent({
           </Typography>
           {giftOneYear?.metadata.caption && (
             <PlusPlanExtraLabel
-              color={captionToColor[giftOneYear?.metadata.caption.color]}
+              color={giftOneYear?.metadata.caption.color}
               label={giftOneYear?.metadata.caption.copy}
               typographyProps={{ color: TypographyColor.StatusSuccess }}
             />

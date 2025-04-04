@@ -65,10 +65,10 @@ export function PlusOptionRadio({
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
-            color={captionToTypographyColor[metadata.caption.copy]}
+            color={captionToTypographyColor[metadata.caption.color]}
             className={classNames(
               'rounded-10 px-2 py-1',
-              captionToColor[metadata.caption.copy],
+              captionToColor[metadata.caption.color],
             )}
             bold
           >

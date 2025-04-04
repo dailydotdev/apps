@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import type { PricingCaptionColor } from '../../graphql/paddle';
+import { PricingCaptionColor } from '../../graphql/paddle';
 
 interface PlusPlanExtraLabelProps {
   label: string;
@@ -22,14 +22,17 @@ export enum PlusLabelColor {
   Help = 'bg-action-help-float',
 }
 
-export const captionToColor = {
-  [PlusLabelColor.Success]: PlusLabelColor.Success,
-  [PlusLabelColor.Help]: PlusLabelColor.Help,
+export const captionToColor: Record<PricingCaptionColor, PlusLabelColor> = {
+  [PricingCaptionColor.Success]: PlusLabelColor.Success,
+  [PricingCaptionColor.Help]: PlusLabelColor.Help,
 };
 
-export const captionToTypographyColor = {
-  [PlusLabelColor.Success]: TypographyColor.StatusSuccess,
-  [PlusLabelColor.Help]: TypographyColor.StatusHelp,
+export const captionToTypographyColor: Record<
+  PricingCaptionColor,
+  TypographyColor
+> = {
+  [PricingCaptionColor.Success]: TypographyColor.StatusSuccess,
+  [PricingCaptionColor.Help]: TypographyColor.StatusHelp,
 };
 
 export function PlusPlanExtraLabel({
