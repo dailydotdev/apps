@@ -438,6 +438,7 @@ export const TRANSACTION_FRAGMENT = gql`
       ...UserShortInfo
     }
     value
+    valueIncFees
     flags {
       note
       error

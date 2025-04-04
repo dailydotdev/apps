@@ -113,6 +113,7 @@ export type UserTransaction = {
   receiver: Author;
   sender?: Author;
   value: number;
+  valueIncFees: number;
   flags: Partial<{
     note: string;
     error: string;
