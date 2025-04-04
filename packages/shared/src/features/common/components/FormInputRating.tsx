@@ -56,7 +56,7 @@ export const FormInputRating = ({
               aria-posinset={index + 1}
               aria-setsize={options.length}
               className={classNames(
-                'h-16 min-w-10 flex-1 border border-border-subtlest-tertiary',
+                'h-16 min-w-10 flex-1 justify-center border border-border-subtlest-tertiary',
                 className,
               )}
               key={item.value}
@@ -66,7 +66,7 @@ export const FormInputRating = ({
               type="button"
               variant={ButtonVariant.Quiz}
             >
-              <span className="inline-block min-w-full">{item.label}</span>
+              {item.label}
             </Button>
           );
         })}
