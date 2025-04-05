@@ -14,7 +14,6 @@ import { BasePaymentProvider } from './BasePaymentProvider';
 import { plusSuccessUrl } from '../../lib/constants';
 import { useAuthContext } from '../AuthContext';
 import { usePlusSubscription } from '../../hooks';
-import { usePaymentContext } from './context';
 
 export const PaddleSubProvider = ({
   children,
@@ -23,9 +22,8 @@ export const PaddleSubProvider = ({
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const { trackPayment } = usePixelsContext();
   const [paddle, setPaddle] = useState<Paddle>();
-  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
-  const { giftOneYear } = usePaymentContext();
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
@@ -87,7 +85,6 @@ export const PaddleSubProvider = ({
             );
             router.push(plusSuccessUrl);
             break;
-          // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
             logRef.current?.({
               event_name: LogEvent.WarningCheckout,
@@ -111,10 +108,6 @@ export const PaddleSubProvider = ({
 
   const openCheckout = useCallback(
     ({ priceId, giftToUserId }: OpenCheckoutProps) => {
-      if (isPlus && priceId !== giftOneYear?.productId) {
-        return;
-      }
-
       if (!isPlusAvailable) {
         return;
       }
@@ -144,14 +137,7 @@ export const PaddleSubProvider = ({
         },
       });
     },
-    [
-      paddle,
-      isPlus,
-      giftOneYear?.productId,
-      isPlusAvailable,
-      user,
-      geo?.region,
-    ],
+    [paddle, isPlusAvailable, user, geo?.region],
   );
 
   return (

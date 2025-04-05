@@ -10,10 +10,9 @@ import { useBoot } from '../../hooks';
 import PlusListModalSection from './PlusListModalSection';
 import { useFeature } from '../GrowthBookProvider';
 import { plusTakeoverContent } from '../../lib/featureManagement';
-import { PaddleSubProvider } from '../../contexts/payment/Paddle';
 import { usePaymentContext } from '../../contexts/payment/context';
 
-const PlusExtensionComponent = (): ReactElement => {
+const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta || {};
@@ -67,14 +66,6 @@ const PlusExtensionComponent = (): ReactElement => {
         shouldShowReviews={experiment?.shouldShowReviews}
       />
     </div>
-  );
-};
-
-const PlusExtension = (): ReactElement => {
-  return (
-    <PaddleSubProvider>
-      <PlusExtensionComponent />
-    </PaddleSubProvider>
   );
 };
 
