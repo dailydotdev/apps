@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 
 const meta: Meta<typeof FormWrapper> = {
-  title: 'Components/FormWrapper',
+  title: 'Components/Form/FormWrapper',
   component: FormWrapper,
   parameters: {
     controls: {
