@@ -27,14 +27,6 @@ export const BasePaymentProvider = ({
     staleTime: StaleTime.Default,
   });
 
-  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
-    () =>
-      data?.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
-      )?.productId,
-    [data],
-  );
-
   const giftOneYear = useMemo(
     () =>
       data?.find(
@@ -54,7 +46,6 @@ export const BasePaymentProvider = ({
       productOptions:
         data?.filter(({ productId }) => productId !== giftOneYear?.productId) ??
         [],
-      earlyAdopterPlanId,
       isPlusAvailable,
       giftOneYear,
       isPricesPending,
@@ -65,7 +56,6 @@ export const BasePaymentProvider = ({
       openCheckout,
       data,
       giftOneYear,
-      earlyAdopterPlanId,
       isPlusAvailable,
       isPricesPending,
       isFreeTrialExperiment,

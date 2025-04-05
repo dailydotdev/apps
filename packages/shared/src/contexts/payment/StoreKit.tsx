@@ -213,7 +213,6 @@ export const StoreKitSubProvider = ({
     () => ({
       openCheckout,
       productOptions,
-      earlyAdopterPlanId: null,
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,

@@ -14,7 +14,6 @@ export interface PaymentContextData {
   openCheckout?: OpenCheckoutFn;
   paddle?: Paddle | undefined;
   productOptions?: PlusPricingPreview[];
-  earlyAdopterPlanId?: string | null;
   isPlusAvailable: boolean;
   giftOneYear?: PlusPricingPreview;
   isPricesPending: boolean;
