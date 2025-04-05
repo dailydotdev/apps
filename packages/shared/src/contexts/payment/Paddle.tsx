@@ -1,11 +1,5 @@
-import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
 import {
   CheckoutEventNames,
@@ -13,48 +7,30 @@ import {
   initializePaddle,
 } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../AuthContext';
-import { plusSuccessUrl } from '../../lib/constants';
 import { LogEvent } from '../../lib/log';
-import { usePlusSubscription } from '../../hooks';
-import { PlusPriceTypeAppsId } from '../../lib/featureValues';
-import { checkIsExtension } from '../../lib/func';
 import { usePixelsContext } from '../PixelsContext';
-import type {
-  OpenCheckoutProps,
-  PaymentContextData,
-  PaymentContextProviderProps,
-} from './context';
-import { PaymentContext } from './context';
-import type { PlusPricingPreview } from '../../graphql/paddle';
-import { fetchPlusPricingPreview } from '../../graphql/paddle';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import type { OpenCheckoutProps } from './context';
+import { BasePaymentProvider } from './BasePaymentProvider';
+import { plusSuccessUrl } from '../../lib/constants';
+import { useAuthContext } from '../AuthContext';
+import { usePlusSubscription } from '../../hooks';
+import { usePaymentContext } from './context';
 
 export const PaddleSubProvider = ({
   children,
-}: PaymentContextProviderProps): ReactElement => {
+}: PropsWithChildren): ReactElement => {
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const { trackPayment } = usePixelsContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const logRef = useRef<typeof logSubscriptionEvent>();
-  const { data, isPending: isPricesPending } = useQuery<PlusPricingPreview[]>({
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'paddle', 'plus'),
-    queryFn: fetchPlusPricingPreview,
-    enabled: !!paddle && !!geo && !!user && isPlusAvailable,
-    staleTime: StaleTime.Default,
-  });
+  const { giftOneYear } = usePaymentContext();
 
-  logRef.current = logSubscriptionEvent;
   // Download and initialize Paddle instance from CDN
   useEffect(() => {
-    if (checkIsExtension()) {
-      // Payment not available on extension
-      return;
-    }
     const existingPaddleInstance = getPaddleInstance();
+
     if (existingPaddleInstance) {
       setPaddle(existingPaddleInstance);
       return;
@@ -68,25 +44,25 @@ export const PaddleSubProvider = ({
       eventCallback: (event: PaddleEventData) => {
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
-            logRef.current({
+            logRef.current?.({
               event_name: LogEvent.InitiatePayment,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
-            logRef.current({
+            logRef.current?.({
               event_name: LogEvent.InitiateCheckout,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logRef.current({
+            logRef.current?.({
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logRef.current({
+            logRef.current?.({
               event_name:
                 'gifter_id' in event.data.custom_data
                   ? LogEvent.CompleteGiftCheckout
@@ -113,12 +89,12 @@ export const PaddleSubProvider = ({
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
-            logRef.current({
+            logRef.current?.({
               event_name: LogEvent.WarningCheckout,
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            logRef.current({
+            logRef.current?.({
               event_name: LogEvent.ErrorCheckout,
             });
             break;
@@ -132,27 +108,6 @@ export const PaddleSubProvider = ({
       }
     });
   }, [router, trackPayment]);
-
-  const earlyAdopterPlanId: PaymentContextData['earlyAdopterPlanId'] = useMemo(
-    () =>
-      data?.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
-      )?.productId,
-    [data],
-  );
-
-  const giftOneYear = useMemo(
-    () =>
-      data?.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.GiftOneYear,
-      ),
-    [data],
-  );
-
-  const isFreeTrialExperiment = useMemo(
-    () => data?.some(({ trialPeriod }) => !!trialPeriod),
-    [data],
-  );
 
   const openCheckout = useCallback(
     ({ priceId, giftToUserId }: OpenCheckoutProps) => {
@@ -199,32 +154,12 @@ export const PaddleSubProvider = ({
     ],
   );
 
-  const value = useMemo<PaymentContextData>(
-    () => ({
-      openCheckout,
-      paddle,
-      productOptions:
-        data?.filter(({ productId }) => productId !== giftOneYear?.productId) ??
-        [],
-      earlyAdopterPlanId,
-      isPlusAvailable,
-      giftOneYear,
-      isPricesPending,
-      isFreeTrialExperiment,
-    }),
-    [
-      openCheckout,
-      paddle,
-      data,
-      giftOneYear,
-      earlyAdopterPlanId,
-      isPlusAvailable,
-      isPricesPending,
-      isFreeTrialExperiment,
-    ],
-  );
-
   return (
-    <PaymentContext.Provider value={value}>{children}</PaymentContext.Provider>
+    <BasePaymentProvider
+      openCheckout={openCheckout}
+      additionalContext={{ paddle }}
+    >
+      {children}
+    </BasePaymentProvider>
   );
 };
