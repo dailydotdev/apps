@@ -233,7 +233,6 @@ export function GiftPlusModalComponent({
             <PlusPlanExtraLabel
               color={giftOneYear?.metadata.caption.color}
               label={giftOneYear?.metadata.caption.copy}
-              typographyProps={{ color: TypographyColor.StatusSuccess }}
             />
           )}
           <Typography type={TypographyType.Body} className="ml-auto mr-1">

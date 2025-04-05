@@ -22,15 +22,12 @@ export enum PlusLabelColor {
   Help = 'bg-action-help-float',
 }
 
-export const captionToColor: Record<PricingCaptionColor, PlusLabelColor> = {
+const captionToColor: Record<PricingCaptionColor, PlusLabelColor> = {
   [PricingCaptionColor.Success]: PlusLabelColor.Success,
   [PricingCaptionColor.Help]: PlusLabelColor.Help,
 };
 
-export const captionToTypographyColor: Record<
-  PricingCaptionColor,
-  TypographyColor
-> = {
+const captionToTypographyColor: Record<PricingCaptionColor, TypographyColor> = {
   [PricingCaptionColor.Success]: TypographyColor.StatusSuccess,
   [PricingCaptionColor.Help]: TypographyColor.StatusHelp,
 };
@@ -49,6 +46,7 @@ export function PlusPlanExtraLabel({
       className={classNames(
         'rounded-10 px-2 py-1',
         captionToColor[color],
+        captionToTypographyColor[color],
         className,
       )}
       bold

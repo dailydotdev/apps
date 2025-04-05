@@ -95,11 +95,6 @@ const PlusCard = ({
             color={plan?.metadata.caption.color}
             label={plan?.metadata.caption.copy}
             className="ml-3"
-            typographyProps={{
-              color: isFreeTrialExperiment
-                ? TypographyColor.StatusSuccess
-                : TypographyColor.StatusHelp,
-            }}
           />
         )}
       </div>

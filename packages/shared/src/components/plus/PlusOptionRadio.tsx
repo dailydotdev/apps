@@ -9,7 +9,7 @@ import {
 } from '../typography/Typography';
 import { RadioItem } from '../fields/RadioItem';
 import type { PlusPricingPreview } from '../../graphql/paddle';
-import { captionToColor, captionToTypographyColor } from './PlusPlanExtraLabel';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 interface PlusOptionRadioProps {
   option: PlusPricingPreview;
@@ -62,18 +62,10 @@ export function PlusOptionRadio({
         </Typography>
 
         {metadata.caption && (
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={captionToTypographyColor[metadata.caption.color]}
-            className={classNames(
-              'rounded-10 px-2 py-1',
-              captionToColor[metadata.caption.color],
-            )}
-            bold
-          >
-            {metadata.caption.copy}
-          </Typography>
+          <PlusPlanExtraLabel
+            color={metadata.caption.color}
+            label={metadata.caption.copy}
+          />
         )}
       </div>
       <div className="ml-auto mr-1 flex items-center gap-1">
