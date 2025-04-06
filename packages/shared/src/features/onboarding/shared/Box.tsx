@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import classed from '../../../lib/classed';
+import { LazyImage } from '../../../components/LazyImage';
 
 const Box = classed(
   'div',
@@ -44,7 +45,7 @@ export const BoxList = ({
 export interface BoxContentImageProps extends BoxBaseProps {
   title: string;
   content: string;
-  image: ComponentProps<'img'>;
+  image: Pick<ComponentProps<'img'>, 'src' | 'alt' | 'className'>;
 }
 
 export const BoxContentImage = ({
@@ -57,13 +58,16 @@ export const BoxContentImage = ({
     <Box className={className}>
       <h3 className="font-bold typo-title3">{title}</h3>
       <div>
-        <img
-          {...image}
-          alt={image.alt}
+        <LazyImage
+          eager
+          ratio="100%"
+          imgSrc={image.src}
+          imgAlt={image.alt}
           className={classNames(
-            'float-right mb-2 ml-2 h-20 w-20 object-contain',
+            'float-right mb-2 ml-2 h-20 w-20',
             image.className,
           )}
+          fit="contain"
         />
         <p className="text-text-tertiary typo-callout">{content}</p>
       </div>
