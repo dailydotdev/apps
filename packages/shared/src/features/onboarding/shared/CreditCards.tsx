@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { LazyImage } from '../../../components/LazyImage';
 import { creditCardsImage } from '../../../lib/image';
+
 interface CreditCardsProps {
   className?: string;
 }
