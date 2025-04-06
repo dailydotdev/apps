@@ -255,3 +255,6 @@ export const plusRedBackgroundImage =
 
 export const interactiveFeedEmpty =
   'https://media.daily.dev/image/upload/s--I40-3-Oa--/f_auto/v1741779283/public/cards';
+
+export const creditCardsImage =
+  'https://media.daily.dev/image/upload/s--GG1rD-wP--/f_auto/v1743491782/public/credit';
