@@ -50,7 +50,7 @@ export function Reviews({
   return (
     <div
       className={classNames(
-        'flex max-w-full flex-col items-center gap-4 p-6',
+        'flex max-w-full flex-col items-center gap-4 py-6',
         className,
       )}
     >
