@@ -68,7 +68,7 @@ import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/Fe
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useRouter } from 'next/router';
-import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
+import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -113,6 +113,8 @@ const Wallet = (): ReactElement => {
   const router = useRouter();
   const { isLoggedIn, user, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
+  const hasCoresAccess = useHasAccessToCores();
+
   const onBuyCoresClick = useCallback(
     ({
       origin = Origin.WalletPageCTA,
@@ -173,14 +175,14 @@ const Wallet = (): ReactElement => {
     if (!isPageReady) {
       return;
     }
-    if (hasAccessToCores(user)) {
+    if (hasCoresAccess) {
       return;
     }
 
     router.push(user ? webappUrl : onboardingUrl);
-  }, [isPageReady, router, user]);
+  }, [isPageReady, router, user, hasCoresAccess]);
 
-  if (!user || !isPageReady || !hasAccessToCores(user)) {
+  if (!user || !isPageReady || !hasCoresAccess) {
     return null;
   }
 

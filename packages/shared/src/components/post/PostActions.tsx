@@ -29,9 +29,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
-import { canAwardUser } from '../../lib/cores';
-import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import type { LoggedUser } from '../../lib/user';
+import { useCanAwardUser } from '../../hooks/useCoresFeature';
 
 interface PostActionsProps {
   post: Post;
@@ -52,12 +51,14 @@ export function PostActions({
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const actionsRef = useRef<HTMLDivElement>(null);
+  const canAward = useCanAwardUser({
+    sendingUser: user,
+    receivingUser: post.author as LoggedUser,
+  });
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
   const { toggleBookmark } = useBookmarkPost();
-
-  const isSpecialUser = useIsSpecialUser({ userId: post?.author?.id });
 
   const onToggleBookmark = async () => {
     await toggleBookmark({ post, origin });
@@ -215,55 +216,48 @@ export function PostActions({
           >
             Comment
           </QuaternaryButton>
-          {!!post.author &&
-            canAwardUser({
-              sendingUser: user,
-              receivingUser: post.author as LoggedUser,
-            }) &&
-            !isSpecialUser && (
-              <ConditionalWrapper
-                condition={post?.userState?.awarded}
-                wrapper={(children) => {
-                  return (
-                    <SimpleTooltip content="You already awarded this post!">
-                      <div>{children}</div>
-                    </SimpleTooltip>
-                  );
-                }}
-              >
-                <QuaternaryButton
-                  id="award-post-btn"
-                  pressed={post?.userState?.awarded}
-                  onClick={() => {
-                    if (!user) {
-                      return showLogin({ trigger: AuthTriggers.GiveAward });
-                    }
-
-                    return openModal({
-                      type: LazyModal.GiveAward,
-                      props: {
-                        type: 'POST',
-                        entity: {
-                          id: post.id,
-                          receiver: post.author,
-                          numAwards: post.numAwards,
-                        },
-                        post,
-                      },
-                    });
-                  }}
-                  icon={
-                    <MedalBadgeIcon secondary={!post?.userState?.awarded} />
+          {canAward && (
+            <ConditionalWrapper
+              condition={post?.userState?.awarded}
+              wrapper={(children) => {
+                return (
+                  <SimpleTooltip content="You already awarded this post!">
+                    <div>{children}</div>
+                  </SimpleTooltip>
+                );
+              }}
+            >
+              <QuaternaryButton
+                id="award-post-btn"
+                pressed={post?.userState?.awarded}
+                onClick={() => {
+                  if (!user) {
+                    return showLogin({ trigger: AuthTriggers.GiveAward });
                   }
-                  className={classNames(
-                    'btn-tertiary-cabbage',
-                    post?.userState?.awarded && 'pointer-events-none',
-                  )}
-                >
-                  Award
-                </QuaternaryButton>
-              </ConditionalWrapper>
-            )}
+
+                  return openModal({
+                    type: LazyModal.GiveAward,
+                    props: {
+                      type: 'POST',
+                      entity: {
+                        id: post.id,
+                        receiver: post.author,
+                        numAwards: post.numAwards,
+                      },
+                      post,
+                    },
+                  });
+                }}
+                icon={<MedalBadgeIcon secondary={!post?.userState?.awarded} />}
+                className={classNames(
+                  'btn-tertiary-cabbage',
+                  post?.userState?.awarded && 'pointer-events-none',
+                )}
+              >
+                Award
+              </QuaternaryButton>
+            </ConditionalWrapper>
+          )}
           <BookmarkButton
             post={post}
             contextMenuId="post-content-bookmark"

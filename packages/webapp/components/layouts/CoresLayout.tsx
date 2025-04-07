@@ -13,8 +13,8 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
-import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import type { MainFeedPageProps } from './MainFeedPage';
 
 export default function CoresLayout({
@@ -23,6 +23,7 @@ export default function CoresLayout({
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { back, replace, push, isReady } = useRouter();
   const { user, isAuthReady } = useAuthContext();
+  const hasCoresAccess = useHasAccessToCores();
 
   const isPageReady = isReady && isAuthReady;
 
@@ -38,14 +39,14 @@ export default function CoresLayout({
     if (!isPageReady) {
       return;
     }
-    if (hasAccessToCores(user)) {
+    if (hasCoresAccess) {
       return;
     }
 
     push(user ? webappUrl : onboardingUrl);
-  }, [isPageReady, push, user]);
+  }, [isPageReady, push, user, hasCoresAccess]);
 
-  if (!user || !isPageReady || !hasAccessToCores(user)) {
+  if (!user || !isPageReady || !hasCoresAccess) {
     return null;
   }
 

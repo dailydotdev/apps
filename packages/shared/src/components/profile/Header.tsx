@@ -33,8 +33,11 @@ import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
-import { hasAccessToCores, canAwardUser } from '../../lib/cores';
 import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  useCanAwardUser,
+  useHasAccessToCores,
+} from '../../hooks/useCoresFeature';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -64,6 +67,11 @@ export function Header({
   });
   const { unblock, block } = useContentPreference();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const canAward = useCanAwardUser({
+    sendingUser: loggedUser,
+    receivingUser: user as LoggedUser,
+  });
+  const hasCoresAccess = useHasAccessToCores();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -173,7 +181,7 @@ export function Header({
             className="flex-row-reverse"
           />
         )}
-        {isSameUser && hasAccessToCores(loggedUser) && (
+        {isSameUser && hasCoresAccess && (
           <BuyCreditsButton
             className="laptop:hidden"
             onPlusClick={() => {
@@ -181,21 +189,17 @@ export function Header({
             }}
           />
         )}
-        {!isSameUser &&
-          canAwardUser({
-            sendingUser: loggedUser,
-            receivingUser: user as LoggedUser,
-          }) && (
-            <AwardButton
-              appendTo="parent"
-              type="USER"
-              entity={{
-                id: user.id,
-                receiver: user,
-              }}
-              variant={ButtonVariant.Float}
-            />
-          )}
+        {canAward && (
+          <AwardButton
+            appendTo="parent"
+            type="USER"
+            entity={{
+              id: user.id,
+              receiver: user,
+            }}
+            variant={ButtonVariant.Float}
+          />
+        )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>

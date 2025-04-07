@@ -15,7 +15,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { walletUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
-import { hasAccessToCores } from '../../lib/cores';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -33,6 +33,7 @@ export default function ProfileButton({
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const hasCoresAccess = useHasAccessToCores();
 
   const preciseBalance = formatCurrency(user?.balance?.amount, {
     minimumFractionDigits: 0,
@@ -56,7 +57,7 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
-          {hasAccessToCores(user) && (
+          {hasCoresAccess && (
             <SimpleTooltip
               content={
                 <>

@@ -58,9 +58,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { canAwardUser } from '../../lib/cores';
 import { featuredAwardImage } from '../../lib/image';
 import { Image } from '../image/Image';
+import { useCanAwardUser } from '../../hooks/useCoresFeature';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -108,8 +108,10 @@ export default function CommentActionButtons({
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
   const appendTo = isCompanion ? getCompanionWrapper : 'parent';
-
-  const isSpecialUser = useIsSpecialUser({ userId: comment?.author?.id });
+  const canAward = useCanAwardUser({
+    sendingUser: user,
+    receivingUser: comment.author as LoggedUser,
+  });
 
   useEffect(() => {
     setVoteState({
@@ -360,42 +362,38 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {canAwardUser({
-        sendingUser: user,
-        receivingUser: comment.author as LoggedUser,
-      }) &&
-        !isSpecialUser && (
-          <>
-            {!comment.userState?.awarded && (
-              <AwardButton
-                appendTo={appendTo}
-                type="COMMENT"
-                entity={{
-                  id: comment.id,
-                  receiver: comment.author,
-                  numAwards: comment.numAwards,
-                }}
-                pressed={!!comment.userState?.awarded}
-                post={post}
-                className={!comment.numAwards ? 'mr-3' : undefined}
-              />
-            )}
-            {!!comment.userState?.awarded && (
-              <Image src={featuredAwardImage} alt="Award" className="size-6" />
-            )}
-            {!!comment.numAwards && (
-              <Typography
-                className="ml-1 mr-3"
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-                bold
-              >
-                {largeNumberFormat(comment.numAwards)} Award
-                {comment.numAwards > 1 ? 's' : ''}
-              </Typography>
-            )}
-          </>
-        )}
+      {canAward && (
+        <>
+          {!comment.userState?.awarded && (
+            <AwardButton
+              appendTo={appendTo}
+              type="COMMENT"
+              entity={{
+                id: comment.id,
+                receiver: comment.author,
+                numAwards: comment.numAwards,
+              }}
+              pressed={!!comment.userState?.awarded}
+              post={post}
+              className={!comment.numAwards ? 'mr-3' : undefined}
+            />
+          )}
+          {!!comment.userState?.awarded && (
+            <Image src={featuredAwardImage} alt="Award" className="size-6" />
+          )}
+          {!!comment.numAwards && (
+            <Typography
+              className="ml-1 mr-3"
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              {largeNumberFormat(comment.numAwards)} Award
+              {comment.numAwards > 1 ? 's' : ''}
+            </Typography>
+          )}
+        </>
+      )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}

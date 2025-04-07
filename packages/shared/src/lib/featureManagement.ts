@@ -8,6 +8,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
 import type { ProductMeta } from '../contexts/payment/context';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
+import { isDevelopment } from './constants';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -130,3 +131,5 @@ export const featureOnboardingReorder = new Feature(
 );
 
 export { feature };
+
+export const featureCores = new Feature('cores', isDevelopment);

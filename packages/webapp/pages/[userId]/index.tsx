@@ -18,8 +18,8 @@ import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
-import { hasAccessToCores } from '@dailydotdev/shared/src/lib/cores';
 import dynamic from 'next/dynamic';
+import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -46,8 +46,9 @@ const ProfilePage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
-  const { user: loggedUser, tokenRefreshed } = useAuthContext();
+  const { tokenRefreshed } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
+  const hasCoresAccess = useHasAccessToCores();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
     useActivityTimeFilter();
@@ -83,7 +84,7 @@ const ProfilePage = ({
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
         <Readme user={user} />
-        {hasAccessToCores(loggedUser) && <Awards userId={user?.id} />}
+        {hasCoresAccess && <Awards userId={user?.id} />}
         <TopReaderWidget user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
