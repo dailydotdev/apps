@@ -93,6 +93,7 @@ const colors = {
     90: '#D9113A',
   },
   cabbage: {
+    0: '#E669FB00',
     10: '#E669FB',
     20: '#E05CF8',
     30: '#D74CF6',
