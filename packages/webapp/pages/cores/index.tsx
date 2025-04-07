@@ -34,10 +34,11 @@ import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = {
-  title: getTemplatedTitle('TODO: Buy cores title'),
+export const seo: NextSeoProps = {
+  title: getTemplatedTitle('Buy Cores'),
   openGraph: { ...defaultOpenGraph },
-  description: 'TODO: Buy cores description',
+  description:
+    'Purchase Cores to recognize valuable contributions, support creators, and fuel the developer community on daily.dev. Fast, secure, and flexible credit bundles.',
 };
 
 const MobileContainer = classed(

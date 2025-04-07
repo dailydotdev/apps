@@ -72,6 +72,7 @@ import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeatu
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
+import { getTemplatedTitle } from '../components/layouts/utils';
 
 type BalanceBlockProps = {
   Icon: ReactElement;
@@ -429,7 +430,13 @@ const Wallet = (): ReactElement => {
 const getWalletLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
-const seo: NextSeoProps = { title: 'Wallet', nofollow: true, noindex: true };
+const seo: NextSeoProps = {
+  title: getTemplatedTitle('Core Wallet'),
+  description:
+    'Manage your Core Wallet on daily.dev. Check your balance, track activity, and buy Cores to support developers and power the community.',
+  nofollow: true,
+  noindex: true,
+};
 
 Wallet.getLayout = getWalletLayout;
 Wallet.layoutProps = { seo, screenCentered: false };

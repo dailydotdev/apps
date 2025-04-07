@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
-import type { NextSeoProps } from 'next-seo/lib/types';
 
 import { useRouter } from 'next/router';
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -14,16 +13,8 @@ import {
   getPathnameWithQuery,
   getRedirectNextPath,
 } from '@dailydotdev/shared/src/lib/links';
-import { getTemplatedTitle } from '../../components/layouts/utils';
-import { defaultOpenGraph } from '../../next-seo';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
-import { CorePageMobileCheckout } from './index';
-
-const seo: NextSeoProps = {
-  title: getTemplatedTitle('TODO: Buy cores title'),
-  openGraph: { ...defaultOpenGraph },
-  description: 'TODO: Buy cores description',
-};
+import { CorePageMobileCheckout, seo } from './index';
 
 const CoresPaymentPage = (): ReactElement => {
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
