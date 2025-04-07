@@ -19,7 +19,7 @@ const PlusWebapp = (): ReactElement => {
 
   useEffect(() => {
     if (!isPricesPending && !selectedOption) {
-      setSelectedOption(productOptions?.[0]?.productId);
+      setSelectedOption(productOptions?.[0]?.priceId);
     }
   }, [isPricesPending, productOptions, selectedOption]);
 

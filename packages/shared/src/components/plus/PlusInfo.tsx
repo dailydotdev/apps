@@ -170,7 +170,7 @@ export const PlusInfo = ({
                     props: {
                       onSelected: (user) => {
                         onChange({
-                          priceId: productOptions[0].productId,
+                          priceId: productOptions[0].priceId,
                           giftToUserId: user.id,
                         });
                       },
@@ -199,7 +199,7 @@ export const PlusInfo = ({
           className="mb-6"
           onClose={() => {
             router.push('/plus');
-            onChange({ priceId: productOptions[0].productId });
+            onChange({ priceId: productOptions[0].priceId });
           }}
         />
       )}
@@ -211,7 +211,7 @@ export const PlusInfo = ({
       >
         {giftToUser ? (
           <PlusOptionRadio
-            key={giftOneYear?.productId}
+            key={giftOneYear?.priceId}
             option={giftOneYear}
             checked
           />
@@ -220,13 +220,13 @@ export const PlusInfo = ({
             {productOptions.length === 0 && <RadioGroupSkeleton />}
             {productOptions.map((option) => (
               <PlusOptionRadio
-                key={option.productId}
+                key={option.priceId}
                 shouldShowMonthlyPrice
                 shoouldShowDuration
                 option={option}
-                checked={selectedOption === option.productId}
+                checked={selectedOption === option.priceId}
                 onChange={() => {
-                  onChange({ priceId: option.productId });
+                  onChange({ priceId: option.priceId });
                   logSubscriptionEvent({
                     event_name: LogEvent.SelectBillingCycle,
                     target_id: option.metadata.title.toLowerCase(),

@@ -45,8 +45,8 @@ export const PlusMobile = ({
           return;
         }
 
-        if (productOptions?.[0]?.productId && !selectedOption) {
-          setSelectedOption(productOptions[0].productId);
+        if (productOptions?.[0]?.priceId && !selectedOption) {
+          setSelectedOption(productOptions[0].priceId);
         }
       }}
     >

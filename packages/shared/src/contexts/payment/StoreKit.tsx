@@ -97,7 +97,7 @@ const getApplePlusPricing = (metadata: PlusPricingMetadata[]) => {
 
         return {
           metadata: item,
-          productId: item.idMap.ios,
+          priceId: item.idMap.ios,
           price: {
             amount: parseFloat(product.attributes.offers[0].price),
             formatted: product.attributes.offers[0].priceFormatted,

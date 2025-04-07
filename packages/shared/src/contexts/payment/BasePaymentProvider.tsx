@@ -44,8 +44,7 @@ export const BasePaymentProvider = ({
     () => ({
       openCheckout,
       productOptions:
-        data?.filter(({ productId }) => productId !== giftOneYear?.productId) ??
-        [],
+        data?.filter(({ priceId }) => priceId !== giftOneYear?.priceId) ?? [],
       isPlusAvailable,
       giftOneYear,
       isPricesPending,

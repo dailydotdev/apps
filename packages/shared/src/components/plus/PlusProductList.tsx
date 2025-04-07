@@ -36,15 +36,15 @@ const PlusProductList = ({
         className,
       )}
     >
-      {productList.map(({ metadata, productId, price, currency }) => (
+      {productList.map(({ metadata, priceId, price, currency }) => (
         <RadioItem
-          key={productId}
+          key={priceId}
           name={metadata.title}
-          id={`${metadata.title}-${productId}`}
-          value={productId}
-          checked={selected === productId}
+          id={`${metadata.title}-${priceId}`}
+          value={priceId}
+          checked={selected === priceId}
           onChange={() => {
-            onChange(productId);
+            onChange(priceId);
             logSubscriptionEvent({
               event_name: LogEvent.SelectBillingCycle,
               target_id: metadata.title.toLowerCase(),
@@ -53,7 +53,7 @@ const PlusProductList = ({
           className={{
             content: classNames(
               'min-h-12 w-full rounded-10 !p-2',
-              selected === productId
+              selected === priceId
                 ? '-m-px border border-border-subtlest-primary bg-surface-float'
                 : undefined,
             ),

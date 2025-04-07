@@ -30,19 +30,19 @@ export function PlusOptionRadio({
     return null;
   }
 
-  const { metadata, productId, price } = option;
+  const { metadata, priceId, price } = option;
   const finalPrice = shouldShowMonthlyPrice
     ? price.monthly?.formatted || price.formatted
     : price.formatted;
 
   return (
     <RadioItem
-      key={productId}
+      key={priceId}
       name={metadata.title}
-      id={`${metadata.title}-${productId}`}
-      value={productId}
+      id={`${metadata.title}-${priceId}`}
+      value={priceId}
       checked={checked}
-      onChange={() => onChange(productId)}
+      onChange={() => onChange(priceId)}
       className={{
         content: classNames(
           'min-h-12 rounded-10 !p-2',

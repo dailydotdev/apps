@@ -27,7 +27,7 @@ export interface PlusPricingMetadata {
 
 export interface PlusPricingPreview {
   metadata: PlusPricingMetadata;
-  productId: string;
+  priceId: string;
   price: Price & { monthly?: Price };
   currency: {
     code: string;
@@ -58,7 +58,7 @@ const PLUS_PRICING_PREVIEW_QUERY = gql`
       metadata {
         ...PricingMetadata
       }
-      productId
+      priceId
       price {
         amount
         formatted
