@@ -99,8 +99,8 @@ const ReadingReminder = dynamic(() =>
 
 const OnboardingPlusStep = dynamic(() =>
   import(
-    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
-  ).then((mod) => mod.OnboardingPlusStep),
+    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/Plus/OnboardingPlus'
+  ).then((mod) => mod.OnboardingPlus),
 );
 
 const OnboardingPWA = dynamic(() =>
@@ -197,7 +197,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Plus);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
