@@ -1,22 +1,19 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { useViewSize, ViewSize } from '../../hooks';
-import { usePaymentContext } from '../../contexts/payment/context';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { usePaymentContext } from '../../../contexts/payment/context';
+import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { PlusComparingCards } from '../../plus/PlusComparingCards';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../typography/Typography';
-import { PlusComparingCards } from '../plus/PlusComparingCards';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
-import { PlusPriceTypeAppsId } from '../../lib/featureValues';
-
-interface OnboardingStepProps {
-  onClickNext: () => void;
-}
+  TypographyColor,
+} from '../../typography/Typography';
+import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
+import type { OnboardingStepProps } from './common';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -46,7 +43,7 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
-export const OnboardingPlusStep = ({
+export const OnboardingPlusControl = ({
   onClickNext,
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
