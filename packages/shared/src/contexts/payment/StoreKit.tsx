@@ -165,13 +165,16 @@ export const StoreKitSubProvider = ({
       eventName,
       (event) => {
         const { name, detail, product } = event.detail;
+        const item = productOptions?.find(
+          ({ priceId }) => priceId === product?.attributes?.offerName,
+        );
         switch (name) {
           case PurchaseEventName.PurchaseCompleted:
             logRef.current({
               event_name: LogEvent.CompleteCheckout,
               extra: {
                 user_id: user?.id,
-                cycle: product.attributes.offers[0].recurringSubscriptionPeriod,
+                cycle: item.duration,
                 localCost: product.attributes.offers[0].price,
                 localCurrency: product.attributes.offers[0].currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
@@ -209,7 +212,7 @@ export const StoreKitSubProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [displayToast, data, router, user?.id]);
+  }, [displayToast, productOptions, data, router, user?.id]);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
