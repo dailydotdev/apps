@@ -1,8 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import { StarIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
+import { Stars } from './Stars';
 
 export interface Review {
   title: string;
@@ -68,17 +67,7 @@ export function Reviews({
       <div className="flex flex-col items-center gap-1">
         <div className="flex items-center gap-1">
           <span className="font-bold typo-title3">{rating}</span>
-          <div className="flex items-center">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <StarIcon
-                // eslint-disable-next-line react/no-array-index-key
-                key={index}
-                size={IconSize.Small}
-                secondary
-                className="text-accent-cheese-default"
-              />
-            ))}
-          </div>
+          <Stars />
         </div>
         <span className="typo-footnote">{reviewSubtitle}</span>
       </div>
