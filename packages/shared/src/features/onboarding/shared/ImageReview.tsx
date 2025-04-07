@@ -45,7 +45,7 @@ export function ImageReview({
             eager
             imgSrc={authorImage.src}
             imgAlt={authorImage.alt}
-            className="h-8 w-8"
+            className="size-8"
             fit="cover"
           />
           <span className="text-text-secondary typo-callout">{authorInfo}</span>
