@@ -60,7 +60,7 @@ const FunnelPaymentSuccessful = ({
             color={TypographyColor.Secondary}
             className="my-6"
           >
-            Success! Your payment is complete, you’re all set.
+            Your payment is complete, you&apos;re all set.
           </Typography>
           <span className="flex flex-col gap-4">
             <Button
