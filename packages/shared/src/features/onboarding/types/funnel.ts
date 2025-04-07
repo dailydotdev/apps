@@ -18,7 +18,7 @@ export enum FunnelStepTransitionType {
   Complete = 'complete',
 }
 
-type FunnelStepTransitionCallback<Details = unknown> = (transition: {
+export type FunnelStepTransitionCallback<Details = unknown> = (transition: {
   type: FunnelStepTransitionType;
   details?: Details;
 }) => void;
