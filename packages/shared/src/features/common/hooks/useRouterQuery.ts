@@ -7,7 +7,7 @@ export const useRouterQuery = (): {
   const params = useSearchParams();
   return useMemo(
     () => ({
-      query: Object.fromEntries(params.entries()),
+      query: params ? Object.fromEntries(params.entries()) : {},
     }),
     [params],
   );

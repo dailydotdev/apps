@@ -6,3 +6,5 @@ export * from './PricingPlan';
 export * from './PricingPlans';
 export * from './CreditCards';
 export * from './Reviews';
+export * from './FunnelStepBackground';
+export * from './FunnelStepCtaWrapper';

@@ -81,6 +81,9 @@ export interface FunnelStepPricing extends FunnelStepCommon {
 
 export interface FunnelStepCheckout extends FunnelStepCommon {
   type: FunnelStepType.Checkout;
+  priceId: string;
+  discountCode?: string;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepTagSelection extends FunnelStepCommon {

@@ -81,6 +81,10 @@ const config: StorybookConfig = {
           },
         }),
       ],
+      env: {
+        NEXT_PUBLIC_PADDLE_ENVIRONMENT: process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT,
+        NEXT_PUBLIC_PADDLE_TOKEN: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
+      },
     });
   },
 };

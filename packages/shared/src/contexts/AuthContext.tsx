@@ -3,7 +3,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import {
   deleteAccount,
@@ -141,7 +140,6 @@ export const AuthContextProvider = ({
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
-  const router = useRouter();
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
     logout(LogoutReason.IncomleteOnboarding);
   }
@@ -162,24 +160,25 @@ export const AuthContextProvider = ({
         firstVisit: user?.firstVisit,
         trackingId: user?.id,
         shouldShowLogin: loginState !== null,
-        showLogin: useCallback(
-          ({ trigger, options = {} }) => {
-            const hasCompanion = !!isCompanionActivated();
-            if (hasCompanion) {
-              const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
-              window.open(signup);
-            } else {
-              const params = new URLSearchParams(globalThis?.location.search);
+        showLogin: useCallback(({ trigger, options = {} }) => {
+          const hasCompanion = !!isCompanionActivated();
+          if (hasCompanion) {
+            const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
+            window.open(signup);
+          } else {
+            const params = new URLSearchParams(globalThis?.location.search);
 
-              setLoginState({ ...options, trigger });
-              if (!params.get(AFTER_AUTH_PARAM)) {
-                params.set(AFTER_AUTH_PARAM, window.location.pathname);
-              }
-              router.push(`/onboarding?${params.toString()}`);
+            setLoginState({ ...options, trigger });
+            if (!params.get(AFTER_AUTH_PARAM)) {
+              params.set(AFTER_AUTH_PARAM, window.location.pathname);
             }
-          },
-          [router],
-        ),
+            window.history.pushState(
+              {},
+              '',
+              `/onboarding?${params.toString()}`,
+            );
+          }
+        }, []),
         closeLogin: useCallback(() => setLoginState(null), []),
         loginState,
         updateUser,
