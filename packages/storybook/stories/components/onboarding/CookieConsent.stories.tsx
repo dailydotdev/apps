@@ -55,7 +55,7 @@ const withQueryClient = (
 );
 
 const meta: Meta<typeof CookieConsent> = {
-  title: 'Components/Onboarding/CookieConsent',
+  title: 'Components/Onboarding/Shared/CookieConsent',
   parameters: {
     design: {
       type: 'figma',

@@ -3,7 +3,9 @@ import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
+  TypographyType,
 } from '../../../components/typography/Typography';
 import { cookiePolicy, termsOfService } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -12,6 +14,7 @@ import { LazyModal } from '../../../components/modals/common/types';
 import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ClickableText } from '../../../components/buttons/ClickableText';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export interface OnboardingCookieConsentProps {
   onAccepted: AcceptCookiesCallback;
@@ -45,8 +48,10 @@ export function CookieConsent({
         className,
       )}
     >
-      <span
-        className="text-text-tertiary typo-caption2"
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption2}
+        color={TypographyColor.Tertiary}
         data-testid="cookie_content"
       >
         This site uses cookies to enhance your experience. By continuing, you
@@ -55,7 +60,7 @@ export function CookieConsent({
           tag={TypographyTag.Link}
           href={cookiePolicy}
           target="_blank"
-          rel="noopener"
+          rel={anchorDefaultRel}
         >
           Privacy Policy
         </Typography>{' '}
@@ -64,12 +69,12 @@ export function CookieConsent({
           tag={TypographyTag.Link}
           href={termsOfService}
           target="_blank"
-          rel="noopener"
+          rel={anchorDefaultRel}
         >
           Terms of Service
         </Typography>
         .
-      </span>
+      </Typography>
       <div className="flex flex-row gap-2">
         <ClickableText
           onClick={onAcceptAll}
