@@ -29,7 +29,7 @@ const FunnelPaymentSuccessful = ({
   onTransition,
 }: FunnelPaymentSuccessfulProps): ReactElement => {
   return (
-    <div className="relative flex w-full flex-1 justify-center">
+    <div className="relative flex min-h-dvh w-full flex-1 justify-center">
       <LazyImage
         src={cloudinaryOnboardingFullBackgroundDesktop}
         className="left-0 top-0 -z-1 h-full w-full translate-y-52 scale-150 blur-3xl"
