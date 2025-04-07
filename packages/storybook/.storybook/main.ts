@@ -55,6 +55,7 @@ const config: StorybookConfig = {
             '../mock/boot.ts',
           ),
           '../lib/boot': path.resolve(__dirname, '../mock/boot.ts'),
+          'next/navigation': path.resolve(__dirname, '../mock/next-router.ts'),
         },
       },
       define: {

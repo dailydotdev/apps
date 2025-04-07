@@ -6,3 +6,5 @@ export const useRouter = () => ({
   pathname: '/',
   query: {},
 });
+
+export const useSearchParams = () => new URLSearchParams();
