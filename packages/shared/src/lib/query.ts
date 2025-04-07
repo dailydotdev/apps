@@ -200,6 +200,7 @@ export enum RequestKey {
   PricePreview = 'price_preview',
   Products = 'products',
   Transactions = 'transactions',
+  CheckCoresRole = 'check_cores_role',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

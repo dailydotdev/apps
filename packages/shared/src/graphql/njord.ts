@@ -263,3 +263,11 @@ export const userProductSummaryQueryOptions = ({
     staleTIme: StaleTime.Default,
   };
 };
+
+export const CHECK_CORES_ROLE_QUERY = gql`
+  query checkCoresRole {
+    checkCoresRole {
+      coresRole
+    }
+  }
+`;
