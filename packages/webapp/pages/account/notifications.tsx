@@ -586,7 +586,7 @@ const AccountNotificationsPage = (): ReactElement => {
             <Checkbox
               name="awardPush"
               data-testid="award-push-switch"
-              checked={awardEmail}
+              checked={awardNotifications}
               onToggleCallback={onToggleAwardNotifications}
             >
               Transactions (Cores earnings & rewards)
