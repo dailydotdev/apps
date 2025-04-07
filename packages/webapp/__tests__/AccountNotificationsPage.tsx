@@ -142,6 +142,7 @@ it('should change user all email subscription', async () => {
     acceptedMarketing: true,
     notificationEmail: true,
     followingEmail: true,
+    awardEmail: true,
   };
   mockGraphQL(updateProfileMock(data));
   let personalizedDigestMutationCalled = false;
@@ -192,12 +193,14 @@ it('should unsubscribe from all email campaigns', async () => {
     acceptedMarketing: true,
     notificationEmail: true,
     followingEmail: true,
+    awardEmail: true,
   });
 
   const data: UpdateProfileParameters = {
     acceptedMarketing: false,
     notificationEmail: false,
     followingEmail: false,
+    awardEmail: false,
   };
   mockGraphQL(updateProfileMock(data));
 
