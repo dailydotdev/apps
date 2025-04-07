@@ -12,7 +12,7 @@ import {
 import { PlusComparingCards } from '../plus/PlusComparingCards';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 
 interface OnboardingStepProps {
   onClickNext: () => void;
@@ -53,14 +53,9 @@ export const OnboardingPlusStep = ({
   const { productOptions } = usePaymentContext();
   const item = useMemo(
     () =>
-      [...productOptions]
-        .sort(({ duration, metadata }) => {
-          if (metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter) {
-            return -1;
-          }
-          return duration === PlusPriceType.Yearly ? 0 : 1;
-        })
-        .at(0),
+      productOptions.find(
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      ),
     [productOptions],
   );
 

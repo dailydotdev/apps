@@ -102,7 +102,9 @@ const getApplePlusPricing = (metadata: PlusPricingMetadata[]) => {
             amount: parseFloat(product.attributes.offers[0].price),
             formatted: product.attributes.offers[0].priceFormatted,
           },
-          duration: duration === PlusPriceType.Yearly ? 'year' : 'month',
+          duration: ['year', 'years'].includes(duration)
+            ? PlusPriceType.Yearly
+            : PlusPriceType.Monthly,
           trialPeriod: null,
           currency: null,
         } as PlusPricingPreview;
