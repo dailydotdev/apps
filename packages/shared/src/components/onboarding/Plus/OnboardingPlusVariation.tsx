@@ -178,9 +178,9 @@ export const OnboardingPlusVariation = ({
                 bold
                 type={TypographyType.Caption1}
                 color={TypographyColor.Primary}
-                className="text-center"
+                className="text-center uppercase"
               >
-                BEST VALUE
+                Best value
               </Typography>
             </div>
             <div className="flex h-fit flex-col gap-4 rounded-12 bg-background-default p-4 tablet:max-w-xs">
