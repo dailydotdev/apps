@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { ModalKind } from '../common/types';
@@ -42,6 +42,8 @@ import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
 import type { Origin } from '../../../lib/log';
 import { formatCoresCurrency } from '../../../lib/utils';
+import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
+import { labels } from '../../../lib';
 
 export const CoreOptions = ({
   className,
@@ -82,7 +84,7 @@ export const BuyCoresCheckout = ({
 
 const statusToMessageMap: Partial<Record<UserTransactionStatus, ReactNode>> = {
   [UserTransactionStatus.Created]: 'Checking your data...',
-  [UserTransactionStatus.Processing]: 'Processing your payment...',
+  [UserTransactionStatus.Processing]: 'Processing your payment, please wait...',
   [UserTransactionStatus.Success]: 'Almost done...',
   [UserTransactionStatus.ErrorRecoverable]: 'There was an issue, retrying...',
   [UserTransactionStatus.Error]: (
@@ -154,6 +156,15 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
   const isProcessing = activeStep === 'PROCESSING';
   const queryClient = useQueryClient();
 
+  const onValidateAction = useCallback(() => {
+    return !isProcessing;
+  }, [isProcessing]);
+
+  const { onAskConfirmation } = useExitConfirmation({
+    message: labels.cores.error.transactionProcessing.description,
+    onValidateAction,
+  });
+
   const { providerTransactionId } = useBuyCoresContext();
 
   const { data: transaction } = useQuery({
@@ -192,6 +203,8 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
 
       if (retries > maxRetries) {
         // TODO feat/transactions redirect user to /wallet to monitor their transaction there if they want
+        // log error for timeout
+        onAskConfirmation(false);
 
         return false;
       }
@@ -208,9 +221,9 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
 
       if (transactionStatus === UserTransactionStatus.Error) {
         // TODO show error message
-
-        return false;
       }
+
+      onAskConfirmation(false);
 
       return false;
     },
@@ -231,8 +244,6 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       size={Modal.Size.XSmall}
       {...props}
       onRequestClose={() => {
-        // TODO feat/transactions if processing interupt the modal close, tell user can check transaction in /wallet
-
         return onCompletion();
       }}
       isDrawerOnMobile
