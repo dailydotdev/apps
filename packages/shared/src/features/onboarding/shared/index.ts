@@ -7,3 +7,5 @@ export * from './PricingPlans';
 export * from './CreditCards';
 export * from './Reviews';
 export * from './CookieConsent';
+export * from './ImageReview';
+export * from './Stars';
