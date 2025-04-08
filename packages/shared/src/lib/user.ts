@@ -95,6 +95,8 @@ export interface UserProfile {
   followingEmail?: boolean;
   followNotifications?: boolean;
   defaultFeedId?: string;
+  awardEmail?: boolean;
+  awardNotifications?: boolean;
 }
 
 export interface UserShortProfile

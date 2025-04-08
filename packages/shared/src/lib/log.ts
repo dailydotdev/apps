@@ -371,6 +371,7 @@ export enum NotificationCategory {
   ReadingReminder = 'reading reminder',
   StreakReminder = 'streak reminder',
   Following = 'following',
+  Award = 'award',
 }
 
 export enum NotificationTarget {
