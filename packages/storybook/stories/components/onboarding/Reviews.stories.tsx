@@ -27,7 +27,7 @@ const reviews: Review[] = [
 ];
 
 const meta: Meta<typeof Reviews> = {
-  title: 'Components/Onboarding/Reviews',
+  title: 'Components/Onboarding/Shared/Reviews',
   component: Reviews,
   parameters: {
     design: {
