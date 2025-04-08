@@ -120,7 +120,7 @@ export function FunnelRegistration({
         <Logo position={LogoPosition.Relative} />
 
         <Typography
-          type={TypographyType.Title2}
+          type={TypographyType.Title3}
           className="text-center"
           data-testid="registration-title"
         >
