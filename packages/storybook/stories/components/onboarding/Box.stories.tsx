@@ -31,10 +31,10 @@ export const List: BoxListStory = {
   args: {
     title: 'Your new abilities',
     items: [
-      { text: 'Curated tech content from all over the web' },
-      { text: 'Personalized feed based on your interests' },
-      { text: 'AI assistant to explain complex topics' },
-      { text: 'Distraction-free reading mode' },
+      'Curated tech content from all over the web',
+      'Personalized feed based on your interests',
+      'AI assistant to explain complex topics',
+      'Distraction-free reading mode',
     ],
   },
 };
