@@ -95,7 +95,7 @@ const desktopBg =
 export function FunnelRegistration({
   onSuccess,
 }: FunnelRegistrationProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
   });
@@ -107,9 +107,16 @@ export function FunnelRegistration({
   useRegistrationListeners(onSuccess);
 
   return (
-    <div className="relative flex w-full max-w-70 flex-col items-center">
-      <img alt="background" src={isMobile ? mobileBg : desktopBg} />
-      <div className="mt-auto flex flex-col items-center gap-6 p-6">
+    <div className="relative flex h-screen w-full flex-col items-center justify-center">
+      <div className="absolute inset-0">
+        <div className="absolute bottom-0 h-3/5 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
+        <img
+          className="pointer-events-none -z-1"
+          alt="background"
+          src={isTablet ? desktopBg : mobileBg}
+        />
+      </div>
+      <div className="z-1 mt-auto flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-96">
         <Logo position={LogoPosition.Relative} />
 
         <Typography
@@ -119,7 +126,7 @@ export function FunnelRegistration({
         >
           Yes, this is the signup screen
           <br />
-          Let&apos;s get things set up
+          <Typography bold>Let&apos;s get things set up</Typography>
         </Typography>
         <MobileSocialRegistration onClick={onRegister} />
       </div>

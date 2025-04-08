@@ -3,7 +3,7 @@ import React from 'react';
 import type { ButtonProps } from '../../../components/buttons/Button';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import { isIOSNative } from '../../../lib/func';
-import { SocialProvider } from '../../../components/auth/common';
+import { providerMap, SocialProvider } from '../../../components/auth/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { AuthEventNames } from '../../../lib/auth';
 import {
@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { cookiePolicy, termsOfService } from '../../../lib/constants';
-import { anchorDefaultRel, capitalize } from '../../../lib/strings';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 interface MobileSocialRegistrationProps {
   onClick: (provider: SocialProvider) => void;
@@ -55,19 +55,21 @@ export function MobileSocialRegistration({
         {...props}
         onClick={() => handleClick(firstProvider)}
         data-testid={`social-button-${firstProvider.toLowerCase()}`}
+        icon={providerMap[firstProvider].icon}
       >
-        Sign up with {capitalize(firstProvider)}
+        Sign up with {providerMap[firstProvider].label}
       </Button>
       <Button
         {...props}
         onClick={() => handleClick(SocialProvider.GitHub)}
         data-testid="social-button-github"
+        icon={providerMap[SocialProvider.GitHub].icon}
       >
-        Sign up with {capitalize(SocialProvider.GitHub)}
+        Sign up with {providerMap[SocialProvider.GitHub].label}
       </Button>
       <Typography
         className="mt-1 text-center"
-        type={TypographyType.Body}
+        type={TypographyType.Caption2}
         color={TypographyColor.Tertiary}
       >
         By continuing, you agree to the{' '}
