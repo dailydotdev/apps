@@ -72,7 +72,7 @@ export const FunnelStepBackground = ({
         className={classNames(
           bgClassName,
           className,
-          'absolute left-0 top-0 z-1 h-full w-full',
+          'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
         )}
       />
     </div>
