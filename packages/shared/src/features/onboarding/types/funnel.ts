@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import type { Review } from '../shared';
 
 export enum FunnelStepType {
@@ -62,6 +63,8 @@ export interface FunnelStepQuizQuestion {
   placeholder?: string;
   options: Array<{
     label: string;
+    value?: string;
+    image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
 }
@@ -70,7 +73,7 @@ export interface FunnelStepQuiz extends FunnelStepCommon {
   type: FunnelStepType.Quiz;
   question: FunnelStepQuizQuestion;
   explainer: string;
-  onTransition: FunnelStepTransitionCallback<{ value: string | string[] }>;
+  onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
 }
 
 export interface FunnelStepSignup extends FunnelStepCommon {

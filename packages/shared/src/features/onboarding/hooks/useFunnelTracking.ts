@@ -2,8 +2,11 @@ import type { UIEventHandler, MouseEventHandler } from 'react';
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLogContext } from '../../../contexts/LogContext';
-import type { FunnelStep, FunnelJSON } from '../types/funnel';
-import { FunnelStepTransitionType } from '../types/funnel';
+import type {
+  FunnelStep,
+  FunnelJSON,
+  FunnelStepTransitionType,
+} from '../types/funnel';
 import type { FunnelEvent } from '../types/funnelEvents';
 import { FunnelEventName } from '../types/funnelEvents';
 import {
@@ -18,6 +21,7 @@ export type TrackOnNavigate = (event: {
   from: FunnelStep['id'];
   to: FunnelStep['id'];
   timeDuration: number;
+  type: FunnelStepTransitionType;
 }) => void;
 
 interface USeFunnelTrackingProps {
@@ -90,7 +94,7 @@ export const useFunnelTracking = ({
     trackFunnelEvent({
       name: FunnelEventName.TransitionFunnel,
       details: {
-        target_type: FunnelStepTransitionType.Complete, // todo: pass the type of transition
+        target_type: event.type,
         target_id: event.to,
       },
     });

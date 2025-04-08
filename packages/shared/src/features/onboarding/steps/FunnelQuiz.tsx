@@ -40,7 +40,8 @@ export const FunnelQuiz = ({
     () =>
       options.map((option) => ({
         label: option.label,
-        value: option.label,
+        value: option.value ?? option.label,
+        image: option.image,
       })),
     [options],
   );
@@ -54,11 +55,11 @@ export const FunnelQuiz = ({
       if (isSingleChoice) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
-          details: { value },
+          details: { [id]: value },
         });
       }
     },
-    [isSingleChoice, onTransition],
+    [id, isSingleChoice, onTransition],
   );
 
   const onCtaClick = useCallback(() => {
@@ -67,9 +68,9 @@ export const FunnelQuiz = ({
     }
     onTransition?.({
       type: FunnelStepTransitionType.Complete,
-      details: { value: stepValue },
+      details: { [id]: stepValue },
     });
-  }, [isSingleChoice, stepValue, onTransition]);
+  }, [isSingleChoice, stepValue, onTransition, id]);
 
   return (
     <FunnelStepBackground>

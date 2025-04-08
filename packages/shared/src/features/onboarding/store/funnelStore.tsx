@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { withHistory } from 'jotai-history';
 import type {
   FunnelPosition,
   NonChapterStep,
@@ -10,18 +11,12 @@ export const funnelPositionAtom = atom<FunnelPosition>({
   step: 0,
 });
 
-export const funnelStepAtom = atom<NonChapterStep | undefined>(undefined);
+export const funnelPositionHistoryAtom = withHistory(funnelPositionAtom, 100);
 
 export function getFunnelStepByPosition(
   funnel: FunnelJSON,
   position: FunnelPosition,
 ): NonChapterStep | undefined {
-  console.log(
-    funnel,
-    funnel.steps,
-    funnel.steps[position.chapter],
-    funnel.steps[position.chapter]?.[position.step],
-  );
   const firstLayer = funnel.steps?.[position.chapter];
   return 'steps' in firstLayer ? firstLayer.steps[position.step] : firstLayer;
 }

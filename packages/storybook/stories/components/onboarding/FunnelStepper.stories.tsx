@@ -82,9 +82,57 @@ const sampleFunnel: FunnelJSON = {
           onTransition: () => {
             console.log('Quiz step transition');
           },
+        } satisfies FunnelStepQuiz, {
+          id: 'step2',
+          type: FunnelStepType.Quiz,
+          parameters: {},
+          question: {
+            type: FunnelStepQuizQuestionType.Checkbox,
+            text: 'How would you rate your experience with daily.dev?',
+            options: [
+              {
+                label: 'JavaScript',
+                value: 'js',
+                image: {
+                  src: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png',
+                  alt: 'JavaScript',
+                },
+              },
+              {
+                label: 'Python',
+                value: 'py',
+                image: {
+                  src: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg',
+                  alt: 'Python',
+                },
+              },
+              {
+                label: 'Go',
+                value: 'go',
+                image: {
+                  src: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Go_Logo_Blue.svg',
+                  alt: 'Go',
+                },
+              },
+            ],
+          },
+          explainer: 'This helps us understand how we can improve',
+          transitions: [
+            {
+              on: FunnelStepTransitionType.Complete,
+              destination: 'step3',
+            },
+            {
+              on: FunnelStepTransitionType.Skip,
+              destination: 'step3',
+            },
+          ],
+          onTransition: () => {
+            console.log('Quiz step transition');
+          },
         } satisfies FunnelStepQuiz,
         {
-          id: 'step2',
+          id: 'step3',
           type: FunnelStepType.SocialProof,
           parameters: {
             cta: 'Continue',
