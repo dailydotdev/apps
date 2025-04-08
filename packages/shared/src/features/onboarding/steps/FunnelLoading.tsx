@@ -137,8 +137,7 @@ const FunnelLoading = ({
       <div className="flex min-h-dvh flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
         <div className="relative">
           <svg
-            width="196"
-            height="196"
+            className="h-48 w-48"
             viewBox="0 0 196 196"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -148,7 +147,7 @@ const FunnelLoading = ({
               cx="98"
               cy="98"
               r="90"
-              stroke="#0E1217"
+              className="stroke-overlay-primary-pepper"
               strokeOpacity="0.32"
               strokeWidth="14.4"
             />
@@ -156,7 +155,7 @@ const FunnelLoading = ({
             {/* Progress circle drawing using path */}
             <path
               d={getProgressArcPath(percentage)}
-              stroke="white"
+              className="stroke-text-primary"
               strokeWidth="14.4"
               strokeLinecap="round"
               fill="none"
