@@ -1,52 +1,18 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { DiscountTimer } from './DiscountTimer';
-
-let mockStartDate: Date;
-
-function increaseTimeByMinutes(minutes: number) {
-  mockStartDate = new Date(mockStartDate.getTime() + minutes * 60 * 1000);
-  jest.advanceTimersByTime(minutes * 60 * 1000);
-}
+import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
 
 describe('DiscountTimer component', () => {
-  let RealDate: typeof Date;
-  let MockDate: unknown;
+  let dateMock;
+  const initialDate = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {
-    // Store the real Date constructor
-    RealDate = global.Date;
-
-    mockStartDate = new Date('2023-01-01T00:00:00Z');
-
-    // Create a mock class that extends Date
-    MockDate = class MockDateCls extends Date {
-      constructor(...args) {
-        if (args.length === 0) {
-          super(mockStartDate);
-          return this;
-        }
-        // Call super with the first argument to avoid spread errors
-        super(args[0]);
-        return this;
-      }
-
-      static now() {
-        return new RealDate(mockStartDate).getTime();
-      }
-    };
-
-    // Replace the global Date constructor
-    global.Date = MockDate as typeof global.Date;
-
-    // Use fake timers but don't call setSystemTime since we're mocking Date
-    jest.useFakeTimers();
+    dateMock = setupDateMock(initialDate);
   });
 
   afterEach(() => {
-    // Restore the original Date constructor
-    global.Date = RealDate;
-    jest.useRealTimers();
+    dateMock.cleanup();
     jest.clearAllMocks();
   });
 
@@ -55,7 +21,7 @@ describe('DiscountTimer component', () => {
       <DiscountTimer
         discountMessage="Special offer ends in"
         durationInMinutes={5}
-        startDate={mockStartDate}
+        startDate={initialDate}
       />,
     );
 
@@ -83,7 +49,7 @@ describe('DiscountTimer component', () => {
       <DiscountTimer
         discountMessage="Offer ends soon"
         durationInMinutes={5}
-        startDate={mockStartDate}
+        startDate={initialDate}
       />,
     );
 
@@ -91,8 +57,8 @@ describe('DiscountTimer component', () => {
 
     expect(timerDisplay).toHaveTextContent('05:00');
 
-    // Advance by 1 minute
-    act(() => increaseTimeByMinutes(1.5));
+    // Advance by 1.5 minutes
+    act(() => dateMock.advanceTimeByMinutes(1.5));
 
     expect(timerDisplay).toHaveTextContent('03:30');
   });
@@ -104,15 +70,13 @@ describe('DiscountTimer component', () => {
       <DiscountTimer
         discountMessage="Hurry up!"
         durationInMinutes={1}
-        startDate={mockStartDate}
+        startDate={initialDate}
         onTimerEnd={mockOnTimerEnd}
       />,
     );
 
     expect(mockOnTimerEnd).not.toHaveBeenCalled();
-    for (let i = 0; i < 2; i += 1) {
-      act(() => increaseTimeByMinutes(1));
-    }
+    dateMock.advanceTimeByMinutes(2);
     expect(mockOnTimerEnd).toHaveBeenCalledTimes(1);
   });
 });

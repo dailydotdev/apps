@@ -25,7 +25,7 @@ type FunnelPaymentSuccessfulProps = {
   onTransition: FunnelStepTransitionCallback<void>;
 };
 
-const FunnelPaymentSuccessful = ({
+export const FunnelPaymentSuccessful = ({
   onTransition,
 }: FunnelPaymentSuccessfulProps): ReactElement => {
   return (
@@ -80,5 +80,3 @@ const FunnelPaymentSuccessful = ({
     </div>
   );
 };
-
-export default FunnelPaymentSuccessful;

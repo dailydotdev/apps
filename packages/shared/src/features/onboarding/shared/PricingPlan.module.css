@@ -27,32 +27,25 @@
     right: 0;
     bottom: 0;
   }
+}
 
-  & label {
-    overflow: hidden;
-    z-index: 1;
+.label {
+  &::after, &&::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: -1;
-      background-color: inherit;
-    }
+  &::after {
+    background-color: inherit;
+    z-index: -1;
+  }
 
-    &::before {
-        @apply bg-background-default;
-
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: -2;
-    }
+  &::before {
+      @apply bg-background-default;
+      z-index: -2;
   }
 }

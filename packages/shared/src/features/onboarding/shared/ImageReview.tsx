@@ -1,14 +1,14 @@
 import React from 'react';
-import type { ReactElement, ComponentProps } from 'react';
+import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { LazyImage } from '../../../components/LazyImage';
 import { Stars } from './Stars';
 
 export interface ImageReviewProps {
-  image: Pick<ComponentProps<'img'>, 'src' | 'alt'>;
+  image: string;
   reviewText: string;
   authorInfo: string;
-  authorImage: Pick<ComponentProps<'img'>, 'src' | 'alt'>;
+  authorImage: string;
   className?: string;
 }
 
@@ -28,8 +28,8 @@ export function ImageReview({
     >
       <LazyImage
         eager
-        imgSrc={image.src}
-        imgAlt={image.alt}
+        imgSrc={image}
+        imgAlt="Social proof image"
         className="w-full rounded-16"
         ratio="100%"
         fit="cover"
@@ -43,8 +43,8 @@ export function ImageReview({
         <div className="flex items-center gap-2">
           <LazyImage
             eager
-            imgSrc={authorImage.src}
-            imgAlt={authorImage.alt}
+            imgSrc={authorImage}
+            imgAlt={authorInfo}
             className="size-8"
             fit="cover"
           />

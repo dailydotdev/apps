@@ -15,16 +15,11 @@ const meta: Meta<typeof ImageReview> = {
     },
   },
   args: {
-    image: {
-      src: 'https://media.daily.dev/image/upload/s--ZOzmj3AB--/f_auto/v1743939472/public/Review',
-      alt: 'Social proof image',
-    },
-    reviewText: 'This is the only tool I\'ve stuck with for more than a month. It fits naturally into my routine and keeps me sharp.',
+    image: 'https://media.daily.dev/image/upload/s--ZOzmj3AB--/f_auto/v1743939472/public/Review',
+    reviewText:
+      "This is the only tool I've stuck with for more than a month. It fits naturally into my routine and keeps me sharp.",
     authorInfo: 'Dave N., Senior Data Scientist',
-    authorImage: {
-      src: 'https://media.daily.dev/image/upload/s--FgjC22Px--/f_auto/v1743491782/public/image',
-      alt: 'Dave N. avatar',
-    },
+    authorImage: 'https://media.daily.dev/image/upload/s--FgjC22Px--/f_auto/v1743491782/public/image',
   },
   decorators: [
     (Story) => (
