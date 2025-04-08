@@ -39,7 +39,7 @@ export const Default: Story = {
   args: {
     ...commonProps,
     type: FunnelStepType.SocialProof,
-    imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
+    imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1744094774/public/Rating',
     rating: '4.8/5',
     reviewSubtitle: 'based on 2,598+ reviews',
     reviews: [

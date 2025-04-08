@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import FunnelPaymentSuccessful from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPaymentSuccessful';
-import { FunnelStepTransitionType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import {
+  FunnelPaymentSuccessful,
+} from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPaymentSuccessful';
 import { fn } from '@storybook/test';
 
 const meta: Meta<typeof FunnelPaymentSuccessful> = {
@@ -26,4 +27,4 @@ export const Default: Story = {
   args: {
     onTransition: fn(),
   },
-}; 
+};

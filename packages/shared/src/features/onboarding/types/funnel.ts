@@ -1,3 +1,11 @@
+import type {
+  BoxContentImageProps,
+  BoxFaqProps,
+  BoxListProps,
+  ImageReviewProps,
+  Review,
+} from '../shared';
+import type { PricingPlansProps } from '../shared/PricingPlans';
 import type { ComponentProps } from 'react';
 import type { Review } from '../shared';
 
@@ -83,7 +91,23 @@ export interface FunnelStepSignup extends FunnelStepCommon {
 
 export interface FunnelStepPricing extends FunnelStepCommon {
   type: FunnelStepType.Pricing;
-  onTransition: FunnelStepTransitionCallback<void>;
+  discount: {
+    message: string;
+    duration: number;
+    startDate: Date;
+  };
+  headline: string;
+  pricing: Omit<PricingPlansProps, 'className' | 'name' | 'onChange'>;
+  defaultPlan: string;
+  cta: string;
+  featuresList: Omit<BoxListProps, 'className'>;
+  review: Omit<ImageReviewProps, 'className'>;
+  refund: Omit<BoxContentImageProps, 'className'>;
+  faq: Omit<BoxFaqProps, 'className'>;
+  onTransition: FunnelStepTransitionCallback<{
+    plan: string;
+    applyDiscount: boolean;
+  }>;
 }
 
 export interface FunnelStepCheckout extends FunnelStepCommon {

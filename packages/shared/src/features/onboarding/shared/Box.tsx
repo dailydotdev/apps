@@ -17,9 +17,7 @@ export interface BoxBaseProps {
 
 export interface BoxListProps extends BoxBaseProps {
   title: string;
-  items: {
-    text: string;
-  }[];
+  items: string[];
 }
 
 export const BoxList = ({
@@ -32,9 +30,9 @@ export const BoxList = ({
       <h3 className="font-bold typo-body">{title}</h3>
       <ul className="flex flex-col gap-1">
         {items.map((item) => (
-          <li key={item.text} className="flex flex-row items-center gap-1">
+          <li key={item} className="flex flex-row items-center gap-1">
             <VIcon size={IconSize.XSmall} />
-            <span className="typo-callout">{item.text}</span>
+            <span className="typo-callout">{item}</span>
           </li>
         ))}
       </ul>

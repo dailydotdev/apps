@@ -42,7 +42,8 @@ export function PricingPlan<T extends string = string>({
       isBestValue &&
       `relative p-1 pt-8 rounded-16 overflow-hidden ${styles.bestValue}`,
     content: classNames(
-      '!items-start gap-2 rounded-12 border p-3',
+      styles.label,
+      'z-1 !items-start gap-2 overflow-hidden rounded-12 border p-3',
       isBestValue && 'border-0',
       checked
         ? 'border-brand-default bg-brand-float'

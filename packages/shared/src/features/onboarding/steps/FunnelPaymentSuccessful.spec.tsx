@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import FunnelPaymentSuccessful from './FunnelPaymentSuccessful';
+import { FunnelPaymentSuccessful } from './FunnelPaymentSuccessful';
 import { FunnelStepTransitionType } from '../types/funnel';
 
 describe('FunnelPaymentSuccessful component', () => {
