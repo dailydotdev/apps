@@ -107,7 +107,7 @@ export function FunnelRegistration({
   useRegistrationListeners(onSuccess);
 
   return (
-    <div className="relative flex flex-col">
+    <div className="relative flex w-full max-w-70 flex-col items-center">
       <img alt="background" src={isMobile ? mobileBg : desktopBg} />
       <div className="mt-auto flex flex-col items-center gap-6 p-6">
         <Logo position={LogoPosition.Relative} />
