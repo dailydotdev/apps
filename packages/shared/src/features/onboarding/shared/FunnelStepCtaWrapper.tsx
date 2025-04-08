@@ -22,8 +22,9 @@ export function FunnelStepCtaWrapper({
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
       <div className="sticky bottom-2 m-4">
         <Button
-          type="button"
           className="w-full"
+          data-track-click
+          type="button"
           variant={ButtonVariant.Primary}
           {...props}
         >

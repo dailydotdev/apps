@@ -72,8 +72,9 @@ const FormInputCheckbox = ({
       aria-checked={isSelected}
       aria-label={item.label}
       className={classNames(isVertical ? 'typo-subhead' : 'typo-body')}
-      pressed={isSelected}
+      data-track-click
       name={name}
+      pressed={isSelected}
       role="checkbox"
       type="button"
       value={item.value}

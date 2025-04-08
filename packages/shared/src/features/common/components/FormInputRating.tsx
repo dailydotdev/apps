@@ -57,6 +57,7 @@ export const FormInputRating = ({
                 'h-16 min-w-10 flex-1 justify-center border border-border-subtlest-tertiary',
                 className,
               )}
+              data-track-click
               key={item.value}
               name={name}
               onClick={() => onSelect(item.value)}

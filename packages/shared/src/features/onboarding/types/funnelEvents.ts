@@ -25,6 +25,7 @@ export type FunnelEvent =
       details: {
         target_type: FunnelStepTransitionType;
         target_id: NonChapterStep['id'];
+        event_duration: number;
       };
     }
   | {

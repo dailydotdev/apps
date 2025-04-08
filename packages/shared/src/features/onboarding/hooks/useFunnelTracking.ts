@@ -75,14 +75,23 @@ export const useFunnelTracking = ({
       return;
     }
 
-    const trackedElement = event.target.closest('[data-tracking]');
+    const trackedElement = event.target.closest('[data-track-click]');
 
     if (!trackedElement) {
       return;
     }
 
-    // logEvent
-    console.log({ trackedElement });
+    trackFunnelEvent({
+      name: FunnelEventName.ClickFunnelElement,
+      details: {
+        target_type:
+          trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
+        ...(trackedElement.id ? { target_id: trackedElement.id } : {}),
+      },
+    });
+    console.log('Click event', {
+      trackedElement,
+    });
   };
 
   const trackOnScroll: TrackOnScroll = (event) => {
@@ -90,15 +99,14 @@ export const useFunnelTracking = ({
   };
 
   const trackOnNavigate: TrackOnNavigate = (event) => {
-    // logEvent
     trackFunnelEvent({
       name: FunnelEventName.TransitionFunnel,
       details: {
         target_type: event.type,
         target_id: event.to,
+        event_duration: event.timeDuration,
       },
     });
-    console.log('trackOnNavigate', event);
   };
 
   useEffect(
