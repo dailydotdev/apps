@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import {
   Typography,
+  TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { MobileSocialRegistration } from '../../common/components/MobileSocialRegistration';
@@ -107,11 +108,11 @@ export function FunnelRegistration({
   useRegistrationListeners(onSuccess);
 
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center">
+    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute bottom-0 h-3/5 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
         <img
-          className="pointer-events-none -z-1"
+          className="pointer-events-none -z-1 w-full"
           alt="background"
           src={isTablet ? desktopBg : mobileBg}
         />
@@ -126,7 +127,9 @@ export function FunnelRegistration({
         >
           Yes, this is the signup screen
           <br />
-          <Typography bold>Let&apos;s get things set up</Typography>
+          <Typography tag={TypographyTag.Span} bold>
+            Let&apos;s get things set up
+          </Typography>
         </Typography>
         <MobileSocialRegistration onClick={onRegister} />
       </div>
