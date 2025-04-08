@@ -28,9 +28,11 @@ import { CoreAmountNeeded } from '../../cores/CoreAmountNeeded';
 import type { Product, UserTransaction } from '../../../graphql/njord';
 import {
   getTransactionByProvider,
+  transactionRefetchIntervalMs,
   UserTransactionStatus,
 } from '../../../graphql/njord';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { oneMinute } from '../../../lib/dateFormat';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   purchaseCoinsCheckoutVideoPoster,
@@ -243,7 +245,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
 
       // transactions are mostly processed withing few seconds
       // so for now we stop retrying after 1 minute
-      const maxRetries = 2;
+      const maxRetries = (oneMinute * 1000) / transactionRefetchIntervalMs;
 
       if (retries > maxRetries) {
         // log error for timeout
@@ -270,7 +272,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
           UserTransactionStatus.ErrorRecoverable,
         ].includes(transactionStatus)
       ) {
-        return 750;
+        return transactionRefetchIntervalMs;
       }
 
       if (transactionStatus === UserTransactionStatus.Error) {
