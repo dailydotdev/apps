@@ -246,7 +246,6 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       const maxRetries = 2;
 
       if (retries > maxRetries) {
-        // TODO feat/transactions redirect user to /wallet to monitor their transaction there if they want
         // log error for timeout
         onAskConfirmation(false);
         setActiveStep({
