@@ -9,6 +9,11 @@ import {
 import StepHeadline from '../shared/StepHeadline';
 import type { FunnelStepLoading } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
 
 const animationDuration = 4500;
 
@@ -158,7 +163,13 @@ const FunnelLoading = ({
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-4xl font-bold text-white">{percentage}%</span>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Mega1}
+              bold
+            >
+              {percentage}%
+            </Typography>
           </div>
         </div>
         <StepHeadline
