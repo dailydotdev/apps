@@ -46,6 +46,7 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
 
 export interface FunnelStepFact extends FunnelStepCommon {
   type: FunnelStepType.Fact;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export enum FunnelStepQuizQuestionType {

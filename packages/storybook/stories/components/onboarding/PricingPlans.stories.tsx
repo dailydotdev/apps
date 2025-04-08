@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { PricingPlans, type PricingPlansProps } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlans';
-import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
+import {
+  PricingPlans,
+  type PricingPlansProps,
+} from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlans';
+import {
+  PricingPlanVariation,
+} from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
 
 const meta: Meta<typeof PricingPlans> = {
-  title: 'Components/Onboarding/PricingPlans',
+  title: 'Components/Onboarding/Shared/PricingPlans',
   component: PricingPlans,
   parameters: {
     design: {
@@ -15,6 +20,7 @@ const meta: Meta<typeof PricingPlans> = {
       expanded: true,
     },
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
