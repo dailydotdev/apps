@@ -76,6 +76,12 @@ const useRegistrationListeners = (
     }
 
     const bootResponse = await refetchBoot();
+    const user = bootResponse?.data?.user;
+
+    if (!user || !('providers' in user)) {
+      return displayToast(labels.auth.error.generic);
+    }
+
     const isPlus = (bootResponse?.data?.user as LoggedUser)?.isPlus;
 
     return onSuccess(isPlus);
