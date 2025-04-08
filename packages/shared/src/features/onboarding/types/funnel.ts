@@ -1,13 +1,12 @@
+import type { ComponentProps } from 'react';
 import type {
   BoxContentImageProps,
   BoxFaqProps,
   BoxListProps,
   ImageReviewProps,
   Review,
+  PricingPlansProps,
 } from '../shared';
-import type { PricingPlansProps } from '../shared/PricingPlans';
-import type { ComponentProps } from 'react';
-import type { Review } from '../shared';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
