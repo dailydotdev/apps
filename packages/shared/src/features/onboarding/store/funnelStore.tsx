@@ -1,5 +1,9 @@
 import { atom } from 'jotai';
-import type { FunnelPosition, NonChapterStep } from '../types/funnel';
+import type {
+  FunnelPosition,
+  NonChapterStep,
+  FunnelJSON,
+} from '../types/funnel';
 
 export const funnelPositionAtom = atom<FunnelPosition>({
   chapter: 0,
@@ -8,10 +12,16 @@ export const funnelPositionAtom = atom<FunnelPosition>({
 
 export const funnelStepAtom = atom<NonChapterStep | undefined>(undefined);
 
-export const funnelAtom = atom<{
-  position: FunnelPosition;
-  step?: NonChapterStep;
-}>((get) => ({
-  position: get(funnelPositionAtom),
-  step: get(funnelStepAtom),
-}));
+export function getFunnelStepByPosition(
+  funnel: FunnelJSON,
+  position: FunnelPosition,
+): NonChapterStep | undefined {
+  console.log(
+    funnel,
+    funnel.steps,
+    funnel.steps[position.chapter],
+    funnel.steps[position.chapter]?.[position.step],
+  );
+  const firstLayer = funnel.steps?.[position.chapter];
+  return 'steps' in firstLayer ? firstLayer.steps[position.step] : firstLayer;
+}

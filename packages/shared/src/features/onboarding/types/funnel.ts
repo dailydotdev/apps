@@ -42,6 +42,7 @@ export interface FunnelStepChapter extends FunnelStepCommon {
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
   type: FunnelStepType.LandingPage;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepFact extends FunnelStepCommon {
@@ -74,10 +75,12 @@ export interface FunnelStepQuiz extends FunnelStepCommon {
 
 export interface FunnelStepSignup extends FunnelStepCommon {
   type: FunnelStepType.Signup;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepPricing extends FunnelStepCommon {
   type: FunnelStepType.Pricing;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepCheckout extends FunnelStepCommon {
@@ -89,14 +92,17 @@ export interface FunnelStepCheckout extends FunnelStepCommon {
 
 export interface FunnelStepTagSelection extends FunnelStepCommon {
   type: FunnelStepType.TagSelection;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepReadingReminder extends FunnelStepCommon {
   type: FunnelStepType.ReadingReminder;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepAppPromotion extends FunnelStepCommon {
   type: FunnelStepType.AppPromotion;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export interface FunnelStepSocialProof extends FunnelStepCommon {

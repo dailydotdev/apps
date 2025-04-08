@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { ImageReview } from '@dailydotdev/shared/src/features/onboarding/shared/ImageReview';
 
 const meta: Meta<typeof ImageReview> = {
-  title: 'Components/Onboarding/ImageReview',
+  title: 'Components/Onboarding/Shared/ImageReview',
   component: ImageReview,
   parameters: {
     design: {

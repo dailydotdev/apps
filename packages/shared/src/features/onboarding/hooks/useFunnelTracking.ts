@@ -1,10 +1,15 @@
 import type { UIEventHandler, MouseEventHandler } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { useCallback } from 'react';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { FunnelStep, FunnelJSON } from '../types/funnel';
+import { FunnelStepTransitionType } from '../types/funnel';
 import type { FunnelEvent } from '../types/funnelEvents';
-import { funnelStepAtom } from '../store/funnelStore';
+import { FunnelEventName } from '../types/funnelEvents';
+import {
+  getFunnelStepByPosition,
+  funnelPositionAtom,
+} from '../store/funnelStore';
 
 type TrackOnClickCapture = MouseEventHandler<HTMLElement>;
 type TrackOnScroll = UIEventHandler<HTMLElement>;
@@ -33,8 +38,12 @@ interface UseFunnelTrackingReturn {
 export const useFunnelTracking = ({
   funnel,
 }: USeFunnelTrackingProps): UseFunnelTrackingReturn => {
-  const step = useAtomValue(funnelStepAtom);
   const { logEvent } = useLogContext();
+  const position = useAtomValue(funnelPositionAtom);
+  const step = useMemo(
+    () => getFunnelStepByPosition(funnel, position),
+    [funnel, position],
+  );
 
   const trackFunnelEvent: TrackOnEvent = useCallback(
     (event) => {
@@ -78,6 +87,14 @@ export const useFunnelTracking = ({
 
   const trackOnNavigate: TrackOnNavigate = (event) => {
     // logEvent
+    trackFunnelEvent({
+      name: FunnelEventName.TransitionFunnel,
+      details: {
+        target_type: FunnelStepTransitionType.Complete, // todo: pass the type of transition
+        target_id: event.to,
+      },
+    });
+    console.log('trackOnNavigate', event);
   };
 
   return {

@@ -1,4 +1,6 @@
-import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
+import {
+  FunnelStepper,
+} from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import {
   FunnelStepType,
   FunnelStepTransitionType,
@@ -18,7 +20,9 @@ const meta: Meta<typeof FunnelStepper> = {
   decorators: [
     (Story) => (
       <Provider>
-        <Story />
+        <div className='invert'>
+          <Story />
+        </div>
       </Provider>
     ),
   ],
@@ -85,16 +89,35 @@ const sampleFunnel: FunnelJSON = {
           parameters: {
             cta: 'Continue',
           },
-          imageUrl: 'https://daily.dev/social-proof.png',
-          rating: '4.8',
+          imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
+          rating: '4.8/5',
+          reviewSubtitle: 'based on 2,598+ reviews',
           reviews: [
             {
-              title: 'Great Platform',
-              content: 'Great platform for developers!',
-              author: 'John Doe',
+              title: 'Perfect for Busy People',
+              content:
+                '"I used to spend hours sifting through Hacker News, Reddit, and newsletters. Now, I get everything I need in one place."',
+              author: 'Priya, Full-Stack Dev',
+            },
+            {
+              title: 'Quality Content',
+              content:
+                '"daily.dev is my go-to dev feed. No fluff, no clickbait—just quality."',
+              author: 'Alex, Senior Engineer',
+            },
+            {
+              title: 'Saved My Time',
+              content:
+                '"As a tech lead, staying updated is crucial. daily.dev curates the most relevant content so I don\'t miss anything important."',
+              author: 'Michael, Tech Lead',
+            },
+            {
+              title: 'Great for Learning',
+              content:
+                '"The personalized feed helps me discover new technologies and best practices that I wouldn\'t have found otherwise."',
+              author: 'Sarah, Junior Developer',
             },
           ],
-          reviewSubtitle: 'Join thousands of satisfied developers',
           transitions: [
             {
               on: FunnelStepTransitionType.Complete,

@@ -9,7 +9,10 @@ import type {
 } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import type { TrackOnNavigate } from './useFunnelTracking';
-import { funnelPositionAtom } from '../store/funnelStore';
+import {
+  funnelPositionAtom,
+  getFunnelStepByPosition,
+} from '../store/funnelStore';
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
@@ -47,17 +50,24 @@ export const useFunnelNavigation = ({
     [funnel],
   );
 
-  const step: Step = funnel.steps?.[position.chapter]?.[position.step];
+  const step: Step = useMemo(
+    () => getFunnelStepByPosition(funnel, position),
+    [funnel, position],
+  );
 
   const canSkip = useMemo(() => {
-    return step.transitions.some(
+    return !!step?.transitions?.some(
       ({ on }) => on === FunnelStepTransitionType.Skip,
     );
-  }, [step.transitions]);
+  }, [step?.transitions]);
 
   const hasPrev = !!position.step || !!position.chapter;
 
   const navigateNext = useCallback(() => {
+    if (!step) {
+      return;
+    }
+
     const from = step.id;
     const timeDuration = Date.now() - stepTimerStart;
 
@@ -74,22 +84,25 @@ export const useFunnelNavigation = ({
       step: isLastStep ? 0 : position.step + 1,
     };
 
-    const to = funnel.steps[newPosition.chapter][newPosition.step].id;
+    const to = getFunnelStepByPosition(funnel, newPosition)?.id;
     setPosition(newPosition);
     // track navigation events
     onNavigation({ from, to, timeDuration });
   }, [
     chapters,
-    funnel.steps,
+    funnel,
     onNavigation,
     position.chapter,
     position.step,
     setPosition,
-    step.id,
+    step,
     stepTimerStart,
   ]);
 
   const navigatePrev = useCallback(() => {
+    if (!step) {
+      return;
+    }
     const from = step.id;
     const timeDuration = Date.now() - stepTimerStart;
 
@@ -105,20 +118,20 @@ export const useFunnelNavigation = ({
         : position.step - 1,
     };
 
-    const to = funnel.steps[newPosition.chapter][newPosition.step].id;
+    const to = getFunnelStepByPosition(funnel, newPosition)?.id;
     setPosition(newPosition);
 
     // track navigation events
     onNavigation({ from, to, timeDuration });
   }, [
     chapters,
-    funnel.steps,
+    funnel,
     hasPrev,
     onNavigation,
     position.chapter,
     position.step,
     setPosition,
-    step.id,
+    step,
     stepTimerStart,
   ]);
 
@@ -127,12 +140,14 @@ export const useFunnelNavigation = ({
     setStepTimerStart(Date.now());
 
     // update URL
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('stepId', step.id);
-    router.replace(`/${pathname}?${params.toString()}`, {
-      scroll: false,
-    });
-  }, [pathname, router, searchParams, step.id]);
+    if (step?.id) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('stepId', step.id);
+      router.replace(`/${pathname}?${params.toString()}`, {
+        scroll: false,
+      });
+    }
+  }, [pathname, router, searchParams, step?.id]);
 
   useEffect(
     () => {

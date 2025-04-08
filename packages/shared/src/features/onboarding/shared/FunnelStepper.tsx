@@ -4,29 +4,30 @@ import classNames from 'classnames';
 import type {
   FunnelJSON,
   FunnelStepChapter,
-  FunnelStepFact,
   FunnelStepAppPromotion,
   FunnelStepPricing,
-  FunnelStepCheckout,
   FunnelStepLandingPage,
   FunnelStepReadingReminder,
   FunnelStepSignup,
   FunnelStepTagSelection,
   NonChapterStep,
+  FunnelStepTransitionCallback,
 } from '../types/funnel';
 import { FunnelStepType } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
-import { FunnelQuiz } from '../steps';
+import { FunnelQuiz, FunnelSocialProof } from '../steps';
 import { FunnelEventName } from '../types/funnelEvents';
+import FunnelInformative from '../steps/FunnelInformative';
+import { FunnelCheckout } from '../steps/FunnelCheckout';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
 }
 
 const stepComponentMap = {
-  [FunnelStepType.Fact]: (({ type }) => <>{type}</>) as FC<FunnelStepFact>,
+  [FunnelStepType.Fact]: FunnelInformative,
   [FunnelStepType.Quiz]: FunnelQuiz,
   [FunnelStepType.AppPromotion]: (({ type }) => (
     <>{type}</>
@@ -34,9 +35,7 @@ const stepComponentMap = {
   [FunnelStepType.Pricing]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepPricing>,
-  [FunnelStepType.Checkout]: (({ type }) => (
-    <>{type}</>
-  )) as FC<FunnelStepCheckout>,
+  [FunnelStepType.Checkout]: FunnelCheckout,
   [FunnelStepType.LandingPage]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepLandingPage>,
@@ -47,6 +46,7 @@ const stepComponentMap = {
   [FunnelStepType.TagSelection]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepTagSelection>,
+  [FunnelStepType.SocialProof]: FunnelSocialProof,
 };
 
 function FunnelStepComponent(props: NonChapterStep) {
@@ -85,6 +85,18 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
     [funnel],
   );
 
+  const onTransition: FunnelStepTransitionCallback = ({ type }) => {
+    const targetStepId = step.transitions.find((transition) => {
+      return transition.on === type;
+    })?.destination;
+
+    if (!targetStepId) {
+      return;
+    }
+
+    navigateNext({ to: targetStepId });
+  };
+
   return (
     <section onClickCapture={trackOnClickCapture} onScroll={trackOnScroll}>
       <Header
@@ -98,15 +110,18 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
       />
       <div>
         {funnel.steps.map((chapter: FunnelStepChapter) => (
-          <div key={chapter.id}>
+          <div key={chapter?.id}>
             {chapter?.steps?.map((funnelStep: NonChapterStep) => (
               <div
                 className={classNames({
-                  hidden: step.id !== funnelStep.id,
+                  hidden: step?.id !== funnelStep?.id,
                 })}
-                key={`${chapter.id}-${step.id}`}
+                key={`${chapter?.id}-${funnelStep?.id}`}
               >
-                <FunnelStepComponent {...funnelStep} />
+                <FunnelStepComponent
+                  {...funnelStep}
+                  onTransition={onTransition}
+                />
               </div>
             ))}
           </div>
