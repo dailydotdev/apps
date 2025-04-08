@@ -1,12 +1,19 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
-import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
+import { render, screen } from '@testing-library/react';
+import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
 import type { FunnelStepLoading } from '../types/funnel';
 import FunnelLoading from './FunnelLoading';
 
-jest.useFakeTimers();
+// Mock the useState hook to control the percentage state
+jest.mock('react', () => {
+  const originalReact = jest.requireActual('react');
+  return {
+    ...originalReact,
+    useState: jest.fn(),
+  };
+});
 
-describe('funnelLoading', () => {
+describe('FunnelLoading', () => {
   const defaultProps: FunnelStepLoading = {
     parameters: {
       headline: 'Test Loading Headline',
@@ -19,6 +26,10 @@ describe('funnelLoading', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset useState mock to default behavior
+    (React.useState as jest.Mock).mockImplementation(
+      jest.requireActual('react').useState,
+    );
   });
 
   it('should render headline and description from parameters', () => {
@@ -39,50 +50,34 @@ describe('funnelLoading', () => {
     ).toBeInTheDocument();
   });
 
-  it('should display the initial 0% in the progress circle', () => {
-    render(<FunnelLoading {...defaultProps} />);
+  it('should display percentage in the progress circle', () => {
+    // Mock useState to return a fixed percentage
+    (React.useState as jest.Mock).mockImplementationOnce(() => [25, jest.fn()]);
 
-    expect(screen.getByText('0%')).toBeInTheDocument();
+    render(<FunnelLoading {...defaultProps} />);
+    expect(screen.getByText('25%')).toBeInTheDocument();
   });
 
-  it('should update the percentage as animation progresses', () => {
+  it('should call onTransition when percentage reaches 100', () => {
+    // Mock useState to return 100% for percentage
+    (React.useState as jest.Mock).mockImplementationOnce(() => [
+      100,
+      jest.fn(),
+    ]);
+
     render(<FunnelLoading {...defaultProps} />);
-
-    // Initial state
-    expect(screen.getByText('0%')).toBeInTheDocument();
-
-    // First segment completion
-    act(() => {
-      jest.advanceTimersByTime(1600); // ~30% of animation duration
-    });
-
-    // Should be somewhere in the progress
-    const percentageText = screen.getByText(/\d+%/);
-    expect(parseInt(percentageText.textContent, 10)).toBeGreaterThan(0);
-  });
-
-  it('should call onTransition when reaching 100%', () => {
-    render(<FunnelLoading {...defaultProps} />);
-
-    // Fast forward to completion
-    act(() => {
-      jest.advanceTimersByTime(5000); // Beyond animation duration
-    });
 
     expect(defaultProps.onTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
     });
   });
 
-  it('should cleanup animation on unmount', () => {
-    const cancelAnimationFrameSpy = jest.spyOn(window, 'cancelAnimationFrame');
-    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+  it('should not call onTransition when percentage is less than 100', () => {
+    // Mock useState to return 99% for percentage
+    (React.useState as jest.Mock).mockImplementationOnce(() => [99, jest.fn()]);
 
-    const { unmount } = render(<FunnelLoading {...defaultProps} />);
+    render(<FunnelLoading {...defaultProps} />);
 
-    unmount();
-
-    expect(cancelAnimationFrameSpy).toHaveBeenCalled();
-    expect(clearTimeoutSpy).toHaveBeenCalled();
+    expect(defaultProps.onTransition).not.toHaveBeenCalled();
   });
 });

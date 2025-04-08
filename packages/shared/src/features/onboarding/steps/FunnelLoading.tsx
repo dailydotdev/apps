@@ -10,13 +10,15 @@ import StepHeadline from '../shared/StepHeadline';
 import type { FunnelStepLoading } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 
+const animationDuration = 4500;
+
 const FunnelLoading = ({
   parameters,
   onTransition,
 }: FunnelStepLoading): ReactElement => {
   const [percentage, setPercentage] = useState(0);
-  const animationDuration = 4500;
   const animationRef = useRef<number>();
+  const pauseTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (percentage >= 100) {
@@ -25,96 +27,79 @@ const FunnelLoading = ({
   }, [percentage, onTransition]);
 
   useEffect(() => {
-    const timeoutIds: NodeJS.Timeout[] = [];
+    const firstPhaseDuration = animationDuration * 0.4; // Time to reach 40%
+    const secondPhaseDuration = animationDuration * 0.6; // Remaining time after 40%
 
-    const percentageBursts = [0, 37, 65, 97, 100];
-
-    const segments = [
-      [0, 0.2, 0.1],
-      [0.3, 0.2, 0.1],
-      [0.6, 0.25, 0.05],
-      [0.9, 0.1, 0],
-    ];
-
-    const animateBetweenPercentages = (
-      startPercent: number,
-      endPercent: number,
-      duration: number,
-      startTime: number,
-    ) => {
+    const animateSecondPhase = (startTime: number) => {
       const now = performance.now();
       const elapsedTime = now - startTime;
-      const progress = Math.min(elapsedTime / duration, 1);
+      const progress = Math.min(elapsedTime / secondPhaseDuration, 1); // Progress from 40% to 100%
 
+      // Using slight easing for more natural feel
       const easeOutQuad = (t: number) => t * (2 - t);
-
-      const currentPercent =
-        startPercent + (endPercent - startPercent) * easeOutQuad(progress);
+      const currentPercent = 40 + 60 * easeOutQuad(progress); // Maps 0-1 to 40-100%
 
       setPercentage(Math.round(currentPercent));
 
       if (progress < 1) {
+        // Continue second phase animation
         animationRef.current = requestAnimationFrame(() =>
-          animateBetweenPercentages(
-            startPercent,
-            endPercent,
-            duration,
-            startTime,
-          ),
+          animateSecondPhase(startTime),
         );
-      } else if (endPercent === 100) {
+      } else {
+        // Ensure we end at exactly 100%
         setPercentage(100);
       }
     };
 
-    const runSegmentAnimation = (index: number) => {
-      if (index >= segments.length) {
-        return;
+    const animateFirstPhase = (startTime: number) => {
+      const now = performance.now();
+      const elapsedTime = now - startTime;
+      const progress = Math.min(elapsedTime / firstPhaseDuration, 1); // Progress to 40%
+
+      // Using slight easing for more natural feel
+      const easeOutQuad = (t: number) => t * (2 - t);
+      const currentPercent = 40 * easeOutQuad(progress); // Maps 0-1 to 0-40%
+
+      setPercentage(Math.round(currentPercent));
+
+      if (progress < 1) {
+        // Continue first phase animation
+        animationRef.current = requestAnimationFrame(() =>
+          animateFirstPhase(startTime),
+        );
+      } else {
+        // We've reached exactly 40%, now pause
+        setPercentage(40);
+
+        // Pause for 200ms at 40%
+        pauseTimeoutRef.current = setTimeout(() => {
+          // After pause, start the second phase from 40% to 100%
+          const secondPhaseStart = performance.now();
+          animateSecondPhase(secondPhaseStart);
+        }, 200);
       }
-
-      const segment = segments[index];
-      const startPercent = percentageBursts[index];
-      const endPercent = percentageBursts[index + 1];
-      const segmentDuration = segment[1] * animationDuration;
-
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-
-      const animationStart = performance.now();
-      animateBetweenPercentages(
-        startPercent,
-        endPercent,
-        segmentDuration,
-        animationStart,
-      );
     };
 
+    // Force completion safety measure
     const forceCompletionTimeoutId = setTimeout(() => {
       setPercentage(100);
-    }, animationDuration + 100);
+    }, animationDuration + 300); // Added 300ms to account for pause
 
-    timeoutIds.push(forceCompletionTimeoutId);
-    runSegmentAnimation(0);
-
-    for (let i = 1; i < segments.length; i += 1) {
-      const segment = segments[i];
-      const segmentStartTime = segment[0] * animationDuration;
-
-      const timeoutId = setTimeout(() => {
-        runSegmentAnimation(i);
-      }, segmentStartTime);
-
-      timeoutIds.push(timeoutId);
-    }
+    // Start the first phase animation
+    const animationStart = performance.now();
+    animateFirstPhase(animationStart);
 
     return () => {
-      timeoutIds.forEach((id) => clearTimeout(id));
+      clearTimeout(forceCompletionTimeoutId);
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [animationDuration]);
+  }, []);
 
   const getProgressArcPath = (percent: number): string => {
     const radius = 90;
