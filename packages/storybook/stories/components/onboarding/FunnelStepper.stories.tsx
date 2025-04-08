@@ -26,6 +26,12 @@ const meta: Meta<typeof FunnelStepper> = {
       </Provider>
     ),
   ],
+  parameters: {
+    layout: 'fullscreen',
+    controls: {
+      expanded: true,
+    },
+  },
 };
 
 export default meta;
