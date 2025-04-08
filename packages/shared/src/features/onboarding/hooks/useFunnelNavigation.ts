@@ -20,29 +20,31 @@ interface UseFunnelNavigationProps {
   onNavigation: TrackOnNavigate;
 }
 
-type Step = NonChapterStep;
 type Chapters = Array<{ steps: number }>;
-type StepMap = Record<Step['id'], { position: FunnelPosition }>;
+type StepMap = Record<NonChapterStep['id'], { position: FunnelPosition }>;
 type NavigateFunction = (options: {
-  to: Step['id'];
+  to: NonChapterStep['id'];
   type?: FunnelStepTransitionType;
 }) => void;
 
-export interface UseFunnelStepReturn {
-  canSkip: boolean;
+interface HeaderNavigation {
+  hasTarget: boolean;
+  navigate: () => void;
+}
+
+export interface UseFunnelNavigationReturn {
   chapters: Chapters;
-  hasPrev: boolean;
   navigate: NavigateFunction;
-  onBack: () => void;
-  onSkip: () => void;
   position: FunnelPosition;
-  step: Step;
+  step: NonChapterStep;
+  back: HeaderNavigation;
+  skip: HeaderNavigation;
 }
 
 export const useFunnelNavigation = ({
   funnel,
   onNavigation,
-}: UseFunnelNavigationProps): UseFunnelStepReturn => {
+}: UseFunnelNavigationProps): UseFunnelNavigationReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -75,19 +77,10 @@ export const useFunnelNavigation = ({
     return map;
   }, [funnel]);
 
-  const step: Step = useMemo(
+  const step: NonChapterStep = useMemo(
     () => getFunnelStepByPosition(funnel, position),
     [funnel, position],
   );
-
-  const hasPrev = history.canUndo;
-  const onBack = useCallback(() => {
-    if (!hasPrev) {
-      return;
-    }
-
-    dispatchHistory(UNDO);
-  }, [hasPrev, dispatchHistory]);
 
   const navigate: NavigateFunction = useCallback(
     ({ to, type = FunnelStepTransitionType.Complete }) => {
@@ -104,23 +97,38 @@ export const useFunnelNavigation = ({
 
       const newPosition = stepMap[to]?.position;
       setPosition(newPosition);
-      // track navigation events
       onNavigation({ from, to, timeDuration, type });
     },
     [onNavigation, setPosition, step, stepMap, stepTimerStart],
   );
 
-  const skipTarget = useMemo(() => {
-    return step?.transitions?.find(
+  const back: HeaderNavigation = useMemo(() => {
+    return {
+      hasTarget: history.canUndo,
+      navigate: () => {
+        if (!history.canUndo) {
+          return;
+        }
+        dispatchHistory(UNDO);
+      },
+    };
+  }, [dispatchHistory, history.canUndo]);
+
+  const skip: HeaderNavigation = useMemo(() => {
+    const skipTarget = step?.transitions?.find(
       ({ on }) => on === FunnelStepTransitionType.Skip,
     )?.destination;
-  }, [step?.transitions]);
 
-  const canSkip = !!skipTarget;
-
-  const onSkip = useCallback(() => {
-    return navigate({ to: skipTarget, type: FunnelStepTransitionType.Skip });
-  }, [navigate, skipTarget]);
+    return {
+      hasTarget: !!skipTarget,
+      navigate: () => {
+        if (!skipTarget) {
+          return;
+        }
+        navigate({ to: skipTarget, type: FunnelStepTransitionType.Skip });
+      },
+    };
+  }, [navigate, step?.transitions]);
 
   useEffect(
     () => {
@@ -159,13 +167,11 @@ export const useFunnelNavigation = ({
   );
 
   return {
-    canSkip,
+    back,
     chapters,
-    hasPrev,
     navigate,
-    onBack,
-    onSkip,
     position,
+    skip,
     step,
   };
 };
