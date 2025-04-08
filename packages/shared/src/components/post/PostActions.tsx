@@ -115,7 +115,7 @@ export function PostActions({
         });
       }
 
-      if (note) {
+      if (note || type === 'COMMENT') {
         mutationQueryClient.invalidateQueries({
           queryKey: generateQueryKey(RequestKey.PostComments, undefined, {
             postId: post.id,
