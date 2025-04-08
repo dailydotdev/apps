@@ -273,8 +273,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
           step: 'PROCESSING_ERROR',
           error: {
             title: 'There was an issue processing your transaction.',
-            description:
-              'Please check your payment method and try again. If the issue persists, please contact support.',
+            description: 'Please contact support.',
             onRequestClose: () => {
               setActiveStep({ step: 'INTRO' });
             },
