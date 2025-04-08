@@ -132,7 +132,10 @@ export function FunnelRegistration({
           src={isTablet ? desktopBg : mobileBg}
         />
       </div>
-      <div className="z-1 mt-auto flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-96">
+      <div
+        className="z-1 mt-auto flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-96"
+        data-testid="registration-container"
+      >
         <Logo position={LogoPosition.Relative} />
 
         <Typography

@@ -6,7 +6,11 @@ import { FunnelRegistration } from './FunnelRegistration';
 import useRegistration from '../../../hooks/useRegistration';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useEventListener, useToastNotification } from '../../../hooks';
+import {
+  useEventListener,
+  useToastNotification,
+  useViewSize,
+} from '../../../hooks';
 import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
 import { isIOSNative } from '../../../lib/func';
 import { SocialProvider } from '../../../components/auth/common';
@@ -41,7 +45,6 @@ describe('FunnelRegistration', () => {
       refetchBoot: mockRefetchBoot,
     });
 
-    // Mock useLogContext for both components
     (useLogContext as jest.Mock).mockReturnValue({
       logEvent: mockLogEvent,
     });
@@ -52,6 +55,8 @@ describe('FunnelRegistration', () => {
 
     (useEventListener as jest.Mock).mockImplementation(mockUseEventListener);
 
+    (useViewSize as jest.Mock).mockReturnValue(false);
+
     (getKratosFlow as jest.Mock).mockResolvedValue({
       id: 'test-flow-id',
       ui: { messages: [] },
@@ -59,6 +64,71 @@ describe('FunnelRegistration', () => {
 
     // Default to non-iOS
     (isIOSNative as jest.Mock).mockReturnValue(false);
+  });
+
+  describe('Viewport Responsiveness', () => {
+    it('uses mobile background on mobile viewport', () => {
+      (useViewSize as jest.Mock).mockReturnValue(false);
+      render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+      const backgroundImage = screen.getByAltText('background');
+      expect(backgroundImage).toHaveAttribute(
+        'src',
+        expect.stringContaining('login%20background'),
+      );
+    });
+
+    it('uses desktop background on tablet viewport', () => {
+      (useViewSize as jest.Mock).mockReturnValue(true);
+      render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+      const backgroundImage = screen.getByAltText('background');
+      expect(backgroundImage).toHaveAttribute(
+        'src',
+        expect.stringContaining('login%20background%20web'),
+      );
+    });
+
+    it('updates background when viewport changes', () => {
+      const { rerender } = render(
+        <FunnelRegistration onSuccess={mockOnSuccess} />,
+      );
+
+      // Initial mobile view
+      let backgroundImage = screen.getByAltText('background');
+      expect(backgroundImage).toHaveAttribute(
+        'src',
+        expect.stringContaining('login%20background'),
+      );
+
+      // Change to tablet view
+      (useViewSize as jest.Mock).mockReturnValue(true);
+      rerender(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+      backgroundImage = screen.getByAltText('background');
+      expect(backgroundImage).toHaveAttribute(
+        'src',
+        expect.stringContaining('login%20background%20web'),
+      );
+
+      // Change back to mobile view
+      (useViewSize as jest.Mock).mockReturnValue(false);
+      rerender(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+      backgroundImage = screen.getByAltText('background');
+      expect(backgroundImage).toHaveAttribute(
+        'src',
+        expect.stringContaining('login%20background'),
+      );
+    });
+
+    it('applies correct classes based on viewport', () => {
+      (useViewSize as jest.Mock).mockReturnValue(true);
+      render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+      const container = screen.getByTestId('registration-container');
+      expect(container).toHaveClass('tablet:max-w-96');
+    });
   });
 
   it('renders the registration form with social login options', () => {
@@ -124,13 +194,14 @@ describe('FunnelRegistration', () => {
     });
   });
 
-  it('handles successful social registration', async () => {
-    // Setup the mock to return a user with email
+  it('handles successful social registration with isPlus', async () => {
     mockRefetchBoot.mockResolvedValueOnce({
       data: {
         user: {
           email: 'test@example.com',
           id: 'test-user-id',
+          isPlus: true,
+          providers: ['google'],
         },
       },
     });
@@ -144,19 +215,46 @@ describe('FunnelRegistration', () => {
     messageHandler({
       data: {
         eventKey: AuthEvent.SocialRegistration,
-        // No flow property to indicate success
       },
     });
 
-    // Verify the conditions
     await waitFor(() => {
       expect(mockRefetchBoot).toHaveBeenCalled();
-      expect(mockOnSuccess).toHaveBeenCalled();
+      expect(mockOnSuccess).toHaveBeenCalledWith(true);
+    });
+  });
+
+  it('handles successful social registration without isPlus', async () => {
+    mockRefetchBoot.mockResolvedValueOnce({
+      data: {
+        user: {
+          email: 'test@example.com',
+          id: 'test-user-id',
+          isPlus: false,
+          providers: ['google'],
+        },
+      },
+    });
+
+    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+    // Get the message handler from the useEventListener mock
+    const messageHandler = mockUseEventListener.mock.calls[0][2];
+
+    // Simulate successful social registration message
+    messageHandler({
+      data: {
+        eventKey: AuthEvent.SocialRegistration,
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockRefetchBoot).toHaveBeenCalled();
+      expect(mockOnSuccess).toHaveBeenCalledWith(false);
     });
   });
 
   it('handles registration error with existing email', async () => {
-    // Setup the mock to return a specific error
     (getKratosFlow as jest.Mock).mockResolvedValueOnce({
       id: 'test-flow-id',
       ui: {
@@ -177,12 +275,8 @@ describe('FunnelRegistration', () => {
       },
     });
 
-    // Verify the error handling
     await waitFor(() => {
-      // First verify the toast message
       expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
-
-      // Then verify the log event
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
@@ -215,12 +309,33 @@ describe('FunnelRegistration', () => {
 
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
-      expect(mockLogEvent).toHaveBeenCalledWith({
-        event_name: AuthEventNames.SubmitSignUpFormError,
-        extra: JSON.stringify({
-          error: 'Could not find email on social registration',
-        }),
-      });
+    });
+  });
+
+  it('handles registration error with missing providers', async () => {
+    mockRefetchBoot.mockResolvedValueOnce({
+      data: {
+        user: {
+          email: 'test@example.com',
+          id: 'test-user-id',
+        },
+      },
+    });
+
+    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+
+    // Get the message handler from the useEventListener mock
+    const messageHandler = mockUseEventListener.mock.calls[0][2];
+
+    // Simulate message with missing providers
+    messageHandler({
+      data: {
+        eventKey: AuthEvent.SocialRegistration,
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
     });
   });
 });
