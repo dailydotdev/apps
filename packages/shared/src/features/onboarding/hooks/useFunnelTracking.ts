@@ -14,7 +14,7 @@ import {
   funnelPositionAtom,
 } from '../store/funnelStore';
 
-type TrackOnClickCapture = MouseEventHandler<HTMLElement>;
+type TrackOnMouseCapture = MouseEventHandler<HTMLElement>;
 type TrackOnScroll = UIEventHandler<HTMLElement>;
 type TrackOnEvent = (event: FunnelEvent) => void;
 export type TrackOnNavigate = (event: {
@@ -29,15 +29,45 @@ interface USeFunnelTrackingProps {
 }
 
 interface UseFunnelTrackingReturn {
-  trackOnClickCapture: TrackOnClickCapture;
+  trackOnClickCapture: TrackOnMouseCapture;
+  trackOnHoverCapture: TrackOnMouseCapture;
   trackFunnelEvent: TrackOnEvent;
   trackOnNavigate: TrackOnNavigate;
   trackOnScroll: TrackOnScroll;
 }
 
-// Since we want to track every interaction in forms and CTAs, it's better to avoid polluting individual input fields or form components.
-// Instead, we should capture these events from a parent element using event bubbling and centralize the tracking logic within a single component/hook.
-// We can also pass a prop `onCustomEvent(eventName, eventDetails)` to the funnel step components in order to handle complex and not shared events.
+const trackOnMouseCapture = ({
+  selector,
+  eventName,
+  trackFunnelEvent,
+}: {
+  selector: string;
+  eventName:
+    | FunnelEventName.ClickFunnelElement
+    | FunnelEventName.HoverFunnelElement;
+  trackFunnelEvent: TrackOnEvent;
+}): TrackOnMouseCapture => {
+  return (event) => {
+    if (!(event.target instanceof HTMLElement)) {
+      return;
+    }
+
+    const trackedElement = event.target.closest(selector);
+
+    if (!trackedElement) {
+      return;
+    }
+
+    trackFunnelEvent({
+      name: eventName,
+      details: {
+        target_type:
+          trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
+        ...(trackedElement.id ? { target_id: trackedElement.id } : {}),
+      },
+    });
+  };
+};
 
 export const useFunnelTracking = ({
   funnel,
@@ -70,29 +100,17 @@ export const useFunnelTracking = ({
     [funnel, logEvent, step],
   );
 
-  const trackOnClickCapture: TrackOnClickCapture = (event) => {
-    if (!(event.target instanceof HTMLElement)) {
-      return;
-    }
+  const trackOnClickCapture: TrackOnMouseCapture = trackOnMouseCapture({
+    selector: '[data-track-click]',
+    eventName: FunnelEventName.ClickFunnelElement,
+    trackFunnelEvent,
+  });
 
-    const trackedElement = event.target.closest('[data-track-click]');
-
-    if (!trackedElement) {
-      return;
-    }
-
-    trackFunnelEvent({
-      name: FunnelEventName.ClickFunnelElement,
-      details: {
-        target_type:
-          trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
-        ...(trackedElement.id ? { target_id: trackedElement.id } : {}),
-      },
-    });
-    console.log('Click event', {
-      trackedElement,
-    });
-  };
+  const trackOnHoverCapture: TrackOnMouseCapture = trackOnMouseCapture({
+    selector: '[data-track-hover]',
+    eventName: FunnelEventName.HoverFunnelElement,
+    trackFunnelEvent,
+  });
 
   const trackOnScroll: TrackOnScroll = (event) => {
     // logEvent
@@ -124,6 +142,7 @@ export const useFunnelTracking = ({
 
   return {
     trackOnClickCapture,
+    trackOnHoverCapture,
     trackFunnelEvent,
     trackOnNavigate,
     trackOnScroll,
