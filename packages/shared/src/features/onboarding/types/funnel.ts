@@ -1,3 +1,5 @@
+import type { Review } from '../shared';
+
 export enum FunnelStepType {
   LandingPage = 'landingPage',
   Fact = 'fact',
@@ -8,6 +10,7 @@ export enum FunnelStepType {
   TagSelection = 'tagsSelection',
   ReadingReminder = 'readingReminder',
   AppPromotion = 'appPromotion',
+  SocialProof = 'socialProof',
 }
 
 export enum FunnelStepTransitionType {
@@ -15,9 +18,9 @@ export enum FunnelStepTransitionType {
   Complete = 'complete',
 }
 
-type FunnelStepTransitionCallback<Details = unknown> = (transition: {
+export type FunnelStepTransitionCallback<Details = unknown> = (transition: {
   type: FunnelStepTransitionType;
-  details: Details;
+  details?: Details;
 }) => void;
 
 type FunnelStepParameters = Record<string, string>;
@@ -92,6 +95,15 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
   type: FunnelStepType.AppPromotion;
 }
 
+export interface FunnelStepSocialProof extends FunnelStepCommon {
+  type: FunnelStepType.SocialProof;
+  imageUrl: string;
+  rating: string;
+  reviews: Review[];
+  reviewSubtitle: string;
+  onTransition: FunnelStepTransitionCallback<void>;
+}
+
 export type FunnelStep =
   | FunnelStepChapter
   | FunnelStepLandingPage
@@ -102,7 +114,8 @@ export type FunnelStep =
   | FunnelStepCheckout
   | FunnelStepTagSelection
   | FunnelStepReadingReminder
-  | FunnelStepAppPromotion;
+  | FunnelStepAppPromotion
+  | FunnelStepSocialProof;
 
 export interface FunnelJSON {
   id: string;

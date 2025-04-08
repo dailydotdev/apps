@@ -8,10 +8,11 @@ import NotificationItemAvatar from './NotificationItemAvatar';
 import styles from './InAppNotification.module.css';
 import type { NewNotification } from '../../graphql/notifications';
 
-const NotificationLink = classed(
-  'a',
-  'flex flex-row p-3 pr-10 hover:bg-surface-hover focus:bg-theme-active rounded-16 w-full h-full overflow-hidden',
+const NotificationWrapper = classed(
+  'div',
+  'relative flex h-full w-full flex-row overflow-hidden rounded-16 p-3 pr-10 hover:bg-surface-hover focus:bg-theme-active',
 );
+const NotificationLink = classed('a', 'absolute inset-0 h-full w-full');
 const NotificationAvatar = classed(
   'span',
   classNames(
@@ -43,16 +44,17 @@ export function InAppNotificationItem({
 
   const [avatar] = avatars ?? [];
   return (
-    <NotificationLink href={targetUrl} onClick={onClick}>
+    <NotificationWrapper>
+      <NotificationLink href={targetUrl} onClick={onClick} />
       <NotificationAvatar>
         <NotificationItemIcon icon={icon} />
-        {!!avatar && <NotificationItemAvatar {...avatar} />}
+        {!!avatar && <NotificationItemAvatar {...avatar} className="z-1" />}
       </NotificationAvatar>
       <NotificationText
         dangerouslySetInnerHTML={{
           __html: memoizedTitle,
         }}
       />
-    </NotificationLink>
+    </NotificationWrapper>
   );
 }

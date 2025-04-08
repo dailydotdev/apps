@@ -99,8 +99,8 @@ const ReadingReminder = dynamic(() =>
 
 const OnboardingPlusStep = dynamic(() =>
   import(
-    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
-  ).then((mod) => mod.OnboardingPlusStep),
+    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/Plus/OnboardingPlus'
+  ).then((mod) => mod.OnboardingPlus),
 );
 
 const OnboardingPWA = dynamic(() =>
@@ -474,7 +474,6 @@ export function OnboardPage(): ReactElement {
           customActionName={customActionName}
           onClick={onClickCreateFeed}
           activeScreen={activeScreen}
-          showPlusIcon={isPlusCheckout && activeScreen === OnboardingStep.Plus}
         />
         <div
           className={classNames(
