@@ -112,9 +112,7 @@ export const useFunnelTracking = ({
     trackFunnelEvent,
   });
 
-  const trackOnScroll: TrackOnScroll = (event) => {
-    // logEvent
-  };
+  const trackOnScroll: TrackOnScroll = () => {};
 
   const trackOnNavigate: TrackOnNavigate = (event) => {
     trackFunnelEvent({

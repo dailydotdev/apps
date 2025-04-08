@@ -72,7 +72,7 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
 
-  const onTransition: FunnelStepTransitionCallback = ({ type, details }) => {
+  const onTransition: FunnelStepTransitionCallback = ({ type }) => {
     const targetStepId = step.transitions.find((transition) => {
       return transition.on === type;
     })?.destination;
@@ -83,7 +83,7 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
 
     navigate({ to: targetStepId, type });
     // todo: send PUT to update the funnel position with details
-    console.log('Transition details', details);
+    // console.log('Transition details', details);
   };
 
   return (
