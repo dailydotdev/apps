@@ -267,22 +267,10 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
         [
           UserTransactionStatus.Created,
           UserTransactionStatus.Processing,
+          UserTransactionStatus.ErrorRecoverable,
         ].includes(transactionStatus)
       ) {
         return 750;
-      }
-
-      if (transactionStatus === UserTransactionStatus.ErrorRecoverable) {
-        setActiveStep({
-          step: 'PROCESSING_ERROR',
-        });
-        setProcessingError({
-          title: 'There was an issue processing your transaction.',
-          description: 'Please check your payment method and try again',
-          onRequestClose: () => {
-            setActiveStep({ step: 'INTRO' });
-          },
-        });
       }
 
       if (transactionStatus === UserTransactionStatus.Error) {
