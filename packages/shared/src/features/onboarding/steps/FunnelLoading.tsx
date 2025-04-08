@@ -62,39 +62,51 @@ const FunnelLoading = ({
             startTime,
           ),
         );
+      } else if (endPercent === 100) {
+        setPercentage(100);
       }
     };
 
-    segments.forEach((segment, index) => {
-      const segmentStartTime = segment[0] * animationDuration;
-      const segmentDuration = segment[1] * animationDuration;
+    const runSegmentAnimation = (index: number) => {
+      if (index >= segments.length) {
+        return;
+      }
 
+      const segment = segments[index];
       const startPercent = percentageBursts[index];
       const endPercent = percentageBursts[index + 1];
+      const segmentDuration = segment[1] * animationDuration;
 
-      const animTimeoutId = setTimeout(() => {
-        const segmentStart = startPercent;
-        const segmentEnd = endPercent;
-        const segmentAnimDuration = segmentDuration;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
 
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current);
-        }
+      const animationStart = performance.now();
+      animateBetweenPercentages(
+        startPercent,
+        endPercent,
+        segmentDuration,
+        animationStart,
+      );
+    };
 
-        const startAnimation = () => {
-          animateBetweenPercentages(
-            segmentStart,
-            segmentEnd,
-            segmentAnimDuration,
-            performance.now(),
-          );
-        };
+    const forceCompletionTimeoutId = setTimeout(() => {
+      setPercentage(100);
+    }, animationDuration + 100);
 
-        animationRef.current = requestAnimationFrame(startAnimation);
+    timeoutIds.push(forceCompletionTimeoutId);
+    runSegmentAnimation(0);
+
+    for (let i = 1; i < segments.length; i += 1) {
+      const segment = segments[i];
+      const segmentStartTime = segment[0] * animationDuration;
+
+      const timeoutId = setTimeout(() => {
+        runSegmentAnimation(i);
       }, segmentStartTime);
 
-      timeoutIds.push(animTimeoutId);
-    });
+      timeoutIds.push(timeoutId);
+    }
 
     return () => {
       timeoutIds.forEach((id) => clearTimeout(id));
