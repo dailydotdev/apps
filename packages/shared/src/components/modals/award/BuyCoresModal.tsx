@@ -258,7 +258,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
           description:
             'Please check the status of your transaction in your Core Wallet.',
           onRequestClose() {
-            router.push('/wallet');
+            router.push(walletUrl);
           },
         });
 
