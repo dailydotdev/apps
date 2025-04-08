@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Typography,
   TypographyTag,
@@ -22,7 +22,7 @@ import {
 } from '../../../lib/kratos';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { labels } from '../../../lib';
-import { AuthEventNames } from '../../../lib/auth';
+import { AuthEventNames, isNativeAuthSupported } from '../../../lib/auth';
 import { useLogContext } from '../../../contexts/LogContext';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
@@ -97,11 +97,22 @@ export function FunnelRegistration({
   onSuccess,
 }: FunnelRegistrationProps): ReactElement {
   const isTablet = useViewSize(ViewSize.Tablet);
+  const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
+    onRedirectFail: () => {
+      windowPopup.current.close();
+      windowPopup.current = null;
+    },
+    onRedirect: (redirect) => {
+      windowPopup.current.location.href = redirect;
+    },
   });
 
   const onRegister = (provider: SocialProvider) => {
+    if (!isNativeAuthSupported(provider)) {
+      windowPopup.current = window.open();
+    }
     onSocialRegistration(provider);
   };
 
