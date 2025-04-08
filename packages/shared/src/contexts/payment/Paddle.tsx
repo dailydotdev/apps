@@ -1,29 +1,16 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
-import {
-  CheckoutEventNames,
-  getPaddleInstance,
-  initializePaddle,
-} from '@paddle/paddle-js';
+import React, { useCallback, useMemo } from 'react';
+import type { PaddleEventData } from '@paddle/paddle-js';
+import { CheckoutEventNames } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../AuthContext';
 import { plusSuccessUrl } from '../../lib/constants';
-import { LogEvent } from '../../lib/log';
 import { usePlusSubscription } from '../../hooks';
 import { feature } from '../../lib/featureManagement';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { getPrice } from '../../lib';
 import { useFeature } from '../../components/GrowthBookProvider';
-import { checkIsExtension } from '../../lib/func';
-import { usePixelsContext } from '../PixelsContext';
 import type {
   OpenCheckoutProps,
   PaymentContextData,
@@ -31,103 +18,26 @@ import type {
   ProductOption,
 } from './context';
 import { PaymentContext } from './context';
+import { usePaddle } from '../../features/payment/hooks/usePaddle';
 
 export const PaddleSubProvider = ({
   children,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { trackPayment } = usePixelsContext();
   const planTypes = useFeature(feature.pricingIds);
-  const [paddle, setPaddle] = useState<Paddle>();
-  const { logSubscriptionEvent, isPlus } = usePlusSubscription();
-  const logRef = useRef<typeof logSubscriptionEvent>();
-
-  logRef.current = logSubscriptionEvent;
-  // Download and initialize Paddle instance from CDN
-  useEffect(() => {
-    if (checkIsExtension()) {
-      // Payment not available on extension
-      return;
-    }
-    const existingPaddleInstance = getPaddleInstance();
-    if (existingPaddleInstance) {
-      setPaddle(existingPaddleInstance);
-      return;
-    }
-
-    initializePaddle({
-      environment:
-        (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
-        'production',
-      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
-      eventCallback: (event: PaddleEventData) => {
-        switch (event?.name) {
-          case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
-            logRef.current({
-              event_name: LogEvent.InitiatePayment,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_LOADED:
-            logRef.current({
-              event_name: LogEvent.InitiateCheckout,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logRef.current({
-              event_name: LogEvent.SelectCheckoutPayment,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logRef.current({
-              event_name:
-                'gifter_id' in event.data.custom_data
-                  ? LogEvent.CompleteGiftCheckout
-                  : LogEvent.CompleteCheckout,
-              extra: {
-                user_id:
-                  'gifter_id' in event.data.custom_data &&
-                  'user_id' in event.data.custom_data
-                    ? event.data.custom_data.user_id
-                    : undefined,
-                cycle:
-                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
-                localCost: event?.data.totals.total,
-                localCurrency: event?.data.currency_code,
-                payment: event?.data.payment.method_details.type,
-              },
-            });
-            trackPayment(
-              event?.data.totals.total,
-              event?.data.currency_code,
-              event?.data?.transaction_id,
-            );
-            router.push(plusSuccessUrl);
-            break;
-          // This doesn't exist in the original code
-          case 'checkout.warning' as CheckoutEventNames:
-            logRef.current({
-              event_name: LogEvent.WarningCheckout,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_ERROR:
-            logRef.current({
-              event_name: LogEvent.ErrorCheckout,
-            });
-            break;
-          default:
-            break;
-        }
-      },
-    }).then((paddleInstance: Paddle | undefined) => {
-      if (paddleInstance) {
-        setPaddle(paddleInstance);
+  const { isPlus } = usePlusSubscription();
+  const { paddle } = usePaddle({
+    paddleCallback: (event: PaddleEventData) => {
+      switch (event?.name) {
+        case CheckoutEventNames.CHECKOUT_COMPLETED:
+          router.push(plusSuccessUrl);
+          break;
+        default:
+          break;
       }
-    });
-  }, [router, trackPayment]);
+    },
+  });
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
