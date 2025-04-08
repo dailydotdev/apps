@@ -17,17 +17,24 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { action } from '@storybook/addon-actions';
 import { fn } from '@storybook/test';
+import { withThemeByClassName } from '@storybook/addon-themes';
+import { ReactRenderer } from '@storybook/react';
 
 const meta: Meta<typeof FunnelStepper> = {
   title: 'Components/Onboarding/FunnelStepper',
   component: FunnelStepper,
   tags: ['autodocs'],
   decorators: [
+    withThemeByClassName<ReactRenderer>({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'dark',
+    }),
     (Story) => (
       <Provider>
-        <div className='invert'>
-          <Story />
-        </div>
+        <Story />
       </Provider>
     ),
   ],
