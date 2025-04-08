@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { ModalKind } from '../common/types';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -150,9 +151,42 @@ const ProcessingCompleted = () => {
   );
 };
 
+const ProcessingError = () => {
+  const { error } = useBuyCoresContext();
+  const { title, description, onRequestClose } = error || {};
+
+  return (
+    <>
+      <CoreIcon size={IconSize.XXXLarge} />
+      <Typography type={TypographyType.Title3} bold>
+        {title || 'There was an error processing your transaction.'}
+      </Typography>
+      {description && (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          {description}
+        </Typography>
+      )}
+      <Button
+        onClick={() => {
+          onRequestClose?.();
+        }}
+        variant={ButtonVariant.Primary}
+        className="w-full"
+      >
+        Got it
+      </Button>
+    </>
+  );
+};
+
 export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
+  const router = useRouter();
   const { user, updateUser } = useAuthContext();
-  const { onCompletion, activeStep, setActiveStep } = useBuyCoresContext();
+  const { onCompletion, activeStep, setActiveStep, error } =
+    useBuyCoresContext();
   const isProcessing = activeStep === 'PROCESSING';
   const queryClient = useQueryClient();
 
@@ -202,9 +236,19 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       const maxRetries = (oneMinute * 1000) / transactionRefetchIntervalMs;
 
       if (retries > maxRetries) {
-        // TODO feat/transactions redirect user to /wallet to monitor their transaction there if they want
         // log error for timeout
         onAskConfirmation(false);
+        setActiveStep({
+          step: 'PROCESSING_ERROR',
+          error: {
+            title: 'Processing timed out',
+            description:
+              'Please check the status of your transaction in your Core Wallet.',
+            onRequestClose() {
+              router.push(walletUrl);
+            },
+          },
+        });
 
         return false;
       }
@@ -219,8 +263,23 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
         return transactionRefetchIntervalMs;
       }
 
-      if (transactionStatus === UserTransactionStatus.Error) {
-        // TODO show error message
+      if (
+        [
+          UserTransactionStatus.Error,
+          UserTransactionStatus.InternalError,
+        ].includes(transactionStatus)
+      ) {
+        setActiveStep({
+          step: 'PROCESSING_ERROR',
+          error: {
+            title: 'There was an issue processing your transaction.',
+            description:
+              'Please check your payment method and try again. If the issue persists, please contact support.',
+            onRequestClose: () => {
+              setActiveStep({ step: 'INTRO' });
+            },
+          },
+        });
       }
 
       onAskConfirmation(false);
@@ -244,16 +303,18 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       size={Modal.Size.XSmall}
       {...props}
       onRequestClose={() => {
+        if (activeStep === 'PROCESSING_ERROR') {
+          return error?.onRequestClose?.();
+        }
+
         return onCompletion();
       }}
       isDrawerOnMobile
     >
       <Modal.Body className="flex items-center justify-center gap-4 text-center">
-        {isProcessing ? (
-          <ProcessingLoading transaction={transaction} />
-        ) : (
-          <ProcessingCompleted />
-        )}
+        {isProcessing && <ProcessingLoading transaction={transaction} />}
+        {activeStep === 'COMPLETED' && <ProcessingCompleted />}
+        {activeStep === 'PROCESSING_ERROR' && <ProcessingError />}
       </Modal.Body>
     </Modal>
   );
@@ -371,7 +432,7 @@ const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
 export const TransactionStatusListener = (props: ModalProps): ReactElement => {
   const { activeStep } = useBuyCoresContext();
 
-  if (['PROCESSING', 'COMPLETED'].includes(activeStep)) {
+  if (['PROCESSING', 'COMPLETED', 'PROCESSING_ERROR'].includes(activeStep)) {
     return <BuyCoresProcessing {...props} />;
   }
 

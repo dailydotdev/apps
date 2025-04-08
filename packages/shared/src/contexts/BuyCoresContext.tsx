@@ -26,12 +26,19 @@ const SCREENS = {
   INTRO: 'INTRO',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
+  PROCESSING_ERROR: 'PROCESSING_ERROR',
 } as const;
 export type Screens = keyof typeof SCREENS;
 
 type CoreProductOption = {
   id: string;
   value: number;
+};
+
+export type ProcessingError = {
+  title: string;
+  description?: string;
+  onRequestClose?: () => void;
 };
 
 export type BuyCoresContextData = {
@@ -42,12 +49,15 @@ export type BuyCoresContextData = {
   selectedProduct?: CoreProductOption;
   setSelectedProduct: (product: CoreProductOption) => void;
   activeStep: Screens;
+  error?: ProcessingError;
   setActiveStep: ({
     step,
     providerTransactionId,
+    error,
   }: {
     step: Screens;
     providerTransactionId?: string;
+    error?: ProcessingError;
   }) => void;
   providerTransactionId?: string;
   origin?: Origin;
@@ -73,6 +83,7 @@ export const BuyCoresContextProvider = ({
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
     providerTransactionId?: string;
+    error?: ProcessingError;
   }>({
     step: SCREENS.INTRO,
   });
@@ -187,6 +198,7 @@ export const BuyCoresContextProvider = ({
       amountNeeded,
       onCompletion,
       activeStep: activeStep.step,
+      error: activeStep.error,
       setActiveStep,
       selectedProduct,
       setSelectedProduct,
