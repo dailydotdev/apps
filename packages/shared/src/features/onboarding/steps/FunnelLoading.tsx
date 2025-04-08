@@ -3,21 +3,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import {
-  FunnelStepBackground,
   FunnelBackgroundVariant,
+  FunnelStepBackground,
 } from '../shared/FunnelStepBackground';
 import StepHeadline from '../shared/StepHeadline';
-
-type FunnelLoadingProps = {
-  variant?: FunnelBackgroundVariant;
-};
+import type { FunnelStepLoading } from '../types/funnel';
+import { FunnelStepTransitionType } from '../types/funnel';
 
 const FunnelLoading = ({
-  variant = FunnelBackgroundVariant.Hourglass,
-}: FunnelLoadingProps): ReactElement => {
+  parameters,
+  onTransition,
+}: FunnelStepLoading): ReactElement => {
   const [percentage, setPercentage] = useState(0);
   const animationDuration = 4500;
   const animationRef = useRef<number>();
+
+  useEffect(() => {
+    if (percentage >= 100) {
+      onTransition({ type: FunnelStepTransitionType.Complete });
+    }
+  }, [percentage, onTransition]);
 
   useEffect(() => {
     const timeoutIds: NodeJS.Timeout[] = [];
@@ -126,7 +131,7 @@ const FunnelLoading = ({
   };
 
   return (
-    <FunnelStepBackground variant={variant}>
+    <FunnelStepBackground variant={FunnelBackgroundVariant.Hourglass}>
       <div className="flex min-h-dvh flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
         <div className="relative">
           <svg
@@ -160,8 +165,11 @@ const FunnelLoading = ({
           </div>
         </div>
         <StepHeadline
-          heading="Lining up your next move..."
-          description="Based on everything you shared, we're lining up insights that match where you're headed. Give us a sec."
+          heading={parameters?.headline || 'Lining up your next move...'}
+          description={
+            parameters?.explainer ||
+            "Based on everything you shared, we're lining up insights that match where you're headed. Give us a sec."
+          }
         />
       </div>
     </FunnelStepBackground>
