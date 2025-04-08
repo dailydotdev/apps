@@ -1,4 +1,4 @@
-import type { UIEventHandler, MouseEventHandler } from 'react';
+import type { MouseEventHandler } from 'react';
 import { useCallback, useMemo, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -15,7 +15,7 @@ import {
 } from '../store/funnelStore';
 
 type TrackOnMouseCapture = MouseEventHandler<HTMLElement>;
-type TrackOnScroll = UIEventHandler<HTMLElement>;
+type TrackOnScroll = () => void;
 type TrackOnEvent = (event: FunnelEvent) => void;
 export type TrackOnNavigate = (event: {
   from: FunnelStep['id'];
@@ -112,7 +112,14 @@ export const useFunnelTracking = ({
     trackFunnelEvent,
   });
 
-  const trackOnScroll: TrackOnScroll = () => {};
+  const trackOnScroll: TrackOnScroll = () => {
+    trackFunnelEvent({
+      name: FunnelEventName.ScrollFunnel,
+      details: {
+        scroll_y: globalThis.scrollY,
+      },
+    });
+  };
 
   const trackOnNavigate: TrackOnNavigate = (event) => {
     trackFunnelEvent({

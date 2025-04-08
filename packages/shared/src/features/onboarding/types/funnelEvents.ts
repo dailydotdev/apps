@@ -7,6 +7,7 @@ export enum FunnelEventName {
   LeaveFunnel = 'leave_funnel',
   FunnelStepView = 'funnel step view',
   TransitionFunnel = 'transition funnel',
+  ScrollFunnel = 'scroll funnel',
   HoverFunnelElement = 'hover funnel element',
   ClickFunnelElement = 'click funnel element',
   CookieConsentView = 'cookie consent view',
@@ -26,6 +27,12 @@ export type FunnelEvent =
         target_type: FunnelStepTransitionType;
         target_id: NonChapterStep['id'];
         event_duration: number;
+      };
+    }
+  | {
+      name: FunnelEventName.ScrollFunnel;
+      details: {
+        scroll_y: number;
       };
     }
   | {

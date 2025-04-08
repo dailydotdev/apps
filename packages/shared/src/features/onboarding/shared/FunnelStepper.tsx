@@ -21,6 +21,7 @@ import FunnelInformative from '../steps/FunnelInformative';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
+import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -83,11 +84,15 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
     // console.log('Transition details', details);
   };
 
+  useWindowScroll({
+    onScroll: trackOnScroll,
+  });
+
   return (
     <section
       onClickCapture={trackOnClickCapture}
       onMouseOverCapture={trackOnHoverCapture}
-      onScroll={trackOnScroll}
+      onScrollCapture={trackOnScroll}
     >
       <FunnelStepBackground step={step}>
         <Header
