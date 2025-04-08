@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -45,12 +45,6 @@ import type { Origin } from '../../../lib/log';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
-
-type TProcessingError = {
-  title: string;
-  description?: string;
-  onRequestClose?: () => void;
-};
 
 export const CoreOptions = ({
   className,
@@ -157,12 +151,9 @@ const ProcessingCompleted = () => {
   );
 };
 
-const ProcessingError = ({
-  processingError,
-}: {
-  processingError?: TProcessingError;
-}) => {
-  const { title, description, onRequestClose } = processingError || {};
+const ProcessingError = () => {
+  const { error } = useBuyCoresContext();
+  const { title, description, onRequestClose } = error || {};
 
   return (
     <>
@@ -194,13 +185,10 @@ const ProcessingError = ({
 export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
   const router = useRouter();
   const { user, updateUser } = useAuthContext();
-  const { onCompletion, activeStep, setActiveStep } = useBuyCoresContext();
+  const { onCompletion, activeStep, setActiveStep, error } =
+    useBuyCoresContext();
   const isProcessing = activeStep === 'PROCESSING';
   const queryClient = useQueryClient();
-
-  const [processingError, setProcessingError] = useState<
-    TProcessingError | undefined
-  >(undefined);
 
   const onValidateAction = useCallback(() => {
     return !isProcessing;
@@ -252,13 +240,13 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
         onAskConfirmation(false);
         setActiveStep({
           step: 'PROCESSING_ERROR',
-        });
-        setProcessingError({
-          title: 'Processing timed out',
-          description:
-            'Please check the status of your transaction in your Core Wallet.',
-          onRequestClose() {
-            router.push(walletUrl);
+          error: {
+            title: 'Processing timed out',
+            description:
+              'Please check the status of your transaction in your Core Wallet.',
+            onRequestClose() {
+              router.push(walletUrl);
+            },
           },
         });
 
@@ -278,13 +266,13 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       if (transactionStatus === UserTransactionStatus.Error) {
         setActiveStep({
           step: 'PROCESSING_ERROR',
-        });
-        setProcessingError({
-          title: 'There was an issue processing your transaction.',
-          description:
-            'Please check your payment method and try again. If the issue persists, please contact support.',
-          onRequestClose: () => {
-            setActiveStep({ step: 'INTRO' });
+          error: {
+            title: 'There was an issue processing your transaction.',
+            description:
+              'Please check your payment method and try again. If the issue persists, please contact support.',
+            onRequestClose: () => {
+              setActiveStep({ step: 'INTRO' });
+            },
           },
         });
       }
@@ -311,7 +299,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       {...props}
       onRequestClose={() => {
         if (activeStep === 'PROCESSING_ERROR') {
-          return processingError?.onRequestClose?.();
+          return error?.onRequestClose?.();
         }
 
         return onCompletion();
@@ -321,9 +309,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
       <Modal.Body className="flex items-center justify-center gap-4 text-center">
         {isProcessing && <ProcessingLoading transaction={transaction} />}
         {activeStep === 'COMPLETED' && <ProcessingCompleted />}
-        {activeStep === 'PROCESSING_ERROR' && (
-          <ProcessingError processingError={processingError} />
-        )}
+        {activeStep === 'PROCESSING_ERROR' && <ProcessingError />}
       </Modal.Body>
     </Modal>
   );
