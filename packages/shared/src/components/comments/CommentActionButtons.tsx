@@ -378,19 +378,20 @@ export default function CommentActionButtons({
               className={!comment.numAwards ? 'mr-3' : undefined}
             />
           )}
-          {!!comment.userState?.awarded && (
-            <Image src={featuredAwardImage} alt="Award" className="size-6" />
-          )}
+
           {!!comment.numAwards && (
-            <Typography
-              className="ml-1 mr-3"
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              bold
-            >
-              {largeNumberFormat(comment.numAwards)} Award
-              {comment.numAwards > 1 ? 's' : ''}
-            </Typography>
+            <>
+              <Image src={featuredAwardImage} alt="Award" className="size-6" />
+              <Typography
+                className="ml-1 mr-3"
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                bold
+              >
+                {largeNumberFormat(comment.numAwards)} Award
+                {comment.numAwards > 1 ? 's' : ''}
+              </Typography>
+            </>
           )}
         </>
       )}

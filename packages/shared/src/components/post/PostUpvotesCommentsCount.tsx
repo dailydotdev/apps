@@ -41,9 +41,7 @@ export function PostUpvotesCommentsCount({
       )}
       {awards > 0 && (
         <span className="flex items-center gap-1">
-          {!!post.userState?.awarded && (
-            <Image src={featuredAwardImage} alt="Award" className="size-6" />
-          )}
+          <Image src={featuredAwardImage} alt="Award" className="size-6" />
           <span>
             {largeNumberFormat(awards)}
             {` Award${awards === 1 ? '' : 's'}`}
