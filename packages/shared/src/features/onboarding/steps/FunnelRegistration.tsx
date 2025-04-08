@@ -26,14 +26,17 @@ import { AuthEventNames, isNativeAuthSupported } from '../../../lib/auth';
 import { useLogContext } from '../../../contexts/LogContext';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
+import type { LoggedUser } from '../../../lib/user';
 
 interface FunnelRegistrationProps {
-  onSuccess: () => void;
+  onSuccess: (isPlus?: boolean) => void;
 }
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
-const useRegistrationListeners = (onSuccess: () => void) => {
+const useRegistrationListeners = (
+  onSuccess: FunnelRegistrationProps['onSuccess'],
+) => {
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -73,18 +76,9 @@ const useRegistrationListeners = (onSuccess: () => void) => {
     }
 
     const bootResponse = await refetchBoot();
+    const isPlus = (bootResponse?.data?.user as LoggedUser)?.isPlus;
 
-    if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
-      logEvent({
-        event_name: AuthEventNames.SubmitSignUpFormError,
-        extra: JSON.stringify({
-          error: 'Could not find email on social registration',
-        }),
-      });
-      return displayToast(labels.auth.error.generic);
-    }
-
-    return onSuccess();
+    return onSuccess(isPlus);
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);
