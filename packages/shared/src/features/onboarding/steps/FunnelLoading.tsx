@@ -29,6 +29,15 @@ const FunnelLoading = ({
     if (percentage >= 100) {
       onTransition({ type: FunnelStepTransitionType.Complete });
     }
+
+    return () => {
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
   }, [percentage, onTransition]);
 
   useEffect(() => {
@@ -137,7 +146,7 @@ const FunnelLoading = ({
       <div className="flex min-h-dvh flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
         <div className="relative">
           <svg
-            className="h-48 w-48"
+            className="size-48"
             viewBox="0 0 196 196"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
