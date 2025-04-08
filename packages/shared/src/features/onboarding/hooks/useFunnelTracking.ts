@@ -1,5 +1,5 @@
 import type { UIEventHandler, MouseEventHandler } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLogContext } from '../../../contexts/LogContext';
 import type {
@@ -100,6 +100,19 @@ export const useFunnelTracking = ({
     });
     console.log('trackOnNavigate', event);
   };
+
+  useEffect(
+    () => {
+      trackFunnelEvent({ name: FunnelEventName.StartFunnel });
+
+      return () => {
+        trackFunnelEvent({ name: FunnelEventName.LeaveFunnel });
+      };
+    },
+    // mount/unmount tracking
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [funnel],
+  );
 
   return {
     trackOnClickCapture,
