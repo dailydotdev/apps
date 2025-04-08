@@ -19,6 +19,7 @@ export enum FunnelStepType {
   ReadingReminder = 'readingReminder',
   AppPromotion = 'appPromotion',
   SocialProof = 'socialProof',
+  Loading = 'loading',
 }
 
 export enum FunnelStepTransitionType {
@@ -50,6 +51,12 @@ export interface FunnelStepChapter extends FunnelStepCommon {
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
   type: FunnelStepType.LandingPage;
+  onTransition: FunnelStepTransitionCallback<void>;
+}
+
+export interface FunnelStepLoading
+  extends Omit<FunnelStepCommon, 'transitions'> {
+  type: FunnelStepType.Loading;
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
