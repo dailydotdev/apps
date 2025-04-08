@@ -5,7 +5,6 @@ import type {
   FunnelJSON,
   FunnelStepChapter,
   FunnelStepAppPromotion,
-  FunnelStepPricing,
   FunnelStepLandingPage,
   FunnelStepReadingReminder,
   FunnelStepSignup,
@@ -17,7 +16,7 @@ import { FunnelStepType } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
-import { FunnelQuiz, FunnelSocialProof } from '../steps';
+import { FunnelQuiz, FunnelSocialProof, FunnelPricing } from '../steps';
 import FunnelInformative from '../steps/FunnelInformative';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
@@ -33,12 +32,10 @@ const stepComponentMap = {
   [FunnelStepType.Loading]: FunnelLoading,
   [FunnelStepType.Quiz]: FunnelQuiz,
   [FunnelStepType.SocialProof]: FunnelSocialProof,
+  [FunnelStepType.Pricing]: FunnelPricing,
   [FunnelStepType.AppPromotion]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepAppPromotion>,
-  [FunnelStepType.Pricing]: (({ type }) => (
-    <>{type}</>
-  )) as FC<FunnelStepPricing>,
   [FunnelStepType.LandingPage]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepLandingPage>,

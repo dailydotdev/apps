@@ -12,13 +12,12 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Provider } from 'jotai';
-import {
-  FunnelStepLoading,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { action } from '@storybook/addon-actions';
-import { fn } from '@storybook/test';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import { ReactRenderer } from '@storybook/react';
+import { Default as FunnelPricing } from './FunnelPricing.stories';
+import {
+  FunnelStepPricing,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 
 const meta: Meta<typeof FunnelStepper> = {
   title: 'Components/Onboarding/FunnelStepper',
@@ -202,13 +201,19 @@ const sampleFunnel: FunnelJSON = {
           transitions: [
             {
               on: FunnelStepTransitionType.Complete,
-              destination: 'step1', // Changed to point to an existing step
+              destination: 'step4', // Changed to point to an existing step
             },
           ],
           onTransition: () => {
             console.log('Social proof step transition');
           },
         } satisfies FunnelStepSocialProof,
+        {
+          ...FunnelPricing.args,
+          id: 'step4',
+          type: FunnelStepType.Pricing,
+          transitions: [],
+        } as FunnelStepPricing,
       ],
     } satisfies FunnelStepChapter,
   ],

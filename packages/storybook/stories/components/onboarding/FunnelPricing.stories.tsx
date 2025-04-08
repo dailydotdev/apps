@@ -35,6 +35,7 @@ const commonProps = {
 export const Default: Story = {
   args: {
     ...commonProps,
+    type: FunnelStepType.Pricing,
     defaultPlan: 'annual',
     discount: {
       message:
