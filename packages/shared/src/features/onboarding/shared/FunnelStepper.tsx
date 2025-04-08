@@ -63,8 +63,12 @@ function FunnelStepComponent(props: NonChapterStep) {
 }
 
 export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
-  const { trackOnClickCapture, trackOnScroll, trackOnNavigate } =
-    useFunnelTracking({ funnel });
+  const {
+    trackOnClickCapture,
+    trackOnHoverCapture,
+    trackOnScroll,
+    trackOnNavigate,
+  } = useFunnelTracking({ funnel });
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
 
@@ -83,7 +87,11 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
   };
 
   return (
-    <section onClickCapture={trackOnClickCapture} onScroll={trackOnScroll}>
+    <section
+      onClickCapture={trackOnClickCapture}
+      onMouseOverCapture={trackOnHoverCapture}
+      onScroll={trackOnScroll}
+    >
       <FunnelStepBackground step={step}>
         <Header
           chapters={chapters}
