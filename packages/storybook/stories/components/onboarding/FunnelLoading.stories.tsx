@@ -22,7 +22,6 @@ export const Default: Story = {
   args: {
     id: 'loading-step',
     type: FunnelStepType.Loading,
-    transitions: [],
     onTransition: action('onTransition'),
     parameters: {
       headline: 'Loading your personalized feed',
@@ -40,10 +39,3 @@ export const CustomText: Story = {
     },
   },
 };
-
-export const MinimalText: Story = {
-  args: {
-    ...Default.args,
-    parameters: {},
-  },
-}; 
