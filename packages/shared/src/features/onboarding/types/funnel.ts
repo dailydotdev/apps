@@ -54,8 +54,7 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
-export interface FunnelStepLoading
-  extends Omit<FunnelStepCommon, 'transitions'> {
+export interface FunnelStepLoading extends FunnelStepCommon {
   type: FunnelStepType.Loading;
   onTransition: FunnelStepTransitionCallback<void>;
 }
@@ -158,7 +157,8 @@ export type FunnelStep =
   | FunnelStepTagSelection
   | FunnelStepReadingReminder
   | FunnelStepAppPromotion
-  | FunnelStepSocialProof;
+  | FunnelStepSocialProof
+  | FunnelStepLoading;
 
 export type NonChapterStep = Exclude<FunnelStep, FunnelStepChapter>;
 

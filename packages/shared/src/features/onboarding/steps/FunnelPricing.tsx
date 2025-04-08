@@ -23,10 +23,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import {
-  FunnelBackgroundVariant,
-  FunnelStepBackground,
-} from '../shared/FunnelStepBackground';
+
 import { anchorDefaultRel } from '../../../lib/strings';
 
 const PricingSection = ({
@@ -111,33 +108,31 @@ export const FunnelPricing = ({
         startDate={discount.startDate}
         onTimerEnd={() => setApplyDiscount(false)}
       />
-      <FunnelStepBackground variant={FunnelBackgroundVariant.Default}>
-        <div className="flex flex-col gap-4 p-6">
-          <PricingSection {...pricingProps} name="plan-1" />
-          <CreditCards />
-          <BoxList {...featuresList} />
-          <ImageReview {...review} />
-          <PricingSection {...pricingProps} name="plan-2" />
-          <BoxContentImage {...refund} />
-          <BoxFaq {...faq} />
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            className="text-center"
+      <div className="flex flex-col gap-4 p-6">
+        <PricingSection {...pricingProps} name="plan-1" />
+        <CreditCards />
+        <BoxList {...featuresList} />
+        <ImageReview {...review} />
+        <PricingSection {...pricingProps} name="plan-2" />
+        <BoxContentImage {...refund} />
+        <BoxFaq {...faq} />
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="text-center"
+        >
+          For technical or product related questions click here or email us at{' '}
+          <a
+            href="mailto:support@daily.dev"
+            className="text-text-link underline"
+            target="_blank"
+            rel={anchorDefaultRel}
           >
-            For technical or product related questions click here or email us at{' '}
-            <a
-              href="mailto:support@daily.dev"
-              className="text-text-link underline"
-              target="_blank"
-              rel={anchorDefaultRel}
-            >
-              support@daily.dev
-            </a>
-          </Typography>
-        </div>
-      </FunnelStepBackground>
+            support@daily.dev
+          </a>
+        </Typography>
+      </div>
     </>
   );
 };

@@ -1,6 +1,8 @@
 import type { ReactElement, ComponentProps } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import type { NonChapterStep } from '../types/funnel';
+import { FunnelStepType } from '../types/funnel';
 
 export enum FunnelBackgroundVariant {
   Blank = 'blank',
@@ -14,10 +16,7 @@ export enum FunnelBackgroundVariant {
 }
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
-  /**
-   * @default `FunnelBackgroundVariant.Default`
-   */
-  variant?: FunnelBackgroundVariant;
+  step: NonChapterStep;
 }
 
 const variantToClassName: Record<FunnelBackgroundVariant, string> = {
@@ -32,12 +31,39 @@ const variantToClassName: Record<FunnelBackgroundVariant, string> = {
   [FunnelBackgroundVariant.Hourglass]: 'bg-gradient-funnel-hourglass',
 };
 
+const getVariantFromStep = (step: NonChapterStep): FunnelBackgroundVariant => {
+  if (!step) {
+    return FunnelBackgroundVariant.Default;
+  }
+
+  const { parameters } = step;
+
+  if (step.type === FunnelStepType.Loading) {
+    return FunnelBackgroundVariant.Hourglass;
+  }
+
+  if (step.type === FunnelStepType.SocialProof) {
+    return FunnelBackgroundVariant.Top;
+  }
+
+  if (step.type === FunnelStepType.Fact) {
+    return parameters?.reverse
+      ? FunnelBackgroundVariant.Top
+      : FunnelBackgroundVariant.Bottom;
+  }
+
+  return FunnelBackgroundVariant.Default;
+};
+
 export const FunnelStepBackground = ({
   children,
   className,
-  variant = FunnelBackgroundVariant.Default,
+  step,
 }: StepBackgroundProps): ReactElement => {
-  const bgClassName = variantToClassName[variant];
+  const bgClassName = useMemo(() => {
+    const variant = getVariantFromStep(step);
+    return variantToClassName[variant];
+  }, [step]);
   return (
     <div className="relative min-h-dvh bg-background-default">
       <div className="relative z-2">{children}</div>
@@ -46,7 +72,7 @@ export const FunnelStepBackground = ({
         className={classNames(
           bgClassName,
           className,
-          'radialProgress absolute left-0 top-0 z-1 h-full w-full',
+          'absolute left-0 top-0 z-1 h-full w-full',
         )}
       />
     </div>

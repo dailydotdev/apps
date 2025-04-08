@@ -20,21 +20,25 @@ import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
 import { FunnelQuiz, FunnelSocialProof } from '../steps';
 import FunnelInformative from '../steps/FunnelInformative';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
+import FunnelLoading from '../steps/FunnelLoading';
+import { FunnelStepBackground } from './FunnelStepBackground';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
 }
 
 const stepComponentMap = {
+  [FunnelStepType.Checkout]: FunnelCheckout,
   [FunnelStepType.Fact]: FunnelInformative,
+  [FunnelStepType.Loading]: FunnelLoading,
   [FunnelStepType.Quiz]: FunnelQuiz,
+  [FunnelStepType.SocialProof]: FunnelSocialProof,
   [FunnelStepType.AppPromotion]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepAppPromotion>,
   [FunnelStepType.Pricing]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepPricing>,
-  [FunnelStepType.Checkout]: FunnelCheckout,
   [FunnelStepType.LandingPage]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepLandingPage>,
@@ -45,7 +49,6 @@ const stepComponentMap = {
   [FunnelStepType.TagSelection]: (({ type }) => (
     <>{type}</>
   )) as FC<FunnelStepTagSelection>,
-  [FunnelStepType.SocialProof]: FunnelSocialProof,
 } as const;
 
 function FunnelStepComponent(props: NonChapterStep) {
@@ -81,32 +84,34 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
 
   return (
     <section onClickCapture={trackOnClickCapture} onScroll={trackOnScroll}>
-      <Header
-        chapters={chapters}
-        currentChapter={position.chapter}
-        currentStep={position.step}
-        onBack={back.navigate}
-        onSkip={skip.navigate}
-        showBackButton={back.hasTarget}
-        showSkipButton={skip.hasTarget}
-      />
-      {funnel.steps.map((chapter: FunnelStepChapter) => (
-        <Fragment key={chapter?.id}>
-          {chapter?.steps?.map((funnelStep: NonChapterStep) => (
-            <div
-              className={classNames({
-                hidden: step?.id !== funnelStep?.id,
-              })}
-              key={`${chapter?.id}-${funnelStep?.id}`}
-            >
-              <FunnelStepComponent
-                {...funnelStep}
-                onTransition={onTransition}
-              />
-            </div>
-          ))}
-        </Fragment>
-      ))}
+      <FunnelStepBackground step={step}>
+        <Header
+          chapters={chapters}
+          currentChapter={position.chapter}
+          currentStep={position.step}
+          onBack={back.navigate}
+          onSkip={skip.navigate}
+          showBackButton={back.hasTarget}
+          showSkipButton={skip.hasTarget}
+        />
+        {funnel.steps.map((chapter: FunnelStepChapter) => (
+          <Fragment key={chapter?.id}>
+            {chapter?.steps?.map((funnelStep: NonChapterStep) => (
+              <div
+                className={classNames({
+                  hidden: step?.id !== funnelStep?.id,
+                })}
+                key={`${chapter?.id}-${funnelStep?.id}`}
+              >
+                <FunnelStepComponent
+                  {...funnelStep}
+                  onTransition={onTransition}
+                />
+              </div>
+            ))}
+          </Fragment>
+        ))}
+      </FunnelStepBackground>
     </section>
   );
 };

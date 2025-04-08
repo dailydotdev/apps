@@ -12,6 +12,11 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Provider } from 'jotai';
+import {
+  FunnelStepLoading,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof FunnelStepper> = {
   title: 'Components/Onboarding/FunnelStepper',
@@ -137,6 +142,21 @@ const sampleFunnel: FunnelJSON = {
             console.log('Quiz step transition');
           },
         } satisfies FunnelStepQuiz,
+        // {
+        //   id: 'step3',
+        //   type: FunnelStepType.Loading,
+        //   parameters: {
+        //     headline: 'Loading your personalized feed',
+        //     explainer: 'We\'re putting together content based on your interests. This will only take a moment.',
+        //   },
+        //   transitions: [
+        //     {
+        //       on: FunnelStepTransitionType.Complete,
+        //       destination: 'step4',
+        //     },
+        //   ],
+        //   onTransition: fn(),
+        // } satisfies FunnelStepLoading,
         {
           id: 'step3',
           type: FunnelStepType.SocialProof,
