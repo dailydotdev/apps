@@ -26,6 +26,7 @@ const SCREENS = {
   INTRO: 'INTRO',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
+  PROCESSING_ERROR: 'PROCESSING_ERROR',
 } as const;
 export type Screens = keyof typeof SCREENS;
 
