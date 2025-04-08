@@ -8,3 +8,6 @@ export * from './CreditCards';
 export * from './Reviews';
 export * from './FunnelStepBackground';
 export * from './FunnelStepCtaWrapper';
+export * from './CookieConsent';
+export * from './ImageReview';
+export * from './Stars';
