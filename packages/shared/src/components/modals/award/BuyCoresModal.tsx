@@ -263,7 +263,12 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
         return transactionRefetchIntervalMs;
       }
 
-      if (transactionStatus === UserTransactionStatus.Error) {
+      if (
+        [
+          UserTransactionStatus.Error,
+          UserTransactionStatus.InternalError,
+        ].includes(transactionStatus)
+      ) {
         setActiveStep({
           step: 'PROCESSING_ERROR',
           error: {
