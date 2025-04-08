@@ -27,6 +27,7 @@ import {
   FunnelBackgroundVariant,
   FunnelStepBackground,
 } from '../shared/FunnelStepBackground';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 const PricingSection = ({
   name,
@@ -47,7 +48,7 @@ const PricingSection = ({
       <Typography
         tag={TypographyTag.H2}
         type={TypographyType.Title1}
-        className="text-center"
+        className="text-center font-bold"
       >
         {headline}
       </Typography>
@@ -129,6 +130,8 @@ export const FunnelPricing = ({
             <a
               href="mailto:support@daily.dev"
               className="text-text-link underline"
+              target="_blank"
+              rel={anchorDefaultRel}
             >
               support@daily.dev
             </a>

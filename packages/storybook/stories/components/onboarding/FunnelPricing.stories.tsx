@@ -73,7 +73,7 @@ export const Default: Story = {
           },
           badge: {
             text: 'Save 50%',
-            background: '#0ABA6E',
+            background: '#39E58C',
           },
           variation: PricingPlanVariation.BEST_VALUE,
         },
