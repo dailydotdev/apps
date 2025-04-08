@@ -3,9 +3,9 @@ import type { ReactElement } from 'react';
 import {
   FunnelStepBackground,
   FunnelBackgroundVariant,
-} from '../shared/FunnelStepBackground';
-import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
-import { Reviews } from '../shared/Reviews';
+  FunnelStepCtaWrapper,
+  Reviews,
+} from '../shared';
 import type { FunnelStepSocialProof } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { LazyImage } from '../../../components/LazyImage';
