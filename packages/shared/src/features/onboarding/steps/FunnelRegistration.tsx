@@ -31,13 +31,17 @@ interface FunnelRegistrationProps {
   onSuccess: () => void;
 }
 
+const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
+
 const useRegistrationListeners = (onSuccess: () => void) => {
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
   const { logEvent } = useLogContext();
 
   const onProviderMessage = async (e: MessageEvent) => {
-    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
+    const isEventSupported = supportedEvents.includes(e.data?.eventKey);
+
+    if (!isEventSupported) {
       return undefined;
     }
 
