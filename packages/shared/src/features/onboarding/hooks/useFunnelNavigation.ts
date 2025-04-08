@@ -1,21 +1,19 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useAtom } from 'jotai/react';
 import type {
   FunnelStep,
   FunnelJSON,
   FunnelStepChapter,
+  FunnelPosition,
 } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import type { TrackOnNavigate } from './useFunnelTracking';
+import { funnelPositionAtom } from '../store/funnelStore';
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
   onNavigation: TrackOnNavigate;
-}
-
-interface Position {
-  chapter: number;
-  step: number;
 }
 
 type Step = Exclude<FunnelStep, FunnelStepChapter>;
@@ -27,7 +25,7 @@ export interface UseFunnelStepReturn {
   hasPrev: boolean;
   navigateNext: () => void;
   navigatePrev: () => void;
-  position: Position;
+  position: FunnelPosition;
   step: Step;
 }
 
@@ -39,10 +37,7 @@ export const useFunnelNavigation = ({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [stepTimerStart, setStepTimerStart] = useState<number>(0);
-  const [position, setPosition] = useState<Position>({
-    chapter: 0,
-    step: 0,
-  });
+  const [position, setPosition] = useAtom(funnelPositionAtom);
 
   const chapters: Chapters = useMemo(
     () =>
@@ -74,7 +69,7 @@ export const useFunnelNavigation = ({
       return;
     }
 
-    const newPosition: Position = {
+    const newPosition: FunnelPosition = {
       chapter: isLastStep ? position.chapter + 1 : position.chapter,
       step: isLastStep ? 0 : position.step + 1,
     };
@@ -83,7 +78,16 @@ export const useFunnelNavigation = ({
     setPosition(newPosition);
     // track navigation events
     onNavigation({ from, to, timeDuration });
-  }, [chapters, funnel.steps, onNavigation, position, step, stepTimerStart]);
+  }, [
+    chapters,
+    funnel.steps,
+    onNavigation,
+    position.chapter,
+    position.step,
+    setPosition,
+    step.id,
+    stepTimerStart,
+  ]);
 
   const navigatePrev = useCallback(() => {
     const from = step.id;
@@ -94,7 +98,7 @@ export const useFunnelNavigation = ({
     }
 
     const isFirstStep = position.step === 0;
-    const newPosition: Position = {
+    const newPosition: FunnelPosition = {
       chapter: isFirstStep ? position.chapter - 1 : position.chapter,
       step: isFirstStep
         ? chapters[position.chapter - 1].steps - 1
@@ -111,7 +115,9 @@ export const useFunnelNavigation = ({
     funnel.steps,
     hasPrev,
     onNavigation,
-    position,
+    position.chapter,
+    position.step,
+    setPosition,
     step.id,
     stepTimerStart,
   ]);

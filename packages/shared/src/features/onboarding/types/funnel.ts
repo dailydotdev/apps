@@ -37,7 +37,7 @@ interface FunnelStepCommon {
 }
 
 export interface FunnelStepChapter extends FunnelStepCommon {
-  steps: Array<FunnelStep>;
+  steps: Array<NonChapterStep>;
 }
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
@@ -116,6 +116,13 @@ export type FunnelStep =
   | FunnelStepReadingReminder
   | FunnelStepAppPromotion
   | FunnelStepSocialProof;
+
+export type NonChapterStep = Exclude<FunnelStep, FunnelStepChapter>;
+
+export type FunnelPosition = {
+  chapter: number;
+  step: number;
+};
 
 export interface FunnelJSON {
   id: string;

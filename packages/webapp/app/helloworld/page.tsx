@@ -4,6 +4,7 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { HydrationBoundary } from '@tanstack/react-query';
 import Head from 'next/head';
+import { Provider } from 'jotai/react';
 import { getAppBootData } from '../appBoot';
 import { ClientTest } from './client/client';
 
@@ -27,16 +28,18 @@ export default async function Page(props: AppPageProps): Promise<ReactElement> {
 
   return (
     <HydrationBoundary state={state}>
-      <Head>
-        <meta name="robots" content="noindex" />
-      </Head>
+      <Provider>
+        <Head>
+          <meta name="robots" content="noindex" />
+        </Head>
 
-      <h1 className="mb-4 text-xl font-bold">Hello world funnel</h1>
-      <p>
-        <strong>Server</strong> says user is {boot?.user?.id ?? 'not logged'} -{' '}
-        {boot?.user?.email ?? 'no email'}
-      </p>
-      <ClientTest />
+        <h1 className="mb-4 text-xl font-bold">Hello world funnel</h1>
+        <p>
+          <strong>Server</strong> says user is {boot?.user?.id ?? 'not logged'}{' '}
+          - {boot?.user?.email ?? 'no email'}
+        </p>
+        <ClientTest />
+      </Provider>
     </HydrationBoundary>
   );
 }

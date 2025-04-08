@@ -1,22 +1,27 @@
 import type { UIEventHandler, MouseEventHandler } from 'react';
+import { useAtomValue } from 'jotai';
+import { useCallback } from 'react';
 import { useLogContext } from '../../../contexts/LogContext';
-import type { FunnelStep } from '../types/funnel';
+import type { FunnelStep, FunnelJSON } from '../types/funnel';
+import type { FunnelEvent } from '../types/funnelEvents';
+import { funnelStepAtom } from '../store/funnelStore';
 
 type TrackOnClickCapture = MouseEventHandler<HTMLElement>;
 type TrackOnScroll = UIEventHandler<HTMLElement>;
-type TrackOnCustomEvent = (event: {
-  eventName: string;
-  eventDetails: Record<string, unknown>;
-}) => void;
+type TrackOnEvent = (event: FunnelEvent) => void;
 export type TrackOnNavigate = (event: {
   from: FunnelStep['id'];
   to: FunnelStep['id'];
   timeDuration: number;
 }) => void;
 
+interface USeFunnelTrackingProps {
+  funnel: FunnelJSON;
+}
+
 interface UseFunnelTrackingReturn {
   trackOnClickCapture: TrackOnClickCapture;
-  trackOnCustomEvent: TrackOnCustomEvent;
+  trackFunnelEvent: TrackOnEvent;
   trackOnNavigate: TrackOnNavigate;
   trackOnScroll: TrackOnScroll;
 }
@@ -25,8 +30,33 @@ interface UseFunnelTrackingReturn {
 // Instead, we should capture these events from a parent element using event bubbling and centralize the tracking logic within a single component/hook.
 // We can also pass a prop `onCustomEvent(eventName, eventDetails)` to the funnel step components in order to handle complex and not shared events.
 
-export const useFunnelTracking = (): UseFunnelTrackingReturn => {
+export const useFunnelTracking = ({
+  funnel,
+}: USeFunnelTrackingProps): UseFunnelTrackingReturn => {
+  const step = useAtomValue(funnelStepAtom);
   const { logEvent } = useLogContext();
+
+  const trackFunnelEvent: TrackOnEvent = useCallback(
+    (event) => {
+      const commonTrackingProps = {
+        funnel_id: funnel.id,
+        funnel_version: funnel.version,
+        session_id: '', // todo: implement sessionId
+        step_id: step?.id,
+        step_type: step?.type,
+      };
+
+      logEvent({
+        event_name: event.name,
+        extra: JSON.stringify({
+          ...commonTrackingProps,
+          ...('details' in event ? event.details : {}),
+        }),
+      });
+    },
+    [funnel, logEvent, step],
+  );
+
   const trackOnClickCapture: TrackOnClickCapture = (event) => {
     if (!(event.target instanceof HTMLElement)) {
       return;
@@ -50,19 +80,9 @@ export const useFunnelTracking = (): UseFunnelTrackingReturn => {
     // logEvent
   };
 
-  const trackOnCustomEvent: TrackOnCustomEvent = ({
-    eventName,
-    eventDetails,
-  }) => {
-    logEvent({
-      event_name: eventName,
-      ...(eventDetails && { extra: JSON.stringify(eventDetails) }),
-    });
-  };
-
   return {
     trackOnClickCapture,
-    trackOnCustomEvent,
+    trackFunnelEvent,
     trackOnNavigate,
     trackOnScroll,
   };
