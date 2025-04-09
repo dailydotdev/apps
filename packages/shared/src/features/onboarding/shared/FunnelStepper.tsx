@@ -8,7 +8,11 @@ import type {
   FunnelStep,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
-import { FunnelStepType, FINAL_STEP_ID } from '../types/funnel';
+import {
+  FunnelStepType,
+  COMPLETED_STEP_ID,
+  FunnelStepTransitionType,
+} from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
@@ -74,16 +78,21 @@ export const FunnelStepper = ({
       return;
     }
 
-    navigate({ to: targetStepId, type });
+    const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
-    await sendTransition({
+    sendTransition({
       fromStep: step.id,
-      toStep: targetStepId,
+      toStep: isLastStep ? null : targetStepId,
       transitionEvent: type,
       inputs: details,
     });
 
-    if (targetStepId === FINAL_STEP_ID) {
+    // not navigating to the last step
+    if (!isLastStep) {
+      navigate({ to: targetStepId, type });
+    }
+
+    if (isLastStep) {
       onComplete?.();
     }
   };
@@ -96,6 +105,7 @@ export const FunnelStepper = ({
 
   return (
     <section
+      data-testid="funnel-stepper"
       onClickCapture={trackOnClickCapture}
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
@@ -106,7 +116,9 @@ export const FunnelStepper = ({
           currentChapter={position.chapter}
           currentStep={position.step}
           onBack={back.navigate}
-          onSkip={skip.navigate}
+          onSkip={() => {
+            onTransition({ type: FunnelStepTransitionType.Skip });
+          }}
           showBackButton={back.hasTarget}
           showSkipButton={skip.hasTarget}
         />
@@ -117,6 +129,7 @@ export const FunnelStepper = ({
                 className={classNames({
                   hidden: step?.id !== funnelStep?.id,
                 })}
+                data-testid="funnel-step"
                 key={`${chapter?.id}-${funnelStep?.id}`}
               >
                 <FunnelStepComponent
