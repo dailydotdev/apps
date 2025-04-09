@@ -19,6 +19,7 @@ type Props = {
   defaultValue?: string;
   onChange?: (value: string, index: number) => void;
   icon?: ReactElement<IconProps>;
+  disabled?: boolean;
 } & Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'>;
 
 const defaultIcon = <LanguageIcon className="ml-0 mr-1" />;
@@ -32,6 +33,7 @@ export const LanguageDropdown = ({
   name,
   saveHintSpace = false,
   icon = defaultIcon,
+  disabled = false,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
   const validLanguages = useFeature(featureValidLanguages);
@@ -90,6 +92,7 @@ export const LanguageDropdown = ({
         onOpenChange={setOpen}
         placeholder="Preferred content language"
         icon={icon}
+        disabled={disabled}
       />
       {name && selectedIndex > -1 && (
         <input

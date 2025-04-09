@@ -115,6 +115,7 @@ export const FeedSettingsAISection = (): ReactElement => {
             );
           }}
           icon={null}
+          disabled={!isPlus}
         />
       </section>
 
