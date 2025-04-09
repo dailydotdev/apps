@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import type {
@@ -20,7 +21,12 @@ import { checkIsExtension } from '../lib/func';
 import type { OpenCheckoutFn } from './payment/context';
 import { useAuthContext } from './AuthContext';
 import type { Origin } from '../lib/log';
-import { transactionPricesQueryOptions } from '../graphql/njord';
+import { LogEvent, TargetType } from '../lib/log';
+import {
+  getQuantityForPrice,
+  transactionPricesQueryOptions,
+} from '../graphql/njord';
+import { useLogContext } from './LogContext';
 
 const SCREENS = {
   INTRO: 'INTRO',
@@ -79,7 +85,8 @@ export const BuyCoresContextProvider = ({
   amountNeeded,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
-  const { user, geo } = useAuthContext();
+  const { logEvent } = useLogContext();
+  const { user, geo, isLoggedIn } = useAuthContext();
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
     providerTransactionId?: string;
@@ -93,6 +100,21 @@ export const BuyCoresContextProvider = ({
   }>();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = React.useRef(false);
+  const logRef = useRef<typeof logEvent>();
+  logRef.current = logEvent;
+
+  const { data: prices } = useQuery(
+    transactionPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
+
+  const getQuantityForPriceFn = ({ priceId }: { priceId: string }) => {
+    return getQuantityForPrice({ priceId, prices });
+  };
+  const getQuantityForPriceRef = useRef(getQuantityForPriceFn);
+  getQuantityForPriceRef.current = getQuantityForPriceFn;
 
   useEffect(() => {
     if (checkIsExtension()) {
@@ -116,9 +138,47 @@ export const BuyCoresContextProvider = ({
       token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
       eventCallback: (event: PaddleEventData) => {
         switch (event?.name) {
+          case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
+            logRef.current({
+              event_name: LogEvent.InitiatePayment,
+              target_type: TargetType.Credits,
+              target_id: event?.data?.payment.method_details.type,
+            });
+            break;
+          case CheckoutEventNames.CHECKOUT_LOADED:
+            isCheckoutOpenRef.current = true;
+
+            logRef.current({
+              event_name: LogEvent.InitiateCheckout,
+              target_type: TargetType.Credits,
+              target_id: event?.data?.payment.method_details.type,
+            });
+            break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
+            logRef.current({
+              event_name: LogEvent.SelectCheckoutPayment,
+              target_type: TargetType.Credits,
+              target_id: event?.data?.payment.method_details.type,
+            });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
+            logRef.current({
+              event_name: LogEvent.CompleteCheckout,
+              target_type: TargetType.Credits,
+              extra: JSON.stringify({
+                user_id:
+                  'user_id' in event.data.custom_data
+                    ? event.data.custom_data.user_id
+                    : undefined,
+                quantity: getQuantityForPriceRef.current({
+                  priceId: event.data.items[0]?.price_id,
+                }),
+                localCost: event?.data.totals.total,
+                localCurrency: event?.data.currency_code,
+                payment: event?.data.payment.method_details.type,
+              }),
+            });
+
             setActiveStep({
               step: SCREENS.PROCESSING,
               providerTransactionId: event.data.transaction_id,
@@ -127,11 +187,17 @@ export const BuyCoresContextProvider = ({
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
+            logRef.current({
+              event_name: LogEvent.WarningCheckout,
+              target_type: TargetType.Credits,
+            });
+            break;
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            break;
-          case CheckoutEventNames.CHECKOUT_LOADED:
-            isCheckoutOpenRef.current = true;
+            logRef.current({
+              event_name: LogEvent.ErrorCheckout,
+              target_type: TargetType.Credits,
+            });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
             isCheckoutOpenRef.current = false;

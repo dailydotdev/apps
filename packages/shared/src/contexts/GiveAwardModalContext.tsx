@@ -6,7 +6,7 @@ import type { Product } from '../graphql/njord';
 import type { PublicProfile } from '../lib/user';
 import { useLogContext } from './LogContext';
 import { postLogEvent } from '../lib/feed';
-import { LogEvent } from '../lib/log';
+import { LogEvent, Origin } from '../lib/log';
 import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
@@ -142,7 +142,9 @@ export const GiveAwardModalContextProvider = ({
       activeModal,
       setActiveModal: (modal) => {
         if (modal === 'BUY_CORES' && checkIsExtension()) {
-          const searchParams = new URLSearchParams();
+          const searchParams = new URLSearchParams({
+            origin: Origin.Award,
+          });
 
           if (post?.id) {
             searchParams.append('next', `/posts/${post.id}`);

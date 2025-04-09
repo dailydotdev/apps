@@ -32,10 +32,9 @@ export const CoreOptionButton = ({
   const { selectedProduct, setSelectedProduct, openCheckout, origin, paddle } =
     useBuyCoresContext();
   const onSelect = useCallback(() => {
-    // TODO: Amount should be deducted from selected product entity
     logEvent({
       event_name: LogEvent.SelectCreditsQuantity,
-      extra: JSON.stringify({ origin, amount: id }),
+      extra: JSON.stringify({ origin, amount: selectedProduct.value }),
     });
 
     setSelectedProduct({
@@ -46,7 +45,16 @@ export const CoreOptionButton = ({
     if (!isMobile) {
       openCheckout({ priceId: id });
     }
-  }, [logEvent, origin, id, setSelectedProduct, cores, isMobile, openCheckout]);
+  }, [
+    logEvent,
+    origin,
+    id,
+    setSelectedProduct,
+    cores,
+    isMobile,
+    openCheckout,
+    selectedProduct,
+  ]);
   return (
     <Button
       className={classNames(

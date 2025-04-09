@@ -35,6 +35,11 @@ export const BuyCore = ({
   if (pid) {
     params.append('pid', pid);
   }
+
+  if (origin) {
+    params.append('origin', origin);
+  }
+
   const href = getPathnameWithQuery(
     `${webappUrl}cores${isMobile ? '/payment' : ''}`,
     params,

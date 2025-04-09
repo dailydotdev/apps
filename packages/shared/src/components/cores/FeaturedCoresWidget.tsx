@@ -16,6 +16,7 @@ import { WidgetContainer } from '../widgets/common';
 import { BuyCore } from './BuyCore';
 import type { LogStartBuyingCreditsProps } from '../../types';
 import type { Origin } from '../../lib/log';
+import { getPathnameWithQuery } from '../../lib';
 
 export const FeaturedCoresWidget = ({
   className,
@@ -85,7 +86,12 @@ export const FeaturedCoresWidget = ({
         variant={ButtonVariant.Float}
         onClick={() => onClick({ target_id: 'See more options', origin })}
         tag="a"
-        href={`${webappUrl}cores`}
+        href={getPathnameWithQuery(
+          `${webappUrl}cores`,
+          new URLSearchParams({
+            origin,
+          }),
+        )}
       >
         See more options
       </Button>

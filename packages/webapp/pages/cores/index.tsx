@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import {
   BuyCoresContextProvider,
@@ -209,15 +209,29 @@ const CorePageRenderer = ({ children }: { children: ReactNode }): ReactNode => {
   return children;
 };
 
+export const useCoresOriginFromQuery = (): Origin => {
+  const router = useRouter();
+
+  return useMemo(() => {
+    const originFromRouter = router?.query?.origin as Origin;
+
+    if (!Object.values(Origin).includes(originFromRouter)) {
+      return Origin.CoresPage;
+    }
+
+    return originFromRouter;
+  }, [router?.query?.origin]);
+};
+
 const CoresPage = (): ReactElement => {
   const router = useRouter();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const amountNeeded = +router?.query?.need;
+  const eventOrigin = useCoresOriginFromQuery();
 
   return (
-    // TODO: Take correct origin from referrer
     <BuyCoresContextProvider
-      origin={Origin.WalletPageCTA}
+      origin={eventOrigin}
       onCompletion={() => {
         router?.push(
           getRedirectNextPath(new URLSearchParams(window.location.search)),

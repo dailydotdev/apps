@@ -8,6 +8,7 @@ import { PRODUCT_FRAGMENT, TRANSACTION_FRAGMENT } from './fragments';
 import type { Author } from './comments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { getCorePricePreviews } from './paddle';
+import type { ProductOption } from '../contexts/payment/context';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -271,3 +272,13 @@ export const CHECK_CORES_ROLE_QUERY = gql`
     }
   }
 `;
+
+export const getQuantityForPrice = ({
+  priceId,
+  prices,
+}: {
+  priceId: string;
+  prices?: ProductOption[];
+}): number | undefined => {
+  return prices?.find((item) => item.value === priceId)?.coresValue;
+};

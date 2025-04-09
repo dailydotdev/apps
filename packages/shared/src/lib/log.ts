@@ -66,6 +66,7 @@ export enum Origin {
   WalletPageCTA = 'wallet page cta',
   WalletPagePackage = 'wallet page package',
   Award = 'award',
+  CoresPage = 'cores page',
   // End Credits
 }
 
@@ -320,6 +321,7 @@ export enum TargetType {
   // Browsers
   Chrome = 'chrome',
   Edge = 'edge',
+  Credits = 'credits',
 }
 
 export enum TargetId {

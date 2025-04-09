@@ -69,6 +69,7 @@ import { TransactionItem } from '@dailydotdev/shared/src/components/cores/Transa
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useRouter } from 'next/router';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -204,7 +205,12 @@ const Wallet = (): ReactElement => {
               variant={ButtonVariant.Primary}
               onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
               tag="a"
-              href={`${webappUrl}cores`}
+              href={getPathnameWithQuery(
+                `${webappUrl}cores`,
+                new URLSearchParams({
+                  origin: Origin.WalletPageCTA,
+                }),
+              )}
             >
               Buy Cores
             </Button>

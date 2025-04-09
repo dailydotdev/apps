@@ -10,7 +10,11 @@ import type {
 import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
+import {
+  getPathnameWithQuery,
+  largeNumberFormat,
+  ReferralCampaignKey,
+} from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
@@ -22,7 +26,7 @@ import {
 } from '../../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -185,7 +189,14 @@ export function Header({
           <BuyCreditsButton
             className="laptop:hidden"
             onPlusClick={() => {
-              router.push(`${webappUrl}/cores`);
+              router.push(
+                getPathnameWithQuery(
+                  `${webappUrl}/cores`,
+                  new URLSearchParams({
+                    origin: Origin.Profile,
+                  }),
+                ),
+              );
             }}
           />
         )}
