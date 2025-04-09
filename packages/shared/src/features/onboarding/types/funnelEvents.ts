@@ -1,4 +1,4 @@
-import type { FunnelStepTransitionType, NonChapterStep } from './funnel';
+import type { FunnelStepTransitionType, FunnelStep } from './funnel';
 
 export enum FunnelEventName {
   StartFunnel = 'start funnel',
@@ -25,8 +25,8 @@ export type FunnelEvent =
       name: FunnelEventName.TransitionFunnel;
       details: {
         target_type: FunnelStepTransitionType;
-        target_id: NonChapterStep['id'];
-        event_duration: number;
+        target_id: FunnelStep['id'];
+        duration: number;
       };
     }
   | {

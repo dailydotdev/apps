@@ -44,7 +44,7 @@ interface FunnelStepCommon {
 }
 
 export interface FunnelStepChapter extends FunnelStepCommon {
-  steps: Array<NonChapterStep>;
+  steps: Array<FunnelStep>;
 }
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
@@ -145,7 +145,6 @@ export interface FunnelStepSocialProof extends FunnelStepCommon {
 }
 
 export type FunnelStep =
-  | FunnelStepChapter
   | FunnelStepLandingPage
   | FunnelStepFact
   | FunnelStepQuiz
@@ -158,8 +157,6 @@ export type FunnelStep =
   | FunnelStepSocialProof
   | FunnelStepLoading;
 
-export type NonChapterStep = Exclude<FunnelStep, FunnelStepChapter>;
-
 export type FunnelPosition = {
   chapter: number;
   step: number;
@@ -170,5 +167,5 @@ export interface FunnelJSON {
   version: number;
   parameters: FunnelStepParameters;
   entryPoint: FunnelStep['id'];
-  steps: Array<FunnelStep>;
+  chapters: Array<FunnelStepChapter>;
 }

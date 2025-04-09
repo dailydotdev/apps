@@ -9,7 +9,7 @@ import type {
   FunnelStepReadingReminder,
   FunnelStepSignup,
   FunnelStepTagSelection,
-  NonChapterStep,
+  FunnelStep,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
 import { FunnelStepType } from '../types/funnel';
@@ -51,7 +51,7 @@ const stepComponentMap = {
   )) as FC<FunnelStepTagSelection>,
 } as const;
 
-function FunnelStepComponent(props: NonChapterStep) {
+function FunnelStepComponent(props: FunnelStep) {
   const { type } = props;
   const Component = stepComponentMap[type] as FC<typeof props>;
 
@@ -116,9 +116,9 @@ export const FunnelStepper = ({
           showBackButton={back.hasTarget}
           showSkipButton={skip.hasTarget}
         />
-        {funnel.steps.map((chapter: FunnelStepChapter) => (
+        {funnel.chapters.map((chapter: FunnelStepChapter) => (
           <Fragment key={chapter?.id}>
-            {chapter?.steps?.map((funnelStep: NonChapterStep) => (
+            {chapter?.steps?.map((funnelStep: FunnelStep) => (
               <div
                 className={classNames({
                   hidden: step?.id !== funnelStep?.id,

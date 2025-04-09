@@ -1,8 +1,8 @@
 import type { ReactElement, ComponentProps } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import type { NonChapterStep } from '../types/funnel';
 import { FunnelStepType } from '../types/funnel';
+import type { FunnelStep } from '../types/funnel';
 
 export enum FunnelBackgroundVariant {
   Blank = 'blank',
@@ -16,7 +16,7 @@ export enum FunnelBackgroundVariant {
 }
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
-  step: NonChapterStep;
+  step: FunnelStep;
 }
 
 const variantToClassName: Record<FunnelBackgroundVariant, string> = {
@@ -31,7 +31,7 @@ const variantToClassName: Record<FunnelBackgroundVariant, string> = {
   [FunnelBackgroundVariant.Hourglass]: 'bg-gradient-funnel-hourglass',
 };
 
-const getVariantFromStep = (step: NonChapterStep): FunnelBackgroundVariant => {
+const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   if (!step) {
     return FunnelBackgroundVariant.Default;
   }

@@ -128,7 +128,7 @@ export const useFunnelTracking = ({
         details: {
           target_type: event.type,
           target_id: event.to,
-          event_duration: event.timeDuration,
+          duration: event.timeDuration,
         },
       });
     },
