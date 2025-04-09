@@ -38,7 +38,6 @@ describe('FunnelRegistration', () => {
 
   const defaultProps = {
     heading: 'Test Heading',
-    subheading: 'Test Subheading',
     image: 'test-image.jpg',
     imageMobile: 'test-image-mobile.jpg',
     onTransition: mockOnTransition,
@@ -97,7 +96,6 @@ describe('FunnelRegistration', () => {
 
     // Check for the title text
     expect(screen.getByTestId('registgration-heading')).toBeInTheDocument();
-    expect(screen.getByTestId('registration-subheading')).toBeInTheDocument();
     expect(screen.getByTestId('registration-container')).toBeInTheDocument();
 
     // Check for background image
