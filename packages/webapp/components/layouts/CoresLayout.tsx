@@ -15,6 +15,7 @@ import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import type { MainFeedPageProps } from './MainFeedPage';
 
 export default function CoresLayout({
@@ -57,13 +58,13 @@ export default function CoresLayout({
           variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={onBackClick}
-          className="absolute left-4 laptop:relative laptop:left-0"
         >
           {!isMobile ? 'Back' : undefined}
         </Button>
-        <div className="relative flex items-center">
+        <div className="relative flex flex-1 items-center justify-center laptop:justify-start">
           <Logo position={LogoPosition.Relative} />
         </div>
+        {isMobile ? <BuyCreditsButton hideBuyButton /> : undefined}
       </header>
       {children}
     </main>
