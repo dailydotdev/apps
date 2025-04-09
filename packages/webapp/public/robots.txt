@@ -3,3 +3,5 @@ User-agent: *
 Disallow: /join
 Disallow: /error
 Disallow: /callback
+Disallow: /helloworld
+Disallow: /helloworld/

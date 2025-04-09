@@ -1,5 +1,3 @@
-'use client';
-
 import type { FC } from 'react';
 import React from 'react';
 import {
@@ -15,17 +13,24 @@ export const ClientTest: FC = () => {
   const currentStep = funnelBoot?.funnelState?.session?.currentStep;
 
   return (
-    <div className="mt-6 p-4 border border-gray-200 rounded-lg">
-      <h2 className="text-lg font-bold mb-2">Client Component</h2>
-      <p><strong>Client</strong> says user is {user?.id ?? 'not logged'}</p>
-      
+    <div className="border-gray-200 rounded-lg mt-6 border p-4">
+      <h2 className="mb-2 text-lg font-bold">Client Component</h2>
+      <p>
+        <strong>Client</strong> says user is {user?.id ?? 'not logged'}
+      </p>
+
       {funnelBoot?.funnelState && (
         <div className="my-2">
-          <p><strong>Current step (client):</strong> {currentStep || 'None'}</p>
-          <p><strong>Session ID (client):</strong> {funnelBoot.funnelState.session.id}</p>
+          <p>
+            <strong>Current step (client):</strong> {currentStep || 'None'}
+          </p>
+          <p>
+            <strong>Session ID (client):</strong>{' '}
+            {funnelBoot.funnelState.session.id}
+          </p>
         </div>
       )}
-      
+
       <div className="mt-2 flex gap-2">
         <Button
           type="button"
