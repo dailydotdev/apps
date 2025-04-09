@@ -12,6 +12,7 @@ import {
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
+  stepsWithHeader,
 } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
@@ -101,8 +102,6 @@ export const FunnelStepper = ({
     onScroll: trackOnScroll,
   });
 
-  // todo: show/hide the header based on the step type
-
   return (
     <section
       data-testid="funnel-stepper"
@@ -113,6 +112,9 @@ export const FunnelStepper = ({
       <FunnelStepBackground step={step}>
         <Header
           chapters={chapters}
+          className={classNames({
+            hidden: !stepsWithHeader.includes(step.type),
+          })}
           currentChapter={position.chapter}
           currentStep={position.step}
           onBack={back.navigate}

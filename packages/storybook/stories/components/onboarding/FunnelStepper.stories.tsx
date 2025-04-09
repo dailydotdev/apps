@@ -18,6 +18,10 @@ import { Default as FunnelPricing } from './FunnelPricing.stories';
 import {
   FunnelStepPricing,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const meta: Meta<typeof FunnelStepper> = {
   title: 'Components/Onboarding/FunnelStepper',
@@ -33,7 +37,9 @@ const meta: Meta<typeof FunnelStepper> = {
     }),
     (Story) => (
       <Provider>
-        <Story />
+        <QueryClientProvider client={queryClient}>
+          <Story />
+        </QueryClientProvider>
       </Provider>
     ),
   ],
@@ -55,7 +61,7 @@ const sampleFunnel: FunnelJSON = {
     cta: 'Continue',
   },
   entryPoint: 'step1',
-  steps: [
+  chapters: [
     {
       id: 'chapter1',
       parameters: {

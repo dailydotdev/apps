@@ -171,3 +171,5 @@ export interface FunnelJSON {
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelStepChapter>;
 }
+
+export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
