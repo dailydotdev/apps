@@ -24,6 +24,9 @@ jest.mock('../../../lib/auth');
 jest.mock('../../../components/auth/OnboardingRegistrationForm');
 jest.mock('../../../lib/func');
 jest.mock('../../../hooks/useViewSize');
+jest.mock('../shared', () => ({
+  sanitizeMessage: jest.fn().mockImplementation((message) => message),
+}));
 
 describe('FunnelRegistration', () => {
   const mockOnTransition = jest.fn();
