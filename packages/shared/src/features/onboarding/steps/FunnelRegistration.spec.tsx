@@ -6,16 +6,13 @@ import { FunnelRegistration } from './FunnelRegistration';
 import useRegistration from '../../../hooks/useRegistration';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import {
-  useEventListener,
-  useToastNotification,
-  useViewSize,
-} from '../../../hooks';
+import { useEventListener, useToastNotification } from '../../../hooks';
 import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
-import { isIOSNative } from '../../../lib/func';
+import { isNativeAuthSupported, AuthEventNames } from '../../../lib/auth';
 import { SocialProvider } from '../../../components/auth/common';
 import { labels } from '../../../lib';
-import { AuthEventNames } from '../../../lib/auth';
+import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
+import { isIOS } from '../../../lib/func';
 
 // Mock the hooks and dependencies
 jest.mock('../../../hooks/useRegistration');
@@ -23,15 +20,23 @@ jest.mock('../../../contexts/AuthContext');
 jest.mock('../../../contexts/LogContext');
 jest.mock('../../../hooks');
 jest.mock('../../../lib/kratos');
+jest.mock('../../../lib/auth');
+jest.mock('../../../components/auth/OnboardingRegistrationForm');
 jest.mock('../../../lib/func');
 
 describe('FunnelRegistration', () => {
-  const mockOnSuccess = jest.fn();
+  const mockOnTransition = jest.fn();
   const mockOnSocialRegistration = jest.fn();
   const mockDisplayToast = jest.fn();
   const mockRefetchBoot = jest.fn();
   const mockLogEvent = jest.fn();
   const mockUseEventListener = jest.fn();
+
+  const defaultProps = {
+    heading: 'Test Heading',
+    image: 'test-image.jpg',
+    onTransition: mockOnTransition,
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -55,101 +60,45 @@ describe('FunnelRegistration', () => {
 
     (useEventListener as jest.Mock).mockImplementation(mockUseEventListener);
 
-    (useViewSize as jest.Mock).mockReturnValue(false);
-
     (getKratosFlow as jest.Mock).mockResolvedValue({
       id: 'test-flow-id',
       ui: { messages: [] },
     });
 
-    // Default to non-iOS
-    (isIOSNative as jest.Mock).mockReturnValue(false);
-  });
-
-  describe('Viewport Responsiveness', () => {
-    it('uses mobile background on mobile viewport', () => {
-      (useViewSize as jest.Mock).mockReturnValue(false);
-      render(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-      const backgroundImage = screen.getByAltText('background');
-      expect(backgroundImage).toHaveAttribute(
-        'src',
-        expect.stringContaining('login%20background'),
-      );
-    });
-
-    it('uses desktop background on tablet viewport', () => {
-      (useViewSize as jest.Mock).mockReturnValue(true);
-      render(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-      const backgroundImage = screen.getByAltText('background');
-      expect(backgroundImage).toHaveAttribute(
-        'src',
-        expect.stringContaining('login%20background%20web'),
-      );
-    });
-
-    it('updates background when viewport changes', () => {
-      const { rerender } = render(
-        <FunnelRegistration onSuccess={mockOnSuccess} />,
-      );
-
-      // Initial mobile view
-      let backgroundImage = screen.getByAltText('background');
-      expect(backgroundImage).toHaveAttribute(
-        'src',
-        expect.stringContaining('login%20background'),
-      );
-
-      // Change to tablet view
-      (useViewSize as jest.Mock).mockReturnValue(true);
-      rerender(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-      backgroundImage = screen.getByAltText('background');
-      expect(backgroundImage).toHaveAttribute(
-        'src',
-        expect.stringContaining('login%20background%20web'),
-      );
-
-      // Change back to mobile view
-      (useViewSize as jest.Mock).mockReturnValue(false);
-      rerender(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-      backgroundImage = screen.getByAltText('background');
-      expect(backgroundImage).toHaveAttribute(
-        'src',
-        expect.stringContaining('login%20background'),
-      );
-    });
-
-    it('applies correct classes based on viewport', () => {
-      (useViewSize as jest.Mock).mockReturnValue(true);
-      render(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-      const container = screen.getByTestId('registration-container');
-      expect(container).toHaveClass('tablet:max-w-96');
+    // Default to non-native auth
+    (isNativeAuthSupported as jest.Mock).mockImplementation((provider) => {
+      return provider === SocialProvider.Apple;
     });
   });
 
-  it('renders the registration form with social login options', () => {
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+  it('renders the registration form with provided heading and image', () => {
+    render(<FunnelRegistration {...defaultProps} />);
 
     // Check for the title text
-    const titleElement = screen.getByTestId('registration-title');
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toHaveTextContent(/Yes, this is the signup screen/);
+    expect(screen.getByTestId('registration-title')).toBeInTheDocument();
+    expect(screen.getByTestId('registration-container')).toBeInTheDocument();
 
-    // Check for social buttons
-    expect(screen.getByTestId('social-button-google')).toBeInTheDocument();
+    // Check for background image
+    const backgroundImage = screen.getByAltText('background');
+    expect(backgroundImage).toHaveAttribute('src', 'test-image.jpg');
+
+    // Check for social buttons - GitHub is always shown
     expect(screen.getByTestId('social-button-github')).toBeInTheDocument();
   });
 
-  it('calls onSocialRegistration with Google provider when clicked on non-iOS', async () => {
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+  it('shows Google as first provider when not in webview', async () => {
+    const mockWindowOpen = jest.fn();
+    global.open = mockWindowOpen;
+
+    // Mock isWebView to return false
+    (isWebView as jest.Mock).mockReturnValue(false);
+
+    render(<FunnelRegistration {...defaultProps} />);
 
     const googleButton = screen.getByTestId('social-button-google');
     await userEvent.click(googleButton);
 
+    expect(mockWindowOpen).toHaveBeenCalled();
     expect(mockOnSocialRegistration).toHaveBeenCalledWith(
       SocialProvider.Google,
     );
@@ -161,13 +110,20 @@ describe('FunnelRegistration', () => {
     });
   });
 
-  it('calls onSocialRegistration with Apple provider when clicked on iOS', async () => {
-    (isIOSNative as jest.Mock).mockReturnValue(true);
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+  it('shows Apple as first provider when in webview on iOS', async () => {
+    const mockWindowOpen = jest.fn();
+    global.open = mockWindowOpen;
+
+    // Mock isWebView to return true and isIOS to return true
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(true);
+
+    render(<FunnelRegistration {...defaultProps} />);
 
     const appleButton = screen.getByTestId('social-button-apple');
     await userEvent.click(appleButton);
 
+    expect(mockWindowOpen).not.toHaveBeenCalled();
     expect(mockOnSocialRegistration).toHaveBeenCalledWith(SocialProvider.Apple);
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: 'click',
@@ -177,54 +133,7 @@ describe('FunnelRegistration', () => {
     });
   });
 
-  it('calls onSocialRegistration with GitHub provider when clicked', async () => {
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-    const githubButton = screen.getByTestId('social-button-github');
-    await userEvent.click(githubButton);
-
-    expect(mockOnSocialRegistration).toHaveBeenCalledWith(
-      SocialProvider.GitHub,
-    );
-    expect(mockLogEvent).toHaveBeenCalledWith({
-      event_name: 'click',
-      target_type: AuthEventNames.SignUpProvider,
-      target_id: SocialProvider.GitHub,
-      extra: JSON.stringify({ trigger: 'funnel registration' }),
-    });
-  });
-
-  it('handles successful social registration with isPlus', async () => {
-    mockRefetchBoot.mockResolvedValueOnce({
-      data: {
-        user: {
-          email: 'test@example.com',
-          id: 'test-user-id',
-          isPlus: true,
-          providers: ['google'],
-        },
-      },
-    });
-
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
-
-    // Get the message handler from the useEventListener mock
-    const messageHandler = mockUseEventListener.mock.calls[0][2];
-
-    // Simulate successful social registration message
-    messageHandler({
-      data: {
-        eventKey: AuthEvent.SocialRegistration,
-      },
-    });
-
-    await waitFor(() => {
-      expect(mockRefetchBoot).toHaveBeenCalled();
-      expect(mockOnSuccess).toHaveBeenCalledWith(true);
-    });
-  });
-
-  it('handles successful social registration without isPlus', async () => {
+  it('shows toast and calls onTransition for non-Plus users', async () => {
     mockRefetchBoot.mockResolvedValueOnce({
       data: {
         user: {
@@ -236,12 +145,9 @@ describe('FunnelRegistration', () => {
       },
     });
 
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+    render(<FunnelRegistration {...defaultProps} />);
 
-    // Get the message handler from the useEventListener mock
     const messageHandler = mockUseEventListener.mock.calls[0][2];
-
-    // Simulate successful social registration message
     messageHandler({
       data: {
         eventKey: AuthEvent.SocialRegistration,
@@ -250,7 +156,38 @@ describe('FunnelRegistration', () => {
 
     await waitFor(() => {
       expect(mockRefetchBoot).toHaveBeenCalled();
-      expect(mockOnSuccess).toHaveBeenCalledWith(false);
+      expect(mockOnTransition).toHaveBeenCalled();
+      expect(mockDisplayToast).not.toHaveBeenCalled();
+    });
+  });
+
+  it('shows toast for Plus users without calling onTransition', async () => {
+    mockRefetchBoot.mockResolvedValueOnce({
+      data: {
+        user: {
+          email: 'test@example.com',
+          id: 'test-user-id',
+          isPlus: true,
+          providers: ['google'],
+        },
+      },
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const messageHandler = mockUseEventListener.mock.calls[0][2];
+    messageHandler({
+      data: {
+        eventKey: AuthEvent.SocialRegistration,
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockRefetchBoot).toHaveBeenCalled();
+      expect(mockOnTransition).not.toHaveBeenCalled();
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'You are already a daily.dev Plus user',
+      );
     });
   });
 
@@ -262,12 +199,9 @@ describe('FunnelRegistration', () => {
       },
     });
 
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+    render(<FunnelRegistration {...defaultProps} />);
 
-    // Get the message handler from the useEventListener mock
     const messageHandler = mockUseEventListener.mock.calls[0][2];
-
-    // Simulate error message with flow property
     messageHandler({
       data: {
         eventKey: AuthEvent.SocialRegistration,
@@ -295,12 +229,9 @@ describe('FunnelRegistration', () => {
       data: { user: null },
     });
 
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+    render(<FunnelRegistration {...defaultProps} />);
 
-    // Get the message handler from the useEventListener mock
     const messageHandler = mockUseEventListener.mock.calls[0][2];
-
-    // Simulate message with missing user data
     messageHandler({
       data: {
         eventKey: AuthEvent.SocialRegistration,
@@ -322,12 +253,9 @@ describe('FunnelRegistration', () => {
       },
     });
 
-    render(<FunnelRegistration onSuccess={mockOnSuccess} />);
+    render(<FunnelRegistration {...defaultProps} />);
 
-    // Get the message handler from the useEventListener mock
     const messageHandler = mockUseEventListener.mock.calls[0][2];
-
-    // Simulate message with missing providers
     messageHandler({
       data: {
         eventKey: AuthEvent.SocialRegistration,

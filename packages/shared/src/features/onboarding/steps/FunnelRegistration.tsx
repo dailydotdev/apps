@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useRef } from 'react';
+import { useRouter } from 'next/router';
 import {
   Typography,
   TypographyType,
@@ -21,9 +22,11 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
+import type { FunnelStepTransitionCallback } from '../types/funnel';
+import { FunnelStepTransitionType } from '../types/funnel';
 
 interface FunnelRegistrationProps {
-  onTransition?: () => void;
+  onTransition?: FunnelStepTransitionCallback<void>;
   heading: ReactNode;
   image: string;
 }
@@ -36,6 +39,7 @@ const useRegistrationListeners = (
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
   const { logEvent } = useLogContext();
+  const router = useRouter();
 
   const onProviderMessage = async (e: MessageEvent) => {
     const isEventSupported = supportedEvents.includes(e.data?.eventKey);
@@ -81,10 +85,11 @@ const useRegistrationListeners = (
     const isPlus = (bootResponse?.data?.user as LoggedUser)?.isPlus;
 
     if (isPlus) {
-      return displayToast('You are already a daily.dev Plus user');
+      displayToast('You are already a daily.dev Plus user');
+      return router.push('/');
     }
 
-    return onTransition();
+    return onTransition({ type: FunnelStepTransitionType.Complete });
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);
@@ -132,7 +137,10 @@ export function FunnelRegistration({
         className="z-1 mt-auto flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-96"
         data-testid="registration-container"
       >
-        <Logo position={LogoPosition.Relative} />
+        <Logo
+          position={LogoPosition.Relative}
+          data-testid="registration-logo"
+        />
 
         <Typography
           type={TypographyType.Title3}
