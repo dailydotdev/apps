@@ -5,7 +5,7 @@ import {
   Typography,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { SocialRegistration } from '../../common/components/SocialRegistration';
+import { SocialRegistration } from '../shared/SocialRegistration';
 import type { SocialProvider } from '../../../components/auth/common';
 import useRegistration from '../../../hooks/useRegistration';
 import {
@@ -34,7 +34,6 @@ import { sanitizeMessage } from '../shared';
 interface FunnelRegistrationProps {
   onTransition?: FunnelStepTransitionCallback<void>;
   heading: string;
-  subheading: string;
   imageMobile: string;
   image: string;
 }
@@ -107,7 +106,6 @@ const useRegistrationListeners = (
 
 export function FunnelRegistration({
   heading,
-  subheading,
   image,
   imageMobile,
   onTransition,
@@ -135,10 +133,6 @@ export function FunnelRegistration({
   useRegistrationListeners(onTransition);
 
   const sanitizedHeading = useMemo(() => sanitizeMessage(heading), [heading]);
-  const sanitizedSubheading = useMemo(
-    () => sanitizeMessage(subheading),
-    [subheading],
-  );
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
@@ -164,13 +158,6 @@ export function FunnelRegistration({
           className="text-center"
           dangerouslySetInnerHTML={{ __html: sanitizedHeading }}
           data-testid="registgration-heading"
-        />
-        <Typography
-          bold
-          type={TypographyType.Title2}
-          className="text-center"
-          dangerouslySetInnerHTML={{ __html: sanitizedSubheading }}
-          data-testid="registration-subheading"
         />
         <SocialRegistration onClick={onRegister} />
       </div>
