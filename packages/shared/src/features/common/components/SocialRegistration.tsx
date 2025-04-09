@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ButtonProps } from '../../../components/buttons/Button';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
-import { isIOSNative } from '../../../lib/func';
+import { isIOS } from '../../../lib/func';
 import { providerMap, SocialProvider } from '../../../components/auth/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { AuthEventNames } from '../../../lib/auth';
@@ -14,6 +14,7 @@ import {
 } from '../../../components/typography/Typography';
 import { cookiePolicy, termsOfService } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
 
 interface MobileSocialRegistrationProps {
   onClick: (provider: SocialProvider) => void;
@@ -27,10 +28,20 @@ export function SocialRegistration({
   isDisabled,
 }: MobileSocialRegistrationProps): ReactElement {
   const { logEvent } = useLogContext();
-  const isIosNative = isIOSNative();
-  const firstProvider = isIosNative
-    ? SocialProvider.Apple
-    : SocialProvider.Google;
+  const confirmedIOS = isIOS();
+  const firstProvider = (() => {
+    const inAppBrowser = isWebView();
+
+    if (!inAppBrowser) {
+      return SocialProvider.Google;
+    }
+
+    if (confirmedIOS) {
+      return SocialProvider.Apple;
+    }
+
+    return SocialProvider.Facebook;
+  })();
 
   const handleClick = (provider: SocialProvider) => {
     logEvent({

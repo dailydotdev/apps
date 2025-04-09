@@ -41,7 +41,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   onboardingSignupButton?: ButtonProps<'button'>;
 }
 
-const isWebView = () => {
+export const isWebView = (): boolean => {
   const { userAgent } = navigator;
 
   // Define patterns for detecting in-app browsers and devices
