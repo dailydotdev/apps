@@ -7,6 +7,8 @@ import type {
   Review,
   PricingPlansProps,
 } from '../shared';
+import { CheckboxGroupVariant } from '../../common/components/FormInputCheckboxGroup';
+import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -32,7 +34,13 @@ export const COMPLETED_STEP_ID = 'FINISH' as const;
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-type FunnelStepParameters = Record<string, string>;
+type FunnelStepParameters<
+  Params extends {
+    [p: string]: unknown;
+  } = Record<string, unknown>,
+> = {
+  [key in keyof Params]: Params[key];
+} & { [p: string]: unknown };
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
@@ -45,7 +53,7 @@ interface FunnelStepCommon {
   transitions: FunnelStepTransition[];
 }
 
-export interface FunnelStepChapter extends FunnelStepCommon {
+export interface FunnelChapter extends FunnelStepCommon {
   steps: Array<FunnelStep>;
 }
 
@@ -70,8 +78,7 @@ export enum FunnelStepQuizQuestionType {
   Rating = 'rating',
 }
 
-export interface FunnelStepQuizQuestion {
-  type: FunnelStepQuizQuestionType;
+export type FunnelStepQuizQuestion = {
   text: string;
   placeholder?: string;
   options: Array<{
@@ -80,13 +87,26 @@ export interface FunnelStepQuizQuestion {
     image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
-}
+} & (
+  | ({
+      type:
+        | FunnelStepQuizQuestionType.Checkbox
+        | FunnelStepQuizQuestionType.Radio;
+    } & Pick<FormInputCheckboxGroupProps, 'variant' | 'cols'>)
+  | { type: FunnelStepQuizQuestionType.Rating }
+);
+
+export const funnelQuizLayout = CheckboxGroupVariant;
+export type FunnelStepQuizLayout = typeof funnelQuizLayout;
 
 export interface FunnelStepQuiz extends FunnelStepCommon {
   type: FunnelStepType.Quiz;
-  question: FunnelStepQuizQuestion;
-  explainer: string;
   onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
+  parameters: FunnelStepParameters<{
+    question: FunnelStepQuizQuestion;
+    explainer?: string;
+    layout?: FunnelStepQuizLayout;
+  }>;
 }
 
 export interface FunnelStepSignup extends FunnelStepCommon {
@@ -169,7 +189,7 @@ export interface FunnelJSON {
   version: number;
   parameters: FunnelStepParameters;
   entryPoint: FunnelStep['id'];
-  chapters: Array<FunnelStepChapter>;
+  chapters: Array<FunnelChapter>;
 }
 
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];

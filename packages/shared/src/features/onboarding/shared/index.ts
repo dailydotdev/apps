@@ -11,3 +11,4 @@ export * from './FunnelStepCtaWrapper';
 export * from './CookieConsent';
 export * from './ImageReview';
 export * from './Stars';
+export * from './utils';

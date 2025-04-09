@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import type {
   FunnelJSON,
-  FunnelStepChapter,
+  FunnelChapter,
   FunnelStep,
   FunnelStepTransitionCallback,
   FunnelStepTransition,
@@ -129,7 +129,7 @@ export const FunnelStepper = ({
           showBackButton={back.hasTarget}
           showSkipButton={skip.hasTarget}
         />
-        {funnel.chapters.map((chapter: FunnelStepChapter) => (
+        {funnel.chapters.map((chapter: FunnelChapter) => (
           <Fragment key={chapter?.id}>
             {chapter?.steps?.map((funnelStep: FunnelStep) => (
               <div
