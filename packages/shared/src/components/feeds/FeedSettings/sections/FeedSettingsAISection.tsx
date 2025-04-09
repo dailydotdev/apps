@@ -11,7 +11,7 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { SidebarSettingsFlags } from '../../../../graphql/settings';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import { useLanguage } from '../../../../hooks/useLanguage';
-import { webappUrl } from '../../../../lib/constants';
+import { plusUrl } from '../../../../lib/constants';
 import { LogEvent, TargetId, Origin } from '../../../../lib/log';
 import { Button } from '../../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../../buttons/common';
@@ -31,6 +31,7 @@ import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
+import Link from '../../../utilities/Link';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -152,23 +153,24 @@ export const FeedSettingsAISection = (): ReactElement => {
           </Switch>
         </ConditionalWrapper>
         {!isPlus && (
-          <Button
-            className="w-fit"
-            tag="a"
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            href={`${webappUrl}plus`}
-            icon={<DevPlusIcon className="text-action-plus-default" />}
-            onClick={() => {
-              logSubscriptionEvent({
-                event_name: LogEvent.UpgradeSubscription,
-                target_id: TargetId.ClickbaitShield,
-              });
-            }}
-          >
-            {plusCta}
-          </Button>
+          <Link href={plusUrl} passHref>
+            <Button
+              className="w-fit"
+              tag="a"
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              icon={<DevPlusIcon className="text-action-plus-default" />}
+              onClick={() => {
+                logSubscriptionEvent({
+                  event_name: LogEvent.UpgradeSubscription,
+                  target_id: TargetId.ClickbaitShield,
+                });
+              }}
+            >
+              {plusCta}
+            </Button>
+          </Link>
         )}
       </section>
       <Divider className="bg-border-subtlest-tertiary" />

@@ -187,6 +187,11 @@ body {
   --theme-actions-help-float: color-mix(in srgb, var(--theme-actions-help-default), transparent 92%);
   --theme-actions-help-hover: color-mix(in srgb, var(--theme-actions-help-default), transparent 88%);
   --theme-actions-help-active: color-mix(in srgb, var(--theme-actions-help-default), transparent 84%);
+  /* Cores */
+  --theme-actions-cores-default: var(--theme-accent-cheese-default);
+  --theme-actions-cores-float: color-mix(in srgb, var(--theme-actions-cores-default), transparent 92%);
+  --theme-actions-cores-hover: color-mix(in srgb, var(--theme-actions-cores-default), transparent 88%);
+  --theme-actions-cores-active: color-mix(in srgb, var(--theme-actions-cores-default), transparent 84%);
 
 
   /* Overlay */
@@ -454,6 +459,11 @@ body {
   --theme-actions-help-float: color-mix(in srgb, var(--theme-actions-help-default), transparent 92%);
   --theme-actions-help-hover: color-mix(in srgb, var(--theme-actions-help-default), transparent 88%);
   --theme-actions-help-active: color-mix(in srgb, var(--theme-actions-help-default), transparent 84%);
+  /* Cores */
+  --theme-actions-cores-default: var(--theme-accent-cheese-default);
+  --theme-actions-cores-float: color-mix(in srgb, var(--theme-actions-cores-default), transparent 92%);
+  --theme-actions-cores-hover: color-mix(in srgb, var(--theme-actions-cores-default), transparent 88%);
+  --theme-actions-cores-active: color-mix(in srgb, var(--theme-actions-cores-default), transparent 84%);
 
   /* Overlay */
   --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
@@ -805,6 +815,11 @@ details.right-icon {
 
 .hide-ms-reveal::-ms-reveal {
   display: none;
+}
+
+meter::-webkit-meter-bar {
+  background: transparent;
+  border: 0;
 }
 
 .bg-gradient-funnel {

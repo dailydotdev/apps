@@ -14,6 +14,7 @@ import {
   DevCardIcon,
   ReadingStreakIcon,
   TimerIcon,
+  CoreIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -53,6 +54,7 @@ export enum NotificationType {
   SquadPublicApproved = 'squad_public_approved',
   UserPostAdded = 'user_post_added',
   UserTopReaderBadge = 'user_given_top_reader',
+  UserReceivedAward = 'user_received_award',
 }
 
 export enum NotificationIconType {
@@ -70,6 +72,7 @@ export enum NotificationIconType {
   Streak = 'Streak',
   TopReaderBadge = 'TopReaderBadge',
   Timer = 'Timer',
+  Core = 'Core',
 }
 
 export const notificationIcon: Record<
@@ -90,7 +93,12 @@ export const notificationIcon: Record<
   [NotificationIconType.Streak]: ReadingStreakIcon,
   [NotificationIconType.TopReaderBadge]: BellIcon,
   [NotificationIconType.Timer]: TimerIcon,
+  [NotificationIconType.Core]: CoreIcon,
 };
+
+export const notificationIconAsPrimary: NotificationIconType[] = [
+  NotificationIconType.Core,
+];
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.DailyDev]: '',
@@ -107,6 +115,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Streak]: '',
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
   [NotificationIconType.Timer]: 'text-brand-default',
+  [NotificationIconType.Core]: '',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -124,6 +133,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.SquadPublicApproved]: 'text-brand-default',
     [NotificationType.UserPostAdded]: 'text-brand-default',
     [NotificationType.UserTopReaderBadge]: 'text-brand-default',
+    [NotificationType.UserReceivedAward]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;
