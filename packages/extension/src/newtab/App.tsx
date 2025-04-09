@@ -30,6 +30,7 @@ import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -73,6 +74,8 @@ function InternalApp(): ReactElement {
   }, [isPageReady, routeChangedCallbackRef, currentPage]);
 
   const { dismissToast } = useToastNotification();
+
+  useCheckCoresRole();
 
   const onPageChanged = useCallback(
     (page: string): void => {
