@@ -71,7 +71,7 @@ export const FunnelStepper = ({
     trackOnHoverCapture,
     trackOnNavigate,
     trackOnScroll,
-  } = useFunnelTracking({ funnel });
+  } = useFunnelTracking({ funnel, sessionId });
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
   const { transition: sendTransition } = useStepTransition(sessionId);

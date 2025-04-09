@@ -27,6 +27,7 @@ export type TrackOnNavigate = (event: {
 
 interface UseFunnelTrackingProps {
   funnel: FunnelJSON;
+  sessionId: string;
 }
 
 interface UseFunnelTrackingReturn {
@@ -73,6 +74,7 @@ const trackOnMouseCapture = ({
 
 export const useFunnelTracking = ({
   funnel,
+  sessionId = '',
 }: UseFunnelTrackingProps): UseFunnelTrackingReturn => {
   const { logEvent } = useLogContext();
   const position = useAtomValue(funnelPositionAtom);
@@ -86,7 +88,7 @@ export const useFunnelTracking = ({
       const commonTrackingProps = {
         funnel_id: funnel.id,
         funnel_version: funnel.version,
-        session_id: '', // todo: implement sessionId
+        session_id: sessionId,
         step_id: step?.id,
         step_type: step?.type,
       };
