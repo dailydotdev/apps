@@ -110,7 +110,7 @@ export const useFunnelTracking = ({
   });
 
   const trackOnHoverCapture: TrackOnMouseCapture = trackOnMouseCapture({
-    selector: '[data-track-hover]',
+    selector: '[data-funnel-track]',
     eventName: FunnelEventName.HoverFunnelElement,
     trackFunnelEvent,
   });
