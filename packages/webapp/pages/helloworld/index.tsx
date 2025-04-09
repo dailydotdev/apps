@@ -8,65 +8,18 @@ import {
   dehydrate,
   QueryClient,
 } from '@tanstack/react-query';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {
   FUNNEL_BOOT_QUERY_KEY,
   useFunnelBoot,
 } from '@dailydotdev/shared/src/features/onboarding/hooks/useFunnelBoot';
-import type {
-  FunnelBootData,
-  FunnelBootResponse,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnelBoot';
+import type { FunnelBootData } from '@dailydotdev/shared/src/features/onboarding/types/funnelBoot';
 import {
   AppAuthActionsKeys,
   useAppAuth,
 } from '@dailydotdev/shared/src/features/common/hooks/useAppAuth';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-
-async function getFunnelBootData({
-  app,
-  cookies,
-  id,
-  version,
-}: {
-  app: string;
-  cookies: string;
-  id?: string;
-  version?: string;
-}): Promise<FunnelBootResponse> {
-  const params = new URLSearchParams();
-  if (id) {
-    params.append('id', id);
-  }
-  if (version) {
-    params.append('v', version);
-  }
-
-  const paramString = params.toString();
-  const url = `${apiUrl}/boot/funnel${paramString ? `?${paramString}` : ''}`;
-
-  const res = await fetch(url, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      app,
-      'Content-Type': 'application/json',
-      ...(cookies && { Cookie: cookies }),
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch funnel boot data: ${res.status}`);
-  }
-
-  const data = await res.json();
-
-  return {
-    data,
-    response: res,
-  };
-}
+import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 
 type PageProps = {
   boot: FunnelBootData;

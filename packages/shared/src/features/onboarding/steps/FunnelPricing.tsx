@@ -63,7 +63,7 @@ const PricingSection = ({
         className="w-full"
         onClick={onProceedToCheckout}
       >
-        {cta}
+        {cta || 'Proceed to checkout →'}
       </Button>
     </div>
   );

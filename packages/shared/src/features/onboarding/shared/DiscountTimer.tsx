@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import createDOMPurify from 'dompurify';
 import { addMinutes } from 'date-fns';
 import useTimer from '../../../hooks/useTimer';
+import { sanitizeMessage } from './utils';
 
 /**
  * Formats seconds to MM:SS format
@@ -36,24 +36,6 @@ const calculateTimeLeft = (
   const now = new Date();
   const endTime = addMinutes(startDate, durationInMinutes);
   return Math.max(0, Math.floor((endTime.getTime() - now.getTime()) / 1000));
-};
-
-/**
- * Sanitizes HTML string and allows only bold tags
- */
-const sanitizeMessage = (message: string): string => {
-  // Only run on client-side
-  if (typeof window === 'undefined') {
-    return message;
-  }
-
-  const purify = createDOMPurify(window);
-
-  // Configure DOMPurify to only allow <b> and <strong> tags
-  return purify.sanitize(message, {
-    ALLOWED_TAGS: ['b', 'strong'],
-    ALLOWED_ATTR: [],
-  });
 };
 
 export function DiscountTimer({
