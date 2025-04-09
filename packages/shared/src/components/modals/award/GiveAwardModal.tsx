@@ -111,7 +111,12 @@ const IntroScreen = () => {
 
   return (
     <>
-      <Modal.Header title={' '} showCloseButton={!isMobile}>
+      <Modal.Header
+        showCloseButton={!isMobile}
+        className={classNames(
+          isMobile ? 'flex-row-reverse justify-between' : undefined,
+        )}
+      >
         <BuyCreditsButton onPlusClick={onBuyCores} />
         {isMobile ? (
           <Button

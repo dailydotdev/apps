@@ -405,8 +405,8 @@ const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
       {...props}
     >
       <Modal.Header
-        title="Get more Cores"
-        className="mr-auto flex-row-reverse justify-end gap-4"
+        title={!isMobile ? 'Get More Cores' : undefined}
+        className="mr-auto flex-row-reverse justify-between gap-4 laptop:justify-end"
         showCloseButton={!isMobile}
       >
         <BuyCreditsButton
