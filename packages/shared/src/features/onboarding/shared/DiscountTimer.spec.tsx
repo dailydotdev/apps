@@ -22,6 +22,7 @@ describe('DiscountTimer component', () => {
         discountMessage="Special offer ends in"
         durationInMinutes={5}
         startDate={initialDate}
+        isActive
       />,
     );
 
@@ -36,6 +37,7 @@ describe('DiscountTimer component', () => {
       <DiscountTimer
         discountMessage="<b>Limited</b> time <script>alert('test')</script> offer"
         durationInMinutes={5}
+        isActive
       />,
     );
 
@@ -50,6 +52,7 @@ describe('DiscountTimer component', () => {
         discountMessage="Offer ends soon"
         durationInMinutes={5}
         startDate={initialDate}
+        isActive
       />,
     );
 
@@ -72,11 +75,33 @@ describe('DiscountTimer component', () => {
         durationInMinutes={1}
         startDate={initialDate}
         onTimerEnd={mockOnTimerEnd}
+        isActive
       />,
     );
 
     expect(mockOnTimerEnd).not.toHaveBeenCalled();
     dateMock.advanceTimeByMinutes(2);
     expect(mockOnTimerEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not start timer when isActive is false', () => {
+    const mockOnTimerEnd = jest.fn();
+
+    render(
+      <DiscountTimer
+        discountMessage="Timer paused"
+        durationInMinutes={5}
+        startDate={initialDate}
+        onTimerEnd={mockOnTimerEnd}
+        isActive={false}
+      />,
+    );
+
+    expect(screen.getByTestId('timer-display')).toHaveTextContent('00:00');
+
+    // Advance time but the timer should not trigger onTimerEnd
+    dateMock.advanceTimeByMinutes(6);
+    expect(mockOnTimerEnd).not.toHaveBeenCalled();
+    expect(screen.getByTestId('timer-display')).toHaveTextContent('00:00');
   });
 });

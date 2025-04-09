@@ -83,6 +83,7 @@ export const FunnelPricing = ({
   refund,
   faq,
   onTransition,
+  isActive,
 }: FunnelStepPricing): ReactElement => {
   const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
   const [applyDiscount, setApplyDiscount] = useState(true);
@@ -110,6 +111,7 @@ export const FunnelPricing = ({
         durationInMinutes={discount.duration}
         startDate={discount.startDate}
         onTimerEnd={() => setApplyDiscount(false)}
+        isActive={isActive}
       />
       <FunnelStepBackground variant={FunnelBackgroundVariant.Default}>
         <div className="flex flex-col gap-4 p-6">

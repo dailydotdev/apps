@@ -76,6 +76,7 @@ const defaultProps: FunnelStepPricing = {
     items: [],
   },
   onTransition: mockOnTransition,
+  isActive: true,
 };
 
 const renderComponent = (props = {}) => {
