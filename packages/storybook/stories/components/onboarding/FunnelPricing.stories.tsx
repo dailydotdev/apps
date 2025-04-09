@@ -30,6 +30,7 @@ const commonProps = {
   parameters: {},
   transitions: [],
   onTransition: fn(),
+  isActive: true,
 };
 
 export const Default: Story = {
