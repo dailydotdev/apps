@@ -11,6 +11,7 @@ import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 
 import { CoreFAQ } from '@dailydotdev/shared/src/components/cores/CoreFAQ';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
+import type { CoreOptionsProps } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import {
   BuyCoresCheckout,
   CoreOptions,
@@ -86,7 +87,7 @@ export const PageCoreOptions = ({
     </Typography>
   ),
   className,
-}: CoreOptions): ReactElement => {
+}: CoreOptionsProps): ReactElement => {
   return (
     <CoreOptions
       className={classNames('p-6', className)}

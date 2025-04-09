@@ -46,15 +46,16 @@ import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
 
+export type CoreOptionsProps = {
+  className?: string;
+  title?: ReactNode;
+  showCoresAtCheckout?: boolean;
+};
 export const CoreOptions = ({
   className,
   title,
   showCoresAtCheckout,
-}: {
-  className?: string;
-  title?: ReactNode;
-  showCoresAtCheckout?: boolean;
-}): ReactElement => {
+}: CoreOptionsProps): ReactElement => {
   return (
     <div className={classNames('flex-1', className)}>
       {title}
