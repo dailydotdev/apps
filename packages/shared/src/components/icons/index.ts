@@ -60,6 +60,7 @@ export * from './Minus';
 export * from './Clear';
 export * from './JetBrains';
 export * from './Key';
+export * from './Label';
 export * from './Layout';
 export * from './Line';
 export * from './Link';

@@ -130,6 +130,11 @@ export const featureOnboardingReorder = new Feature(
   false,
 );
 
+export const featureOnboardingPlusFeatureGrid = new Feature(
+  'onboarding_plus_feature_grid',
+  false,
+);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);

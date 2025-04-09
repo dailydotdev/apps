@@ -23,8 +23,17 @@ export interface PlusItem {
   label: string;
   status: PlusItemStatus;
   tooltip?: string;
-  icon?: FC<IconProps>;
   typographyProps?: TypographyProps<TypographyTag.P>;
+  id?: string;
+  icon?: ReactElement;
+  iconClasses?: string;
+  modalProps?: {
+    title: string;
+    description: string;
+    imageUrl?: string;
+    videoUrl?: string;
+    mediaType?: 'image' | 'video';
+  };
 }
 
 export interface PlusListItemProps {
@@ -33,6 +42,7 @@ export interface PlusListItemProps {
   icon?: FC<IconProps>;
   iconProps?: IconProps;
   badgeProps?: TypographyProps<TypographyTag.Span>;
+  onHover?: () => void;
 }
 
 export const PlusListItem = ({
@@ -41,6 +51,7 @@ export const PlusListItem = ({
   icon: Icon = VIcon,
   item,
   typographyProps,
+  onHover,
 }: PlusListItemProps): ReactElement => {
   return (
     <ConditionalWrapper
@@ -63,6 +74,7 @@ export const PlusListItem = ({
           '-mx-1 flex gap-1 rounded-6 p-1',
           !!item.tooltip && 'hover:bg-surface-float',
         )}
+        onMouseEnter={onHover}
       >
         {Icon && (
           <Icon

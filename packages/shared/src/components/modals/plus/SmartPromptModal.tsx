@@ -11,11 +11,12 @@ import {
 } from '../../typography/Typography';
 import { PlusUser } from '../../PlusUser';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { webappUrl } from '../../../lib/constants';
+import { plusUrl } from '../../../lib/constants';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import Link from '../../utilities/Link';
 
 export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -48,21 +49,22 @@ export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
           insights, refine content, or run custom instructions to get more out
           of every post in one click.
         </Typography>
-        <Button
-          tag="a"
-          type="button"
-          variant={ButtonVariant.Primary}
-          href={`${webappUrl}plus`}
-          icon={<DevPlusIcon className="text-action-plus-default" />}
-          onClick={async () => {
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.SmartPrompt,
-            });
-          }}
-        >
-          {plusCta}
-        </Button>
+        <Link href={plusUrl} passHref>
+          <Button
+            tag="a"
+            type="button"
+            variant={ButtonVariant.Primary}
+            icon={<DevPlusIcon className="text-action-plus-default" />}
+            onClick={async () => {
+              logSubscriptionEvent({
+                event_name: LogEvent.UpgradeSubscription,
+                target_id: TargetId.SmartPrompt,
+              });
+            }}
+          >
+            {plusCta}
+          </Button>
+        </Link>
       </div>
     </Modal>
   );
