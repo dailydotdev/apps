@@ -79,6 +79,7 @@ export const FeedSettingsAISection = (): ReactElement => {
           <Divider className="bg-border-subtlest-tertiary" />
         </>
       )}
+
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
           <Typography
@@ -111,7 +112,9 @@ export const FeedSettingsAISection = (): ReactElement => {
           icon={null}
         />
       </section>
+
       <Divider className="bg-border-subtlest-tertiary" />
+
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
           <div className="mb-1 flex items-center gap-2">
@@ -201,7 +204,9 @@ export const FeedSettingsAISection = (): ReactElement => {
           </Link>
         )}
       </section>
+
       <Divider className="bg-border-subtlest-tertiary" />
+
       <SmartPrompts />
     </>
   );
