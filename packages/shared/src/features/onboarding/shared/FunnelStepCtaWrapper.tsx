@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { ButtonProps } from '../../../components/buttons/Button';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
   cta?: {
@@ -22,8 +23,9 @@ export function FunnelStepCtaWrapper({
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
       <div className="sticky bottom-2 m-4">
         <Button
-          type="button"
           className="w-full"
+          data-funnel-track={FunnelTargetId.StepCta}
+          type="button"
           variant={ButtonVariant.Primary}
           {...props}
         >

@@ -2,10 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
-import {
-  FunnelBackgroundVariant,
-  FunnelStepBackground,
-} from '../shared/FunnelStepBackground';
+
 import StepHeadline from '../shared/StepHeadline';
 import type { FunnelStepLoading } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -142,53 +139,47 @@ const FunnelLoading = ({
   };
 
   return (
-    <FunnelStepBackground variant={FunnelBackgroundVariant.Hourglass}>
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
-        <div className="relative">
-          <svg
-            className="size-48"
-            viewBox="0 0 196 196"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Background circle */}
-            <circle
-              cx="98"
-              cy="98"
-              r="90"
-              className="stroke-overlay-primary-pepper"
-              strokeOpacity="0.32"
-              strokeWidth="14.4"
-            />
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
+      <div className="relative">
+        <svg
+          className="size-48"
+          viewBox="0 0 196 196"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Background circle */}
+          <circle
+            cx="98"
+            cy="98"
+            r="90"
+            className="stroke-overlay-primary-pepper"
+            strokeOpacity="0.32"
+            strokeWidth="14.4"
+          />
 
-            {/* Progress circle drawing using path */}
-            <path
-              d={getProgressArcPath(percentage)}
-              className="stroke-text-primary"
-              strokeWidth="14.4"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Mega1}
-              bold
-            >
-              {percentage}%
-            </Typography>
-          </div>
+          {/* Progress circle drawing using path */}
+          <path
+            d={getProgressArcPath(percentage)}
+            className="stroke-text-primary"
+            strokeWidth="14.4"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Typography tag={TypographyTag.Span} type={TypographyType.Mega1} bold>
+            {percentage}%
+          </Typography>
         </div>
-        <StepHeadline
-          heading={parameters?.headline || 'Lining up your next move...'}
-          description={
-            parameters?.explainer ||
-            "Based on everything you shared, we're lining up insights that match where you're headed. Give us a sec."
-          }
-        />
       </div>
-    </FunnelStepBackground>
+      <StepHeadline
+        heading={parameters?.headline || 'Lining up your next move...'}
+        description={
+          parameters?.explainer ||
+          "Based on everything you shared, we're lining up insights that match where you're headed. Give us a sec."
+        }
+      />
+    </div>
   );
 };
 

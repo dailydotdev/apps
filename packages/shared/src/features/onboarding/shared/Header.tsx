@@ -11,6 +11,7 @@ import { MoveToIcon } from '../../../components/icons';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { ProgressBar } from './ProgressBar';
 import type { ProgressBarProps } from './ProgressBar';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 export interface HeaderProps extends ProgressBarProps {
   showBackButton?: boolean;
@@ -39,26 +40,28 @@ export function Header({
       <div className="relative mx-1 flex h-14 items-center">
         {showBackButton && !isFirstStep && (
           <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Large}
-            onClick={onBack}
-            icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
             aria-label="Go back"
+            data-funnel-track={FunnelTargetId.StepBack}
+            icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
+            onClick={onBack}
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Tertiary}
           />
         )}
 
         <Logo
-          position={LogoPosition.Empty}
-          linkDisabled
           className="absolute inset-0 m-auto h-fit w-fit"
+          linkDisabled
+          position={LogoPosition.Empty}
         />
 
         {showSkipButton && (
           <Button
             className="ml-auto font-normal"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Large}
+            data-funnel-track={FunnelTargetId.StepSkip}
             onClick={onSkip}
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Tertiary}
           >
             Skip
           </Button>

@@ -7,4 +7,6 @@ export const useRouter = () => ({
   query: {},
 });
 
+export const usePathname = () => '/';
+
 export const useSearchParams = () => new URLSearchParams();

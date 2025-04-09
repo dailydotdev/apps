@@ -9,7 +9,6 @@ import { FormInputRating } from '../../common/components/FormInputRating';
 import { FormInputCheckboxGroup } from '../../common/components/FormInputCheckboxGroup';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
-import { FunnelStepBackground } from '../shared/FunnelStepBackground';
 import StepHeadline from '../shared/StepHeadline';
 import { Image } from '../../../components/image/Image';
 
@@ -27,11 +26,12 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
 };
 
 export const FunnelQuiz = ({
-  id,
-  question,
   explainer,
+  id,
   onTransition,
+  question,
 }: FunnelStepQuiz): ReactElement => {
+  // todo: add vertical parameter to the quiz component
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
   const [stepValue, setStepValue] = useState<string | string[]>([]);
@@ -40,7 +40,8 @@ export const FunnelQuiz = ({
     () =>
       options.map((option) => ({
         label: option.label,
-        value: option.label,
+        value: option.value ?? option.label,
+        image: option.image,
       })),
     [options],
   );
@@ -54,11 +55,11 @@ export const FunnelQuiz = ({
       if (isSingleChoice) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
-          details: { value },
+          details: { [id]: value },
         });
       }
     },
-    [isSingleChoice, onTransition],
+    [id, isSingleChoice, onTransition],
   );
 
   const onCtaClick = useCallback(() => {
@@ -67,38 +68,32 @@ export const FunnelQuiz = ({
     }
     onTransition?.({
       type: FunnelStepTransitionType.Complete,
-      details: { value: stepValue },
+      details: { [id]: stepValue },
     });
-  }, [isSingleChoice, stepValue, onTransition]);
+  }, [isSingleChoice, stepValue, onTransition, id]);
 
   return (
-    <FunnelStepBackground>
-      <ConditionalWrapper
-        condition={!isSingleChoice}
-        wrapper={(component) => (
-          <FunnelStepCtaWrapper onClick={onCtaClick}>
-            {component}
-          </FunnelStepCtaWrapper>
-        )}
-      >
-        <div className="flex flex-col gap-4 px-4 py-6">
-          <StepHeadline heading={text} description={explainer} />
-          {imageUrl && (
-            <Image
-              alt="Question additional context"
-              aria-hidden
-              className="mx-auto max-w-lg object-contain object-center"
-              role="presentation"
-              src={imageUrl}
-            />
-          )}
-          <Component
-            name={id}
-            options={inputOptions}
-            onValueChange={onChange}
+    <ConditionalWrapper
+      condition={!isSingleChoice}
+      wrapper={(component) => (
+        <FunnelStepCtaWrapper onClick={onCtaClick}>
+          {component}
+        </FunnelStepCtaWrapper>
+      )}
+    >
+      <div className="flex flex-col gap-4 px-4 py-6">
+        <StepHeadline heading={text} description={explainer} />
+        {imageUrl && (
+          <Image
+            alt="Question additional context"
+            aria-hidden
+            className="mx-auto max-w-lg object-contain object-center"
+            role="presentation"
+            src={imageUrl}
           />
-        </div>
-      </ConditionalWrapper>
-    </FunnelStepBackground>
+        )}
+        <Component name={id} options={inputOptions} onValueChange={onChange} />
+      </div>
+    </ConditionalWrapper>
   );
 };

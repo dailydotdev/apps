@@ -49,4 +49,4 @@ export default meta;
 
 type Story = StoryObj<typeof Reviews>;
 
-export const Default: Story = {}; 
+export const Default: Story = {};
