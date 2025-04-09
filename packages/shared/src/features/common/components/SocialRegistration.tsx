@@ -21,7 +21,7 @@ interface MobileSocialRegistrationProps {
   isDisabled?: boolean;
 }
 
-export function MobileSocialRegistration({
+export function SocialRegistration({
   onClick,
   isLoading,
   isDisabled,

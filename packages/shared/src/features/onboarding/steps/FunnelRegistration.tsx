@@ -4,7 +4,7 @@ import {
   Typography,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { MobileSocialRegistration } from '../../common/components/MobileSocialRegistration';
+import { SocialRegistration } from '../../common/components/SocialRegistration';
 import type { SocialProvider } from '../../../components/auth/common';
 import useRegistration from '../../../hooks/useRegistration';
 import { useEventListener, useToastNotification } from '../../../hooks';
@@ -141,7 +141,7 @@ export function FunnelRegistration({
         >
           {heading}
         </Typography>
-        <MobileSocialRegistration onClick={onRegister} />
+        <SocialRegistration onClick={onRegister} />
       </div>
     </div>
   );
