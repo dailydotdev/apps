@@ -7,7 +7,6 @@ import type {
   Review,
   PricingPlansProps,
 } from '../shared';
-import { CheckboxGroupVariant } from '../../common/components/FormInputCheckboxGroup';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 
 export enum FunnelStepType {
@@ -96,16 +95,12 @@ export type FunnelStepQuizQuestion = {
   | { type: FunnelStepQuizQuestionType.Rating }
 );
 
-export const funnelQuizLayout = CheckboxGroupVariant;
-export type FunnelStepQuizLayout = typeof funnelQuizLayout;
-
 export interface FunnelStepQuiz extends FunnelStepCommon {
   type: FunnelStepType.Quiz;
   onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
   parameters: FunnelStepParameters<{
     question: FunnelStepQuizQuestion;
     explainer?: string;
-    layout?: FunnelStepQuizLayout;
   }>;
 }
 

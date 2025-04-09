@@ -39,13 +39,14 @@ describe('FunnelStepper component', () => {
   const mockStep: FunnelStep = {
     id: 'step1',
     type: FunnelStepType.Quiz,
-    parameters: {},
-    question: {
-      type: FunnelStepQuizQuestionType.Radio,
-      text: 'Test question',
-      options: [{ label: 'Option 1' }],
+    parameters: {
+      question: {
+        type: FunnelStepQuizQuestionType.Radio,
+        text: 'Test question',
+        options: [{ label: 'Option 1' }],
+      },
+      explainer: 'Test explainer',
     },
-    explainer: 'Test explainer',
     transitions: [
       { on: FunnelStepTransitionType.Complete, destination: 'step2' },
       { on: FunnelStepTransitionType.Skip, destination: COMPLETED_STEP_ID },
@@ -231,13 +232,14 @@ describe('FunnelStepper component', () => {
     const quizStep: FunnelStep = {
       id: 'step1',
       type: FunnelStepType.Quiz,
-      parameters: {},
-      question: {
-        type: FunnelStepQuizQuestionType.Radio,
-        text: 'Test question',
-        options: [{ label: 'Option 1' }],
+      parameters: {
+        question: {
+          type: FunnelStepQuizQuestionType.Radio,
+          text: 'Test question',
+          options: [{ label: 'Option 1' }],
+        },
+        explainer: 'Test explainer',
       },
-      explainer: 'Test explainer',
       transitions: [],
       onTransition: mockOnTransition,
     };
