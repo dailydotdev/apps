@@ -82,20 +82,25 @@ export const FeedSettingsAISection = (): ReactElement => {
 
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
-          <Typography
-            tag={TypographyTag.H3}
-            color={TypographyColor.Primary}
-            type={TypographyType.Body}
-            bold
-            className="mb-1"
-          >
-            Preferred language
-          </Typography>
+          <div className="mb-1 flex items-center gap-2">
+            <Typography
+              tag={TypographyTag.H3}
+              color={TypographyColor.Primary}
+              type={TypographyType.Body}
+              bold
+            >
+              Auto-translate your feed
+            </Typography>
+            <PlusUser />
+          </div>
           <Typography
             color={TypographyColor.Tertiary}
             type={TypographyType.Callout}
           >
-            Choose your preferred language for the post titles on the feed
+            Choose your preferred language, and we&apos;ll automatically
+            translate post titles and TLDR summaries in your feed. The full
+            posts will still be in English, but this helps you quickly
+            understand what&apos;s worth reading.
           </Typography>
         </div>
         <LanguageDropdown
