@@ -51,6 +51,34 @@ export const FeedSettingsAISection = (): ReactElement => {
 
   return (
     <>
+      {!isPlus && (
+        <>
+          <div className="flex w-full items-center rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
+            <Typography type={TypographyType.Callout}>
+              Upgrade and use daily.dev’s AI Superpowers!
+            </Typography>
+            <Link href={plusUrl} passHref>
+              <Button
+                className="ml-auto w-fit"
+                tag="a"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                icon={<DevPlusIcon className="text-action-plus-default" />}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.FeedSettings,
+                  });
+                }}
+              >
+                {plusCta}
+              </Button>
+            </Link>
+          </div>
+          <Divider className="bg-border-subtlest-tertiary" />
+        </>
+      )}
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
           <Typography
