@@ -98,8 +98,29 @@ export const useFunnelNavigation = ({
       const newPosition = stepMap[to]?.position;
       setPosition(newPosition);
       onNavigation({ from, to, timeDuration, type });
+
+      // Reset the timer when the step changes
+      setStepTimerStart(Date.now());
+
+      // update URL
+      if (step?.id) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('stepId', step.id);
+        router.replace(`/${pathname}?${params.toString()}`, {
+          scroll: false,
+        });
+      }
     },
-    [onNavigation, setPosition, step, stepMap, stepTimerStart],
+    [
+      onNavigation,
+      pathname,
+      router,
+      searchParams,
+      setPosition,
+      step,
+      stepMap,
+      stepTimerStart,
+    ],
   );
 
   const back: HeaderNavigation = useMemo(() => {
@@ -130,25 +151,7 @@ export const useFunnelNavigation = ({
     };
   }, [navigate, step?.transitions]);
 
-  useEffect(
-    () => {
-      // Reset the timer when the step changes
-      setStepTimerStart(Date.now());
-
-      // update URL
-      if (step?.id) {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('stepId', step.id);
-        router.replace(`/${pathname}?${params.toString()}`, {
-          scroll: false,
-        });
-      }
-    },
-    // Reset timer and update URL - ONLY - when step changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [step?.id],
-  );
-
+  // only run on mount
   useEffect(
     () => {
       // on load check if stepId is in the URL and set the position
@@ -161,7 +164,6 @@ export const useFunnelNavigation = ({
       const newPosition = stepMap[stepId]?.position;
       setPosition(newPosition);
     },
-    // only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
