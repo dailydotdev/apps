@@ -2,7 +2,7 @@ import type { Boot } from '../../../lib/boot';
 import type { FunnelJSON } from './funnel';
 
 export interface StepInput {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface FunnelSession {
