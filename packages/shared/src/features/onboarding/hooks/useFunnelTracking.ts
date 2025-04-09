@@ -1,7 +1,6 @@
 import type { MouseEventHandler } from 'react';
 import { useCallback, useMemo, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
-import { type } from '@testing-library/user-event/dist/type';
 import { useLogContext } from '../../../contexts/LogContext';
 import type {
   FunnelStep,
