@@ -1,19 +1,13 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useRef } from 'react';
 import {
   Typography,
-  TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { MobileSocialRegistration } from '../../common/components/MobileSocialRegistration';
 import type { SocialProvider } from '../../../components/auth/common';
 import useRegistration from '../../../hooks/useRegistration';
-import {
-  useEventListener,
-  useToastNotification,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { useEventListener, useToastNotification } from '../../../hooks';
 import {
   AuthEvent,
   AuthFlow,
@@ -29,13 +23,15 @@ import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
 
 interface FunnelRegistrationProps {
-  onSuccess: (isPlus?: boolean) => void;
+  onTransition?: () => void;
+  heading: ReactNode;
+  image: string;
 }
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
 const useRegistrationListeners = (
-  onSuccess: FunnelRegistrationProps['onSuccess'],
+  onTransition: FunnelRegistrationProps['onTransition'],
 ) => {
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
@@ -84,7 +80,11 @@ const useRegistrationListeners = (
 
     const isPlus = (bootResponse?.data?.user as LoggedUser)?.isPlus;
 
-    return onSuccess(isPlus);
+    if (isPlus) {
+      return displayToast('You are already a daily.dev Plus user');
+    }
+
+    return onTransition();
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);
@@ -92,15 +92,11 @@ const useRegistrationListeners = (
   useEventListener(globalThis, 'message', onProviderMessage);
 };
 
-const mobileBg =
-  'https://media.daily.dev/image/upload/s--r4MiKjLD--/f_auto/v1743601527/public/login%20background';
-const desktopBg =
-  'https://media.daily.dev/image/upload/s--HeOu0PE_--/f_auto/v1743602053/public/login%20background%20web';
-
 export function FunnelRegistration({
-  onSuccess,
+  heading,
+  image,
+  onTransition,
 }: FunnelRegistrationProps): ReactElement {
-  const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
@@ -120,7 +116,7 @@ export function FunnelRegistration({
     onSocialRegistration(provider);
   };
 
-  useRegistrationListeners(onSuccess);
+  useRegistrationListeners(onTransition);
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
@@ -129,7 +125,7 @@ export function FunnelRegistration({
         <img
           className="pointer-events-none -z-1 w-full"
           alt="background"
-          src={isTablet ? desktopBg : mobileBg}
+          src={image}
         />
       </div>
       <div
@@ -143,11 +139,7 @@ export function FunnelRegistration({
           className="text-center"
           data-testid="registration-title"
         >
-          Yes, this is the signup screen
-          <br />
-          <Typography tag={TypographyTag.Span} bold>
-            Let&apos;s get things set up
-          </Typography>
+          {heading}
         </Typography>
         <MobileSocialRegistration onClick={onRegister} />
       </div>
