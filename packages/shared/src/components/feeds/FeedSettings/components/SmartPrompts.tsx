@@ -126,7 +126,7 @@ export const SmartPrompts = (): ReactElement => {
             onClick={() => {
               logSubscriptionEvent({
                 event_name: LogEvent.UpgradeSubscription,
-                target_id: TargetId.ClickbaitShield,
+                target_id: TargetId.SmartPrompt,
               });
             }}
           >
