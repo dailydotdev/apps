@@ -100,7 +100,7 @@ export const useFunnelTracking = ({
         }),
       });
     },
-    [funnel, logEvent, step],
+    [funnel.id, funnel.version, logEvent, sessionId, step?.id, step?.type],
   );
 
   const trackOnClickCapture: TrackOnMouseCapture = trackOnMouseCapture({
