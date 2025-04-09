@@ -279,9 +279,9 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
             },
           },
         });
-      }
 
-      onAskConfirmation(false);
+        onAskConfirmation(false);
+      }
 
       return false;
     },
