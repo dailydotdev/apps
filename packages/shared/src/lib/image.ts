@@ -256,6 +256,56 @@ export const plusRedBackgroundImage =
 export const interactiveFeedEmpty =
   'https://media.daily.dev/image/upload/s--I40-3-Oa--/f_auto/v1741779283/public/cards';
 
+export const purchaseCoinsCheckoutVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/s--1p9Qw5ey--/v1741849174/videos/daily.dev_-_get_cores.mp4';
+
+export const purchaseCoinsCheckoutVideoPoster =
+  'https://media.daily.dev/image/upload/s--A_4rXIh7--/f_auto/v1741779750/public/Giving%20cores';
+
+export const featuredAwardImage =
+  'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
+
+export const disabledCoreImage =
+  'https://media.daily.dev/image/upload/s--kTMWrmJV--/f_auto/v1743599810/public/Core-disabled';
+
+export const coreImage =
+  'https://media.daily.dev/image/upload/s--YAvJnCmq--/f_auto/v1743599810/public/Core-front';
+
+export const buyCoreStarField =
+  'https://media.daily.dev/image/upload/s--W4W5Gmjh--/f_auto,q_auto/v1744197985/webapp/Stars';
+
+const coreValueMap = [
+  {
+    maxValue: 200,
+    image:
+      'https://media.daily.dev/image/upload/s--9IXwSmB---/f_auto/v1743599811/public/Core1',
+  },
+  {
+    maxValue: 1_000,
+    image:
+      'https://media.daily.dev/image/upload/s--ybFIBUnx--/f_auto/v1743599810/public/Core2',
+  },
+  {
+    maxValue: 10_000,
+    image:
+      'https://media.daily.dev/image/upload/s--kai_mE1u--/f_auto/v1743599810/public/Core3',
+  },
+  {
+    maxValue: 20_000,
+    image:
+      'https://media.daily.dev/image/upload/s--bSCtv96n--/f_auto/v1743599810/public/Core4',
+  },
+  {
+    maxValue: Infinity,
+    image:
+      'https://media.daily.dev/image/upload/s--54JYAftK--/f_auto/v1743599810/public/Core5',
+  },
+];
+
+export const getCoreCurrencyImage = (value: number): string => {
+  return coreValueMap.find((core) => core.maxValue > value).image;
+};
+
 export const creditCardsImage =
   'https://media.daily.dev/image/upload/s--GG1rD-wP--/f_auto/v1743491782/public/credit';
 

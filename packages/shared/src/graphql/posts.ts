@@ -91,6 +91,7 @@ export type UserPostFlags = {
 export interface PostUserState {
   vote: UserVote;
   flags?: UserPostFlags;
+  awarded?: boolean;
 }
 
 export interface Post {
@@ -114,6 +115,7 @@ export interface Post {
   commentsPermalink: string;
   numUpvotes?: number;
   numComments?: number;
+  numAwards?: number;
   author?: Author;
   scout?: Scout;
   views?: number;
@@ -280,6 +282,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       commentsPermalink
       numUpvotes
       numComments
+      numAwards
       source {
         ...SourceShortInfo
       }

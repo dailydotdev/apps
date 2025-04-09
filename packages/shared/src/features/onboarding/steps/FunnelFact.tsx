@@ -10,7 +10,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../components/LazyImage';
 
-const FunnelInformative = ({
+const FunnelFact = ({
   parameters,
   onTransition,
 }: FunnelStepFact): ReactElement => {
@@ -25,7 +25,7 @@ const FunnelInformative = ({
       cta={{ label: parameters?.cta ?? 'Next' }}
     >
       <div
-        data-testid="informative-content"
+        data-testid="step-content"
         className={classNames(
           'flex flex-1 items-center gap-12 px-4 pt-6',
           parameters?.reverse
@@ -52,4 +52,4 @@ const FunnelInformative = ({
   );
 };
 
-export default FunnelInformative;
+export default FunnelFact;

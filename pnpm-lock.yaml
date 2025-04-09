@@ -386,8 +386,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@paddle/paddle-js':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: 1.4.0
+        version: 1.4.0
       '@tippyjs/react':
         specifier: ^4.2.6
         version: 4.2.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -802,8 +802,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@paddle/paddle-js':
-        specifier: ^1.3.2
-        version: 1.3.2
+        specifier: 1.4.0
+        version: 1.4.0
       '@serwist/next':
         specifier: ^9.0.9
         version: 9.0.10(next@15.0.1(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(typescript@5.6.3)(webpack@5.97.0)
@@ -2421,8 +2421,8 @@ packages:
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
 
-  '@paddle/paddle-js@1.3.2':
-    resolution: {integrity: sha512-N0/Vd3mmnk0zk1+xY+61xBD7bDW0gFAZjyMXvZvF6UDDAKIuNNkKYsImGvMSCG9zKvCMRGAw4fJBwe2mG01Bbg==}
+  '@paddle/paddle-js@1.4.0':
+    resolution: {integrity: sha512-pX6Yx+RswB1rHMuYl8RKcAAVZhVJ6nd5f8w8l4kVM63pM3HNeQ5/Xuk4sK/X9P5fUE2dmN0mTti7+gZ8cZtqvg==}
 
   '@parcel/watcher-android-arm64@2.5.0':
     resolution: {integrity: sha512-qlX4eS28bUcQCdribHkg/herLe+0A9RyYC+mm2PXpncit8z5b3nSqGVzMNR3CmtAOgRutiZ02eIJJgP/b1iEFQ==}
@@ -10353,7 +10353,7 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@paddle/paddle-js@1.3.2': {}
+  '@paddle/paddle-js@1.4.0': {}
 
   '@parcel/watcher-android-arm64@2.5.0':
     optional: true
