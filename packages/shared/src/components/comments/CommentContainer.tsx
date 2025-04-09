@@ -21,6 +21,7 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { ProfileImageSize } from '../ProfilePicture';
+import { Image } from '../image/Image';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -67,7 +68,8 @@ export default function CommentContainer({
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'flex flex-col rounded-16 p-4 hover:bg-surface-hover focus:outline',
+        'relative flex flex-col rounded-16 p-4 hover:bg-surface-hover focus:outline',
+        comment.userState?.awarded && 'bg-overlay-float-onion',
         isCommentReferenced
           ? 'border border-accent-cabbage-default'
           : 'border-border-subtlest-tertiary',
@@ -157,6 +159,15 @@ export default function CommentContainer({
         />
         {actions}
       </div>
+      {!!comment.award && (
+        <div className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-10 bg-surface-float">
+          <Image
+            src={comment.award.image}
+            alt={comment.award.name}
+            className="size-8"
+          />
+        </div>
+      )}
     </article>
   );
 }

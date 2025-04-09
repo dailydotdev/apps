@@ -5,13 +5,17 @@ import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { SettingsIcon } from '../icons';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { CoreIcon, SettingsIcon } from '../icons';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
+import { walletUrl } from '../../lib/constants';
+import { largeNumberFormat } from '../../lib';
+import { formatCurrency } from '../../lib/utils';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -29,6 +33,11 @@ export default function ProfileButton({
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const hasCoresAccess = useHasAccessToCores();
+
+  const preciseBalance = formatCurrency(user?.balance?.amount, {
+    minimumFractionDigits: 0,
+  });
 
   return (
     <>
@@ -47,6 +56,27 @@ export default function ProfileButton({
               compact
               className="pl-4"
             />
+          )}
+          {hasCoresAccess && (
+            <SimpleTooltip
+              content={
+                <>
+                  Wallet
+                  <br />
+                  {preciseBalance} Cores
+                </>
+              }
+            >
+              <Button
+                icon={<CoreIcon />}
+                tag="a"
+                href={walletUrl}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              >
+                {largeNumberFormat(user?.balance?.amount || 0)}
+              </Button>
+            </SimpleTooltip>
           )}
           <SimpleTooltip placement="bottom" content="Profile settings">
             <button

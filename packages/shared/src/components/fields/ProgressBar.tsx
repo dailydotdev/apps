@@ -41,7 +41,7 @@ export function ProgressBar({
           className?.bar,
           className?.barColor ?? 'bg-accent-cabbage-default',
         )}
-        style={{ width: `${percentage}%` }}
+        style={{ width: `${percentage >= 0 ? percentage : 0}%` }}
       />
     </ConditionalWrapper>
   );

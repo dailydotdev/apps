@@ -221,6 +221,7 @@ export const PlusList = ({
         <PlusListItem
           key={item.label}
           item={item}
+          typographyProps={item.typographyProps}
           onHover={() => handleItemHover(item)}
           {...props}
         />

@@ -258,6 +258,11 @@ const GiftReceivedPlusModal = dynamic(
     ),
 );
 
+const GiveAwardModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "giveAwardModal" */ './award/GiveAwardModal'),
+);
+
 const ContentModal = dynamic(
   () => import(/* webpackChunkName: "contentModal" */ './ContentModal'),
 );
@@ -305,6 +310,7 @@ export const modals = {
   [LazyModal.PlusMarketing]: PlusMarketingModal,
   [LazyModal.GiftPlus]: GiftPlusModal,
   [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
+  [LazyModal.GiveAward]: GiveAwardModal,
   [LazyModal.ContentModal]: ContentModal,
 };
 
