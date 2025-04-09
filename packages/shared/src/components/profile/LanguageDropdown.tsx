@@ -66,7 +66,11 @@ export const LanguageDropdown = ({
     >
       <Dropdown
         className={{
-          label: classNames(labelClassName, 'typo-body'),
+          label: classNames(
+            labelClassName,
+            'typo-body',
+            disabled && 'text-text-disabled',
+          ),
           button: classNames(
             buttonClassName,
             '!px-3',
