@@ -4,11 +4,7 @@ import classNames from 'classnames';
 import type {
   FunnelJSON,
   FunnelStepChapter,
-  FunnelStepAppPromotion,
-  FunnelStepLandingPage,
-  FunnelStepReadingReminder,
   FunnelStepSignup,
-  FunnelStepTagSelection,
   FunnelStep,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
@@ -37,19 +33,7 @@ const stepComponentMap = {
   [FunnelStepType.Quiz]: FunnelQuiz,
   [FunnelStepType.SocialProof]: FunnelSocialProof,
   [FunnelStepType.Pricing]: FunnelPricing,
-  [FunnelStepType.AppPromotion]: (({ type }) => (
-    <>{type}</>
-  )) as FC<FunnelStepAppPromotion>,
-  [FunnelStepType.LandingPage]: (({ type }) => (
-    <>{type}</>
-  )) as FC<FunnelStepLandingPage>,
-  [FunnelStepType.ReadingReminder]: (({ type }) => (
-    <>{type}</>
-  )) as FC<FunnelStepReadingReminder>,
   [FunnelStepType.Signup]: (({ type }) => <>{type}</>) as FC<FunnelStepSignup>,
-  [FunnelStepType.TagSelection]: (({ type }) => (
-    <>{type}</>
-  )) as FC<FunnelStepTagSelection>,
 } as const;
 
 function FunnelStepComponent(props: FunnelStep) {
