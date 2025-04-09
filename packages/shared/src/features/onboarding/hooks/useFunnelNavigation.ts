@@ -54,6 +54,22 @@ function getStepMap(funnel: FunnelJSON): StepMap {
   return stepMap;
 }
 
+function updateURLWithStepId({
+  pathname,
+  router,
+  searchParams,
+  stepId,
+}: {
+  pathname: string;
+  router: ReturnType<typeof useRouter>;
+  searchParams: URLSearchParams;
+  stepId: string;
+}) {
+  const params = new URLSearchParams(searchParams.toString());
+  params.set('stepId', stepId);
+  router.replace(`/${pathname}?${params.toString()}`, { scroll: false });
+}
+
 export const useFunnelNavigation = ({
   funnel,
   onNavigation,
@@ -90,21 +106,18 @@ export const useFunnelNavigation = ({
         return;
       }
 
+      // update the position in the store
       const newPosition = stepMap[to]?.position;
       setPosition(newPosition);
+
+      // track the navigation event
       onNavigation({ from, to, timeDuration, type });
 
       // Reset the timer when the step changes
       setStepTimerStart(Date.now());
 
-      // update URL
-      if (step?.id) {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('stepId', step.id);
-        router.replace(`/${pathname}?${params.toString()}`, {
-          scroll: false,
-        });
-      }
+      // update URL with new stepId
+      updateURLWithStepId({ router, pathname, searchParams, stepId: to });
     },
     [
       onNavigation,
