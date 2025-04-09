@@ -4,8 +4,8 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { HydrationBoundary } from '@tanstack/react-query';
 import Head from 'next/head';
-import { getAppBootData } from '../appBoot';
 import { ClientTest } from './client/client';
+import { funnelBootData } from '../actions';
 
 async function getIdAndVersion({
   params,
@@ -18,12 +18,36 @@ async function getIdAndVersion({
 }
 
 export default async function Page(props: AppPageProps): Promise<ReactElement> {
-  const allCookies = (await cookies()).toString();
-  const { state, boot } = await getAppBootData({
-    cookies: allCookies,
-  });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const cookieStore = cookies();
+  const allCookies = cookieStore.toString();
   const { id, version } = await getIdAndVersion(props);
+
+  // Get the response from getFunnelBootData to access cookies
+  const boot = await funnelBootData(id, version, allCookies);
+
+  // Create a dehydrated state for React Query
+  const state = {
+    queries: [
+      {
+        queryKey: ['funnelBoot'],
+        queryHash: 'funnelBoot',
+        state: {
+          data: boot,
+          dataUpdateCount: 1,
+          dataUpdatedAt: Date.now(),
+          error: null,
+          errorUpdateCount: 0,
+          errorUpdatedAt: 0,
+          fetchFailureCount: 0,
+          fetchMeta: null,
+          isFetching: false,
+          isInvalidated: false,
+          isPaused: false,
+          status: 'success',
+        },
+      },
+    ],
+  };
 
   return (
     <HydrationBoundary state={state}>
@@ -36,7 +60,24 @@ export default async function Page(props: AppPageProps): Promise<ReactElement> {
         <strong>Server</strong> says user is {boot?.user?.id ?? 'not logged'} -{' '}
         {boot?.user?.email ?? 'no email'}
       </p>
-      <ClientTest />
+      {boot.funnelState && (
+        <div>
+          <p>
+            <strong>Current step:</strong>{' '}
+            {boot.funnelState.session.currentStep || 'None'}
+          </p>
+          <p>
+            <strong>Funnel ID:</strong> {boot.funnelState.funnel.id}
+          </p>
+          <p>
+            <strong>Funnel Version:</strong> {boot.funnelState.funnel.version}
+          </p>
+          <p>
+            <strong>Session ID:</strong> {boot.funnelState.session.id}
+          </p>
+        </div>
+      )}
+      {/* <ClientTest /> */}
     </HydrationBoundary>
   );
 }
