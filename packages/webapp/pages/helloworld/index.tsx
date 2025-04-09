@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
 import React from 'react';
@@ -10,12 +10,19 @@ import {
 } from '@tanstack/react-query';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { FUNNEL_BOOT_QUERY_KEY } from '@dailydotdev/shared/src/features/onboarding/hooks/useFunnelBoot';
+import {
+  FUNNEL_BOOT_QUERY_KEY,
+  useFunnelBoot,
+} from '@dailydotdev/shared/src/features/onboarding/hooks/useFunnelBoot';
 import type {
   FunnelBootData,
   FunnelBootResponse,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnelBoot';
-import { ClientTest } from './client/client';
+import {
+  AppAuthActionsKeys,
+  useAppAuth,
+} from '@dailydotdev/shared/src/features/common/hooks/useAppAuth';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 async function getFunnelBootData({
   app,
@@ -106,6 +113,48 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
       dehydratedState: dehydrate(queryClient),
     },
   };
+};
+
+const ClientTest: FC = () => {
+  const { user, dispatch } = useAppAuth();
+  const { data: funnelBoot } = useFunnelBoot();
+  const currentStep = funnelBoot?.funnelState?.session?.currentStep;
+
+  return (
+    <div className="border-gray-200 rounded-lg mt-6 border p-4">
+      <h2 className="mb-2 text-lg font-bold">Client Component</h2>
+      <p>
+        <strong>Client</strong> says user is {user?.id ?? 'not logged'}
+      </p>
+
+      {funnelBoot?.funnelState && (
+        <div className="my-2">
+          <p>
+            <strong>Current step (client):</strong> {currentStep || 'None'}
+          </p>
+          <p>
+            <strong>Session ID (client):</strong>{' '}
+            {funnelBoot.funnelState.session.id}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-2 flex gap-2">
+        <Button
+          type="button"
+          onClick={() => dispatch({ type: AppAuthActionsKeys.REFRESH })}
+        >
+          Refetch user
+        </Button>
+        <Button
+          type="button"
+          onClick={() => dispatch({ type: AppAuthActionsKeys.LOGOUT })}
+        >
+          Logout
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 export default function HelloWorldPage({
