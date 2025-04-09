@@ -23,6 +23,7 @@ jest.mock('../../../lib/kratos');
 jest.mock('../../../lib/auth');
 jest.mock('../../../components/auth/OnboardingRegistrationForm');
 jest.mock('../../../lib/func');
+jest.mock('../../../hooks/useViewSize');
 
 describe('FunnelRegistration', () => {
   const mockOnTransition = jest.fn();
@@ -34,7 +35,9 @@ describe('FunnelRegistration', () => {
 
   const defaultProps = {
     heading: 'Test Heading',
+    subheading: 'Test Subheading',
     image: 'test-image.jpg',
+    imageMobile: 'test-image-mobile.jpg',
     onTransition: mockOnTransition,
   };
 
@@ -69,21 +72,44 @@ describe('FunnelRegistration', () => {
     (isNativeAuthSupported as jest.Mock).mockImplementation((provider) => {
       return provider === SocialProvider.Apple;
     });
+
+    // Mock matchMedia
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
   });
 
   it('renders the registration form with provided heading and image', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     // Check for the title text
-    expect(screen.getByTestId('registration-title')).toBeInTheDocument();
+    expect(screen.getByTestId('registgration-heading')).toBeInTheDocument();
+    expect(screen.getByTestId('registration-subheading')).toBeInTheDocument();
     expect(screen.getByTestId('registration-container')).toBeInTheDocument();
 
     // Check for background image
     const backgroundImage = screen.getByAltText('background');
-    expect(backgroundImage).toHaveAttribute('src', 'test-image.jpg');
+    expect(backgroundImage).toHaveAttribute('src', defaultProps.imageMobile);
 
     // Check for social buttons - GitHub is always shown
     expect(screen.getByTestId('social-button-github')).toBeInTheDocument();
+  });
+
+  it('shows mobile image on mobile view', () => {
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const backgroundImage = screen.getByAltText('background');
+    expect(backgroundImage).toHaveAttribute('src', defaultProps.imageMobile);
   });
 
   it('shows Google as first provider when not in webview', async () => {
