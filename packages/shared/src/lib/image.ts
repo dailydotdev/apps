@@ -272,7 +272,7 @@ export const coreImage =
   'https://media.daily.dev/image/upload/s--YAvJnCmq--/f_auto/v1743599810/public/Core-front';
 
 export const buyCoreStarField =
-  'https://daily-now-res.cloudinary.com/image/upload/s--W4W5Gmjh--/f_auto,q_auto/v1744197985/webapp/Stars';
+  'https://media.daily.dev/image/upload/s--W4W5Gmjh--/f_auto,q_auto/v1744197985/webapp/Stars';
 
 const coreValueMap = [
   {
