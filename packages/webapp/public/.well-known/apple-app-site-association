@@ -11,6 +11,16 @@
                         "comment": "Matches any OAuth callback URL"
                     },
                     {
+                        "/": "/cores*",
+                        "exclude": true,
+                        "comment": "Matches any cores URL"
+                    },
+                      {
+                        "/": "/wallet*",
+                        "exclude": true,
+                        "comment": "Matches wallet URL"
+                    },
+                    {
                         "/": "/*",
                         "comment": "Matches any URL path under app.daily.dev"
                     }
