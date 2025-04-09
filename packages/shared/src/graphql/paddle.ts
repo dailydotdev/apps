@@ -1,45 +1,120 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
-import type { ProductOption } from '../contexts/payment/context';
+import type { TimePeriod } from '@paddle/paddle-js';
 import { gqlClient } from './common';
-
-const PRICE_FRAGMENT = gql`
-  fragment Price on Price {
-    label
-    value
-    price {
-      amount
-      formatted
-      monthlyAmount
-      monthlyFormatted
-    }
-    currencyCode
-    currencySymbol
-    extraLabel
-    appsId
-    duration
-    trialPeriod {
-      interval
-      frequency
-    }
-  }
-`;
-
-export const PRICE_PREVIEWS = gql`
-  query PricePreviews {
-    pricePreviews {
-      items {
-        ...Price
-      }
-    }
-  }
-  ${PRICE_FRAGMENT}
-`;
-
-export const getPricePreviews = async (): Promise<ProductOption[]> => {
-  const response = await gqlClient.request(PRICE_PREVIEWS);
-  return response.pricePreviews.items;
-};
+import type { PlusPriceTypeAppsId } from '../lib/featureValues';
 
 export type PaddleProductLineItem =
   PricePreviewResponse['data']['details']['lineItems'][0];
+
+interface Price {
+  amount: number;
+  formatted: string;
+}
+
+export interface PlusPricingMetadata {
+  appsId: PlusPriceTypeAppsId;
+  title: string;
+  caption?: {
+    copy: string;
+    color: PricingCaptionColor;
+  };
+  idMap: {
+    paddle: string;
+    ios: string;
+  };
+}
+
+export interface PlusPricingPreview {
+  metadata: PlusPricingMetadata;
+  priceId: string;
+  price: Price & { monthly?: Price };
+  currency: {
+    code: string;
+    symbol: string;
+  };
+  duration: string;
+  trialPeriod: TimePeriod | null;
+}
+
+const PRICING_METADATA_FRAGMENT = gql`
+  fragment PricingMetadata on PlusPricingMetadata {
+    appsId
+    title
+    caption {
+      copy
+      color
+    }
+    idMap {
+      paddle
+      ios
+    }
+  }
+`;
+
+const PLUS_PRICING_PREVIEW_QUERY = gql`
+  query PlusPricingPreview {
+    plusPricingPreview {
+      metadata {
+        ...PricingMetadata
+      }
+      priceId
+      price {
+        amount
+        formatted
+        monthly {
+          amount
+          formatted
+        }
+      }
+      currency {
+        code
+        symbol
+      }
+      duration
+      trialPeriod {
+        interval
+        frequency
+      }
+    }
+  }
+  ${PRICING_METADATA_FRAGMENT}
+`;
+
+interface PlusPricingPreviewResponse {
+  plusPricingPreview: PlusPricingPreview[];
+}
+
+export const fetchPlusPricingPreview = async (): Promise<
+  PlusPricingPreview[]
+> => {
+  const { plusPricingPreview } =
+    await gqlClient.request<PlusPricingPreviewResponse>(
+      PLUS_PRICING_PREVIEW_QUERY,
+    );
+
+  return plusPricingPreview;
+};
+
+const PLUS_PRICING_METADATA_QUERY = gql`
+  query PlusPricingMetadata {
+    plusPricingMetadata {
+      ...PricingMetadata
+    }
+  }
+`;
+
+export const fetchPlusPricingMetadata = async (): Promise<
+  PlusPricingMetadata[]
+> => {
+  const { plusPricingMetadata } = await gqlClient.request<{
+    plusPricingMetadata: PlusPricingMetadata[];
+  }>(PLUS_PRICING_METADATA_QUERY);
+
+  return plusPricingMetadata;
+};
+
+export enum PricingCaptionColor {
+  Success = 'success',
+  Help = 'help',
+}

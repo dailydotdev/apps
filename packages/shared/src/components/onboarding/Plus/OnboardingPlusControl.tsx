@@ -3,15 +3,15 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
+import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { PlusComparingCards } from '../../plus/PlusComparingCards';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
+  TypographyColor,
 } from '../../typography/Typography';
-import { PlusComparingCards } from '../../plus/PlusComparingCards';
-import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
 import type { OnboardingStepProps } from './common';
 
@@ -50,14 +50,9 @@ export const OnboardingPlusControl = ({
   const { productOptions } = usePaymentContext();
   const item = useMemo(
     () =>
-      [...productOptions]
-        .sort(({ appsId, duration }) => {
-          if (appsId === PlusPriceTypeAppsId.EarlyAdopter) {
-            return -1;
-          }
-          return duration === PlusPriceType.Yearly ? 0 : 1;
-        })
-        .at(0),
+      productOptions.find(
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      ),
     [productOptions],
   );
 
