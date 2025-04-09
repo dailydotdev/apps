@@ -42,6 +42,7 @@ interface FunnelStepCommon {
   id: string;
   parameters: FunnelStepParameters;
   transitions: FunnelStepTransition[];
+  isActive?: boolean;
 }
 
 export interface FunnelStepChapter extends FunnelStepCommon {
@@ -55,7 +56,6 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
 export interface FunnelStepLoading
   extends Omit<FunnelStepCommon, 'transitions'> {
   type: FunnelStepType.Loading;
-  isActive?: boolean;
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
