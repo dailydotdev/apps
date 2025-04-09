@@ -1,13 +1,14 @@
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 import { HttpError } from '../../../lib/errors';
+import type { FunnelStepTransitionType } from '../types/funnel';
 
 export type StepInputs = Record<string, unknown>;
 
 export interface StepTransitionPayload {
   fromStep: string;
   toStep: string | null;
-  transitionEvent: string;
+  transitionEvent: FunnelStepTransitionType;
   inputs?: StepInputs;
 }
 
