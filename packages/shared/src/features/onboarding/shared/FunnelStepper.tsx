@@ -1,4 +1,4 @@
-import type { ReactElement, FC } from 'react';
+import type { ReactElement } from 'react';
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import type {
@@ -6,6 +6,7 @@ import type {
   FunnelStepChapter,
   FunnelStep,
   FunnelStepTransitionCallback,
+  FunnelStepTransition,
 } from '../types/funnel';
 import {
   FunnelStepType,
@@ -41,15 +42,24 @@ const stepComponentMap = {
   [FunnelStepType.Signup]: FunnelRegistration,
 } as const;
 
-function FunnelStepComponent(props: FunnelStep) {
+function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   const { type } = props;
-  const Component = stepComponentMap[type] as FC<typeof props>;
+  const Component = stepComponentMap[type];
 
   if (!Component) {
     return null;
   }
 
   return <Component {...props} />;
+}
+
+function getTransitionDestination(
+  step: FunnelStep,
+  transitionType: FunnelStepTransitionType,
+): FunnelStepTransition['destination'] | undefined {
+  return step.transitions.find((transition) => {
+    return transition.on === transitionType;
+  })?.destination;
 }
 
 export const FunnelStepper = ({
@@ -67,13 +77,12 @@ export const FunnelStepper = ({
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
   const { transition: sendTransition } = useStepTransition(sessionId);
 
-  const onTransition: FunnelStepTransitionCallback = async ({
-    type,
-    details,
-  }) => {
-    const targetStepId = step.transitions.find((transition) => {
-      return transition.on === type;
-    })?.destination;
+  useWindowScroll({
+    onScroll: trackOnScroll,
+  });
+
+  const onTransition: FunnelStepTransitionCallback = ({ type, details }) => {
+    const targetStepId = getTransitionDestination(step, type);
 
     if (!targetStepId) {
       return;
@@ -97,10 +106,6 @@ export const FunnelStepper = ({
       onComplete?.();
     }
   };
-
-  useWindowScroll({
-    onScroll: trackOnScroll,
-  });
 
   return (
     <section

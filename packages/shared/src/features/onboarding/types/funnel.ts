@@ -34,7 +34,7 @@ export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
 
 type FunnelStepParameters = Record<string, string>;
 
-type FunnelStepTransition = {
+export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
   destination: FunnelStep['id'] | typeof COMPLETED_STEP_ID;
 };
