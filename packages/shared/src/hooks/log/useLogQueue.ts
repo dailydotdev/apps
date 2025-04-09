@@ -100,7 +100,7 @@ export default function useLogQueue({
               },
             });
           } else {
-            navigator.sendBeacon(LOG_ENDPOINT, blob);
+            navigator.sendBeacon(`${apiUrl}/e?sendBeacon=1`, blob);
           }
         }
       },

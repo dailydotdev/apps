@@ -216,7 +216,7 @@ export default function listenToLifecycleEvents(): void {
     }),
   );
 
-  window.addEventListener('unload', () => {}, true);
+  // window.addEventListener('unload', () => {}, true);
 
   // Safari does not reliably fire the `pagehide` or `visibilitychange`
   // events when closing a tab, so we have to use `beforeunload` with a
