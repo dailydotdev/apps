@@ -34,7 +34,7 @@ export interface UseFunnelNavigationReturn {
   position: FunnelPosition;
   step: FunnelStep;
   back: HeaderNavigation;
-  skip: HeaderNavigation;
+  skip: Omit<HeaderNavigation, 'navigate'>;
 }
 
 function getStepMap(funnel: FunnelJSON): StepMap {
@@ -143,21 +143,15 @@ export const useFunnelNavigation = ({
     };
   }, [dispatchHistory, history.canUndo]);
 
-  const skip: HeaderNavigation = useMemo(() => {
-    const skipTarget = step?.transitions?.find(
-      ({ on }) => on === FunnelStepTransitionType.Skip,
-    )?.destination;
-
-    return {
-      hasTarget: !!skipTarget,
-      navigate: () => {
-        if (!skipTarget) {
-          return;
-        }
-        navigate({ to: skipTarget, type: FunnelStepTransitionType.Skip });
-      },
-    };
-  }, [navigate, step?.transitions]);
+  const skip: UseFunnelNavigationReturn['skip'] = useMemo(
+    () => ({
+      hasTarget: !!step?.transitions?.some(
+        ({ on, destination }) =>
+          on === FunnelStepTransitionType.Skip && !!destination,
+      ),
+    }),
+    [step?.transitions],
+  );
 
   useEffect(
     () => {

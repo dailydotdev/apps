@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import type {
   FunnelJSON,
   FunnelStepChapter,
-  FunnelStepSignup,
   FunnelStep,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
@@ -24,6 +23,7 @@ import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
 import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
+import { FunnelRegistration } from '../steps/FunnelRegistration';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -38,7 +38,7 @@ const stepComponentMap = {
   [FunnelStepType.Quiz]: FunnelQuiz,
   [FunnelStepType.SocialProof]: FunnelSocialProof,
   [FunnelStepType.Pricing]: FunnelPricing,
-  [FunnelStepType.Signup]: (({ type }) => <>{type}</>) as FC<FunnelStepSignup>,
+  [FunnelStepType.Signup]: FunnelRegistration,
 } as const;
 
 function FunnelStepComponent(props: FunnelStep) {
