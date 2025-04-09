@@ -1,10 +1,10 @@
 import type { MutableRefObject } from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { LogEvent } from './useLogQueue';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getCookies } from '../../lib/cookie';
-import { useRouterQuery } from '../../features/common/hooks/useRouterQuery';
 
 const COOKIES = ['_ga', '_fbp', '_fbc', 'gbuuid'];
 
@@ -15,7 +15,7 @@ export default function useLogSharedProps(
 ): [MutableRefObject<Partial<LogEvent>>, boolean] {
   // Use ref instead of state to reduce renders
   const sharedPropsRef = useRef<Partial<LogEvent>>();
-  const { query } = useRouterQuery();
+  const { query } = useRouter();
   const { themeMode, spaciness, insaneMode } = useContext(SettingsContext);
   const { visit, anonymous, tokenRefreshed, user } = useContext(AuthContext);
   const [sharedPropsSet, setSharedPropsSet] = useState(false);
