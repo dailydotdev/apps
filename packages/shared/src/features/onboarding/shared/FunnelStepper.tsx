@@ -18,7 +18,7 @@ import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
 import { FunnelQuiz, FunnelSocialProof, FunnelPricing } from '../steps';
-import FunnelInformative from '../steps/FunnelInformative';
+import FunnelFact from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
@@ -34,7 +34,7 @@ interface FunnelStepperProps {
 
 const stepComponentMap = {
   [FunnelStepType.Checkout]: FunnelCheckout,
-  [FunnelStepType.Fact]: FunnelInformative,
+  [FunnelStepType.Fact]: FunnelFact,
   [FunnelStepType.Loading]: FunnelLoading,
   [FunnelStepType.Quiz]: FunnelQuiz,
   [FunnelStepType.SocialProof]: FunnelSocialProof,

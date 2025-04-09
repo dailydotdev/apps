@@ -50,6 +50,7 @@ interface FunnelStepCommon {
   id: string;
   parameters: FunnelStepParameters;
   transitions: FunnelStepTransition[];
+  isActive?: boolean;
 }
 
 export interface FunnelChapter extends FunnelStepCommon {

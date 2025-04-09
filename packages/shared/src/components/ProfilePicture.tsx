@@ -23,7 +23,7 @@ export enum ProfileImageSize {
 }
 
 type ProfileImageRoundSize = ProfileImageSize | 'full';
-type UserImageProps = Pick<PublicProfile, 'image'> &
+export type UserImageProps = Pick<PublicProfile, 'image'> &
   Partial<Pick<PublicProfile, 'id' | 'username' | 'name'>>;
 
 export interface ProfilePictureProps

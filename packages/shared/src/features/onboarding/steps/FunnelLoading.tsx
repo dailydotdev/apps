@@ -17,27 +17,26 @@ const animationDuration = 4500;
 const FunnelLoading = ({
   parameters,
   onTransition,
+  isActive = false,
 }: FunnelStepLoading): ReactElement => {
   const [percentage, setPercentage] = useState(0);
   const animationRef = useRef<number>();
   const pauseTimeoutRef = useRef<NodeJS.Timeout>();
+  const hasStarted = useRef(false);
 
   useEffect(() => {
     if (percentage >= 100) {
       onTransition({ type: FunnelStepTransitionType.Complete });
     }
-
-    return () => {
-      if (pauseTimeoutRef.current) {
-        clearTimeout(pauseTimeoutRef.current);
-      }
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
   }, [percentage, onTransition]);
 
   useEffect(() => {
+    if (!isActive || hasStarted.current) {
+      return;
+    }
+
+    hasStarted.current = true;
+
     const firstPhaseDuration = animationDuration * 0.4; // Time to reach 40%
     const secondPhaseDuration = animationDuration * 0.6; // Remaining time after 40%
 
@@ -101,6 +100,7 @@ const FunnelLoading = ({
     const animationStart = performance.now();
     animateFirstPhase(animationStart);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       clearTimeout(forceCompletionTimeoutId);
       if (pauseTimeoutRef.current) {
@@ -110,7 +110,7 @@ const FunnelLoading = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [isActive]);
 
   const getProgressArcPath = (percent: number): string => {
     const radius = 90;

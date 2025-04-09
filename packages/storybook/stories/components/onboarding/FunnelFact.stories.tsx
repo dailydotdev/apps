@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import InformativeScreen
-  from '@dailydotdev/shared/src/features/onboarding/steps/FunnelInformative';
+import FunnelFact
+  from '@dailydotdev/shared/src/features/onboarding/steps/FunnelFact';
 import {
   FunnelStepType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 
-const meta: Meta<typeof InformativeScreen> = {
-  title: 'Components/Onboarding/Steps/Informative',
-  component: InformativeScreen,
+const meta: Meta<typeof FunnelFact> = {
+  title: 'Components/Onboarding/Steps/Fact',
+  component: FunnelFact,
   parameters: {
     controls: {
       expanded: true,
@@ -17,14 +17,14 @@ const meta: Meta<typeof InformativeScreen> = {
   tags: ['autodocs'],
   render: (props) => (
     <div className='invert'>
-      <InformativeScreen {...props} />
+      <FunnelFact {...props} />
     </div>
   ),
 };
 
 export default meta;
 
-type Story = StoryObj<typeof InformativeScreen>;
+type Story = StoryObj<typeof FunnelFact>;
 
 const defaultArgs = {
   id: 'welcome-step',

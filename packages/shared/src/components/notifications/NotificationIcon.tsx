@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import {
   notificationIcon,
+  notificationIconAsPrimary,
   NotificationIconType,
   notificationIconTypeTheme,
 } from './utils';
@@ -23,14 +24,16 @@ function NotificationItemIcon({
 }: NotificationItemIconProps): ReactElement {
   const Icon = notificationIcon[icon] ?? notificationIcon.DailyDev;
   const testId = `notification-${icon}`;
+  const secondary = !notificationIconAsPrimary.includes(icon);
 
   if (!notificationIcon[icon] || noBackgroundIcons.includes(icon)) {
     const testValue = !notificationIcon[icon]
       ? NotificationIconType.DailyDev
       : icon;
+
     return (
       <Icon
-        secondary
+        secondary={secondary}
         size={IconSize.Large}
         data-testid={testId}
         data-testvalue={testValue}
@@ -44,7 +47,7 @@ function NotificationItemIcon({
     <span className="h-fit overflow-hidden rounded-8 bg-surface-float p-1 typo-callout">
       <Icon
         size={IconSize.Small}
-        secondary
+        secondary={secondary}
         className={theme}
         data-testid={testId}
       />

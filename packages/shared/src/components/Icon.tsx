@@ -13,6 +13,7 @@ export enum IconSize {
   XXLarge = 'xxlarge',
   Size48 = 'size48',
   XXXLarge = 'xxxlarge',
+  Size80 = 'size80',
 }
 
 export const iconSizeToClassName: Record<IconSize, string> = {
@@ -26,9 +27,10 @@ export const iconSizeToClassName: Record<IconSize, string> = {
   [IconSize.Size48]: 'w-12 h-12',
   [IconSize.XXLarge]: 'w-14 h-14',
   [IconSize.XXXLarge]: 'w-16 h-16',
+  [IconSize.Size80]: 'w-20 h-20',
 };
 
-type ItemType = React.ComponentType<{ className }>;
+export type IconItemType = React.ComponentType<{ className: string }>;
 
 export interface IconProps extends ComponentProps<'svg'> {
   secondary?: boolean;
@@ -36,8 +38,8 @@ export interface IconProps extends ComponentProps<'svg'> {
 }
 
 type Props = IconProps & {
-  IconPrimary: ItemType;
-  IconSecondary: ItemType;
+  IconPrimary: IconItemType;
+  IconSecondary: IconItemType;
 };
 
 const Icon = ({

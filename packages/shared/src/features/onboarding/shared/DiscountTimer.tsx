@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { addMinutes } from 'date-fns';
@@ -27,6 +27,7 @@ export interface DiscountTimerProps {
   startDate?: Date;
   className?: string;
   onTimerEnd?: () => void;
+  isActive?: boolean;
 }
 
 const calculateTimeLeft = (
@@ -44,16 +45,31 @@ export function DiscountTimer({
   startDate = new Date(),
   className,
   onTimerEnd,
+  isActive,
 }: DiscountTimerProps): ReactElement {
-  const { timer: timeLeft } = useTimer(
+  const {
+    timer: timeLeft,
+    runTimer,
+    setTimer,
+    clearTimer,
+  } = useTimer(
     onTimerEnd,
-    calculateTimeLeft(startDate, durationInMinutes),
+    isActive ? calculateTimeLeft(startDate, durationInMinutes) : 0,
   );
 
   const sanitizedMessage = useMemo(
     () => sanitizeMessage(discountMessage),
     [discountMessage],
   );
+
+  useEffect(() => {
+    if (isActive) {
+      setTimer(calculateTimeLeft(startDate, durationInMinutes));
+      runTimer();
+    } else {
+      clearTimer();
+    }
+  }, [isActive, runTimer, setTimer, startDate, durationInMinutes, clearTimer]);
 
   return (
     <div

@@ -10,7 +10,7 @@ import {
 } from '../typography/Typography';
 import { PlusUser } from '../PlusUser';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import {
   useConditionalFeature,
@@ -23,6 +23,7 @@ import { Switch } from '../fields/Switch';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { clickbaitShieldModalImage } from '../../lib/image';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import Link from '../utilities/Link';
 
 type Props = {
   hasUsedFreeTrial?: boolean;
@@ -92,31 +93,32 @@ const ClickbaitShieldModal = ({
           </Typography>
         </Switch>
 
-        <Button
-          tag="a"
-          type="button"
-          variant={ButtonVariant.Primary}
-          href={`${webappUrl}plus`}
-          icon={
-            hasUsedFreeTrial && (
-              <DevPlusIcon className="text-action-plus-default" />
-            )
-          }
-          onClick={async (event: MouseEvent) => {
-            if (hasUsedFreeTrial) {
-              logSubscriptionEvent({
-                event_name: LogEvent.UpgradeSubscription,
-                target_id: TargetId.ClickbaitShield,
-              });
-            } else {
-              event.preventDefault();
-              await fetchSmartTitle?.();
-              closeModal();
+        <Link href={plusUrl} passHref>
+          <Button
+            tag="a"
+            type="button"
+            variant={ButtonVariant.Primary}
+            icon={
+              hasUsedFreeTrial && (
+                <DevPlusIcon className="text-action-plus-default" />
+              )
             }
-          }}
-        >
-          {hasUsedFreeTrial ? plusCta : 'Try out Clickbait Shield'}
-        </Button>
+            onClick={async (event: MouseEvent) => {
+              if (hasUsedFreeTrial) {
+                logSubscriptionEvent({
+                  event_name: LogEvent.UpgradeSubscription,
+                  target_id: TargetId.ClickbaitShield,
+                });
+              } else {
+                event.preventDefault();
+                await fetchSmartTitle?.();
+                closeModal();
+              }
+            }}
+          >
+            {hasUsedFreeTrial ? plusCta : 'Try out Clickbait Shield'}
+          </Button>
+        </Link>
       </div>
     </Modal>
   );
