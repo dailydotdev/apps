@@ -8,7 +8,12 @@ import {
 import { SocialRegistration } from '../../common/components/SocialRegistration';
 import type { SocialProvider } from '../../../components/auth/common';
 import useRegistration from '../../../hooks/useRegistration';
-import { useEventListener, useToastNotification } from '../../../hooks';
+import {
+  useEventListener,
+  useToastNotification,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import {
   AuthEvent,
   AuthFlow,
@@ -28,6 +33,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 interface FunnelRegistrationProps {
   onTransition?: FunnelStepTransitionCallback<void>;
   heading: ReactNode;
+  imageMobile: string;
   image: string;
 }
 
@@ -100,8 +106,10 @@ const useRegistrationListeners = (
 export function FunnelRegistration({
   heading,
   image,
+  imageMobile,
   onTransition,
 }: FunnelRegistrationProps): ReactElement {
+  const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
@@ -130,7 +138,7 @@ export function FunnelRegistration({
         <img
           className="pointer-events-none -z-1 w-full"
           alt="background"
-          src={image}
+          src={isTablet ? image : imageMobile}
         />
       </div>
       <div
