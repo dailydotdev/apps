@@ -8,6 +8,7 @@ import type { BaseFieldProps } from '../fields/BaseFieldContainer';
 import type { IconProps } from '../Icon';
 import { featureValidLanguages } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
+import { ButtonSize } from '../buttons/common';
 
 type ClassName = {
   hint?: string;
@@ -93,6 +94,7 @@ export const LanguageDropdown = ({
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
+        buttonSize={ButtonSize.Small}
         onOpenChange={setOpen}
         placeholder="Preferred content language"
         icon={icon}
