@@ -271,7 +271,7 @@ const Wallet = (): ReactElement => {
               </div>
               <div className="flex gap-2">
                 <CoreIcon />
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-1 flex-col gap-1.5">
                   <ProgressBar
                     shouldShowBg
                     percentage={earningsProgressPercentage}
