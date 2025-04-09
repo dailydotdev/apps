@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import FunnelInformative from './FunnelInformative';
+import FunnelFact from './FunnelFact';
 import { FunnelStepType } from '../types/funnel';
-import type { FunnelInformativeProps } from './FunnelInformative';
+import type { FunnelStepFact } from '../types/funnel';
 
 const mockOnTransition = jest.fn();
 
-const defaultProps: FunnelInformativeProps = {
+const defaultProps: FunnelStepFact = {
   id: 'test-id',
   type: FunnelStepType.Fact,
   transitions: [],
@@ -20,10 +20,10 @@ const defaultProps: FunnelInformativeProps = {
 };
 
 const renderComponent = (props = {}) => {
-  return render(<FunnelInformative {...defaultProps} {...props} />);
+  return render(<FunnelFact {...defaultProps} {...props} />);
 };
 
-describe('FunnelInformative', () => {
+describe('FunnelFact', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -61,7 +61,7 @@ describe('FunnelInformative', () => {
       },
     });
 
-    const content = screen.getByTestId('informative-content');
+    const content = screen.getByTestId('step-content');
     expect(content).toHaveClass('flex-col-reverse');
   });
 
