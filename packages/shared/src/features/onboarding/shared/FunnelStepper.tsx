@@ -12,7 +12,7 @@ import type {
   FunnelStep,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
-import { FunnelStepType } from '../types/funnel';
+import { FunnelStepType, FINAL_STEP_ID } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
@@ -27,6 +27,7 @@ import { useStepTransition } from '../hooks/useStepTransition';
 interface FunnelStepperProps {
   funnel: FunnelJSON;
   sessionId: string;
+  onComplete?: () => void;
 }
 
 const stepComponentMap = {
@@ -65,6 +66,7 @@ function FunnelStepComponent(props: FunnelStep) {
 export const FunnelStepper = ({
   funnel,
   sessionId = '',
+  onComplete,
 }: FunnelStepperProps): ReactElement => {
   const {
     trackOnClickCapture,
@@ -76,7 +78,10 @@ export const FunnelStepper = ({
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
   const { transition: sendTransition } = useStepTransition(sessionId);
 
-  const onTransition: FunnelStepTransitionCallback = ({ type, details }) => {
+  const onTransition: FunnelStepTransitionCallback = async ({
+    type,
+    details,
+  }) => {
     const targetStepId = step.transitions.find((transition) => {
       return transition.on === type;
     })?.destination;
@@ -85,13 +90,18 @@ export const FunnelStepper = ({
       return;
     }
 
-    sendTransition({
+    navigate({ to: targetStepId, type });
+
+    await sendTransition({
       fromStep: step.id,
       toStep: targetStepId,
       transitionEvent: type,
       inputs: details,
     });
-    navigate({ to: targetStepId, type });
+
+    if (targetStepId === FINAL_STEP_ID) {
+      onComplete?.();
+    }
   };
 
   useWindowScroll({
