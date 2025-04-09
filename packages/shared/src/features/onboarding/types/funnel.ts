@@ -27,10 +27,8 @@ export enum FunnelStepTransitionType {
   Complete = 'complete',
 }
 
-export type FunnelStepTransitionCallback<Details = unknown> = (transition: {
-  type: FunnelStepTransitionType;
-  details?: Details;
-}) => void;
+export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
+  (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
 type FunnelStepParameters = Record<string, string>;
 
@@ -51,17 +49,17 @@ export interface FunnelStepChapter extends FunnelStepCommon {
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
   type: FunnelStepType.LandingPage;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepLoading extends FunnelStepCommon {
   type: FunnelStepType.Loading;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepFact extends FunnelStepCommon {
   type: FunnelStepType.Fact;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export enum FunnelStepQuizQuestionType {
@@ -91,7 +89,7 @@ export interface FunnelStepQuiz extends FunnelStepCommon {
 
 export interface FunnelStepSignup extends FunnelStepCommon {
   type: FunnelStepType.Signup;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepPricing extends FunnelStepCommon {
@@ -119,22 +117,22 @@ export interface FunnelStepCheckout extends FunnelStepCommon {
   type: FunnelStepType.Checkout;
   priceId: string;
   discountCode?: string;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepTagSelection extends FunnelStepCommon {
   type: FunnelStepType.TagSelection;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepReadingReminder extends FunnelStepCommon {
   type: FunnelStepType.ReadingReminder;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepAppPromotion extends FunnelStepCommon {
   type: FunnelStepType.AppPromotion;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export interface FunnelStepSocialProof extends FunnelStepCommon {
@@ -143,7 +141,7 @@ export interface FunnelStepSocialProof extends FunnelStepCommon {
   rating: string;
   reviews: Review[];
   reviewSubtitle: string;
-  onTransition: FunnelStepTransitionCallback<void>;
+  onTransition: FunnelStepTransitionCallback;
 }
 
 export type FunnelStep =

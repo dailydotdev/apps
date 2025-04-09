@@ -22,9 +22,11 @@ import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
 import { useWindowScroll } from '../../common/hooks/useWindowScroll';
+import { useStepTransition } from '../hooks/useStepTransition';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
+  sessionId: string;
 }
 
 const stepComponentMap = {
@@ -60,7 +62,10 @@ function FunnelStepComponent(props: NonChapterStep) {
   return <Component {...props} />;
 }
 
-export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
+export const FunnelStepper = ({
+  funnel,
+  sessionId = '',
+}: FunnelStepperProps): ReactElement => {
   const {
     trackOnClickCapture,
     trackOnHoverCapture,
@@ -69,8 +74,9 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
   } = useFunnelTracking({ funnel });
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
+  const { transition: sendTransition } = useStepTransition(sessionId);
 
-  const onTransition: FunnelStepTransitionCallback = ({ type }) => {
+  const onTransition: FunnelStepTransitionCallback = ({ type, details }) => {
     const targetStepId = step.transitions.find((transition) => {
       return transition.on === type;
     })?.destination;
@@ -79,14 +85,20 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
       return;
     }
 
+    sendTransition({
+      fromStep: step.id,
+      toStep: targetStepId,
+      transitionEvent: type,
+      inputs: details,
+    });
     navigate({ to: targetStepId, type });
-    // todo: send PUT to update the funnel position with details
-    // console.log('Transition details', details);
   };
 
   useWindowScroll({
     onScroll: trackOnScroll,
   });
+
+  // todo: show/hide the header based on the step type
 
   return (
     <section

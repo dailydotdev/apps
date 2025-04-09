@@ -26,11 +26,12 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
 };
 
 export const FunnelQuiz = ({
-  id,
-  question,
   explainer,
+  id,
   onTransition,
+  question,
 }: FunnelStepQuiz): ReactElement => {
+  // todo: add vertical parameter to the quiz component
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
   const [stepValue, setStepValue] = useState<string | string[]>([]);
