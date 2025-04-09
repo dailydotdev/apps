@@ -41,7 +41,7 @@ const calculateTimeLeft = (
 /**
  * Sanitizes HTML string and allows only bold tags
  */
-const sanitizeMessage = (message: string): string => {
+export const sanitizeMessage = (message: string): string => {
   // Only run on client-side
   if (typeof window === 'undefined') {
     return message;

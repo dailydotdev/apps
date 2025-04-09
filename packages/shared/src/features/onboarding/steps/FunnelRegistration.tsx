@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import {
   Typography,
@@ -29,10 +29,12 @@ import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
 import type { FunnelStepTransitionCallback } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
+import { sanitizeMessage } from '../shared';
 
 interface FunnelRegistrationProps {
   onTransition?: FunnelStepTransitionCallback<void>;
-  heading: ReactNode;
+  heading: string;
+  subheading: string;
   imageMobile: string;
   image: string;
 }
@@ -105,6 +107,7 @@ const useRegistrationListeners = (
 
 export function FunnelRegistration({
   heading,
+  subheading,
   image,
   imageMobile,
   onTransition,
@@ -131,6 +134,12 @@ export function FunnelRegistration({
 
   useRegistrationListeners(onTransition);
 
+  const sanitizedHeading = useMemo(() => sanitizeMessage(heading), [heading]);
+  const sanitizedSubheading = useMemo(
+    () => sanitizeMessage(subheading),
+    [subheading],
+  );
+
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
@@ -153,10 +162,16 @@ export function FunnelRegistration({
         <Typography
           type={TypographyType.Title2}
           className="text-center"
-          data-testid="registration-title"
-        >
-          {heading}
-        </Typography>
+          dangerouslySetInnerHTML={{ __html: sanitizedHeading }}
+          data-testid="registgration-heading"
+        />
+        <Typography
+          bold
+          type={TypographyType.Title2}
+          className="text-center"
+          dangerouslySetInnerHTML={{ __html: sanitizedSubheading }}
+          data-testid="registration-subheading"
+        />
         <SocialRegistration onClick={onRegister} />
       </div>
     </div>
