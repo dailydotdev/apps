@@ -40,6 +40,7 @@ export enum ActionType {
   ContentTypes = 'content_types',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
   SmartPrompt = 'smart_prompt',
+  CheckedCoresRole = 'checked_cores_role',
 }
 
 export interface Action {

@@ -10,12 +10,13 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Button } from '../buttons/Button';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import type { TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import Link from '../utilities/Link';
 
 type PostUpgradeToPlusProps = {
   targetId: TargetId;
@@ -75,23 +76,24 @@ export const PostUpgradeToPlus = ({
       <Typography className="w-full">{children}</Typography>
 
       <div className="mt-4 flex gap-2">
-        <Button
-          className="flex-1"
-          tag="a"
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          href={`${webappUrl}plus`}
-          icon={<DevPlusIcon className="text-action-plus-default" />}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id,
-            });
-          }}
-        >
-          {plusCta}
-        </Button>
+        <Link href={plusUrl} passHref>
+          <Button
+            className="flex-1"
+            tag="a"
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<DevPlusIcon className="text-action-plus-default" />}
+            onClick={() => {
+              logSubscriptionEvent({
+                event_name: LogEvent.UpgradeSubscription,
+                target_id,
+              });
+            }}
+          >
+            {plusCta}
+          </Button>
+        </Link>
         <Button
           className="flex-1"
           variant={ButtonVariant.Tertiary}

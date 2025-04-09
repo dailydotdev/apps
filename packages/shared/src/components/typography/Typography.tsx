@@ -50,6 +50,7 @@ export enum TypographyColor {
   StatusError = 'text-status-error',
   Plus = 'text-action-plus-default',
   Brand = 'text-brand-default',
+  Credit = 'text-text-credit',
 }
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;

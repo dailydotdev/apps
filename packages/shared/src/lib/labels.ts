@@ -111,4 +111,13 @@ export const labels = {
       integrationSaved: 'Integration saved successfully',
     },
   },
+  cores: {
+    error: {
+      transactionProcessing: {
+        title: 'Transaction processing',
+        description:
+          'Your transaction is being processed, please wait while it completes. If you want to close the window, you can check the status of your transaction in your Core Wallet. You will also receive an email when the transaction is completed.',
+      },
+    },
+  },
 };

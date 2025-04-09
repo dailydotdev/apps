@@ -23,6 +23,7 @@ export interface PlusItem {
   label: string;
   status: PlusItemStatus;
   tooltip?: string;
+  typographyProps?: TypographyProps<TypographyTag.P>;
   id?: string;
   icon?: ReactElement;
   iconClasses?: string;

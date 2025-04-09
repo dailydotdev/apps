@@ -62,6 +62,7 @@ export enum TimeFormatType {
   ReadHistory = 'readHistory',
   TopReaderBadge = 'topReaderBadge',
   PlusMember = 'plusMember',
+  Transaction = 'transaction',
 }
 
 export function postDateFormat(
@@ -223,6 +224,12 @@ export const formatDate = ({ value, type }: FormatDateProps): string => {
 
   if (type === TimeFormatType.PlusMember) {
     return getPlusMemberDateFormat(date);
+  }
+
+  if (type === TimeFormatType.Transaction) {
+    const isCurrentYear = isSameYear(date, new Date());
+
+    return format(date, `MMM dd${isCurrentYear ? ' ' : ', yyyy '}HH:mm`);
   }
 
   return postDateFormat(date);

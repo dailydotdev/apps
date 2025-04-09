@@ -3,6 +3,7 @@ import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import type { GraphQLError } from 'graphql-request/dist/types';
 import type { PublicProfile, UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
+import type { UserTransactionStatus } from './njord';
 // GraphQL Relay pagination types
 
 export type ConnectionCursor = string;
@@ -85,6 +86,7 @@ export enum ApiError {
   Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
   RateLimited = 'RATE_LIMITED',
+  BalanceTransactionError = 'BALANCE_TRANSACTION_ERROR',
 }
 
 export enum ApiErrorMessage {
@@ -101,9 +103,20 @@ interface ApiResponseErrorExtension {
   code: ApiError;
 }
 
-interface ApiResponseError {
+export interface ApiUserTransactionErrorExtension
+  extends ApiResponseErrorExtension {
+  status: UserTransactionStatus;
+  balance?: {
+    amount: number;
+  };
+  transactionId: string;
+}
+
+export interface ApiResponseError<
+  TExtension extends ApiResponseErrorExtension = ApiResponseErrorExtension,
+> {
   message: ApiErrorMessage | string;
-  extensions: ApiResponseErrorExtension;
+  extensions: TExtension;
 }
 
 interface ApiResponse {
