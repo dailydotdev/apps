@@ -1,38 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface UseWindowScrollProps {
-  onScroll?: () => void;
+  onScroll?: (scrollY: number) => void;
 }
 
-interface UseWindowScrollReturn {
-  y: number;
-}
-
-export const useWindowScroll = (
-  options?: UseWindowScrollProps,
-): UseWindowScrollReturn => {
+export const useWindowScroll = (options?: UseWindowScrollProps): void => {
   const { onScroll } = options || {};
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const onScrollRef = useRef(onScroll);
 
-  const handleScroll = () => {
-    setScrollPosition(window.scrollY);
-    onScroll?.();
-  };
+  useEffect(() => {
+    onScrollRef.current = onScroll;
+  }, [onScroll]);
 
-  useEffect(
-    () => {
-      globalThis?.addEventListener?.('scroll', handleScroll, { passive: true });
-      return () => {
-        globalThis?.removeEventListener?.('scroll', handleScroll);
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+  useEffect(() => {
+    const handleScroll = () => {
+      onScrollRef.current?.(window.scrollY);
+    };
 
-  return {
-    y: scrollPosition,
-  };
+    globalThis?.addEventListener?.('scroll', handleScroll, { passive: true });
+    return () => {
+      globalThis?.removeEventListener?.('scroll', handleScroll);
+    };
+  }, []);
 };
