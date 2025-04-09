@@ -5,12 +5,8 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelQuiz';
 import {
   FunnelStepQuizQuestionType,
-  FunnelStepTransitionType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { fn } from '@storybook/test';
-import {
-  funnelQuizLayout,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import {
   CheckboxGroupVariant,
 } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';

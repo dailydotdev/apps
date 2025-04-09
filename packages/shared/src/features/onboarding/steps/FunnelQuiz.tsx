@@ -92,10 +92,15 @@ export const FunnelQuiz = ({
           />
         )}
         <Component
-          {...(isCheckboxGroup && { ...question })}
           name={id}
           options={inputOptions}
           onValueChange={onChange}
+          {...(isCheckboxGroup && {
+            ...{
+              variant: question.variant,
+              cols: question.cols,
+            },
+          })}
         />
       </div>
     </ConditionalWrapper>
