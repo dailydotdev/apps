@@ -25,6 +25,7 @@ import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
 import type { BookmarkFolder } from '../../../graphql/bookmarks';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import Link from '../../utilities/Link';
 
 type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
@@ -172,24 +173,25 @@ const BookmarkFolderModal = ({
           </ul>
           {!isMobile &&
             (shouldUpgrade ? (
-              <Button
-                tag="a"
-                target="_blank"
-                href={plusUrl}
-                rel={anchorDefaultRel}
-                onClick={() => {
-                  logSubscriptionEvent({
-                    event_name: LogEvent.UpgradeSubscription,
-                    target_id: TargetId.BookmarkFolder,
-                  });
-                }}
-                variant={ButtonVariant.Primary}
-              >
-                <span className="flex gap-1">
-                  <DevPlusIcon className="text-action-plus-default" /> Upgrade
-                  to plus
-                </span>
-              </Button>
+              <Link href={plusUrl} passHref>
+                <Button
+                  tag="a"
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  onClick={() => {
+                    logSubscriptionEvent({
+                      event_name: LogEvent.UpgradeSubscription,
+                      target_id: TargetId.BookmarkFolder,
+                    });
+                  }}
+                  variant={ButtonVariant.Primary}
+                >
+                  <span className="flex gap-1">
+                    <DevPlusIcon className="text-action-plus-default" /> Upgrade
+                    to plus
+                  </span>
+                </Button>
+              </Link>
             ) : (
               <Button
                 type="submit"
