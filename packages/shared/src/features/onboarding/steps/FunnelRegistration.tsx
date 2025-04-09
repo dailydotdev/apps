@@ -143,7 +143,7 @@ export function FunnelRegistration({
         />
 
         <Typography
-          type={TypographyType.Title3}
+          type={TypographyType.Title2}
           className="text-center"
           data-testid="registration-title"
         >
