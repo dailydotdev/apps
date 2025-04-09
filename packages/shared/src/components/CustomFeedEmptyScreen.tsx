@@ -5,7 +5,7 @@ import { EmptyScreenIcon } from './EmptyScreen';
 import { DevPlusIcon, HashtagIcon } from './icons';
 import { PageContainer, SharedFeedPage } from './utilities';
 import { ButtonSize, ButtonVariant } from './buttons/common';
-import { webappUrl } from '../lib/constants';
+import { plusUrl } from '../lib/constants';
 import {
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
@@ -24,6 +24,7 @@ import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 import useCustomFeedHeader from '../hooks/feed/useCustomFeedHeader';
+import Link from './utilities/Link';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
@@ -86,23 +87,24 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                 feed control. Upgrade to Plus to unlock this ultimate tool for
                 tailoring your content.
               </Typography>
-              <Button
-                className="mt-10"
-                tag="a"
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Medium}
-                href={`${webappUrl}plus`}
-                icon={<DevPlusIcon className="text-action-plus-default" />}
-                onClick={() => {
-                  logSubscriptionEvent({
-                    event_name: LogEvent.UpgradeSubscription,
-                    target_id: TargetId.CustomFeed,
-                  });
-                }}
-              >
-                {plusCta}
-              </Button>
+              <Link href={plusUrl} passHref>
+                <Button
+                  className="mt-10"
+                  tag="a"
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Medium}
+                  icon={<DevPlusIcon className="text-action-plus-default" />}
+                  onClick={() => {
+                    logSubscriptionEvent({
+                      event_name: LogEvent.UpgradeSubscription,
+                      target_id: TargetId.CustomFeed,
+                    });
+                  }}
+                >
+                  {plusCta}
+                </Button>
+              </Link>
             </>
           ) : (
             <>

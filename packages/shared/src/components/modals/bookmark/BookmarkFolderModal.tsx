@@ -103,29 +103,30 @@ const BookmarkFolderModal = ({
               color={TypographyColor.Secondary}
             >
               To keep your bookmarks perfectly organized in folders, {` `}
-              <Button
-                className="h-fit border-0 !p-0"
-                variant={ButtonVariant.Option}
-                tag="a"
-                target="_blank"
-                href={plusUrl}
-                rel={anchorDefaultRel}
-                onClick={() => {
-                  logSubscriptionEvent({
-                    event_name: LogEvent.UpgradeSubscription,
-                    target_id: TargetId.BookmarkFolder,
-                  });
-                }}
-              >
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Plus}
-                  className="underline"
+              <Link href={plusUrl} passHref>
+                <Button
+                  className="h-fit border-0 !p-0"
+                  variant={ButtonVariant.Option}
+                  tag="a"
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  onClick={() => {
+                    logSubscriptionEvent({
+                      event_name: LogEvent.UpgradeSubscription,
+                      target_id: TargetId.BookmarkFolder,
+                    });
+                  }}
                 >
-                  {plusCta}
-                </Typography>
-              </Button>
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Plus}
+                    className="underline"
+                  >
+                    {plusCta}
+                  </Typography>
+                </Button>
+              </Link>
             </Typography>
           )}
           <TextField

@@ -15,9 +15,10 @@ import { Button } from '../../buttons/Button';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { bookmarkFolderSoonImage } from '../../../lib/image';
-import { webappUrl } from '../../../lib/constants';
+import { plusUrl } from '../../../lib/constants';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { useConditionalFeature } from '../../../hooks';
+import Link from '../../utilities/Link';
 
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'>;
 
@@ -77,23 +78,24 @@ const BookmarkFolderSoonModal = ({
               Upgrade to daily.dev Plus today, get an early adopter discount and
               be among the first to experience it as soon as it launches!
             </Typography>
-            <Button
-              className="w-full"
-              tag="a"
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              href={`${webappUrl}plus`}
-              icon={<DevPlusIcon className="text-action-plus-default" />}
-              onClick={() => {
-                logSubscriptionEvent({
-                  event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.BookmarkFolder,
-                });
-              }}
-            >
-              {plusCta}
-            </Button>
+            <Link href={plusUrl} passHref>
+              <Button
+                className="w-full"
+                tag="a"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                icon={<DevPlusIcon className="text-action-plus-default" />}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.BookmarkFolder,
+                  });
+                }}
+              >
+                {plusCta}
+              </Button>
+            </Link>
           </div>
         )}
       </Modal.Body>

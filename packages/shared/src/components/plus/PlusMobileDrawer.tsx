@@ -9,11 +9,12 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { TargetType, Origin, LogEvent } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
+import Link from '../utilities/Link';
 
 type PlusMobileDrawerProps = {
   onClose: () => void;
@@ -59,14 +60,11 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
             {flags.description}
           </Typography>
         </div>
-        <Button
-          onClick={handleClick}
-          tag="a"
-          href={`${webappUrl}plus`}
-          variant={ButtonVariant.Primary}
-        >
-          {flags.ctaText}
-        </Button>
+        <Link href={plusUrl} passHref>
+          <Button onClick={handleClick} tag="a" variant={ButtonVariant.Primary}>
+            {flags.ctaText}
+          </Button>
+        </Link>
       </div>
     </Drawer>
   );
