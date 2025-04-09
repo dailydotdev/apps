@@ -55,7 +55,7 @@ export const FeedSettingsAISection = (): ReactElement => {
         <>
           <div className="flex w-full items-center rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
             <Typography type={TypographyType.Callout}>
-              Upgrade and use daily.dev’s AI Superpowers!
+              Upgrade and use daily.dev&apos;s AI Superpowers!
             </Typography>
             <Link href={plusUrl} passHref>
               <Button
