@@ -55,6 +55,7 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
 export interface FunnelStepLoading
   extends Omit<FunnelStepCommon, 'transitions'> {
   type: FunnelStepType.Loading;
+  isActive?: boolean;
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
