@@ -4,6 +4,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { canAwardUser, hasAccessToCores } from '../lib/cores';
 import type { PropsParameters } from '../types';
 import { useIsSpecialUser } from './auth/useIsSpecialUser';
+import { isIOSNative } from '../lib/func';
 
 const useCoresFeature = (): boolean => {
   const { user } = useAuthContext();
@@ -13,7 +14,7 @@ const useCoresFeature = (): boolean => {
     shouldEvaluate: !!user && user.coresRole > 0,
   });
 
-  return hasAccess;
+  return !isIOSNative() && hasAccess;
 };
 
 export const useHasAccessToCores = (): boolean => {
