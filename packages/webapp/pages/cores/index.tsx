@@ -30,6 +30,9 @@ import {
   getPathnameWithQuery,
   getRedirectNextPath,
 } from '@dailydotdev/shared/src/lib/links';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { buyCoreStarField } from '@dailydotdev/shared/src/lib/image';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -43,7 +46,7 @@ export const seo: NextSeoProps = {
 
 const MobileContainer = classed(
   'div',
-  'flex flex-1 flex-col bg-gradient-to-t from-theme-overlay-float-bun to-transparen',
+  'flex flex-1 flex-col bg-gradient-to-t from-theme-overlay-float-bun to-transparent relative',
 );
 
 export const CorePageMobileCheckout = (): ReactElement => {
@@ -75,16 +78,20 @@ export const CorePageMobileCheckout = (): ReactElement => {
   );
 };
 
-export const PageCoreOptions = (): ReactElement => {
+export const PageCoreOptions = ({
+  showCoresAtCheckout = true,
+  title = (
+    <Typography className="mb-4" type={TypographyType.LargeTitle} bold>
+      Get More Cores
+    </Typography>
+  ),
+  className,
+}: CoreOptions): ReactElement => {
   return (
     <CoreOptions
-      className="p-6"
-      title={
-        <Typography className="mb-4" type={TypographyType.LargeTitle} bold>
-          Get More Cores
-        </Typography>
-      }
-      showCoresAtCheckout
+      className={classNames('p-6', className)}
+      title={title}
+      showCoresAtCheckout={showCoresAtCheckout}
     />
   );
 };
@@ -112,7 +119,25 @@ const CorePageMobile = (): ReactElement => {
 
   return (
     <MobileContainer>
-      <PageCoreOptions />
+      <PageCoreOptions
+        showCoresAtCheckout={false}
+        title={
+          <>
+            <img
+              src={buyCoreStarField}
+              alt="Scattered stars"
+              className="absolute left-0 top-0 z-0"
+            />
+            <div className="flex flex-col items-center gap-2">
+              <CoreIcon size={IconSize.Size80} />
+              <Typography type={TypographyType.Body} bold className="mb-2">
+                Get More Cores
+              </Typography>
+            </div>
+          </>
+        }
+        className="text-center"
+      />
     </MobileContainer>
   );
 };
