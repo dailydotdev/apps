@@ -14,11 +14,11 @@ export interface StepTransitionPayload {
 
 export type UseStepTransitionRet = {
   transition: UseMutateAsyncFunction<void, HttpError, StepTransitionPayload>;
-  isLoading: boolean;
+  isPending: boolean;
 };
 
 export function useStepTransition(sessionId: string): UseStepTransitionRet {
-  const { mutateAsync, isPending: isLoading } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: async (payload: StepTransitionPayload) => {
       const url = `${process.env.NEXT_PUBLIC_API_URL}/freyja/sessions/${sessionId}/transition`;
 
@@ -39,6 +39,6 @@ export function useStepTransition(sessionId: string): UseStepTransitionRet {
 
   return {
     transition: mutateAsync,
-    isLoading,
+    isPending,
   };
 }
