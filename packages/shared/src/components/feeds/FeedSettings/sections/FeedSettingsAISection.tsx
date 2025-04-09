@@ -183,26 +183,6 @@ export const FeedSettingsAISection = (): ReactElement => {
             Optimize title quality
           </Switch>
         </ConditionalWrapper>
-        {!isPlus && (
-          <Link href={plusUrl} passHref>
-            <Button
-              className="w-fit"
-              tag="a"
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              icon={<DevPlusIcon className="text-action-plus-default" />}
-              onClick={() => {
-                logSubscriptionEvent({
-                  event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.ClickbaitShield,
-                });
-              }}
-            >
-              {plusCta}
-            </Button>
-          </Link>
-        )}
       </section>
 
       <Divider className="bg-border-subtlest-tertiary" />
