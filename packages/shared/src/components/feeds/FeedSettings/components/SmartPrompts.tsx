@@ -25,6 +25,7 @@ import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { SimpleTooltip } from '../../../tooltips';
 import ConditionalWrapper from '../../../ConditionalWrapper';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
+import Link from '../../../utilities/Link';
 
 export const SmartPrompts = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
@@ -114,23 +115,24 @@ export const SmartPrompts = (): ReactElement => {
         ))}
       </div>
       {!isPlus && (
-        <Button
-          className="w-fit"
-          tag="a"
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
-          href={plusUrl}
-          icon={<DevPlusIcon className="text-action-plus-default" />}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.ClickbaitShield,
-            });
-          }}
-        >
-          {plusCta}
-        </Button>
+        <Link href={plusUrl} passHref>
+          <Button
+            className="w-fit"
+            tag="a"
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            icon={<DevPlusIcon className="text-action-plus-default" />}
+            onClick={() => {
+              logSubscriptionEvent({
+                event_name: LogEvent.UpgradeSubscription,
+                target_id: TargetId.ClickbaitShield,
+              });
+            }}
+          >
+            {plusCta}
+          </Button>
+        </Link>
       )}
     </section>
   );
