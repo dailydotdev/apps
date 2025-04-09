@@ -11,6 +11,7 @@ import { MoveToIcon } from '../../../components/icons';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { ProgressBar } from './ProgressBar';
 import type { ProgressBarProps } from './ProgressBar';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 export interface HeaderProps extends ProgressBarProps {
   showBackButton?: boolean;
@@ -40,7 +41,7 @@ export function Header({
         {showBackButton && !isFirstStep && (
           <Button
             aria-label="Go back"
-            data-track-click
+            data-funnel-track={FunnelTargetId.StepBack}
             icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
             onClick={onBack}
             size={ButtonSize.Large}
@@ -57,7 +58,7 @@ export function Header({
         {showSkipButton && (
           <Button
             className="ml-auto font-normal"
-            data-track-click
+            data-funnel-track={FunnelTargetId.StepSkip}
             onClick={onSkip}
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}

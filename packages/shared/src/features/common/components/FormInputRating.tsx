@@ -2,6 +2,7 @@ import type { ReactElement, PropsWithChildren, ComponentProps } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { FunnelTargetId } from '../../onboarding/types/funnelEvents';
 
 type RatingValue = string;
 type OptionItem = {
@@ -57,7 +58,7 @@ export const FormInputRating = ({
                 'h-16 min-w-10 flex-1 justify-center border border-border-subtlest-tertiary',
                 className,
               )}
-              data-track-click
+              data-funnel-track={FunnelTargetId.QuizInput}
               key={item.value}
               name={name}
               onClick={() => onSelect(item.value)}

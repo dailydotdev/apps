@@ -7,6 +7,7 @@ import {
   ButtonSize,
 } from '../../../components/buttons/Button';
 import type { ButtonProps } from '../../../components/buttons/Button';
+import { FunnelTargetId } from '../../onboarding/types/funnelEvents';
 
 type CheckboxValue = string;
 type CheckboxValues = string[];
@@ -72,7 +73,7 @@ const FormInputCheckbox = ({
       aria-checked={isSelected}
       aria-label={item.label}
       className={classNames(isVertical ? 'typo-subhead' : 'typo-body')}
-      data-track-click
+      data-funnel-track={FunnelTargetId.QuizInput}
       name={name}
       pressed={isSelected}
       role="checkbox"

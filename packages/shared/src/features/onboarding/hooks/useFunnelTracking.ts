@@ -1,6 +1,7 @@
 import type { MouseEventHandler } from 'react';
 import { useCallback, useMemo, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
+import { type } from '@testing-library/user-event/dist/type';
 import { useLogContext } from '../../../contexts/LogContext';
 import type {
   FunnelStep,
@@ -52,9 +53,10 @@ const trackOnMouseCapture = ({
       return;
     }
 
+    // eslint-disable-next-line testing-library/no-node-access
     const trackedElement = event.target.closest(selector);
 
-    if (!trackedElement) {
+    if (!(trackedElement instanceof HTMLElement)) {
       return;
     }
 
@@ -63,7 +65,7 @@ const trackOnMouseCapture = ({
       details: {
         target_type:
           trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
-        ...(trackedElement.id ? { target_id: trackedElement.id } : {}),
+        target_id: trackedElement.dataset.funnelTrack,
       },
     });
   };
@@ -101,7 +103,7 @@ export const useFunnelTracking = ({
   );
 
   const trackOnClickCapture: TrackOnMouseCapture = trackOnMouseCapture({
-    selector: '[data-track-click]',
+    selector: '[data-funnel-track]',
     eventName: FunnelEventName.ClickFunnelElement,
     trackFunnelEvent,
   });

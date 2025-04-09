@@ -15,6 +15,13 @@ export enum FunnelEventName {
   RejectCookieConsent = 'decline cookies',
 }
 
+export enum FunnelTargetId {
+  QuizInput = 'quiz input',
+  StepCta = 'step cta',
+  StepSkip = 'step skip',
+  StepBack = 'step back',
+}
+
 export type FunnelEvent =
   | { name: FunnelEventName.StartFunnel }
   | { name: FunnelEventName.ResumeFunnel }
