@@ -24,7 +24,7 @@ export type TrackOnNavigate = (event: {
   type: FunnelStepTransitionType;
 }) => void;
 
-interface USeFunnelTrackingProps {
+interface UseFunnelTrackingProps {
   funnel: FunnelJSON;
 }
 
@@ -71,7 +71,7 @@ const trackOnMouseCapture = ({
 
 export const useFunnelTracking = ({
   funnel,
-}: USeFunnelTrackingProps): UseFunnelTrackingReturn => {
+}: UseFunnelTrackingProps): UseFunnelTrackingReturn => {
   const { logEvent } = useLogContext();
   const position = useAtomValue(funnelPositionAtom);
   const step = useMemo(
