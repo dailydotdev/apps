@@ -58,8 +58,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { featuredAwardImage } from '../../lib/image';
-import { Image } from '../image/Image';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 
 export interface CommentActionProps {
@@ -380,18 +378,15 @@ export default function CommentActionButtons({
           )}
 
           {!!comment.numAwards && (
-            <>
-              <Image src={featuredAwardImage} alt="Award" className="size-6" />
-              <Typography
-                className="ml-1 mr-3"
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-                bold
-              >
-                {largeNumberFormat(comment.numAwards)} Award
-                {comment.numAwards > 1 ? 's' : ''}
-              </Typography>
-            </>
+            <Typography
+              className="ml-1 mr-3"
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              {largeNumberFormat(comment.numAwards)} Award
+              {comment.numAwards > 1 ? 's' : ''}
+            </Typography>
           )}
         </>
       )}
