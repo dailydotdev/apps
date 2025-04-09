@@ -64,8 +64,8 @@ export const FunnelStepper = ({ funnel }: FunnelStepperProps): ReactElement => {
   const {
     trackOnClickCapture,
     trackOnHoverCapture,
-    trackOnScroll,
     trackOnNavigate,
+    trackOnScroll,
   } = useFunnelTracking({ funnel });
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });

@@ -112,29 +112,44 @@ export const useFunnelTracking = ({
     trackFunnelEvent,
   });
 
-  const trackOnScroll: TrackOnScroll = () => {
+  const trackOnScroll: TrackOnScroll = useCallback(() => {
     trackFunnelEvent({
       name: FunnelEventName.ScrollFunnel,
       details: {
         scroll_y: globalThis.scrollY,
       },
     });
-  };
+  }, [trackFunnelEvent]);
 
-  const trackOnNavigate: TrackOnNavigate = (event) => {
-    trackFunnelEvent({
-      name: FunnelEventName.TransitionFunnel,
-      details: {
-        target_type: event.type,
-        target_id: event.to,
-        event_duration: event.timeDuration,
-      },
-    });
-  };
+  const trackOnNavigate: TrackOnNavigate = useCallback(
+    (event) => {
+      trackFunnelEvent({
+        name: FunnelEventName.TransitionFunnel,
+        details: {
+          target_type: event.type,
+          target_id: event.to,
+          event_duration: event.timeDuration,
+        },
+      });
+    },
+    [trackFunnelEvent],
+  );
+
+  useEffect(
+    () => {
+      trackFunnelEvent({
+        name: FunnelEventName.FunnelStepView,
+      });
+    },
+    // track only when the step changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [step?.id],
+  );
 
   useEffect(
     () => {
       trackFunnelEvent({ name: FunnelEventName.StartFunnel });
+      // todo: implement resume funnel event
 
       return () => {
         trackFunnelEvent({ name: FunnelEventName.LeaveFunnel });
@@ -144,6 +159,8 @@ export const useFunnelTracking = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [funnel],
   );
+
+  // todo: implement complete funnel event
 
   return {
     trackOnClickCapture,
