@@ -126,7 +126,7 @@ const Wallet = (): ReactElement => {
       logEvent({
         event_name: LogEvent.StartBuyingCredits,
         target_id,
-        extra: JSON.stringify({ origin, amount }),
+        extra: JSON.stringify({ origin, quantity: amount }),
       });
     },
     [logEvent],

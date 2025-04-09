@@ -34,7 +34,7 @@ export const CoreOptionButton = ({
   const onSelect = useCallback(() => {
     logEvent({
       event_name: LogEvent.SelectCreditsQuantity,
-      extra: JSON.stringify({ origin, amount: selectedProduct.value }),
+      extra: JSON.stringify({ origin, quantity: selectedProduct.value }),
     });
 
     setSelectedProduct({
