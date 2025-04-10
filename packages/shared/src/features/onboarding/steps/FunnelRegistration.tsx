@@ -30,6 +30,8 @@ import type { LoggedUser } from '../../../lib/user';
 import type { FunnelStepTransitionCallback } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { sanitizeMessage } from '../shared';
+import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
+import { isIOS } from '../../../lib/func';
 
 interface FunnelRegistrationProps {
   onTransition?: FunnelStepTransitionCallback<void>;
@@ -119,6 +121,17 @@ export function FunnelRegistration({
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
+      const inAppBrowser = isWebView();
+      const confirmedIOS = isIOS();
+      const isAndroidWebView = inAppBrowser && !confirmedIOS;
+
+      if (isAndroidWebView) {
+        windowPopup.current.close();
+        windowPopup.current = null;
+        const intentUrl = `intent:${redirect}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = intentUrl;
+      }
+
       windowPopup.current.location.href = redirect;
     },
   });
