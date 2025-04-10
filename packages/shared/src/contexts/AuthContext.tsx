@@ -144,7 +144,7 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnel = useMemo(
-    () => !!router?.pathname.includes('/helloworld/'),
+    () => !!router?.pathname?.includes('/helloworld/'),
     [router?.pathname],
   );
 
