@@ -80,6 +80,7 @@ export const useFunnelNavigation = ({
   const [stepTimerStart, setStepTimerStart] = useState<number>(0);
   const [position, setPosition] = useAtom(funnelPositionAtom);
   const [history, dispatchHistory] = useAtom(funnelPositionHistoryAtom);
+  const isFirstStep = !position.step && !position.chapter;
 
   const chapters: Chapters = useMemo(
     () => funnel.chapters.map((chapter) => ({ steps: chapter.steps.length })),
@@ -132,25 +133,28 @@ export const useFunnelNavigation = ({
   );
 
   const back: HeaderNavigation = useMemo(() => {
+    const hasTarget = !isFirstStep && history.canUndo;
     return {
-      hasTarget: history.canUndo,
+      hasTarget,
       navigate: () => {
-        if (!history.canUndo) {
+        if (!hasTarget) {
           return;
         }
         dispatchHistory(UNDO);
       },
     };
-  }, [dispatchHistory, history.canUndo]);
+  }, [dispatchHistory, history.canUndo, isFirstStep]);
 
   const skip: UseFunnelNavigationReturn['skip'] = useMemo(
     () => ({
-      hasTarget: !!step?.transitions?.some(
-        ({ on, destination }) =>
-          on === FunnelStepTransitionType.Skip && !!destination,
-      ),
+      hasTarget:
+        !isFirstStep &&
+        !!step?.transitions?.some(
+          ({ on, destination }) =>
+            on === FunnelStepTransitionType.Skip && !!destination,
+        ),
     }),
-    [step?.transitions],
+    [isFirstStep, step?.transitions],
   );
 
   useEffect(

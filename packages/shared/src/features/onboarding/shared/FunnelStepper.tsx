@@ -141,6 +141,7 @@ export const FunnelStepper = ({
               >
                 <FunnelStepComponent
                   {...funnelStep}
+                  isActive={funnelStep?.id === step?.id}
                   onTransition={onTransition}
                 />
               </div>
