@@ -126,10 +126,8 @@ export function FunnelRegistration({
       const isAndroidWebView = inAppBrowser && !confirmedIOS;
 
       if (isAndroidWebView) {
-        windowPopup.current.close();
-        windowPopup.current = null;
         const intentUrl = `intent:${redirect}#Intent;scheme=https;package=com.android.chrome;end`;
-        window.location.href = intentUrl;
+        windowPopup.current.location.href = intentUrl;
       }
 
       windowPopup.current.location.href = redirect;
