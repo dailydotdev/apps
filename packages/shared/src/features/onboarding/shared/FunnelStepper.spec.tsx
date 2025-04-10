@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 import { FunnelStepper } from './FunnelStepper';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
@@ -12,6 +13,7 @@ import {
 } from '../types/funnel';
 import type { FunnelJSON, FunnelStep } from '../types/funnel';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 
 // Mock all hooks used by the component
 jest.mock('../hooks/useFunnelNavigation');
@@ -23,6 +25,8 @@ jest.mock('../../common/hooks/useWindowScroll', () => ({
 jest.mock('jotai-history', () => ({
   withHistory: jest.fn(),
 }));
+
+let client: QueryClient;
 
 describe('FunnelStepper component', () => {
   const mockNavigate = jest.fn();
@@ -71,6 +75,7 @@ describe('FunnelStepper component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    client = new QueryClient();
 
     // Set up hook mocks
     (useFunnelNavigation as jest.Mock).mockReturnValue({
@@ -94,27 +99,26 @@ describe('FunnelStepper component', () => {
     });
   });
 
-  it('should render correctly', () => {
+  const renderComponent = (funnel = mockFunnel) => {
     render(
-      <FunnelStepper
-        funnel={mockFunnel}
-        sessionId="test-session"
-        onComplete={mockOnComplete}
-      />,
+      <TestBootProvider client={client}>
+        <FunnelStepper
+          funnel={funnel}
+          sessionId="test-session"
+          onComplete={mockOnComplete}
+        />
+      </TestBootProvider>,
     );
+  };
 
+  it('should render correctly', () => {
+    renderComponent();
     // Verify the Header is rendered
     expect(screen.getByTestId('funnel-stepper')).toBeInTheDocument();
   });
 
   it('should handle transition events correctly', async () => {
-    render(
-      <FunnelStepper
-        funnel={mockFunnel}
-        sessionId="test-session"
-        onComplete={mockOnComplete}
-      />,
-    );
+    renderComponent();
 
     const step = screen.getByTestId('funnel-step');
     expect(step).toBeInTheDocument();
@@ -138,13 +142,7 @@ describe('FunnelStepper component', () => {
   });
 
   it('should call onComplete when transitioning to the final step', async () => {
-    render(
-      <FunnelStepper
-        funnel={mockFunnel}
-        sessionId="test-session"
-        onComplete={mockOnComplete}
-      />,
-    );
+    renderComponent();
 
     const skipButton = screen.getByRole('button', { name: 'Skip' });
     expect(skipButton).toBeInTheDocument();
@@ -159,13 +157,7 @@ describe('FunnelStepper component', () => {
   });
 
   it('should not call onComplete for non-final step transitions', async () => {
-    render(
-      <FunnelStepper
-        funnel={mockFunnel}
-        sessionId="test-session"
-        onComplete={mockOnComplete}
-      />,
-    );
+    renderComponent();
 
     await act(async () => {
       const firstOption = screen.getByText('Option 1');
@@ -182,7 +174,7 @@ describe('FunnelStepper component', () => {
   });
 
   it('should set up tracking event handlers', () => {
-    render(<FunnelStepper funnel={mockFunnel} sessionId="test-session" />);
+    renderComponent();
 
     const section = screen.getByLabelText('Option 1');
 
@@ -206,7 +198,7 @@ describe('FunnelStepper component', () => {
       step: mockStep,
     });
 
-    render(<FunnelStepper funnel={mockFunnel} sessionId="test-session" />);
+    renderComponent();
 
     expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
   });
@@ -221,7 +213,7 @@ describe('FunnelStepper component', () => {
       step: mockStep,
     });
 
-    render(<FunnelStepper funnel={mockFunnel} sessionId="test-session" />);
+    renderComponent();
 
     expect(
       screen.queryByRole('button', { name: 'Skip' }),
@@ -276,12 +268,7 @@ describe('FunnelStepper component', () => {
       step: quizStep,
     });
 
-    render(
-      <FunnelStepper
-        funnel={mockFunnelWithMultipleSteps}
-        sessionId="test-session"
-      />,
-    );
+    renderComponent(mockFunnelWithMultipleSteps);
 
     // We should have one visible div and one hidden div
     const steps = screen.getAllByTestId('funnel-step');

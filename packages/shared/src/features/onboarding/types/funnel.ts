@@ -1,5 +1,4 @@
 import type { ComponentProps } from 'react';
-import type { Paddle } from '@paddle/paddle-js';
 import type {
   BoxFaqProps,
   BoxListProps,
@@ -55,8 +54,9 @@ interface FunnelStepCommon<T = FunnelStepParameters> {
   isActive?: boolean;
 }
 
-export interface FunnelChapter extends FunnelStepCommon {
-  steps: Array<FunnelStep>;
+export interface FunnelChapter {
+  id: string;
+  steps: Array<Omit<FunnelStep, 'onTransition'>>;
 }
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
@@ -69,15 +69,17 @@ export interface FunnelStepLoading extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepFactParameters {
+  headline: string;
+  cta?: string;
+  reverse?: boolean;
+  explainer: string;
+  align: StepHeadlineAlign;
+  visualUrl?: string;
+}
+
 export interface FunnelStepFact
-  extends FunnelStepCommon<{
-    headline: string;
-    cta?: string;
-    reverse?: boolean;
-    explainer: string;
-    align: StepHeadlineAlign;
-    visualUrl?: string;
-  }> {
+  extends FunnelStepCommon<FunnelStepFactParameters> {
   type: FunnelStepType.Fact;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -161,13 +163,15 @@ export interface FunnelStepPricing
     applyDiscount: boolean;
   }>;
   discountStartDate: Date;
-  paddle?: Paddle;
 }
 
-export interface FunnelStepCheckout extends FunnelStepCommon {
-  type: FunnelStepType.Checkout;
-  priceId: string;
+export interface FunnelStepCheckoutParameters {
   discountCode?: string;
+}
+
+export interface FunnelStepCheckout
+  extends FunnelStepCommon<FunnelStepCheckoutParameters> {
+  type: FunnelStepType.Checkout;
   onTransition: FunnelStepTransitionCallback;
 }
 

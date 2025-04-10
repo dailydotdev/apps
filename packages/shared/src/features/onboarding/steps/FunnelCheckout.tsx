@@ -2,32 +2,39 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import type { CheckoutUpdateOptions, PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
+import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
-import { usePaddle } from '../../payment/hooks/usePaddle';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
+import {
+  paddleInstanceAtom,
+  selectedPlanAtom,
+  applyDiscountAtom,
+} from '../store/funnelStore';
+import { usePaddleEvent } from '../hooks/usePaddleEvent';
 
-const InnerFunnelCheckout = ({
-  priceId,
-  discountCode,
+export const InnerFunnelCheckout = ({
+  parameters: { discountCode },
   onTransition,
 }: FunnelStepCheckout): ReactElement => {
   const isCheckoutOpenedRef = useRef(false);
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { paddle } = usePaddle({
-    paddleCallback: (event: PaddleEventData) => {
-      switch (event?.name) {
-        case CheckoutEventNames.CHECKOUT_COMPLETED:
-          onTransition({
-            type: FunnelStepTransitionType.Complete,
-          });
-          break;
-        default:
-          break;
-      }
-    },
+  const paddle = useAtomValue(paddleInstanceAtom);
+  const priceId = useAtomValue(selectedPlanAtom);
+  const applyDiscount = useAtomValue(applyDiscountAtom);
+
+  usePaddleEvent((event: PaddleEventData) => {
+    switch (event?.name) {
+      case CheckoutEventNames.CHECKOUT_COMPLETED:
+        onTransition({
+          type: FunnelStepTransitionType.Complete,
+        });
+        break;
+      default:
+        break;
+    }
   });
 
   useEffect(() => {
@@ -37,7 +44,7 @@ const InnerFunnelCheckout = ({
 
     const props: CheckoutUpdateOptions = {
       items: [{ priceId, quantity: 1 }],
-      discountCode,
+      discountId: applyDiscount ? discountCode : undefined,
       customer: {
         email: user?.email,
         ...(geo?.region && {
@@ -69,6 +76,7 @@ const InnerFunnelCheckout = ({
     }
   }, [
     discountCode,
+    applyDiscount,
     geo?.region,
     isPlus,
     isPlusAvailable,

@@ -1,5 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'jotai';
+import { useHydrateAtoms } from 'jotai/utils';
 import { FunnelPricing } from './FunnelPricing';
 import type {
   FunnelStepPricing,
@@ -8,6 +10,11 @@ import type {
 import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
 import { PricingPlanVariation } from '../shared/PricingPlan';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
+import {
+  applyDiscountAtom,
+  selectedPlanAtom,
+  paddleInstanceAtom,
+} from '../store/funnelStore';
 
 const mockOnTransition = jest.fn();
 
@@ -27,6 +34,22 @@ jest.mock('../../payment/hooks/usePricingCycleConverter', () => ({
     1: { price: '$0.24', priceId: 'annual' },
   })),
 }));
+
+jest.mock('jotai-history', () => ({
+  withHistory: jest.fn(),
+}));
+
+type HydrateAtomsProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialValues: any[];
+  children: React.ReactNode;
+};
+
+// Hydration component to set initial atom values
+const HydrateAtoms = ({ initialValues, children }: HydrateAtomsProps) => {
+  useHydrateAtoms(initialValues);
+  return children;
+};
 
 const mockPricingParameters: FunnelStepPricingParameters = {
   headline: 'Choose your plan',
@@ -88,11 +111,35 @@ const defaultProps: FunnelStepPricing = {
   onTransition: mockOnTransition,
   isActive: true,
   discountStartDate: new Date('2023-01-01T00:00:00Z'),
-  paddle: undefined,
 };
 
-const renderComponent = (props = {}) => {
-  return render(<FunnelPricing {...defaultProps} {...props} />);
+// Interface for initial test state
+interface InitialState {
+  selectedPlan?: string;
+  applyDiscount?: boolean;
+}
+
+const renderComponent = (props = {}, initialState: InitialState = {}) => {
+  // Use the provided values or defaults
+  const selectedPlan = initialState.selectedPlan || 'annual';
+  const applyDiscount =
+    initialState.applyDiscount !== undefined
+      ? initialState.applyDiscount
+      : true;
+
+  return render(
+    <Provider>
+      <HydrateAtoms
+        initialValues={[
+          [selectedPlanAtom, selectedPlan],
+          [applyDiscountAtom, applyDiscount],
+          [paddleInstanceAtom, undefined],
+        ]}
+      >
+        <FunnelPricing {...defaultProps} {...props} />
+      </HydrateAtoms>
+    </Provider>,
+  );
 };
 
 describe('FunnelPricing', () => {
@@ -136,7 +183,7 @@ describe('FunnelPricing', () => {
   });
 
   it('should switch plans when clicking on a different plan', () => {
-    renderComponent();
+    renderComponent({}, { selectedPlan: 'annual' });
 
     // Get the monthly plan radio button by finding the input with value="monthly"
     const monthlyInputs = screen.getAllByRole('radio');
@@ -158,7 +205,7 @@ describe('FunnelPricing', () => {
   });
 
   it('should set applyDiscount to false when the timer expires', async () => {
-    renderComponent();
+    renderComponent({}, { applyDiscount: false });
 
     // First verify the timer is shown
     const timerDisplay = screen.getByTestId('timer-display');

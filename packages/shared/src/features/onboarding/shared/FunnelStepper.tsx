@@ -30,10 +30,11 @@ import { FunnelStepBackground } from './FunnelStepBackground';
 import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
+import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 import type { FunnelSession } from '../types/funnelBoot';
 import { FunnelEventName } from '../types/funnelEvents';
 
-interface FunnelStepperProps {
+export interface FunnelStepperProps {
   funnel: FunnelJSON;
   session: FunnelSession;
   onComplete?: () => void;
@@ -86,6 +87,7 @@ export const FunnelStepper = ({
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
   const { transition: sendTransition } = useStepTransition(session.id);
 
+  useInitFunnelPaddle();
   useWindowScroll({
     onScroll: trackOnScroll,
   });
