@@ -41,6 +41,7 @@ const commonProps = {
 export const Default: Story = {
   args: {
     ...commonProps,
+    id: 'social-proof',
     type: FunnelStepType.SocialProof,
     parameters: {
       imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1744094774/public/Rating',
