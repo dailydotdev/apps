@@ -206,6 +206,7 @@ export interface FunnelStepSocialProof
     rating: string;
     reviews: Review[];
     reviewSubtitle: string;
+    cta?: string;
   }> {
   type: FunnelStepType.SocialProof;
   onTransition: FunnelStepTransitionCallback;
