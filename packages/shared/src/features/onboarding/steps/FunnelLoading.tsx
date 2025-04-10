@@ -28,7 +28,8 @@ const FunnelLoading = ({
     if (percentage >= 100) {
       onTransition({ type: FunnelStepTransitionType.Complete });
     }
-  }, [percentage, onTransition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [percentage]);
 
   useEffect(() => {
     if (!isActive || hasStarted.current) {
