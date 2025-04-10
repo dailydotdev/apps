@@ -86,7 +86,7 @@ export const FunnelQuiz = ({
           <Image
             alt="Question additional context"
             aria-hidden
-            className="mx-auto max-w-lg object-contain object-center"
+            className="mx-auto w-full max-w-lg object-contain object-center"
             role="presentation"
             src={imageUrl}
           />

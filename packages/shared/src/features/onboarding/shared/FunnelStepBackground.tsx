@@ -2,7 +2,7 @@ import type { ReactElement, ComponentProps } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { FunnelStepType } from '../types/funnel';
-import type { FunnelStep, FunnelStepFactParameters } from '../types/funnel';
+import type { FunnelStep } from '../types/funnel';
 
 export enum FunnelBackgroundVariant {
   Blank = 'blank',
@@ -47,7 +47,7 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   }
 
   if (step.type === FunnelStepType.Fact) {
-    return (parameters as FunnelStepFactParameters)?.reverse
+    return parameters?.reverse
       ? FunnelBackgroundVariant.Top
       : FunnelBackgroundVariant.Bottom;
   }

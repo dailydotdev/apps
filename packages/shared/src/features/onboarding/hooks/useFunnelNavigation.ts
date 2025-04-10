@@ -67,7 +67,7 @@ function updateURLWithStepId({
 }) {
   const params = new URLSearchParams(searchParams.toString());
   params.set('stepId', stepId);
-  router.replace(`${pathname}?${params.toString()}`, { scroll: true });
+  router.push(`${pathname}?${params.toString()}`, { scroll: true });
 }
 
 export const useFunnelNavigation = ({

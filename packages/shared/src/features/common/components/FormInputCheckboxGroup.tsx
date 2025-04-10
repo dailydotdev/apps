@@ -83,10 +83,10 @@ const FormInputCheckbox = ({
     >
       <div
         className={classNames(
-          'flex min-h-12 items-center gap-2',
+          'flex min-h-12 flex-1 items-center gap-2',
           isVertical
             ? 'min-w-full flex-col justify-center py-2'
-            : 'flex-row justify-start',
+            : 'flex-row justify-start text-left',
         )}
       >
         {(isVertical || item.image) && (
@@ -106,7 +106,9 @@ const FormInputCheckbox = ({
             )}
           </div>
         )}
-        <span>{item.label}</span>
+        <span className="flex-1 whitespace-break-spaces py-1">
+          {item.label}
+        </span>
       </div>
     </Button>
   );

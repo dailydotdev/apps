@@ -25,10 +25,11 @@ import { FunnelStepBackground } from './FunnelStepBackground';
 import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
+import type { FunnelSession } from '../types/funnelBoot';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
-  sessionId: string;
+  session: FunnelSession;
   onComplete?: () => void;
 }
 
@@ -64,7 +65,7 @@ function getTransitionDestination(
 
 export const FunnelStepper = ({
   funnel,
-  sessionId = '',
+  session,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
   const {
@@ -72,10 +73,10 @@ export const FunnelStepper = ({
     trackOnHoverCapture,
     trackOnNavigate,
     trackOnScroll,
-  } = useFunnelTracking({ funnel, sessionId });
+  } = useFunnelTracking({ funnel, session });
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
-  const { transition: sendTransition } = useStepTransition(sessionId);
+  const { transition: sendTransition } = useStepTransition(session.id);
 
   useWindowScroll({
     onScroll: trackOnScroll,

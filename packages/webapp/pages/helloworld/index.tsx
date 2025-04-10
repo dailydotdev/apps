@@ -83,7 +83,7 @@ export default function HelloWorldPage({
       </Head>
 
       {!!funnel && !!session.id && (
-        <FunnelStepper funnel={funnel} sessionId={session.id} />
+        <FunnelStepper funnel={funnel} session={session} />
       )}
     </HydrationBoundary>
   );

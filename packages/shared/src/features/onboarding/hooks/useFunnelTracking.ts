@@ -13,6 +13,7 @@ import {
   getFunnelStepByPosition,
   funnelPositionAtom,
 } from '../store/funnelStore';
+import type { FunnelSession } from '../types/funnelBoot';
 
 type TrackOnMouseCapture = MouseEventHandler<HTMLElement>;
 type TrackOnScroll = () => void;
@@ -26,7 +27,7 @@ export type TrackOnNavigate = (event: {
 
 interface UseFunnelTrackingProps {
   funnel: FunnelJSON;
-  sessionId: string;
+  session: FunnelSession;
 }
 
 interface UseFunnelTrackingReturn {
@@ -73,8 +74,9 @@ const trackOnMouseCapture = ({
 
 export const useFunnelTracking = ({
   funnel,
-  sessionId = '',
+  session,
 }: UseFunnelTrackingProps): UseFunnelTrackingReturn => {
+  const { id: sessionId } = session;
   const { logEvent } = useLogContext();
   const position = useAtomValue(funnelPositionAtom);
   const step = useMemo(
@@ -151,19 +153,25 @@ export const useFunnelTracking = ({
 
   useEffect(
     () => {
-      trackFunnelEvent({ name: FunnelEventName.StartFunnel });
-      // todo: implement resume funnel event
+      const firstStepId = funnel?.chapters[0]?.steps[0]?.id;
+      const isResumedSession = session.currentStep !== firstStepId;
+      console.log('Funnel tracking mounted', { firstStepId, isResumedSession });
+
+      trackFunnelEvent({
+        name: isResumedSession
+          ? FunnelEventName.ResumeFunnel
+          : FunnelEventName.StartFunnel,
+      });
 
       return () => {
+        // todo: implement complete funnel event
         trackFunnelEvent({ name: FunnelEventName.LeaveFunnel });
       };
     },
     // mount/unmount tracking
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [funnel],
+    [funnel?.id],
   );
-
-  // todo: implement complete funnel event
 
   return {
     trackOnClickCapture,
