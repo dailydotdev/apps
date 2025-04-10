@@ -68,8 +68,7 @@ export interface FunnelStepLoading extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepFact
-  extends FunnelStepCommon {
+export interface FunnelStepFact extends FunnelStepCommon {
   type: FunnelStepType.Fact;
   parameters: FunnelStepParameters<{
     headline: string;
