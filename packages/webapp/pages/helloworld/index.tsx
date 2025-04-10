@@ -17,6 +17,8 @@ import type { FunnelBootData } from '@dailydotdev/shared/src/features/onboarding
 
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useRouter } from 'next/router';
 
 type PageProps = {
   boot: FunnelBootData;
@@ -66,15 +68,19 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 };
 
 export default function HelloWorldPage({
-  boot,
   dehydratedState,
 }: PageProps): ReactElement {
-  // const { user, dispatch } = useAppAuth();
   const { data: funnelBoot } = useFunnelBoot();
   const { funnel, session } = funnelBoot?.funnelState ?? {};
+  const { isAuthReady, isValidRegion } = useAuthContext();
+  const router = useRouter();
+
+  if (isAuthReady && !isValidRegion) {
+    router.replace('/onboarding');
+    return null;
+  }
 
   console.log({ funnel, session });
-
   return (
     <HydrationBoundary state={dehydratedState}>
       <Head>
