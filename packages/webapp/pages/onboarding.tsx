@@ -43,7 +43,6 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
   featureInteractiveFeed,
-  featureOnboardingPlusCheckout,
   featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
@@ -113,10 +112,6 @@ const OnboardingExtension = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingExtension" */ '@dailydotdev/shared/src/components/onboarding/Extension/OnboardingExtension'
   ).then((mod) => mod.OnboardingExtension),
-);
-
-const PlusPage = dynamic(
-  () => import(/* webpackChunkName: "plusPage" */ './plus'),
 );
 
 const InteractiveFeedStep = dynamic(
@@ -199,7 +194,6 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
-  const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -332,10 +326,6 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
     if (isLastStepBeforePlus && !isIOSNative() && isValidRegion) {
-      const isPlusCheckoutExperiment = getFeatureValue(
-        featureOnboardingPlusCheckout,
-      );
-      setIsPlusCheckout(isPlusCheckoutExperiment);
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -528,12 +518,9 @@ export function OnboardPage(): ReactElement {
                 />
               )}
               {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-              {activeScreen === OnboardingStep.Plus &&
-                (isPlusCheckout ? (
-                  <PlusPage shouldShowPlusHeader={false} />
-                ) : (
-                  <OnboardingPlusStep onClickNext={onClickNext} />
-                ))}
+              {activeScreen === OnboardingStep.Plus && (
+                <OnboardingPlusStep onClickNext={onClickNext} />
+              )}
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
