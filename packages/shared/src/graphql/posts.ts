@@ -60,6 +60,7 @@ export const translateablePostFields = [
   'title',
   'smartTitle',
   'titleHtml',
+  'summary',
 ] as const;
 export type TranslateablePostField = (typeof translateablePostFields)[number];
 export type PostTranslation = {

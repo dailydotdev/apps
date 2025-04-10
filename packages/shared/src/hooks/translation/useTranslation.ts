@@ -214,6 +214,14 @@ export const useTranslation: UseTranslation = ({
           fields.push('titleHtml');
         }
 
+        if (
+          queryType !== 'feed' &&
+          post.summary &&
+          !post.translation?.summary
+        ) {
+          fields.push('summary');
+        }
+
         if (fields.length > 0) {
           acc[post.id] = fields;
         }
