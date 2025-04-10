@@ -20,6 +20,7 @@ import {
   FlagIcon,
   FolderIcon,
   HammerIcon,
+  LanguageIcon,
   MiniCloseIcon,
   MinusIcon,
   PinIcon,
@@ -70,6 +71,8 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
+import { FeedSettingsMenu } from './feeds/FeedSettings/types';
+import { webappUrl } from '../lib/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -402,6 +405,18 @@ export default function PostOptionsMenu({
           type: LazyModal.BookmarkReminder,
           props: { post, feedContextData },
         });
+      },
+    });
+
+    postOptions.push({
+      icon: <MenuIcon Icon={LanguageIcon} />,
+      label: 'Translate',
+      action: () => {
+        router.push(
+          `${webappUrl}feeds/${router.query?.slugOrId || user.id}/edit?dview=${
+            FeedSettingsMenu.AI
+          }`,
+        );
       },
     });
 
