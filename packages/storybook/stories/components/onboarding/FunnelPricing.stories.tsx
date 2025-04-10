@@ -8,10 +8,9 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { fn } from '@storybook/test';
 import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
-import { usePaddle } from '@dailydotdev/shared/src/features/payment/hooks/usePaddle';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Continent } from '@dailydotdev/shared/src/lib/geo';
+import { useInitFunnelPaddle } from '@dailydotdev/shared/src/features/onboarding/hooks/useInitFunnelPaddle';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,33 +23,37 @@ const queryClient = new QueryClient({
 const withQueryClient = (
   Story: () => ReactElement,
   { parameters }: { parameters: { region: string } },
-): ReactElement => (
-  <QueryClientProvider client={queryClient}>
-    <AuthContextProvider
-      user={{
-        id: '1',
-        email: 'test@test.com',
-        name: 'Test User',
-        username: 'testuser',
-      }}
-      updateUser={fn()}
-      tokenRefreshed={true}
-      getRedirectUri={fn()}
-      loadingUser={false}
-      loadedUserFromCache={true}
-      refetchBoot={fn()}
-      isFetched={true}
-      squads={[]}
-      firstLoad={true}
-      geo={{
-        region: parameters?.region || 'US',
-      }}
-      isAndroidApp={false}
-    >
-      <Story />
-    </AuthContextProvider>
-  </QueryClientProvider>
-);
+): ReactElement => {
+  useInitFunnelPaddle();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthContextProvider
+        user={{
+          id: '1',
+          email: 'test@test.com',
+          name: 'Test User',
+          username: 'testuser',
+        }}
+        updateUser={fn()}
+        tokenRefreshed={true}
+        getRedirectUri={fn()}
+        loadingUser={false}
+        loadedUserFromCache={true}
+        refetchBoot={fn()}
+        isFetched={true}
+        squads={[]}
+        firstLoad={true}
+        geo={{
+          region: parameters?.region || 'US',
+        }}
+        isAndroidApp={false}
+      >
+        <Story />
+      </AuthContextProvider>
+    </QueryClientProvider>
+  );
+};
 
 const meta: Meta<typeof FunnelPricing> = {
   title: 'Components/Onboarding/Steps/Pricing',
@@ -67,16 +70,6 @@ const meta: Meta<typeof FunnelPricing> = {
   },
   tags: ['autodocs'],
   decorators: [withQueryClient],
-  render: (args) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { paddle } = usePaddle({
-      paddleCallback: (event) => {
-        console.log('Paddle event:', event);
-      },
-    });
-
-    return <FunnelPricing {...args} paddle={paddle} />;
-  },
 };
 
 export default meta;

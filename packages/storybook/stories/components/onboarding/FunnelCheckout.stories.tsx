@@ -7,7 +7,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { getBootMock } from '../../../mock/boot';
-
+import { useInitFunnelPaddle } from '@dailydotdev/shared/src/features/onboarding/hooks/useInitFunnelPaddle';
+import { set } from 'date-fns';
+import { useAtom } from 'jotai';
+import { selectedPlanAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnelStore';
 // Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,20 +20,26 @@ const queryClient = new QueryClient({
   },
 });
 
-const withRequiredProviders = (Story: () => ReactElement): ReactElement => (
-  <QueryClientProvider client={queryClient}>
-    <BootDataProvider
-      app={BootApp.Webapp}
-      deviceId="123"
-      getPage={fn()}
-      getRedirectUri={fn()}
-      version="pwa"
-      localBootData={getBootMock()}
-    >
-      <Story />
-    </BootDataProvider>
-  </QueryClientProvider>
-);
+const withRequiredProviders = (Story: () => ReactElement): ReactElement => {
+  useInitFunnelPaddle();
+  const [, setSelectedPlan] = useAtom(selectedPlanAtom);
+  setSelectedPlan('pri_01jkzypjstw7k6w82375mafc89');
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BootDataProvider
+        app={BootApp.Webapp}
+        deviceId="123"
+        getPage={fn()}
+        getRedirectUri={fn()}
+        version="pwa"
+        localBootData={getBootMock()}
+      >
+        <Story />
+      </BootDataProvider>
+    </QueryClientProvider>
+  );
+};
 
 const meta: Meta<typeof FunnelCheckout> = {
   title: 'Components/Onboarding/Steps/Checkout',
@@ -59,7 +68,6 @@ export const Default: Story = {
     id: 'checkout',
     parameters: {},
     transitions: [],
-    priceId: 'pri_01jkzypjstw7k6w82375mafc89',
     onTransition: fn(),
   },
 };
