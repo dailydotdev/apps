@@ -81,6 +81,7 @@ export default function HelloWorldPage({
   }
 
   console.log({ funnel, session });
+
   return (
     <HydrationBoundary state={dehydratedState}>
       <Head>
@@ -88,7 +89,11 @@ export default function HelloWorldPage({
       </Head>
 
       {!!funnel && !!session.id && (
-        <FunnelStepper funnel={funnel} session={session} />
+        <FunnelStepper
+          funnel={funnel}
+          session={session}
+          onComplete={() => router.replace('/onboarding')}
+        />
       )}
     </HydrationBoundary>
   );
