@@ -28,6 +28,7 @@ const FunnelLoading = ({
     if (percentage >= 100) {
       onTransition({ type: FunnelStepTransitionType.Complete });
     }
+    // Having onTransition as a dependency here causes an infinite re-render loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [percentage]);
 
