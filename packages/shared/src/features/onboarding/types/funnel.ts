@@ -39,7 +39,7 @@ type FunnelStepParameters<
   } = Record<string, unknown>,
 > = {
   [key in keyof Params]: Params[key];
-} & { [p: string]: unknown };
+} & { [p: string]: string };
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
@@ -112,19 +112,21 @@ export interface FunnelStepSignup extends FunnelStepCommon {
 
 export interface FunnelStepPricing extends FunnelStepCommon {
   type: FunnelStepType.Pricing;
-  discount: {
-    message: string;
-    duration: number;
-    startDate: Date;
-  };
-  headline: string;
-  pricing: Omit<PricingPlansProps, 'className' | 'name' | 'onChange'>;
-  defaultPlan: string;
-  cta: string;
-  featuresList: Omit<BoxListProps, 'className'>;
-  review: Omit<ImageReviewProps, 'className'>;
-  refund: Omit<BoxContentImageProps, 'className'>;
-  faq: Omit<BoxFaqProps, 'className'>;
+  parameters: FunnelStepParameters<{
+    discount: {
+      message: string;
+      duration: number;
+      startDate: Date;
+    };
+    headline: string;
+    pricing: Omit<PricingPlansProps, 'className' | 'name' | 'onChange'>;
+    defaultPlan: string;
+    cta: string;
+    featuresList: Omit<BoxListProps, 'className'>;
+    review: Omit<ImageReviewProps, 'className'>;
+    refund: Omit<BoxContentImageProps, 'className'>;
+    faq: Omit<BoxFaqProps, 'className'>;
+  }>;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
     applyDiscount: boolean;
@@ -155,10 +157,12 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
 
 export interface FunnelStepSocialProof extends FunnelStepCommon {
   type: FunnelStepType.SocialProof;
-  imageUrl: string;
-  rating: string;
-  reviews: Review[];
-  reviewSubtitle: string;
+  parameters: FunnelStepParameters<{
+    imageUrl: string;
+    rating: string;
+    reviews: Review[];
+    reviewSubtitle: string;
+  }>;
   onTransition: FunnelStepTransitionCallback;
 }
 
