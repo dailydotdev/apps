@@ -1,4 +1,4 @@
-import type { type UseQueryResult } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import type { Paddle, PricePreviewResponse } from '@paddle/paddle-js';
 import { useAuthContext } from '../../../contexts/AuthContext';

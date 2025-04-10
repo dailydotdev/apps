@@ -8,6 +8,7 @@ import type {
   Review,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
+import type { StepHeadlineAlign } from '../shared/StepHeadline';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -67,7 +68,17 @@ export interface FunnelStepLoading extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepFact extends FunnelStepCommon {
+export interface FunnelStepFactParameters {
+  headline: string;
+  cta?: string;
+  reverse?: boolean;
+  explainer: string;
+  align: StepHeadlineAlign;
+  visualUrl?: string;
+}
+
+export interface FunnelStepFact
+  extends FunnelStepCommon<FunnelStepFactParameters> {
   type: FunnelStepType.Fact;
   onTransition: FunnelStepTransitionCallback;
 }
