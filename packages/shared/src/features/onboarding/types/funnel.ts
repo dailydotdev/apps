@@ -17,6 +17,7 @@ export enum FunnelStepType {
   Signup = 'registration',
   Pricing = 'pricing',
   Checkout = 'checkout',
+  PaymentSuccessful = 'paymentSuccessful',
   TagSelection = 'tagsSelection',
   ReadingReminder = 'readingReminder',
   AppPromotion = 'appPromotion',
@@ -29,7 +30,7 @@ export enum FunnelStepTransitionType {
   Complete = 'complete',
 }
 
-export const COMPLETED_STEP_ID = 'FINISH' as const;
+export const COMPLETED_STEP_ID = 'finish' as const;
 
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
@@ -68,16 +69,16 @@ export interface FunnelStepLoading extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepFact extends FunnelStepCommon {
-  type: FunnelStepType.Fact;
-  parameters: FunnelStepParameters<{
+export interface FunnelStepFact
+  extends FunnelStepCommon<{
     headline: string;
     cta?: string;
     reverse?: boolean;
     explainer: string;
     align: StepHeadlineAlign;
     visualUrl?: string;
-  }>;
+  }> {
+  type: FunnelStepType.Fact;
   onTransition: FunnelStepTransitionCallback;
 }
 
@@ -105,54 +106,56 @@ export type FunnelStepQuizQuestion = {
   | { type: FunnelStepQuizQuestionType.Rating }
 );
 
-export interface FunnelStepQuiz extends FunnelStepCommon {
-  type: FunnelStepType.Quiz;
-  onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
-  parameters: FunnelStepParameters<{
+export interface FunnelStepQuiz
+  extends FunnelStepCommon<{
     question: FunnelStepQuizQuestion;
     explainer?: string;
-  }>;
+  }> {
+  type: FunnelStepType.Quiz;
+  onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
 }
 
-export interface FunnelStepSignup extends FunnelStepCommon {
-  type: FunnelStepType.Signup;
-  onTransition: FunnelStepTransitionCallback;
-  parameters: FunnelStepParameters<{
+export interface FunnelStepSignup
+  extends FunnelStepCommon<{
     headline: string;
     image: string;
     imageMobile: string;
-  }>;
+  }> {
+  type: FunnelStepType.Signup;
+  onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPricing extends FunnelStepCommon {
+interface FunnelStepPricingParameters {
+  headline: string;
+  cta: string;
+  discount: {
+    message: string;
+    duration: number;
+  };
+  defaultPlan: string;
+  plans: {
+    priceId: string;
+    label: string;
+    variation?: PricingPlanVariation;
+    badge: {
+      text: string;
+      background: string;
+    };
+  }[];
+  perks: string[];
+  featuresList: Omit<BoxListProps, 'className'>;
+  review: Omit<ImageReviewProps, 'className'>;
+  refund: {
+    title: string;
+    content: string;
+    image: string;
+  };
+  faq: BoxFaqProps['items'];
+}
+
+export interface FunnelStepPricing
+  extends FunnelStepCommon<FunnelStepPricingParameters> {
   type: FunnelStepType.Pricing;
-  parameters: FunnelStepParameters<{
-    headline: string;
-    cta: string;
-    discount: {
-      message: string;
-      duration: number;
-    };
-    defaultPlan: string;
-    plans: {
-      priceId: string;
-      label: string;
-      variation?: PricingPlanVariation;
-      badge: {
-        text: string;
-        background: string;
-      };
-    }[];
-    perks: string[];
-    featuresList: Omit<BoxListProps, 'className'>;
-    review: Omit<ImageReviewProps, 'className'>;
-    refund: {
-      title: string;
-      content: string;
-      image: string;
-    };
-    faq: BoxFaqProps['items'];
-  }>;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
     applyDiscount: boolean;
@@ -183,14 +186,14 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepSocialProof extends FunnelStepCommon {
-  type: FunnelStepType.SocialProof;
-  parameters: FunnelStepParameters<{
+export interface FunnelStepSocialProof
+  extends FunnelStepCommon<{
     imageUrl: string;
     rating: string;
     reviews: Review[];
     reviewSubtitle: string;
-  }>;
+  }> {
+  type: FunnelStepType.SocialProof;
   onTransition: FunnelStepTransitionCallback;
 }
 
