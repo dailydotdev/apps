@@ -49,7 +49,7 @@ import {
 import type { AllFeedPages } from '../lib/query';
 import { generateQueryKey, getPostByIdKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { LogEvent, Origin } from '../lib/log';
+import { LogEvent, Origin, TargetType } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import usePostById, { invalidatePostCacheById } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -412,6 +412,10 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={LanguageIcon} />,
       label: 'Translate',
       action: () => {
+        logEvent({
+          ...postLogEvent(LogEvent.TranslatePost, post, logOpts),
+          ...(!isPlus && { target_type: TargetType.Plus }),
+        });
         router.push(
           `${webappUrl}feeds/${router.query?.slugOrId || user.id}/edit?dview=${
             FeedSettingsMenu.AI
