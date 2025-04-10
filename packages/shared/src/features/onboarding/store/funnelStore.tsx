@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { withHistory } from 'jotai-history';
+import type { Paddle } from '@paddle/paddle-js';
 import type { FunnelPosition, FunnelStep, FunnelJSON } from '../types/funnel';
 
 export const funnelPositionAtom = atom<FunnelPosition>({
@@ -15,3 +16,7 @@ export function getFunnelStepByPosition(
 ): FunnelStep | undefined {
   return funnel.chapters[position.chapter].steps[position.step];
 }
+
+export const paddleInstanceAtom = atom<Paddle | undefined>(undefined);
+export const selectedPlanAtom = atom<string | undefined>(undefined);
+export const applyDiscountAtom = atom<boolean>(true);

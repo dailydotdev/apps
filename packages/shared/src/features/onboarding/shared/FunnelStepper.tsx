@@ -25,6 +25,7 @@ import { FunnelStepBackground } from './FunnelStepBackground';
 import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
+import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -76,6 +77,7 @@ export const FunnelStepper = ({
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
   const { transition: sendTransition } = useStepTransition(sessionId);
+  useInitFunnelPaddle();
 
   useWindowScroll({
     onScroll: trackOnScroll,
@@ -142,6 +144,7 @@ export const FunnelStepper = ({
                 <FunnelStepComponent
                   {...funnelStep}
                   onTransition={onTransition}
+                  isActive={step?.id === funnelStep?.id}
                 />
               </div>
             ))}

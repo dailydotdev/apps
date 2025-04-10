@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
 import type { FunnelStepPricing } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import type { PricingPlansProps } from '../shared';
@@ -24,10 +25,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-
 import { anchorDefaultRel } from '../../../lib/strings';
 import { usePaddlePricePreview } from '../../payment/hooks/usePaddlePricePreview';
 import { usePricingCycleConverter } from '../../payment/hooks/usePricingCycleConverter';
+import {
+  paddleInstanceAtom,
+  selectedPlanAtom,
+  applyDiscountAtom,
+} from '../store/funnelStore';
 
 const PricingSection = ({
   name,
@@ -75,11 +80,12 @@ const PricingSection = ({
   );
 };
 
+const now = new Date();
+
 export const FunnelPricing = ({
   onTransition,
   isActive,
-  discountStartDate,
-  paddle,
+  discountStartDate = now,
   parameters: {
     discount,
     headline,
@@ -93,8 +99,13 @@ export const FunnelPricing = ({
     faq,
   },
 }: FunnelStepPricing): ReactElement => {
-  const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
-  const [applyDiscount, setApplyDiscount] = useState(true);
+  const paddle = useAtomValue(paddleInstanceAtom);
+  const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
+  const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
+
+  if (!selectedPlan && defaultPlan) {
+    setSelectedPlan(defaultPlan);
+  }
 
   const { data: pricePreview } = usePaddlePricePreview({
     priceIds: plans?.map((plan) => plan.priceId),
