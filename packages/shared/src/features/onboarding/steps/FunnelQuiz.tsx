@@ -26,14 +26,13 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
 };
 
 export const FunnelQuiz = ({
-  explainer,
   id,
   onTransition,
-  question,
+  parameters: { question, explainer },
 }: FunnelStepQuiz): ReactElement => {
-  // todo: add vertical parameter to the quiz component
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
+  const isCheckboxGroup = 'variant' in question;
   const [stepValue, setStepValue] = useState<string | string[]>([]);
   const Component = useMemo(() => quizComponentsMap[type], [type]);
   const inputOptions = useMemo(
@@ -92,7 +91,17 @@ export const FunnelQuiz = ({
             src={imageUrl}
           />
         )}
-        <Component name={id} options={inputOptions} onValueChange={onChange} />
+        <Component
+          name={id}
+          options={inputOptions}
+          onValueChange={onChange}
+          {...(isCheckboxGroup && {
+            ...{
+              variant: question.variant,
+              cols: question.cols,
+            },
+          })}
+        />
       </div>
     </ConditionalWrapper>
   );

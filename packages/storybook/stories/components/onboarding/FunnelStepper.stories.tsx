@@ -6,7 +6,7 @@ import {
   FunnelStepTransitionType,
   FunnelStepQuizQuestionType,
   type FunnelJSON,
-  type FunnelStepChapter,
+  type FunnelChapter,
   type FunnelStepQuiz,
   type FunnelStepSocialProof,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
@@ -20,6 +20,9 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
+import {
+  CheckboxGroupVariant,
+} from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
 
 const queryClient = new QueryClient();
 
@@ -79,19 +82,19 @@ const sampleFunnel: FunnelJSON = {
           type: FunnelStepType.Quiz,
           parameters: {
             cta: 'Next',
+            question: {
+              type: FunnelStepQuizQuestionType.Rating,
+              text: 'How would you rate your experience with daily.dev?',
+              options: [
+                { label: '1' },
+                { label: '2' },
+                { label: '3' },
+                { label: '4' },
+                { label: '5' },
+              ],
+            },
+            explainer: 'This helps us understand how we can improve',
           },
-          question: {
-            type: FunnelStepQuizQuestionType.Rating,
-            text: 'How would you rate your experience with daily.dev?',
-            options: [
-              { label: '1' },
-              { label: '2' },
-              { label: '3' },
-              { label: '4' },
-              { label: '5' },
-            ],
-          },
-          explainer: 'This helps us understand how we can improve',
           transitions: [
             {
               on: FunnelStepTransitionType.Complete,
@@ -108,38 +111,41 @@ const sampleFunnel: FunnelJSON = {
         } satisfies FunnelStepQuiz, {
           id: 'step2',
           type: FunnelStepType.Quiz,
-          parameters: {},
-          question: {
-            type: FunnelStepQuizQuestionType.Checkbox,
-            text: 'How would you rate your experience with daily.dev?',
-            options: [
-              {
-                label: 'JavaScript',
-                value: 'js',
-                image: {
-                  src: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png',
-                  alt: 'JavaScript',
+          parameters: {
+            question: {
+              type: FunnelStepQuizQuestionType.Checkbox,
+              variant: CheckboxGroupVariant.Vertical,
+              cols: 2,
+              text: 'Which technologies are you interested in?',
+              options: [
+                {
+                  label: 'JavaScript',
+                  value: 'js',
+                  image: {
+                    src: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png',
+                    alt: 'JavaScript',
+                  },
                 },
-              },
-              {
-                label: 'Python',
-                value: 'py',
-                image: {
-                  src: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg',
-                  alt: 'Python',
+                {
+                  label: 'Python',
+                  value: 'py',
+                  image: {
+                    src: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg',
+                    alt: 'Python',
+                  },
                 },
-              },
-              {
-                label: 'Go',
-                value: 'go',
-                image: {
-                  src: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Go_Logo_Blue.svg',
-                  alt: 'Go',
+                {
+                  label: 'Go',
+                  value: 'go',
+                  image: {
+                    src: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Go_Logo_Blue.svg',
+                    alt: 'Go',
+                  },
                 },
-              },
-            ],
+              ],
+            },
+            explainer: 'This helps us understand how we can improve',
           },
-          explainer: 'This helps us understand how we can improve',
           transitions: [
             {
               on: FunnelStepTransitionType.Complete,
@@ -221,7 +227,7 @@ const sampleFunnel: FunnelJSON = {
           transitions: [],
         } as FunnelStepPricing,
       ],
-    } satisfies FunnelStepChapter,
+    } satisfies FunnelChapter,
   ],
 };
 
