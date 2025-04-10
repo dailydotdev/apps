@@ -2,8 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
-
-import StepHeadline from '../shared/StepHeadline';
+import { StepHeadline } from '../shared/StepHeadline';
 import type { FunnelStepLoading } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import {
