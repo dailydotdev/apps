@@ -151,7 +151,7 @@ export const FunnelPricing = ({
         onTimerEnd={() => setApplyDiscount(false)}
         isActive={isActive}
       />
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4 px-4 py-6">
         <PricingSection {...pricingProps} name="plan-1" />
         <CreditCards />
         <BoxList {...featuresList} />
