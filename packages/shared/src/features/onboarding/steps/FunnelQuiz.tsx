@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type {
-  FunnelStepQuiz,
   FunnelQuestion,
   FunnelQuestionCheckbox,
+  FunnelStepQuiz,
 } from '../types/funnel';
 import {
   FunnelStepQuizQuestionType,
@@ -11,12 +11,13 @@ import {
 } from '../types/funnel';
 import { FormInputRating } from '../../common/components/FormInputRating';
 import {
-  FormInputCheckboxGroup,
   CheckboxGroupBehaviour,
+  FormInputCheckboxGroup,
 } from '../../common/components/FormInputCheckboxGroup';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { FunnelStepCtaWrapper, StepHeadline } from '../shared';
 import { Image } from '../../../components/image/Image';
+import { TypographyColor } from '../../../components/typography/Typography';
 
 const quizComponentsMap = {
   [FunnelStepQuizQuestionType.Rating]: FormInputRating,
@@ -97,7 +98,11 @@ export function FunnelQuiz({
       )}
     >
       <div className="flex flex-col gap-4 px-4 py-6">
-        <StepHeadline heading={text} description={explainer} />
+        <StepHeadline
+          heading={text}
+          description={explainer}
+          descriptionProps={{ color: TypographyColor.Tertiary }}
+        />
         {imageUrl && (
           <Image
             alt="Question additional context"
