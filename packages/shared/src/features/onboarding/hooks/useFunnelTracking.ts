@@ -155,7 +155,6 @@ export const useFunnelTracking = ({
     () => {
       const firstStepId = funnel?.chapters[0]?.steps[0]?.id;
       const isResumedSession = session.currentStep !== firstStepId;
-      console.log('Funnel tracking mounted', { firstStepId, isResumedSession });
 
       trackFunnelEvent({
         name: isResumedSession
