@@ -70,7 +70,7 @@ const useRegistration = ({
   const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout, geo } =
+  const { trackingId, referral, referralOrigin, logout, geo, isFunnel } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -100,7 +100,8 @@ const useRegistration = ({
     if (
       registration.error?.id ===
         KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE &&
-      !afterAuth
+      !afterAuth &&
+      !isFunnel
     ) {
       logout(LogoutReason.KratosSessionAlreadyAvailable);
     }

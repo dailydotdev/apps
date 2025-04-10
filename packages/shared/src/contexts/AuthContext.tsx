@@ -65,6 +65,7 @@ export interface AuthContextData {
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
+  isFunnel?: boolean;
 }
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -142,7 +143,12 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
-  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
+  const isFunnel = useMemo(
+    () => !!router?.pathname.includes('/helloworld/'),
+    [router?.pathname],
+  );
+
+  if (firstLoad === true && endUser && !endUser?.infoConfirmed && !isFunnel) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
@@ -198,6 +204,7 @@ export const AuthContextProvider = ({
         geo,
         isAndroidApp,
         isValidRegion,
+        isFunnel,
         isGdprCovered:
           geo?.continent === Continent.Europe ||
           !outsideGdpr.includes(geo?.region) ||

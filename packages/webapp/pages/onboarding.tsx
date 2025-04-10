@@ -148,7 +148,7 @@ export function OnboardPage(): ReactElement {
   const { setSettings, autoDismissNotifications } = useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { user, isAuthReady, anonymous, loginState, isValidRegion } =
+  const { user, isAuthReady, anonymous, loginState, isValidRegion, isFunnel } =
     useAuthContext();
   const { isActionsFetched } = useActions();
   const shouldVerify = anonymous?.shouldVerify;
@@ -325,7 +325,7 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus && !isIOSNative() && isValidRegion) {
+    if (isLastStepBeforePlus && !isIOSNative() && isValidRegion && !isFunnel) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
