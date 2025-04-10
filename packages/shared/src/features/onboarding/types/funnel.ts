@@ -1,11 +1,11 @@
 import type { ComponentProps } from 'react';
+import type { Paddle } from '@paddle/paddle-js';
 import type {
-  BoxContentImageProps,
   BoxFaqProps,
   BoxListProps,
   ImageReviewProps,
+  PricingPlanVariation,
   Review,
-  PricingPlansProps,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 
@@ -46,9 +46,9 @@ export type FunnelStepTransition = {
   destination: FunnelStep['id'] | typeof COMPLETED_STEP_ID;
 };
 
-interface FunnelStepCommon {
+interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
-  parameters: FunnelStepParameters;
+  parameters: T;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
 }
@@ -110,25 +110,43 @@ export interface FunnelStepSignup extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPricing extends FunnelStepCommon {
-  type: FunnelStepType.Pricing;
+export interface FunnelStepPricingParameters {
+  headline: string;
+  cta: string;
   discount: {
     message: string;
     duration: number;
-    startDate: Date;
   };
-  headline: string;
-  pricing: Omit<PricingPlansProps, 'className' | 'name' | 'onChange'>;
   defaultPlan: string;
-  cta: string;
+  plans: {
+    priceId: string;
+    label: string;
+    variation?: PricingPlanVariation;
+    badge: {
+      text: string;
+      background: string;
+    };
+  }[];
+  perks: string[];
   featuresList: Omit<BoxListProps, 'className'>;
   review: Omit<ImageReviewProps, 'className'>;
-  refund: Omit<BoxContentImageProps, 'className'>;
-  faq: Omit<BoxFaqProps, 'className'>;
+  refund: {
+    title: string;
+    content: string;
+    image: string;
+  };
+  faq: BoxFaqProps['items'];
+}
+
+export interface FunnelStepPricing
+  extends FunnelStepCommon<FunnelStepPricingParameters> {
+  type: FunnelStepType.Pricing;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
     applyDiscount: boolean;
   }>;
+  discountStartDate: Date;
+  paddle: Paddle | undefined;
 }
 
 export interface FunnelStepCheckout extends FunnelStepCommon {
