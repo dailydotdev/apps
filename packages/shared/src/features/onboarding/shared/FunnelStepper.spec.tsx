@@ -11,9 +11,11 @@ import {
   FunnelStepTransitionType,
   FunnelStepQuizQuestionType,
 } from '../types/funnel';
-import type { FunnelJSON, FunnelStep } from '../types/funnel';
+import type { FunnelJSON, FunnelStep, FunnelStepQuiz } from '../types/funnel';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { StepHeadlineAlign } from './StepHeadline';
+import type { FunnelSession } from '../types/funnelBoot';
 
 // Mock all hooks used by the component
 jest.mock('../hooks/useFunnelNavigation');
@@ -40,7 +42,7 @@ describe('FunnelStepper component', () => {
   const mockOnComplete = jest.fn();
   const mockOnTransition = jest.fn();
 
-  const mockStep: FunnelStep = {
+  const mockStep: FunnelStepQuiz = {
     id: 'step1',
     type: FunnelStepType.Quiz,
     parameters: {
@@ -66,8 +68,6 @@ describe('FunnelStepper component', () => {
     chapters: [
       {
         id: 'chapter1',
-        parameters: {},
-        transitions: [],
         steps: [mockStep],
       },
     ],
@@ -104,7 +104,7 @@ describe('FunnelStepper component', () => {
       <TestBootProvider client={client}>
         <FunnelStepper
           funnel={funnel}
-          sessionId="test-session"
+          session={{ id: 'session-id' } as FunnelSession}
           onComplete={mockOnComplete}
         />
       </TestBootProvider>,
@@ -221,7 +221,7 @@ describe('FunnelStepper component', () => {
   });
 
   it('should only show the active step', () => {
-    const quizStep: FunnelStep = {
+    const quizStep: FunnelStepQuiz = {
       id: 'step1',
       type: FunnelStepType.Quiz,
       parameters: {
@@ -239,7 +239,13 @@ describe('FunnelStepper component', () => {
     const factStep: FunnelStep = {
       id: 'step2',
       type: FunnelStepType.Fact,
-      parameters: {},
+      parameters: {
+        headline: 'Test headline',
+        cta: 'Test CTA',
+        explainer: 'Test explainer',
+        align: StepHeadlineAlign.Left,
+        visualUrl: 'https://example.com/image.jpg',
+      },
       transitions: [],
       onTransition: mockOnTransition,
     };
@@ -252,8 +258,6 @@ describe('FunnelStepper component', () => {
       chapters: [
         {
           id: 'chapter1',
-          parameters: {},
-          transitions: [],
           steps: [quizStep, factStep],
         },
       ],

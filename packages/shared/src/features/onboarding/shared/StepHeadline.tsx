@@ -23,7 +23,7 @@ export type StepHeadlineProps = {
   heading: string;
 };
 
-const StepHeadline = ({
+export const StepHeadline = ({
   align = StepHeadlineAlign.Center,
   description,
   descriptionProps,

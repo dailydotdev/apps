@@ -13,6 +13,8 @@ import { SocialProvider } from '../../../components/auth/common';
 import { labels } from '../../../lib';
 import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
 import { isIOS } from '../../../lib/func';
+import type { FunnelStepSignup } from '../types/funnel';
+import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
 
 // Mock the hooks and dependencies
 jest.mock('../../../hooks/useRegistration');
@@ -36,11 +38,22 @@ describe('FunnelRegistration', () => {
   const mockLogEvent = jest.fn();
   const mockUseEventListener = jest.fn();
 
-  const defaultProps = {
-    heading: 'Test Heading',
-    image: 'test-image.jpg',
-    imageMobile: 'test-image-mobile.jpg',
+  const defaultProps: FunnelStepSignup = {
+    type: FunnelStepType.Signup,
+    id: 'test-step',
+    parameters: {
+      headline: 'Test Heading',
+      image: 'test-image.jpg',
+      imageMobile: 'test-image-mobile.jpg',
+    },
+    isActive: true,
     onTransition: mockOnTransition,
+    transitions: [
+      {
+        on: FunnelStepTransitionType.Complete,
+        destination: 'next-step',
+      },
+    ],
   };
 
   beforeEach(() => {
@@ -100,7 +113,10 @@ describe('FunnelRegistration', () => {
 
     // Check for background image
     const backgroundImage = screen.getByAltText('background');
-    expect(backgroundImage).toHaveAttribute('src', defaultProps.imageMobile);
+    expect(backgroundImage).toHaveAttribute(
+      'src',
+      defaultProps.parameters.imageMobile,
+    );
 
     // Check for social buttons - GitHub is always shown
     expect(screen.getByTestId('social-button-github')).toBeInTheDocument();
@@ -110,7 +126,10 @@ describe('FunnelRegistration', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const backgroundImage = screen.getByAltText('background');
-    expect(backgroundImage).toHaveAttribute('src', defaultProps.imageMobile);
+    expect(backgroundImage).toHaveAttribute(
+      'src',
+      defaultProps.parameters.imageMobile,
+    );
   });
 
   it('shows Google as first provider when not in webview', async () => {

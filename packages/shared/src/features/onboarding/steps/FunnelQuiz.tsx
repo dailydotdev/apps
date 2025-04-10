@@ -15,8 +15,7 @@ import {
   CheckboxGroupBehaviour,
 } from '../../common/components/FormInputCheckboxGroup';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
-import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
-import StepHeadline from '../shared/StepHeadline';
+import { FunnelStepCtaWrapper, StepHeadline } from '../shared';
 import { Image } from '../../../components/image/Image';
 
 const quizComponentsMap = {

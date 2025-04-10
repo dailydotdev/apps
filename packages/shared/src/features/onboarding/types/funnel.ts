@@ -49,7 +49,7 @@ export type FunnelStepTransition = {
 
 interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
-  parameters: T & Record<string, string>;
+  parameters: T & { [key: string]: string | unknown };
   transitions: FunnelStepTransition[];
   isActive?: boolean;
 }
