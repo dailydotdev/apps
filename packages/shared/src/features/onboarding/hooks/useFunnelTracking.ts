@@ -163,7 +163,7 @@ export const useFunnelTracking = ({
       });
 
       return () => {
-        // todo: implement complete funnel event
+        // todo: don't send this event if completed
         trackFunnelEvent({ name: FunnelEventName.LeaveFunnel });
       };
     },
