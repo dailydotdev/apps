@@ -49,7 +49,7 @@ import {
 import type { AllFeedPages } from '../lib/query';
 import { generateQueryKey, getPostByIdKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { LogEvent, Origin, TargetType } from '../lib/log';
+import { LogEvent, Origin, TargetId } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import usePostById, { invalidatePostCacheById } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -148,7 +148,7 @@ export default function PostOptionsMenu({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
@@ -412,14 +412,14 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={LanguageIcon} />,
       label: 'Translate',
       action: () => {
-        logEvent({
-          ...postLogEvent(
-            isPlus ? LogEvent.TranslatePost : LogEvent.UpgradeSubscription,
-            post,
-            logOpts,
-          ),
-          ...(!isPlus && { target_type: TargetType.Plus }),
-        });
+        if (isPlus) {
+          logEvent(postLogEvent(LogEvent.TranslatePost, post, logOpts));
+        } else {
+          logSubscriptionEvent({
+            event_name: LogEvent.UpgradeSubscription,
+            target_id: TargetId.ContextMenu,
+          });
+        }
         router.push(
           `${webappUrl}feeds/${router.query?.slugOrId || user.id}/edit?dview=${
             FeedSettingsMenu.AI
