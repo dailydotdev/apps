@@ -20,6 +20,7 @@ export enum FunnelTargetId {
   StepCta = 'step cta',
   StepSkip = 'step skip',
   StepBack = 'step back',
+  SubPlan = 'subscription plan',
 }
 
 export type FunnelEvent =

@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { FunnelStepPricing } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
+import type { PricingPlansProps } from '../shared';
 import {
   BoxContentImage,
   BoxFaq,
@@ -25,6 +26,8 @@ import {
 } from '../../../components/buttons/Button';
 
 import { anchorDefaultRel } from '../../../lib/strings';
+import { usePaddlePricePreview } from '../../payment/hooks/usePaddlePricePreview';
+import { usePricingCycleConverter } from '../../payment/hooks/usePricingCycleConverter';
 
 const PricingSection = ({
   name,
@@ -34,7 +37,10 @@ const PricingSection = ({
   onPlanChange,
   cta,
   onProceedToCheckout,
-}: Pick<FunnelStepPricing, 'headline' | 'pricing' | 'cta'> & {
+}: {
+  cta: string;
+  headline: string;
+  pricing: Pick<PricingPlansProps, 'plans' | 'perks'>;
   selectedPlan: string;
   onPlanChange: (plan: string) => void;
   onProceedToCheckout: () => void;
@@ -70,20 +76,34 @@ const PricingSection = ({
 };
 
 export const FunnelPricing = ({
-  discount,
-  headline,
-  pricing,
-  defaultPlan,
-  cta,
-  featuresList,
-  review,
-  refund,
-  faq,
   onTransition,
   isActive,
+  discountStartDate,
+  paddle,
+  parameters: {
+    discount,
+    headline,
+    plans,
+    defaultPlan,
+    perks,
+    cta,
+    featuresList,
+    review,
+    refund,
+    faq,
+  },
 }: FunnelStepPricing): ReactElement => {
   const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
   const [applyDiscount, setApplyDiscount] = useState(true);
+
+  const { data: pricePreview } = usePaddlePricePreview({
+    priceIds: plans?.map((plan) => plan.priceId),
+    paddle,
+  });
+
+  const pricingCycleConverter = usePricingCycleConverter({
+    pricePreview,
+  });
 
   const onProceedToCheckout = useCallback(() => {
     onTransition({
@@ -94,7 +114,17 @@ export const FunnelPricing = ({
 
   const pricingProps: Omit<Parameters<typeof PricingSection>[0], 'name'> = {
     headline,
-    pricing,
+    pricing: {
+      perks,
+      plans: plans?.map((plan, index) => ({
+        ...plan,
+        value: plan.priceId,
+        price: {
+          amount: pricingCycleConverter?.[index]?.price,
+          subtitle: 'per day',
+        },
+      })),
+    },
     selectedPlan,
     onPlanChange: setSelectedPlan,
     onProceedToCheckout,
@@ -106,7 +136,7 @@ export const FunnelPricing = ({
       <DiscountTimer
         discountMessage={discount.message}
         durationInMinutes={discount.duration}
-        startDate={discount.startDate}
+        startDate={discountStartDate}
         onTimerEnd={() => setApplyDiscount(false)}
         isActive={isActive}
       />
@@ -116,8 +146,12 @@ export const FunnelPricing = ({
         <BoxList {...featuresList} />
         <ImageReview {...review} />
         <PricingSection {...pricingProps} name="plan-2" />
-        <BoxContentImage {...refund} />
-        <BoxFaq {...faq} />
+        <BoxContentImage
+          title={refund.title}
+          content={refund.content}
+          image={{ src: refund.image, alt: 'Checkmark' }}
+        />
+        <BoxFaq items={faq} />
         <Typography
           tag={TypographyTag.P}
           type={TypographyType.Callout}

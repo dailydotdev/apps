@@ -1,13 +1,14 @@
 import type { ComponentProps } from 'react';
+import type { Paddle } from '@paddle/paddle-js';
 import type {
-  BoxContentImageProps,
   BoxFaqProps,
   BoxListProps,
   ImageReviewProps,
+  PricingPlanVariation,
   Review,
-  PricingPlansProps,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
+import type { StepHeadlineAlign } from '../shared/StepHeadline';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -67,8 +68,17 @@ export interface FunnelStepLoading extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepFact extends FunnelStepCommon {
+export interface FunnelStepFact
+  extends FunnelStepCommon {
   type: FunnelStepType.Fact;
+  parameters: FunnelStepParameters<{
+    headline: string;
+    cta?: string;
+    reverse?: boolean;
+    explainer: string;
+    align: StepHeadlineAlign;
+    visualUrl?: string;
+  }>;
   onTransition: FunnelStepTransitionCallback;
 }
 
@@ -113,24 +123,38 @@ export interface FunnelStepSignup extends FunnelStepCommon {
 export interface FunnelStepPricing extends FunnelStepCommon {
   type: FunnelStepType.Pricing;
   parameters: FunnelStepParameters<{
+    headline: string;
+    cta: string;
     discount: {
       message: string;
       duration: number;
-      startDate: Date;
     };
-    headline: string;
-    pricing: Omit<PricingPlansProps, 'className' | 'name' | 'onChange'>;
     defaultPlan: string;
-    cta: string;
+    plans: {
+      priceId: string;
+      label: string;
+      variation?: PricingPlanVariation;
+      badge: {
+        text: string;
+        background: string;
+      };
+    }[];
+    perks: string[];
     featuresList: Omit<BoxListProps, 'className'>;
     review: Omit<ImageReviewProps, 'className'>;
-    refund: Omit<BoxContentImageProps, 'className'>;
-    faq: Omit<BoxFaqProps, 'className'>;
+    refund: {
+      title: string;
+      content: string;
+      image: string;
+    };
+    faq: BoxFaqProps['items'];
   }>;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
     applyDiscount: boolean;
   }>;
+  discountStartDate: Date;
+  paddle?: Paddle;
 }
 
 export interface FunnelStepCheckout extends FunnelStepCommon {

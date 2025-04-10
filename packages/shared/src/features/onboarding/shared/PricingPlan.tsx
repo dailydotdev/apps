@@ -6,6 +6,7 @@ import { RadioItem } from '../../../components/fields/RadioItem';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import styles from './PricingPlan.module.css';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 export enum PricingPlanVariation {
   DEFAULT = 'default',
@@ -52,7 +53,12 @@ export function PricingPlan<T extends string = string>({
   };
 
   return (
-    <RadioItem {...props} className={baseClassName} checked={checked}>
+    <RadioItem
+      {...props}
+      className={baseClassName}
+      checked={checked}
+      data-funnel-track={FunnelTargetId.SubPlan}
+    >
       <div className="flex flex-1 flex-col gap-2 font-normal">
         <div className="flex flex-row">
           <div className="flex flex-1 flex-col items-start gap-2">
