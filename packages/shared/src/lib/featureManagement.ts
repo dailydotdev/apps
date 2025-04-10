@@ -82,11 +82,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
-export const featureOnboardingPlusCheckout = new Feature(
-  'onboarding_plus_checkout',
-  false,
-);
-
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureOnboardingAndroid = new Feature(
