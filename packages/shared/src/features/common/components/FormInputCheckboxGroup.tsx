@@ -144,7 +144,6 @@ export const FormInputCheckboxGroup = ({
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
   const isVertical = variant === CheckboxGroupVariant.Vertical;
-  console.log(behaviour);
   const isSingleChoice = behaviour === CheckboxGroupBehaviour.Radio;
 
   const onSelect = (selectedValue: CheckboxValue) => {
@@ -152,12 +151,6 @@ export const FormInputCheckboxGroup = ({
       isSingleChoice,
       value: inputValue,
       selectedValue,
-    });
-    console.log({
-      isSingleChoice,
-      value: inputValue,
-      selectedValue,
-      newValue,
     });
     onValueChange?.(newValue);
     setCheckedValue(newValue);
