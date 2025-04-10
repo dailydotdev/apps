@@ -27,7 +27,7 @@ import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 
-interface FunnelStepperProps {
+export interface FunnelStepperProps {
   funnel: FunnelJSON;
   sessionId: string;
   onComplete?: () => void;
