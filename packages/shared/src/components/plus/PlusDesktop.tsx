@@ -9,6 +9,7 @@ import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
+import { usePlusSubscription } from '../../hooks';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
@@ -23,6 +24,7 @@ export const PlusDesktop = ({
     isFreeTrialExperiment,
     isPricesPending,
   } = usePaymentContext();
+  const { isPlus } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
   const {
     query: { selectedPlan },
@@ -34,9 +36,15 @@ export const PlusDesktop = ({
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
     ({ priceId, giftToUserId }) => {
       setSelectedOption(priceId);
+
+      if (priceId !== giftOneYear?.priceId && isPlus) {
+        paddle.Checkout.close();
+        return;
+      }
+
       openCheckout({ priceId, giftToUserId });
     },
-    [openCheckout],
+    [giftOneYear?.priceId, isPlus, paddle, openCheckout],
   );
 
   useEffect(() => {
@@ -57,7 +65,8 @@ export const PlusDesktop = ({
     }
 
     const option = initialPaymentOption || productOptions?.[0]?.priceId;
-    if (option && !selectedOption) {
+
+    if (option && !selectedOption && !isPlus) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
@@ -66,6 +75,7 @@ export const PlusDesktop = ({
     giftToUser,
     initialPaymentOption,
     openCheckout,
+    isPlus,
     paddle,
     productOptions,
     selectedOption,

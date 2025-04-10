@@ -152,7 +152,7 @@ export const PlusInfo = ({
       </Typography>
       <div className="mb-4">
         <ConditionalWrapper
-          condition={!giftToUser && showGiftButton}
+          condition={!giftToUser && showGiftButton && !!giftOneYear}
           wrapper={(component) => (
             <div className="flex flex-row items-center justify-between">
               <span>{component}</span>
@@ -170,7 +170,7 @@ export const PlusInfo = ({
                     props: {
                       onSelected: (user) => {
                         onChange({
-                          priceId: productOptions[0].priceId,
+                          priceId: giftOneYear.priceId,
                           giftToUserId: user.id,
                         });
                       },
