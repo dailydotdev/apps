@@ -7,7 +7,6 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
 import { walletUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import { isIOSNative } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { largeNumberFormat } from '../../lib';
 import { LogEvent, Origin } from '../../lib/log';
@@ -27,7 +26,7 @@ export const BuyCreditsButton = ({
   const isInsideModal = useModalContext().onRequestClose !== null;
   const { user } = useAuthContext();
 
-  const renderBuyButton = !isIOSNative() && !hideBuyButton;
+  const renderBuyButton = !hideBuyButton;
   const { logEvent } = useLogContext();
   const trackBuyCredits = () => {
     logEvent({

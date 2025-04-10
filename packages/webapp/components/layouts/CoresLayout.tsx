@@ -14,7 +14,7 @@ import {
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import type { MainFeedPageProps } from './MainFeedPage';
 
@@ -24,7 +24,7 @@ export default function CoresLayout({
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { back, replace, push, isReady } = useRouter();
   const { user, isAuthReady } = useAuthContext();
-  const hasCoresAccess = useHasAccessToCores();
+  const hasAccessToPage = useCanPurchaseCores();
 
   const isPageReady = isReady && isAuthReady;
 
@@ -40,14 +40,14 @@ export default function CoresLayout({
     if (!isPageReady) {
       return;
     }
-    if (hasCoresAccess) {
+    if (hasAccessToPage) {
       return;
     }
 
     push(user ? webappUrl : onboardingUrl);
-  }, [isPageReady, push, user, hasCoresAccess]);
+  }, [isPageReady, push, user, hasAccessToPage]);
 
-  if (!user || !isPageReady || !hasCoresAccess) {
+  if (!user || !isPageReady || !hasAccessToPage) {
     return null;
   }
 

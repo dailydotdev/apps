@@ -240,11 +240,10 @@ export const BuyCoresContextProvider = ({
       };
 
       if (isCheckoutOpenRef.current) {
-        paddle?.Checkout.updateCheckout({
-          items,
-          customer,
-          customData,
-        });
+        // only update items because updating whole checkout can fail
+        // due to address being incomplete based on region restrictions
+        // for example UK requires postal code
+        paddle?.Checkout.updateItems(items);
 
         return;
       }

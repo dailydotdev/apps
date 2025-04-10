@@ -45,6 +45,7 @@ import type { Origin } from '../../../lib/log';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
+import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 
 export type CoreOptionsProps = {
   className?: string;
@@ -396,6 +397,7 @@ const BuyCoreDesktop = () => {
 const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
   const { setActiveModal } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const canPurchaseCores = useCanPurchaseCores();
 
   return (
     <Modal
@@ -410,7 +412,7 @@ const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
         showCloseButton={!isMobile}
       >
         <BuyCreditsButton
-          hideBuyButton
+          hideBuyButton={!canPurchaseCores}
           onPlusClick={() => setActiveModal('BUY_CORES')}
         />
         {isMobile && (
