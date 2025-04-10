@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -8,6 +8,7 @@ import {
   TypographyColor,
 } from '../../../components/typography/Typography';
 import type { TypographyProps } from '../../../components/typography/Typography';
+import { sanitizeMessage } from './utils';
 
 export enum StepHeadlineAlign {
   Left = 'left',
@@ -28,6 +29,9 @@ const StepHeadline = ({
   descriptionProps,
   heading,
 }: StepHeadlineProps): ReactElement => {
+  const titleHtml = useMemo(() => sanitizeMessage(heading), [heading]);
+  const descHtml = useMemo(() => sanitizeMessage(description), [description]);
+
   return (
     <div
       data-testid="step-headline-container"
@@ -42,18 +46,16 @@ const StepHeadline = ({
         color={TypographyColor.Primary}
         tag={TypographyTag.H2}
         type={TypographyType.Title1}
-      >
-        {heading}
-      </Typography>
-      {!!description?.length && (
+        dangerouslySetInnerHTML={{ __html: titleHtml }}
+      />
+      {!!descHtml?.length && (
         <Typography
           data-testid="step-headline-description"
           color={TypographyColor.Primary}
           type={TypographyType.Body}
+          dangerouslySetInnerHTML={{ __html: descHtml }}
           {...descriptionProps}
-        >
-          {description}
-        </Typography>
+        />
       )}
     </div>
   );
