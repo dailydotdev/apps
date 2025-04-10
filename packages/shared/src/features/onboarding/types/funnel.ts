@@ -56,7 +56,7 @@ interface FunnelStepCommon<T = FunnelStepParameters> {
 
 export interface FunnelChapter {
   id: string;
-  steps: Array<Omit<FunnelStep, 'onTransition'>>;
+  steps: Array<FunnelStep>;
 }
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {

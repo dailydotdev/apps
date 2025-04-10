@@ -17,6 +17,6 @@ export function getFunnelStepByPosition(
   return funnel.chapters[position.chapter].steps[position.step];
 }
 
-export const paddleInstanceAtom = atom<Paddle | undefined>(undefined);
-export const selectedPlanAtom = atom<string | undefined>(undefined);
+export const paddleInstanceAtom = atom<Paddle | undefined>();
+export const selectedPlanAtom = atom<string | undefined>();
 export const applyDiscountAtom = atom<boolean>(true);
