@@ -92,6 +92,7 @@ describe('FunnelStepper component', () => {
       trackOnHoverCapture: mockTrackOnHoverCapture,
       trackOnNavigate: mockTrackOnNavigate,
       trackOnScroll: mockTrackOnScroll,
+      trackFunnelEvent: jest.fn(),
     });
 
     (useStepTransition as jest.Mock).mockReturnValue({
