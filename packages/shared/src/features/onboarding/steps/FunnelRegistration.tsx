@@ -97,7 +97,7 @@ const useRegistrationListeners = (
   useEventListener(globalThis, 'message', onProviderMessage);
 };
 
-export function FunnelRegistration({
+function InnerFunnelRegistration({
   parameters: { headline, image, imageMobile },
   onTransition,
 }: FunnelStepSignup): ReactElement {
@@ -154,4 +154,25 @@ export function FunnelRegistration({
       </div>
     </div>
   );
+}
+
+export function FunnelRegistration({
+  onTransition,
+  isActive,
+  ...props
+}: FunnelStepSignup): ReactElement {
+  const { isLoggedIn } = useAuthContext();
+
+  if (!isActive) {
+    return null;
+  }
+
+  if (isLoggedIn) {
+    onTransition({
+      type: FunnelStepTransitionType.Complete,
+    });
+    return null;
+  }
+
+  return <InnerFunnelRegistration {...props} onTransition={onTransition} />;
 }

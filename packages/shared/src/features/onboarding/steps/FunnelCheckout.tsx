@@ -8,7 +8,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
 
-export const FunnelCheckout = ({
+const InnerFunnelCheckout = ({
   priceId,
   discountCode,
   onTransition,
@@ -79,4 +79,14 @@ export const FunnelCheckout = ({
   ]);
 
   return <div className="checkout-container" />;
+};
+
+export const FunnelCheckout = (props: FunnelStepCheckout) => {
+  const { isLoggedIn } = useAuthContext();
+
+  if (!isLoggedIn) {
+    return null;
+  }
+
+  return <InnerFunnelCheckout {...props} />;
 };
