@@ -67,6 +67,8 @@ function InternalApp(): ReactElement {
   const shouldRedirectOnboarding =
     isPageReady && (!user || !isOnboardingComplete) && !isTesting;
 
+  useCheckCoresRole();
+
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {
       routeChangedCallbackRef.current();
@@ -74,8 +76,6 @@ function InternalApp(): ReactElement {
   }, [isPageReady, routeChangedCallbackRef, currentPage]);
 
   const { dismissToast } = useToastNotification();
-
-  useCheckCoresRole();
 
   const onPageChanged = useCallback(
     (page: string): void => {

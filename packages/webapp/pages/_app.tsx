@@ -88,6 +88,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useConsoleLogo();
   useIOSError();
 
+  useCheckCoresRole();
+
   useEffect(() => {
     if (
       isOnboardingActionsReady &&
@@ -151,8 +153,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       router.events.off('routeChangeStart', onRouteChange);
     };
   }, [modal, closeModal, router.events]);
-
-  useCheckCoresRole();
 
   const getLayout =
     (Component as ComponentGetLayout).getLayout || ((page) => page);
