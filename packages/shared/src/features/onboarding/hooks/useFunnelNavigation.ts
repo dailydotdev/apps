@@ -171,7 +171,7 @@ export const useFunnelNavigation = ({
     },
     // only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [funnel.id],
   );
 
   return {
