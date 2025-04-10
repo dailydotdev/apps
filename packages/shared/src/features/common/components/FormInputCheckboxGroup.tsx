@@ -23,8 +23,14 @@ export enum CheckboxGroupVariant {
   Vertical = 'vertical',
 }
 
+export enum CheckboxGroupBehaviour {
+  Radio = 'radio',
+  Checkbox = 'checkbox',
+}
+
 export interface FormInputCheckboxGroupProps
   extends PropsWithChildren<ComponentProps<'div'>> {
+  behaviour?: CheckboxGroupBehaviour;
   /**
    * @default []
    */
@@ -46,21 +52,29 @@ export interface FormInputCheckboxGroupProps
   variant?: CheckboxGroupVariant;
 }
 
-const getChangedValue = (
-  value: CheckboxValues,
-  selectedValue: CheckboxValue,
-): CheckboxValues => {
+const getChangedValue = ({
+  isSingleChoice,
+  value,
+  selectedValue,
+}: {
+  isSingleChoice: boolean;
+  value: CheckboxValues;
+  selectedValue: CheckboxValue;
+}): CheckboxValues => {
   const isSelected = value.includes(selectedValue);
-  return isSelected
-    ? value.filter((item) => item !== selectedValue)
-    : [...value, selectedValue];
+
+  if (isSelected) {
+    return value.filter((item) => item !== selectedValue);
+  }
+
+  return isSingleChoice ? [selectedValue] : [...value, selectedValue];
 };
 
 const FormInputCheckbox = ({
   isSelected,
   isVertical,
-  name,
   item,
+  name,
   ...props
 }: ButtonProps<'button'> & {
   isSelected: boolean;
@@ -115,6 +129,7 @@ const FormInputCheckbox = ({
 };
 
 export const FormInputCheckboxGroup = ({
+  behaviour,
   defaultValue = [],
   name,
   onValueChange,
@@ -129,9 +144,21 @@ export const FormInputCheckboxGroup = ({
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
   const isVertical = variant === CheckboxGroupVariant.Vertical;
+  console.log(behaviour);
+  const isSingleChoice = behaviour === CheckboxGroupBehaviour.Radio;
 
   const onSelect = (selectedValue: CheckboxValue) => {
-    const newValue = getChangedValue(inputValue, selectedValue);
+    const newValue = getChangedValue({
+      isSingleChoice,
+      value: inputValue,
+      selectedValue,
+    });
+    console.log({
+      isSingleChoice,
+      value: inputValue,
+      selectedValue,
+      newValue,
+    });
     onValueChange?.(newValue);
     setCheckedValue(newValue);
   };

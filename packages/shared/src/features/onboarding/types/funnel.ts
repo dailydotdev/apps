@@ -49,7 +49,7 @@ export type FunnelStepTransition = {
 
 interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
-  parameters: T;
+  parameters: T & Record<string, string>;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
 }
@@ -90,7 +90,7 @@ export enum FunnelStepQuizQuestionType {
   Rating = 'rating',
 }
 
-export type FunnelStepQuizQuestion = {
+export type FunnelQuestionCommon = {
   text: string;
   placeholder?: string;
   options: Array<{
@@ -99,18 +99,24 @@ export type FunnelStepQuizQuestion = {
     image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
-} & (
-  | ({
-      type:
-        | FunnelStepQuizQuestionType.Checkbox
-        | FunnelStepQuizQuestionType.Radio;
-    } & Pick<FormInputCheckboxGroupProps, 'variant' | 'cols'>)
-  | { type: FunnelStepQuizQuestionType.Rating }
-);
+};
+
+export type FunnelQuestionCheckbox = FunnelQuestionCommon &
+  ({
+    type:
+      | FunnelStepQuizQuestionType.Checkbox
+      | FunnelStepQuizQuestionType.Radio;
+  } & Pick<FormInputCheckboxGroupProps, 'variant' | 'cols' | 'behaviour'>);
+
+export type FunnelQuestionRating = FunnelQuestionCommon & {
+  type: FunnelStepQuizQuestionType.Rating;
+};
+
+export type FunnelQuestion = FunnelQuestionCheckbox | FunnelQuestionRating;
 
 export interface FunnelStepQuiz
   extends FunnelStepCommon<{
-    question: FunnelStepQuizQuestion;
+    question: FunnelQuestion;
     explainer?: string;
   }> {
   type: FunnelStepType.Quiz;

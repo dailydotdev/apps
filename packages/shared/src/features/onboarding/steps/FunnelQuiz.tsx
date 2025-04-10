@@ -1,12 +1,19 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState, useCallback } from 'react';
-import type { FunnelStepQuiz } from '../types/funnel';
+import type {
+  FunnelStepQuiz,
+  FunnelQuestion,
+  FunnelQuestionCheckbox,
+} from '../types/funnel';
 import {
   FunnelStepQuizQuestionType,
   FunnelStepTransitionType,
 } from '../types/funnel';
 import { FormInputRating } from '../../common/components/FormInputRating';
-import { FormInputCheckboxGroup } from '../../common/components/FormInputCheckboxGroup';
+import {
+  FormInputCheckboxGroup,
+  CheckboxGroupBehaviour,
+} from '../../common/components/FormInputCheckboxGroup';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
 import StepHeadline from '../shared/StepHeadline';
@@ -16,7 +23,7 @@ const quizComponentsMap = {
   [FunnelStepQuizQuestionType.Rating]: FormInputRating,
   [FunnelStepQuizQuestionType.Radio]: FormInputCheckboxGroup,
   [FunnelStepQuizQuestionType.Checkbox]: FormInputCheckboxGroup,
-};
+} as const;
 
 const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
   return (
@@ -25,14 +32,24 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
   );
 };
 
-export const FunnelQuiz = ({
+const checkIfCheckboxGroup = (
+  type: FunnelStepQuizQuestionType,
+  question: FunnelQuestion,
+): question is FunnelQuestionCheckbox => {
+  return (
+    type === FunnelStepQuizQuestionType.Checkbox ||
+    type === FunnelStepQuizQuestionType.Radio
+  );
+};
+
+export function FunnelQuiz({
   id,
   onTransition,
   parameters: { question, explainer },
-}: FunnelStepQuiz): ReactElement => {
+}: FunnelStepQuiz): ReactElement {
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
-  const isCheckboxGroup = 'variant' in question;
+  const isCheckboxGroup = checkIfCheckboxGroup(type, question);
   const [stepValue, setStepValue] = useState<string | string[]>([]);
   const Component = useMemo(() => quizComponentsMap[type], [type]);
   const inputOptions = useMemo(
@@ -97,6 +114,9 @@ export const FunnelQuiz = ({
           onValueChange={onChange}
           {...(isCheckboxGroup && {
             ...{
+              behaviour: isSingleChoice
+                ? CheckboxGroupBehaviour.Radio
+                : CheckboxGroupBehaviour.Checkbox,
               variant: question.variant,
               cols: question.cols,
             },
@@ -105,4 +125,4 @@ export const FunnelQuiz = ({
       </div>
     </ConditionalWrapper>
   );
-};
+}
