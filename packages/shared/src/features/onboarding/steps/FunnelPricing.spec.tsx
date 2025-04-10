@@ -1,82 +1,94 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FunnelPricing } from './FunnelPricing';
-import type { FunnelStepPricing } from '../types/funnel';
+import type {
+  FunnelStepPricing,
+  FunnelStepPricingParameters,
+} from '../types/funnel';
 import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
 import { PricingPlanVariation } from '../shared/PricingPlan';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
 
 const mockOnTransition = jest.fn();
 
-const defaultProps: FunnelStepPricing = {
-  id: 'test-id',
-  type: FunnelStepType.Pricing,
-  transitions: [],
-  parameters: {},
-  defaultPlan: 'annual',
+// Mock hooks
+jest.mock('../../payment/hooks/usePaddlePricePreview', () => ({
+  usePaddlePricePreview: jest.fn(() => ({
+    data: {
+      monthly: { price: { amount: 15, currency_code: 'USD' } },
+      annual: { price: { amount: 150, currency_code: 'USD' } },
+    },
+  })),
+}));
+
+jest.mock('../../payment/hooks/usePricingCycleConverter', () => ({
+  usePricingCycleConverter: jest.fn(() => ({
+    0: { price: '$0.49', priceId: 'monthly' },
+    1: { price: '$0.24', priceId: 'annual' },
+  })),
+}));
+
+const mockPricingParameters: FunnelStepPricingParameters = {
+  headline: 'Choose your plan',
+  cta: 'Checkout',
   discount: {
     message:
       'Get <b>additional 20% discount</b> if you subscribe in the next 15 minutes',
     duration: 15,
-    startDate: new Date('2023-01-01T00:00:00Z'),
   },
-  headline: 'Choose your plan',
-  pricing: {
-    perks: [],
-    plans: [
-      {
-        id: 'monthly',
-        value: 'monthly',
-        label: 'Monthly',
-        price: {
-          amount: '$0.49',
-          subtitle: 'per day',
-        },
-        badge: {
-          text: 'Popular',
-          background: '#CE3DF3',
-        },
+  defaultPlan: 'annual',
+  plans: [
+    {
+      priceId: 'monthly',
+      label: 'Monthly',
+      badge: {
+        text: 'Popular',
+        background: '#CE3DF3',
       },
-      {
-        id: 'annual',
-        value: 'annual',
-        label: 'Annual',
-        price: {
-          amount: '$0.24',
-          subtitle: 'per day',
-        },
-        badge: {
-          text: 'Save 50%',
-          background: '#0ABA6E',
-        },
-        variation: PricingPlanVariation.BEST_VALUE,
+    },
+    {
+      priceId: 'annual',
+      label: 'Annual',
+      variation: PricingPlanVariation.BEST_VALUE,
+      badge: {
+        text: 'Save 50%',
+        background: '#0ABA6E',
       },
-    ],
-  },
-  cta: 'Checkout',
+    },
+  ],
+  perks: ['Unlimited Access', '24/7 Support'],
   featuresList: {
     title: 'Your new abilities',
-    items: [],
+    items: ['Access to premium content', 'Advanced filtering'],
   },
   review: {
-    image: 'https://example.com/review.jpg',
     reviewText: "This is the only tool I've stuck with for more than a month.",
     authorInfo: 'Dave N., Senior Data Scientist',
+    image: 'https://example.com/review.jpg',
     authorImage: 'https://example.com/avatar.jpg',
   },
   refund: {
-    image: {
-      src: 'https://example.com/checkmark.jpg',
-      alt: 'Checkmark',
-    },
     title: '100% money back guarantee',
     content: "We're confident in the quality of our plan.",
+    image: 'https://example.com/checkmark.jpg',
   },
-  faq: {
-    items: [],
-  },
+  faq: [
+    {
+      question: 'How do I cancel?',
+      answer: 'You can cancel anytime from your account settings.',
+    },
+  ],
+};
+
+const defaultProps: FunnelStepPricing = {
+  id: 'test-id',
+  type: FunnelStepType.Pricing,
+  transitions: [],
+  parameters: mockPricingParameters,
   onTransition: mockOnTransition,
   isActive: true,
+  discountStartDate: new Date('2023-01-01T00:00:00Z'),
+  paddle: undefined,
 };
 
 const renderComponent = (props = {}) => {
@@ -164,5 +176,25 @@ describe('FunnelPricing', () => {
       type: FunnelStepTransitionType.Complete,
       details: { plan: 'annual', applyDiscount: false },
     });
+  });
+
+  it('should display the correct prices for plans', () => {
+    renderComponent();
+
+    // Annual price should be displayed for the annual plan
+    const annualPriceElements = screen.getAllByText('$0.24');
+    expect(annualPriceElements.length).toBeGreaterThan(0);
+
+    // Per day subtitle should be displayed
+    const perDayElements = screen.getAllByText('per day');
+    expect(perDayElements.length).toBeGreaterThan(0);
+
+    // Monthly price should be displayed for the monthly plan
+    const monthlyPriceElements = screen.getAllByText('$0.49');
+    expect(monthlyPriceElements.length).toBeGreaterThan(0);
+
+    // Badges should be displayed
+    expect(screen.getAllByText('Save 50%').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Popular').length).toBeGreaterThan(0);
   });
 });

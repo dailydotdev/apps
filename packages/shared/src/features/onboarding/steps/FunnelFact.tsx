@@ -3,7 +3,6 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import type { StepHeadlineAlign } from '../shared/StepHeadline';
 import StepHeadline from '../shared/StepHeadline';
 import type { FunnelStepFact } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -36,7 +35,7 @@ const FunnelFact = ({
         <StepHeadline
           heading={parameters?.headline}
           description={parameters?.explainer}
-          align={parameters?.align as StepHeadlineAlign}
+          align={parameters?.align}
         />
         {parameters?.visualUrl && (
           <LazyImage
