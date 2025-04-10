@@ -51,22 +51,56 @@ export const FeedSettingsAISection = (): ReactElement => {
 
   return (
     <>
+      {!isPlus && (
+        <>
+          <div className="flex w-full items-center rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
+            <Typography type={TypographyType.Callout}>
+              Upgrade and use daily.dev&apos;s AI Superpowers!
+            </Typography>
+            <Link href={plusUrl} passHref>
+              <Button
+                className="ml-auto w-fit"
+                tag="a"
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                icon={<DevPlusIcon className="text-action-plus-default" />}
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.FeedSettings,
+                  });
+                }}
+              >
+                {plusCta}
+              </Button>
+            </Link>
+          </div>
+          <Divider className="bg-border-subtlest-tertiary" />
+        </>
+      )}
+
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
-          <Typography
-            tag={TypographyTag.H3}
-            color={TypographyColor.Primary}
-            type={TypographyType.Body}
-            bold
-            className="mb-1"
-          >
-            Preferred language
-          </Typography>
+          <div className="mb-1 flex items-center gap-2">
+            <Typography
+              tag={TypographyTag.H3}
+              color={TypographyColor.Primary}
+              type={TypographyType.Body}
+              bold
+            >
+              Auto-translate your feed
+            </Typography>
+            <PlusUser />
+          </div>
           <Typography
             color={TypographyColor.Tertiary}
             type={TypographyType.Callout}
           >
-            Choose your preferred language for the post titles on the feed
+            Choose your preferred language, and we&apos;ll automatically
+            translate post titles and TLDR summaries in your feed. The full
+            posts will still be in English, but this helps you quickly
+            understand what&apos;s worth reading.
           </Typography>
         </div>
         <LanguageDropdown
@@ -81,9 +115,12 @@ export const FeedSettingsAISection = (): ReactElement => {
             );
           }}
           icon={null}
+          disabled={!isPlus}
         />
       </section>
+
       <Divider className="bg-border-subtlest-tertiary" />
+
       <section className="flex flex-col gap-4" aria-busy={isLoading}>
         <div className="flex flex-col">
           <div className="mb-1 flex items-center gap-2">
@@ -152,28 +189,10 @@ export const FeedSettingsAISection = (): ReactElement => {
             Optimize title quality
           </Switch>
         </ConditionalWrapper>
-        {!isPlus && (
-          <Link href={plusUrl} passHref>
-            <Button
-              className="w-fit"
-              tag="a"
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              icon={<DevPlusIcon className="text-action-plus-default" />}
-              onClick={() => {
-                logSubscriptionEvent({
-                  event_name: LogEvent.UpgradeSubscription,
-                  target_id: TargetId.ClickbaitShield,
-                });
-              }}
-            >
-              {plusCta}
-            </Button>
-          </Link>
-        )}
       </section>
+
       <Divider className="bg-border-subtlest-tertiary" />
+
       <SmartPrompts />
     </>
   );
