@@ -102,6 +102,10 @@ const OnboardingPlusStep = dynamic(() =>
   ).then((mod) => mod.OnboardingPlus),
 );
 
+const PlusPaymentStep = dynamic(
+  () => import(/* webpackChunkName: "plusPaymentStep" */ './plus'),
+);
+
 const OnboardingPWA = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingPWA" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPWA'
@@ -192,7 +196,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.PlusPayment);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
@@ -422,7 +426,7 @@ export function OnboardPage(): ReactElement {
       return 'Continue';
     }
 
-    if (layout.hasCta || activeScreen === OnboardingStep.Plus) {
+    if (layout.hasCta || [OnboardingStep.Plus].includes(activeScreen)) {
       return 'Skip →';
     }
 
@@ -520,6 +524,9 @@ export function OnboardPage(): ReactElement {
               {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
               {activeScreen === OnboardingStep.Plus && (
                 <OnboardingPlusStep onClickNext={onClickNext} />
+              )}
+              {activeScreen === OnboardingStep.PlusPayment && (
+                <PlusPaymentStep />
               )}
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (

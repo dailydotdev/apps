@@ -130,6 +130,7 @@ export const PaddleSubProvider = ({
   }, [router, trackPayment]);
 
   const getPrices = useCallback(async () => {
+    console.log(paddle);
     return paddle?.PricePreview({
       items: Object.keys(planTypes).map((priceId) => ({
         priceId,
@@ -146,6 +147,11 @@ export const PaddleSubProvider = ({
     queryFn: getPrices,
     enabled: !!paddle && !!planTypes && !!geo && !!user,
   });
+  console.log(
+    'productPrices: ',
+    productPrices,
+    !!paddle && !!planTypes && !!geo && !!user,
+  );
 
   const productOptions: Array<ProductOption> = useMemo(() => {
     const priceFormatter = new Intl.NumberFormat(
