@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai/react';
+import { useSetAtom } from 'jotai/react';
 import { useCallback, useEffect } from 'react';
 import type { Paddle } from '@paddle/paddle-js';
 import type { PaddleEventCallback } from '../../payment/hooks/usePaddle';
@@ -12,7 +12,7 @@ export interface UseFunnelPaddleProps {
 export const useInitFunnelPaddle = (): {
   paddle: Paddle | null;
 } => {
-  const [, setPaddleInstance] = useAtom(paddleInstanceAtom);
+  const setPaddleInstance = useSetAtom(paddleInstanceAtom);
 
   const handlePaddleCallback: PaddleEventCallback = useCallback((event) => {
     window.dispatchEvent(new CustomEvent('paddle-event', { detail: event }));
