@@ -10,10 +10,12 @@ import {
   getFunnelStepByPosition,
   funnelPositionHistoryAtom,
 } from '../store/funnelStore';
+import type { FunnelSession } from '../types/funnelBoot';
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
   onNavigation: TrackOnNavigate;
+  session: FunnelSession;
 }
 
 type Chapters = Array<{ steps: number }>;
@@ -73,6 +75,7 @@ function updateURLWithStepId({
 export const useFunnelNavigation = ({
   funnel,
   onNavigation,
+  session,
 }: UseFunnelNavigationProps): UseFunnelNavigationReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -159,8 +162,8 @@ export const useFunnelNavigation = ({
 
   useEffect(
     () => {
-      // on load check if stepId is in the URL and set the position
-      const stepId = searchParams.get('stepId');
+      // Check if the URL has a stepId parameter or if there is a session
+      const stepId = searchParams.get('stepId') ?? session.currentStep;
 
       if (!stepId) {
         return;

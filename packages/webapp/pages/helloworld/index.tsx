@@ -19,6 +19,7 @@ import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/f
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
+import { Provider as JotaiProvider } from 'jotai/react';
 
 type PageProps = {
   boot: FunnelBootData;
@@ -80,21 +81,21 @@ export default function HelloWorldPage({
     return null;
   }
 
-  console.log({ funnel, session });
-
   return (
     <HydrationBoundary state={dehydratedState}>
-      <Head>
-        <meta name="robots" content="noindex" />
-      </Head>
+      <JotaiProvider>
+        <Head>
+          <meta name="robots" content="noindex" />
+        </Head>
 
-      {!!funnel && !!session.id && (
-        <FunnelStepper
-          funnel={funnel}
-          session={session}
-          onComplete={() => router.replace('/onboarding')}
-        />
-      )}
+        {!!funnel && !!session.id && (
+          <FunnelStepper
+            funnel={funnel}
+            session={session}
+            onComplete={() => router.replace('/onboarding')}
+          />
+        )}
+      </JotaiProvider>
     </HydrationBoundary>
   );
 }
