@@ -27,21 +27,14 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
-import type { FunnelStepTransitionCallback } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { sanitizeMessage } from '../shared';
-
-interface FunnelRegistrationProps {
-  onTransition?: FunnelStepTransitionCallback<void>;
-  heading: string;
-  imageMobile: string;
-  image: string;
-}
+import type { FunnelStepSignup } from '../types/funnel';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
 const useRegistrationListeners = (
-  onTransition: FunnelRegistrationProps['onTransition'],
+  onTransition: FunnelStepSignup['onTransition'],
 ) => {
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
@@ -105,11 +98,9 @@ const useRegistrationListeners = (
 };
 
 export function FunnelRegistration({
-  heading,
-  image,
-  imageMobile,
+  parameters: { headline, image, imageMobile },
   onTransition,
-}: FunnelRegistrationProps): ReactElement {
+}: FunnelStepSignup): ReactElement {
   const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
@@ -132,7 +123,7 @@ export function FunnelRegistration({
 
   useRegistrationListeners(onTransition);
 
-  const sanitizedHeading = useMemo(() => sanitizeMessage(heading), [heading]);
+  const sanitizedHeading = useMemo(() => sanitizeMessage(headline), [headline]);
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">

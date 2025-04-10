@@ -37,10 +37,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const boot = await getFunnelBootData({
     app: BootApp.Webapp,
     cookies: allCookies,
-    id: `${id}` || 'first-funnel',
+    id: (id as string) || 'first-funnel',
     version: version as string,
   });
-  console.log({ boot });
 
   // Handle any cookies from the response
   const setCookieHeader = boot.response.headers.get('set-cookie');

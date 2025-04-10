@@ -14,7 +14,7 @@ export enum FunnelStepType {
   LandingPage = 'landingPage',
   Fact = 'fact',
   Quiz = 'quiz',
-  Signup = 'signUp',
+  Signup = 'registration',
   Pricing = 'pricing',
   Checkout = 'checkout',
   TagSelection = 'tagsSelection',
@@ -40,16 +40,16 @@ type FunnelStepParameters<
   } = Record<string, unknown>,
 > = {
   [key in keyof Params]: Params[key];
-} & { [p: string]: string };
+} & { [p: string]: unknown };
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
   destination: FunnelStep['id'] | typeof COMPLETED_STEP_ID;
 };
 
-interface FunnelStepCommon {
+interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
-  parameters: FunnelStepParameters;
+  parameters: T;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
 }
@@ -117,6 +117,11 @@ export interface FunnelStepQuiz extends FunnelStepCommon {
 export interface FunnelStepSignup extends FunnelStepCommon {
   type: FunnelStepType.Signup;
   onTransition: FunnelStepTransitionCallback;
+  parameters: FunnelStepParameters<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }>;
 }
 
 export interface FunnelStepPricing extends FunnelStepCommon {
