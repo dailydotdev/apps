@@ -413,7 +413,11 @@ export default function PostOptionsMenu({
       label: 'Translate',
       action: () => {
         logEvent({
-          ...postLogEvent(LogEvent.TranslatePost, post, logOpts),
+          ...postLogEvent(
+            isPlus ? LogEvent.TranslatePost : LogEvent.UpgradeSubscription,
+            post,
+            logOpts,
+          ),
           ...(!isPlus && { target_type: TargetType.Plus }),
         });
         router.push(
