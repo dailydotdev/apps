@@ -26,6 +26,7 @@ import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
+import { FunnelEventName } from '../types/funnelEvents';
 
 interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -73,6 +74,7 @@ export const FunnelStepper = ({
     trackOnHoverCapture,
     trackOnNavigate,
     trackOnScroll,
+    trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
@@ -104,6 +106,9 @@ export const FunnelStepper = ({
     }
 
     if (isLastStep) {
+      trackFunnelEvent({
+        name: FunnelEventName.CompleteFunnel,
+      });
       onComplete?.();
     }
   };
