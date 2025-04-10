@@ -6,11 +6,7 @@ import Head from 'next/head';
 import 'focus-visible';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo, NextSeo } from 'next-seo';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   useCookieBanner,
@@ -30,32 +26,22 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import {
-  defaultQueryClientConfig,
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import {
-  useActions,
-  useManualScrollRestoration,
-} from '@dailydotdev/shared/src/hooks';
+import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
   messageHandlerExists,
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { CHECK_CORES_ROLE_QUERY } from '@dailydotdev/shared/src/graphql/njord';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -93,7 +79,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, trackingId, updateUser } = useAuthContext();
+  const { user, trackingId } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -101,7 +87,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
-  const { isActionsFetched, checkHasCompleted } = useActions();
+
+  useCheckCoresRole();
 
   useEffect(() => {
     if (
@@ -166,30 +153,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       router.events.off('routeChangeStart', onRouteChange);
     };
   }, [modal, closeModal, router.events]);
-
-  useQuery({
-    queryKey: generateQueryKey(RequestKey.CheckCoresRole, user),
-    queryFn: async () => {
-      const result = await gqlClient.request<{
-        checkCoresRole: Pick<LoggedUser, 'coresRole'>;
-      }>(CHECK_CORES_ROLE_QUERY);
-
-      if (result.checkCoresRole.coresRole !== user.coresRole) {
-        await updateUser({
-          ...user,
-          coresRole: result.checkCoresRole.coresRole,
-        });
-      }
-
-      return result.checkCoresRole;
-    },
-    staleTime: Infinity,
-    gcTime: Infinity,
-    enabled:
-      !!user &&
-      isActionsFetched &&
-      !checkHasCompleted(ActionType.CheckedCoresRole),
-  });
 
   const getLayout =
     (Component as ComponentGetLayout).getLayout || ((page) => page);
