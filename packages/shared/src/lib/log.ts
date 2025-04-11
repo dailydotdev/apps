@@ -259,6 +259,7 @@ export enum LogEvent {
   UpdateProfile = 'update profile',
   UpdateProfileImage = 'update profile image',
   // End Profile
+  TranslatePost = 'translate post',
 }
 
 export enum FeedItemTitle {
