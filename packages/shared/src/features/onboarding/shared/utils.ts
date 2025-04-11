@@ -18,3 +18,15 @@ export const sanitizeMessage = (message: string): string => {
     ALLOWED_ATTR: [],
   });
 };
+
+const brokenWebviewPatterns = [
+  /FBAN|FBAV/i, // Facebook App
+  /Messenger/i, // Facebook Messenger
+  /LinkedIn/i, // LinkedIn
+];
+
+export function shouldRedirectAth(): boolean {
+  const ua = navigator.userAgent;
+
+  return brokenWebviewPatterns.some((pattern) => pattern.test(ua));
+}

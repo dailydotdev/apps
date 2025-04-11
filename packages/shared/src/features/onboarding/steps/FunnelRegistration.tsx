@@ -28,10 +28,8 @@ import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
 import { FunnelStepTransitionType } from '../types/funnel';
-import { sanitizeMessage } from '../shared';
+import { sanitizeMessage, shouldRedirectAth } from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
-import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
-import { isIOS } from '../../../lib/func';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -99,52 +97,24 @@ const useRegistrationListeners = (
   useEventListener(globalThis, 'message', onProviderMessage);
 };
 
-const checkIsInAppAndroid = () => {
-  const inAppBrowser = isWebView();
-  const confirmedIOS = isIOS();
-
-  return inAppBrowser && !confirmedIOS;
-};
-
 function InnerFunnelRegistration({
   parameters: { headline, image, imageMobile },
   onTransition,
 }: FunnelStepSignup): ReactElement {
   const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
-  const isAndroidWebView = checkIsInAppAndroid();
-  const config = useMemo(() => {
-    if (!router?.isReady) {
-      return { enabled: false };
-    }
-
-    if (!isAndroidWebView) {
-      return { enabled: true };
-    }
-
-    if (typeof window === 'undefined') {
-      return { enabled: false };
-    }
-
-    return { enabled: true, redirect_to: window.location.href };
-  }, [router?.isReady, isAndroidWebView]);
-
+  const shouldRedirect = shouldRedirectAth();
   const windowPopup = useRef<Window>(null);
-  const closePopup = () => {
-    windowPopup.current?.close();
-    windowPopup.current = null;
-  };
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
-    enabled: config.enabled,
-    params: config.redirect_to
-      ? { redirect_to: config.redirect_to }
-      : undefined,
+    enabled: !router?.isReady,
+    params: shouldRedirect ? { redirect_to: window.location.href } : undefined,
     onRedirectFail: () => {
-      closePopup();
+      windowPopup.current?.close();
+      windowPopup.current = null;
     },
     onRedirect: (redirect) => {
-      if (isAndroidWebView) {
+      if (shouldRedirect) {
         window.location.href = redirect;
       } else {
         windowPopup.current.location.href = redirect;
@@ -153,7 +123,7 @@ function InnerFunnelRegistration({
   });
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isNativeAuthSupported(provider) && !isAndroidWebView) {
+    if (!isNativeAuthSupported(provider) && !shouldRedirect) {
       windowPopup.current = window.open();
     }
     onSocialRegistration(provider);
