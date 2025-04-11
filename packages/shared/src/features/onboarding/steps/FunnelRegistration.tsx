@@ -157,7 +157,7 @@ export function FunnelRegistration({
         <iframe
           title="open browser"
           src={`googlechrome://navigate?url=${window.location.href}`}
-          className="invisible h-0 w-0 border-0 border-none"
+          className="fixed inset-0 border-0 border-none bg-white"
         />
       )}
       <div className="absolute inset-0">
