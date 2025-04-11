@@ -181,6 +181,9 @@ export const useTranslation: UseTranslation = ({
       if (posts.length === 0) {
         return [];
       }
+      if (!isPlus) {
+        return [];
+      }
 
       const postsToTranslate = posts
         .filter(
@@ -201,7 +204,7 @@ export const useTranslation: UseTranslation = ({
         const fields = [];
 
         const shouldUseSmartTitle =
-          isPlus && post.clickbaitTitleDetected && clickbaitShieldEnabled;
+          post.clickbaitTitleDetected && clickbaitShieldEnabled;
 
         if (shouldUseSmartTitle && !post.translation?.smartTitle) {
           fields.push('smartTitle');
