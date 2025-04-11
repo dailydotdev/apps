@@ -404,4 +404,62 @@ describe('FunnelRegistration', () => {
       expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
     });
   });
+
+  it('should initialize registration with redirect_to in Android WebView', async () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    // Mock window location
+    const originalLocation = window.location;
+    const mockLocation = new URL('https://daily.dev/onboarding');
+    Object.defineProperty(window, 'location', {
+      value: mockLocation,
+      writable: true,
+    });
+
+    let registrationConfig;
+    (useRegistration as jest.Mock).mockImplementation((config) => {
+      registrationConfig = config;
+      return {
+        onSocialRegistration: mockOnSocialRegistration,
+      };
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    expect(registrationConfig).toMatchObject({
+      enabled: true,
+      params: {
+        redirect_to: mockLocation.href,
+      },
+    });
+
+    // Restore window.location
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  it('should not include redirect_to param when not in Android WebView', () => {
+    // Mock non-Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(false);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    let registrationConfig;
+    (useRegistration as jest.Mock).mockImplementation((config) => {
+      registrationConfig = config;
+      return {
+        onSocialRegistration: mockOnSocialRegistration,
+      };
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    expect(registrationConfig).toMatchObject({
+      enabled: true,
+      params: undefined,
+    });
+  });
 });
