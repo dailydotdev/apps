@@ -101,10 +101,14 @@ function InnerFunnelRegistration({
   parameters: { headline, image, imageMobile },
   onTransition,
 }: FunnelStepSignup): ReactElement {
+  const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
+  const redirectTo = typeof window !== 'undefined' ? window.location.href : '';
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
+    enabled: router?.isReady,
+    params: { redirect_to: redirectTo },
     onRedirectFail: () => {
       windowPopup.current.close();
       windowPopup.current = null;
@@ -161,9 +165,9 @@ export function FunnelRegistration({
   isActive,
   ...props
 }: FunnelStepSignup): ReactElement {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, isAuthReady } = useAuthContext();
 
-  if (!isActive) {
+  if (!isActive || !isAuthReady) {
     return null;
   }
 
