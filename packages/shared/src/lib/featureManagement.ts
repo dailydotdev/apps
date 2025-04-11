@@ -36,10 +36,10 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
   pricingIds: new Feature('pricing_ids', {
-    pri_01jmf95s11a9hedbh2bfcz5dz7: PlusPriceType.Yearly, // Annual discounted
-    pri_01jcdn6enr5ap3ekkddc6fv6tq: PlusPriceType.Yearly, // Annual
-    pri_01jcdp5ef4yhv00p43hr2knrdg: PlusPriceType.Monthly, // Monthly
-    pri_01jkzypjstw7k6w82375mafc89: PlusPriceType.Yearly, // One-Year Gift
+    pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted
+    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly, // Annual
+    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly, // Monthly
+    pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly, // One-Year Gift
   }),
 };
 
@@ -127,7 +127,7 @@ export const featureOnboardingReorder = new Feature(
 
 export const featureOnboardingPlusFeatureGrid = new Feature(
   'onboarding_plus_feature_grid',
-  false,
+  true,
 );
 
 export { feature };
