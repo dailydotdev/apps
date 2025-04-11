@@ -220,6 +220,10 @@ export const initializeKratosFlow = async (
   params: EmptyObjectLiteral = {},
 ): Promise<InitializationData> => {
   const search = new URLSearchParams(params);
+  console.log(
+    'initialized: ',
+    `${authUrl}/self-service${flow}/browser?${search}`,
+  );
   const res = await fetch(`${authUrl}/self-service${flow}/browser?${search}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
