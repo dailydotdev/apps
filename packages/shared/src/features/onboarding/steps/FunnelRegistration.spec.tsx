@@ -6,7 +6,11 @@ import { FunnelRegistration } from './FunnelRegistration';
 import useRegistration from '../../../hooks/useRegistration';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useEventListener, useToastNotification } from '../../../hooks';
+import {
+  useEventListener,
+  useToastNotification,
+  useViewSize,
+} from '../../../hooks';
 import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
 import { isNativeAuthSupported, AuthEventNames } from '../../../lib/auth';
 import { SocialProvider } from '../../../components/auth/common';
@@ -113,6 +117,9 @@ describe('FunnelRegistration', () => {
         dispatchEvent: jest.fn(),
       })),
     });
+
+    // Default to mobile view
+    (useViewSize as jest.Mock).mockReturnValue(false);
   });
 
   it('should not render when isActive is false', () => {
@@ -224,13 +231,26 @@ describe('FunnelRegistration', () => {
     expect(screen.getByTestId('social-button-github')).toBeInTheDocument();
   });
 
-  it('shows mobile image on mobile view', () => {
+  it('renders the registration form with mobile image by default', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const backgroundImage = screen.getByAltText('background');
     expect(backgroundImage).toHaveAttribute(
       'src',
       defaultProps.parameters.imageMobile,
+    );
+  });
+
+  it('shows tablet image on tablet view', () => {
+    // Mock tablet view
+    (useViewSize as jest.Mock).mockReturnValue(true);
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const backgroundImage = screen.getByAltText('background');
+    expect(backgroundImage).toHaveAttribute(
+      'src',
+      defaultProps.parameters.image,
     );
   });
 
