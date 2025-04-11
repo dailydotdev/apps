@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Typography,
@@ -114,10 +114,13 @@ export function FunnelRegistration({
 }: FunnelRegistrationProps): ReactElement {
   const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
+  const [showIframe, setShowIframe] = useState<boolean>(false);
+  const [authUrl, setAuthUrl] = useState<string>(null);
+
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     onRedirectFail: () => {
-      windowPopup.current.close();
+      windowPopup.current?.close();
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
@@ -126,11 +129,13 @@ export function FunnelRegistration({
       const isAndroidWebView = inAppBrowser && !confirmedIOS;
 
       if (isAndroidWebView) {
-        const intentUrl = `intent:${redirect}#Intent;scheme=https;package=com.android.chrome;end`;
-        windowPopup.current.location.href = intentUrl;
+        setAuthUrl(redirect);
+        setShowIframe(true);
+        windowPopup.current?.close();
+        windowPopup.current = null;
+      } else {
+        windowPopup.current.location.href = redirect;
       }
-
-      windowPopup.current.location.href = redirect;
     },
   });
 
@@ -172,6 +177,22 @@ export function FunnelRegistration({
         />
         <SocialRegistration onClick={onRegister} />
       </div>
+      {showIframe && authUrl && (
+        <div className="z-50 fixed inset-0 bg-surface-invert">
+          <iframe
+            title="Authentication"
+            src={authUrl}
+            className="h-full w-full border-none"
+          />
+          <button
+            type="button"
+            className="absolute right-4 top-4 text-text-tertiary"
+            onClick={() => setShowIframe(false)}
+          >
+            Close
+          </button>
+        </div>
+      )}
     </div>
   );
 }
