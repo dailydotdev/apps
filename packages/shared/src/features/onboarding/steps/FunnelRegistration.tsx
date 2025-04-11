@@ -126,11 +126,13 @@ export function FunnelRegistration({
       const isAndroidWebView = inAppBrowser && !confirmedIOS;
 
       if (isAndroidWebView) {
-        // const intentUrl = `intent:${redirect}#Intent;scheme=https;package=com.android.chrome;end`;
-        // windowPopup.current.location.href = intentUrl;
-        const div = globalThis?.document.createElement('div');
+        windowPopup.current.close();
+        windowPopup.current = null;
         const target = window.location.href;
-        div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
+        const intentUrl = `intent:googlechrome://navigate?url=${target}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = intentUrl;
+        // const div = globalThis?.document.createElement('div');
+        // div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
       }
 
       windowPopup.current.location.href = redirect;
