@@ -193,9 +193,7 @@ export const OnboardingPlusVariation = ({
                 }}
                 title="Plus"
                 description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
-                price={`${item?.currencySymbol ?? ''}${
-                  item?.price.monthlyFormatted ?? '0'
-                }`}
+                price={item?.price.monthlyFormatted ?? '0'}
                 note="30 day hassle-free refund. No questions asked."
               />
             </div>
