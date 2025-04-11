@@ -1,19 +1,8 @@
 import type { ReactElement, ComponentProps } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { FunnelStepType } from '../types/funnel';
 import type { FunnelStep } from '../types/funnel';
-
-export enum FunnelBackgroundVariant {
-  Blank = 'blank',
-  Default = 'default',
-  Light = 'light',
-  Bottom = 'bottom',
-  Top = 'top',
-  CircleTop = 'circleTop',
-  CircleBottom = 'circleBottom',
-  Hourglass = 'hourglass',
-}
+import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
@@ -37,6 +26,10 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   }
 
   const { parameters } = step;
+
+  if (parameters.backgroundType) {
+    return parameters.backgroundType;
+  }
 
   if (step.type === FunnelStepType.Loading) {
     return FunnelBackgroundVariant.Hourglass;
@@ -62,7 +55,10 @@ export const FunnelStepBackground = ({
 }: StepBackgroundProps): ReactElement => {
   const bgClassName = useMemo(() => {
     const variant = getVariantFromStep(step);
-    return variantToClassName[variant];
+    return (
+      variantToClassName[variant] ??
+      variantToClassName[FunnelBackgroundVariant.Default]
+    );
   }, [step]);
   return (
     <div className="relative min-h-dvh bg-background-default">

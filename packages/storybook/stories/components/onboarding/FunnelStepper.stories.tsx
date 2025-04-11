@@ -18,7 +18,6 @@ import { Default as FunnelPricing } from './FunnelPricing.stories';
 import {
   FunnelStepPricing,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { QueryClient } from '@tanstack/react-query';
 import {
   CheckboxGroupVariant,
 } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
@@ -27,6 +26,9 @@ import {
   FunnelStepLoading,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { fn } from '@storybook/test';
+import {
+  FunnelBackgroundVariant,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 
 
 const meta: Meta<typeof FunnelStepper> = {
@@ -70,20 +72,12 @@ const sampleFunnel: FunnelJSON = {
   chapters: [
     {
       id: 'chapter1',
-      parameters: {
-        cta: 'Continue',
-      },
-      transitions: [
-        {
-          on: FunnelStepTransitionType.Complete,
-          destination: 'step2',
-        },
-      ],
       steps: [
         {
           id: 'step1',
           type: FunnelStepType.Quiz,
           parameters: {
+            backgroundType: FunnelBackgroundVariant.Hourglass,
             cta: 'Next',
             question: {
               type: FunnelStepQuizQuestionType.Rating,
@@ -240,6 +234,9 @@ export const Default: Story = {
     funnel: sampleFunnel,
     session: {
       id: 'session-id',
+      currentStep: 'step1',
+      userId: 'user-id',
+      steps: {},
     },
   },
 };

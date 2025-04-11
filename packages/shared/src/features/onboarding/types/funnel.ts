@@ -5,9 +5,9 @@ import type {
   ImageReviewProps,
   PricingPlanVariation,
   Review,
+  StepHeadlineAlign,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
-import type { StepHeadlineAlign } from '../shared/StepHeadline';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -24,6 +24,17 @@ export enum FunnelStepType {
   Loading = 'loading',
 }
 
+export enum FunnelBackgroundVariant {
+  Blank = 'blank',
+  Default = 'default',
+  Light = 'light',
+  Bottom = 'bottom',
+  Top = 'top',
+  CircleTop = 'circleTop',
+  CircleBottom = 'circleBottom',
+  Hourglass = 'hourglass',
+}
+
 export enum FunnelStepTransitionType {
   Skip = 'skip',
   Complete = 'complete',
@@ -34,13 +45,17 @@ export const COMPLETED_STEP_ID = 'finish' as const;
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-type FunnelStepParameters<
-  Params extends {
-    [p: string]: unknown;
-  } = Record<string, unknown>,
-> = {
+interface FunnelStepCommonParameters {
+  backgroundType?: FunnelBackgroundVariant;
+  cta?: string;
+  reverse?: boolean;
+}
+
+type FunnelStepParameters<Params = Record<string, unknown>> = {
   [key in keyof Params]: Params[key];
-} & { [p: string]: unknown };
+} & FunnelStepCommonParameters & {
+    [p: string]: unknown;
+  };
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
@@ -49,7 +64,7 @@ export type FunnelStepTransition = {
 
 interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
-  parameters: T & { [key: string]: string | unknown };
+  parameters: FunnelStepParameters<T>;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
 }
