@@ -101,6 +101,7 @@ const updateTranslation = ({
     case 'smartTitle':
       updatedPost = updateTitleTranslation({ post, translation });
       break;
+    case 'summary':
     case 'titleHtml':
       updatedPost = updateGenericPostField({ post, translation });
       break;
@@ -214,6 +215,14 @@ export const useTranslation: UseTranslation = ({
           fields.push('titleHtml');
         }
 
+        if (
+          queryType !== 'feed' &&
+          post.summary &&
+          !post.translation?.summary
+        ) {
+          fields.push('summary');
+        }
+
         if (fields.length > 0) {
           acc[post.id] = fields;
         }
@@ -278,7 +287,7 @@ export const useTranslation: UseTranslation = ({
     abort.current = new AbortController();
 
     return () => {
-      abort.current?.abort();
+      abort.current?.abort('unmounting');
     };
   }, []);
 
