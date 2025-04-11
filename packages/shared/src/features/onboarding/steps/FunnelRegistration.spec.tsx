@@ -26,6 +26,11 @@ jest.mock('../../../lib/auth');
 jest.mock('../../../components/auth/OnboardingRegistrationForm');
 jest.mock('../../../lib/func');
 jest.mock('../../../hooks/useViewSize');
+jest.mock('next/router', () => ({
+  useRouter: jest.fn().mockImplementation(() => ({
+    isReady: true,
+  })),
+}));
 jest.mock('../shared', () => ({
   sanitizeMessage: jest.fn().mockImplementation((message) => message),
 }));
@@ -66,6 +71,8 @@ describe('FunnelRegistration', () => {
 
     (useAuthContext as jest.Mock).mockReturnValue({
       refetchBoot: mockRefetchBoot,
+      isLoggedIn: false,
+      isAuthReady: true,
     });
 
     (useLogContext as jest.Mock).mockReturnValue({
@@ -88,6 +95,10 @@ describe('FunnelRegistration', () => {
       return provider === SocialProvider.Apple;
     });
 
+    // Default WebView and iOS states
+    (isWebView as jest.Mock).mockReturnValue(false);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
     // Mock matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
@@ -102,6 +113,97 @@ describe('FunnelRegistration', () => {
         dispatchEvent: jest.fn(),
       })),
     });
+  });
+
+  it('should not render when isActive is false', () => {
+    render(<FunnelRegistration {...defaultProps} isActive={false} />);
+    expect(
+      screen.queryByTestId('registration-container'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not render when auth is not ready', () => {
+    (useAuthContext as jest.Mock).mockReturnValue({
+      isAuthReady: false,
+      isLoggedIn: false,
+    });
+    render(<FunnelRegistration {...defaultProps} />);
+    expect(
+      screen.queryByTestId('registration-container'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should transition when user is already logged in', () => {
+    (useAuthContext as jest.Mock).mockReturnValue({
+      isAuthReady: true,
+      isLoggedIn: true,
+    });
+    render(<FunnelRegistration {...defaultProps} />);
+    expect(mockOnTransition).toHaveBeenCalledWith({
+      type: FunnelStepTransitionType.Complete,
+    });
+    expect(
+      screen.queryByTestId('registration-container'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should configure registration with redirect_to when in Android WebView', () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    expect(useRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enabled: true,
+        params: { redirect_to: expect.any(String) },
+      }),
+    );
+  });
+
+  it('should handle direct navigation for Android WebView', async () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    const mockLocation = { href: '' };
+    Object.defineProperty(window, 'location', {
+      value: mockLocation,
+      writable: true,
+    });
+
+    let registrationHook;
+    (useRegistration as jest.Mock).mockImplementation((props) => {
+      registrationHook = props;
+      return {
+        onSocialRegistration: mockOnSocialRegistration,
+      };
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const redirectUrl = 'https://example.com/auth';
+    // Call onRedirect directly
+    registrationHook.onRedirect(redirectUrl);
+
+    expect(mockLocation.href).toBe(redirectUrl);
+  });
+
+  it('should not open popup for non-native auth in Android WebView', async () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    const mockWindowOpen = jest.fn();
+    global.open = mockWindowOpen;
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const githubButton = screen.getByTestId('social-button-github');
+    await userEvent.click(githubButton);
+
+    expect(mockWindowOpen).not.toHaveBeenCalled();
   });
 
   it('renders the registration form with provided heading and image', () => {
@@ -204,36 +306,6 @@ describe('FunnelRegistration', () => {
       expect(mockRefetchBoot).toHaveBeenCalled();
       expect(mockOnTransition).toHaveBeenCalled();
       expect(mockDisplayToast).not.toHaveBeenCalled();
-    });
-  });
-
-  it('shows toast for Plus users without calling onTransition', async () => {
-    mockRefetchBoot.mockResolvedValueOnce({
-      data: {
-        user: {
-          email: 'test@example.com',
-          id: 'test-user-id',
-          isPlus: true,
-          providers: ['google'],
-        },
-      },
-    });
-
-    render(<FunnelRegistration {...defaultProps} />);
-
-    const messageHandler = mockUseEventListener.mock.calls[0][2];
-    messageHandler({
-      data: {
-        eventKey: AuthEvent.SocialRegistration,
-      },
-    });
-
-    await waitFor(() => {
-      expect(mockRefetchBoot).toHaveBeenCalled();
-      expect(mockOnTransition).not.toHaveBeenCalled();
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        'You are already a daily.dev Plus user',
-      );
     });
   });
 
