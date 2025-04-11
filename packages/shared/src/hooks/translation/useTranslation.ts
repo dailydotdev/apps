@@ -287,7 +287,7 @@ export const useTranslation: UseTranslation = ({
     abort.current = new AbortController();
 
     return () => {
-      abort.current?.abort();
+      abort.current?.abort('unmounting');
     };
   }, []);
 
