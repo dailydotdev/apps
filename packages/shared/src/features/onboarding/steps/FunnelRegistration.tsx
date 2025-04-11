@@ -30,6 +30,8 @@ import type { LoggedUser } from '../../../lib/user';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { sanitizeMessage } from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
+import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
+import { isIOS } from '../../../lib/func';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -103,12 +105,31 @@ function InnerFunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
+  const config = useMemo(() => {
+    if (!router?.isReady) {
+      return { enabled: false };
+    }
+
+    const inAppBrowser = isWebView();
+    const confirmedIOS = isIOS();
+    const isAndroidWebView = inAppBrowser && !confirmedIOS;
+
+    if (!isAndroidWebView) {
+      return { enabled: true };
+    }
+
+    if (typeof window === 'undefined') {
+      return { enabled: false };
+    }
+
+    return { enabled: true, redirect_to: window.location.href };
+  }, [router?.isReady]);
+
   const windowPopup = useRef<Window>(null);
-  const redirectTo = typeof window !== 'undefined' ? window.location.href : '';
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
-    enabled: router?.isReady,
-    params: { redirect_to: redirectTo },
+    enabled: config.enabled,
+    params: { redirect_to: config.redirect_to },
     onRedirectFail: () => {
       windowPopup.current.close();
       windowPopup.current = null;
