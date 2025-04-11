@@ -26,5 +26,8 @@ type Story = StoryObj<typeof FunnelPaymentSuccessful>;
 export const Default: Story = {
   args: {
     onTransition: fn(),
+    parameters: {
+      headline: 'You made it!',
+    }
   },
 };

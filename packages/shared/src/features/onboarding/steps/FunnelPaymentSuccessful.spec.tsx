@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FunnelPaymentSuccessful } from './FunnelPaymentSuccessful';
-import { FunnelStepTransitionType } from '../types/funnel';
+import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
+import type { FunnelStepPaymentSuccessful } from '../types/funnel';
 
 describe('FunnelPaymentSuccessful component', () => {
   const mockOnTransition = jest.fn();
@@ -10,13 +11,28 @@ describe('FunnelPaymentSuccessful component', () => {
     jest.clearAllMocks();
   });
 
-  const renderComponent = () => {
-    return render(<FunnelPaymentSuccessful onTransition={mockOnTransition} />);
+  const renderComponent = (
+    parameters: FunnelStepPaymentSuccessful['parameters'] = {},
+  ) => {
+    return render(
+      <FunnelPaymentSuccessful
+        id="payment-successful"
+        onTransition={mockOnTransition}
+        parameters={parameters}
+        type={FunnelStepType.PaymentSuccessful}
+        transitions={[
+          {
+            on: FunnelStepTransitionType.Complete,
+            destination: 'completed',
+          },
+        ]}
+      />,
+    );
   };
 
   it('should render the success title', () => {
-    renderComponent();
-    expect(screen.getByText('Payment successful!')).toBeInTheDocument();
+    renderComponent({ headline: 'You made it!' });
+    expect(screen.getByText('You made it!')).toBeInTheDocument();
   });
 
   it('should render payment success message', () => {
@@ -27,8 +43,8 @@ describe('FunnelPaymentSuccessful component', () => {
   });
 
   it('should render continue button', () => {
-    renderComponent();
-    const continueButton = screen.getByRole('button', { name: 'Continue' });
+    renderComponent({ cta: 'Continue!' });
+    const continueButton = screen.getByRole('button', { name: 'Continue!' });
     expect(continueButton).toBeInTheDocument();
   });
 

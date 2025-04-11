@@ -227,6 +227,18 @@ export interface FunnelStepSocialProof
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepPaymentSuccessful
+  extends FunnelStepCommon<
+    Partial<{
+      headline: string;
+      explainer: string;
+      imageUrl: string;
+    }>
+  > {
+  type: FunnelStepType.PaymentSuccessful;
+  onTransition: FunnelStepTransitionCallback<void>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
