@@ -36,6 +36,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
   messageHandlerExists,
   postWebKitMessage,
@@ -86,6 +87,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
+
+  useCheckCoresRole();
 
   useEffect(() => {
     if (

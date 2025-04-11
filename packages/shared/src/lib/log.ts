@@ -62,6 +62,12 @@ export enum Origin {
   // Marketing
   InAppPromotion = 'in app promotion',
   Suggestions = 'suggestions',
+  // Start Credits
+  WalletPageCTA = 'wallet page cta',
+  WalletPagePackage = 'wallet page package',
+  Award = 'award',
+  CoresPage = 'cores page',
+  // End Credits
 }
 
 export enum LogEvent {
@@ -260,6 +266,19 @@ export enum LogEvent {
   UpdateProfileImage = 'update profile image',
   // End Profile
   TranslatePost = 'translate post',
+  // Start Credits
+  StartBuyingCredits = 'start buying credits',
+  SelectCreditsQuantity = 'select credits quantity',
+  StartAwardUser = 'start award user',
+  PickAwardUser = 'pick award user',
+  AwardUser = 'award user',
+  StartAwardPost = 'start award post',
+  PickAwardPost = 'pick award post',
+  AwardPost = 'award post',
+  StartAwardComment = 'start award comment',
+  PickAwardComment = 'pick award comment',
+  AwardComment = 'award comment',
+  // End Credits
 }
 
 export enum FeedItemTitle {
@@ -306,6 +325,7 @@ export enum TargetType {
   // Browsers
   Chrome = 'chrome',
   Edge = 'edge',
+  Credits = 'credits',
   List = 'list',
   Grid = 'grid',
 }
@@ -359,6 +379,7 @@ export enum NotificationCategory {
   ReadingReminder = 'reading reminder',
   StreakReminder = 'streak reminder',
   Following = 'following',
+  Award = 'award',
 }
 
 export enum NotificationTarget {

@@ -64,7 +64,8 @@ export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
-export const plusSuccessUrl = `${webappUrl}plus/success`;
+export const plusSuccessUrl = `${plusUrl}/success`;
+export const walletUrl = `${webappUrl}wallet`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
@@ -146,3 +147,7 @@ export const DeletedPostId = '404';
 
 export const BROADCAST_CHANNEL_NAME = 'dailydev_broadcast';
 export const broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+
+export const withdrawLink = 'https://r.daily.dev/withdraw';
+
+export const coresDocsLink = 'https://r.daily.dev/cores';

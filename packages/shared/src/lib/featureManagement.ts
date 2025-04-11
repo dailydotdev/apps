@@ -8,6 +8,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
 import type { ProductMeta } from '../contexts/payment/context';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
+import { isDevelopment } from './constants';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -81,11 +82,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
-export const featureOnboardingPlusCheckout = new Feature(
-  'onboarding_plus_checkout',
-  false,
-);
-
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureOnboardingAndroid = new Feature(
@@ -135,3 +131,5 @@ export const featureOnboardingPlusFeatureGrid = new Feature(
 );
 
 export { feature };
+
+export const featureCores = new Feature('cores', isDevelopment);

@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ProfileReadingData } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
 import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
 import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
@@ -18,6 +18,8 @@ import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
+import dynamic from 'next/dynamic';
+import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -28,14 +30,25 @@ import {
 import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
 import { TopReaderWidget } from '../../../shared/src/components/profile/TopReaderWidget';
 
+const Awards = dynamic(
+  () =>
+    import('@dailydotdev/shared/src/components/profile/Awards').then(
+      (mod) => mod.Awards,
+    ),
+  {
+    ssr: false,
+  },
+);
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
   user: initialUser,
   noindex,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
-  const { tokenRefreshed } = useContext(AuthContext);
+  const { tokenRefreshed } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
+  const hasCoresAccess = useHasAccessToCores();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
     useActivityTimeFilter();
@@ -71,7 +84,7 @@ const ProfilePage = ({
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
         <Readme user={user} />
-
+        {hasCoresAccess && <Awards userId={user?.id} />}
         <TopReaderWidget user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
