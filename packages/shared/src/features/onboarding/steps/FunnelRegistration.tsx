@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import {
   Typography,
@@ -133,6 +133,19 @@ export function FunnelRegistration({
       windowPopup.current.location.href = redirect;
     },
   });
+
+  useEffect(() => {
+    const inAppBrowser = isWebView();
+    const confirmedIOS = isIOS();
+    const isAndroidWebView = inAppBrowser && !confirmedIOS;
+
+    if (isAndroidWebView) {
+      // open chrome browser
+      const div = globalThis?.document?.createElement('div');
+      const target = window.location.href;
+      div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
+    }
+  }, []);
 
   const onRegister = (provider: SocialProvider) => {
     if (!isNativeAuthSupported(provider)) {
