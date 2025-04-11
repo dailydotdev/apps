@@ -68,7 +68,10 @@ import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/Fe
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useRouter } from 'next/router';
-import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import {
+  useCanPurchaseCores,
+  useHasAccessToCores,
+} from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
@@ -116,6 +119,7 @@ const Wallet = (): ReactElement => {
   const { isLoggedIn, user, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const hasCoresAccess = useHasAccessToCores();
+  const canPurchaseCores = useCanPurchaseCores();
 
   const onBuyCoresClick = useCallback(
     ({
@@ -200,20 +204,22 @@ const Wallet = (): ReactElement => {
             <Typography type={TypographyType.Title3} bold>
               Core wallet
             </Typography>
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
-              tag="a"
-              href={getPathnameWithQuery(
-                `${webappUrl}cores`,
-                new URLSearchParams({
-                  origin: Origin.WalletPageCTA,
-                }),
-              )}
-            >
-              Buy Cores
-            </Button>
+            {canPurchaseCores && (
+              <Button
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
+                tag="a"
+                href={getPathnameWithQuery(
+                  `${webappUrl}cores`,
+                  new URLSearchParams({
+                    origin: Origin.WalletPageCTA,
+                  }),
+                )}
+              >
+                Buy Cores
+              </Button>
+            )}
           </header>
           <div className="flex flex-col gap-6 p-6">
             <section className="flex w-full flex-wrap gap-4">
@@ -394,12 +400,14 @@ const Wallet = (): ReactElement => {
           </div>
         </main>
         <PageWidgets className="flex gap-4 py-4">
-          <FeaturedCoresWidget
-            className="hidden laptop:flex"
-            origin={Origin.WalletPagePackage}
-            onClick={onBuyCoresClick}
-            amounts={[100, 300, 600]}
-          />
+          {canPurchaseCores && (
+            <FeaturedCoresWidget
+              className="hidden laptop:flex"
+              origin={Origin.WalletPagePackage}
+              onClick={onBuyCoresClick}
+              amounts={[100, 300, 600]}
+            />
+          )}
           <WidgetContainer className="flex flex-col">
             <div className="flex justify-around p-4">
               <Button

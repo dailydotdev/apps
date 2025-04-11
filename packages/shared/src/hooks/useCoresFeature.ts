@@ -14,7 +14,7 @@ const useCoresFeature = (): boolean => {
     shouldEvaluate: !!user && user.coresRole > 0,
   });
 
-  return !isIOSNative() && hasAccess;
+  return hasAccess;
 };
 
 export const useHasAccessToCores = (): boolean => {
@@ -33,4 +33,8 @@ export const useCanAwardUser = (
   const hasAccess = useCoresFeature();
 
   return hasAccess && !isSpecialUser && canAwardUser(props);
+};
+
+export const useCanPurchaseCores = (): boolean => {
+  return useHasAccessToCores() && !isIOSNative();
 };
