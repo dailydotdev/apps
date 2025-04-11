@@ -112,12 +112,11 @@ function InnerFunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
+  const isAndroidWebView = checkIsInAppAndroid();
   const config = useMemo(() => {
     if (!router?.isReady) {
       return { enabled: false };
     }
-
-    const isAndroidWebView = checkIsInAppAndroid();
 
     if (!isAndroidWebView) {
       return { enabled: true };
@@ -128,7 +127,7 @@ function InnerFunnelRegistration({
     }
 
     return { enabled: true, redirect_to: window.location.href };
-  }, [router?.isReady]);
+  }, [router?.isReady, isAndroidWebView]);
 
   const windowPopup = useRef<Window>(null);
   const closePopup = () => {
@@ -145,7 +144,7 @@ function InnerFunnelRegistration({
       closePopup();
     },
     onRedirect: (redirect) => {
-      if (checkIsInAppAndroid()) {
+      if (isAndroidWebView) {
         window.location.href = redirect;
       } else {
         windowPopup.current.location.href = redirect;
@@ -154,10 +153,9 @@ function InnerFunnelRegistration({
   });
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isNativeAuthSupported(provider) && !checkIsInAppAndroid()) {
+    if (!isNativeAuthSupported(provider) && !isAndroidWebView) {
       windowPopup.current = window.open();
     }
-    alert(config.redirect_to);
     onSocialRegistration(provider);
   };
 
@@ -203,7 +201,7 @@ export function FunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
 
-  if (!isAuthReady) {
+  if (!isActive || !isAuthReady) {
     return null;
   }
 
@@ -211,7 +209,6 @@ export function FunnelRegistration({
     onTransition({
       type: FunnelStepTransitionType.Complete,
     });
-    alert('You are already logged in');
     return null;
   }
 
