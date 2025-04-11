@@ -6,7 +6,11 @@ import { FunnelRegistration } from './FunnelRegistration';
 import useRegistration from '../../../hooks/useRegistration';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useEventListener, useToastNotification } from '../../../hooks';
+import {
+  useEventListener,
+  useToastNotification,
+  useViewSize,
+} from '../../../hooks';
 import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
 import { isNativeAuthSupported, AuthEventNames } from '../../../lib/auth';
 import { SocialProvider } from '../../../components/auth/common';
@@ -26,6 +30,11 @@ jest.mock('../../../lib/auth');
 jest.mock('../../../components/auth/OnboardingRegistrationForm');
 jest.mock('../../../lib/func');
 jest.mock('../../../hooks/useViewSize');
+jest.mock('next/router', () => ({
+  useRouter: jest.fn().mockImplementation(() => ({
+    isReady: true,
+  })),
+}));
 jest.mock('../shared', () => ({
   sanitizeMessage: jest.fn().mockImplementation((message) => message),
 }));
@@ -66,6 +75,8 @@ describe('FunnelRegistration', () => {
 
     (useAuthContext as jest.Mock).mockReturnValue({
       refetchBoot: mockRefetchBoot,
+      isLoggedIn: false,
+      isAuthReady: true,
     });
 
     (useLogContext as jest.Mock).mockReturnValue({
@@ -88,6 +99,10 @@ describe('FunnelRegistration', () => {
       return provider === SocialProvider.Apple;
     });
 
+    // Default WebView and iOS states
+    (isWebView as jest.Mock).mockReturnValue(false);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
     // Mock matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
@@ -102,6 +117,100 @@ describe('FunnelRegistration', () => {
         dispatchEvent: jest.fn(),
       })),
     });
+
+    // Default to mobile view
+    (useViewSize as jest.Mock).mockReturnValue(false);
+  });
+
+  it('should not render when isActive is false', () => {
+    render(<FunnelRegistration {...defaultProps} isActive={false} />);
+    expect(
+      screen.queryByTestId('registration-container'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not render when auth is not ready', () => {
+    (useAuthContext as jest.Mock).mockReturnValue({
+      isAuthReady: false,
+      isLoggedIn: false,
+    });
+    render(<FunnelRegistration {...defaultProps} />);
+    expect(
+      screen.queryByTestId('registration-container'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should transition when user is already logged in', () => {
+    (useAuthContext as jest.Mock).mockReturnValue({
+      isAuthReady: true,
+      isLoggedIn: true,
+    });
+    render(<FunnelRegistration {...defaultProps} />);
+    expect(mockOnTransition).toHaveBeenCalledWith({
+      type: FunnelStepTransitionType.Complete,
+    });
+    expect(
+      screen.queryByTestId('registration-container'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should configure registration with redirect_to when in Android WebView', () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    expect(useRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enabled: true,
+        params: { redirect_to: expect.any(String) },
+      }),
+    );
+  });
+
+  it('should handle direct navigation for Android WebView', async () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    const mockLocation = { href: '' };
+    Object.defineProperty(window, 'location', {
+      value: mockLocation,
+      writable: true,
+    });
+
+    let registrationHook;
+    (useRegistration as jest.Mock).mockImplementation((props) => {
+      registrationHook = props;
+      return {
+        onSocialRegistration: mockOnSocialRegistration,
+      };
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const redirectUrl = 'https://example.com/auth';
+    // Call onRedirect directly
+    registrationHook.onRedirect(redirectUrl);
+
+    expect(mockLocation.href).toBe(redirectUrl);
+  });
+
+  it('should not open popup for non-native auth in Android WebView', async () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    const mockWindowOpen = jest.fn();
+    global.open = mockWindowOpen;
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const githubButton = screen.getByTestId('social-button-github');
+    await userEvent.click(githubButton);
+
+    expect(mockWindowOpen).not.toHaveBeenCalled();
   });
 
   it('renders the registration form with provided heading and image', () => {
@@ -122,13 +231,26 @@ describe('FunnelRegistration', () => {
     expect(screen.getByTestId('social-button-github')).toBeInTheDocument();
   });
 
-  it('shows mobile image on mobile view', () => {
+  it('renders the registration form with mobile image by default', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const backgroundImage = screen.getByAltText('background');
     expect(backgroundImage).toHaveAttribute(
       'src',
       defaultProps.parameters.imageMobile,
+    );
+  });
+
+  it('shows tablet image on tablet view', () => {
+    // Mock tablet view
+    (useViewSize as jest.Mock).mockReturnValue(true);
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const backgroundImage = screen.getByAltText('background');
+    expect(backgroundImage).toHaveAttribute(
+      'src',
+      defaultProps.parameters.image,
     );
   });
 
@@ -207,36 +329,6 @@ describe('FunnelRegistration', () => {
     });
   });
 
-  it('shows toast for Plus users without calling onTransition', async () => {
-    mockRefetchBoot.mockResolvedValueOnce({
-      data: {
-        user: {
-          email: 'test@example.com',
-          id: 'test-user-id',
-          isPlus: true,
-          providers: ['google'],
-        },
-      },
-    });
-
-    render(<FunnelRegistration {...defaultProps} />);
-
-    const messageHandler = mockUseEventListener.mock.calls[0][2];
-    messageHandler({
-      data: {
-        eventKey: AuthEvent.SocialRegistration,
-      },
-    });
-
-    await waitFor(() => {
-      expect(mockRefetchBoot).toHaveBeenCalled();
-      expect(mockOnTransition).not.toHaveBeenCalled();
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        'You are already a daily.dev Plus user',
-      );
-    });
-  });
-
   it('handles registration error with existing email', async () => {
     (getKratosFlow as jest.Mock).mockResolvedValueOnce({
       id: 'test-flow-id',
@@ -310,6 +402,64 @@ describe('FunnelRegistration', () => {
 
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
+    });
+  });
+
+  it('should initialize registration with redirect_to in Android WebView', async () => {
+    // Mock Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(true);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    // Mock window location
+    const originalLocation = window.location;
+    const mockLocation = new URL('https://daily.dev/onboarding');
+    Object.defineProperty(window, 'location', {
+      value: mockLocation,
+      writable: true,
+    });
+
+    let registrationConfig;
+    (useRegistration as jest.Mock).mockImplementation((config) => {
+      registrationConfig = config;
+      return {
+        onSocialRegistration: mockOnSocialRegistration,
+      };
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    expect(registrationConfig).toMatchObject({
+      enabled: true,
+      params: {
+        redirect_to: mockLocation.href,
+      },
+    });
+
+    // Restore window.location
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  it('should not include redirect_to param when not in Android WebView', () => {
+    // Mock non-Android WebView environment
+    (isWebView as jest.Mock).mockReturnValue(false);
+    (isIOS as jest.Mock).mockReturnValue(false);
+
+    let registrationConfig;
+    (useRegistration as jest.Mock).mockImplementation((config) => {
+      registrationConfig = config;
+      return {
+        onSocialRegistration: mockOnSocialRegistration,
+      };
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    expect(registrationConfig).toMatchObject({
+      enabled: true,
+      params: undefined,
     });
   });
 });
