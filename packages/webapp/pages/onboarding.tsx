@@ -8,6 +8,7 @@ const OnboardingPage = (): ReactElement => {
     <FunnelRegistration
       transitions={[]}
       type={FunnelStepType.Signup}
+      isActive
       id="onboarding"
       parameters={{
         headline: 'Plus',
