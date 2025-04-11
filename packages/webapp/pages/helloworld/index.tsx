@@ -69,7 +69,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 };
 
 export default function HelloWorldPage({
-  boot,
   dehydratedState,
 }: PageProps): ReactElement {
   const { data: funnelBoot } = useFunnelBoot();
