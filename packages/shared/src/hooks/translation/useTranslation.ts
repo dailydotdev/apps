@@ -291,6 +291,7 @@ export const useTranslation: UseTranslation = ({
 
     return () => {
       abort.current?.abort();
+    };
   }, []);
 
   return { fetchTranslations };
