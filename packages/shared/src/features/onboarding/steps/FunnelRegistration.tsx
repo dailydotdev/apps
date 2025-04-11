@@ -138,14 +138,14 @@ function InnerFunnelRegistration({
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     enabled: config.enabled,
-    params: { redirect_to: config.redirect_to },
+    params: config.redirect_to
+      ? { redirect_to: config.redirect_to }
+      : undefined,
     onRedirectFail: () => {
       closePopup();
     },
     onRedirect: (redirect) => {
       if (checkIsInAppAndroid()) {
-        // const target = window.location.href;
-        // const intentUrl = `intent:googlechrome://navigate?url=${target}#Intent;scheme=https;package=com.android.chrome;end`;
         window.location.href = redirect;
       } else {
         windowPopup.current.location.href = redirect;
@@ -157,6 +157,7 @@ function InnerFunnelRegistration({
     if (!isNativeAuthSupported(provider) && !checkIsInAppAndroid()) {
       windowPopup.current = window.open();
     }
+    alert(config.redirect_to);
     onSocialRegistration(provider);
   };
 
