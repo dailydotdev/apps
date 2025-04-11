@@ -196,6 +196,7 @@ export function FunnelRegistration({
     onTransition({
       type: FunnelStepTransitionType.Complete,
     });
+    alert('You are already logged in');
     return null;
   }
 
