@@ -99,6 +99,13 @@ const useRegistrationListeners = (
   useEventListener(globalThis, 'message', onProviderMessage);
 };
 
+const checkIsInAppAndroid = () => {
+  const inAppBrowser = isWebView();
+  const confirmedIOS = isIOS();
+
+  return inAppBrowser && !confirmedIOS;
+};
+
 function InnerFunnelRegistration({
   parameters: { headline, image, imageMobile },
   onTransition,
@@ -110,9 +117,7 @@ function InnerFunnelRegistration({
       return { enabled: false };
     }
 
-    const inAppBrowser = isWebView();
-    const confirmedIOS = isIOS();
-    const isAndroidWebView = inAppBrowser && !confirmedIOS;
+    const isAndroidWebView = checkIsInAppAndroid();
 
     if (!isAndroidWebView) {
       return { enabled: true };
@@ -126,16 +131,24 @@ function InnerFunnelRegistration({
   }, [router?.isReady]);
 
   const windowPopup = useRef<Window>(null);
+  const closePopup = () => {
+    windowPopup.current?.close();
+    windowPopup.current = null;
+  };
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     enabled: config.enabled,
     params: { redirect_to: config.redirect_to },
     onRedirectFail: () => {
-      windowPopup.current.close();
-      windowPopup.current = null;
+      closePopup();
     },
     onRedirect: (redirect) => {
-      windowPopup.current.location.href = redirect;
+      if (checkIsInAppAndroid()) {
+        closePopup();
+        window.location.href = redirect;
+      } else {
+        windowPopup.current.location.href = redirect;
+      }
     },
   });
 
