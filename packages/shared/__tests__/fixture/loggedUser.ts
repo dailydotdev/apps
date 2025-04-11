@@ -13,6 +13,9 @@ const user: LoggedUser = {
   premium: false,
   createdAt: new Date().toISOString(),
   permalink: 'https://app.daily.dev/Ido',
+  balance: {
+    amount: 0,
+  },
 };
 
 const { id, username, name, image, permalink } = user;
