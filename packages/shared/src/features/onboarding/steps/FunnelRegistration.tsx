@@ -188,7 +188,7 @@ export function FunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
 
-  if (!isActive || !isAuthReady) {
+  if (!isAuthReady) {
     return null;
   }
 
