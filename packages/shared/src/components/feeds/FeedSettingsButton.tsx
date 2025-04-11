@@ -13,7 +13,7 @@ import {
 } from '../../hooks';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl, webappUrl } from '../../lib/constants';
 import { FeedType } from '../../graphql/feed';
 import { labels } from '../../lib/labels';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
@@ -67,7 +67,7 @@ export function FeedSettingsButton({
       });
 
       if (subscribeToPlus) {
-        router?.push(`${webappUrl}plus`);
+        router?.push(plusUrl);
 
         return;
       }
