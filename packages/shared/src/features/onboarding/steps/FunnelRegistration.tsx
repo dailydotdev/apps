@@ -107,7 +107,7 @@ function InnerFunnelRegistration({
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
-    enabled: !router?.isReady,
+    enabled: router?.isReady,
     params: shouldRedirect ? { redirect_to: window.location.href } : undefined,
     onRedirectFail: () => {
       windowPopup.current?.close();
