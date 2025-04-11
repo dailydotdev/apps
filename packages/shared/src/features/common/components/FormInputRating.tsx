@@ -3,6 +3,11 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import { FunnelTargetId } from '../../onboarding/types/funnelEvents';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
 
 type RatingValue = string;
 type OptionItem = {
@@ -66,10 +71,24 @@ export const FormInputRating = ({
               type="button"
               variant={ButtonVariant.Quiz}
             >
-              {item.label}
+              {index + 1}
             </Button>
           );
         })}
+      </div>
+      <div className="flex flex-row justify-between">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          {options.at(0)?.label}
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          {options.at(-1)?.label}
+        </Typography>
       </div>
       {!!children && (
         <div className="flex flex-row justify-between gap-2">{children}</div>
