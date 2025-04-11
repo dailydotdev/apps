@@ -18,8 +18,14 @@ function getPaddleEventCallback(
   >['logSubscriptionEvent'],
   trackPayment: ReturnType<typeof usePixelsContext>['trackPayment'],
   paddleCallback: PaddleEventCallback,
+  disabledEvents?: CheckoutEventNames[],
 ): PaddleEventCallback {
   return (event: PaddleEventData) => {
+    paddleCallback(event);
+    if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
+      return;
+    }
+
     switch (event?.name) {
       case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
         logSubscriptionEvent({
@@ -77,12 +83,12 @@ function getPaddleEventCallback(
       default:
         break;
     }
-    paddleCallback(event);
   };
 }
 
 export type UsePaddleProps = {
   paddleCallback: PaddleEventCallback;
+  disabledEvents?: CheckoutEventNames[];
 };
 
 export type UsePaddleReturn = {
@@ -91,6 +97,7 @@ export type UsePaddleReturn = {
 
 export const usePaddle = ({
   paddleCallback,
+  disabledEvents,
 }: UsePaddleProps): UsePaddleReturn => {
   const { trackPayment } = usePixelsContext();
   const [paddle, setPaddle] = useState<Paddle>();
@@ -102,8 +109,9 @@ export const usePaddle = ({
       logSubscriptionEvent,
       trackPayment,
       paddleCallback,
+      disabledEvents,
     );
-  }, [logSubscriptionEvent, trackPayment, paddleCallback]);
+  }, [logSubscriptionEvent, trackPayment, paddleCallback, disabledEvents]);
 
   // Download and initialize Paddle instance from CDN
   useEffect(() => {

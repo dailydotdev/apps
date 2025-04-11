@@ -1,5 +1,5 @@
 import type { MouseEventHandler } from 'react';
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLogContext } from '../../../contexts/LogContext';
 import type {
@@ -18,6 +18,7 @@ import type { FunnelSession } from '../types/funnelBoot';
 type TrackOnMouseCapture = MouseEventHandler<HTMLElement>;
 type TrackOnScroll = () => void;
 type TrackOnEvent = (event: FunnelEvent) => void;
+type TrackOnComplete = () => void;
 export type TrackOnNavigate = (event: {
   from: FunnelStep['id'];
   to: FunnelStep['id'];
@@ -36,6 +37,7 @@ interface UseFunnelTrackingReturn {
   trackFunnelEvent: TrackOnEvent;
   trackOnNavigate: TrackOnNavigate;
   trackOnScroll: TrackOnScroll;
+  trackOnComplete: TrackOnComplete;
 }
 
 const trackOnMouseCapture = ({
@@ -47,7 +49,7 @@ const trackOnMouseCapture = ({
   eventName:
     | FunnelEventName.ClickFunnelElement
     | FunnelEventName.HoverFunnelElement;
-  trackFunnelEvent: TrackOnEvent;
+  trackFunnelEvent?: TrackOnEvent;
 }): TrackOnMouseCapture => {
   return (event) => {
     if (!(event.target instanceof HTMLElement)) {
@@ -61,7 +63,7 @@ const trackOnMouseCapture = ({
       return;
     }
 
-    trackFunnelEvent({
+    trackFunnelEvent?.({
       name: eventName,
       details: {
         target_type:
@@ -83,9 +85,13 @@ export const useFunnelTracking = ({
     () => getFunnelStepByPosition(funnel, position),
     [funnel, position],
   );
+  const isFunnelCompletedRef = useRef(false);
+  const trackFunnelEventRef = useRef<TrackOnEvent | undefined>();
 
-  const trackFunnelEvent: TrackOnEvent = useCallback(
-    (event) => {
+  useEffect(() => {
+    const didInit = !!trackFunnelEventRef.current;
+
+    trackFunnelEventRef.current = (event) => {
       const commonTrackingProps = {
         funnel_id: funnel.id,
         funnel_version: funnel.version,
@@ -101,82 +107,93 @@ export const useFunnelTracking = ({
           ...('details' in event ? event.details : {}),
         }),
       });
-    },
-    [funnel.id, funnel.version, logEvent, sessionId, step?.id, step?.type],
-  );
+    };
+
+    if (!didInit) {
+      const firstStepId = funnel?.chapters[0]?.steps[0]?.id;
+      const isResumedSession = session.currentStep !== firstStepId;
+
+      trackFunnelEventRef.current?.({
+        name: isResumedSession
+          ? FunnelEventName.ResumeFunnel
+          : FunnelEventName.StartFunnel,
+      });
+    }
+  }, [
+    funnel?.chapters,
+    funnel.id,
+    funnel.version,
+    logEvent,
+    session?.currentStep,
+    sessionId,
+    step?.id,
+    step?.type,
+  ]);
 
   const trackOnClickCapture: TrackOnMouseCapture = trackOnMouseCapture({
     selector: '[data-funnel-track]',
     eventName: FunnelEventName.ClickFunnelElement,
-    trackFunnelEvent,
+    trackFunnelEvent: trackFunnelEventRef.current,
   });
 
   const trackOnHoverCapture: TrackOnMouseCapture = trackOnMouseCapture({
     selector: '[data-funnel-track]',
     eventName: FunnelEventName.HoverFunnelElement,
-    trackFunnelEvent,
+    trackFunnelEvent: trackFunnelEventRef.current,
   });
 
   const trackOnScroll: TrackOnScroll = useCallback(() => {
-    trackFunnelEvent({
+    trackFunnelEventRef.current?.({
       name: FunnelEventName.ScrollFunnel,
       details: {
         scroll_y: globalThis.scrollY,
       },
     });
-  }, [trackFunnelEvent]);
+  }, []);
 
-  const trackOnNavigate: TrackOnNavigate = useCallback(
-    (event) => {
-      trackFunnelEvent({
-        name: FunnelEventName.TransitionFunnel,
-        details: {
-          target_type: event.type,
-          target_id: event.to,
-          duration: event.timeDuration,
-        },
-      });
-    },
-    [trackFunnelEvent],
-  );
+  const trackOnNavigate: TrackOnNavigate = useCallback((event) => {
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.TransitionFunnel,
+      details: {
+        target_type: event.type,
+        target_id: event.to,
+        duration: event.timeDuration,
+      },
+    });
+  }, []);
 
-  useEffect(
-    () => {
-      trackFunnelEvent({
-        name: FunnelEventName.FunnelStepView,
-      });
-    },
-    // track only when the step changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [step?.id],
-  );
+  const trackOnComplete: TrackOnComplete = useCallback(() => {
+    isFunnelCompletedRef.current = true;
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.CompleteFunnel,
+    });
+  }, []);
 
-  useEffect(
-    () => {
-      const firstStepId = funnel?.chapters[0]?.steps[0]?.id;
-      const isResumedSession = session.currentStep !== firstStepId;
+  useEffect(() => {
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.FunnelStepView,
+    });
+  }, [step?.id]);
 
-      trackFunnelEvent({
-        name: isResumedSession
-          ? FunnelEventName.ResumeFunnel
-          : FunnelEventName.StartFunnel,
-      });
+  useEffect(() => {
+    const callback = () => {
+      if (!isFunnelCompletedRef.current) {
+        trackFunnelEventRef.current?.({ name: FunnelEventName.LeaveFunnel });
+      }
+    };
+    window.addEventListener('beforeunload', callback);
 
-      return () => {
-        // todo: don't send this event if completed
-        trackFunnelEvent({ name: FunnelEventName.LeaveFunnel });
-      };
-    },
-    // mount/unmount tracking
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [funnel?.id],
-  );
+    return () => {
+      window.removeEventListener('beforeunload', callback);
+    };
+  }, []);
 
   return {
     trackOnClickCapture,
     trackOnHoverCapture,
-    trackFunnelEvent,
+    trackFunnelEvent: trackFunnelEventRef.current,
     trackOnNavigate,
     trackOnScroll,
+    trackOnComplete,
   };
 };

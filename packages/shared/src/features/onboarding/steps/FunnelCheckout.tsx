@@ -17,17 +17,27 @@ import {
   applyDiscountAtom,
 } from '../store/funnelStore';
 import { usePaddleEvent } from '../hooks/usePaddleEvent';
+import { LogEvent } from '../../../lib/log';
 
 export const InnerFunnelCheckout = ({
   parameters: { discountCode },
   onTransition,
+  isActive,
 }: FunnelStepCheckout): ReactElement => {
   const isCheckoutOpenedRef = useRef(false);
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const paddle = useAtomValue(paddleInstanceAtom);
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
+
+  useEffect(() => {
+    if (isActive) {
+      logSubscriptionEvent({
+        event_name: LogEvent.InitiateCheckout,
+      });
+    }
+  }, [isActive, logSubscriptionEvent]);
 
   usePaddleEvent((event: PaddleEventData) => {
     switch (event?.name) {
