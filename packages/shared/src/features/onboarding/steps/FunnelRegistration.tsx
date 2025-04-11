@@ -144,9 +144,9 @@ function InnerFunnelRegistration({
     },
     onRedirect: (redirect) => {
       if (checkIsInAppAndroid()) {
-        setTimeout(() => {
-          window.location.href = redirect;
-        }, 100);
+        // const target = window.location.href;
+        // const intentUrl = `intent:googlechrome://navigate?url=${target}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = redirect;
       } else {
         windowPopup.current.location.href = redirect;
       }
@@ -154,7 +154,7 @@ function InnerFunnelRegistration({
   });
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isNativeAuthSupported(provider)) {
+    if (!isNativeAuthSupported(provider) && !checkIsInAppAndroid()) {
       windowPopup.current = window.open();
     }
     onSocialRegistration(provider);
