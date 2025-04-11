@@ -33,6 +33,8 @@ import { FunnelRegistration } from '../steps/FunnelRegistration';
 import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 import type { FunnelSession } from '../types/funnelBoot';
 import { FunnelEventName } from '../types/funnelEvents';
+import { CookieConsent } from './CookieConsent';
+import { useFunnelCookies } from '../hooks/useFunnelCookies';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -86,6 +88,9 @@ export const FunnelStepper = ({
   const { back, chapters, navigate, position, skip, step } =
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate, session });
   const { transition: sendTransition } = useStepTransition(session.id);
+  const { showBanner, ...cookieConsentProps } = useFunnelCookies({
+    trackFunnelEvent,
+  });
 
   useInitFunnelPaddle();
   useWindowScroll({
@@ -128,6 +133,9 @@ export const FunnelStepper = ({
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
     >
+      {showBanner && (
+        <CookieConsent key="cookie-consent" {...cookieConsentProps} />
+      )}
       <FunnelStepBackground step={step}>
         <Header
           chapters={chapters}
