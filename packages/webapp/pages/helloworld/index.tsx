@@ -69,15 +69,21 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 };
 
 export default function HelloWorldPage({
+  boot,
   dehydratedState,
 }: PageProps): ReactElement {
   const { data: funnelBoot } = useFunnelBoot();
   const { funnel, session } = funnelBoot?.funnelState ?? {};
-  const { isAuthReady, isValidRegion } = useAuthContext();
+  const { isAuthReady, isValidRegion, user } = useAuthContext();
   const router = useRouter();
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
+    return null;
+  }
+
+  if (isAuthReady && user?.isPlus) {
+    router.replace('/');
     return null;
   }
 
