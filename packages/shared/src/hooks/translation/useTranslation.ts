@@ -17,6 +17,7 @@ import {
 } from '../../lib/query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription } from '../usePlusSubscription';
+import { isExtension } from '../../lib/func';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -232,6 +233,8 @@ export const useTranslation: UseTranslation = ({
           Authorization: `Bearer ${accessToken?.token}`,
           'Content-Language': language as string,
           'Content-Type': 'application/json',
+          'X-Daily-Client': isExtension ? 'extension' : 'webapp',
+          'X-Daily-Version': process.env.CURRENT_VERSION,
         },
         body: JSON.stringify(payload),
       });
