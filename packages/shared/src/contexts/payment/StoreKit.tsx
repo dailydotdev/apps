@@ -205,7 +205,7 @@ export const StoreKitSubProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [displayToast, productIds, router, user?.id]);
+  }, [displayToast, productIds, router, successCallback, user?.id]);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
