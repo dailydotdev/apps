@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Typography,
@@ -114,6 +114,7 @@ export function FunnelRegistration({
 }: FunnelRegistrationProps): ReactElement {
   const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
+  const [showIframe, setShowIframe] = useState(false);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     onRedirectFail: () => {
@@ -125,32 +126,19 @@ export function FunnelRegistration({
       const confirmedIOS = isIOS();
       const isAndroidWebView = inAppBrowser && !confirmedIOS;
 
-      if (isAndroidWebView) {
-        windowPopup.current.close();
-        windowPopup.current = null;
-        const target = window.location.href;
-        const intentUrl = `intent:googlechrome://navigate?url=${target}#Intent;scheme=https;package=com.android.chrome;end`;
-        window.location.href = intentUrl;
-        // const div = globalThis?.document.createElement('div');
-        // div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
-      }
+      setShowIframe(true);
 
-      windowPopup.current.location.href = redirect;
+      // if (isAndroidWebView) {
+      //   windowPopup.current.close();
+      //   windowPopup.current = null;
+      //   setShowIframe(true);
+      //   const target = window.location.href;
+      //   const intentUrl = `intent:googlechrome://navigate?url=${target}#Intent;scheme=https;package=com.android.chrome;end`;
+      //   window.location.href = intentUrl;
+      //   // const div = globalThis?.document.createElement('div');
+      // }
     },
   });
-
-  useEffect(() => {
-    const inAppBrowser = isWebView();
-    const confirmedIOS = isIOS();
-    const isAndroidWebView = inAppBrowser && !confirmedIOS;
-
-    if (isAndroidWebView) {
-      // open chrome browser
-      const div = globalThis?.document.createElement('div');
-      const target = window.location.href;
-      div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
-    }
-  }, []);
 
   const onRegister = (provider: SocialProvider) => {
     if (!isNativeAuthSupported(provider)) {
@@ -165,6 +153,13 @@ export function FunnelRegistration({
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+      {showIframe && (
+        <iframe
+          title="open browser"
+          src={`googlechrome://navigate?url=${window.location.href}`}
+          className="invisible h-0 w-0 border-0 border-none"
+        />
+      )}
       <div className="absolute inset-0">
         <div className="absolute bottom-0 h-3/5 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
         <img
