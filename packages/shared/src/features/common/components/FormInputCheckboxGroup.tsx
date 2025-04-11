@@ -120,7 +120,11 @@ const FormInputCheckbox = ({
             )}
           </div>
         )}
-        <span className="flex-1 whitespace-break-spaces py-1">
+        <span
+          className={classNames('flex-1 whitespace-break-spaces', {
+            'py-1': !isVertical,
+          })}
+        >
           {item.label}
         </span>
       </div>
