@@ -27,7 +27,6 @@ export const useFunnelCookies = ({
   useEffect(
     () => {
       if (showBanner) {
-        console.log('Cookie banner opened');
         trackFunnelEvent({
           name: FunnelEventName.CookieConsentView,
           details: {
