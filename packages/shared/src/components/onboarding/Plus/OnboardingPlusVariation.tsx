@@ -12,8 +12,6 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { ButtonVariant } from '../../buttons/common';
-import { anchorDefaultRel } from '../../../lib/strings';
-import { plusUrl } from '../../../lib/constants';
 import { ClickableText } from '../../buttons/ClickableText';
 import type { ButtonProps } from '../../buttons/Button';
 import { Button } from '../../buttons/Button';
@@ -90,6 +88,7 @@ const VariationCardOption = ({
 
 export const OnboardingPlusVariation = ({
   onClickNext,
+  onClickPlus,
 }: OnboardingStepProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { productOptions } = usePaymentContext();
@@ -189,11 +188,8 @@ export const OnboardingPlusVariation = ({
                 button={{
                   copy: 'Continue with Plus',
                   variant: ButtonVariant.Primary,
-                  target: '_blank',
-                  tag: 'a',
                   title: 'Continue with Plus',
-                  rel: anchorDefaultRel,
-                  href: `${plusUrl}?selectedPlan=${item?.value}`,
+                  onClick: onClickPlus,
                 }}
                 title="Plus"
                 description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
@@ -254,12 +250,9 @@ export const OnboardingPlusVariation = ({
 
       <Button
         variant={ButtonVariant.Primary}
-        target="_blank"
-        tag="a"
         title="Continue with Plus"
-        rel={anchorDefaultRel}
-        href={`${plusUrl}?selectedPlan=${item?.value}`}
         className="mx-auto"
+        onClick={onClickPlus}
       >
         Continue with Plus
       </Button>

@@ -34,6 +34,7 @@ import { PaymentContext } from './context';
 
 export const PaddleSubProvider = ({
   children,
+  successCallback,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
@@ -105,7 +106,11 @@ export const PaddleSubProvider = ({
               event?.data.currency_code,
               event?.data?.transaction_id,
             );
-            router.push(plusSuccessUrl);
+            if (successCallback) {
+              successCallback();
+            } else {
+              router.push(plusSuccessUrl);
+            }
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
@@ -127,7 +132,7 @@ export const PaddleSubProvider = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router, trackPayment]);
+  }, [router, successCallback, trackPayment]);
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({

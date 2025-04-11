@@ -44,7 +44,9 @@ export const CreateFeedButton = ({
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
     (activeScreen === OnboardingStep.EditTag ||
       activeScreen === OnboardingStep.InteractiveFeed);
-  const isPlusStep = activeScreen === OnboardingStep.Plus;
+  const isPlusStep = [OnboardingStep.Plus, OnboardingStep.PlusPayment].includes(
+    activeScreen,
+  );
   const canCreateFeed =
     tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
 
