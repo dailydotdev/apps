@@ -290,8 +290,7 @@ export const useTranslation: UseTranslation = ({
     abort.current = new AbortController();
 
     return () => {
-      abort.current?.abort('unmounting');
-    };
+      abort.current?.abort();
   }, []);
 
   return { fetchTranslations };
