@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import {
   Typography,
@@ -22,7 +22,7 @@ import {
 } from '../../../lib/kratos';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { labels } from '../../../lib';
-import { AuthEventNames, isNativeAuthSupported } from '../../../lib/auth';
+import { AuthEventNames } from '../../../lib/auth';
 import { useLogContext } from '../../../contexts/LogContext';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
@@ -114,7 +114,6 @@ export function FunnelRegistration({
 }: FunnelRegistrationProps): ReactElement {
   const isTablet = useViewSize(ViewSize.Tablet);
   const windowPopup = useRef<Window>(null);
-  const [showIframe, setShowIframe] = useState(false);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     onRedirectFail: () => {
@@ -125,8 +124,6 @@ export function FunnelRegistration({
       const inAppBrowser = isWebView();
       const confirmedIOS = isIOS();
       const isAndroidWebView = inAppBrowser && !confirmedIOS;
-
-      setShowIframe(true);
 
       // if (isAndroidWebView) {
       //   windowPopup.current.close();
@@ -141,10 +138,12 @@ export function FunnelRegistration({
   });
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isNativeAuthSupported(provider)) {
-      windowPopup.current = window.open();
-    }
-    onSocialRegistration(provider);
+    window.location.href = `https://app.daily.dev`;
+    // setShowIframe(true);
+    // if (!isNativeAuthSupported(provider)) {
+    // windowPopup.current = window.open();
+    // }
+    // onSocialRegistration(provider);
   };
 
   useRegistrationListeners(onTransition);
@@ -153,13 +152,6 @@ export function FunnelRegistration({
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
-      {showIframe && (
-        <iframe
-          title="open browser"
-          src={`googlechrome://navigate?url=${window.location.href}`}
-          className="fixed inset-0 border-0 border-none bg-white"
-        />
-      )}
       <div className="absolute inset-0">
         <div className="absolute bottom-0 h-3/5 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
         <img
