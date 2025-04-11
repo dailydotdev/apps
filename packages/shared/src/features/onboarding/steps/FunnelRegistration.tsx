@@ -126,8 +126,11 @@ export function FunnelRegistration({
       const isAndroidWebView = inAppBrowser && !confirmedIOS;
 
       if (isAndroidWebView) {
-        const intentUrl = `intent:${redirect}#Intent;scheme=https;package=com.android.chrome;end`;
-        windowPopup.current.location.href = intentUrl;
+        // const intentUrl = `intent:${redirect}#Intent;scheme=https;package=com.android.chrome;end`;
+        // windowPopup.current.location.href = intentUrl;
+        const div = globalThis?.document.createElement('div');
+        const target = window.location.href;
+        div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
       }
 
       windowPopup.current.location.href = redirect;
@@ -141,7 +144,7 @@ export function FunnelRegistration({
 
     if (isAndroidWebView) {
       // open chrome browser
-      const div = globalThis?.document?.createElement('div');
+      const div = globalThis?.document.createElement('div');
       const target = window.location.href;
       div.innerHTML = `<iframe src='googlechrome://navigate?url=${target}' style='width:0;height:0;border:0; border:none;visibility: hidden;'></iframe>`;
     }
