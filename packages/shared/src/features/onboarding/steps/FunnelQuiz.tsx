@@ -15,6 +15,7 @@ import {
   FormInputCheckboxGroup,
 } from '../../common/components/FormInputCheckboxGroup';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import type { StepHeadlineAlign } from '../shared';
 import { FunnelStepCtaWrapper, StepHeadline } from '../shared';
 import { Image } from '../../../components/image/Image';
 import { TypographyColor } from '../../../components/typography/Typography';
@@ -45,7 +46,7 @@ const checkIfCheckboxGroup = (
 export function FunnelQuiz({
   id,
   onTransition,
-  parameters: { question, explainer },
+  parameters: { question, explainer, align },
 }: FunnelStepQuiz): ReactElement {
   const { type, text, options, imageUrl } = question;
   const isSingleChoice = checkIfSingleChoice(type);
@@ -101,6 +102,7 @@ export function FunnelQuiz({
         <StepHeadline
           heading={text}
           description={explainer}
+          align={align as StepHeadlineAlign}
           descriptionProps={{ color: TypographyColor.Tertiary }}
         />
         {imageUrl && (

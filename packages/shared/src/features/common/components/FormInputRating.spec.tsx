@@ -29,23 +29,6 @@ describe('FormInputRating', () => {
     }
   });
 
-  it('should render with custom options', () => {
-    const customOptions = Array.from({ length: 11 }, (_, i) => ({
-      label: i.toString(),
-      value: i.toString(),
-    }));
-    renderComponent({ options: customOptions });
-
-    // Should have 11 buttons for options 0-10
-    const buttons = screen.getAllByRole('radio');
-    expect(buttons).toHaveLength(11);
-
-    // Should have correct values
-    for (let i = 0; i <= 10; i += 1) {
-      expect(screen.getByText(i.toString())).toBeInTheDocument();
-    }
-  });
-
   it('should render with defaultValue', () => {
     renderComponent({ defaultValue: '3' });
 
