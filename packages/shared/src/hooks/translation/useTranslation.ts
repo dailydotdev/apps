@@ -101,6 +101,7 @@ const updateTranslation = ({
     case 'smartTitle':
       updatedPost = updateTitleTranslation({ post, translation });
       break;
+    case 'summary':
     case 'titleHtml':
       updatedPost = updateGenericPostField({ post, translation });
       break;
