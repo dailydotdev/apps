@@ -21,10 +21,10 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
+  OnboardingStep,
   onboardingStepsWithCTA,
   onboardingStepsWithFooter,
   wrapperMaxWidth,
-  OnboardingStep,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
@@ -47,9 +47,9 @@ import {
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
+  useConditionalFeature,
   useViewSize,
   ViewSize,
-  useConditionalFeature,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -130,6 +130,12 @@ const FeedPreviewStep = dynamic(
     import(
       /* webpackChunkName: "feedPreviewStep" */ '@dailydotdev/shared/src/components/onboarding/FeedPreviewStep'
     ),
+);
+
+const PlusSuccess = dynamic(() =>
+  import(
+    /* webpackChunkName: "plusSuccess" */ '@dailydotdev/shared/src/components/onboarding/Plus/PlusSuccess'
+  ).then((mod) => mod.PlusSuccess),
 );
 
 type OnboardingVisual = {
@@ -286,11 +292,20 @@ export function OnboardPage(): ReactElement {
     return setActiveScreen(OnboardingStep.EditTag);
   }, [getFeatureValue, isLaptop]);
 
-  const onClickNext: OnboardingOnClickNext = () => {
+  const onClickNext: OnboardingOnClickNext = (options) => {
+    const { plusPayment, plusSuccess } = options || {};
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
+
+    if (plusSuccess) {
+      return setActiveScreen(OnboardingStep.PlusSuccess);
+    }
+
+    if (plusPayment && activeScreen === OnboardingStep.Plus) {
+      return setActiveScreen(OnboardingStep.PlusPayment);
+    }
 
     if (
       activeScreen === OnboardingStep.InteractiveFeed &&
@@ -438,7 +453,9 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <PaymentContextProvider>
+    <PaymentContextProvider
+      successCallback={() => onClickNext({ plusSuccess: true })}
+    >
       <div
         className={classNames(
           'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
@@ -523,10 +540,16 @@ export function OnboardPage(): ReactElement {
               )}
               {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
               {activeScreen === OnboardingStep.Plus && (
-                <OnboardingPlusStep onClickNext={onClickNext} />
+                <OnboardingPlusStep
+                  onClickNext={onClickNext}
+                  onClickPlus={() => onClickNext({ plusPayment: true })}
+                />
               )}
               {activeScreen === OnboardingStep.PlusPayment && (
                 <PlusPaymentStep />
+              )}
+              {activeScreen === OnboardingStep.PlusSuccess && (
+                <PlusSuccess onClickNext={onClickNext} />
               )}
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (

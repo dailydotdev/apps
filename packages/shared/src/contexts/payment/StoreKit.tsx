@@ -72,6 +72,7 @@ export type PurchaseEvent = {
 
 export const StoreKitSubProvider = ({
   children,
+  successCallback,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
@@ -168,7 +169,11 @@ export const StoreKitSubProvider = ({
                 payment: SubscriptionProvider.AppleStoreKit,
               },
             });
-            router.push(plusSuccessUrl);
+            if (successCallback) {
+              successCallback();
+            } else {
+              router.push(plusSuccessUrl);
+            }
             break;
           case PurchaseEventName.PurchaseInitiated:
             logRef.current({

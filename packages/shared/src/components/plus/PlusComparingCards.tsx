@@ -13,8 +13,6 @@ import { DevPlusIcon, VIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { usePlusSubscription } from '../../hooks';
-import { plusUrl } from '../../lib/constants';
-import { anchorDefaultRel } from '../../lib/strings';
 import { LogEvent, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
@@ -27,6 +25,7 @@ export enum OnboardingPlans {
 interface PlusCardProps {
   currency: string;
   onClickNext: () => void;
+  onClickPlus: () => void;
   productOption?: ProductOption;
 }
 
@@ -55,6 +54,7 @@ const PlusCard = ({
   currency,
   productOption: plan,
   onClickNext,
+  onClickPlus,
 }: PlusCardProps): ReactElement => {
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -138,16 +138,14 @@ const PlusCard = ({
       ) : (
         <Button
           className="my-4 block w-full"
-          href={`${plusUrl}?selectedPlan=${plan?.value}`}
           onClick={() => {
             logSubscriptionEvent({
               event_name: LogEvent.OnboardingUpgradePlus,
               target_id: TargetId.Onboarding,
             });
+            onClickPlus();
           }}
-          rel={anchorDefaultRel}
-          tag="a"
-          target="_blank"
+          type="button"
           title="Get started with Plus"
           variant={ButtonVariant.Primary}
         >
@@ -197,12 +195,14 @@ const PlusCard = ({
 
 interface PlusComparingCardsProps {
   onClickNext: () => void;
+  onClickPlus: () => void;
   productOption?: ProductOption;
 }
 
 export const PlusComparingCards = ({
   productOption,
   onClickNext,
+  onClickPlus,
 }: PlusComparingCardsProps): ReactElement => {
   const currency = productOption.currencySymbol;
 
@@ -219,6 +219,7 @@ export const PlusComparingCards = ({
             plan === OnboardingPlans.Plus ? productOption : undefined
           }
           onClickNext={onClickNext}
+          onClickPlus={onClickPlus}
         />
       ))}
     </ul>

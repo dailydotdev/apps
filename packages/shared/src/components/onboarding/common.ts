@@ -2,6 +2,8 @@ import classed from '../../lib/classed';
 
 export type OnboardingOnClickNext = (
   options?: Partial<{
+    plusPayment: boolean;
+    plusSuccess: boolean;
     clickExtension: boolean;
   }>,
 ) => void;
@@ -17,6 +19,7 @@ export enum OnboardingStep {
   PWA = 'pwa',
   Plus = 'plus',
   PlusPayment = 'plus_payment',
+  PlusSuccess = 'plus_success',
   Extension = 'extension',
   InteractiveFeed = 'interactive_feed',
   PreviewFeed = 'preview_feed',
