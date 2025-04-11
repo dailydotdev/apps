@@ -20,3 +20,4 @@ export function getFunnelStepByPosition(
 export const paddleInstanceAtom = atom<Paddle | undefined>();
 export const selectedPlanAtom = atom<string | undefined>();
 export const applyDiscountAtom = atom<boolean>(true);
+export const discountTimerAtom = atom<Date | undefined>();

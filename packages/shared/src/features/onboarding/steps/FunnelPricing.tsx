@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { ReactElement } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import type { FunnelStepPricing } from '../types/funnel';
@@ -32,6 +32,7 @@ import {
   paddleInstanceAtom,
   selectedPlanAtom,
   applyDiscountAtom,
+  discountTimerAtom,
 } from '../store/funnelStore';
 
 const PricingSection = ({
@@ -80,12 +81,9 @@ const PricingSection = ({
   );
 };
 
-const now = new Date();
-
 export const FunnelPricing = ({
   onTransition,
   isActive,
-  discountStartDate = now,
   parameters: {
     discount,
     headline,
@@ -102,6 +100,7 @@ export const FunnelPricing = ({
   const paddle = useAtomValue(paddleInstanceAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
+  const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
 
   if (!selectedPlan && defaultPlan) {
     setSelectedPlan(defaultPlan);
@@ -142,15 +141,23 @@ export const FunnelPricing = ({
     cta,
   };
 
+  useEffect(() => {
+    if (isActive && !discountStartDate) {
+      setTimer(new Date());
+    }
+  }, [isActive, discountStartDate, setTimer]);
+
   return (
     <>
-      <DiscountTimer
-        discountMessage={discount.message}
-        durationInMinutes={discount.duration}
-        startDate={discountStartDate}
-        onTimerEnd={() => setApplyDiscount(false)}
-        isActive={isActive}
-      />
+      {!!discountStartDate && (
+        <DiscountTimer
+          discountMessage={discount.message}
+          durationInMinutes={discount.duration}
+          startDate={discountStartDate}
+          onTimerEnd={() => setApplyDiscount(false)}
+          isActive={isActive}
+        />
+      )}
       <div className="flex flex-col gap-4 px-4 py-6">
         <PricingSection {...pricingProps} name="plan-1" />
         <CreditCards />
