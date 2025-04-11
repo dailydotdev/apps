@@ -27,6 +27,25 @@ const brokenWebviewPatterns = [
 
 export function shouldRedirectAth(): boolean {
   const ua = navigator.userAgent;
+  const isBrokenWebview = brokenWebviewPatterns.some((pattern) =>
+    pattern.test(ua),
+  );
 
-  return brokenWebviewPatterns.some((pattern) => pattern.test(ua));
+  if (isBrokenWebview) {
+    return true;
+  }
+
+  // Advanced in-app detection (WebView or missing Safari)
+  const advancedInAppDetection = () => {
+    const rules = [
+      'WebView', // Generic WebView detection
+      '(iPhone|iPod|iPad)(?!.*Safari/)', // iOS WebView without Safari
+      'Android.*(wv)', // Android WebView
+      '(AppleWebKit)(?!.*Safari)', // iOS Safari WebView (missing Safari in UA)
+    ];
+    const regex = new RegExp(`(${rules.join('|')})`, 'ig');
+    return !!ua.match(regex);
+  };
+
+  return advancedInAppDetection();
 }
