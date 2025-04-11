@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import type {
   FunnelQuestion,
   FunnelQuestionCheckbox,
@@ -93,12 +94,18 @@ export function FunnelQuiz({
     <ConditionalWrapper
       condition={!isSingleChoice}
       wrapper={(component) => (
-        <FunnelStepCtaWrapper onClick={onCtaClick}>
+        <FunnelStepCtaWrapper
+          containerClassName="flex flex-col"
+          onClick={onCtaClick}
+        >
           {component}
         </FunnelStepCtaWrapper>
       )}
     >
-      <div className="flex flex-col gap-4 px-4 py-6">
+      <div
+        data-testid="funnel-step-quiz"
+        className={classNames('flex flex-1 flex-col gap-4 px-4 py-6')}
+      >
         <StepHeadline
           heading={text}
           description={explainer}
@@ -106,13 +113,15 @@ export function FunnelQuiz({
           descriptionProps={{ color: TypographyColor.Tertiary }}
         />
         {imageUrl && (
-          <Image
-            alt="Question additional context"
-            aria-hidden
-            className="mx-auto w-full max-w-lg object-contain object-center"
-            role="presentation"
-            src={imageUrl}
-          />
+          <div className="grid flex-1 place-items-center">
+            <Image
+              alt="Question additional context"
+              aria-hidden
+              className="mx-auto w-full max-w-lg object-contain object-center"
+              role="presentation"
+              src={imageUrl}
+            />
+          </div>
         )}
         <Component
           name={id}

@@ -121,7 +121,7 @@ describe('FunnelStepper component', () => {
   it('should handle transition events correctly', async () => {
     renderComponent();
 
-    const step = screen.getByTestId('funnel-step');
+    const step = screen.getByTestId('funnel-step-quiz');
     expect(step).toBeInTheDocument();
 
     await act(async () => {
@@ -276,11 +276,7 @@ describe('FunnelStepper component', () => {
     renderComponent(mockFunnelWithMultipleSteps);
 
     // We should have one visible div and one hidden div
-    const steps = screen.getAllByTestId('funnel-step');
-    expect(steps.length).toBe(2);
-
-    // The first step should be visible
-    expect(steps[0]).not.toHaveClass('hidden');
-    expect(steps[1]).toHaveClass('hidden');
+    const steps = screen.getAllByTestId('funnel-step', { hidden: true });
+    expect(steps.length).toBe(1);
   });
 });

@@ -35,6 +35,7 @@ import type { FunnelSession } from '../types/funnelBoot';
 import { FunnelEventName } from '../types/funnelEvents';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -54,14 +55,25 @@ const stepComponentMap = {
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
-  const { type } = props;
+  const { type, isActive } = props;
   const Component = stepComponentMap[type];
 
   if (!Component) {
     return null;
   }
 
-  return <Component {...props} />;
+  return (
+    <ConditionalWrapper
+      condition={!isActive}
+      wrapper={(component) => (
+        <div className="hidden" data-testid="funnel-step">
+          {component}
+        </div>
+      )}
+    >
+      <Component {...props} />
+    </ConditionalWrapper>
+  );
 }
 
 function getTransitionDestination(
@@ -154,19 +166,12 @@ export const FunnelStepper = ({
         {funnel.chapters.map((chapter: FunnelChapter) => (
           <Fragment key={chapter?.id}>
             {chapter?.steps?.map((funnelStep: FunnelStep) => (
-              <div
-                className={classNames({
-                  hidden: step?.id !== funnelStep?.id,
-                })}
-                data-testid="funnel-step"
+              <FunnelStepComponent
+                {...funnelStep}
+                isActive={funnelStep?.id === step?.id}
                 key={`${chapter?.id}-${funnelStep?.id}`}
-              >
-                <FunnelStepComponent
-                  {...funnelStep}
-                  isActive={funnelStep?.id === step?.id}
-                  onTransition={onTransition}
-                />
-              </div>
+                onTransition={onTransition}
+              />
             ))}
           </Fragment>
         ))}
