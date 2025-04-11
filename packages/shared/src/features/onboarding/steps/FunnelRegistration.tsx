@@ -144,8 +144,9 @@ function InnerFunnelRegistration({
     },
     onRedirect: (redirect) => {
       if (checkIsInAppAndroid()) {
-        closePopup();
-        window.location.href = redirect;
+        setTimeout(() => {
+          window.location.href = redirect;
+        }, 100);
       } else {
         windowPopup.current.location.href = redirect;
       }
