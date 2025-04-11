@@ -126,8 +126,6 @@ function InnerFunnelRegistration({
       return { enabled: false };
     }
 
-    alert(`sending redirect_to: ${window.location.href}`);
-
     return { enabled: true, redirect_to: window.location.href };
   }, [router?.isReady, isAndroidWebView]);
 
@@ -139,7 +137,9 @@ function InnerFunnelRegistration({
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     enabled: config.enabled,
-    params: { redirect_to: globalThis?.window.location.href },
+    params: config.redirect_to
+      ? { redirect_to: config.redirect_to }
+      : undefined,
     onRedirectFail: () => {
       closePopup();
     },
@@ -201,7 +201,7 @@ export function FunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
 
-  if (!isAuthReady) {
+  if (!isActive || !isAuthReady) {
     return null;
   }
 
@@ -209,7 +209,6 @@ export function FunnelRegistration({
     onTransition({
       type: FunnelStepTransitionType.Complete,
     });
-    alert('you are now logged in');
     return null;
   }
 
