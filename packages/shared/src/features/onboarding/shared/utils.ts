@@ -19,10 +19,14 @@ export const sanitizeMessage = (message: string): string => {
   });
 };
 
-export function shouldRedirectAuth(): boolean {
-  if (typeof window === 'undefined') {
-    return true;
-  }
+const brokenWebviewPatterns = [
+  /FBAN|FBAV/i, // Facebook App
+  /Messenger/i, // Facebook Messenger
+  /LinkedIn/i, // LinkedIn
+];
 
-  return !window.open;
+export function shouldRedirectAuth(): boolean {
+  const ua = navigator.userAgent;
+
+  return brokenWebviewPatterns.some((pattern) => pattern.test(ua));
 }
