@@ -25,7 +25,7 @@ const brokenWebviewPatterns = [
   /LinkedIn/i, // LinkedIn
 ];
 
-export function shouldRedirectAth(): boolean {
+export function shouldRedirectAuth(): boolean {
   const ua = navigator.userAgent;
 
   return brokenWebviewPatterns.some((pattern) => pattern.test(ua));

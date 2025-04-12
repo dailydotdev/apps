@@ -28,7 +28,7 @@ import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
 import { FunnelStepTransitionType } from '../types/funnel';
-import { sanitizeMessage, shouldRedirectAth } from '../shared';
+import { sanitizeMessage, shouldRedirectAuth } from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
@@ -103,7 +103,7 @@ function InnerFunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
-  const shouldRedirect = shouldRedirectAth();
+  const shouldRedirect = shouldRedirectAuth();
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
