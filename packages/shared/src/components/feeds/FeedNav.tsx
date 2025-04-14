@@ -45,7 +45,7 @@ enum FeedNavTab {
 
 const StickyNavIconWrapper = classed(
   'div',
-  'sticky flex h-11 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
+  'sticky flex h-11 w-20 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
 const MIN_SCROLL_BEFORE_HIDING = 60;
@@ -191,9 +191,7 @@ function FeedNav(): ReactElement {
         </TabContainer>
 
         {showStickyButton && (
-          <StickyNavIconWrapper
-            className={classNames('translate-x-[calc(100vw-100%)]', 'w-20')}
-          >
+          <StickyNavIconWrapper className="translate-x-[calc(100vw-100%)]">
             {sortingEnabled && isSortableFeed && (
               <Dropdown
                 className={{
