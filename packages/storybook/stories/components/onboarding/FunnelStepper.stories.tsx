@@ -18,13 +18,18 @@ import { Default as FunnelPricing } from './FunnelPricing.stories';
 import {
   FunnelStepPricing,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { QueryClient } from '@tanstack/react-query';
 import {
   CheckboxGroupVariant,
 } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
+import ExtensionProviders from '../../extension/_providers';
+import {
+  FunnelStepLoading,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { fn } from '@storybook/test';
+import {
+  FunnelBackgroundVariant,
+} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 
-const queryClient = new QueryClient();
 
 const meta: Meta<typeof FunnelStepper> = {
   title: 'Components/Onboarding/FunnelStepper',
@@ -40,9 +45,9 @@ const meta: Meta<typeof FunnelStepper> = {
     }),
     (Story) => (
       <Provider>
-        <QueryClientProvider client={queryClient}>
+        <ExtensionProviders>
           <Story />
-        </QueryClientProvider>
+        </ExtensionProviders>
       </Provider>
     ),
   ],
@@ -67,20 +72,12 @@ const sampleFunnel: FunnelJSON = {
   chapters: [
     {
       id: 'chapter1',
-      parameters: {
-        cta: 'Continue',
-      },
-      transitions: [
-        {
-          on: FunnelStepTransitionType.Complete,
-          destination: 'step2',
-        },
-      ],
       steps: [
         {
           id: 'step1',
           type: FunnelStepType.Quiz,
           parameters: {
+            backgroundType: FunnelBackgroundVariant.Hourglass,
             cta: 'Next',
             question: {
               type: FunnelStepQuizQuestionType.Rating,
@@ -108,10 +105,11 @@ const sampleFunnel: FunnelJSON = {
           onTransition: () => {
             console.log('Quiz step transition');
           },
-        } satisfies FunnelStepQuiz, {
+        }, {
           id: 'step2',
           type: FunnelStepType.Quiz,
           parameters: {
+            cta: 'Next',
             question: {
               type: FunnelStepQuizQuestionType.Checkbox,
               variant: CheckboxGroupVariant.Vertical,
@@ -160,60 +158,60 @@ const sampleFunnel: FunnelJSON = {
             console.log('Quiz step transition');
           },
         } satisfies FunnelStepQuiz,
-        // {
-        //   id: 'step3',
-        //   type: FunnelStepType.Loading,
-        //   parameters: {
-        //     headline: 'Loading your personalized feed',
-        //     explainer: 'We\'re putting together content based on your interests. This will only take a moment.',
-        //   },
-        //   transitions: [
-        //     {
-        //       on: FunnelStepTransitionType.Complete,
-        //       destination: 'step4',
-        //     },
-        //   ],
-        //   onTransition: fn(),
-        // } satisfies FunnelStepLoading,
         {
           id: 'step3',
-          type: FunnelStepType.SocialProof,
+          type: FunnelStepType.Loading,
           parameters: {
-            cta: 'Continue',
+            headline: 'Loading your personalized feed',
+            explainer: 'We\'re putting together content based on your interests. This will only take a moment.',
           },
-          imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
-          rating: '4.8/5',
-          reviewSubtitle: 'based on 2,598+ reviews',
-          reviews: [
-            {
-              title: 'Perfect for Busy People',
-              content:
-                '"I used to spend hours sifting through Hacker News, Reddit, and newsletters. Now, I get everything I need in one place."',
-              author: 'Priya, Full-Stack Dev',
-            },
-            {
-              title: 'Quality Content',
-              content:
-                '"daily.dev is my go-to dev feed. No fluff, no clickbait—just quality."',
-              author: 'Alex, Senior Engineer',
-            },
-            {
-              title: 'Saved My Time',
-              content:
-                '"As a tech lead, staying updated is crucial. daily.dev curates the most relevant content so I don\'t miss anything important."',
-              author: 'Michael, Tech Lead',
-            },
-            {
-              title: 'Great for Learning',
-              content:
-                '"The personalized feed helps me discover new technologies and best practices that I wouldn\'t have found otherwise."',
-              author: 'Sarah, Junior Developer',
-            },
-          ],
           transitions: [
             {
               on: FunnelStepTransitionType.Complete,
-              destination: 'step4', // Changed to point to an existing step
+              destination: 'step4',
+            },
+          ],
+          onTransition: fn(),
+        } satisfies FunnelStepLoading,
+        {
+          id: 'step4',
+          type: FunnelStepType.SocialProof,
+          parameters: {
+            cta: 'Continue',
+            imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
+            rating: '4.8/5',
+            reviewSubtitle: 'based on 2,598+ reviews',
+            reviews: [
+              {
+                title: 'Perfect for Busy People',
+                content:
+                  '"I used to spend hours sifting through Hacker News, Reddit, and newsletters. Now, I get everything I need in one place."',
+                author: 'Priya, Full-Stack Dev',
+              },
+              {
+                title: 'Quality Content',
+                content:
+                  '"daily.dev is my go-to dev feed. No fluff, no clickbait—just quality."',
+                author: 'Alex, Senior Engineer',
+              },
+              {
+                title: 'Saved My Time',
+                content:
+                  '"As a tech lead, staying updated is crucial. daily.dev curates the most relevant content so I don\'t miss anything important."',
+                author: 'Michael, Tech Lead',
+              },
+              {
+                title: 'Great for Learning',
+                content:
+                  '"The personalized feed helps me discover new technologies and best practices that I wouldn\'t have found otherwise."',
+                author: 'Sarah, Junior Developer',
+              },
+            ],
+          },
+          transitions: [
+            {
+              on: FunnelStepTransitionType.Complete,
+              destination: 'step5', // Changed to point to an existing step
             },
           ],
           onTransition: () => {
@@ -222,7 +220,7 @@ const sampleFunnel: FunnelJSON = {
         } satisfies FunnelStepSocialProof,
         {
           ...FunnelPricing.args,
-          id: 'step4',
+          id: 'step5',
           type: FunnelStepType.Pricing,
           transitions: [],
         } as FunnelStepPricing,
@@ -234,5 +232,11 @@ const sampleFunnel: FunnelJSON = {
 export const Default: Story = {
   args: {
     funnel: sampleFunnel,
+    session: {
+      id: 'session-id',
+      currentStep: 'step1',
+      userId: 'user-id',
+      steps: {},
+    },
   },
 };

@@ -6,13 +6,16 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { LazyImage } from '../../../components/LazyImage';
 
 export const FunnelSocialProof = ({
-  imageUrl,
-  rating,
-  reviews,
-  reviewSubtitle,
   onTransition,
   parameters,
 }: FunnelStepSocialProof): ReactElement => {
+  const {
+    imageUrl,
+    rating,
+    reviews,
+    reviewSubtitle,
+    cta = 'Next',
+  } = parameters;
   return (
     <FunnelStepCtaWrapper
       onClick={() =>
@@ -20,7 +23,7 @@ export const FunnelSocialProof = ({
           type: FunnelStepTransitionType.Complete,
         })
       }
-      cta={{ label: parameters?.cta ?? 'Next' }}
+      cta={{ label: cta }}
     >
       <div className="flex flex-col gap-4 py-6">
         <LazyImage

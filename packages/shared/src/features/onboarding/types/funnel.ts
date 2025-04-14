@@ -5,17 +5,18 @@ import type {
   ImageReviewProps,
   PricingPlanVariation,
   Review,
+  StepHeadlineAlign,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
-import type { StepHeadlineAlign } from '../shared/StepHeadline';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
   Fact = 'fact',
   Quiz = 'quiz',
-  Signup = 'signUp',
+  Signup = 'registration',
   Pricing = 'pricing',
   Checkout = 'checkout',
+  PaymentSuccessful = 'paymentSuccessful',
   TagSelection = 'tagsSelection',
   ReadingReminder = 'readingReminder',
   AppPromotion = 'appPromotion',
@@ -23,23 +24,38 @@ export enum FunnelStepType {
   Loading = 'loading',
 }
 
+export enum FunnelBackgroundVariant {
+  Blank = 'blank',
+  Default = 'default',
+  Light = 'light',
+  Bottom = 'bottom',
+  Top = 'top',
+  CircleTop = 'circleTop',
+  CircleBottom = 'circleBottom',
+  Hourglass = 'hourglass',
+}
+
 export enum FunnelStepTransitionType {
   Skip = 'skip',
   Complete = 'complete',
 }
 
-export const COMPLETED_STEP_ID = 'FINISH' as const;
+export const COMPLETED_STEP_ID = 'finish' as const;
 
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-type FunnelStepParameters<
-  Params extends {
-    [p: string]: unknown;
-  } = Record<string, unknown>,
-> = {
+interface FunnelStepCommonParameters {
+  backgroundType?: FunnelBackgroundVariant;
+  cta?: string;
+  reverse?: boolean;
+}
+
+type FunnelStepParameters<Params = Record<string, unknown>> = {
   [key in keyof Params]: Params[key];
-} & { [p: string]: unknown };
+} & FunnelStepCommonParameters & {
+    [p: string]: unknown;
+  };
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
@@ -48,14 +64,14 @@ export type FunnelStepTransition = {
 
 interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
-  parameters: T;
+  parameters: FunnelStepParameters<T>;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
 }
 
 export interface FunnelChapter {
   id: string;
-  steps: Array<Omit<FunnelStep, 'onTransition'>>;
+  steps: Array<FunnelStep>;
 }
 
 export interface FunnelStepLandingPage extends FunnelStepCommon {
@@ -63,7 +79,11 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepLoading extends FunnelStepCommon {
+export interface FunnelStepLoading
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
   type: FunnelStepType.Loading;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -89,7 +109,7 @@ export enum FunnelStepQuizQuestionType {
   Rating = 'rating',
 }
 
-export type FunnelStepQuizQuestion = {
+export type FunnelQuestionCommon = {
   text: string;
   placeholder?: string;
   options: Array<{
@@ -98,30 +118,41 @@ export type FunnelStepQuizQuestion = {
     image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
-} & (
-  | ({
-      type:
-        | FunnelStepQuizQuestionType.Checkbox
-        | FunnelStepQuizQuestionType.Radio;
-    } & Pick<FormInputCheckboxGroupProps, 'variant' | 'cols'>)
-  | { type: FunnelStepQuizQuestionType.Rating }
-);
+};
 
-export interface FunnelStepQuiz extends FunnelStepCommon {
+export type FunnelQuestionCheckbox = FunnelQuestionCommon &
+  ({
+    type:
+      | FunnelStepQuizQuestionType.Checkbox
+      | FunnelStepQuizQuestionType.Radio;
+  } & Pick<FormInputCheckboxGroupProps, 'variant' | 'cols' | 'behaviour'>);
+
+export type FunnelQuestionRating = FunnelQuestionCommon & {
+  type: FunnelStepQuizQuestionType.Rating;
+};
+
+export type FunnelQuestion = FunnelQuestionCheckbox | FunnelQuestionRating;
+
+export interface FunnelStepQuiz
+  extends FunnelStepCommon<{
+    question: FunnelQuestion;
+    explainer?: string;
+  }> {
   type: FunnelStepType.Quiz;
   onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
-  parameters: FunnelStepParameters<{
-    question: FunnelStepQuizQuestion;
-    explainer?: string;
-  }>;
 }
 
-export interface FunnelStepSignup extends FunnelStepCommon {
+export interface FunnelStepSignup
+  extends FunnelStepCommon<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }> {
   type: FunnelStepType.Signup;
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPricingParameters {
+interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
   discount: {
@@ -184,13 +215,28 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepSocialProof extends FunnelStepCommon {
+export interface FunnelStepSocialProof
+  extends FunnelStepCommon<{
+    imageUrl: string;
+    rating: string;
+    reviews: Review[];
+    reviewSubtitle: string;
+    cta?: string;
+  }> {
   type: FunnelStepType.SocialProof;
-  imageUrl: string;
-  rating: string;
-  reviews: Review[];
-  reviewSubtitle: string;
   onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepPaymentSuccessful
+  extends FunnelStepCommon<
+    Partial<{
+      headline: string;
+      explainer: string;
+      imageUrl: string;
+    }>
+  > {
+  type: FunnelStepType.PaymentSuccessful;
+  onTransition: FunnelStepTransitionCallback<void>;
 }
 
 export type FunnelStep =

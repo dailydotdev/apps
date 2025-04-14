@@ -17,7 +17,12 @@ import {
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
-import { FunnelQuiz, FunnelSocialProof, FunnelPricing } from '../steps';
+import {
+  FunnelQuiz,
+  FunnelSocialProof,
+  FunnelPricing,
+  FunnelPaymentSuccessful,
+} from '../steps';
 import FunnelFact from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
@@ -26,10 +31,15 @@ import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
+import type { FunnelSession } from '../types/funnelBoot';
+import { FunnelEventName } from '../types/funnelEvents';
+import { CookieConsent } from './CookieConsent';
+import { useFunnelCookies } from '../hooks/useFunnelCookies';
+import classed from '../../../lib/classed';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
-  sessionId: string;
+  session: FunnelSession;
   onComplete?: () => void;
 }
 
@@ -41,6 +51,7 @@ const stepComponentMap = {
   [FunnelStepType.SocialProof]: FunnelSocialProof,
   [FunnelStepType.Pricing]: FunnelPricing,
   [FunnelStepType.Signup]: FunnelRegistration,
+  [FunnelStepType.PaymentSuccessful]: FunnelPaymentSuccessful,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
@@ -63,9 +74,11 @@ function getTransitionDestination(
   })?.destination;
 }
 
+const HiddenStep = classed('div', 'hidden');
+
 export const FunnelStepper = ({
   funnel,
-  sessionId = '',
+  session,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
   const {
@@ -73,12 +86,16 @@ export const FunnelStepper = ({
     trackOnHoverCapture,
     trackOnNavigate,
     trackOnScroll,
-  } = useFunnelTracking({ funnel, sessionId });
+    trackFunnelEvent,
+  } = useFunnelTracking({ funnel, session });
   const { back, chapters, navigate, position, skip, step } =
-    useFunnelNavigation({ funnel, onNavigation: trackOnNavigate });
-  const { transition: sendTransition } = useStepTransition(sessionId);
-  useInitFunnelPaddle();
+    useFunnelNavigation({ funnel, onNavigation: trackOnNavigate, session });
+  const { transition: sendTransition } = useStepTransition(session.id);
+  const { showBanner, ...cookieConsentProps } = useFunnelCookies({
+    trackFunnelEvent,
+  });
 
+  useInitFunnelPaddle();
   useWindowScroll({
     onScroll: trackOnScroll,
   });
@@ -105,6 +122,9 @@ export const FunnelStepper = ({
     }
 
     if (isLastStep) {
+      trackFunnelEvent({
+        name: FunnelEventName.CompleteFunnel,
+      });
       onComplete?.();
     }
   };
@@ -116,6 +136,9 @@ export const FunnelStepper = ({
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
     >
+      {showBanner && (
+        <CookieConsent key="cookie-consent" {...cookieConsentProps} />
+      )}
       <FunnelStepBackground step={step}>
         <Header
           chapters={chapters}
@@ -133,21 +156,25 @@ export const FunnelStepper = ({
         />
         {funnel.chapters.map((chapter: FunnelChapter) => (
           <Fragment key={chapter?.id}>
-            {chapter?.steps?.map((funnelStep: FunnelStep) => (
-              <div
-                className={classNames({
-                  hidden: step?.id !== funnelStep?.id,
-                })}
-                data-testid="funnel-step"
-                key={`${chapter?.id}-${funnelStep?.id}`}
-              >
-                <FunnelStepComponent
-                  {...funnelStep}
-                  onTransition={onTransition}
-                  isActive={step?.id === funnelStep?.id}
-                />
-              </div>
-            ))}
+            {chapter?.steps?.map((funnelStep: FunnelStep) => {
+              const isActive = funnelStep?.id === step?.id;
+              const Wrapper = isActive ? Fragment : HiddenStep;
+              return (
+                <Wrapper
+                  key={`${chapter?.id}-${funnelStep?.id}`}
+                  {...(!isActive && {
+                    'data-testid': `funnel-step`,
+                  })}
+                >
+                  <FunnelStepComponent
+                    {...funnelStep}
+                    isActive={isActive}
+                    key={step.id}
+                    onTransition={onTransition}
+                  />
+                </Wrapper>
+              );
+            })}
           </Fragment>
         ))}
       </FunnelStepBackground>

@@ -23,8 +23,14 @@ export enum CheckboxGroupVariant {
   Vertical = 'vertical',
 }
 
+export enum CheckboxGroupBehaviour {
+  Radio = 'radio',
+  Checkbox = 'checkbox',
+}
+
 export interface FormInputCheckboxGroupProps
   extends PropsWithChildren<ComponentProps<'div'>> {
+  behaviour?: CheckboxGroupBehaviour;
   /**
    * @default []
    */
@@ -46,21 +52,29 @@ export interface FormInputCheckboxGroupProps
   variant?: CheckboxGroupVariant;
 }
 
-const getChangedValue = (
-  value: CheckboxValues,
-  selectedValue: CheckboxValue,
-): CheckboxValues => {
+const getChangedValue = ({
+  isSingleChoice,
+  value,
+  selectedValue,
+}: {
+  isSingleChoice: boolean;
+  value: CheckboxValues;
+  selectedValue: CheckboxValue;
+}): CheckboxValues => {
   const isSelected = value.includes(selectedValue);
-  return isSelected
-    ? value.filter((item) => item !== selectedValue)
-    : [...value, selectedValue];
+
+  if (isSelected) {
+    return value.filter((item) => item !== selectedValue);
+  }
+
+  return isSingleChoice ? [selectedValue] : [...value, selectedValue];
 };
 
 const FormInputCheckbox = ({
   isSelected,
   isVertical,
-  name,
   item,
+  name,
   ...props
 }: ButtonProps<'button'> & {
   isSelected: boolean;
@@ -83,10 +97,10 @@ const FormInputCheckbox = ({
     >
       <div
         className={classNames(
-          'flex min-h-12 items-center gap-2',
+          'flex min-h-12 flex-1 items-center gap-2',
           isVertical
             ? 'min-w-full flex-col justify-center py-2'
-            : 'flex-row justify-start',
+            : 'flex-row justify-start text-left',
         )}
       >
         {(isVertical || item.image) && (
@@ -106,13 +120,20 @@ const FormInputCheckbox = ({
             )}
           </div>
         )}
-        <span>{item.label}</span>
+        <span
+          className={classNames('flex-1 whitespace-break-spaces', {
+            'py-1': !isVertical,
+          })}
+        >
+          {item.label}
+        </span>
       </div>
     </Button>
   );
 };
 
 export const FormInputCheckboxGroup = ({
+  behaviour,
   defaultValue = [],
   name,
   onValueChange,
@@ -127,9 +148,14 @@ export const FormInputCheckboxGroup = ({
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
   const isVertical = variant === CheckboxGroupVariant.Vertical;
+  const isSingleChoice = behaviour === CheckboxGroupBehaviour.Radio;
 
   const onSelect = (selectedValue: CheckboxValue) => {
-    const newValue = getChangedValue(inputValue, selectedValue);
+    const newValue = getChangedValue({
+      isSingleChoice,
+      value: inputValue,
+      selectedValue,
+    });
     onValueChange?.(newValue);
     setCheckedValue(newValue);
   };

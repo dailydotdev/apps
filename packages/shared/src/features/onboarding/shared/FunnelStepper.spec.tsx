@@ -11,9 +11,11 @@ import {
   FunnelStepTransitionType,
   FunnelStepQuizQuestionType,
 } from '../types/funnel';
-import type { FunnelJSON, FunnelStep } from '../types/funnel';
+import type { FunnelJSON, FunnelStep, FunnelStepQuiz } from '../types/funnel';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { StepHeadlineAlign } from './StepHeadline';
+import type { FunnelSession } from '../types/funnelBoot';
 
 // Mock all hooks used by the component
 jest.mock('../hooks/useFunnelNavigation');
@@ -40,7 +42,7 @@ describe('FunnelStepper component', () => {
   const mockOnComplete = jest.fn();
   const mockOnTransition = jest.fn();
 
-  const mockStep: FunnelStep = {
+  const mockStep: FunnelStepQuiz = {
     id: 'step1',
     type: FunnelStepType.Quiz,
     parameters: {
@@ -66,8 +68,6 @@ describe('FunnelStepper component', () => {
     chapters: [
       {
         id: 'chapter1',
-        parameters: {},
-        transitions: [],
         steps: [mockStep],
       },
     ],
@@ -92,6 +92,7 @@ describe('FunnelStepper component', () => {
       trackOnHoverCapture: mockTrackOnHoverCapture,
       trackOnNavigate: mockTrackOnNavigate,
       trackOnScroll: mockTrackOnScroll,
+      trackFunnelEvent: jest.fn(),
     });
 
     (useStepTransition as jest.Mock).mockReturnValue({
@@ -104,7 +105,7 @@ describe('FunnelStepper component', () => {
       <TestBootProvider client={client}>
         <FunnelStepper
           funnel={funnel}
-          sessionId="test-session"
+          session={{ id: 'session-id' } as FunnelSession}
           onComplete={mockOnComplete}
         />
       </TestBootProvider>,
@@ -120,7 +121,7 @@ describe('FunnelStepper component', () => {
   it('should handle transition events correctly', async () => {
     renderComponent();
 
-    const step = screen.getByTestId('funnel-step');
+    const step = screen.getByTestId('funnel-step-quiz');
     expect(step).toBeInTheDocument();
 
     await act(async () => {
@@ -221,7 +222,7 @@ describe('FunnelStepper component', () => {
   });
 
   it('should only show the active step', () => {
-    const quizStep: FunnelStep = {
+    const quizStep: FunnelStepQuiz = {
       id: 'step1',
       type: FunnelStepType.Quiz,
       parameters: {
@@ -239,7 +240,13 @@ describe('FunnelStepper component', () => {
     const factStep: FunnelStep = {
       id: 'step2',
       type: FunnelStepType.Fact,
-      parameters: {},
+      parameters: {
+        headline: 'Test headline',
+        cta: 'Test CTA',
+        explainer: 'Test explainer',
+        align: StepHeadlineAlign.Left,
+        visualUrl: 'https://example.com/image.jpg',
+      },
       transitions: [],
       onTransition: mockOnTransition,
     };
@@ -252,8 +259,6 @@ describe('FunnelStepper component', () => {
       chapters: [
         {
           id: 'chapter1',
-          parameters: {},
-          transitions: [],
           steps: [quizStep, factStep],
         },
       ],
@@ -272,10 +277,6 @@ describe('FunnelStepper component', () => {
 
     // We should have one visible div and one hidden div
     const steps = screen.getAllByTestId('funnel-step');
-    expect(steps.length).toBe(2);
-
-    // The first step should be visible
-    expect(steps[0]).not.toHaveClass('hidden');
-    expect(steps[1]).toHaveClass('hidden');
+    expect(steps.length).toBe(1);
   });
 });

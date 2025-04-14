@@ -1,19 +1,8 @@
 import type { ReactElement, ComponentProps } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { FunnelStepType } from '../types/funnel';
-import type { FunnelStep, FunnelStepFactParameters } from '../types/funnel';
-
-export enum FunnelBackgroundVariant {
-  Blank = 'blank',
-  Default = 'default',
-  Light = 'light',
-  Bottom = 'bottom',
-  Top = 'top',
-  CircleTop = 'circleTop',
-  CircleBottom = 'circleBottom',
-  Hourglass = 'hourglass',
-}
+import type { FunnelStep } from '../types/funnel';
+import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
@@ -38,6 +27,10 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 
   const { parameters } = step;
 
+  if (parameters.backgroundType) {
+    return parameters.backgroundType;
+  }
+
   if (step.type === FunnelStepType.Loading) {
     return FunnelBackgroundVariant.Hourglass;
   }
@@ -47,7 +40,7 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   }
 
   if (step.type === FunnelStepType.Fact) {
-    return (parameters as FunnelStepFactParameters)?.reverse
+    return parameters?.reverse
       ? FunnelBackgroundVariant.Top
       : FunnelBackgroundVariant.Bottom;
   }
@@ -62,11 +55,14 @@ export const FunnelStepBackground = ({
 }: StepBackgroundProps): ReactElement => {
   const bgClassName = useMemo(() => {
     const variant = getVariantFromStep(step);
-    return variantToClassName[variant];
+    return (
+      variantToClassName[variant] ??
+      variantToClassName[FunnelBackgroundVariant.Default]
+    );
   }, [step]);
   return (
-    <div className="relative min-h-dvh bg-background-default">
-      <div className="relative z-2">{children}</div>
+    <div className="relative flex min-h-dvh flex-col bg-background-default">
+      <div className="relative z-2 flex flex-1 flex-col">{children}</div>
       <div
         aria-hidden
         className={classNames(

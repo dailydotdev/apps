@@ -30,9 +30,9 @@ export const BoxList = ({
       <h3 className="font-bold typo-body">{title}</h3>
       <ul className="flex flex-col gap-1">
         {items.map((item) => (
-          <li key={item} className="flex flex-row items-center gap-1">
+          <li key={item} className="flex flex-row items-start gap-1">
             <VIcon size={IconSize.XSmall} />
-            <span className="typo-callout">{item}</span>
+            <span className="flex-1 typo-callout">{item}</span>
           </li>
         ))}
       </ul>

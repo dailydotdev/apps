@@ -1,13 +1,12 @@
 'use client';
 
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import type { FunnelStepTransitionCallback } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -20,19 +19,30 @@ import { ChecklistAIcon } from '../../../components/icons';
 import { cloudinaryOnboardingFullBackgroundDesktop } from '../../../lib/image';
 import { LazyImage } from '../../../components/LazyImage';
 import Logo from '../../../components/Logo';
-
-type FunnelPaymentSuccessfulProps = {
-  onTransition: FunnelStepTransitionCallback<void>;
-};
+import type { FunnelStepPaymentSuccessful } from '../types/funnel';
+import { sanitizeMessage } from '../shared';
 
 export const FunnelPaymentSuccessful = ({
   onTransition,
-}: FunnelPaymentSuccessfulProps): ReactElement => {
+  parameters: {
+    headline = 'Payment successful!',
+    explainer = `Your payment is complete, you're all set.`,
+    imageUrl = cloudinaryOnboardingFullBackgroundDesktop,
+    cta = 'Continue',
+  },
+}: FunnelStepPaymentSuccessful): ReactElement => {
+  const { headHtml, descHtml } = useMemo(() => {
+    return {
+      headHtml: sanitizeMessage(headline),
+      descHtml: sanitizeMessage(explainer),
+    };
+  }, [headline, explainer]);
+
   return (
     <div className="relative flex min-h-dvh w-full flex-1 justify-center">
       <LazyImage
         className="left-0 top-0 -z-1 h-full w-full translate-y-52 scale-150 blur-3xl"
-        imgSrc={cloudinaryOnboardingFullBackgroundDesktop}
+        imgSrc={imageUrl}
         imgAlt="Blurred purple background"
         absolute
       />
@@ -50,17 +60,16 @@ export const FunnelPaymentSuccessful = ({
             type={TypographyType.LargeTitle}
             color={TypographyColor.Primary}
             bold
-          >
-            Payment successful!
-          </Typography>
+            dangerouslySetInnerHTML={{ __html: headHtml }}
+          />
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
             className="my-6"
-          >
-            Your payment is complete, you&apos;re all set.
-          </Typography>
+            dangerouslySetInnerHTML={{ __html: descHtml }}
+          />
+
           <span className="flex flex-col gap-4">
             <Button
               type="button"
@@ -72,7 +81,7 @@ export const FunnelPaymentSuccessful = ({
                 })
               }
             >
-              Continue
+              {cta}
             </Button>
           </span>
         </div>

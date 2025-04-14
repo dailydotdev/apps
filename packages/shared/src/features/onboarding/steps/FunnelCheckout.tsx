@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import type { CheckoutUpdateOptions, PaddleEventData } from '@paddle/paddle-js';
+import type {
+  CheckoutUpdateOptions,
+  PaddleEventData,
+  CheckoutOpenOptions,
+} from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
@@ -14,7 +18,7 @@ import {
 } from '../store/funnelStore';
 import { usePaddleEvent } from '../hooks/usePaddleEvent';
 
-export const FunnelCheckout = ({
+export const InnerFunnelCheckout = ({
   parameters: { discountCode },
   onTransition,
 }: FunnelStepCheckout): ReactElement => {
@@ -72,7 +76,7 @@ export const FunnelCheckout = ({
         customData: {
           user_id: user?.id,
         },
-      });
+      } as CheckoutOpenOptions);
     }
   }, [
     discountCode,
@@ -87,4 +91,14 @@ export const FunnelCheckout = ({
   ]);
 
   return <div className="checkout-container" />;
+};
+
+export const FunnelCheckout = (props: FunnelStepCheckout): ReactElement => {
+  const { isLoggedIn } = useAuthContext();
+
+  if (!isLoggedIn) {
+    return null;
+  }
+
+  return <InnerFunnelCheckout {...props} />;
 };

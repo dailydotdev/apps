@@ -3,7 +3,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import StepHeadline from '../shared/StepHeadline';
+import { StepHeadline } from '../shared';
 import type { FunnelStepFact } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';

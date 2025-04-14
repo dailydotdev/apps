@@ -10,10 +10,12 @@ import {
   getFunnelStepByPosition,
   funnelPositionHistoryAtom,
 } from '../store/funnelStore';
+import type { FunnelSession } from '../types/funnelBoot';
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
   onNavigation: TrackOnNavigate;
+  session: FunnelSession;
 }
 
 type Chapters = Array<{ steps: number }>;
@@ -67,12 +69,13 @@ function updateURLWithStepId({
 }) {
   const params = new URLSearchParams(searchParams.toString());
   params.set('stepId', stepId);
-  router.replace(`/${pathname}?${params.toString()}`, { scroll: false });
+  router.push(`${pathname}?${params.toString()}`, { scroll: true });
 }
 
 export const useFunnelNavigation = ({
   funnel,
   onNavigation,
+  session,
 }: UseFunnelNavigationProps): UseFunnelNavigationReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -80,6 +83,7 @@ export const useFunnelNavigation = ({
   const [stepTimerStart, setStepTimerStart] = useState<number>(0);
   const [position, setPosition] = useAtom(funnelPositionAtom);
   const [history, dispatchHistory] = useAtom(funnelPositionHistoryAtom);
+  const isFirstStep = !position.step && !position.chapter;
 
   const chapters: Chapters = useMemo(
     () => funnel.chapters.map((chapter) => ({ steps: chapter.steps.length })),
@@ -132,31 +136,34 @@ export const useFunnelNavigation = ({
   );
 
   const back: HeaderNavigation = useMemo(() => {
+    const hasTarget = !isFirstStep && history.canUndo;
     return {
-      hasTarget: history.canUndo,
+      hasTarget,
       navigate: () => {
-        if (!history.canUndo) {
+        if (!hasTarget) {
           return;
         }
         dispatchHistory(UNDO);
       },
     };
-  }, [dispatchHistory, history.canUndo]);
+  }, [dispatchHistory, history.canUndo, isFirstStep]);
 
   const skip: UseFunnelNavigationReturn['skip'] = useMemo(
     () => ({
-      hasTarget: !!step?.transitions?.some(
-        ({ on, destination }) =>
-          on === FunnelStepTransitionType.Skip && !!destination,
-      ),
+      hasTarget:
+        !isFirstStep &&
+        !!step?.transitions?.some(
+          ({ on, destination }) =>
+            on === FunnelStepTransitionType.Skip && !!destination,
+        ),
     }),
-    [step?.transitions],
+    [isFirstStep, step?.transitions],
   );
 
   useEffect(
     () => {
-      // on load check if stepId is in the URL and set the position
-      const stepId = searchParams.get('stepId');
+      // Check if the URL has a stepId parameter or if there is a session
+      const stepId = searchParams.get('stepId') ?? session.currentStep;
 
       if (!stepId) {
         return;
@@ -167,7 +174,7 @@ export const useFunnelNavigation = ({
     },
     // only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [funnel.id],
   );
 
   return {

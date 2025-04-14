@@ -2,8 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
-
-import StepHeadline from '../shared/StepHeadline';
+import { StepHeadline } from '../shared/StepHeadline';
 import type { FunnelStepLoading } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import {
@@ -28,7 +27,9 @@ const FunnelLoading = ({
     if (percentage >= 100) {
       onTransition({ type: FunnelStepTransitionType.Complete });
     }
-  }, [percentage, onTransition]);
+    // Having onTransition as a dependency here causes an infinite re-render loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [percentage]);
 
   useEffect(() => {
     if (!isActive || hasStarted.current) {

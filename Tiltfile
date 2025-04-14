@@ -11,6 +11,7 @@ include_if_exists('../daily-api/Tiltfile')
 include_if_exists('../heimdall/Tiltfile')
 include_if_exists('../post-scraper-one-ai/Tiltfile')
 include_if_exists('../njord/Tiltfile')
+include_if_exists('../freyja/Tiltfile')
 
 def get_daily_dir(app=""):
   parent = os.path.dirname(os.getcwd())

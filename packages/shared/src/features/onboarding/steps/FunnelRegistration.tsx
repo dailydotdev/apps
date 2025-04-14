@@ -27,21 +27,14 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
-import type { FunnelStepTransitionCallback } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
-import { sanitizeMessage } from '../shared';
-
-interface FunnelRegistrationProps {
-  onTransition?: FunnelStepTransitionCallback<void>;
-  heading: string;
-  imageMobile: string;
-  image: string;
-}
+import { sanitizeMessage, shouldRedirectAuth } from '../shared';
+import type { FunnelStepSignup } from '../types/funnel';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
 const useRegistrationListeners = (
-  onTransition: FunnelRegistrationProps['onTransition'],
+  onTransition: FunnelStepSignup['onTransition'],
 ) => {
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
@@ -104,27 +97,33 @@ const useRegistrationListeners = (
   useEventListener(globalThis, 'message', onProviderMessage);
 };
 
-export function FunnelRegistration({
-  heading,
-  image,
-  imageMobile,
+function InnerFunnelRegistration({
+  parameters: { headline, image, imageMobile },
   onTransition,
-}: FunnelRegistrationProps): ReactElement {
+}: FunnelStepSignup): ReactElement {
+  const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
+  const shouldRedirect = shouldRedirectAuth();
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
+    enabled: router?.isReady,
+    params: shouldRedirect ? { redirect_to: window.location.href } : undefined,
     onRedirectFail: () => {
-      windowPopup.current.close();
+      windowPopup.current?.close();
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
-      windowPopup.current.location.href = redirect;
+      if (shouldRedirect) {
+        window.location.href = redirect;
+      } else {
+        windowPopup.current.location.href = redirect;
+      }
     },
   });
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isNativeAuthSupported(provider)) {
+    if (!isNativeAuthSupported(provider) && !shouldRedirect) {
       windowPopup.current = window.open();
     }
     onSocialRegistration(provider);
@@ -132,7 +131,7 @@ export function FunnelRegistration({
 
   useRegistrationListeners(onTransition);
 
-  const sanitizedHeading = useMemo(() => sanitizeMessage(heading), [heading]);
+  const sanitizedHeading = useMemo(() => sanitizeMessage(headline), [headline]);
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
@@ -163,4 +162,25 @@ export function FunnelRegistration({
       </div>
     </div>
   );
+}
+
+export function FunnelRegistration({
+  onTransition,
+  isActive,
+  ...props
+}: FunnelStepSignup): ReactElement {
+  const { isLoggedIn, isAuthReady } = useAuthContext();
+
+  if (!isActive || !isAuthReady) {
+    return null;
+  }
+
+  if (isLoggedIn) {
+    onTransition({
+      type: FunnelStepTransitionType.Complete,
+    });
+    return null;
+  }
+
+  return <InnerFunnelRegistration {...props} onTransition={onTransition} />;
 }

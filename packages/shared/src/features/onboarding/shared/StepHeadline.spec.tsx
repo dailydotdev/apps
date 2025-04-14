@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import StepHeadline, { StepHeadlineAlign } from './StepHeadline';
+import { StepHeadline, StepHeadlineAlign } from './StepHeadline';
 import { TypographyType } from '../../../components/typography/Typography';
 
 const defaultProps = {

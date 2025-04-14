@@ -198,6 +198,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { themeColor } = useThemedAsset();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
+  const isFunnel = router.pathname.startsWith('/helloworld');
+
   return (
     <>
       <Head>
@@ -220,7 +222,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {showBanner && (
+      {showBanner && !isFunnel && (
         <CookieBanner
           onAccepted={onAcceptCookies}
           onHideBanner={onHideBanner}
