@@ -44,6 +44,8 @@ interface UseRegistrationProps {
   onRedirectFail?: () => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
   onInitializeVerification?: () => void;
+  enabled?: boolean;
+  params?: Record<string, string>;
   keepSession?: boolean;
 }
 
@@ -63,6 +65,8 @@ const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
 
 const useRegistration = ({
   key,
+  params: _params,
+  enabled = true,
   onRedirect,
   onRedirectFail,
   onInvalidRegistration,
@@ -81,8 +85,9 @@ const useRegistration = ({
     error: registrationError,
   } = useQuery({
     queryKey: key,
-    queryFn: () => initializeKratosFlow(AuthFlow.Registration),
+    queryFn: () => initializeKratosFlow(AuthFlow.Registration, _params),
     ...disabledRefetch,
+    enabled,
   });
 
   if (registration?.error) {

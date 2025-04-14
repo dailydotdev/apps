@@ -79,7 +79,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, trackingId } = useAuthContext();
+  const { user, trackingId, isFunnel } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -92,6 +92,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
+      !isFunnel &&
       isOnboardingActionsReady &&
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
@@ -99,6 +100,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       router.replace('/onboarding');
     }
   }, [
+    isFunnel,
     isOnboardingActionsReady,
     router,
     hasCompletedEditTags,
@@ -231,7 +233,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {showBanner && (
+      {showBanner && !isFunnel && (
         <CookieBanner
           onAccepted={onAcceptCookies}
           onHideBanner={onHideBanner}

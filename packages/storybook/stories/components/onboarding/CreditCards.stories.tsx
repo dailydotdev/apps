@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { CreditCards } from '@dailydotdev/shared/src/features/onboarding/shared/CreditCards';
 
 const meta: Meta<typeof CreditCards> = {
-  title: 'Components/Onboarding/CreditCards',
+  title: 'Components/Onboarding/Shared/CreditCards',
   component: CreditCards,
   parameters: {
     design: {

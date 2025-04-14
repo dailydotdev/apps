@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import createDOMPurify from 'dompurify';
 import { addMinutes } from 'date-fns';
 import useTimer from '../../../hooks/useTimer';
+import { sanitizeMessage } from './utils';
 
 /**
  * Formats seconds to MM:SS format
@@ -27,6 +27,7 @@ export interface DiscountTimerProps {
   startDate?: Date;
   className?: string;
   onTimerEnd?: () => void;
+  isActive?: boolean;
 }
 
 const calculateTimeLeft = (
@@ -38,40 +39,37 @@ const calculateTimeLeft = (
   return Math.max(0, Math.floor((endTime.getTime() - now.getTime()) / 1000));
 };
 
-/**
- * Sanitizes HTML string and allows only bold tags
- */
-const sanitizeMessage = (message: string): string => {
-  // Only run on client-side
-  if (typeof window === 'undefined') {
-    return message;
-  }
-
-  const purify = createDOMPurify(window);
-
-  // Configure DOMPurify to only allow <b> and <strong> tags
-  return purify.sanitize(message, {
-    ALLOWED_TAGS: ['b', 'strong'],
-    ALLOWED_ATTR: [],
-  });
-};
-
 export function DiscountTimer({
   discountMessage,
   durationInMinutes,
   startDate = new Date(),
   className,
   onTimerEnd,
+  isActive,
 }: DiscountTimerProps): ReactElement {
-  const { timer: timeLeft } = useTimer(
+  const {
+    timer: timeLeft,
+    runTimer,
+    setTimer,
+    clearTimer,
+  } = useTimer(
     onTimerEnd,
-    calculateTimeLeft(startDate, durationInMinutes),
+    isActive ? calculateTimeLeft(startDate, durationInMinutes) : 0,
   );
 
   const sanitizedMessage = useMemo(
     () => sanitizeMessage(discountMessage),
     [discountMessage],
   );
+
+  useEffect(() => {
+    if (isActive) {
+      setTimer(calculateTimeLeft(startDate, durationInMinutes));
+      runTimer();
+    } else {
+      clearTimer();
+    }
+  }, [isActive, runTimer, setTimer, startDate, durationInMinutes, clearTimer]);
 
   return (
     <div

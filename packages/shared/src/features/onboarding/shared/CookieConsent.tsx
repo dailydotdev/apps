@@ -15,12 +15,12 @@ import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { ClickableText } from '../../../components/buttons/ClickableText';
 import { anchorDefaultRel } from '../../../lib/strings';
+import type { WithClassNameProps } from '../../../components/utilities';
 
-export interface OnboardingCookieConsentProps {
+export interface OnboardingCookieConsentProps extends WithClassNameProps {
   onAccepted: AcceptCookiesCallback;
-  onModalClose: () => void;
-  onHideBanner: () => void;
-  className?: string;
+  onModalClose?: () => void;
+  onHideBanner?: () => void;
 }
 
 export function CookieConsent({
@@ -34,7 +34,7 @@ export function CookieConsent({
   const onAcceptAll = () => onAccepted(otherGdprConsents);
 
   const onOpenModal = () => {
-    onHideBanner();
+    onHideBanner?.();
     openModal({
       type: LazyModal.CookieConsent,
       props: { onAcceptCookies: onAccepted, onAfterClose: onModalClose },

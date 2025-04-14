@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { DiscountTimer } from '@dailydotdev/shared/src/features/onboarding/shared/DiscountTimer';
 
 const meta: Meta<typeof DiscountTimer> = {
-  title: 'Components/Onboarding/DiscountTimer',
+  title: 'Components/Onboarding/Shared/DiscountTimer',
   component: DiscountTimer,
   parameters: {
     design: {
@@ -20,7 +20,9 @@ const meta: Meta<typeof DiscountTimer> = {
     startDate: new Date(),
     className: '',
     onTimerEnd: () => console.log('Timer ended'),
+    isActive: true,
   },
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -40,5 +42,12 @@ export const TimerEnded: Story = {
   args: {
     durationInMinutes: 0,
     discountMessage: 'This offer has <b>expired</b>',
+  },
+};
+
+export const Inactive: Story = {
+  args: {
+    isActive: false,
+    discountMessage: 'Timer is currently paused',
   },
 };

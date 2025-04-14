@@ -1,5 +1,13 @@
+'use client';
+
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
@@ -65,6 +73,7 @@ export interface AuthContextData {
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
+  isFunnel?: boolean;
 }
 
 const isExtension = checkIsExtension();
@@ -78,14 +87,12 @@ export const getQueryParams = (): Record<string, string> => {
   }
 
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-
-  return params;
+  return Object.fromEntries(urlSearchParams.entries());
 };
 
 export const REGISTRATION_PATH = '/register';
 
-const logout = async (reason: string): Promise<void> => {
+export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
@@ -100,6 +107,14 @@ const logout = async (reason: string): Promise<void> => {
     window.location.replace('/');
   }
 };
+
+export function checkIfGdprCovered(geo?: Boot['geo']): boolean {
+  return (
+    geo?.continent === Continent.Europe ||
+    !outsideGdpr.includes(geo?.region) ||
+    isIOSNative()
+  );
+}
 
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
@@ -143,16 +158,13 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
-  const isFunnelPage = useMemo(
-    () => !!router?.pathname?.startsWith(webFunnelPrefix),
-    [router?.pathname],
-  );
+  const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
 
   if (
     firstLoad === true &&
     endUser &&
     !endUser?.infoConfirmed &&
-    !isFunnelPage
+    !isFunnelRef.current
   ) {
     logout(LogoutReason.IncomleteOnboarding);
   }
@@ -165,6 +177,7 @@ export const AuthContextProvider = ({
   return (
     <AuthContext.Provider
       value={{
+        isFunnel: isFunnelRef.current,
         isAuthReady: !isNullOrUndefined(firstLoad),
         user: endUser,
         isLoggedIn: !!endUser?.id,
@@ -209,10 +222,7 @@ export const AuthContextProvider = ({
         geo,
         isAndroidApp,
         isValidRegion,
-        isGdprCovered:
-          geo?.continent === Continent.Europe ||
-          !outsideGdpr.includes(geo?.region) ||
-          isIOSNative(),
+        isGdprCovered: checkIfGdprCovered(geo),
       }}
     >
       {children}

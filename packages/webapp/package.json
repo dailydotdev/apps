@@ -30,6 +30,7 @@
     "graphql": "^16.9.0",
     "graphql-request": "^3.7.0",
     "idb-keyval": "^5.1.5",
+    "jotai": "^2.12.2",
     "next": "15.0.1",
     "next-seo": "^5.4.0",
     "react": "18.3.1",

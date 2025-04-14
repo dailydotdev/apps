@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Header } from '@dailydotdev/shared/src/features/onboarding/shared/Header';
 
 const meta: Meta<typeof Header> = {
-  title: 'Components/Onboarding/Header',
+  title: 'Components/Onboarding/Shared/Header',
   component: Header,
   parameters: {
     design: {
@@ -28,6 +28,7 @@ const meta: Meta<typeof Header> = {
     onBack: () => console.log('Back clicked'),
     onSkip: () => console.log('Skip clicked'),
   },
+  tags: ['autodocs']
 };
 
 export default meta;
@@ -61,4 +62,4 @@ export const CompleteChapter: Story = {
     currentChapter: 1,
     currentStep: 0,
   },
-}; 
+};

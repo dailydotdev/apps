@@ -91,6 +91,18 @@ Object.defineProperty(global, 'BroadcastChannel', {
   })),
 });
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+  }),
+  usePathname: () => '',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 Object.defineProperty(global, 'ResizeObserver', {
   writable: true,
   value: jest.fn().mockImplementation(() => ({

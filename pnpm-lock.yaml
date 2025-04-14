@@ -403,9 +403,18 @@ importers:
       graphql-ws:
         specifier: ^5.5.5
         version: 5.16.0(graphql@16.9.0)
+      jotai:
+        specifier: ^2.12.2
+        version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
+      jotai-history:
+        specifier: ^0.4.2
+        version: 0.4.2(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1))
       node-fetch:
         specifier: ^2.6.6
         version: 2.7.0
+      parsecurrency:
+        specifier: ^1.1.1
+        version: 1.1.1
       react-markdown:
         specifier: ^8.0.7
         version: 8.0.7(@types/react@18.3.12)(react@18.3.1)
@@ -653,6 +662,9 @@ importers:
       extension:
         specifier: workspace:*
         version: link:../extension
+      jotai:
+        specifier: ^2.12.2
+        version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
       next:
         specifier: 15.0.1
         version: 15.0.1(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
@@ -831,6 +843,9 @@ importers:
       idb-keyval:
         specifier: ^5.1.5
         version: 5.1.5
+      jotai:
+        specifier: ^2.12.2
+        version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
       next:
         specifier: 15.0.1
         version: 15.0.1(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
@@ -5952,6 +5967,24 @@ packages:
     resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
 
+  jotai-history@0.4.2:
+    resolution: {integrity: sha512-lwyp490JUSNjVVfHXa+pWvN0DKkMxSE2tpF0qaS3DpOzExZiMeQkmHnaw/xqpLjZiARRNItdr4572XRDRun+Aw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      jotai: '>=2.9.0'
+
+  jotai@2.12.2:
+    resolution: {integrity: sha512-oN8715y7MkjXlSrpyjlR887TOuc/NLZMs9gvgtfWH/JP47ChwO0lR2ijSwBvPMYyXRAPT+liIAhuBavluKGgtA==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -6795,6 +6828,9 @@ packages:
 
   parse5@6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
+
+  parsecurrency@1.1.1:
+    resolution: {integrity: sha512-IAw/8PSFgiko70KfZGv63rbEXhmVu+zpb42PvEtgHAm83Mze3eQJHWV1ZoOhPnrYeOyufvv0GS6hZDuQOdBH4Q==}
 
   pascal-case@3.1.2:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
@@ -14549,6 +14585,15 @@ snapshots:
 
   jiti@1.21.6: {}
 
+  jotai-history@0.4.2(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1)):
+    dependencies:
+      jotai: 2.12.2(@types/react@18.3.12)(react@18.3.1)
+
+  jotai@2.12.2(@types/react@18.3.12)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 18.3.12
+      react: 18.3.1
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -15592,6 +15637,8 @@ snapshots:
       lines-and-columns: 1.2.4
 
   parse5@6.0.1: {}
+
+  parsecurrency@1.1.1: {}
 
   pascal-case@3.1.2:
     dependencies:

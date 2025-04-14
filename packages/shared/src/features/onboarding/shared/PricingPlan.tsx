@@ -6,6 +6,7 @@ import { RadioItem } from '../../../components/fields/RadioItem';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import styles from './PricingPlan.module.css';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 export enum PricingPlanVariation {
   DEFAULT = 'default',
@@ -42,7 +43,8 @@ export function PricingPlan<T extends string = string>({
       isBestValue &&
       `relative p-1 pt-8 rounded-16 overflow-hidden ${styles.bestValue}`,
     content: classNames(
-      '!items-start gap-2 rounded-12 border p-3',
+      styles.label,
+      'z-1 !items-start gap-2 overflow-hidden rounded-12 border p-3',
       isBestValue && 'border-0',
       checked
         ? 'border-brand-default bg-brand-float'
@@ -51,7 +53,12 @@ export function PricingPlan<T extends string = string>({
   };
 
   return (
-    <RadioItem {...props} className={baseClassName} checked={checked}>
+    <RadioItem
+      {...props}
+      className={baseClassName}
+      checked={checked}
+      data-funnel-track={FunnelTargetId.SubPlan}
+    >
       <div className="flex flex-1 flex-col gap-2 font-normal">
         <div className="flex flex-row">
           <div className="flex flex-1 flex-col items-start gap-2">
