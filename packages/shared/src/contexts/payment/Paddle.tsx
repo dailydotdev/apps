@@ -22,22 +22,29 @@ import { usePaddle } from '../../features/payment/hooks/usePaddle';
 
 export const PaddleSubProvider = ({
   children,
+  successCallback,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
   const planTypes = useFeature(feature.pricingIds);
   const { isPlus } = usePlusSubscription();
-  const { paddle } = usePaddle({
-    paddleCallback: (event: PaddleEventData) => {
+  const paddleCallback = useCallback(
+    (event: PaddleEventData) => {
       switch (event?.name) {
         case CheckoutEventNames.CHECKOUT_COMPLETED:
-          router.push(plusSuccessUrl);
+          if (successCallback) {
+            successCallback();
+          } else {
+            router.push(plusSuccessUrl);
+          }
           break;
         default:
           break;
       }
     },
-  });
+    [successCallback, router],
+  );
+  const { paddle } = usePaddle({ paddleCallback });
 
   const getPrices = useCallback(async () => {
     return paddle?.PricePreview({
