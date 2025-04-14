@@ -15,7 +15,7 @@ import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
-import { invalidPlusRegions } from '../lib/constants';
+import { invalidPlusRegions, webFunnelPrefix } from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -65,8 +65,8 @@ export interface AuthContextData {
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
-  isFunnel?: boolean;
 }
+
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
@@ -143,12 +143,17 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
-  const isFunnel = useMemo(
-    () => !!router?.pathname?.includes('/helloworld/'),
+  const isFunnelPage = useMemo(
+    () => !!router?.pathname?.startsWith(webFunnelPrefix),
     [router?.pathname],
   );
 
-  if (firstLoad === true && endUser && !endUser?.infoConfirmed && !isFunnel) {
+  if (
+    firstLoad === true &&
+    endUser &&
+    !endUser?.infoConfirmed &&
+    !isFunnelPage
+  ) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
@@ -204,7 +209,6 @@ export const AuthContextProvider = ({
         geo,
         isAndroidApp,
         isValidRegion,
-        isFunnel,
         isGdprCovered:
           geo?.continent === Continent.Europe ||
           !outsideGdpr.includes(geo?.region) ||
