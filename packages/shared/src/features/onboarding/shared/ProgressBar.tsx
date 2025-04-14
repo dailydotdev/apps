@@ -34,7 +34,7 @@ export function ProgressBar({
             className="h-1 flex-1 rounded-50"
             data-testid="progress-bar-chapter"
           >
-            <div className="relative h-full w-full overflow-hidden rounded-50 bg-background-subtle">
+            <div className="relative h-full w-full overflow-hidden rounded-50 bg-border-subtlest-tertiary">
               {(isPastChapter || isCurrentChapter) && (
                 <div
                   className="transition-width absolute inset-0 rounded-50 bg-accent-cabbage-default duration-300 ease-in-out"
