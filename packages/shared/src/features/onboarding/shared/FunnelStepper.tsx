@@ -35,7 +35,6 @@ import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
-import ConditionalWrapper from '../../../components/ConditionalWrapper';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -55,25 +54,14 @@ const stepComponentMap = {
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
-  const { type, isActive } = props;
+  const { type } = props;
   const Component = stepComponentMap[type];
 
   if (!Component) {
     return null;
   }
 
-  return (
-    <ConditionalWrapper
-      condition={!isActive}
-      wrapper={(component) => (
-        <div className="hidden" data-testid="funnel-step">
-          {component}
-        </div>
-      )}
-    >
-      <Component {...props} />
-    </ConditionalWrapper>
-  );
+  return <Component {...props} />;
 }
 
 function getTransitionDestination(
