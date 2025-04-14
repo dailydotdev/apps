@@ -13,7 +13,6 @@ import {
   FUNNEL_BOOT_QUERY_KEY,
   useFunnelBoot,
 } from '@dailydotdev/shared/src/features/onboarding/hooks/useFunnelBoot';
-import type { FunnelBootData } from '@dailydotdev/shared/src/features/onboarding/types/funnelBoot';
 
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
@@ -26,9 +25,6 @@ import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 
 type PageProps = {
-  boot: FunnelBootData;
-  id?: string;
-  version?: string;
   dehydratedState: DehydratedState;
   showCookieBanner?: boolean;
 };
@@ -51,6 +47,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
       }
     },
   );
+  if (!forwardedHeaders['x-forwarded-for']) {
+    forwardedHeaders['x-forwarded-for'] = req.socket.remoteAddress;
+  }
 
   // Get the boot data
   const boot = await getFunnelBootData({
@@ -81,9 +80,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Return props including the dehydrated state
   return {
     props: {
-      boot: boot.data,
-      id: (id as string) || null,
-      version: (version as string) || null,
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: isGdprCovered && !hasAcceptedCookies,
     },
