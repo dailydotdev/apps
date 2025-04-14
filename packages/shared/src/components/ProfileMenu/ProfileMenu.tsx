@@ -19,7 +19,7 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import type { AllowedTags, ButtonProps } from '../buttons/Button';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/Button';
 import { reputation, webappUrl } from '../../lib/constants';
 import { UserMetadata } from '../profile/UserMetadata';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -43,6 +43,7 @@ import {
 import { PlusUser } from '../PlusUser';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ProfileMenuFooter } from './ProfileMenuFooter';
+import { UpgradeToPlus } from '../UpgradeToPlus';
 
 interface ListItem {
   title: string;
@@ -262,6 +263,13 @@ export default function ProfileMenu({
           </Typography>
         </div>
       </div>
+
+      <UpgradeToPlus
+        target={TargetId.ProfileDropdown}
+        size={ButtonSize.Small}
+        className="flex-initial"
+      />
+
       <UserMetadata
         username={user.username}
         name={user.name}
