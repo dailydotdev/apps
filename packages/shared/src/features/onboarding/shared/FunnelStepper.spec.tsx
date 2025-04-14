@@ -38,6 +38,7 @@ describe('FunnelStepper component', () => {
   const mockTrackOnHoverCapture = jest.fn();
   const mockTrackOnNavigate = jest.fn();
   const mockTrackOnScroll = jest.fn();
+  const mockTrackOnComplete = jest.fn();
   const mockSendTransition = jest.fn();
   const mockOnComplete = jest.fn();
   const mockOnTransition = jest.fn();
@@ -92,6 +93,7 @@ describe('FunnelStepper component', () => {
       trackOnHoverCapture: mockTrackOnHoverCapture,
       trackOnNavigate: mockTrackOnNavigate,
       trackOnScroll: mockTrackOnScroll,
+      trackOnComplete: mockTrackOnComplete,
       trackFunnelEvent: jest.fn(),
     });
 

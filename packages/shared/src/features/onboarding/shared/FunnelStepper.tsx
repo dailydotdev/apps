@@ -32,7 +32,6 @@ import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 import type { FunnelSession } from '../types/funnelBoot';
-import { FunnelEventName } from '../types/funnelEvents';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
@@ -86,6 +85,7 @@ export const FunnelStepper = ({
     trackOnHoverCapture,
     trackOnNavigate,
     trackOnScroll,
+    trackOnComplete,
     trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
   const { back, chapters, navigate, position, skip, step } =
@@ -119,12 +119,8 @@ export const FunnelStepper = ({
     // not navigating to the last step
     if (!isLastStep) {
       navigate({ to: targetStepId, type });
-    }
-
-    if (isLastStep) {
-      trackFunnelEvent({
-        name: FunnelEventName.CompleteFunnel,
-      });
+    } else {
+      trackOnComplete();
       onComplete?.();
     }
   };
