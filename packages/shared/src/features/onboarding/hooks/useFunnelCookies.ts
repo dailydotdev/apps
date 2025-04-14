@@ -7,6 +7,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 
 interface UseFunnelCookiesProps {
+  defaultOpen?: boolean;
   trackFunnelEvent: (event: FunnelEvent) => void;
 }
 
@@ -16,13 +17,16 @@ interface UseFunnelCookiesReturn {
 }
 
 export const useFunnelCookies = ({
+  defaultOpen = false,
   trackFunnelEvent,
 }: UseFunnelCookiesProps): UseFunnelCookiesReturn => {
   const { isAuthReady, isGdprCovered } = useAuthContext();
   const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
-  const showBanner = isAuthReady && isGdprCovered && !cookieExists;
+  const needCookies = isGdprCovered && !cookieExists;
+  const showBanner = isAuthReady ? needCookies : defaultOpen;
+  console.log({ defaultOpen, showBanner, needCookies });
 
   useEffect(
     () => {
