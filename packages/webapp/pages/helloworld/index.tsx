@@ -86,6 +86,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
       forwardedHeaders,
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: isGdprCovered && !hasAcceptedCookies,
+      showCookieBannerStr: (isGdprCovered && !hasAcceptedCookies).toString(),
+      isGdprCovered: isGdprCovered.toString(),
+      hasAcceptedCookies: hasAcceptedCookies.toString(),
     },
   };
 };
