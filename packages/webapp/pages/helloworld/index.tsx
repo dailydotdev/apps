@@ -16,10 +16,7 @@ import {
 
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
-import {
-  useAuthContext,
-  checkIfGdprCovered,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -77,7 +74,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   });
 
   // Check if the user already accepted cookies
-  const isGdprCovered = checkIfGdprCovered(boot?.data?.geo);
   const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
 
   // Return props including the dehydrated state
@@ -85,10 +81,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     props: {
       forwardedHeaders,
       dehydratedState: dehydrate(queryClient),
-      showCookieBanner: isGdprCovered && !hasAcceptedCookies,
-      showCookieBannerStr: (isGdprCovered && !hasAcceptedCookies).toString(),
-      isGdprCovered: isGdprCovered.toString(),
-      hasAcceptedCookies: hasAcceptedCookies.toString(),
+      showCookieBanner: !hasAcceptedCookies,
     },
   };
 };

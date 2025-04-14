@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import type { FunnelEvent } from '../types/funnelEvents';
 import { FunnelEventName } from '../types/funnelEvents';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
+import { useFunnelBoot } from './useFunnelBoot';
+import { checkIfGdprCovered } from '../../../contexts/AuthContext';
 
 interface UseFunnelCookiesProps {
   defaultOpen?: boolean;
@@ -17,14 +18,15 @@ interface UseFunnelCookiesReturn {
 }
 
 export const useFunnelCookies = ({
-  defaultOpen = false,
+  defaultOpen: showBanner = false,
   trackFunnelEvent,
 }: UseFunnelCookiesProps): UseFunnelCookiesReturn => {
-  const { isAuthReady, isGdprCovered } = useAuthContext();
-  const { cookieExists, saveCookies } = useConsentCookie(
-    GdprConsentKey.Marketing,
+  const { data: boot } = useFunnelBoot();
+  const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
+  const isGdprCovered = useMemo(
+    () => checkIfGdprCovered(boot?.geo),
+    [boot?.geo],
   );
-  const showBanner = isAuthReady ? !cookieExists : defaultOpen;
 
   useEffect(() => {
     if (showBanner) {
