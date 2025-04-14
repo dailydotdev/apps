@@ -130,16 +130,20 @@ export const useFunnelTracking = ({
     step?.type,
   ]);
 
+  const trackOnMouseCallback = useCallback((event: FunnelEvent) => {
+    trackFunnelEventRef?.current?.(event);
+  }, []);
+
   const trackOnClickCapture: TrackOnMouseCapture = trackOnMouseCapture({
     selector: '[data-funnel-track]',
     eventName: FunnelEventName.ClickFunnelElement,
-    trackFunnelEvent: trackFunnelEventRef.current,
+    trackFunnelEvent: trackOnMouseCallback,
   });
 
   const trackOnHoverCapture: TrackOnMouseCapture = trackOnMouseCapture({
     selector: '[data-funnel-track]',
     eventName: FunnelEventName.HoverFunnelElement,
-    trackFunnelEvent: trackFunnelEventRef.current,
+    trackFunnelEvent: trackOnMouseCallback,
   });
 
   const trackOnScroll: TrackOnScroll = useCallback(() => {
