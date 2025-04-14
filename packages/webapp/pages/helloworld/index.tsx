@@ -43,12 +43,14 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   // Extract forwarded headers
   const forwardedHeaders: Record<string, string> = {};
-  ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'].forEach((header) => {
-    const value = req.headers[header] as string;
-    if (value) {
-      forwardedHeaders[header] = value;
-    }
-  });
+  ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'].forEach(
+    (header) => {
+      const value = req.headers[header] as string;
+      if (value) {
+        forwardedHeaders[header] = value;
+      }
+    },
+  );
 
   // Get the boot data
   const boot = await getFunnelBootData({
