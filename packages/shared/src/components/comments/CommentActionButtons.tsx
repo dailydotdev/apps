@@ -58,7 +58,10 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { useCanAwardUser } from '../../hooks/useCoresFeature';
+import {
+  useCanAwardUser,
+  useHasAccessToCores,
+} from '../../hooks/useCoresFeature';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -110,6 +113,7 @@ export default function CommentActionButtons({
     sendingUser: user,
     receivingUser: comment.author as LoggedUser,
   });
+  const hasAccessToCores = useHasAccessToCores();
 
   useEffect(() => {
     setVoteState({
@@ -360,35 +364,30 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {canAward && (
-        <>
-          {!comment.userState?.awarded && (
-            <AwardButton
-              appendTo={appendTo}
-              type="COMMENT"
-              entity={{
-                id: comment.id,
-                receiver: comment.author,
-                numAwards: comment.numAwards,
-              }}
-              pressed={!!comment.userState?.awarded}
-              post={post}
-              className={!comment.numAwards ? 'mr-3' : undefined}
-            />
-          )}
-
-          {!!comment.numAwards && (
-            <Typography
-              className="ml-1 mr-3"
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              bold
-            >
-              {largeNumberFormat(comment.numAwards)} Award
-              {comment.numAwards > 1 ? 's' : ''}
-            </Typography>
-          )}
-        </>
+      {canAward && !comment.userState?.awarded && (
+        <AwardButton
+          appendTo={appendTo}
+          type="COMMENT"
+          entity={{
+            id: comment.id,
+            receiver: comment.author,
+            numAwards: comment.numAwards,
+          }}
+          pressed={!!comment.userState?.awarded}
+          post={post}
+          className={!comment.numAwards ? 'mr-3' : undefined}
+        />
+      )}
+      {hasAccessToCores && !!comment.numAwards && (
+        <Typography
+          className="ml-1 mr-3"
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          {largeNumberFormat(comment.numAwards)} Award
+          {comment.numAwards > 1 ? 's' : ''}
+        </Typography>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
