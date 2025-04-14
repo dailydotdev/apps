@@ -2,7 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { ButtonProps } from '../../../components/buttons/Button';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+  ButtonSize,
+} from '../../../components/buttons/Button';
 import { FunnelTargetId } from '../types/funnelEvents';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
@@ -25,6 +29,7 @@ export function FunnelStepCtaWrapper({
         <Button
           className="w-full"
           data-funnel-track={FunnelTargetId.StepCta}
+          size={ButtonSize.XLarge}
           type="button"
           variant={ButtonVariant.Primary}
           {...props}

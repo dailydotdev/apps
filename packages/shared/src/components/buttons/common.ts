@@ -6,7 +6,7 @@ import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 
 export enum ButtonSize {
-  XLarge = 'xlarge', // only used for iconOnly buttons
+  XLarge = 'xlarge',
   Large = 'large',
   Medium = 'medium',
   Small = 'small',
@@ -30,7 +30,7 @@ export enum ButtonIconPosition {
 }
 
 export const SizeToClassName: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'border-none',
+  [ButtonSize.XLarge]: 'h-14 px-6 rounded-16',
   [ButtonSize.Large]: 'h-12 px-6 rounded-14',
   [ButtonSize.Medium]: 'h-10 px-5 rounded-12',
   [ButtonSize.Small]: 'h-8 px-3 rounded-10',
