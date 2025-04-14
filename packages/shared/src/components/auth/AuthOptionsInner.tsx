@@ -28,7 +28,11 @@ import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import { broadcastChannel, isTesting } from '../../lib/constants';
+import {
+  broadcastChannel,
+  isTesting,
+  webFunnelPrefix,
+} from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
@@ -40,6 +44,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
+import { FunnelStepType } from '../../features/onboarding/types/funnel';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -361,6 +366,11 @@ function AuthOptionsInner({
   const onSocialCompletion = async (params) => {
     await updateUserProfile({ ...params });
     await syncSettings();
+
+    if (isFunnel) {
+      // redirect back to checkout
+      router.push(`${webFunnelPrefix}?stepId=${FunnelStepType.Checkout}`);
+    }
   };
 
   const onRegister = (params: RegistrationFormValues) => {
