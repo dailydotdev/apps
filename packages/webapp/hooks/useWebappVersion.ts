@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { ParsedUrlQuery } from 'querystring';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
-import { useRouter } from 'next/router';
 
 const getVersion = (query: ParsedUrlQuery): string | undefined => {
   if (isIOSNative()) {
