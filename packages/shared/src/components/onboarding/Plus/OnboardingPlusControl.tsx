@@ -45,6 +45,7 @@ const PlusSkeleton = (): ReactElement => (
 
 export const OnboardingPlusControl = ({
   onClickNext,
+  onClickPlus,
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { productOptions } = usePaymentContext();
@@ -84,7 +85,11 @@ export const OnboardingPlusControl = ({
         </Typography>
       </header>
       {item ? (
-        <PlusComparingCards productOption={item} onClickNext={onClickNext} />
+        <PlusComparingCards
+          productOption={item}
+          onClickNext={onClickNext}
+          onClickPlus={onClickPlus}
+        />
       ) : (
         <PlusSkeleton />
       )}

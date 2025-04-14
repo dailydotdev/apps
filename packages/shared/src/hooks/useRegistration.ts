@@ -46,6 +46,7 @@ interface UseRegistrationProps {
   onInitializeVerification?: () => void;
   enabled?: boolean;
   params?: Record<string, string>;
+  keepSession?: boolean;
 }
 
 interface UseRegistration {
@@ -70,6 +71,7 @@ const useRegistration = ({
   onRedirectFail,
   onInvalidRegistration,
   onInitializeVerification,
+  keepSession = false,
 }: UseRegistrationProps): UseRegistration => {
   const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
@@ -105,7 +107,8 @@ const useRegistration = ({
     if (
       registration.error?.id ===
         KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE &&
-      !afterAuth
+      !afterAuth &&
+      !keepSession
     ) {
       logout(LogoutReason.KratosSessionAlreadyAvailable);
     }

@@ -64,4 +64,5 @@ export const usePaymentContext = (): PaymentContextData => {
 
 export type PaymentContextProviderProps = {
   children?: ReactNode;
+  successCallback?: () => void;
 };

@@ -20,6 +20,7 @@ import {
   FlagIcon,
   FolderIcon,
   HammerIcon,
+  LanguageIcon,
   MiniCloseIcon,
   MinusIcon,
   PinIcon,
@@ -48,7 +49,7 @@ import {
 import type { AllFeedPages } from '../lib/query';
 import { generateQueryKey, getPostByIdKey, RequestKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { LogEvent, Origin } from '../lib/log';
+import { LogEvent, Origin, TargetId } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import usePostById, { invalidatePostCacheById } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -70,6 +71,8 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
+import { FeedSettingsMenu } from './feeds/FeedSettings/types';
+import { webappUrl } from '../lib/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -145,7 +148,7 @@ export default function PostOptionsMenu({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
       enabled: isPostOptionsOpen,
@@ -402,6 +405,26 @@ export default function PostOptionsMenu({
           type: LazyModal.BookmarkReminder,
           props: { post, feedContextData },
         });
+      },
+    });
+
+    postOptions.push({
+      icon: <MenuIcon Icon={LanguageIcon} />,
+      label: 'Translate',
+      action: () => {
+        if (isPlus) {
+          logEvent(postLogEvent(LogEvent.TranslatePost, post, logOpts));
+        } else {
+          logSubscriptionEvent({
+            event_name: LogEvent.UpgradeSubscription,
+            target_id: TargetId.ContextMenu,
+          });
+        }
+        router.push(
+          `${webappUrl}feeds/${router.query?.slugOrId || user.id}/edit?dview=${
+            FeedSettingsMenu.AI
+          }`,
+        );
       },
     });
 

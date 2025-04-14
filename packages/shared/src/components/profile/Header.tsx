@@ -40,6 +40,7 @@ import { webappUrl } from '../../lib/constants';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
   useCanAwardUser,
+  useCanPurchaseCores,
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
 
@@ -76,6 +77,7 @@ export function Header({
     receivingUser: user as LoggedUser,
   });
   const hasCoresAccess = useHasAccessToCores();
+  const canPurchaseCores = useCanPurchaseCores();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -188,6 +190,7 @@ export function Header({
         {isSameUser && hasCoresAccess && (
           <BuyCreditsButton
             className="laptop:hidden"
+            hideBuyButton={!canPurchaseCores}
             onPlusClick={() => {
               router.push(
                 getPathnameWithQuery(

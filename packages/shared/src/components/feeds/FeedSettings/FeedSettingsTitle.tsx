@@ -25,7 +25,7 @@ export const FeedSettingsTitle = ({
       type={TypographyType.Body}
       bold
     >
-      <div>
+      <span>
         {feed.flags.icon ? (
           <Typography type={TypographyType.Title2}>
             {feed.flags.icon}
@@ -33,7 +33,7 @@ export const FeedSettingsTitle = ({
         ) : (
           <HashtagIcon size={IconSize.Medium} />
         )}
-      </div>
+      </span>
       {feed.type === FeedType.Custom ? feed.flags.name : 'My feed'}
     </Typography>
   );

@@ -50,6 +50,7 @@ import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
 import { formatCoresCurrency } from '../../../lib/utils';
+import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 
 const AwardItem = ({
   item,
@@ -95,6 +96,7 @@ const IntroScreen = () => {
   const { onRequestClose, entity, setActiveModal, setActiveStep, product } =
     useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const canPurchaseCores = useCanPurchaseCores();
 
   const { data: awards } = useQuery({
     queryKey: generateQueryKey(RequestKey.Products),
@@ -117,7 +119,10 @@ const IntroScreen = () => {
           isMobile ? 'flex-row-reverse justify-between' : undefined,
         )}
       >
-        <BuyCreditsButton onPlusClick={onBuyCores} />
+        <BuyCreditsButton
+          hideBuyButton={!canPurchaseCores}
+          onPlusClick={onBuyCores}
+        />
         {isMobile ? (
           <Button
             onClick={onRequestClose}
@@ -186,14 +191,30 @@ const IntroScreen = () => {
       </Modal.Body>
       {showBuyCores && !!product && (
         <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
-          <Button
-            className="w-full"
-            variant={ButtonVariant.Primary}
-            onClick={onBuyCores}
-          >
-            Buy Cores <CoreIcon />{' '}
-            {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
-          </Button>
+          {canPurchaseCores && (
+            <Button
+              className="w-full"
+              variant={ButtonVariant.Primary}
+              onClick={onBuyCores}
+            >
+              Buy Cores <CoreIcon />{' '}
+              {product.value === 0
+                ? 'Free'
+                : formatCoresCurrency(product.value)}
+            </Button>
+          )}
+          {!canPurchaseCores && (
+            <Button className="w-full" variant={ButtonVariant.Primary} disabled>
+              <span className="inline-flex gap-1">
+                {' '}
+                Insufficient Cores
+                <CoreIcon secondary />{' '}
+              </span>
+              {product.value === 0
+                ? 'Free'
+                : formatCoresCurrency(product.value)}
+            </Button>
+          )}
           <AwardFeesNote />
         </Modal.Footer>
       )}

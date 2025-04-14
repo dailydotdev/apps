@@ -12,8 +12,6 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { ButtonVariant } from '../../buttons/common';
-import { anchorDefaultRel } from '../../../lib/strings';
-import { plusUrl } from '../../../lib/constants';
 import { ClickableText } from '../../buttons/ClickableText';
 import type { ButtonProps } from '../../buttons/Button';
 import { Button } from '../../buttons/Button';
@@ -24,6 +22,7 @@ import type { PlusItem } from '../../plus/PlusListItem';
 import { PlusItemStatus } from '../../plus/PlusListItem';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 type VariationCardOptionProps = {
   onClickNext: () => void;
@@ -90,7 +89,9 @@ const VariationCardOption = ({
 
 export const OnboardingPlusVariation = ({
   onClickNext,
+  onClickPlus,
 }: OnboardingStepProps): ReactElement => {
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { openModal } = useLazyModal();
   const { productOptions } = usePaymentContext();
   const { logEvent } = useLogContext();
@@ -146,10 +147,20 @@ export const OnboardingPlusVariation = ({
         <Typography
           bold
           tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          className="mb-0 tablet:mb-10"
+          type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
+          className="mb-4 tablet:mb-6"
         >
-          Suffer less. Debugging bad decisions is harder.
+          Fast-track your growth
+        </Typography>
+        <Typography
+          className="mx-auto text-balance tablet:w-2/3"
+          color={TypographyColor.Secondary}
+          tag={TypographyTag.H2}
+          type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
+        >
+          Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn&apos;t a
+          long-term strategy.
         </Typography>
       </header>
 
@@ -161,7 +172,7 @@ export const OnboardingPlusVariation = ({
             <VariationCardOption
               onClickNext={onClickNext}
               button={{
-                copy: 'Continue with Free',
+                copy: 'Join for free',
                 variant: ButtonVariant.Subtle,
               }}
               title="Free"
@@ -187,19 +198,14 @@ export const OnboardingPlusVariation = ({
               <VariationCardOption
                 onClickNext={onClickNext}
                 button={{
-                  copy: 'Continue with Plus',
+                  copy: 'Get started',
                   variant: ButtonVariant.Primary,
-                  target: '_blank',
-                  tag: 'a',
-                  title: 'Continue with Plus',
-                  rel: anchorDefaultRel,
-                  href: `${plusUrl}?selectedPlan=${item?.value}`,
+                  title: 'Get started',
+                  onClick: onClickPlus,
                 }}
                 title="Plus"
                 description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
-                price={`${item?.currencySymbol ?? ''}${
-                  item?.price.monthlyFormatted ?? '0'
-                }`}
+                price={item?.price.monthlyFormatted ?? '0'}
                 note="30 day hassle-free refund. No questions asked."
               />
             </div>
@@ -254,14 +260,11 @@ export const OnboardingPlusVariation = ({
 
       <Button
         variant={ButtonVariant.Primary}
-        target="_blank"
-        tag="a"
-        title="Continue with Plus"
-        rel={anchorDefaultRel}
-        href={`${plusUrl}?selectedPlan=${item?.value}`}
+        title="Get started"
         className="mx-auto"
+        onClick={onClickPlus}
       >
-        Continue with Plus
+        Get started
       </Button>
     </section>
   );

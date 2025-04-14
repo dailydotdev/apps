@@ -62,10 +62,13 @@ export const OnboardingHeader = ({
     OnboardingStep.ContentTypes,
     OnboardingStep.PWA,
     OnboardingStep.Plus,
+    OnboardingStep.PlusPayment,
     OnboardingStep.Extension,
     OnboardingStep.InteractiveFeed,
   ];
-  const isPlusStep = activeScreen === OnboardingStep.Plus;
+  const isPlusStep = [OnboardingStep.Plus, OnboardingStep.PlusPayment].includes(
+    activeScreen,
+  );
   const fullWidth =
     activeScreen === OnboardingStep.InteractiveFeed ||
     activeScreen === OnboardingStep.PreviewFeed;
@@ -86,9 +89,7 @@ export const OnboardingHeader = ({
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <>
-        {activeScreen === OnboardingStep.Plus && isFreeTrialExperiment && (
-          <PlusFreeTrialAlert />
-        )}
+        {isPlusStep && isFreeTrialExperiment && <PlusFreeTrialAlert />}
         <header
           className={classNames(
             'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',

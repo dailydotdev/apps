@@ -11,10 +11,19 @@ const StoreKitSubProvider = dynamic(() =>
 
 export const PaymentContextProvider = ({
   children,
+  successCallback,
 }: PaymentContextProviderProps): ReactElement => {
   if (isIOSNative()) {
-    return <StoreKitSubProvider>{children}</StoreKitSubProvider>;
+    return (
+      <StoreKitSubProvider successCallback={successCallback}>
+        {children}
+      </StoreKitSubProvider>
+    );
   }
 
-  return <PaddleSubProvider>{children}</PaddleSubProvider>;
+  return (
+    <PaddleSubProvider successCallback={successCallback}>
+      {children}
+    </PaddleSubProvider>
+  );
 };

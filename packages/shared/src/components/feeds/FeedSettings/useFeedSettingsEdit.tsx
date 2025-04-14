@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import useFeedSettings, {
   getFeedSettingsQueryKey,
 } from '../../../hooks/useFeedSettings';
-import { webappUrl } from '../../../lib/constants';
+import { plusUrl, webappUrl } from '../../../lib/constants';
 import { LogEvent } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -134,7 +134,7 @@ export const useFeedSettingsEdit = ({
         // for non plus members on confirm we save
         // and navigate to plus page to upgrade
 
-        router.replace(`${webappUrl}plus`);
+        router.replace(plusUrl);
 
         return;
       }
