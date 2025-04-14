@@ -31,9 +31,9 @@ export type FunnelEvent =
   | { name: FunnelEventName.FunnelStepView }
   | {
       name: FunnelEventName.TransitionFunnel;
+      target_type: FunnelStepTransitionType;
+      target_id: FunnelStep['id'];
       details: {
-        target_type: FunnelStepTransitionType;
-        target_id: FunnelStep['id'];
         duration: number;
       };
     }
@@ -44,24 +44,15 @@ export type FunnelEvent =
       };
     }
   | {
-      name: FunnelEventName.HoverFunnelElement;
-      details: {
-        target_type: keyof HTMLElementTagNameMap;
-        target_id?: string;
-      };
-    }
-  | {
-      name: FunnelEventName.ClickFunnelElement;
-      details: {
-        target_type: keyof HTMLElementTagNameMap;
-        target_id?: string;
-      };
+      name:
+        | FunnelEventName.HoverFunnelElement
+        | FunnelEventName.ClickFunnelElement;
+      target_type: keyof HTMLElementTagNameMap;
+      target_id?: string;
     }
   | {
       name: FunnelEventName.CookieConsentView;
-      details: {
-        target_id: 'gdpr' | 'non-gdpr';
-      };
+      target_id: 'gdpr' | 'non-gdpr';
     }
   | { name: FunnelEventName.AcceptCookieConsent }
   | { name: FunnelEventName.RejectCookieConsent };

@@ -32,9 +32,7 @@ export const useFunnelCookies = ({
     if (showBanner) {
       trackFunnelEvent({
         name: FunnelEventName.CookieConsentView,
-        details: {
-          target_id: isGdprCovered ? 'gdpr' : 'non-gdpr',
-        },
+        target_id: isGdprCovered ? 'gdpr' : 'non-gdpr',
       });
     }
   }, [isGdprCovered, showBanner, trackFunnelEvent]);

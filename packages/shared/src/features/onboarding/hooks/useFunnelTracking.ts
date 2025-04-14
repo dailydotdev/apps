@@ -14,6 +14,7 @@ import {
   funnelPositionAtom,
 } from '../store/funnelStore';
 import type { FunnelSession } from '../types/funnelBoot';
+import type { LogEvent } from '../../../hooks/log/useLogQueue';
 
 type TrackOnMouseCapture = MouseEventHandler<HTMLElement>;
 type TrackOnScroll = () => void;
@@ -65,11 +66,9 @@ const trackOnMouseCapture = ({
 
     trackFunnelEvent?.({
       name: eventName,
-      details: {
-        target_type:
-          trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
-        target_id: trackedElement.dataset.funnelTrack,
-      },
+      target_type:
+        trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
+      target_id: trackedElement.dataset.funnelTrack,
     });
   };
 };
@@ -100,8 +99,16 @@ export const useFunnelTracking = ({
         step_type: step?.type,
       };
 
+      const props: Partial<LogEvent> = {};
+      if ('target_id' in event) {
+        props.target_id = event.target_id;
+      }
+      if ('target_type' in event) {
+        props.target_type = event.target_type;
+      }
       logEvent({
         event_name: event.name,
+        ...props,
         extra: JSON.stringify({
           ...commonTrackingProps,
           ...('details' in event ? event.details : {}),
@@ -158,9 +165,9 @@ export const useFunnelTracking = ({
   const trackOnNavigate: TrackOnNavigate = useCallback((event) => {
     trackFunnelEventRef.current?.({
       name: FunnelEventName.TransitionFunnel,
+      target_type: event.type,
+      target_id: event.to,
       details: {
-        target_type: event.type,
-        target_id: event.to,
         duration: event.timeDuration,
       },
     });
