@@ -127,7 +127,7 @@ export const useTranslation: UseTranslation = ({
   const { isPlus } = usePlusSubscription();
 
   const { language } = user || {};
-  const isStreamActive = isLoggedIn && !!language;
+  const isStreamActive = isLoggedIn && isPlus && !!language;
 
   const updateFeed = useCallback(
     (translatedPost: TranslateEvent) => {
@@ -179,9 +179,6 @@ export const useTranslation: UseTranslation = ({
         return [];
       }
       if (posts.length === 0) {
-        return [];
-      }
-      if (!isPlus) {
         return [];
       }
 
@@ -282,7 +279,6 @@ export const useTranslation: UseTranslation = ({
       updateFeed,
       updatePost,
       clickbaitShieldEnabled,
-      isPlus,
     ],
   );
 
