@@ -64,7 +64,7 @@ export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
-export const plusSuccessUrl = `${webappUrl}plus/success`;
+export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
 
 export const authUrl =
