@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
   InviteIcon,
   UserIcon,
@@ -14,34 +14,34 @@ import {
   EditIcon,
   DevPlusIcon,
   PrivacyIcon,
-} from './icons';
+} from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
-} from './tooltips/InteractivePopup';
-import type { AllowedTags, ButtonProps } from './buttons/Button';
-import { Button } from './buttons/Button';
-import { reputation, webappUrl } from '../lib/constants';
-import { UserMetadata } from './profile/UserMetadata';
-import { anchorDefaultRel } from '../lib/strings';
-import { LogoutReason } from '../lib/user';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { checkIsExtension, isIOSNative } from '../lib/func';
-import { useDndContext } from '../contexts/DndContext';
-import { LazyModal } from './modals/common/types';
-import { usePlusSubscription } from '../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../lib/log';
-import { featurePlusCtaCopy } from '../lib/featureManagement';
-import { GiftIcon } from './icons/gift';
-import { useConditionalFeature } from '../hooks';
-import { SubscriptionProvider } from '../lib/plus';
-import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
+} from '../tooltips/InteractivePopup';
+import type { AllowedTags, ButtonProps } from '../buttons/Button';
+import { Button } from '../buttons/Button';
+import { reputation, webappUrl } from '../../lib/constants';
+import { UserMetadata } from '../profile/UserMetadata';
+import { anchorDefaultRel } from '../../lib/strings';
+import { LogoutReason } from '../../lib/user';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { checkIsExtension, isIOSNative } from '../../lib/func';
+import { useDndContext } from '../../contexts/DndContext';
+import { LazyModal } from '../modals/common/types';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../../lib/log';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import { GiftIcon } from '../icons/gift';
+import { useConditionalFeature } from '../../hooks';
+import { SubscriptionProvider } from '../../lib/plus';
+import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from './typography/Typography';
-import { PlusUser } from './PlusUser';
-import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
+} from '../typography/Typography';
+import { PlusUser } from '../PlusUser';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 interface ListItem {
   title: string;

@@ -18,7 +18,8 @@ import { formatCurrency } from '../../lib/utils';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
+  () =>
+    import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu/ProfileMenu'),
 );
 
 interface ProfileButtonProps {
