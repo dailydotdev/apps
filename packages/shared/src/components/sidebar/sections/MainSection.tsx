@@ -87,7 +87,7 @@ export const MainSection = ({
         requiresLogin: true,
       },
       {
-        icon: () => <ListIcon Icon={() => <SettingsIcon />} />,
+        icon: () => <ListIcon Icon={SettingsIcon} />,
         title: 'Settings',
         path: `${webappUrl}account/profile`,
         isForcedLink: true,
