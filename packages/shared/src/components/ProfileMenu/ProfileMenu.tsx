@@ -21,7 +21,6 @@ import InteractivePopup, {
 import type { AllowedTags, ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize } from '../buttons/Button';
 import { reputation, webappUrl } from '../../lib/constants';
-import { UserMetadata } from '../profile/UserMetadata';
 import { anchorDefaultRel } from '../../lib/strings';
 import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -234,14 +233,6 @@ export default function ProfileMenu({
         className="flex-initial"
       />
 
-      <UserMetadata
-        username={user.username}
-        name={user.name}
-        createdAt={user.createdAt}
-        reputation={user.reputation}
-        isPlus={isPlus}
-        className="gap-2 p-4"
-      />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
         {items.map(({ title, buttonProps, rightEmoji }) => (
           <Button
