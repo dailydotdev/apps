@@ -160,10 +160,11 @@ export const useFunnelNavigation = ({
     [isFirstStep, step?.transitions],
   );
 
+  const stepInURL = searchParams.get('stepId');
   useEffect(
     () => {
       // Check if the URL has a stepId parameter or if there is a session
-      const stepId = searchParams.get('stepId') ?? session.currentStep;
+      const stepId = stepInURL ?? session.currentStep;
 
       if (!stepId) {
         return;
@@ -174,7 +175,7 @@ export const useFunnelNavigation = ({
     },
     // only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [funnel.id],
+    [funnel.id, stepInURL],
   );
 
   return {
