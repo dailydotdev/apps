@@ -1,7 +1,13 @@
 'use client';
 
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
@@ -151,16 +157,13 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
-  const isFunnelPage = useMemo(
-    () => !!router?.pathname?.startsWith(webFunnelPrefix),
-    [router?.pathname],
-  );
+  const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
 
   if (
     firstLoad === true &&
     endUser &&
     !endUser?.infoConfirmed &&
-    !isFunnelPage
+    !isFunnelRef.current
   ) {
     logout(LogoutReason.IncomleteOnboarding);
   }
