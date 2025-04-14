@@ -24,23 +24,18 @@ export const useFunnelCookies = ({
   const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
-  const needCookies = isGdprCovered && !cookieExists;
-  const showBanner = isAuthReady ? needCookies : defaultOpen;
+  const showBanner = isAuthReady ? !cookieExists : defaultOpen;
 
-  useEffect(
-    () => {
-      if (showBanner) {
-        trackFunnelEvent({
-          name: FunnelEventName.CookieConsentView,
-          details: {
-            target_id: isGdprCovered ? 'gdpr' : 'non-gdpr',
-          },
-        });
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showBanner],
-  );
+  useEffect(() => {
+    if (showBanner) {
+      trackFunnelEvent({
+        name: FunnelEventName.CookieConsentView,
+        details: {
+          target_id: isGdprCovered ? 'gdpr' : 'non-gdpr',
+        },
+      });
+    }
+  }, [isGdprCovered, showBanner, trackFunnelEvent]);
 
   return {
     showBanner,
