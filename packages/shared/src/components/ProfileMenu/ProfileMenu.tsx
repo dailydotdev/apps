@@ -42,6 +42,7 @@ import {
 } from '../typography/Typography';
 import { PlusUser } from '../PlusUser';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileMenuFooter } from './ProfileMenuFooter';
 
 interface ListItem {
   title: string;
@@ -285,6 +286,8 @@ export default function ProfileMenu({
           </Button>
         ))}
       </div>
+
+      <ProfileMenuFooter />
     </InteractivePopup>
   );
 }
