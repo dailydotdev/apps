@@ -79,7 +79,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, trackingId } = useAuthContext();
+  const { user, trackingId, isFunnel } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -92,6 +92,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
+      !isFunnel &&
       isOnboardingActionsReady &&
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
@@ -99,6 +100,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       router.replace('/onboarding');
     }
   }, [
+    isFunnel,
     isOnboardingActionsReady,
     router,
     hasCompletedEditTags,
@@ -160,8 +162,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { themeColor } = useThemedAsset();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
-
-  const isFunnel = router.pathname.startsWith('/helloworld');
 
   return (
     <>
