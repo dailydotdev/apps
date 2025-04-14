@@ -32,9 +32,10 @@ import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 import type { FunnelSession } from '../types/funnelBoot';
+import { FunnelEventName } from '../types/funnelEvents';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
-import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import classed from '../../../lib/classed';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -83,6 +84,8 @@ function getTransitionDestination(
     return transition.on === transitionType;
   })?.destination;
 }
+
+const HiddenStep = classed('div', 'hidden');
 
 export const FunnelStepper = ({
   funnel,
@@ -161,14 +164,25 @@ export const FunnelStepper = ({
         />
         {funnel.chapters.map((chapter: FunnelChapter) => (
           <Fragment key={chapter?.id}>
-            {chapter?.steps?.map((funnelStep: FunnelStep) => (
-              <FunnelStepComponent
-                {...funnelStep}
-                isActive={funnelStep?.id === step?.id}
-                key={`${chapter?.id}-${funnelStep?.id}`}
-                onTransition={onTransition}
-              />
-            ))}
+            {chapter?.steps?.map((funnelStep: FunnelStep) => {
+              const isActive = funnelStep?.id === step?.id;
+              const Wrapper = isActive ? Fragment : HiddenStep;
+              return (
+                <Wrapper
+                  key={`${chapter?.id}-${funnelStep?.id}`}
+                  {...(!isActive && {
+                    'data-testid': `funnel-step`,
+                  })}
+                >
+                  <FunnelStepComponent
+                    {...funnelStep}
+                    isActive={isActive}
+                    key={step.id}
+                    onTransition={onTransition}
+                  />
+                </Wrapper>
+              );
+            })}
           </Fragment>
         ))}
       </FunnelStepBackground>
