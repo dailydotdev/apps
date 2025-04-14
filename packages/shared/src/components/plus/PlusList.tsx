@@ -143,7 +143,7 @@ export const plusFeatureList: Array<PlusItem> = [
   {
     id: 'auto-translate',
     label: 'Auto-translate your feed',
-    status: PlusItemStatus.ComingSoon,
+    status: PlusItemStatus.Ready,
     tooltip: `Translate post titles and summaries into your language for a smoother learning experience.`,
   },
   {

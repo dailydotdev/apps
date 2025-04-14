@@ -102,9 +102,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
 
   const fetchSmartTitle = useCallback(async () => {
     if (!fetchedSmartTitle) {
-      const smartTitlePost = {
-        ...(post.sharedPost ? post.sharedPost : post),
-        ...smartTitle,
+      const smartTitlePost: Post = post.sharedPost ? post.sharedPost : post;
+      smartTitlePost.translation = {
+        ...smartTitlePost?.translation,
+        ...smartTitle?.translation,
       };
 
       const [translateResult] = await fetchTranslations([smartTitlePost]);

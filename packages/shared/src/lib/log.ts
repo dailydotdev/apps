@@ -265,6 +265,7 @@ export enum LogEvent {
   UpdateProfile = 'update profile',
   UpdateProfileImage = 'update profile image',
   // End Profile
+  TranslatePost = 'translate post',
   // Start Credits
   StartBuyingCredits = 'start buying credits',
   SelectCreditsQuantity = 'select credits quantity',

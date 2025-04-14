@@ -192,6 +192,7 @@ export const POST_TRANSLATEABLE_FIELDS_FRAGMENT = gql`
     title
     titleHtml
     smartTitle
+    summary
   }
 `;
 
