@@ -149,6 +149,7 @@ export const FunnelStepper = ({
           }}
           showBackButton={back.hasTarget}
           showSkipButton={skip.hasTarget}
+          showProgressBar={skip.hasTarget}
         />
         {funnel.chapters.map((chapter: FunnelChapter) => (
           <Fragment key={chapter?.id}>
