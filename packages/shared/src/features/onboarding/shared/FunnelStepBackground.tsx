@@ -61,7 +61,7 @@ export const FunnelStepBackground = ({
     );
   }, [step]);
   return (
-    <div className="relative flex min-h-dvh flex-col bg-background-default">
+    <div className="relative flex flex-1 flex-col bg-background-default">
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>
       <div
         aria-hidden

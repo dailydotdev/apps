@@ -134,6 +134,7 @@ export const FunnelStepper = ({
       onClickCapture={trackOnClickCapture}
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
+      className="flex min-h-dvh flex-col"
     >
       {showBanner && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />

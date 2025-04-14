@@ -16,10 +16,7 @@ import {
 
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
-import {
-  useAuthContext,
-  checkIfGdprCovered,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -39,14 +36,17 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   // Extract forwarded headers
   const forwardedHeaders: Record<string, string> = {};
-  ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'].forEach(
-    (header) => {
-      const value = req.headers[header] as string;
-      if (value) {
-        forwardedHeaders[header] = value;
-      }
-    },
-  );
+  [
+    'x-forwarded-for',
+    'x-forwarded-proto',
+    'x-forwarded-host',
+    'user-agent',
+  ].forEach((header) => {
+    const value = req.headers[header] as string;
+    if (value) {
+      forwardedHeaders[header] = value;
+    }
+  });
   if (!forwardedHeaders['x-forwarded-for']) {
     forwardedHeaders['x-forwarded-for'] = req.socket.remoteAddress;
   }
@@ -74,14 +74,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   });
 
   // Check if the user already accepted cookies
-  const isGdprCovered = checkIfGdprCovered(boot?.data?.geo);
   const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
 
   // Return props including the dehydrated state
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      showCookieBanner: isGdprCovered && !hasAcceptedCookies,
+      showCookieBanner: !hasAcceptedCookies,
     },
   };
 };
