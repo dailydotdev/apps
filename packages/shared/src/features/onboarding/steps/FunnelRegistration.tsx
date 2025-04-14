@@ -135,9 +135,9 @@ function InnerFunnelRegistration({
   const sanitizedHeading = useMemo(() => sanitizeMessage(headline), [headline]);
 
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+    <div className="relative flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <div className="absolute bottom-0 h-3/5 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
+        <div className="absolute bottom-0 h-2/3 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
         <img
           className="pointer-events-none -z-1 w-full"
           alt="background"
