@@ -368,8 +368,7 @@ function AuthOptionsInner({
     await syncSettings();
 
     if (isFunnel) {
-      // redirect back to checkout
-      router.push(`${webFunnelPrefix}?stepId=${FunnelStepType.Checkout}`);
+      await router.push(`${webFunnelPrefix}?stepId=${FunnelStepType.Checkout}`);
     }
   };
 
