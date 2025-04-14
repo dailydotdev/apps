@@ -15,7 +15,7 @@ import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
-import { invalidPlusRegions } from '../lib/constants';
+import { invalidPlusRegions, webFunnelPrefix } from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -66,6 +66,7 @@ export interface AuthContextData {
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
 }
+
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
@@ -142,7 +143,17 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
-  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
+  const isFunnelPage = useMemo(
+    () => !!router?.pathname?.startsWith(webFunnelPrefix),
+    [router?.pathname],
+  );
+
+  if (
+    firstLoad === true &&
+    endUser &&
+    !endUser?.infoConfirmed &&
+    !isFunnelPage
+  ) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
