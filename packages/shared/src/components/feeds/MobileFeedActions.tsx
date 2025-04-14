@@ -35,7 +35,7 @@ export function MobileFeedActions(): ReactElement {
           />
         )}
         <Divider className="bg-border-subtlest-tertiary" vertical />
-        <Link href={`${webappUrl}/account/profile`} passHref>
+        <Link href={`${webappUrl}account/profile`} passHref>
           <Button
             tag="a"
             icon={<SettingsIcon />}
