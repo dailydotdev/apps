@@ -32,10 +32,10 @@ import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 import type { FunnelSession } from '../types/funnelBoot';
-import { FunnelEventName } from '../types/funnelEvents';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
