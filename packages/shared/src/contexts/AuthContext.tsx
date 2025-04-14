@@ -101,6 +101,14 @@ export const logout = async (reason: string): Promise<void> => {
   }
 };
 
+export function checkIfGdprCovered(geo?: Boot['geo']): boolean {
+  return (
+    geo?.continent === Continent.Europe ||
+    !outsideGdpr.includes(geo?.region) ||
+    isIOSNative()
+  );
+}
+
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
@@ -209,10 +217,7 @@ export const AuthContextProvider = ({
         geo,
         isAndroidApp,
         isValidRegion,
-        isGdprCovered:
-          geo?.continent === Continent.Europe ||
-          !outsideGdpr.includes(geo?.region) ||
-          isIOSNative(),
+        isGdprCovered: checkIfGdprCovered(geo),
       }}
     >
       {children}

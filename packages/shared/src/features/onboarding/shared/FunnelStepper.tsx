@@ -39,6 +39,7 @@ import classed from '../../../lib/classed';
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
   session: FunnelSession;
+  showCookieBanner?: boolean;
   onComplete?: () => void;
 }
 
@@ -78,6 +79,7 @@ const HiddenStep = classed('div', 'hidden');
 export const FunnelStepper = ({
   funnel,
   session,
+  showCookieBanner,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
   const {
@@ -92,6 +94,7 @@ export const FunnelStepper = ({
     useFunnelNavigation({ funnel, onNavigation: trackOnNavigate, session });
   const { transition: sendTransition } = useStepTransition(session.id);
   const { showBanner, ...cookieConsentProps } = useFunnelCookies({
+    defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
 

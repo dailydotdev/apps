@@ -17,15 +17,20 @@ import type { FunnelBootData } from '@dailydotdev/shared/src/features/onboarding
 
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  useAuthContext,
+  checkIfGdprCovered,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { Provider as JotaiProvider } from 'jotai/react';
+import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 
 type PageProps = {
   boot: FunnelBootData;
   id?: string;
   version?: string;
   dehydratedState: DehydratedState;
+  showCookieBanner?: boolean;
 };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
@@ -57,6 +62,10 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     queryFn: () => boot.data,
   });
 
+  // Check if the user already accepted cookies
+  const isGdprCovered = checkIfGdprCovered(boot?.data?.geo);
+  const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
+
   // Return props including the dehydrated state
   return {
     props: {
@@ -64,12 +73,14 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
       id: (id as string) || null,
       version: (version as string) || null,
       dehydratedState: dehydrate(queryClient),
+      showCookieBanner: isGdprCovered && !hasAcceptedCookies,
     },
   };
 };
 
 export default function HelloWorldPage({
   dehydratedState,
+  showCookieBanner,
 }: PageProps): ReactElement {
   const { data: funnelBoot } = useFunnelBoot();
   const { funnel, session } = funnelBoot?.funnelState ?? {};
@@ -97,6 +108,7 @@ export default function HelloWorldPage({
           <FunnelStepper
             funnel={funnel}
             session={session}
+            showCookieBanner={showCookieBanner}
             onComplete={() => router.replace('/onboarding')}
           />
         )}
