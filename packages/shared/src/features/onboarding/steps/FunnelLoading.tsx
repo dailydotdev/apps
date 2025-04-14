@@ -140,7 +140,7 @@ const FunnelLoading = ({
   };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
+    <div className="flex flex-1 flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
       <div className="relative">
         <svg
           className="size-48"

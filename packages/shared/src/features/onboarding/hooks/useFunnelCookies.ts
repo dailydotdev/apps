@@ -18,12 +18,15 @@ interface UseFunnelCookiesReturn {
 }
 
 export const useFunnelCookies = ({
-  defaultOpen: showBanner = false,
+  defaultOpen = false,
   trackFunnelEvent,
 }: UseFunnelCookiesProps): UseFunnelCookiesReturn => {
   const { data: boot } = useFunnelBoot();
-  const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
+  const { cookieExists, saveCookies } = useConsentCookie(
+    GdprConsentKey.Marketing,
+  );
   const isGdprCovered = checkIfGdprCovered(boot?.geo);
+  const showBanner = defaultOpen && !cookieExists;
 
   useEffect(() => {
     if (showBanner) {
