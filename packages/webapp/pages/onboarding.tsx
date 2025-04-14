@@ -344,7 +344,13 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus && !isIOSNative() && isValidRegion) {
+
+    if (
+      isLastStepBeforePlus &&
+      !isIOSNative() &&
+      isValidRegion &&
+      !user?.isPlus
+    ) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 

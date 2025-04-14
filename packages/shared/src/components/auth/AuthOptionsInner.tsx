@@ -28,7 +28,11 @@ import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import { broadcastChannel, isTesting } from '../../lib/constants';
+import {
+  broadcastChannel,
+  isTesting,
+  webFunnelPrefix,
+} from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
@@ -206,6 +210,7 @@ function AuthOptionsInner({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
+    keepSession: router.pathname.startsWith(webFunnelPrefix),
   });
 
   const {
