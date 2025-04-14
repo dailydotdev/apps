@@ -26,7 +26,6 @@ export const useFunnelCookies = ({
   );
   const needCookies = isGdprCovered && !cookieExists;
   const showBanner = isAuthReady ? needCookies : defaultOpen;
-  console.log({ defaultOpen, showBanner, needCookies });
 
   useEffect(
     () => {
