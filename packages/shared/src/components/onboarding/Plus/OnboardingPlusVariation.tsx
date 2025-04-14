@@ -172,7 +172,7 @@ export const OnboardingPlusVariation = ({
             <VariationCardOption
               onClickNext={onClickNext}
               button={{
-                copy: 'Continue with Free',
+                copy: 'Join for free',
                 variant: ButtonVariant.Subtle,
               }}
               title="Free"
@@ -198,9 +198,9 @@ export const OnboardingPlusVariation = ({
               <VariationCardOption
                 onClickNext={onClickNext}
                 button={{
-                  copy: 'Continue with Plus',
+                  copy: 'Get started',
                   variant: ButtonVariant.Primary,
-                  title: 'Continue with Plus',
+                  title: 'Get started',
                   onClick: onClickPlus,
                 }}
                 title="Plus"
@@ -260,11 +260,11 @@ export const OnboardingPlusVariation = ({
 
       <Button
         variant={ButtonVariant.Primary}
-        title="Continue with Plus"
+        title="Get started"
         className="mx-auto"
         onClick={onClickPlus}
       >
-        Continue with Plus
+        Get started
       </Button>
     </section>
   );
