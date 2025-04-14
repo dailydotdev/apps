@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { ButtonProps } from '../../../components/buttons/Button';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { isIOS } from '../../../lib/func';
 import { providerMap, SocialProvider } from '../../../components/auth/common';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -55,9 +59,10 @@ export function SocialRegistration({
 
   const props: ButtonProps<'button'> = {
     className: 'w-full',
-    variant: ButtonVariant.Primary,
-    loading: isLoading,
     disabled: isDisabled,
+    loading: isLoading,
+    size: ButtonSize.XLarge,
+    variant: ButtonVariant.Primary,
   };
 
   return (
