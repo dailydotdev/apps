@@ -160,7 +160,10 @@ export const FunnelStepper = ({
               const isActive = funnelStep?.id === step?.id;
               const Wrapper = isActive ? Fragment : HiddenStep;
               return (
-                <Wrapper key={`${chapter?.id}-${funnelStep?.id}`}>
+                <Wrapper
+                  key={`${chapter?.id}-${funnelStep?.id}`}
+                  data-testid={isActive ? undefined : `funnel-step`}
+                >
                   <FunnelStepComponent
                     {...funnelStep}
                     isActive={isActive}
