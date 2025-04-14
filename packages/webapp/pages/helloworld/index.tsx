@@ -79,7 +79,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Return props including the dehydrated state
   return {
     props: {
-      forwardedHeaders,
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
     },
