@@ -28,11 +28,7 @@ import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
-import {
-  broadcastChannel,
-  isTesting,
-  webFunnelPrefix,
-} from '../../lib/constants';
+import { broadcastChannel, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
@@ -132,7 +128,7 @@ function AuthOptionsInner({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user } = useAuthContext();
+  const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
   const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
   const isReorderExperiment = useFeature(featureOnboardingReorder);
@@ -210,7 +206,7 @@ function AuthOptionsInner({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
-    keepSession: router.pathname.startsWith(webFunnelPrefix),
+    keepSession: isFunnel,
   });
 
   const {

@@ -120,6 +120,7 @@ function InnerFunnelRegistration({
         windowPopup.current.location.href = redirect;
       }
     },
+    keepSession: true,
   });
 
   const onRegister = (provider: SocialProvider) => {

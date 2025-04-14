@@ -73,6 +73,7 @@ export interface AuthContextData {
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
+  isFunnel?: boolean;
 }
 
 const isExtension = checkIsExtension();
@@ -176,6 +177,7 @@ export const AuthContextProvider = ({
   return (
     <AuthContext.Provider
       value={{
+        isFunnel: isFunnelRef.current,
         isAuthReady: !isNullOrUndefined(firstLoad),
         user: endUser,
         isLoggedIn: !!endUser?.id,
