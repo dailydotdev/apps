@@ -39,14 +39,17 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   // Extract forwarded headers
   const forwardedHeaders: Record<string, string> = {};
-  ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'].forEach(
-    (header) => {
-      const value = req.headers[header] as string;
-      if (value) {
-        forwardedHeaders[header] = value;
-      }
-    },
-  );
+  [
+    'x-forwarded-for',
+    'x-forwarded-proto',
+    'x-forwarded-host',
+    'user-agent',
+  ].forEach((header) => {
+    const value = req.headers[header] as string;
+    if (value) {
+      forwardedHeaders[header] = value;
+    }
+  });
   if (!forwardedHeaders['x-forwarded-for']) {
     forwardedHeaders['x-forwarded-for'] = req.socket.remoteAddress;
   }
@@ -80,6 +83,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Return props including the dehydrated state
   return {
     props: {
+      forwardedHeaders,
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: isGdprCovered && !hasAcceptedCookies,
     },
