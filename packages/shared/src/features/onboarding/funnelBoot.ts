@@ -6,11 +6,13 @@ export async function getFunnelBootData({
   cookies,
   id,
   version,
+  forwardedHeaders,
 }: {
   app: string;
   cookies: string;
   id?: string;
   version?: string;
+  forwardedHeaders?: Record<string, string>;
 }): Promise<FunnelBootResponse> {
   const params = new URLSearchParams();
   if (id) {
@@ -30,6 +32,7 @@ export async function getFunnelBootData({
       app,
       'Content-Type': 'application/json',
       ...(cookies && { Cookie: cookies }),
+      ...forwardedHeaders,
     },
   });
 
