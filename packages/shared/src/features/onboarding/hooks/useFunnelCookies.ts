@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import type { AcceptCookiesCallback } from '../../../hooks/useCookieConsent';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import type { FunnelEvent } from '../types/funnelEvents';
@@ -23,10 +23,7 @@ export const useFunnelCookies = ({
 }: UseFunnelCookiesProps): UseFunnelCookiesReturn => {
   const { data: boot } = useFunnelBoot();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
-  const isGdprCovered = useMemo(
-    () => checkIfGdprCovered(boot?.geo),
-    [boot?.geo],
-  );
+  const isGdprCovered = checkIfGdprCovered(boot?.geo);
 
   useEffect(() => {
     if (showBanner) {
