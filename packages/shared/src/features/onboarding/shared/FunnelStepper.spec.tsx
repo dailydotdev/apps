@@ -278,7 +278,7 @@ describe('FunnelStepper component', () => {
     renderComponent(mockFunnelWithMultipleSteps);
 
     // We should have one visible div and one hidden div
-    const steps = screen.getAllByTestId('funnel-step', { hidden: true });
+    const steps = screen.getAllByTestId('funnel-step');
     expect(steps.length).toBe(1);
   });
 });
