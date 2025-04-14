@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyType,
@@ -30,6 +31,8 @@ import type { LoggedUser } from '../../../lib/user';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { sanitizeMessage, shouldRedirectAuth } from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
+import { useConsentCookie } from '../../../hooks/useCookieConsent';
+import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -105,6 +108,7 @@ function InnerFunnelRegistration({
   const isTablet = useViewSize(ViewSize.Tablet);
   const shouldRedirect = shouldRedirectAuth();
   const windowPopup = useRef<Window>(null);
+  const { cookieExists } = useConsentCookie(GdprConsentKey.Marketing);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
     enabled: router?.isReady,
@@ -137,7 +141,12 @@ function InnerFunnelRegistration({
   return (
     <div className="relative flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <div className="absolute bottom-0 h-2/3 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%" />
+        <div
+          className={classNames(
+            'absolute bottom-0 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%',
+            !cookieExists ? 'h-2/3' : 'h-3/5',
+          )}
+        />
         <img
           className="pointer-events-none -z-1 w-full"
           alt="background"
