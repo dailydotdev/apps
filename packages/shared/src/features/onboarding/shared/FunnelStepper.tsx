@@ -162,7 +162,9 @@ export const FunnelStepper = ({
               return (
                 <Wrapper
                   key={`${chapter?.id}-${funnelStep?.id}`}
-                  data-testid={isActive ? undefined : `funnel-step`}
+                  {...(!isActive && {
+                    'data-testid': `funnel-step`,
+                  })}
                 >
                   <FunnelStepComponent
                     {...funnelStep}
