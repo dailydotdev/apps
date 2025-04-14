@@ -19,10 +19,9 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from './tooltips/InteractivePopup';
 import type { AllowedTags, ButtonProps } from './buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { Button } from './buttons/Button';
 import { reputation, webappUrl } from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
-import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -36,6 +35,13 @@ import { GiftIcon } from './icons/gift';
 import { useConditionalFeature } from '../hooks';
 import { SubscriptionProvider } from '../lib/plus';
 import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from './typography/Typography';
+import { PlusUser } from './PlusUser';
+import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
 
 interface ListItem {
   title: string;
@@ -221,23 +227,40 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="w-full max-w-64 !rounded-24 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest"
-      closeButton={{
-        variant: ButtonVariant.Primary,
-        size: ButtonSize.XSmall,
-        position: 'right-3 top-3',
-      }}
+      className="flex w-full max-w-64 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
-      <HeroImage
-        cover={user.cover}
-        image={user.image}
-        username={user.username}
-        id={user.id}
-        className={{
-          cover: '!rounded-24 border-4 border-background-default',
-          profile: '!rounded-24',
-        }}
-      />
+      <div className="flex gap-2">
+        <ProfilePicture
+          user={user}
+          nativeLazyLoading
+          eager
+          size={ProfileImageSize.Large}
+          className="!rounded-10 border-background-default"
+        />
+
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <div className="flex items-center gap-1">
+            <Typography
+              type={TypographyType.Subhead}
+              color={TypographyColor.Primary}
+              bold
+              truncate
+              className="min-w-0"
+            >
+              {user.name}
+              {user.name}
+            </Typography>
+            {isPlus && <PlusUser withText={false} />}
+          </div>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            truncate
+          >
+            @{user.username}
+          </Typography>
+        </div>
+      </div>
       <UserMetadata
         username={user.username}
         name={user.name}
