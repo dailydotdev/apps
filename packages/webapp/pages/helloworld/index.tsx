@@ -63,7 +63,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   });
 
   // Check if the user already accepted cookies
-  const isGdprCovered = checkIfGdprCovered(boot.data.geo);
+  const isGdprCovered = checkIfGdprCovered(boot?.data?.geo);
   const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
 
   // Return props including the dehydrated state

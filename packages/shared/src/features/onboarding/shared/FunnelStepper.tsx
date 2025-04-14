@@ -135,10 +135,10 @@ export const FunnelStepper = ({
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
     >
+      {showBanner && (
+        <CookieConsent key="cookie-consent" {...cookieConsentProps} />
+      )}
       <FunnelStepBackground step={step}>
-        {showBanner && (
-          <CookieConsent key="cookie-consent" {...cookieConsentProps} />
-        )}
         <Header
           chapters={chapters}
           className={classNames({
