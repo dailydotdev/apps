@@ -38,6 +38,7 @@ import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
 import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
+import { HorizontalSeparator } from '../utilities';
 
 interface ListItem {
   title: string;
@@ -232,6 +233,8 @@ export default function ProfileMenu({
         size={ButtonSize.Small}
         className="flex-initial"
       />
+
+      <HorizontalSeparator />
 
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
         {items.map(({ title, buttonProps, rightEmoji }) => (
