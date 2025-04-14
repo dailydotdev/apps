@@ -35,15 +35,10 @@ import { GiftIcon } from '../icons/gift';
 import { useConditionalFeature } from '../../hooks';
 import { SubscriptionProvider } from '../../lib/plus';
 import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
-import { PlusUser } from '../PlusUser';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+
 import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
+import { ProfileMenuHeader } from './ProfileMenuHeader';
 
 interface ListItem {
   title: string;
@@ -231,38 +226,7 @@ export default function ProfileMenu({
       position={InteractivePopupPosition.ProfileMenu}
       className="flex w-full max-w-64 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
-      <div className="flex gap-2">
-        <ProfilePicture
-          user={user}
-          nativeLazyLoading
-          eager
-          size={ProfileImageSize.Large}
-          className="!rounded-10 border-background-default"
-        />
-
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <Typography
-              type={TypographyType.Subhead}
-              color={TypographyColor.Primary}
-              bold
-              truncate
-              className="min-w-0"
-            >
-              {user.name}
-              {user.name}
-            </Typography>
-            {isPlus && <PlusUser withText={false} />}
-          </div>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            truncate
-          >
-            @{user.username}
-          </Typography>
-        </div>
-      </div>
+      <ProfileMenuHeader />
 
       <UpgradeToPlus
         target={TargetId.ProfileDropdown}
