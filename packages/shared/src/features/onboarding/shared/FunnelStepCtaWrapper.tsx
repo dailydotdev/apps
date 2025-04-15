@@ -18,6 +18,7 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
 
 export function FunnelStepCtaWrapper({
   children,
+  className,
   cta,
   containerClassName,
   ...props
@@ -27,7 +28,7 @@ export function FunnelStepCtaWrapper({
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
       <div className="sticky bottom-2 m-4">
         <Button
-          className="w-full"
+          className={classNames(className, 'w-full')}
           data-funnel-track={FunnelTargetId.StepCta}
           size={ButtonSize.XLarge}
           type="button"
