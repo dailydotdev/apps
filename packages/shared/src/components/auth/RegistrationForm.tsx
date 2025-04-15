@@ -109,6 +109,7 @@ const RegistrationForm = ({
       });
       if (hints?.csrf_token) {
         setTurnstileError(true);
+        ref?.current?.reset();
       }
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
