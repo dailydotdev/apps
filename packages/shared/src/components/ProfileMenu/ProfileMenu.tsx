@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ExitIcon } from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { ButtonSize } from '../buttons/Button';
+import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
 
@@ -15,11 +17,16 @@ import { ProfileMenuHeader } from './ProfileMenuHeader';
 import { HorizontalSeparator } from '../utilities';
 
 import { ProfileSection } from './ProfileSection';
-import { ExtensionSection } from './sections/ExtensionSection';
 import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
+
+const ExtensionSection = dynamic(() =>
+  import(
+    /* webpackChunkName: "extensionSection" */ './sections/ExtensionSection'
+  ).then((mod) => mod.ExtensionSection),
+);
 
 interface ProfileMenuProps {
   onClose: () => void;
@@ -62,7 +69,7 @@ export default function ProfileMenu({
 
         <AccountSection />
 
-        <ExtensionSection />
+        {checkIsExtension() && <ExtensionSection />}
 
         <HorizontalSeparator />
 

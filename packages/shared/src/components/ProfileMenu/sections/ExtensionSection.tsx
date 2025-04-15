@@ -3,7 +3,6 @@ import type { ReactElement } from 'react';
 
 import { HorizontalSeparator } from '../../utilities';
 import { ProfileSection } from '../ProfileSection';
-import { checkIsExtension } from '../../../lib/func';
 import { useDndContext } from '../../../contexts/DndContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { PauseIcon, PlayIcon, StoryIcon } from '../../icons';
@@ -11,10 +10,6 @@ import { PauseIcon, PlayIcon, StoryIcon } from '../../icons';
 export const ExtensionSection = (): ReactElement => {
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
-
-  if (!checkIsExtension()) {
-    return null;
-  }
 
   return (
     <>
