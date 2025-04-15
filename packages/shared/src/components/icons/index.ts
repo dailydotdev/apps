@@ -143,3 +143,4 @@ export * from './Story';
 export * from './Shortcuts';
 export * from './Phone';
 export * from './Sun';
+export * from './ThemeAuto';
