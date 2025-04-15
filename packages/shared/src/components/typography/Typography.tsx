@@ -1,5 +1,5 @@
 import type { ReactElement, RefAttributes } from 'react';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { truncateTextClassNames } from '../utilities/common';
@@ -61,7 +61,6 @@ export type TypographyProps<Tag extends AllowedTags> = {
   type?: TypographyType;
   color?: TypographyColor;
   bold?: boolean;
-  ref?: RefAttributes<AllowedElements>['ref'];
   truncate?: boolean;
 } & JSX.IntrinsicElements[Tag];
 
@@ -69,16 +68,19 @@ const tagToColor = {
   [TypographyTag.Link]: TypographyColor.Link,
 };
 
-export function Typography<TagName extends AllowedTags>({
-  tag = TypographyTag.P,
-  type,
-  color,
-  bold = false,
-  children,
-  className,
-  truncate = false,
-  ...props
-}: TypographyProps<TagName>): ReactElement {
+function BaseTypography<TagName extends AllowedTags>(
+  {
+    tag = TypographyTag.P,
+    type,
+    color,
+    bold = false,
+    children,
+    className,
+    truncate = false,
+    ...props
+  }: TypographyProps<TagName>,
+  ref?: RefAttributes<AllowedElements>['ref'],
+): ReactElement {
   const classes = classNames(
     className,
     type,
@@ -88,5 +90,11 @@ export function Typography<TagName extends AllowedTags>({
   );
   const Tag = classed(tag, classes);
 
-  return <Tag {...props}>{children}</Tag>;
+  return (
+    <Tag {...props} ref={ref}>
+      {children}
+    </Tag>
+  );
 }
+
+export const Typography = forwardRef(BaseTypography) as typeof BaseTypography;
