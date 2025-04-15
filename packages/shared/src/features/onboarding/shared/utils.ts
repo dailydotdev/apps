@@ -23,6 +23,7 @@ const brokenWebviewPatterns = [
   /FBAN|FBAV/i, // Facebook App
   /Messenger/i, // Facebook Messenger
   /LinkedIn/i, // LinkedIn
+  /Instagram/i, // Instagram
 ];
 
 export function shouldRedirectAuth(): boolean {
