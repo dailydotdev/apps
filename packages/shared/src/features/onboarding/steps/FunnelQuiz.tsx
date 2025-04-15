@@ -96,6 +96,9 @@ export function FunnelQuiz({
       wrapper={(component) => (
         <FunnelStepCtaWrapper
           containerClassName="flex flex-col"
+          className={classNames({
+            hidden: !stepValue?.length,
+          })}
           onClick={onCtaClick}
         >
           {component}
