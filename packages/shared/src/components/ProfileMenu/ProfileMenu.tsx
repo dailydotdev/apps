@@ -91,13 +91,11 @@ export default function ProfileMenu({
               title: 'Subscriptions',
               href: `${webappUrl}account/subscription`,
               icon: <CreditCardIcon />,
-              external: true,
             },
             {
               title: 'Invite friends',
               href: `${webappUrl}account/invite`,
               icon: <InviteIcon />,
-              external: true,
             },
           ]}
         />
