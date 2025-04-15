@@ -3,7 +3,8 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/router';
-import { FunnelRegistration } from './FunnelRegistration';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { FunnelRegistration as Component } from './FunnelRegistration';
 import useRegistration from '../../../hooks/useRegistration';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -41,6 +42,13 @@ jest.mock('../shared', () => ({
   sanitizeMessage: jest.fn().mockImplementation((message) => message),
   shouldRedirectAuth: jest.fn().mockReturnValue(false),
 }));
+
+const client = new QueryClient();
+const FunnelRegistration = (props: FunnelStepSignup) => (
+  <QueryClientProvider client={client}>
+    <Component {...props} />
+  </QueryClientProvider>
+);
 
 describe('FunnelRegistration', () => {
   const mockOnTransition = jest.fn();
