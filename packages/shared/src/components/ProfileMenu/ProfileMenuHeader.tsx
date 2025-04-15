@@ -35,7 +35,6 @@ export const ProfileMenuHeader = (): ReactElement => {
             className="min-w-0"
           >
             {user.name}
-            {user.name}
           </Typography>
           {isPlus && <PlusUser withText={false} />}
         </div>
