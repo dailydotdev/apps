@@ -51,8 +51,6 @@ const useRegistrationListeners = (
       return undefined;
     }
 
-    alert(`message received: ${e.data?.flow}`);
-
     if (e.data?.flow) {
       const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
 
