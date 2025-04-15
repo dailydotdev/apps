@@ -7,13 +7,13 @@ import {
   termsOfService,
 } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import Logo from '../Logo';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import LogoIcon from '../../svg/LogoIcon';
 
 const items = {
   terms: {
@@ -32,7 +32,7 @@ const items = {
 
 export const ProfileMenuFooter = (): ReactElement => {
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       {Object.entries(items).map(([key, { title, href }]) => (
         <Typography
           key={`profile-menu-footer-${key}`}
@@ -47,12 +47,10 @@ export const ProfileMenuFooter = (): ReactElement => {
         </Typography>
       ))}
 
-      <Logo
-        className="ml-auto"
-        logoClassName={{
-          container: 'size-5',
+      <LogoIcon
+        className={{
+          container: 'ml-auto size-5',
         }}
-        compact
       />
     </div>
   );
