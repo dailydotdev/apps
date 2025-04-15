@@ -4,58 +4,75 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as func from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import CallbackPage from '../callback';
 
-/**
- * Extend Jest matchers
- */
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace jest {
-    interface Matchers<R> {
-      toBeNull(): R;
-    }
-  }
-}
-
+// Mock functions
 const mockLogEvent = jest.fn();
 
-jest.mock('@dailydotdev/shared/src/contexts/LogContext', () => ({
-  __esModule: true,
-  default: {
-    Consumer: jest.fn(),
-    Provider: jest.fn(),
-  },
-  LogContextProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-// Create mock context
-const MockLogContext = React.createContext({ logEvent: mockLogEvent });
-
-// Mock the window location and opener
-const mockReplace = jest.fn();
-const mockClose = jest.fn();
+// Mock context value
+const mockContextValue = {
+  logEvent: mockLogEvent,
+  logEventStart: () => {},
+  logEventEnd: () => {},
+  sendBeacon: () => {},
+};
 
 describe('CallbackPage', () => {
+  // Mock window methods
+  const mockReplace = jest.fn();
+  const mockClose = jest.fn();
+  let originalWindow: typeof window;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Setup window mocks
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (window as any).location;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).location = { replace: mockReplace, search: '' };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).close = mockClose;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (window as any).opener;
+
+    // Store original window
+    originalWindow = { ...window };
+
+    // Mock window methods
+    Object.defineProperty(window, 'close', {
+      configurable: true,
+      value: mockClose,
+    });
+
+    // Mock window.location
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      enumerable: true,
+      value: { replace: mockReplace, search: '' },
+    });
+
+    // Reset window.opener
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: null,
+    });
+  });
+
+  afterEach(() => {
+    // Restore original window properties
+    Object.defineProperty(window, 'close', {
+      configurable: true,
+      value: originalWindow.close,
+    });
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      enumerable: true,
+      value: originalWindow.location,
+    });
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: originalWindow.opener,
+    });
   });
 
   const renderCallback = (search = ''): RenderResult => {
     window.location.search = search;
     return render(
-      <MockLogContext.Provider value={{ logEvent: mockLogEvent }}>
+      <LogContext.Provider value={mockContextValue}>
         <CallbackPage />
-      </MockLogContext.Provider>,
+      </LogContext.Provider>,
     );
   };
 
@@ -74,7 +91,10 @@ describe('CallbackPage', () => {
 
   it('should handle login flow with window opener', () => {
     const search = '?login=true&token=123';
-    window.opener = { postMessage: jest.fn() };
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: { postMessage: jest.fn() },
+    });
     jest.spyOn(func, 'postWindowMessage');
 
     renderCallback(search);
@@ -110,10 +130,13 @@ describe('CallbackPage', () => {
 
   it('should handle Facebook referrer case', () => {
     const search = '?login=true&token=789';
-    window.opener = { postMessage: jest.fn() };
-    Object.defineProperty(document, 'referrer', {
-      value: 'https://www.facebook.com/',
+    Object.defineProperty(window, 'opener', {
       configurable: true,
+      value: { postMessage: jest.fn() },
+    });
+    Object.defineProperty(document, 'referrer', {
+      configurable: true,
+      value: 'https://www.facebook.com/',
     });
     jest.spyOn(func, 'broadcastMessage');
 
@@ -133,7 +156,10 @@ describe('CallbackPage', () => {
 
   it('should handle errors by redirecting to webapp URL', () => {
     const search = '?error=true';
-    window.opener = { postMessage: null };
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: { postMessage: null },
+    });
     process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev';
 
     renderCallback(search);
@@ -149,7 +175,6 @@ describe('CallbackPage', () => {
 
   it('should render nothing', () => {
     const { container } = renderCallback();
-    // Using a basic assertion that doesn't require custom matchers
     expect(container).toBeEmptyDOMElement();
   });
 });
