@@ -205,4 +205,57 @@ describe('CallbackPage', () => {
     const { container } = renderCallback();
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('should handle Instagram webview case', () => {
+    const search = '?login=true&token=insta';
+    // Mock user agent to Instagram
+    const originalUA = navigator.userAgent;
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      get: () =>
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) Instagram 10.3.0',
+    });
+    jest.spyOn(func, 'broadcastMessage');
+
+    renderCallback(search);
+
+    expect(mockLogEvent).toHaveBeenCalledWith({
+      event_name: 'registration callback',
+      extra: JSON.stringify({ login: 'true', token: 'insta' }),
+    });
+    expect(func.broadcastMessage).toHaveBeenCalledWith({
+      login: 'true',
+      token: 'insta',
+      eventKey: AuthEvent.Login,
+    });
+    expect(mockClose).toHaveBeenCalled();
+
+    // Restore user agent
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      get: () => originalUA,
+    });
+  });
+
+  it('should handle window.opener without postMessage', () => {
+    const search = '?login=true&token=nopostmsg';
+    Object.defineProperty(window, 'opener', {
+      configurable: true,
+      value: {}, // No postMessage property
+    });
+    jest.spyOn(func, 'broadcastMessage');
+
+    renderCallback(search);
+
+    expect(mockLogEvent).toHaveBeenCalledWith({
+      event_name: 'registration callback',
+      extra: JSON.stringify({ login: 'true', token: 'nopostmsg' }),
+    });
+    expect(func.broadcastMessage).toHaveBeenCalledWith({
+      login: 'true',
+      token: 'nopostmsg',
+      eventKey: AuthEvent.Login,
+    });
+    expect(mockClose).toHaveBeenCalled();
+  });
 });
