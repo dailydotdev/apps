@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render } from '@testing-library/react';
@@ -5,6 +9,7 @@ import '@testing-library/jest-dom';
 import * as func from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { expect, jest } from '@jest/globals';
 import CallbackPage from '../callback';
 
 const WEBAPP_URL = 'https://app.daily.dev';
