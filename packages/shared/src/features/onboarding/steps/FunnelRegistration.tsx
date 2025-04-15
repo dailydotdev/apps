@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import {
   Typography,
@@ -107,8 +107,10 @@ function InnerFunnelRegistration({
   const windowPopup = useRef<Window>(null);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],
-    enabled: router?.isReady,
-    params: shouldRedirect ? { redirect_to: window.location.href } : undefined,
+    enabled: !!router?.isReady,
+    params: shouldRedirect
+      ? { redirect_to: window.location.href, return_to: window.location.href }
+      : undefined,
     onRedirectFail: () => {
       windowPopup.current?.close();
       windowPopup.current = null;
@@ -170,16 +172,28 @@ export function FunnelRegistration({
   isActive,
   ...props
 }: FunnelStepSignup): ReactElement {
+  const isBootCheck = useRef(false);
   const { isLoggedIn, isAuthReady } = useAuthContext();
 
-  if (!isActive || !isAuthReady) {
-    return null;
-  }
+  useEffect(() => {
+    if (isBootCheck.current || !isActive) {
+      return;
+    }
 
-  if (isLoggedIn) {
+    if (isAuthReady) {
+      isBootCheck.current = true;
+    }
+
+    if (!isLoggedIn || !isAuthReady) {
+      return;
+    }
+
     onTransition({
       type: FunnelStepTransitionType.Complete,
     });
+  }, [isLoggedIn, isAuthReady, isActive, onTransition]);
+
+  if (!isActive || !isAuthReady || isLoggedIn) {
     return null;
   }
 
