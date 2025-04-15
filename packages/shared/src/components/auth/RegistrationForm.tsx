@@ -109,8 +109,8 @@ const RegistrationForm = ({
       });
       if (hints?.csrf_token) {
         setTurnstileError(true);
-        ref?.current?.reset();
       }
+      ref?.current?.reset();
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
