@@ -154,9 +154,9 @@ export function PostActions({
       resizeObserver.disconnect();
     };
 
-    // It needs the post?.userState?.awarded dependency to ensure that the querySelector
+    // It needs the post?.userState?.awarded and canAward dependency to ensure that the querySelector
     // for labels is executed after the DOM is updated with the new state.
-  }, [post?.userState?.awarded]);
+  }, [post?.userState?.awarded, canAward]);
 
   return (
     <ConditionalWrapper
