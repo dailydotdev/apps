@@ -171,9 +171,11 @@ export const useFunnelNavigation = ({
       }
 
       const newPosition = stepMap[stepId]?.position;
-      setPosition(newPosition);
+      if (newPosition) {
+        setPosition(newPosition);
+      }
     },
-    // only run on mount
+    // only run when URL/Funnel changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [funnel.id, urlStepId],
   );
