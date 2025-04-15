@@ -1,15 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  InviteIcon,
-  UserIcon,
-  DevCardIcon,
-  SettingsIcon,
-  ExitIcon,
-  CoinIcon,
-  CreditCardIcon,
-} from '../icons';
+import { UserIcon, DevCardIcon, ExitIcon, CoinIcon } from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
@@ -26,6 +18,7 @@ import { HorizontalSeparator } from '../utilities';
 import { ProfileSection } from './ProfileSection';
 import { ExtensionSection } from './sections/ExtensionSection';
 import { ResourceSection } from './sections/ResourceSection';
+import { AccountSection } from './sections/AccountSection';
 
 interface ProfileMenuProps {
   onClose: () => void;
@@ -80,25 +73,7 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <ProfileSection
-          items={[
-            {
-              title: 'Settings',
-              href: `${webappUrl}account/profile`,
-              icon: <SettingsIcon />,
-            },
-            {
-              title: 'Subscriptions',
-              href: `${webappUrl}account/subscription`,
-              icon: <CreditCardIcon />,
-            },
-            {
-              title: 'Invite friends',
-              href: `${webappUrl}account/invite`,
-              icon: <InviteIcon />,
-            },
-          ]}
-        />
+        <AccountSection />
 
         <ExtensionSection />
 
