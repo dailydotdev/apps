@@ -18,6 +18,15 @@ const mockContextValue = {
   sendBeacon: () => {},
 };
 
+// Mock BroadcastChannel
+class MockBroadcastChannel {
+  constructor(public channelName: string) {}
+
+  postMessage = jest.fn();
+
+  close = jest.fn();
+}
+
 describe('CallbackPage', () => {
   // Mock window methods
   const mockReplace = jest.fn();
@@ -48,6 +57,10 @@ describe('CallbackPage', () => {
       configurable: true,
       value: null,
     });
+
+    // Mock BroadcastChannel
+    // @ts-expect-error - we know BroadcastChannel exists
+    global.BroadcastChannel = MockBroadcastChannel;
   });
 
   afterEach(() => {
@@ -65,6 +78,8 @@ describe('CallbackPage', () => {
       configurable: true,
       value: originalWindow.opener,
     });
+
+    jest.restoreAllMocks();
   });
 
   const renderCallback = (search = ''): RenderResult => {
@@ -156,11 +171,13 @@ describe('CallbackPage', () => {
 
   it('should handle errors by redirecting to webapp URL', () => {
     const search = '?error=true';
-    Object.defineProperty(window, 'opener', {
-      configurable: true,
-      value: { postMessage: null },
+    // Mock broadcastMessage to throw an error
+    jest.spyOn(func, 'broadcastMessage').mockImplementation(() => {
+      throw new Error('Failed to broadcast');
     });
-    process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev';
+    const WEBAPP_URL = 'https://app.daily.dev';
+    const originalEnv = process.env.NEXT_PUBLIC_WEBAPP_URL;
+    process.env.NEXT_PUBLIC_WEBAPP_URL = WEBAPP_URL;
 
     renderCallback(search);
 
@@ -168,9 +185,9 @@ describe('CallbackPage', () => {
       event_name: 'registration callback',
       extra: JSON.stringify({ error: 'true' }),
     });
-    expect(mockReplace).toHaveBeenCalledWith(
-      'https://app.daily.dev?error=true',
-    );
+    expect(mockReplace).toHaveBeenCalledWith(`${WEBAPP_URL}?error=true`);
+
+    process.env.NEXT_PUBLIC_WEBAPP_URL = originalEnv;
   });
 
   it('should render nothing', () => {
