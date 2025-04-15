@@ -176,15 +176,13 @@ export function FunnelRegistration({
   const { isLoggedIn, isAuthReady } = useAuthContext();
 
   useEffect(() => {
-    if (isBootCheck.current || !isActive) {
+    if (isBootCheck.current || !isActive || !isAuthReady) {
       return;
     }
 
-    if (isAuthReady) {
-      isBootCheck.current = true;
-    }
+    isBootCheck.current = true;
 
-    if (!isLoggedIn || !isAuthReady) {
+    if (!isLoggedIn) {
       return;
     }
 
