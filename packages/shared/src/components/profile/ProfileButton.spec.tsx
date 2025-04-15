@@ -38,8 +38,8 @@ it('account details should link to account profile page', async () => {
   const profileBtn = await screen.findByLabelText('Profile settings');
   profileBtn.click();
 
-  const accountBtn = await screen.findByText('Account details');
-  expect(accountBtn).toHaveAttribute('href', '/account/profile');
+  const accountLink = await screen.findByRole('link', { name: 'Settings' });
+  expect(accountLink).toHaveAttribute('href', '/account/profile');
 });
 
 it('should click the logout button and logout', async () => {
