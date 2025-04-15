@@ -19,6 +19,7 @@ import { ExtensionSection } from './sections/ExtensionSection';
 import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
+import { ThemeSection } from './sections/ThemeSection';
 
 interface ProfileMenuProps {
   onClose: () => void;
@@ -55,7 +56,7 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <p>THEME</p>
+        <ThemeSection />
 
         <HorizontalSeparator />
 
