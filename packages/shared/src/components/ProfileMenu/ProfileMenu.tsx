@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { UserIcon, DevCardIcon, ExitIcon, CoinIcon } from '../icons';
+import { ExitIcon } from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { ButtonSize } from '../buttons/Button';
-import { walletUrl, webappUrl } from '../../lib/constants';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
 
@@ -19,6 +18,7 @@ import { ProfileSection } from './ProfileSection';
 import { ExtensionSection } from './sections/ExtensionSection';
 import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
+import { MainSection } from './sections/MainSection';
 
 interface ProfileMenuProps {
   onClose: () => void;
@@ -30,7 +30,7 @@ export default function ProfileMenu({
   const { user, logout } = useAuthContext();
 
   if (!user) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -51,21 +51,7 @@ export default function ProfileMenu({
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">
-        <ProfileSection
-          items={[
-            {
-              title: 'Your profile',
-              href: `${webappUrl}${user.username}`,
-              icon: <UserIcon />,
-            },
-            { title: 'Core wallet', href: walletUrl, icon: <CoinIcon /> },
-            {
-              title: 'DevCard',
-              href: `${webappUrl}devcard`,
-              icon: <DevCardIcon />,
-            },
-          ]}
-        />
+        <MainSection />
 
         <HorizontalSeparator />
 
