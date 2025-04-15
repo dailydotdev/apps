@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactElement, RefAttributes } from 'react';
+import type { ReactElement, RefAttributes } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
@@ -63,8 +63,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   bold?: boolean;
   ref?: RefAttributes<AllowedElements>['ref'];
   truncate?: boolean;
-} & HTMLAttributes<AllowedElements> &
-  JSX.IntrinsicElements[Tag];
+} & JSX.IntrinsicElements[Tag];
 
 const tagToColor = {
   [TypographyTag.Link]: TypographyColor.Link,
