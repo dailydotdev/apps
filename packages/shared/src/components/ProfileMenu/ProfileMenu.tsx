@@ -6,29 +6,15 @@ import {
   UserIcon,
   DevCardIcon,
   SettingsIcon,
-  ReputationLightningIcon,
   ExitIcon,
   CoinIcon,
   CreditCardIcon,
-  TerminalIcon,
-  MegaphoneIcon,
-  PhoneIcon,
-  FeedbackIcon,
-  DocsIcon,
 } from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { ButtonSize } from '../buttons/Button';
-import {
-  appsUrl,
-  businessWebsiteUrl,
-  docs,
-  feedback,
-  reputation,
-  walletUrl,
-  webappUrl,
-} from '../../lib/constants';
+import { walletUrl, webappUrl } from '../../lib/constants';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
 
@@ -39,6 +25,7 @@ import { HorizontalSeparator } from '../utilities';
 
 import { ProfileSection } from './ProfileSection';
 import { ExtensionSection } from './sections/ExtensionSection';
+import { ResourceSection } from './sections/ResourceSection';
 
 interface ProfileMenuProps {
   onClose: () => void;
@@ -119,45 +106,7 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <ProfileSection
-          items={[
-            {
-              title: 'Changelog',
-              icon: <TerminalIcon />,
-              href: `${webappUrl}sources/daily_updates`,
-            },
-            {
-              title: 'Reputation',
-              icon: <ReputationLightningIcon />,
-              href: reputation,
-              external: true,
-            },
-            {
-              title: 'Advertise',
-              icon: <MegaphoneIcon />,
-              href: businessWebsiteUrl,
-              external: true,
-            },
-            {
-              title: 'Apps',
-              icon: <PhoneIcon />,
-              href: appsUrl,
-              external: true,
-            },
-            {
-              title: 'Docs',
-              icon: <DocsIcon />,
-              href: docs,
-              external: true,
-            },
-            {
-              title: 'Support',
-              icon: <FeedbackIcon />,
-              href: feedback,
-              external: true,
-            },
-          ]}
-        />
+        <ResourceSection />
 
         <HorizontalSeparator />
 
