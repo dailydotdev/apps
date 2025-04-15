@@ -8,11 +8,8 @@ import {
   SettingsIcon,
   ReputationLightningIcon,
   ExitIcon,
-  PlayIcon,
-  PauseIcon,
   CoinIcon,
   CreditCardIcon,
-  StoryIcon,
   TerminalIcon,
   MegaphoneIcon,
   PhoneIcon,
@@ -33,8 +30,6 @@ import {
   webappUrl,
 } from '../../lib/constants';
 import { LogoutReason } from '../../lib/user';
-import { isExtension } from '../../lib/func';
-import { useDndContext } from '../../contexts/DndContext';
 import { TargetId } from '../../lib/log';
 
 import { ProfileMenuFooter } from './ProfileMenuFooter';
@@ -43,7 +38,7 @@ import { ProfileMenuHeader } from './ProfileMenuHeader';
 import { HorizontalSeparator } from '../utilities';
 
 import { ProfileSection } from './ProfileSection';
-import { useSettingsContext } from '../../contexts/SettingsContext';
+import { ExtensionSection } from './sections/ExtensionSection';
 
 interface ProfileMenuProps {
   onClose: () => void;
@@ -53,8 +48,6 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { user, logout } = useAuthContext();
-  const { isActive: isDndActive, setShowDnd } = useDndContext();
-  const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
 
   if (!user) {
     return <></>;
@@ -122,35 +115,7 @@ export default function ProfileMenu({
           ]}
         />
 
-        {/* TODO: Remove true  */}
-        {(isExtension || true) && (
-          <>
-            <HorizontalSeparator />
-
-            <ProfileSection
-              items={[
-                // TODO: Implement new shortcuts popover
-                // {
-                //   title: 'Shortcuts',
-                //   icon: <ShortcutsIcon />,
-                //   onClick: () => {},
-                // },
-                {
-                  title: 'Pause new tab',
-                  icon: isDndActive ? <PlayIcon /> : <PauseIcon />,
-                  onClick: () => setShowDnd?.(true),
-                },
-                {
-                  title: `${
-                    optOutCompanion ? 'Enable' : 'Disable'
-                  } companion widget`,
-                  icon: <StoryIcon secondary={!optOutCompanion} />,
-                  onClick: () => toggleOptOutCompanion(),
-                },
-              ]}
-            />
-          </>
-        )}
+        <ExtensionSection />
 
         <HorizontalSeparator />
 
