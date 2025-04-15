@@ -278,7 +278,7 @@ export const SocialRegistrationForm = ({
             variant={ButtonVariant.Primary}
             disabled={isLoading}
           >
-            Sign up
+            {user?.isPlus ? 'Continue' : 'Sign up'}
           </Button>
         </Modal.Footer>
       </ConditionalWrapper>
