@@ -24,7 +24,7 @@ export const ExtensionSection = (): ReactElement => {
           //   onClick: () => {},
           // },
           {
-            title: 'Pause new tab',
+            title: `${isDndActive ? 'Resume' : 'Pause'} new tab`,
             icon: isDndActive ? <PlayIcon /> : <PauseIcon />,
             onClick: () => setShowDnd?.(true),
           },
