@@ -9,8 +9,7 @@ import '@testing-library/jest-dom';
 import * as func from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { expect, jest } from '@jest/globals';
-import CallbackPage from '../callback';
+import CallbackPage from '../pages/callback';
 
 const WEBAPP_URL = 'https://app.daily.dev';
 
