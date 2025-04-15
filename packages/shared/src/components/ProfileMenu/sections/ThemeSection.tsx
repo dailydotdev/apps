@@ -66,7 +66,7 @@ export const ThemeSection = (): ReactElement => {
               }
               size={ButtonSize.XSmall}
               onClick={() => onThemeToggle(theme.value)}
-              className={isActiveTheme && 'text-text-primary'}
+              className={isActiveTheme ? 'text-text-primary' : undefined}
             />
           );
         })}
