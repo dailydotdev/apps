@@ -7,6 +7,18 @@ import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import CallbackPage from '../callback';
 
+const WEBAPP_URL = 'https://app.daily.dev';
+
+// Mock environment variables
+const originalEnv = process.env;
+beforeAll(() => {
+  process.env = { ...originalEnv, NEXT_PUBLIC_WEBAPP_URL: WEBAPP_URL };
+});
+
+afterAll(() => {
+  process.env = originalEnv;
+});
+
 // Mock functions
 const mockLogEvent = jest.fn();
 
@@ -175,9 +187,6 @@ describe('CallbackPage', () => {
     jest.spyOn(func, 'broadcastMessage').mockImplementation(() => {
       throw new Error('Failed to broadcast');
     });
-    const WEBAPP_URL = 'https://app.daily.dev';
-    const originalEnv = process.env.NEXT_PUBLIC_WEBAPP_URL;
-    process.env.NEXT_PUBLIC_WEBAPP_URL = WEBAPP_URL;
 
     renderCallback(search);
 
@@ -186,8 +195,6 @@ describe('CallbackPage', () => {
       extra: JSON.stringify({ error: 'true' }),
     });
     expect(mockReplace).toHaveBeenCalledWith(`${WEBAPP_URL}?error=true`);
-
-    process.env.NEXT_PUBLIC_WEBAPP_URL = originalEnv;
   });
 
   it('should render nothing', () => {
