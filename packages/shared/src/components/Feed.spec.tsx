@@ -690,9 +690,9 @@ describe('Feed logged in', () => {
       expect(data).toBeTruthy();
     });
     const contextBtn = await screen.findByText('Unblock Echo JS');
+    fireEvent.click(contextBtn);
 
     await waitFor(async () => {
-      fireEvent.click(contextBtn);
       const alert = screen.getByRole('alert');
       expect(alert).toBeInTheDocument();
       const feed = screen.getByTestId('posts-feed');
