@@ -213,3 +213,8 @@ export const PageInfoHeader = classed(
 // Currently it's only Moderator that deviates from the actual SourceMemberRole name.
 export const getRoleName = (role: SourceMemberRole): string =>
   role === SourceMemberRole.Moderator ? 'Mod' : role;
+
+export const HorizontalSeparator = classed(
+  'div',
+  'border-t border-border-subtlest-tertiary',
+);

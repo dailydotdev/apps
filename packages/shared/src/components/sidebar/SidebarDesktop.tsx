@@ -8,7 +8,6 @@ import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
-import { ResourceSection } from './sections/ResourceSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
@@ -106,11 +105,6 @@ export const SidebarDesktop = ({
             {...defaultRenderSectionProps}
             title="Discover"
             isItemsButton={isNavButtons}
-          />
-          <ResourceSection
-            {...defaultRenderSectionProps}
-            title="Resources"
-            isItemsButton={false}
           />
         </Nav>
       </SidebarScrollWrapper>

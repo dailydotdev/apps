@@ -19,10 +19,16 @@ import {
   VariantToClassName,
 } from './common';
 import { isNullOrUndefined } from '../../lib/func';
+import classed from '../../lib/classed';
 
 export type IconType = React.ReactElement<IconProps>;
 
 export { ButtonColor, ButtonSize, ButtonVariant, ButtonIconPosition };
+
+export const ButtonGroup = classed(
+  'div',
+  'flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1',
+);
 
 interface CommonButtonProps {
   size?: ButtonSize;
