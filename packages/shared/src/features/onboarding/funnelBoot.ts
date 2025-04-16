@@ -37,7 +37,11 @@ export async function getFunnelBootData({
   });
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch funnel boot data: ${res.status}`);
+    throw new Error(
+      `Failed to fetch funnel boot data: ${res.status} - ${
+        res.statusText
+      } - ${await res.text()}`,
+    );
   }
 
   const data = await res.json();
