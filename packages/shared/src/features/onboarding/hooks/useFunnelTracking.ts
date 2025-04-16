@@ -7,8 +7,8 @@ import type {
   FunnelJSON,
   FunnelStepTransitionType,
 } from '../types/funnel';
-import type { FunnelEvent } from '../types/funnelEvents';
 import { FunnelEventName } from '../types/funnelEvents';
+import type { FunnelEvent, FunnelTargetId } from '../types/funnelEvents';
 import {
   getFunnelStepByPosition,
   funnelPositionAtom,
@@ -66,9 +66,8 @@ const trackOnMouseCapture = ({
 
     trackFunnelEvent?.({
       name: eventName,
-      target_type:
-        trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
-      target_id: trackedElement.dataset.funnelTrack,
+      target_type: trackedElement.dataset.funnelTrack as FunnelTargetId,
+      target_id: (trackedElement.ariaLabel || trackedElement.innerText).trim(),
     });
   };
 };
