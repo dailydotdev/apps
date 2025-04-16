@@ -130,11 +130,8 @@ function InnerFunnelRegistration({
   });
 
   const onRegister = (provider: SocialProvider) => {
-    const ua = navigator.userAgent;
-    const isInstagramWebview = /Instagram/i.test(ua);
-
-    if (isInstagramWebview) {
-      alert('is actually instagram');
+    if (shouldRedirect) {
+      alert('should redirect');
     }
 
     if (!isNativeAuthSupported(provider) && !shouldRedirect) {
