@@ -36,6 +36,12 @@ import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
+const invalidErrors = [
+  KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
+  KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
+  KRATOS_ERROR.EXISTING_USER,
+];
+
 const useRegistrationListeners = (
   onTransition: FunnelStepSignup['onTransition'],
 ) => {
@@ -65,17 +71,13 @@ const useRegistrationListeners = (
         }),
       });
 
-      if (
-        [
-          KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
-          KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
-          KRATOS_ERROR.EXISTING_USER,
-        ].includes(connected?.ui?.messages?.[0]?.id)
-      ) {
-        return displayToast(labels.auth.error.existingEmail);
+      const code = connected?.ui?.messages?.[0]?.id;
+
+      if (invalidErrors.includes(code)) {
+        return displayToast(`${labels.auth.error.existingEmail} Code: ${code}`);
       }
 
-      return displayToast(labels.auth.error.generic);
+      return displayToast(`${labels.auth.error.generic} Code: ${code}`);
     }
 
     const bootResponse = await refetchBoot();
