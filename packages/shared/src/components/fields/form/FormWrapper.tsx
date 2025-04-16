@@ -41,6 +41,7 @@ export function FormWrapper({
   const titleElement = (
     <PageHeaderTitle
       className={classNames(
+        'mx-4',
         !isHeaderTitle && 'mt-5',
         className?.title ?? 'typo-body',
       )}
