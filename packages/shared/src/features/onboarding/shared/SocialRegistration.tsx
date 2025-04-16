@@ -19,6 +19,7 @@ import {
 import { cookiePolicy, termsOfService } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 interface MobileSocialRegistrationProps {
   onClick: (provider: SocialProvider) => void;
@@ -72,6 +73,7 @@ export function SocialRegistration({
         onClick={() => handleClick(firstProvider)}
         data-testid={`social-button-${firstProvider.toLowerCase()}`}
         icon={providerMap[firstProvider].icon}
+        data-funnel-track={FunnelTargetId.SignupProvider}
       >
         Sign up with {providerMap[firstProvider].label}
       </Button>
@@ -80,6 +82,7 @@ export function SocialRegistration({
         onClick={() => handleClick(SocialProvider.GitHub)}
         data-testid="social-button-github"
         icon={providerMap[SocialProvider.GitHub].icon}
+        data-funnel-track={FunnelTargetId.SignupProvider}
       >
         Sign up with {providerMap[SocialProvider.GitHub].label}
       </Button>
