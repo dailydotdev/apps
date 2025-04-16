@@ -26,6 +26,8 @@ import classed from '../../lib/classed';
 import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
+import MyFeedHeading from '../filters/MyFeedHeading';
+import { SharedFeedPage } from '../utilities';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -68,6 +70,10 @@ function FeedNav(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
+
+  const showStickyButton =
+    isMobile &&
+    ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
@@ -184,25 +190,37 @@ function FeedNav(): ReactElement {
           ))}
         </TabContainer>
 
-        {isMobile && sortingEnabled && isSortableFeed && (
+        {showStickyButton && (
           <StickyNavIconWrapper className="translate-x-[calc(100vw-100%)]">
-            <Dropdown
-              className={{
-                label: 'hidden',
-                chevron: 'hidden',
-                button: '!px-1',
-              }}
-              dynamicMenuWidth
-              shouldIndicateSelected
-              buttonSize={ButtonSize.Small}
-              buttonVariant={ButtonVariant.Tertiary}
-              icon={<SortIcon />}
-              iconOnly
-              selectedIndex={selectedAlgo}
-              options={algorithmsList}
-              onChange={(_, index) => setSelectedAlgo(index)}
-              drawerProps={{ displayCloseButton: true }}
-            />
+            {sortingEnabled && isSortableFeed && (
+              <Dropdown
+                className={{
+                  label: 'hidden',
+                  chevron: 'hidden',
+                  button: '!px-1',
+                }}
+                dynamicMenuWidth
+                shouldIndicateSelected
+                buttonSize={ButtonSize.Small}
+                buttonVariant={ButtonVariant.Tertiary}
+                icon={<SortIcon />}
+                iconOnly
+                selectedIndex={selectedAlgo}
+                options={algorithmsList}
+                onChange={(_, index) => setSelectedAlgo(index)}
+                drawerProps={{ displayCloseButton: true }}
+              />
+            )}
+
+            {feedName === SharedFeedPage.Custom && (
+              <MyFeedHeading
+                onOpenFeedFilters={() => {
+                  router.push(
+                    `${webappUrl}feeds/${router.query.slugOrId}/edit`,
+                  );
+                }}
+              />
+            )}
           </StickyNavIconWrapper>
         )}
         <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">

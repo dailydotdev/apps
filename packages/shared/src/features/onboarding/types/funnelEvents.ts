@@ -4,7 +4,7 @@ export enum FunnelEventName {
   StartFunnel = 'start funnel',
   ResumeFunnel = 'resume funnel',
   CompleteFunnel = 'complete funnel',
-  LeaveFunnel = 'leave_funnel',
+  LeaveFunnel = 'leave funnel',
   FunnelStepView = 'funnel step view',
   TransitionFunnel = 'transition funnel',
   ScrollFunnel = 'scroll funnel',
@@ -21,6 +21,7 @@ export enum FunnelTargetId {
   StepSkip = 'step skip',
   StepBack = 'step back',
   SubPlan = 'subscription plan',
+  SignupProvider = 'signup provider',
 }
 
 export type FunnelEvent =
@@ -47,7 +48,7 @@ export type FunnelEvent =
       name:
         | FunnelEventName.HoverFunnelElement
         | FunnelEventName.ClickFunnelElement;
-      target_type: keyof HTMLElementTagNameMap;
+      target_type: FunnelTargetId;
       target_id?: string;
     }
   | {

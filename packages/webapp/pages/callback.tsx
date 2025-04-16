@@ -7,6 +7,16 @@ import type { ReactElement } from 'react';
 import { useContext, useEffect } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 
+const checkShouldSendBroadcast = () => {
+  const ua = navigator.userAgent;
+  const isFromFacebook = document.referrer === 'https://www.facebook.com/';
+  const isInstagramWebview = /Instagram/i.test(ua);
+  const postMessageUndefined = !window.opener?.postMessage;
+  const conditions = [isFromFacebook, isInstagramWebview, postMessageUndefined];
+
+  return conditions.some(Boolean);
+};
+
 function CallbackPage(): ReactElement {
   const { logEvent } = useContext(LogContext);
   useEffect(() => {
@@ -26,10 +36,7 @@ function CallbackPage(): ReactElement {
         return;
       }
 
-      if (
-        !window.opener?.postMessage ||
-        document.referrer === 'https://www.facebook.com/'
-      ) {
+      if (checkShouldSendBroadcast()) {
         broadcastMessage({ ...params, eventKey });
       } else {
         postWindowMessage(eventKey, params);

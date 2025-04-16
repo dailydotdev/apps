@@ -7,8 +7,8 @@ import type {
   FunnelJSON,
   FunnelStepTransitionType,
 } from '../types/funnel';
-import type { FunnelEvent } from '../types/funnelEvents';
 import { FunnelEventName } from '../types/funnelEvents';
+import type { FunnelEvent, FunnelTargetId } from '../types/funnelEvents';
 import {
   getFunnelStepByPosition,
   funnelPositionAtom,
@@ -66,9 +66,8 @@ const trackOnMouseCapture = ({
 
     trackFunnelEvent?.({
       name: eventName,
-      target_type:
-        trackedElement.tagName.toLowerCase() as keyof HTMLElementTagNameMap,
-      target_id: trackedElement.dataset.funnelTrack,
+      target_type: trackedElement.dataset.funnelTrack as FunnelTargetId,
+      target_id: (trackedElement.ariaLabel || trackedElement.innerText).trim(),
     });
   };
 };
@@ -78,7 +77,7 @@ export const useFunnelTracking = ({
   session,
 }: UseFunnelTrackingProps): UseFunnelTrackingReturn => {
   const { id: sessionId } = session;
-  const { logEvent } = useLogContext();
+  const { logEvent, sendBeacon } = useLogContext();
   const position = useAtomValue(funnelPositionAtom);
   const step = useMemo(
     () => getFunnelStepByPosition(funnel, position),
@@ -190,6 +189,7 @@ export const useFunnelTracking = ({
     const callback = () => {
       if (!isFunnelCompletedRef.current) {
         trackFunnelEventRef.current?.({ name: FunnelEventName.LeaveFunnel });
+        sendBeacon();
       }
     };
     window.addEventListener('beforeunload', callback);
@@ -197,7 +197,7 @@ export const useFunnelTracking = ({
     return () => {
       window.removeEventListener('beforeunload', callback);
     };
-  }, []);
+  }, [sendBeacon]);
 
   return {
     trackOnClickCapture,

@@ -1,9 +1,9 @@
 import type React from 'react';
 import type { Post } from '../graphql/posts';
 
-export interface CombinedClicks {
-  onAuxClick: React.MouseEventHandler<HTMLAnchorElement>;
-  onClick: React.MouseEventHandler<HTMLAnchorElement>;
+export interface CombinedClicks<T = HTMLAnchorElement> {
+  onAuxClick: React.MouseEventHandler<T>;
+  onClick: React.MouseEventHandler<T>;
 }
 
 export type PostClick = (
@@ -14,9 +14,9 @@ export type PostClick = (
   isAuxClick?: boolean,
 ) => Promise<void>;
 
-export const combinedClicks = (
-  func: React.MouseEventHandler,
-): CombinedClicks => {
+export const combinedClicks = <T = HTMLAnchorElement>(
+  func: React.MouseEventHandler<T>,
+): CombinedClicks<T> => {
   return {
     onAuxClick: (event) => event.button === 1 && func(event),
     onClick: func,
