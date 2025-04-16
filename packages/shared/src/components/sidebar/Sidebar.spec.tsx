@@ -105,7 +105,7 @@ it('should render the sidebar as open by default', async () => {
   renderComponent();
   const section = await screen.findByText('Discover');
   expect(section).toBeInTheDocument();
-  const sectionTwo = await screen.findByText('Resources');
+  const sectionTwo = await screen.findByText('Network');
   expect(sectionTwo).toBeInTheDocument();
 });
 
