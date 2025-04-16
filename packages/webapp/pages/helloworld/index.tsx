@@ -75,8 +75,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
 
   // Determine the initial step ID
+  const queryStepId = query?.stepId as string | undefined;
   const initialStepId: string | null =
-    `${query?.stepId}` || boot.data?.funnelState?.session?.currentStep;
+    queryStepId ?? boot.data?.funnelState?.session?.currentStep;
 
   // Return props including the dehydrated state
   return {
