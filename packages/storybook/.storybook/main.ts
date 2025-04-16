@@ -9,6 +9,7 @@ const config: StorybookConfig = {
     '../stories/**/*.mdx',
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
+
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-links',
@@ -17,12 +18,18 @@ const config: StorybookConfig = {
     '@storybook/addon-interactions',
     '@storybook/addon-designs',
     'msw-storybook-addon',
+    '@storybook/addon-mdx-gfm',
+    '@chromatic-com/storybook'
   ],
+
   framework: '@storybook/react-vite',
+
   typescript: {
     reactDocgen: 'react-docgen-typescript',
   },
+
   staticDirs: ['../public'],
+
   async viteFinal(config, { configType }) {
     const GrowthBookMockPath = path.resolve(
       __dirname,
@@ -88,6 +95,8 @@ const config: StorybookConfig = {
       },
     });
   },
+
+  docs: {}
 };
 
 export default config;
