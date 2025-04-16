@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAtom } from 'jotai/react';
 import { UNDO } from 'jotai-history';
@@ -10,12 +10,11 @@ import {
   getFunnelStepByPosition,
   funnelPositionHistoryAtom,
 } from '../store/funnelStore';
-import type { FunnelSession } from '../types/funnelBoot';
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
+  initialStepId?: string | null;
   onNavigation: TrackOnNavigate;
-  session: FunnelSession;
 }
 
 type Chapters = Array<{ steps: number }>;
@@ -32,6 +31,7 @@ interface HeaderNavigation {
 
 export interface UseFunnelNavigationReturn {
   chapters: Chapters;
+  isReady: boolean;
   navigate: NavigateFunction;
   position: FunnelPosition;
   step: FunnelStep;
@@ -74,8 +74,8 @@ function updateURLWithStepId({
 
 export const useFunnelNavigation = ({
   funnel,
+  initialStepId,
   onNavigation,
-  session,
 }: UseFunnelNavigationProps): UseFunnelNavigationReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -84,6 +84,8 @@ export const useFunnelNavigation = ({
   const [position, setPosition] = useAtom(funnelPositionAtom);
   const [history, dispatchHistory] = useAtom(funnelPositionHistoryAtom);
   const isFirstStep = !position.step && !position.chapter;
+  const isInitialized = useRef<boolean>(false);
+  const urlStepId = searchParams.get('stepId');
 
   const chapters: Chapters = useMemo(
     () => funnel.chapters.map((chapter) => ({ steps: chapter.steps.length })),
@@ -91,6 +93,16 @@ export const useFunnelNavigation = ({
   );
 
   const stepMap: StepMap = useMemo(() => getStepMap(funnel), [funnel]);
+
+  const setPositionById = useCallback(
+    (stepId: FunnelStep['id']) => {
+      const newPosition = stepMap[stepId]?.position;
+      if (newPosition) {
+        setPosition(newPosition);
+      }
+    },
+    [setPosition, stepMap],
+  );
 
   const step: FunnelStep = useMemo(
     () => getFunnelStepByPosition(funnel, position),
@@ -111,8 +123,7 @@ export const useFunnelNavigation = ({
       }
 
       // update the position in the store
-      const newPosition = stepMap[to]?.position;
-      setPosition(newPosition);
+      setPositionById(to);
 
       // track the navigation event
       onNavigation({ from, to, timeDuration, type });
@@ -128,7 +139,7 @@ export const useFunnelNavigation = ({
       pathname,
       router,
       searchParams,
-      setPosition,
+      setPositionById,
       step,
       stepMap,
       stepTimerStart,
@@ -160,25 +171,34 @@ export const useFunnelNavigation = ({
     [isFirstStep, step?.transitions],
   );
 
-  const urlStepId = searchParams.get('stepId');
-  useEffect(
-    () => {
-      // Check if the URL has a stepId parameter or if there is a session
-      const stepId = urlStepId ?? session.currentStep;
+  // On load: Update the initial position in state and URL
+  useEffect(() => {
+    if (isInitialized.current) {
+      return;
+    }
 
-      if (!stepId) {
-        return;
-      }
+    if (initialStepId) {
+      setPositionById(initialStepId);
+    }
 
-      const newPosition = stepMap[stepId]?.position;
-      if (newPosition) {
-        setPosition(newPosition);
-      }
-    },
-    // only run when URL/Funnel changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [funnel.id, urlStepId],
-  );
+    updateURLWithStepId({
+      router,
+      pathname,
+      searchParams,
+      stepId: initialStepId || step.id,
+    });
+
+    isInitialized.current = true;
+  }, [initialStepId, pathname, router, searchParams, setPositionById, step.id]);
+
+  // After load: update the position when the URL's stepId changes
+  useEffect(() => {
+    if (!urlStepId || !isInitialized.current) {
+      return;
+    }
+
+    setPositionById(urlStepId);
+  }, [setPositionById, urlStepId]);
 
   return {
     back,
@@ -187,5 +207,6 @@ export const useFunnelNavigation = ({
     position,
     skip,
     step,
+    isReady: isInitialized.current,
   };
 };
