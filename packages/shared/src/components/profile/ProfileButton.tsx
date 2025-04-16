@@ -16,6 +16,7 @@ import { walletUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import Link from '../utilities/Link';
 
 const ProfileMenu = dynamic(
   () =>
@@ -68,15 +69,16 @@ export default function ProfileButton({
                 </>
               }
             >
-              <Button
-                icon={<CoreIcon />}
-                tag="a"
-                href={walletUrl}
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-              >
-                {largeNumberFormat(user?.balance?.amount || 0)}
-              </Button>
+              <Link href={walletUrl} passHref>
+                <Button
+                  icon={<CoreIcon />}
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
+                  {largeNumberFormat(user?.balance?.amount || 0)}
+                </Button>
+              </Link>
             </SimpleTooltip>
           )}
           <SimpleTooltip placement="bottom" content="Profile settings">
