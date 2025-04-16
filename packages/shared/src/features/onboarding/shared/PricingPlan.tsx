@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import type { RadioItemProps } from '../../../components/fields/RadioItem';
 import { RadioItem } from '../../../components/fields/RadioItem';
-import { VIcon } from '../../../components/icons/V';
+import { VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import styles from './PricingPlan.module.css';
 import { FunnelTargetId } from '../types/funnelEvents';
@@ -26,6 +26,7 @@ export interface PricingPlanProps<T extends string = string>
     amount: string;
     subtitle: string;
   };
+  priceId?: string;
 }
 
 export function PricingPlan<T extends string = string>({
@@ -35,6 +36,7 @@ export function PricingPlan<T extends string = string>({
   perks,
   price,
   checked,
+  priceId,
   ...props
 }: PricingPlanProps<T>): ReactElement {
   const isBestValue = variation === PricingPlanVariation.BEST_VALUE;
