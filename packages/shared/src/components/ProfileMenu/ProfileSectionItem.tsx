@@ -42,7 +42,7 @@ export const ProfileSectionItem = ({
   onClick,
   external,
 }: ProfileSectionItemProps): ReactElement => {
-  const tag = href ? TypographyTag.Link : TypographyTag.P;
+  const tag = href ? TypographyTag.Link : TypographyTag.Button;
 
   const isExternal = href && external;
 

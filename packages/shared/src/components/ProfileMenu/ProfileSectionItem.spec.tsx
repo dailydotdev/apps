@@ -18,26 +18,26 @@ describe('ProfileSectionItem', () => {
     expect(item).toBeInTheDocument();
   });
 
-  it('should use Typography with P tag when no href is provided', () => {
+  it('should use Typography with button tag when no href is provided', () => {
     render(<ProfileSectionItem {...defaultProps} />);
-    // Check for the paragraph element that wraps our Typography content
-    const typographyP = screen.getByRole('paragraph');
-    expect(typographyP).toBeInTheDocument();
+    // Check for the button element that wraps our Typography content
+    const item = screen.getByRole('button');
+    expect(item).toBeInTheDocument();
   });
 
   it('should use Typography with Link tag when href is provided', () => {
     render(<ProfileSectionItem {...defaultProps} href="/test" />);
     // Check for the anchor element that wraps our Typography content
-    const typographyA = screen.getByRole('link');
-    expect(typographyA).toBeInTheDocument();
+    const item = screen.getByRole('link');
+    expect(item).toBeInTheDocument();
   });
 
   it('should apply the custom className', () => {
     render(<ProfileSectionItem {...defaultProps} className="custom-class" />);
     // We can't directly test for className with getByRole,
     // so we'll use the test-id pattern instead
-    const paragraph = screen.getByRole('paragraph');
-    expect(paragraph).toHaveClass('custom-class');
+    const item = screen.getByRole('button');
+    expect(item).toHaveClass('custom-class');
   });
 
   it('should render an icon when provided', () => {

@@ -16,6 +16,7 @@ export enum TypographyTag {
   Span = 'span',
   Label = 'label',
   Link = 'a',
+  Button = 'button',
 }
 
 export enum TypographyType {
