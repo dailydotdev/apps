@@ -77,7 +77,7 @@ const useRegistrationListeners = (
         return displayToast(`${labels.auth.error.existingEmail} Code: ${code}`);
       }
 
-      return displayToast(`${labels.auth.error.generic}. Code: ${code}`);
+      return displayToast(`${labels.auth.error.generic} Code: ${code}`);
     }
 
     const bootResponse = await refetchBoot();
