@@ -152,7 +152,6 @@ export const FunnelPricing = ({
     <>
       {!!discountStartDate && (
         <DiscountTimer
-          className="tablet:relative tablet:left-1/2 tablet:min-w-[100dvw] tablet:-translate-x-1/2"
           discountMessage={discount.message}
           durationInMinutes={discount.duration}
           startDate={discountStartDate}
