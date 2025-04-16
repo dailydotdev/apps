@@ -30,3 +30,5 @@ export function shouldRedirectAuth(): boolean {
 
   return brokenWebviewPatterns.some((pattern) => pattern.test(ua));
 }
+
+export const AUTH_REDIRECT_KEY = 'auth_redirect';
