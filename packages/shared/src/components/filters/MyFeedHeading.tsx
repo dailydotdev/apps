@@ -41,7 +41,6 @@ function MyFeedHeading({
     <>
       <FeedSettingsButton
         onClick={onOpenFeedFilters}
-        className={!customFeedPlacement ? 'mr-auto' : ''}
         size={ButtonSize.Medium}
         variant={getSetttingsVariant()}
         icon={<FilterIcon />}

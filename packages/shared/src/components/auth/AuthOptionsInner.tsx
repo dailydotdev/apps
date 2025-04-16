@@ -436,6 +436,9 @@ function AuthOptionsInner({
             onUpdateHints={onUpdateHint}
             trigger={trigger}
             simplified={simplified}
+            {...(user?.isPlus && {
+              title: 'Complete your profile',
+            })}
           />
         </Tab>
         <Tab label={AuthDisplay.Registration}>
