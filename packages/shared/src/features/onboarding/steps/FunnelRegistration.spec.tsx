@@ -13,7 +13,7 @@ import {
   useToastNotification,
   useViewSize,
 } from '../../../hooks';
-import { AuthEvent, getKratosFlow, KRATOS_ERROR } from '../../../lib/kratos';
+import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
 import { isNativeAuthSupported, AuthEventNames } from '../../../lib/auth';
 import { SocialProvider } from '../../../components/auth/common';
 import { labels } from '../../../lib';
@@ -397,7 +397,7 @@ describe('FunnelRegistration', () => {
     (getKratosFlow as jest.Mock).mockResolvedValueOnce({
       id: 'test-flow-id',
       ui: {
-        messages: [{ id: KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP }],
+        messages: [{ id: 4010003 }], // KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP
       },
     });
 
@@ -413,14 +413,14 @@ describe('FunnelRegistration', () => {
 
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(
-        `${labels.auth.error.existingEmail} Code: ${KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP}`,
+        'Email linked to different sign-in method. Please try another provider. Code: 4010003',
       );
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: {
             flowId: 'test-flow-id',
-            messages: [{ id: KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP }],
+            messages: [{ id: 4010003 }],
           },
           origin: 'window registration flow error',
         }),
@@ -429,11 +429,10 @@ describe('FunnelRegistration', () => {
   });
 
   it('handles registration error with generic error code', async () => {
-    const genericErrorCode = 'self_service_flow_expired';
     (getKratosFlow as jest.Mock).mockResolvedValueOnce({
       id: 'test-flow-id',
       ui: {
-        messages: [{ id: genericErrorCode }],
+        messages: [{ id: 4060004 }], // KRATOS_ERROR.INVALID_TOKEN
       },
     });
 
@@ -449,14 +448,14 @@ describe('FunnelRegistration', () => {
 
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(
-        `${labels.auth.error.generic} Code: ${genericErrorCode}`,
+        '❌ We got some unexpected error from our side, nothing to worry about. Please try again. Code: 4060004',
       );
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: {
             flowId: 'test-flow-id',
-            messages: [{ id: genericErrorCode }],
+            messages: [{ id: 4060004 }],
           },
           origin: 'window registration flow error',
         }),
