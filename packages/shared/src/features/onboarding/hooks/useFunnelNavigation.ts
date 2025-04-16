@@ -10,6 +10,7 @@ import {
   getFunnelStepByPosition,
   funnelPositionHistoryAtom,
 } from '../store/funnelStore';
+import { useToggle } from '../../../hooks/useToggle';
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
@@ -85,6 +86,7 @@ export const useFunnelNavigation = ({
   const [history, dispatchHistory] = useAtom(funnelPositionHistoryAtom);
   const isFirstStep = !position.step && !position.chapter;
   const isInitialized = useRef<boolean>(false);
+  const [isReady, setIsReady] = useToggle(false);
   const urlStepId = searchParams.get('stepId');
 
   const chapters: Chapters = useMemo(
@@ -189,7 +191,16 @@ export const useFunnelNavigation = ({
     });
 
     isInitialized.current = true;
-  }, [initialStepId, pathname, router, searchParams, setPositionById, step.id]);
+    setIsReady(true);
+  }, [
+    initialStepId,
+    pathname,
+    router,
+    searchParams,
+    setPositionById,
+    step.id,
+    setIsReady,
+  ]);
 
   // After load: update the position when the URL's stepId changes
   useEffect(() => {
@@ -207,6 +218,6 @@ export const useFunnelNavigation = ({
     position,
     skip,
     step,
-    isReady: isInitialized.current,
+    isReady,
   };
 };
