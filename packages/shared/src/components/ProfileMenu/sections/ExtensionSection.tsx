@@ -6,10 +6,18 @@ import { ProfileSection } from '../ProfileSection';
 import { useDndContext } from '../../../contexts/DndContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { PauseIcon, PlayIcon, ShortcutsIcon, StoryIcon } from '../../icons';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
+import { checkIsExtension } from '../../../lib/func';
 
 export const ExtensionSection = (): ReactElement => {
+  const { openModal } = useLazyModal();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
+
+  if (!checkIsExtension()) {
+    return null;
+  }
 
   return (
     <>
@@ -20,7 +28,7 @@ export const ExtensionSection = (): ReactElement => {
           {
             title: 'Shortcuts',
             icon: <ShortcutsIcon />,
-            onClick: () => {},
+            onClick: () => openModal({ type: LazyModal.CustomLinks }),
           },
           {
             title: `${isDndActive ? 'Resume' : 'Pause'} new tab`,
