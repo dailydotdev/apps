@@ -155,7 +155,7 @@ export const FunnelStepper = ({
           showSkipButton={skip.hasTarget}
           showProgressBar={skip.hasTarget}
         />
-        <div className="mx-auto flex max-w-md flex-1 flex-col">
+        <div className="mx-auto flex flex-1 flex-col tablet:max-w-md">
           {funnel.chapters.map((chapter: FunnelChapter) => (
             <Fragment key={chapter?.id}>
               {chapter?.steps?.map((funnelStep: FunnelStep) => {
