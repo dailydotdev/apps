@@ -4,7 +4,7 @@ export enum FunnelEventName {
   StartFunnel = 'start funnel',
   ResumeFunnel = 'resume funnel',
   CompleteFunnel = 'complete funnel',
-  LeaveFunnel = 'leave_funnel',
+  LeaveFunnel = 'leave funnel',
   FunnelStepView = 'funnel step view',
   TransitionFunnel = 'transition funnel',
   ScrollFunnel = 'scroll funnel',
