@@ -20,6 +20,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 
 type PageProps = {
   dehydratedState: DehydratedState;
@@ -116,6 +117,7 @@ export default function HelloWorldPage({
             onComplete={() => router.replace('/onboarding')}
           />
         )}
+        <Toast autoDismissNotifications />
       </JotaiProvider>
     </HydrationBoundary>
   );

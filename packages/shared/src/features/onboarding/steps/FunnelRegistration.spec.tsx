@@ -397,7 +397,7 @@ describe('FunnelRegistration', () => {
     (getKratosFlow as jest.Mock).mockResolvedValueOnce({
       id: 'test-flow-id',
       ui: {
-        messages: [{ id: 'NO_STRATEGY_TO_SIGNUP' }],
+        messages: [{ id: 4010003 }], // KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP
       },
     });
 
@@ -412,13 +412,50 @@ describe('FunnelRegistration', () => {
     });
 
     await waitFor(() => {
-      expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Email linked to different sign-in method. Please try another provider. Code: 4010003',
+      );
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: {
             flowId: 'test-flow-id',
-            messages: [{ id: 'NO_STRATEGY_TO_SIGNUP' }],
+            messages: [{ id: 4010003 }],
+          },
+          origin: 'window registration flow error',
+        }),
+      });
+    });
+  });
+
+  it('handles registration error with generic error code', async () => {
+    (getKratosFlow as jest.Mock).mockResolvedValueOnce({
+      id: 'test-flow-id',
+      ui: {
+        messages: [{ id: 4060004 }], // KRATOS_ERROR.INVALID_TOKEN
+      },
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const messageHandler = mockUseEventListener.mock.calls[0][2];
+    messageHandler({
+      data: {
+        eventKey: AuthEvent.SocialRegistration,
+        flow: 'test-flow',
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        '❌ We got some unexpected error from our side, nothing to worry about. Please try again. Code: 4060004',
+      );
+      expect(mockLogEvent).toHaveBeenCalledWith({
+        event_name: AuthEventNames.RegistrationError,
+        extra: JSON.stringify({
+          error: {
+            flowId: 'test-flow-id',
+            messages: [{ id: 4060004 }],
           },
           origin: 'window registration flow error',
         }),

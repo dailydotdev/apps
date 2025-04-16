@@ -16,6 +16,7 @@ import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import dynamic from 'next/dynamic';
 import { getLayout as getMainLayout } from '../MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 
 const ProfileSettingsMenu = dynamic(
   () =>
@@ -107,6 +108,8 @@ export const getAccountLayout = (
   page: ReactNode,
   props: AccountLayoutProps,
 ): ReactNode =>
-  getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
-    screenCentered: false,
-  });
+  getFooterNavBarLayout(
+    getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
+      screenCentered: false,
+    }),
+  );

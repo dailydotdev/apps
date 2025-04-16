@@ -43,6 +43,7 @@ export const searchDocs = 'https://r.daily.dev/search-docs';
 export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
+export const appsUrl = 'https://daily.dev/apps';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =

@@ -19,7 +19,8 @@ import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
 
 const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
+  () =>
+    import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu/ProfileMenu'),
 );
 
 interface ProfileButtonProps {
