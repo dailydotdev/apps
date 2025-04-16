@@ -13,7 +13,7 @@ import {
   useToastNotification,
   useViewSize,
 } from '../../../hooks';
-import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
+import { AuthEvent, getKratosFlow, KRATOS_ERROR } from '../../../lib/kratos';
 import { isNativeAuthSupported, AuthEventNames } from '../../../lib/auth';
 import { SocialProvider } from '../../../components/auth/common';
 import { labels } from '../../../lib';
@@ -397,7 +397,7 @@ describe('FunnelRegistration', () => {
     (getKratosFlow as jest.Mock).mockResolvedValueOnce({
       id: 'test-flow-id',
       ui: {
-        messages: [{ id: 'NO_STRATEGY_TO_SIGNUP' }],
+        messages: [{ id: KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP }],
       },
     });
 
@@ -412,13 +412,51 @@ describe('FunnelRegistration', () => {
     });
 
     await waitFor(() => {
-      expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        `${labels.auth.error.existingEmail} Code: ${KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP}`,
+      );
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: {
             flowId: 'test-flow-id',
-            messages: [{ id: 'NO_STRATEGY_TO_SIGNUP' }],
+            messages: [{ id: KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP }],
+          },
+          origin: 'window registration flow error',
+        }),
+      });
+    });
+  });
+
+  it('handles registration error with generic error code', async () => {
+    const genericErrorCode = 'self_service_flow_expired';
+    (getKratosFlow as jest.Mock).mockResolvedValueOnce({
+      id: 'test-flow-id',
+      ui: {
+        messages: [{ id: genericErrorCode }],
+      },
+    });
+
+    render(<FunnelRegistration {...defaultProps} />);
+
+    const messageHandler = mockUseEventListener.mock.calls[0][2];
+    messageHandler({
+      data: {
+        eventKey: AuthEvent.SocialRegistration,
+        flow: 'test-flow',
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        `${labels.auth.error.generic} Code: ${genericErrorCode}`,
+      );
+      expect(mockLogEvent).toHaveBeenCalledWith({
+        event_name: AuthEventNames.RegistrationError,
+        extra: JSON.stringify({
+          error: {
+            flowId: 'test-flow-id',
+            messages: [{ id: genericErrorCode }],
           },
           origin: 'window registration flow error',
         }),
