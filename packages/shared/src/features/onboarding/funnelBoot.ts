@@ -34,6 +34,9 @@ export async function getFunnelBootData({
       ...(cookies && { Cookie: cookies }),
       ...forwardedHeaders,
     },
+  }).catch((r) => {
+    console.error(r);
+    return r;
   });
 
   if (!res.ok) {
