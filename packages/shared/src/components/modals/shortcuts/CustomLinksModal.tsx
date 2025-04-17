@@ -23,9 +23,12 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { HorizontalSeparator } from '../../utilities';
+import { Switch } from '../../fields/Switch';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
+  const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const { onSaveChanges, formRef, hasTopSites } = useShortcutLinks();
   const { isManual, setIsManual, onRevokePermission, setShowPermissionsModal } =
     useShortcuts();
@@ -36,10 +39,16 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   const displayRevoke = !isManual && hasTopSites !== null;
 
   useEffect(() => {
+    document.body.classList.add('hidden-scrollbar');
+
     logRef.current({
       event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
+
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
   }, []);
 
   return (
@@ -82,6 +91,34 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             props?.onRequestClose?.(undefined);
           }}
         >
+          <div className="flex gap-4">
+            <div className="flex flex-1 flex-col gap-1">
+              <Typography bold type={TypographyType.Body}>
+                Show custom shortcuts
+              </Typography>
+
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Enable custom shortcuts to easily access your favorite pages and
+                tools directly from daily.dev. Personalize your workflow and
+                navigate faster than ever.
+              </Typography>
+            </div>
+
+            <Switch
+              inputId="showTopSites-switch"
+              name="showTopSites"
+              className="w-20 justify-end"
+              compact={false}
+              checked={showTopSites}
+              onToggle={toggleShowTopSites}
+            >
+              {showTopSites ? 'On' : 'Off'}
+            </Switch>
+          </div>
+
           <HorizontalSeparator />
 
           <nav className="grid grid-cols-2 gap-10">
