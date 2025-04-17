@@ -5,7 +5,7 @@ import { HorizontalSeparator } from '../../utilities';
 import { ProfileSection } from '../ProfileSection';
 import { useDndContext } from '../../../contexts/DndContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { PauseIcon, PlayIcon, StoryIcon } from '../../icons';
+import { PauseIcon, PlayIcon, ShortcutsIcon, StoryIcon } from '../../icons';
 
 export const ExtensionSection = (): ReactElement => {
   const { isActive: isDndActive, setShowDnd } = useDndContext();
@@ -17,12 +17,11 @@ export const ExtensionSection = (): ReactElement => {
 
       <ProfileSection
         items={[
-          // TODO: Implement new shortcuts popover
-          // {
-          //   title: 'Shortcuts',
-          //   icon: <ShortcutsIcon />,
-          //   onClick: () => {},
-          // },
+          {
+            title: 'Shortcuts',
+            icon: <ShortcutsIcon />,
+            onClick: () => {},
+          },
           {
             title: `${isDndActive ? 'Resume' : 'Pause'} new tab`,
             icon: isDndActive ? <PlayIcon /> : <PauseIcon />,

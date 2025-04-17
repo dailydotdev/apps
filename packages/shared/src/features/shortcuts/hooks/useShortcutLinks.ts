@@ -1,14 +1,10 @@
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import type { Dispatch, FormEvent, MutableRefObject } from 'react';
-import { useContext, useEffect, useRef, useState } from 'react';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  LogEvent,
-  ShortcutsSourceType,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/log';
-import { useShortcutsUser } from '@dailydotdev/shared/src/hooks/useShortcutsUser';
-import useTopSites from '../useTopSites';
+import type { FormEvent, MutableRefObject } from 'react';
+import { useContext, useEffect, useRef } from 'react';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
+import LogContext from '../../../contexts/LogContext';
+import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
+import { useShortcutsUser } from './useShortcutsUser';
+import { useShortcuts } from '../contexts/ShortcutsProvider';
 
 export interface UseShortcutLinks {
   formRef: MutableRefObject<HTMLFormElement>;
@@ -16,9 +12,7 @@ export interface UseShortcutLinks {
     e: FormEvent,
   ) => Promise<{ errors: Record<string | number, string> }>;
   askTopSitesBrowserPermission: () => Promise<boolean>;
-  revokePermission: () => Promise<unknown>;
-  onIsManual: Dispatch<boolean>;
-  resetSelected: () => unknown;
+  // resetSelected: () => unknown;
   hasCheckedPermission?: boolean;
   isTopSiteActive?: boolean;
   hasTopSites?: boolean;
@@ -30,18 +24,22 @@ export interface UseShortcutLinks {
   showGetStarted: boolean;
 }
 
-export default function useShortcutLinks(): UseShortcutLinks {
+export function useShortcutLinks(): UseShortcutLinks {
   const { logEvent } = useContext(LogContext);
   const formRef = useRef<HTMLFormElement>();
-  const [isManual, setIsManual] = useState(true);
-  const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
+
   const {
+    isManual,
+    setIsManual,
     topSites,
     hasCheckedPermission,
-    revokePermission,
     askTopSitesPermission,
-  } = useTopSites();
+  } = useShortcuts();
+
+  const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
+
   const hasTopSites = topSites === undefined ? null : topSites?.length > 0;
+  // console.log({ hasTopSites });
   const hasCustomLinks = customLinks?.length > 0;
   const isTopSiteActive =
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
@@ -55,34 +53,23 @@ export default function useShortcutLinks(): UseShortcutLinks {
   const showGetStarted =
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
-  const resetSelected = () => {
-    const isResetManual = topSites === undefined || !!hasCustomLinks;
-    setIsManual(isResetManual);
-  };
+  // const resetSelected = useCallback(() => {
+  //   const isResetManual = topSites === undefined || !!hasCustomLinks;
+  //   setIsManual(isResetManual);
+  // }, [hasCustomLinks, setIsManual, topSites]);
 
   const getFormInputs = () =>
     Array.from(formRef.current.elements).filter(
       (el) => el.getAttribute('name') === 'shortcutLink',
     ) as HTMLInputElement[];
 
-  useEffect(() => {
-    if (hasCheckedPermission) {
-      resetSelected();
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasCheckedPermission]);
-
-  const onRevokePermission = async () => {
-    await revokePermission();
-
-    setIsManual(true);
-
-    logEvent({
-      event_name: LogEvent.RevokeShortcutAccess,
-      target_type: TargetType.Shortcuts,
-    });
-  };
+  // useEffect(() => {
+  //   if (hasCheckedPermission) {
+  //     resetSelected();
+  //   }
+  //   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [hasCheckedPermission]);
 
   const onSaveChanges = async (e: FormEvent) => {
     e.preventDefault();
@@ -132,6 +119,12 @@ export default function useShortcutLinks(): UseShortcutLinks {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManual, hasCustomLinks]);
 
+  useEffect(() => {
+    if (hasCustomLinks) {
+      setIsManual(true);
+    }
+  }, [hasCustomLinks, setIsManual]);
+
   return {
     formRef,
     isManual,
@@ -157,8 +150,5 @@ export default function useShortcutLinks(): UseShortcutLinks {
 
       return granted;
     },
-    resetSelected,
-    onIsManual: setIsManual,
-    revokePermission: onRevokePermission,
   };
 }

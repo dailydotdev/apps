@@ -1,21 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import { TextField } from '../../fields/TextField';
+import { useShortcutLinks } from '../../../features/shortcuts/hooks/useShortcutLinks';
 
 const limit = 8;
 const list = Array(limit).fill(0);
 
-interface LinksFormProps {
-  links: string[];
-  isFormReadonly?: boolean;
-  errors?: Record<string | number, string>;
-}
-
-export function LinksForm({
-  links,
-  isFormReadonly,
-}: LinksFormProps): ReactElement {
+export function LinksForm(): ReactElement {
+  const { formLinks = [], isManual } = useShortcutLinks();
   const [validInputs, setValidInputs] = useState({});
+  const isFormReadonly = isManual === false;
 
   const onChange = (i: number, isValid: boolean) => {
     if (validInputs[i] === isValid) {
@@ -37,12 +31,15 @@ export function LinksForm({
           autoComplete="off"
           fieldType="tertiary"
           label="Add shortcuts"
-          value={links[i]}
+          value={formLinks[i]}
           valid={validInputs[i] !== false}
           hint={validInputs[i] === false && 'Must be a valid HTTP/S link'}
           readOnly={isFormReadonly}
           validityChanged={(isValid) => onChange(i, isValid)}
           placeholder="http://example.com"
+          className={{
+            input: isFormReadonly ? '!text-text-quaternary' : undefined,
+          }}
         />
       ))}
     </div>
