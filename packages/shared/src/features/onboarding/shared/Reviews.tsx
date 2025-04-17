@@ -53,6 +53,14 @@ export function Reviews({
         className,
       )}
     >
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex items-center gap-1">
+          <span className="font-bold typo-title3">{rating}</span>
+          <Stars />
+        </div>
+        <span className="typo-footnote">{reviewSubtitle}</span>
+      </div>
+
       <div className="no-scrollbar flex max-w-full gap-3 overflow-x-auto laptop:grid laptop:grid-cols-2 laptop:place-content-around">
         {reviews.map((review) => (
           <ReviewCard
@@ -62,14 +70,6 @@ export function Reviews({
             author={review.author}
           />
         ))}
-      </div>
-
-      <div className="flex flex-col items-center gap-1">
-        <div className="flex items-center gap-1">
-          <span className="font-bold typo-title3">{rating}</span>
-          <Stars />
-        </div>
-        <span className="typo-footnote">{reviewSubtitle}</span>
       </div>
     </div>
   );
