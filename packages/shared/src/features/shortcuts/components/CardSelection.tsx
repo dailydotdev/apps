@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { VIcon } from '../../icons';
+import { VIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../typography/Typography';
+} from '../../../components/typography/Typography';
 
 interface CardSelectionProps {
   title: string;

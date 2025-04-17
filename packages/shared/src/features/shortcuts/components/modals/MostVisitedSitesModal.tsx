@@ -1,14 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { LazyImage } from '../../LazyImage';
-import { Button, ButtonVariant } from '../../buttons/Button';
-import type { ModalProps } from '../common/Modal';
-import { Modal } from '../common/Modal';
-import { Justify } from '../../utilities';
-import { useShortcutLinks } from '../../../features/shortcuts/hooks/useShortcutLinks';
-import { useShortcuts } from '../../../features/shortcuts/contexts/ShortcutsProvider';
+import { LazyImage } from '../../../../components/LazyImage';
+import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import type { ModalProps } from '../../../../components/modals/common/Modal';
+import { Modal } from '../../../../components/modals/common/Modal';
+import { Justify } from '../../../../components/utilities';
+import { useShortcutLinks } from '../../hooks/useShortcutLinks';
+import { useShortcuts } from '../../contexts/ShortcutsProvider';
 
-export default function MostVisitedSitesModal({
+export function MostVisitedSitesModal({
   className,
   ...props
 }: ModalProps): ReactElement {

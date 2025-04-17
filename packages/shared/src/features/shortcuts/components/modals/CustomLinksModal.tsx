@@ -5,26 +5,26 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
-import { UserIcon, SitesIcon } from '../../icons';
-import type { ModalProps } from '../common/Modal';
-import { Modal } from '../common/Modal';
-import { IconSize } from '../../Icon';
-import { CardSelection } from './CardSelection';
-import { LinksForm } from './LinksForm';
-import { useShortcutLinks } from '../../../features/shortcuts/hooks/useShortcutLinks';
-import { useShortcuts } from '../../../features/shortcuts/contexts/ShortcutsProvider';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
+} from '../../../../components/buttons/Button';
+import { UserIcon, SitesIcon } from '../../../../components/icons';
+import type { ModalProps } from '../../../../components/modals/common/Modal';
+import { Modal } from '../../../../components/modals/common/Modal';
+import { IconSize } from '../../../../components/Icon';
+import { CardSelection } from '../CardSelection';
+import { LinksForm } from '../LinksForm';
+import { useShortcutLinks } from '../../hooks/useShortcutLinks';
+import { useShortcuts } from '../../contexts/ShortcutsProvider';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../../lib/log';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { HorizontalSeparator } from '../../utilities';
-import { Switch } from '../../fields/Switch';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
+} from '../../../../components/typography/Typography';
+import { HorizontalSeparator } from '../../../../components/utilities';
+import { Switch } from '../../../../components/fields/Switch';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
 
 export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();

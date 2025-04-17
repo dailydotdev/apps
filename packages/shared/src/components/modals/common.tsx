@@ -267,17 +267,10 @@ const ContentModal = dynamic(
   () => import(/* webpackChunkName: "contentModal" */ './ContentModal'),
 );
 
-const MostVisitedSitesModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "mostVisitedSitesModal" */ './shortcuts/MostVisitedSitesModal'
-    ),
-);
-
 const CustomLinksModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "customLinksModal" */ './shortcuts/CustomLinksModal'
+      /* webpackChunkName: "customLinksModal" */ '../../features/shortcuts/components/modals/CustomLinksModal'
     ),
 );
 
@@ -326,7 +319,6 @@ export const modals = {
   [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
   [LazyModal.GiveAward]: GiveAwardModal,
   [LazyModal.ContentModal]: ContentModal,
-  [LazyModal.MostVisitedSites]: MostVisitedSitesModal,
   [LazyModal.CustomLinks]: CustomLinksModal,
 };
 

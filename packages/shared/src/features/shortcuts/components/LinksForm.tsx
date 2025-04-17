@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { TextField } from '../../fields/TextField';
-import { useShortcutLinks } from '../../../features/shortcuts/hooks/useShortcutLinks';
+import { TextField } from '../../../components/fields/TextField';
+import { useShortcutLinks } from '../hooks/useShortcutLinks';
 
 const limit = 8;
 const list = Array(limit).fill(0);

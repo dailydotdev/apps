@@ -10,7 +10,7 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
-import MostVisitedSitesModal from '@dailydotdev/shared/src/components/modals/shortcuts/MostVisitedSitesModal';
+import { MostVisitedSitesModal } from '@dailydotdev/shared/src/features/shortcuts/components/modals/MostVisitedSitesModal';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
