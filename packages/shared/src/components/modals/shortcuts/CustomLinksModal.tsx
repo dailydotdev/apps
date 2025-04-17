@@ -9,7 +9,6 @@ import {
 import { UserIcon, SitesIcon } from '../../icons';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { Justify } from '../../utilities';
 import { IconSize } from '../../Icon';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
@@ -42,7 +41,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   }, []);
 
   return (
-    <Modal kind={Modal.Kind.FixedCenter} size={Modal.Size.Medium} {...props}>
+    <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
       <Modal.Header showCloseButton={false}>
         <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           Shortcuts
@@ -114,21 +113,22 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             </p>
           )}
           <LinksForm />
+
+          {displayRevoke && (
+            <Button
+              onClick={onRevokePermission}
+              form="shortcuts-modal"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Ketchup}
+              type="button"
+              size={ButtonSize.Small}
+              className="mt-4"
+            >
+              Revoke access
+            </Button>
+          )}
         </form>
       </Modal.Body>
-      <Modal.Footer justify={displayRevoke ? Justify.Between : Justify.End}>
-        {displayRevoke && (
-          <Button
-            onClick={onRevokePermission}
-            form="shortcuts-modal"
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Ketchup}
-            type="button"
-          >
-            Revoke access
-          </Button>
-        )}
-      </Modal.Footer>
     </Modal>
   );
 }
