@@ -124,7 +124,7 @@ export default function CommentContainer({
             {!!comment.author?.isPlus && (
               <PlusUserBadge user={comment.author} />
             )}
-            <div className="flex min-w-0 flex-1 shrink items-center">
+            <div className="flex min-w-0 shrink items-center">
               <ProfileLink href={comment.author.permalink}>
                 <TruncateText
                   className="text-text-tertiary typo-footnote"

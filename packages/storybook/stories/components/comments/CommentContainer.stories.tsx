@@ -1,7 +1,6 @@
 import type { Meta, StoryFn } from '@storybook/react';
 import CommentContainer, { CommentContainerProps } from '@dailydotdev/shared/src/components/comments/CommentContainer';
 import { action } from '@storybook/addon-actions';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import ExtensionProviders from '../../extension/_providers';
 
@@ -52,6 +51,11 @@ Default.args = {
       permalink: '/user/exampleUser',
       isPlus: true,
       companies: [],
+      coresRole: 3
+    },
+    award: {
+      image: 'https://placehold.it/300x300',
+      name: 'award name'
     },
     contentHtml: '<p>This is an example comment</p>',
     permalink: '/comment/1',
