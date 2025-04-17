@@ -22,7 +22,7 @@ export function ReviewCard({
   return (
     <div
       className={classNames(
-        'flex max-w-60 flex-col gap-1 rounded-16 bg-surface-float p-4 first:ml-6 last:mr-6',
+        'flex max-w-60 flex-col gap-1 rounded-16 bg-surface-float p-4 first:ml-6 last:mr-6 laptop:!mx-0',
         className,
       )}
     >
@@ -49,11 +49,19 @@ export function Reviews({
   return (
     <div
       className={classNames(
-        'flex max-w-full flex-col items-center gap-4 py-6',
+        'flex max-w-full flex-col items-center gap-4 py-6 ',
         className,
       )}
     >
-      <div className="no-scrollbar flex max-w-full gap-3 overflow-x-auto">
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex items-center gap-1">
+          <span className="font-bold typo-title3">{rating}</span>
+          <Stars />
+        </div>
+        <span className="typo-footnote">{reviewSubtitle}</span>
+      </div>
+
+      <div className="no-scrollbar flex max-w-full gap-3 overflow-x-auto laptop:grid laptop:grid-cols-2 laptop:place-content-around">
         {reviews.map((review) => (
           <ReviewCard
             key={review.title}
@@ -62,14 +70,6 @@ export function Reviews({
             author={review.author}
           />
         ))}
-      </div>
-
-      <div className="flex flex-col items-center gap-1">
-        <div className="flex items-center gap-1">
-          <span className="font-bold typo-title3">{rating}</span>
-          <Stars />
-        </div>
-        <span className="typo-footnote">{reviewSubtitle}</span>
       </div>
     </div>
   );
