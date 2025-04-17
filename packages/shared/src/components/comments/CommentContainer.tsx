@@ -21,8 +21,8 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { ProfileImageSize } from '../ProfilePicture';
-import { Image } from '../image/Image';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import { Image } from '../image/Image';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -124,7 +124,7 @@ export default function CommentContainer({
             {!!comment.author?.isPlus && (
               <PlusUserBadge user={comment.author} />
             )}
-            <div className="flex items-center">
+            <div className="flex min-w-0 shrink items-center">
               <ProfileLink href={comment.author.permalink}>
                 <TruncateText
                   className="text-text-tertiary typo-footnote"
@@ -133,6 +133,8 @@ export default function CommentContainer({
                   @{comment.author.username}
                 </TruncateText>
               </ProfileLink>
+            </div>
+            <div>
               <Separator className="!mx-0.5" />
               <CommentPublishDate comment={comment} />
             </div>
@@ -149,6 +151,15 @@ export default function CommentContainer({
             {comment.author.id === postScoutId && <UserBadge>Scout</UserBadge>}
           </FlexRow>
         </div>
+        {hasAccessToCores && !!comment.award && (
+          <div className="ml-2 flex size-7 items-center justify-center rounded-10 bg-surface-float">
+            <Image
+              src={comment.award.image}
+              alt={comment.award.name}
+              className="size-5 object-contain"
+            />
+          </div>
+        )}
       </header>
       <div
         className={classNames(
@@ -163,15 +174,6 @@ export default function CommentContainer({
         />
         {actions}
       </div>
-      {hasAccessToCores && !!comment.award && (
-        <div className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-10 bg-surface-float">
-          <Image
-            src={comment.award.image}
-            alt={comment.award.name}
-            className="size-8 object-contain"
-          />
-        </div>
-      )}
     </article>
   );
 }
