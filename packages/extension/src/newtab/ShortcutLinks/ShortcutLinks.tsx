@@ -1,8 +1,8 @@
-import type { FormEvent, ReactElement } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,
   ShortcutsSourceType,
@@ -10,9 +10,11 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
-import CustomLinksModal from './ShortcutLinksModal';
-import MostVisitedSitesModal from '../MostVisitedSitesModal';
-import useShortcutLinks from './useShortcutLinks';
+import { MostVisitedSitesModal } from '@dailydotdev/shared/src/features/shortcuts/components/modals/MostVisitedSitesModal';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
+import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import ShortcutOptionsMenu from './ShortcutOptionsMenu';
 import { ShortcutLinksList } from './ShortcutLinksList';
 import { ShortcutGetStarted } from './ShortcutGetStarted';
@@ -24,26 +26,19 @@ interface ShortcutLinksProps {
 export default function ShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
+  const { openModal } = useLazyModal();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
-  const [showModal, setShowModal] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const {
-    askTopSitesBrowserPermission,
-    revokePermission,
-    onIsManual,
-    resetSelected,
     shortcutLinks,
-    formLinks = [],
-    hasTopSites,
     hasCheckedPermission,
-    isManual,
-    formRef,
-    onSaveChanges,
     isTopSiteActive,
     showGetStarted,
     hideShortcuts,
   } = useShortcutLinks();
+
+  const { showPermissionsModal } = useShortcuts();
+
   const shortcutSource = isTopSiteActive
     ? ShortcutsSourceType.Browser
     : ShortcutsSourceType.Custom;
@@ -85,34 +80,11 @@ export default function ShortcutLinks({
   }, [logEvent, showTopSites, shortcutSource, hasCheckedPermission]);
 
   const onOptionsOpen = () => {
-    setShowOptions(true);
-
-    logEvent({
-      event_name: LogEvent.OpenShortcutConfig,
-      target_type: TargetType.Shortcuts,
-    });
-  };
-
-  if (!showTopSites) {
-    return <></>;
-  }
-
-  const onShowTopSites = () => {
-    if (hasTopSites === null) {
-      setShowModal(true);
-    }
-
-    onIsManual(false);
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    const { errors } = await onSaveChanges(e);
-
-    if (errors) {
+    if (!hasCheckedPermission) {
       return;
     }
 
-    setShowOptions(false);
+    openModal({ type: LazyModal.CustomLinks });
   };
 
   const onLinkClick = () => {
@@ -122,6 +94,10 @@ export default function ShortcutLinks({
       extra: JSON.stringify({ source: shortcutSource }),
     });
   };
+
+  if (!showTopSites) {
+    return <></>;
+  }
 
   return (
     <>
@@ -146,39 +122,7 @@ export default function ShortcutLinks({
           />
         ))}
 
-      {showModal && (
-        <MostVisitedSitesModal
-          isOpen={showModal}
-          onRequestClose={() => {
-            setShowModal(false);
-            onIsManual(true);
-          }}
-          onApprove={async () => {
-            setShowModal(false);
-            const granted = await askTopSitesBrowserPermission();
-            if (!granted) {
-              onIsManual(true);
-            }
-          }}
-        />
-      )}
-      {showOptions && hasCheckedPermission && (
-        <CustomLinksModal
-          onSubmit={onSubmit}
-          formRef={formRef}
-          isOpen={showOptions}
-          isManual={isManual}
-          links={formLinks}
-          onRevokePermission={revokePermission}
-          onShowPermission={() => setShowModal(true)}
-          onRequestClose={() => {
-            setShowOptions(false);
-            resetSelected();
-          }}
-          onShowCustomLinks={() => onIsManual(true)}
-          onShowTopSitesClick={onShowTopSites}
-        />
-      )}
+      {showPermissionsModal && <MostVisitedSitesModal isOpen />}
       <ShortcutOptionsMenu
         isOpen={isOpen}
         onHide={toggleShowTopSites}

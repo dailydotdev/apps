@@ -88,6 +88,9 @@ importers:
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
+      '@kickass-coderz/react':
+        specifier: ^0.0.4
+        version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.59.16
         version: 5.62.2(react@18.3.1)
@@ -382,6 +385,9 @@ importers:
       '@growthbook/growthbook-react':
         specifier: ^0.17.0
         version: 0.17.0(react@18.3.1)
+      '@kickass-coderz/react':
+        specifier: ^0.0.4
+        version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@marsidev/react-turnstile':
         specifier: ^1.1.0
         version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -801,6 +807,9 @@ importers:
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
+      '@kickass-coderz/react':
+        specifier: ^0.0.4
+        version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@marsidev/react-turnstile':
         specifier: 1.1.0
         version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2307,6 +2316,17 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@kickass-coderz/react@0.0.4':
+    resolution: {integrity: sha512-4sxQsTf6iLxjCzZTms1gmptJj7iGaseqaVrTnJOBPNkQOGSz7U1P6o7HNjgb7oo+dmWJFGln2+B0+TP9ld6J+Q==}
+    peerDependencies:
+      '@types/react': '>= 18.0.0'
+      '@types/react-dom': '>= 18.0.0'
+      react: '>= 18.0.0'
+      react-dom: '>= 18.0.0'
+
+  '@kickass-coderz/utils@0.0.4':
+    resolution: {integrity: sha512-g8h7Ee1qKmV/Dj3KQt99T4iBZ7D4aEG2FsFlwr+ERe3EaLmDc74iEpowngvCSTD5D4XiO4klWNOiwPFyvJoCkA==}
 
   '@lit-labs/react@1.2.1':
     resolution: {integrity: sha512-DiZdJYFU0tBbdQkfwwRSwYyI/mcWkg3sWesKRsHUd4G+NekTmmeq9fzsurvcKTNVa0comNljwtg4Hvi1ds3V+A==}
@@ -10260,6 +10280,16 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  '@kickass-coderz/react@0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@kickass-coderz/utils': 0.0.4
+      '@types/react': 18.3.12
+      '@types/react-dom': 18.3.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@kickass-coderz/utils@0.0.4': {}
+
   '@lit-labs/react@1.2.1': {}
 
   '@lit-labs/ssr-dom-shim@1.2.1': {}
@@ -14357,11 +14387,7 @@ snapshots:
       pretty-format: 26.6.2
       throat: 5.0.0
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   jest-junit@12.3.0:
     dependencies:

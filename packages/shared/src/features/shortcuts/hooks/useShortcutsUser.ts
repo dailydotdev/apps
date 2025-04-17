@@ -1,8 +1,8 @@
-import { useAuthContext } from '../contexts/AuthContext';
-import { ActionType } from '../graphql/actions';
-import { useActions } from './useActions';
-import { checkIsExtension } from '../lib/func';
-import { useSettingsContext } from '../contexts/SettingsContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { ActionType } from '../../../graphql/actions';
+import { useActions } from '../../../hooks/useActions';
+import { checkIsExtension } from '../../../lib/func';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 export interface UseShortcutsUser {
   isOldUser: boolean;

@@ -16,6 +16,7 @@
   "dependencies": {
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "workspace:*",
+    "@kickass-coderz/react": "^0.0.4",
     "@tanstack/react-query": "^5.59.16",
     "@tanstack/react-query-devtools": "^5.59.16",
     "classnames": "^2.5.1",

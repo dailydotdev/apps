@@ -16,6 +16,7 @@
   "dependencies": {
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "workspace:*",
+    "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "1.1.0",
     "@paddle/paddle-js": "1.4.0",
     "@serwist/next": "^9.0.9",
