@@ -12,7 +12,6 @@ export interface UseShortcutLinks {
     e: FormEvent,
   ) => Promise<{ errors: Record<string | number, string> }>;
   askTopSitesBrowserPermission: () => Promise<boolean>;
-  // resetSelected: () => unknown;
   hasCheckedPermission?: boolean;
   isTopSiteActive?: boolean;
   hasTopSites?: boolean;
