@@ -1,6 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import { UserIcon, SitesIcon } from '../../icons';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -12,6 +17,11 @@ import { useShortcutLinks } from '../../../features/shortcuts/hooks/useShortcutL
 import { useShortcuts } from '../../../features/shortcuts/contexts/ShortcutsProvider';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../typography/Typography';
 
 export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -33,7 +43,30 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
 
   return (
     <Modal kind={Modal.Kind.FixedCenter} size={Modal.Size.Medium} {...props}>
-      <Modal.Header title="Shortcuts" />
+      <Modal.Header showCloseButton={false}>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+          Shortcuts
+        </Typography>
+        <div className="ml-auto flex gap-2">
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            onClick={() => {
+              props?.onRequestClose?.(undefined);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            form="shortcuts-modal"
+            type="submit"
+          >
+            Save
+          </Button>
+        </div>
+      </Modal.Header>
       <Modal.Body>
         <form
           ref={formRef}
@@ -95,13 +128,6 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             Revoke access
           </Button>
         )}
-        <Button
-          variant={ButtonVariant.Primary}
-          form="shortcuts-modal"
-          type="submit"
-        >
-          Save changes
-        </Button>
       </Modal.Footer>
     </Modal>
   );
