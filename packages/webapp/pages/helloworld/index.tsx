@@ -24,6 +24,7 @@ import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 
 type PageProps = {
   dehydratedState: DehydratedState;
+  initialStepId: string | null;
   showCookieBanner?: boolean;
 };
 
@@ -74,17 +75,24 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Check if the user already accepted cookies
   const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
 
+  // Determine the initial step ID
+  const queryStepId = query?.stepId as string | undefined;
+  const initialStepId: string | null =
+    queryStepId ?? boot.data?.funnelState?.session?.currentStep;
+
   // Return props including the dehydrated state
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
+      initialStepId,
     },
   };
 };
 
 export default function HelloWorldPage({
   dehydratedState,
+  initialStepId,
   showCookieBanner,
 }: PageProps): ReactElement {
   const { data: funnelBoot } = useFunnelBoot();
@@ -112,6 +120,7 @@ export default function HelloWorldPage({
         {!!funnel && !!session.id && (
           <FunnelStepper
             funnel={funnel}
+            initialStepId={initialStepId}
             session={session}
             showCookieBanner={showCookieBanner}
             onComplete={() => router.replace('/onboarding')}

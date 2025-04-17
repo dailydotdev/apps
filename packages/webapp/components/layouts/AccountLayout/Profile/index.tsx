@@ -394,7 +394,10 @@ const ProfileIndex = ({
   if (isMobile) {
     return (
       <FormWrapper
-        className={{ container: 'relative max-w-[100vw]' }}
+        className={{
+          container: 'relative max-w-[100vw]',
+          title: 'font-bold typo-title3',
+        }}
         title="Edit Profile"
         form="submit-profile"
         rightButtonProps={{ onClick: onSubmit, disabled: isLoading }}
