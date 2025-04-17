@@ -51,7 +51,6 @@ export function useShortcutLinks(): UseShortcutLinks {
   const showGetStarted =
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
-  // const resetSelected = useCallback(() => {
   //   const isResetManual = topSites === undefined || !!hasCustomLinks;
   //   setIsManual(isResetManual);
   // }, [hasCustomLinks, setIsManual, topSites]);
