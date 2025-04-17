@@ -35,7 +35,7 @@ export function CardSelection({
       type="button"
     >
       {isActive && (
-        <VIcon className="absolute -right-3 -top-3 h-8 w-8 rounded-8 bg-text-primary text-background-default" />
+        <VIcon className="absolute -right-3 -top-3 size-8 rounded-8 bg-text-primary text-background-default" />
       )}
       {icon}
 
