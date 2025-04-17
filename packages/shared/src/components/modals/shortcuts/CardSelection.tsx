@@ -2,6 +2,11 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { VIcon } from '../../icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
 
 interface CardSelectionProps {
   title: string;
@@ -23,18 +28,30 @@ export function CardSelection({
       className={classNames(
         'relative flex flex-col items-center gap-1 rounded-16 border border-border-subtlest-tertiary px-4 py-3 hover:cursor-pointer',
         isActive
-          ? 'border-border-subtlest-primary'
+          ? 'border-border-subtlest-primary bg-surface-float'
           : 'border-border-subtlest-tertiary',
       )}
       onClick={onClick}
       type="button"
     >
       {isActive && (
-        <VIcon className="absolute -right-3 -top-3 h-6 w-6 rounded-8 bg-text-primary text-background-default" />
+        <VIcon className="absolute -right-3 -top-3 h-8 w-8 rounded-8 bg-text-primary text-background-default" />
       )}
       {icon}
-      <span className="font-bold typo-callout">{title}</span>
-      <span className="text-text-tertiary typo-footnote">{description}</span>
+
+      <Typography
+        bold
+        type={TypographyType.Title3}
+        color={isActive ? TypographyColor.Primary : TypographyColor.Tertiary}
+      >
+        {title}
+      </Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        {description}
+      </Typography>
     </button>
   );
 }

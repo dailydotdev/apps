@@ -18,9 +18,11 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
+import { HorizontalSeparator } from '../../utilities';
 
 export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -70,6 +72,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
         <form
           ref={formRef}
           id="shortcuts-modal"
+          className="flex flex-col gap-6"
           onSubmit={async (event) => {
             const { errors } = await onSaveChanges(event);
             if (errors) {
@@ -79,11 +82,13 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             props?.onRequestClose?.(undefined);
           }}
         >
-          <nav className="mb-8 grid grid-cols-2 gap-6">
+          <HorizontalSeparator />
+
+          <nav className="grid grid-cols-2 gap-10">
             <CardSelection
               title="My shortcuts"
               description="Curate your own shortcuts manually"
-              icon={<UserIcon size={IconSize.Large} secondary={isManual} />}
+              icon={<UserIcon size={IconSize.XLarge} secondary={isManual} />}
               isActive={isManual}
               onClick={() => {
                 setIsManual(true);
@@ -94,7 +99,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
               description="Shortcuts are imported from your browser"
               icon={
                 <SitesIcon
-                  size={IconSize.Large}
+                  size={IconSize.XLarge}
                   secondary={isManual === false}
                 />
               }
@@ -108,9 +113,12 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             />
           </nav>
           {!isManual && (
-            <p className="mb-6 text-text-tertiary typo-callout">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
               To edit links, please switch to &quot;My shortcuts&quot; mode
-            </p>
+            </Typography>
           )}
           <LinksForm />
 
@@ -122,7 +130,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
               color={ButtonColor.Ketchup}
               type="button"
               size={ButtonSize.Small}
-              className="mt-4"
+              className="self-start"
             >
               Revoke access
             </Button>
