@@ -86,6 +86,7 @@ describe('FunnelStepper component', () => {
       position: { chapter: 0, step: 0 },
       chapters: [{ steps: 1 }],
       step: mockStep,
+      isReady: true,
     });
 
     (useFunnelTracking as jest.Mock).mockReturnValue({
@@ -273,6 +274,7 @@ describe('FunnelStepper component', () => {
       position: { chapter: 0, step: 0 },
       chapters: [{ steps: 2 }],
       step: quizStep,
+      isReady: true,
     });
 
     renderComponent(mockFunnelWithMultipleSteps);
