@@ -38,7 +38,6 @@ export function useShortcutLinks(): UseShortcutLinks {
   const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
 
   const hasTopSites = topSites === undefined ? null : topSites?.length > 0;
-  // console.log({ hasTopSites });
   const hasCustomLinks = customLinks?.length > 0;
   const isTopSiteActive =
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
