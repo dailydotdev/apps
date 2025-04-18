@@ -6,6 +6,10 @@ import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import type { ReactElement } from 'react';
 import { useContext, useEffect } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  AUTH_REDIRECT_KEY,
+  shouldRedirectAuth,
+} from '@dailydotdev/shared/src/features/onboarding/shared';
 
 const checkShouldSendBroadcast = () => {
   const ua = navigator.userAgent;
@@ -15,6 +19,21 @@ const checkShouldSendBroadcast = () => {
   const conditions = [isFromFacebook, isInstagramWebview, postMessageUndefined];
 
   return conditions.some(Boolean);
+};
+
+const handleRedirectAuth = (params: URLSearchParams) => {
+  const href = window.sessionStorage.getItem(AUTH_REDIRECT_KEY);
+
+  if (href) {
+    const [redirect, hrefParams] = href.split('?');
+    const redirectParams = new URLSearchParams(hrefParams);
+
+    Object.entries(redirectParams).forEach(([key, value]) =>
+      params.set(key, value),
+    );
+
+    window.location.replace(`${redirect}?${params}`);
+  }
 };
 
 function CallbackPage(): ReactElement {
@@ -33,6 +52,11 @@ function CallbackPage(): ReactElement {
     try {
       if (!window.opener && params.flow && params.settings) {
         window.location.replace(`/reset-password?${search}`);
+        return;
+      }
+
+      if (shouldRedirectAuth()) {
+        handleRedirectAuth(urlSearchParams);
         return;
       }
 
