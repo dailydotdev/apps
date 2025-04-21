@@ -132,8 +132,10 @@ export const feedRangeFilters: RadioItemProps[] = [
 
 export const customFeedsPlusDate = new Date('2024-12-11');
 
-// The list below must match the Confluence page attached
-// https://dailydotdev.atlassian.net/wiki/spaces/HAN/pages/1571946510/Restricted+countries+for+business+activities+aka+sanctioned+countries#Restricted-Countries-and-Regions
+/*
+  The list below must match the Confluence page attached
+  https://dailydotdev.atlassian.net/wiki/spaces/HAN/pages/1571946510/Restricted+countries+for+business+activities+aka+sanctioned+countries#Restricted-Countries-and-Regions
+*/
 export const invalidPlusRegions = [
   'AF', // Afghanistan
   'AQ', // Antarctica
