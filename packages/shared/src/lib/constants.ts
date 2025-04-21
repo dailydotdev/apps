@@ -132,18 +132,38 @@ export const feedRangeFilters: RadioItemProps[] = [
 
 export const customFeedsPlusDate = new Date('2024-12-11');
 
+// The list below must match the Confluence page attached
+// https://dailydotdev.atlassian.net/wiki/spaces/HAN/pages/1571946510/Restricted+countries+for+business+activities+aka+sanctioned+countries#Restricted-Countries-and-Regions
 export const invalidPlusRegions = [
-  'CU',
-  'IR',
-  'MM',
-  'SD',
-  'SY',
-  'KP',
-  'BY',
-  'ZW',
-  'RU',
-  'LB',
-  'IQ',
+  'AF', // Afghanistan
+  'AQ', // Antarctica
+  'BY', // Belarus
+  'MM', // Burma (Myanmar)
+  'CF', // Central African Republic
+  'UA-43', // Crimea (Region of Ukraine)
+  'CU', // Cuba
+  'CD', // Democratic Republic of Congo
+  'UA-14', // Donetsk (Region of Ukraine)
+  'HT', // Haiti
+  'IR', // Iran
+  'IQ', // Iraq
+  'UA-65', // Kherson (Region of Ukraine)
+  'LB', // Lebanon
+  'LY', // Libya
+  'UA-09', // Luhansk (Region of Ukraine)
+  'ML', // Mali
+  'AN', // Netherlands Antilles
+  'NI', // Nicaragua
+  'KP', // North Korea
+  'RU', // Russia
+  'SO', // Somalia
+  'SS', // South Sudan
+  'SD', // Sudan
+  'SY', // Syria
+  'VE', // Venezuela
+  'YE', // Yemen
+  'UA-23', // Zaporizhzhia (Region of Ukraine)
+  'ZW', // Zimbabwe
 ];
 
 export const DeletedPostId = '404';
