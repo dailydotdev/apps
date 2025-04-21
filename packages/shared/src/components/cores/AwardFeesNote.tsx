@@ -6,7 +6,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { termsOfService } from '../../lib/constants';
+import { creatorsTermsOfService } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 
 export type AwardFeesNoteProps = {
@@ -25,7 +25,7 @@ export const AwardFeesNote = ({
       Awards may include a revenue share with the recipient and are subject to
       our{' '}
       <a
-        href={termsOfService}
+        href={creatorsTermsOfService}
         target="_blank"
         rel={anchorDefaultRel}
         className="font-bold underline"
