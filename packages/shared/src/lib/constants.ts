@@ -142,6 +142,8 @@ export const invalidPlusRegions = [
   'BY',
   'ZW',
   'RU',
+  'LB',
+  'IQ',
 ];
 
 export const DeletedPostId = '404';
