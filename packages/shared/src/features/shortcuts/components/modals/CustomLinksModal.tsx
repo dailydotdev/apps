@@ -134,13 +134,8 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             <CardSelection
               title="Most visited sites"
               description="Shortcuts are imported from your browser"
-              icon={
-                <SitesIcon
-                  size={IconSize.XLarge}
-                  secondary={isManual === false}
-                />
-              }
-              isActive={isManual === false}
+              icon={<SitesIcon size={IconSize.XLarge} secondary={!isManual} />}
+              isActive={!isManual}
               onClick={() => {
                 if (!hasTopSites) {
                   setShowPermissionsModal(true);
