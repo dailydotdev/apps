@@ -1,8 +1,9 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import { isIOSNative } from '../../lib/func';
+import { isIOSNative, checkIsExtension } from '../../lib/func';
 import { PaddleSubProvider } from './Paddle';
+import { ChromeExtensionProvider } from './ChromeExtension';
 import type { PaymentContextProviderProps } from './context';
 
 const StoreKitSubProvider = dynamic(() =>
@@ -11,19 +12,17 @@ const StoreKitSubProvider = dynamic(() =>
 
 export const PaymentContextProvider = ({
   children,
-  successCallback,
+  ...props
 }: PaymentContextProviderProps): ReactElement => {
   if (isIOSNative()) {
+    return <StoreKitSubProvider {...props}>{children}</StoreKitSubProvider>;
+  }
+
+  if (checkIsExtension()) {
     return (
-      <StoreKitSubProvider successCallback={successCallback}>
-        {children}
-      </StoreKitSubProvider>
+      <ChromeExtensionProvider {...props}>{children}</ChromeExtensionProvider>
     );
   }
 
-  return (
-    <PaddleSubProvider successCallback={successCallback}>
-      {children}
-    </PaddleSubProvider>
-  );
+  return <PaddleSubProvider {...props}>{children}</PaddleSubProvider>;
 };

@@ -1,29 +1,10 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
-import type { Paddle, TimePeriod } from '@paddle/paddle-js';
+import type { Paddle } from '@paddle/paddle-js';
 import type {
-  PlusPriceType,
-  PlusPriceTypeAppsId,
-} from '../../lib/featureValues';
-
-export type ProductOption = {
-  label: string;
-  value: string;
-  price: {
-    amount: number;
-    formatted: string;
-    monthlyAmount?: number;
-    monthlyFormatted?: string;
-  };
-  currencyCode?: string;
-  currencySymbol?: string;
-  extraLabel: string;
-  appsId: PlusPriceTypeAppsId;
-  duration: PlusPriceType;
-  durationLabel: 'month' | 'year';
-  trialPeriod: TimePeriod | null;
-  coresValue?: number;
-};
+  ProductPricingPreview,
+  ProductPricingType,
+} from '../../graphql/paddle';
 
 export interface OpenCheckoutProps {
   priceId: string;
@@ -35,20 +16,12 @@ export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
 export interface PaymentContextData {
   openCheckout?: OpenCheckoutFn;
   paddle?: Paddle | undefined;
-  productOptions?: ProductOption[];
-  earlyAdopterPlanId?: string | null;
+  productOptions?: ProductPricingPreview[];
   isPlusAvailable: boolean;
-  giftOneYear?: ProductOption;
+  giftOneYear?: ProductPricingPreview;
   isPricesPending: boolean;
   isFreeTrialExperiment: boolean;
 }
-
-export type ProductMeta = {
-  label: string;
-  extraLabel?: string;
-  duration: PlusPriceType;
-  appsId?: PlusPriceTypeAppsId;
-};
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);
 
@@ -64,5 +37,6 @@ export const usePaymentContext = (): PaymentContextData => {
 
 export type PaymentContextProviderProps = {
   children?: ReactNode;
+  type: ProductPricingType;
   successCallback?: () => void;
 };

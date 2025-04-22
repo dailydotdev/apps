@@ -95,6 +95,7 @@ export type UsePaddleReturn = {
   paddle: Paddle | undefined;
 };
 
+// This hook should not be called outside the context of the PaymentContext
 export const usePaddle = ({
   paddleCallback,
   disabledEvents,
