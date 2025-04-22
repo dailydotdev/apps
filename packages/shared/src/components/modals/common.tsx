@@ -267,6 +267,13 @@ const ContentModal = dynamic(
   () => import(/* webpackChunkName: "contentModal" */ './ContentModal'),
 );
 
+const CustomLinksModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "customLinksModal" */ '../../features/shortcuts/components/modals/CustomLinksModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -312,6 +319,7 @@ export const modals = {
   [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
   [LazyModal.GiveAward]: GiveAwardModal,
   [LazyModal.ContentModal]: ContentModal,
+  [LazyModal.CustomLinks]: CustomLinksModal,
 };
 
 type GetComponentProps<T> = T extends

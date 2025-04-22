@@ -30,6 +30,8 @@ import * as actionHook from '@dailydotdev/shared/src/hooks/useActions';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as libFuncs from '@dailydotdev/shared/src/lib/func';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
+import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -150,7 +152,10 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
               sendBeacon: jest.fn(),
             }}
           >
-            <ShortcutLinks shouldUseListFeedLayout={false} />
+            <ShortcutsProvider>
+              <ShortcutLinks shouldUseListFeedLayout={false} />
+              <LazyModalElement />
+            </ShortcutsProvider>
           </LogContext.Provider>
         </BootDataProvider>
       </QueryClientProvider>
@@ -173,6 +178,7 @@ describe('shortcut links component', () => {
       ...defaultBootData,
       settings: { ...defaultSettings, customLinks: null },
     });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
     const addShortcuts = await screen.findByText('Add shortcuts');
     expect(addShortcuts).toBeVisible();
@@ -216,9 +222,12 @@ describe('shortcut links component', () => {
       },
       settings: { ...defaultSettings, customLinks: [] },
     });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
     const addShortcuts = await screen.findByText('Add shortcuts');
     fireEvent.click(addShortcuts);
+
+    await screen.findByRole('dialog');
 
     const mostVisitedSites = await screen.findByText('Most visited sites');
     expect(mostVisitedSites).toBeVisible();
@@ -237,7 +246,7 @@ describe('shortcut links component', () => {
     const next = await screen.findByText('Add the shortcuts');
     fireEvent.click(next);
 
-    const saveChanges = await screen.findByText('Save changes');
+    const saveChanges = await screen.findByText('Save');
     fireEvent.click(saveChanges);
 
     const shortcuts = await screen.findAllByRole('link');
@@ -284,6 +293,8 @@ describe('shortcut links component', () => {
     const manage = await screen.findByText('Manage');
     fireEvent.click(manage);
 
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
@@ -306,7 +317,7 @@ describe('shortcut links component', () => {
       target: { value: additional },
     });
 
-    const saveChanges = await screen.findByText('Save changes');
+    const saveChanges = await screen.findByText('Save');
     expect(saveChanges).toBeVisible();
 
     fireEvent.click(saveChanges);
