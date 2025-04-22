@@ -31,6 +31,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
+import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -138,8 +139,10 @@ export default function App({
               deviceId={deviceId}
             >
               <SubscriptionContextProvider>
-                <LazyModalElement />
-                <InternalAppWithFeaturesBoundary />
+                <ShortcutsProvider>
+                  <LazyModalElement />
+                  <InternalAppWithFeaturesBoundary />
+                </ShortcutsProvider>
               </SubscriptionContextProvider>
             </BootDataProvider>
           </ExtensionContextProvider>

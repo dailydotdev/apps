@@ -102,6 +102,7 @@
   "dependencies": {
     "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e",
     "@growthbook/growthbook-react": "^0.17.0",
+    "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "^1.1.0",
     "@paddle/paddle-js": "1.4.0",
     "@tippyjs/react": "^4.2.6",
