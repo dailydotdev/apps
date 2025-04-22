@@ -187,7 +187,7 @@ export const FeedSettingsEdit = (
             title={<FeedSettingsTitle />}
             defaultOpen
           />
-          <Modal.Sidebar.Inner className="overscroll-contain">
+          <Modal.Sidebar.Inner>
             <FeedSettingsEditBody view={feedSettingsMenuTitle.general}>
               <FeedSettingsGeneralSection />
             </FeedSettingsEditBody>
