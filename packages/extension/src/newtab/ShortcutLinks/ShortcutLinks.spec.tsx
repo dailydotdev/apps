@@ -30,6 +30,7 @@ import * as actionHook from '@dailydotdev/shared/src/hooks/useActions';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as libFuncs from '@dailydotdev/shared/src/lib/func';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
+import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -150,7 +151,9 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
               sendBeacon: jest.fn(),
             }}
           >
-            <ShortcutLinks shouldUseListFeedLayout={false} />
+            <ShortcutsProvider>
+              <ShortcutLinks shouldUseListFeedLayout={false} />
+            </ShortcutsProvider>
           </LogContext.Provider>
         </BootDataProvider>
       </QueryClientProvider>
