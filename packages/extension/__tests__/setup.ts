@@ -71,6 +71,11 @@ Object.defineProperty(global, 'open', {
   value: jest.fn(),
 });
 
+Object.defineProperty(global, 'scrollTo', {
+  writable: true,
+  value: jest.fn(),
+});
+
 Object.defineProperty(global, 'TransformStream', {
   writable: true,
   value: jest.fn().mockImplementation(() => ({
