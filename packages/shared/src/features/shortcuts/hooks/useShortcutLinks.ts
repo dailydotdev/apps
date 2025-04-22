@@ -104,12 +104,6 @@ export function useShortcutLinks(): UseShortcutLinks {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManual, hasCustomLinks]);
 
-  useEffect(() => {
-    if (hasCustomLinks) {
-      setIsManual(true);
-    }
-  }, [hasCustomLinks, setIsManual]);
-
   return {
     formRef,
     isManual,

@@ -3,13 +3,15 @@ import { createContextProvider } from '@kickass-coderz/react';
 import { useTopSites } from '../hooks/useTopSites';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 const [ShortcutsProvider, useShortcuts] = createContextProvider(
   () => {
-    const [isManual, setIsManual] = useState(true);
-    const [showPermissionsModal, setShowPermissionsModal] = useState(false);
-
     const { logEvent } = useLogContext();
+    const { customLinks } = useSettingsContext();
+
+    const [isManual, setIsManual] = useState(false);
+    const [showPermissionsModal, setShowPermissionsModal] = useState(false);
 
     const {
       topSites,
@@ -34,6 +36,12 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
         setIsManual(false);
       }
     }, [hasCheckedPermission, topSites?.length]);
+
+    useEffect(() => {
+      if (customLinks?.length > 0 && !isManual) {
+        setIsManual(true);
+      }
+    }, [customLinks, isManual]);
 
     return {
       isManual,
