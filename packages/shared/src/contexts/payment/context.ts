@@ -35,8 +35,10 @@ export const usePaymentContext = (): PaymentContextData => {
   return context;
 };
 
-export type PaymentContextProviderProps = {
+export interface PaymentContextProviderProps<T = unknown, E = unknown> {
   children?: ReactNode;
   type: ProductPricingType;
   successCallback?: () => void;
-};
+  disabledEvents?: E[];
+  eventsHandler?: (event: T) => void;
+}

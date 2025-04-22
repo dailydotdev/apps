@@ -1,29 +1,18 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
-import type { OpenCheckoutProps } from './context';
+import type { OpenCheckoutProps, PaymentContextProviderProps } from './context';
 import { BasePaymentProvider } from './BasePaymentProvider';
 import { plusSuccessUrl } from '../../lib/constants';
 import { useAuthContext } from '../AuthContext';
 import { usePaddle } from '../../features/payment/hooks/usePaddle';
-import type { ProductPricingType } from '../../graphql/paddle';
 
-interface PaddleSubProviderProps {
-  children: ReactNode;
-  type: ProductPricingType;
-  successCallback?: () => void;
-}
-
-export const PaddleSubProvider = ({
-  type,
-  children,
-  successCallback,
-}: PaddleSubProviderProps): ReactElement => {
+const useDefaultCallback = (successCallback: () => void) => {
   const router = useRouter();
-  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const paddleCallback = useCallback(
+
+  return useCallback(
     (event: PaddleEventData) => {
       switch (event?.name) {
         case CheckoutEventNames.CHECKOUT_COMPLETED:
@@ -37,10 +26,28 @@ export const PaddleSubProvider = ({
           break;
       }
     },
-    [successCallback, router],
+    [router, successCallback],
   );
+};
 
-  const { paddle } = usePaddle({ paddleCallback });
+export type PaddleSubProviderProps = PaymentContextProviderProps<
+  PaddleEventData,
+  CheckoutEventNames
+>;
+
+export const PaddleSubProvider = ({
+  type,
+  children,
+  disabledEvents,
+  eventsHandler,
+  successCallback,
+}: PaddleSubProviderProps): ReactElement => {
+  const defaultEventsHandler = useDefaultCallback(successCallback);
+  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
+  const { paddle } = usePaddle({
+    paddleCallback: eventsHandler ?? defaultEventsHandler,
+    disabledEvents,
+  });
 
   const openCheckout = useCallback(
     ({ priceId, giftToUserId }: OpenCheckoutProps) => {

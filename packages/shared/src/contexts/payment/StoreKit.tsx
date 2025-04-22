@@ -70,10 +70,18 @@ export type PurchaseEvent = {
   detail?: string;
 };
 
+export type StoreKitSubProviderProps = PaymentContextProviderProps<
+  CustomEvent<PurchaseEvent>,
+  PurchaseEventName
+>;
+
 export const StoreKitSubProvider = ({
   children,
   successCallback,
-}: PaymentContextProviderProps): ReactElement => {
+}: PaymentContextProviderProps<
+  CustomEvent<PurchaseEvent>,
+  PurchaseEventName
+>): ReactElement => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();

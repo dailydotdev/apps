@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import classNames from 'classnames';
+import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
   FunnelChapter,
@@ -30,11 +31,13 @@ import { FunnelStepBackground } from './FunnelStepBackground';
 import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
-import { useInitFunnelPaddle } from '../hooks/useInitFunnelPaddle';
 import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
+import { PaymentContextProvider } from '../../../contexts/payment';
+import { ProductPricingType } from '../../../graphql/paddle';
+import type { PaddleEventCallback } from '../../payment/hooks/usePaddle';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -104,7 +107,6 @@ export const FunnelStepper = ({
     trackFunnelEvent,
   });
 
-  useInitFunnelPaddle();
   useWindowScroll({
     onScroll: trackOnScroll,
   });
@@ -133,6 +135,10 @@ export const FunnelStepper = ({
       onComplete?.();
     }
   };
+
+  const handlePaddleCallback: PaddleEventCallback = useCallback((event) => {
+    window.dispatchEvent(new CustomEvent('paddle-event', { detail: event }));
+  }, []);
 
   if (!isReady) {
     return null;
@@ -165,29 +171,35 @@ export const FunnelStepper = ({
           showSkipButton={skip.hasTarget}
           showProgressBar={skip.hasTarget}
         />
-        {funnel.chapters.map((chapter: FunnelChapter) => (
-          <Fragment key={chapter?.id}>
-            {chapter?.steps?.map((funnelStep: FunnelStep) => {
-              const isActive = funnelStep?.id === step?.id;
-              const Wrapper = isActive ? Fragment : HiddenStep;
-              return (
-                <Wrapper
-                  key={`${chapter?.id}-${funnelStep?.id}`}
-                  {...(!isActive && {
-                    'data-testid': `funnel-step`,
-                  })}
-                >
-                  <FunnelStepComponent
-                    {...funnelStep}
-                    isActive={isActive}
-                    key={step.id}
-                    onTransition={onTransition}
-                  />
-                </Wrapper>
-              );
-            })}
-          </Fragment>
-        ))}
+        <PaymentContextProvider
+          type={ProductPricingType.Plus}
+          disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
+          eventsHandler={handlePaddleCallback}
+        >
+          {funnel.chapters.map((chapter: FunnelChapter) => (
+            <Fragment key={chapter?.id}>
+              {chapter?.steps?.map((funnelStep: FunnelStep) => {
+                const isActive = funnelStep?.id === step?.id;
+                const Wrapper = isActive ? Fragment : HiddenStep;
+                return (
+                  <Wrapper
+                    key={`${chapter?.id}-${funnelStep?.id}`}
+                    {...(!isActive && {
+                      'data-testid': `funnel-step`,
+                    })}
+                  >
+                    <FunnelStepComponent
+                      {...funnelStep}
+                      isActive={isActive}
+                      key={step.id}
+                      onTransition={onTransition}
+                    />
+                  </Wrapper>
+                );
+              })}
+            </Fragment>
+          ))}
+        </PaymentContextProvider>
       </FunnelStepBackground>
     </section>
   );
