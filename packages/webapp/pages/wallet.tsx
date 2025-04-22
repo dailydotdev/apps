@@ -15,8 +15,8 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   coresDocsLink,
+  creatorsTermsOfService,
   onboardingUrl,
-  termsOfService,
   webappUrl,
   withdrawLink,
 } from '@dailydotdev/shared/src/lib/constants';
@@ -426,7 +426,7 @@ const Wallet = (): ReactElement => {
                 tag="a"
                 target="_blank"
                 rel="noopener"
-                href={termsOfService}
+                href={creatorsTermsOfService}
                 icon={<DocsIcon />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
