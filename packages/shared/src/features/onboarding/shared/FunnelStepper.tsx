@@ -103,6 +103,7 @@ export const FunnelStepper = ({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
+  const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
 
   useInitFunnelPaddle();
   useWindowScroll({
@@ -146,7 +147,7 @@ export const FunnelStepper = ({
       onScrollCapture={trackOnScroll}
       className="flex min-h-dvh flex-col"
     >
-      {showBanner && (
+      {isCookieBannerActive && showBanner && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
