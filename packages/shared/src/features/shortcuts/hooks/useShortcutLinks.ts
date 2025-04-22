@@ -27,13 +27,8 @@ export function useShortcutLinks(): UseShortcutLinks {
   const { logEvent } = useContext(LogContext);
   const formRef = useRef<HTMLFormElement>();
 
-  const {
-    isManual,
-    setIsManual,
-    topSites,
-    hasCheckedPermission,
-    askTopSitesPermission,
-  } = useShortcuts();
+  const { isManual, topSites, hasCheckedPermission, askTopSitesPermission } =
+    useShortcuts();
 
   const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
 
