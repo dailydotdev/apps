@@ -38,9 +38,10 @@ import classed from '../../../lib/classed';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
+  initialStepId?: string | null;
+  onComplete?: () => void;
   session: FunnelSession;
   showCookieBanner?: boolean;
-  onComplete?: () => void;
 }
 
 const stepComponentMap = {
@@ -78,6 +79,7 @@ const HiddenStep = classed('div', 'hidden');
 
 export const FunnelStepper = ({
   funnel,
+  initialStepId,
   session,
   showCookieBanner,
   onComplete,
@@ -90,9 +92,14 @@ export const FunnelStepper = ({
     trackOnComplete,
     trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
-  const { back, chapters, navigate, position, skip, step } =
-    useFunnelNavigation({ funnel, onNavigation: trackOnNavigate, session });
+  const { back, chapters, navigate, position, skip, step, isReady } =
+    useFunnelNavigation({
+      funnel,
+      initialStepId,
+      onNavigation: trackOnNavigate,
+    });
   const { transition: sendTransition } = useStepTransition(session.id);
+  const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
   const { showBanner, ...cookieConsentProps } = useFunnelCookies({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
@@ -128,6 +135,10 @@ export const FunnelStepper = ({
     }
   };
 
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <section
       data-testid="funnel-stepper"
@@ -136,7 +147,7 @@ export const FunnelStepper = ({
       onScrollCapture={trackOnScroll}
       className="flex min-h-dvh flex-col"
     >
-      {showBanner && (
+      {isCookieBannerActive && showBanner && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
