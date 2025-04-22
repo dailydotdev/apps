@@ -23,7 +23,7 @@ import { RecommendedMention } from '../RecommendedMention';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import Link from '../utilities/Link';
@@ -38,6 +38,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import classed from '../../lib/classed';
 import JoinedDate from '../profile/JoinedDate';
 import { plusUrl } from '../../lib/constants';
+import { ProductPricingType } from '../../graphql/paddle';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
@@ -229,16 +230,15 @@ export function GiftPlusModalComponent({
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
-          {giftOneYear?.extraLabel && (
+          {giftOneYear?.metadata.caption && (
             <PlusPlanExtraLabel
-              color={PlusLabelColor.Success}
-              label={giftOneYear?.extraLabel}
-              typographyProps={{ color: TypographyColor.StatusSuccess }}
+              color={giftOneYear?.metadata.caption.color}
+              label={giftOneYear?.metadata.caption.copy}
             />
           )}
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
             <strong className="mr-1">{giftOneYear?.price?.formatted}</strong>
-            {giftOneYear?.currencyCode}
+            {giftOneYear?.currency?.code}
           </Typography>
         </div>
         <Typography type={TypographyType.Callout}>
@@ -263,7 +263,7 @@ export function GiftPlusModalComponent({
 
 export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
   return (
-    <PaymentContextProvider>
+    <PaymentContextProvider type={ProductPricingType.Plus}>
       <GiftPlusModalComponent {...props} />
     </PaymentContextProvider>
   );

@@ -9,6 +9,7 @@ import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
+import { usePlusSubscription } from '../../hooks';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
@@ -27,6 +28,7 @@ export const PlusDesktop = ({
   const {
     query: { selectedPlan },
   } = useRouter();
+  const { isPlus } = usePlusSubscription();
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
@@ -34,9 +36,15 @@ export const PlusDesktop = ({
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
     ({ priceId, giftToUserId }) => {
       setSelectedOption(priceId);
+
+      if (priceId !== giftOneYear?.priceId && isPlus) {
+        paddle.Checkout.close();
+        return;
+      }
+
       openCheckout({ priceId, giftToUserId });
     },
-    [openCheckout],
+    [giftOneYear?.priceId, isPlus, paddle, openCheckout],
   );
 
   useEffect(() => {
@@ -49,15 +57,16 @@ export const PlusDesktop = ({
         return;
       }
 
-      const { value } = giftOneYear;
-      setSelectedOption(value);
-      openCheckout({ priceId: value, giftToUserId: giftToUser.id });
+      const { priceId } = giftOneYear;
+      setSelectedOption(priceId);
+      openCheckout({ priceId, giftToUserId: giftToUser.id });
 
       return;
     }
 
-    const option = initialPaymentOption || productOptions?.[0]?.value;
-    if (option && !selectedOption) {
+    const option = initialPaymentOption || productOptions?.[0]?.priceId;
+
+    if (option && !selectedOption && !isPlus) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
@@ -67,6 +76,7 @@ export const PlusDesktop = ({
     initialPaymentOption,
     openCheckout,
     paddle,
+    isPlus,
     productOptions,
     selectedOption,
   ]);

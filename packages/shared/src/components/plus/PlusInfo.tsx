@@ -10,10 +10,7 @@ import {
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
-import type {
-  OpenCheckoutFn,
-  ProductOption,
-} from '../../contexts/payment/context';
+import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -28,9 +25,10 @@ import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
+import type { ProductPricingPreview } from '../../graphql/paddle';
 
 type PlusInfoProps = {
-  productOptions: ProductOption[];
+  productOptions: ProductPricingPreview[];
   selectedOption: string | null;
   onChange: OpenCheckoutFn;
   onContinue?: () => void;
@@ -154,7 +152,7 @@ export const PlusInfo = ({
       </Typography>
       <div className="mb-4">
         <ConditionalWrapper
-          condition={!giftToUser && showGiftButton}
+          condition={!giftToUser && showGiftButton && !!giftOneYear}
           wrapper={(component) => (
             <div className="flex flex-row items-center justify-between">
               <span>{component}</span>
@@ -172,7 +170,7 @@ export const PlusInfo = ({
                     props: {
                       onSelected: (user) => {
                         onChange({
-                          priceId: productOptions[0].value,
+                          priceId: giftOneYear.priceId,
                           giftToUserId: user.id,
                         });
                       },
@@ -201,7 +199,7 @@ export const PlusInfo = ({
           className="mb-6"
           onClose={() => {
             router.push('/plus');
-            onChange({ priceId: productOptions[0].value });
+            onChange({ priceId: productOptions[0].priceId });
           }}
         />
       )}
@@ -213,30 +211,29 @@ export const PlusInfo = ({
       >
         {giftToUser ? (
           <PlusOptionRadio
-            key={giftOneYear?.value}
+            key={giftOneYear?.priceId}
             option={giftOneYear}
             checked
           />
         ) : (
           <>
             {productOptions.length === 0 && <RadioGroupSkeleton />}
-            {productOptions.map((option) => {
-              const { label, value } = option;
-              return (
-                <PlusOptionRadio
-                  key={value}
-                  option={option}
-                  checked={selectedOption === value}
-                  onChange={() => {
-                    onChange({ priceId: value });
-                    logSubscriptionEvent({
-                      event_name: LogEvent.SelectBillingCycle,
-                      target_id: label.toLowerCase(),
-                    });
-                  }}
-                />
-              );
-            })}
+            {productOptions.map((option) => (
+              <PlusOptionRadio
+                key={option.priceId}
+                shouldShowMonthlyPrice
+                shoouldShowDuration
+                option={option}
+                checked={selectedOption === option.priceId}
+                onChange={() => {
+                  onChange({ priceId: option.priceId });
+                  logSubscriptionEvent({
+                    event_name: LogEvent.SelectBillingCycle,
+                    target_id: option.metadata.title.toLowerCase(),
+                  });
+                }}
+              />
+            ))}
           </>
         )}
       </div>
