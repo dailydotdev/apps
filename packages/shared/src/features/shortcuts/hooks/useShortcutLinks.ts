@@ -51,22 +51,10 @@ export function useShortcutLinks(): UseShortcutLinks {
   const showGetStarted =
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
-  //   const isResetManual = topSites === undefined || !!hasCustomLinks;
-  //   setIsManual(isResetManual);
-  // }, [hasCustomLinks, setIsManual, topSites]);
-
   const getFormInputs = () =>
     Array.from(formRef.current.elements).filter(
       (el) => el.getAttribute('name') === 'shortcutLink',
     ) as HTMLInputElement[];
-
-  // useEffect(() => {
-  //   if (hasCheckedPermission) {
-  //     resetSelected();
-  //   }
-  //   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [hasCheckedPermission]);
 
   const onSaveChanges = async (e: FormEvent) => {
     e.preventDefault();
