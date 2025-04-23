@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { Paddle } from '@paddle/paddle-js';
-import type {
-  ProductPricingPreview,
-  ProductPricingType,
-} from '../../graphql/paddle';
+import type { ProductPricingPreview } from '../../graphql/paddle';
 
 export interface OpenCheckoutProps {
   priceId: string;
@@ -35,10 +32,8 @@ export const usePaymentContext = (): PaymentContextData => {
   return context;
 };
 
-export interface PaymentContextProviderProps<T = unknown, E = unknown> {
+export interface PaymentContextProviderProps<E = unknown> {
   children?: ReactNode;
-  type: ProductPricingType;
-  successCallback?: () => void;
   disabledEvents?: E[];
-  eventsHandler?: (event: T) => void;
+  successCallback?: () => void;
 }

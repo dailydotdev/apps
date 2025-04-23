@@ -38,7 +38,6 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import classed from '../../lib/classed';
 import JoinedDate from '../profile/JoinedDate';
 import { plusUrl } from '../../lib/constants';
-import { ProductPricingType } from '../../graphql/paddle';
 
 interface GiftPlusModalProps extends ModalProps {
   preselected?: UserShortProfile;
@@ -263,7 +262,7 @@ export function GiftPlusModalComponent({
 
 export function GiftPlusModal(props: GiftPlusModalProps): ReactElement {
   return (
-    <PaymentContextProvider type={ProductPricingType.Plus}>
+    <PaymentContextProvider>
       <GiftPlusModalComponent {...props} />
     </PaymentContextProvider>
   );

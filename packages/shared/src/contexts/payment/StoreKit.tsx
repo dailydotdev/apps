@@ -28,7 +28,7 @@ import type {
   ProductPricingMetadata,
   ProductPricingPreview,
 } from '../../graphql/paddle';
-import { fetchPricingMetadata } from '../../graphql/paddle';
+import { fetchPricingMetadata, ProductPricingType } from '../../graphql/paddle';
 
 export type IAPProduct = {
   attributes: {
@@ -115,9 +115,11 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
   return response;
 };
 
+export type StoreKitSubProviderProps =
+  PaymentContextProviderProps<PurchaseEventName>;
+
 export const StoreKitSubProvider = ({
   children,
-  type,
   successCallback,
 }: PaymentContextProviderProps): ReactElement => {
   const router = useRouter();
@@ -130,7 +132,7 @@ export const StoreKitSubProvider = ({
 
   const { data } = useQuery<ProductPricingMetadata[]>({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
-    queryFn: () => fetchPricingMetadata(type),
+    queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
     enabled: !!user && !!growthbook?.ready && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
   });

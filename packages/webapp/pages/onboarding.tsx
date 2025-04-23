@@ -74,7 +74,6 @@ import {
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
-import { ProductPricingType } from '@dailydotdev/shared/src/graphql/paddle';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { HotJarTracking } from '../components/Pixels';
@@ -461,7 +460,6 @@ export function OnboardPage(): ReactElement {
 
   return (
     <PaymentContextProvider
-      type={ProductPricingType.Plus}
       successCallback={() => onClickNext({ plusSuccess: true })}
     >
       <div

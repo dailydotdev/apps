@@ -2,7 +2,7 @@ import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
 import type { TimePeriod } from '@paddle/paddle-js';
 import { gqlClient } from './common';
-import type { PlusPriceTypeAppsId } from '../lib/featureValues';
+import type { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 
 export type PaddleProductLineItem =
   PricePreviewResponse['data']['details']['lineItems'][0];
@@ -39,7 +39,7 @@ export interface ProductPricingPreview {
     code: string;
     symbol: string;
   };
-  duration: string;
+  duration: PlusPriceType;
   trialPeriod: TimePeriod | null;
 }
 
@@ -93,22 +93,22 @@ const PRICING_PREVIEW_QUERY = gql`
   ${PRICING_METADATA_FRAGMENT}
 `;
 
-interface PlusPricingPreviewResponse {
-  plusPricingPreview: ProductPricingPreview[];
+interface PricingPreviewResponse {
+  pricingPreview: ProductPricingPreview[];
 }
 
 export const fetchPricingPreview = async (
   type: ProductPricingType,
 ): Promise<ProductPricingPreview[]> => {
-  const { plusPricingPreview } =
-    await gqlClient.request<PlusPricingPreviewResponse>(PRICING_PREVIEW_QUERY, {
-      type,
-    });
+  const { pricingPreview } = await gqlClient.request<PricingPreviewResponse>(
+    PRICING_PREVIEW_QUERY,
+    { type },
+  );
 
-  return plusPricingPreview;
+  return pricingPreview;
 };
 
-const PLUS_PRICING_METADATA_QUERY = gql`
+const PRICING_METADATA_QUERY = gql`
   query PricingMetadata {
     pricingMetadata {
       ...PricingMetadataFragment
@@ -122,7 +122,7 @@ export const fetchPricingMetadata = async (
 ): Promise<ProductPricingMetadata[]> => {
   const { plusPricingMetadata } = await gqlClient.request<{
     plusPricingMetadata: ProductPricingMetadata[];
-  }>(PLUS_PRICING_METADATA_QUERY, { type });
+  }>(PRICING_METADATA_QUERY, { type });
 
   return plusPricingMetadata;
 };

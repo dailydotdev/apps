@@ -2,13 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import type {
   CheckoutUpdateOptions,
-  PaddleEventData,
   CheckoutOpenOptions,
 } from '@paddle/paddle-js';
-import { CheckoutEventNames } from '@paddle/paddle-js';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
-import { FunnelStepTransitionType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
 import {
@@ -16,12 +13,10 @@ import {
   selectedPlanAtom,
   applyDiscountAtom,
 } from '../store/funnelStore';
-import { usePaddleEvent } from '../hooks/usePaddleEvent';
 import { LogEvent } from '../../../lib/log';
 
 export const InnerFunnelCheckout = ({
   parameters: { discountCode },
-  onTransition,
   isActive,
 }: FunnelStepCheckout): ReactElement => {
   const isCheckoutOpenedRef = useRef(false);
@@ -38,18 +33,6 @@ export const InnerFunnelCheckout = ({
       });
     }
   }, [isActive, logSubscriptionEvent]);
-
-  usePaddleEvent((event: PaddleEventData) => {
-    switch (event?.name) {
-      case CheckoutEventNames.CHECKOUT_COMPLETED:
-        onTransition({
-          type: FunnelStepTransitionType.Complete,
-        });
-        break;
-      default:
-        break;
-    }
-  });
 
   useEffect(() => {
     if (!isPlusAvailable || isPlus || !paddle) {

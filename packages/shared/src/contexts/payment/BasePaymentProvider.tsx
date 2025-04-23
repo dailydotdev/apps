@@ -1,41 +1,23 @@
 import type { PropsWithChildren, ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../AuthContext';
 import type { OpenCheckoutProps, PaymentContextData } from './context';
 import { PaymentContext } from './context';
-import type {
-  ProductPricingPreview,
-  ProductPricingType,
-} from '../../graphql/paddle';
-import { fetchPricingPreview } from '../../graphql/paddle';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { ProductPricingType } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
-
-export type BasePaymentProviderComponentProps = PropsWithChildren<
-  Pick<BasePaymentProviderProps, 'type'>
->;
+import { useProductPricing } from '../../hooks/useProductPricing';
+import { useAuthContext } from '../AuthContext';
 
 interface BasePaymentProviderProps {
-  type: ProductPricingType;
   openCheckout: (props: OpenCheckoutProps) => void;
-  additionalContext?: Partial<PaymentContextData>;
 }
 
 export const BasePaymentProvider = ({
-  type,
   children,
   openCheckout,
-  additionalContext = {},
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
-  const { user, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { data, isPending: isPricesPending } = useQuery<
-    ProductPricingPreview[]
-  >({
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'plus'),
-    queryFn: () => fetchPricingPreview(type),
-    enabled: !!user && isPlusAvailable,
-    staleTime: StaleTime.Default,
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
+  const { data, isPending: isPricesPending } = useProductPricing({
+    type: ProductPricingType.Plus,
   });
 
   const giftOneYear = useMemo(
@@ -60,7 +42,6 @@ export const BasePaymentProvider = ({
       giftOneYear,
       isPricesPending,
       isFreeTrialExperiment,
-      ...additionalContext,
     }),
     [
       openCheckout,
@@ -69,7 +50,6 @@ export const BasePaymentProvider = ({
       isPlusAvailable,
       isPricesPending,
       isFreeTrialExperiment,
-      additionalContext,
     ],
   );
 

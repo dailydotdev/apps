@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback } from 'react';
+import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
@@ -36,8 +36,6 @@ import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
 import { PaymentContextProvider } from '../../../contexts/payment';
-import { ProductPricingType } from '../../../graphql/paddle';
-import type { PaddleEventCallback } from '../../payment/hooks/usePaddle';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -136,10 +134,6 @@ export const FunnelStepper = ({
     }
   };
 
-  const handlePaddleCallback: PaddleEventCallback = useCallback((event) => {
-    window.dispatchEvent(new CustomEvent('paddle-event', { detail: event }));
-  }, []);
-
   if (!isReady) {
     return null;
   }
@@ -172,9 +166,12 @@ export const FunnelStepper = ({
           showProgressBar={skip.hasTarget}
         />
         <PaymentContextProvider
-          type={ProductPricingType.Plus}
           disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-          eventsHandler={handlePaddleCallback}
+          successCallback={() =>
+            onTransition({
+              type: FunnelStepTransitionType.Complete,
+            })
+          }
         >
           {funnel.chapters.map((chapter: FunnelChapter) => (
             <Fragment key={chapter?.id}>
