@@ -9,12 +9,21 @@ export const ChromeExtensionProvider = ({
   children,
 }: PropsWithChildren): ReactElement => {
   const router = useRouter();
-  const openCheckout = ({ priceId, giftToUserId }: OpenCheckoutProps) => {
+  const openCheckout = ({
+    priceId,
+    giftToUserId,
+    discountId,
+  }: OpenCheckoutProps) => {
     // Payment not available in extension
-    const params = new URLSearchParams({
-      priceId,
-      giftToUserId: giftToUserId ?? '',
-    });
+    const params = new URLSearchParams({ priceId });
+
+    if (giftToUserId) {
+      params.append('giftToUserId', giftToUserId);
+    }
+    if (discountId) {
+      params.append('discountId', discountId);
+    }
+
     const url = new URL(`${webappUrl}plus/payment?${params.toString()}`);
     router.push(url.toString());
   };
