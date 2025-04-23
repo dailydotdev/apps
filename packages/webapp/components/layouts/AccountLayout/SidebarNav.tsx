@@ -20,7 +20,7 @@ function SidebarNav(): ReactElement {
   return (
     <div
       className={classNames(
-        'absolute z-3 ml-auto flex min-h-full w-full flex-col border-l border-border-subtlest-tertiary bg-background-default transition-transform ease-in-out tablet:relative tablet:w-[unset] tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
+        'ml-auto min-h-full border-l border-border-subtlest-tertiary px-6 pt-6',
         featureTheme ? 'bg-transparent' : 'bg-background-default',
       )}
     >
