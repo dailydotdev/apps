@@ -14,7 +14,10 @@ import type { TargetType } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { plusSuccessUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
-import type { PaymentContextProviderProps } from '../contexts/payment/context';
+import type {
+  OpenCheckoutProps,
+  PaymentContextProviderProps,
+} from '../contexts/payment/context';
 
 interface UsePaddlePaymentProps
   extends Pick<
@@ -22,12 +25,6 @@ interface UsePaddlePaymentProps
     'successCallback' | 'disabledEvents'
   > {
   targetType?: TargetType;
-}
-
-export interface PaddleCheckoutOptions {
-  priceId: string;
-  giftToUserId?: string;
-  customData?: Record<string, unknown>;
 }
 
 export const usePaddlePayment = ({
@@ -148,7 +145,7 @@ export const usePaddlePayment = ({
   }, [router, successCallback, disabledEvents, targetType]);
 
   const openCheckout = useCallback(
-    ({ priceId, giftToUserId }: PaddleCheckoutOptions) => {
+    ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {
       const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
       const customer: CheckoutCustomer = {
         email: user?.email,
@@ -171,6 +168,7 @@ export const usePaddlePayment = ({
         items,
         customer,
         customData,
+        discountId,
       });
     },
     [paddle?.Checkout, user?.email, user?.id, geo?.region],

@@ -10,12 +10,10 @@ import type {
 import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
 import { PricingPlanVariation } from '../shared/PricingPlan';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
-import {
-  applyDiscountAtom,
-  selectedPlanAtom,
-  paddleInstanceAtom,
-} from '../store/funnelStore';
+import { applyDiscountAtom, selectedPlanAtom } from '../store/funnelStore';
 import { PaymentContext } from '../../../contexts/payment/context';
+import type { ProductPricingPreview } from '../../../graphql/paddle';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
 
 const mockOnTransition = jest.fn();
 
@@ -24,6 +22,7 @@ jest.mock('jotai-history', () => ({
 }));
 
 type HydrateAtomsProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialValues: [any, any][];
   children: React.ReactNode;
 };
@@ -102,20 +101,56 @@ interface InitialState {
   applyDiscount?: boolean;
 }
 
-const mockProductOptions = [
+const mockProductOptions: ProductPricingPreview[] = [
   {
+    metadata: {
+      appsId: PlusPriceTypeAppsId.Default,
+      title: 'Monthly',
+      idMap: {
+        paddle: 'monthly',
+        ios: 'monthly',
+      },
+    },
+    priceId: 'monthly',
     price: {
+      amount: 15,
+      formatted: '$15',
       daily: {
+        amount: 0.49,
         formatted: '$0.49',
       },
     },
+    currency: {
+      code: 'USD',
+      symbol: '$',
+    },
+    duration: PlusPriceType.Monthly,
+    trialPeriod: null,
   },
   {
+    metadata: {
+      appsId: PlusPriceTypeAppsId.Default,
+      title: 'Annual',
+      idMap: {
+        paddle: 'annual',
+        ios: 'annual',
+      },
+    },
+    priceId: 'annual',
     price: {
+      amount: 150,
+      formatted: '$150',
       daily: {
+        amount: 0.24,
         formatted: '$0.24',
       },
     },
+    currency: {
+      code: 'USD',
+      symbol: '$',
+    },
+    duration: PlusPriceType.Yearly,
+    trialPeriod: null,
   },
 ];
 
@@ -133,10 +168,16 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
         initialValues={[
           [selectedPlanAtom, selectedPlan],
           [applyDiscountAtom, applyDiscount],
-          [paddleInstanceAtom, undefined],
         ]}
       >
-        <PaymentContext.Provider value={{ productOptions: mockProductOptions }}>
+        <PaymentContext.Provider
+          value={{
+            productOptions: mockProductOptions,
+            isPlusAvailable: true,
+            isPricesPending: false,
+            isFreeTrialExperiment: false,
+          }}
+        >
           <FunnelPricing {...defaultProps} {...props} />
         </PaymentContext.Provider>
       </HydrateAtoms>

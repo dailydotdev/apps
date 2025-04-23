@@ -6,6 +6,8 @@ import type { ProductPricingPreview } from '../../graphql/paddle';
 export interface OpenCheckoutProps {
   priceId: string;
   giftToUserId?: string;
+  customData?: Record<string, unknown>;
+  discountId?: string;
 }
 
 export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;

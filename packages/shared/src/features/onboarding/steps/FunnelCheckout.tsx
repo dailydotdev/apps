@@ -1,28 +1,20 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
-import type {
-  CheckoutUpdateOptions,
-  CheckoutOpenOptions,
-} from '@paddle/paddle-js';
+import React, { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
-import {
-  paddleInstanceAtom,
-  selectedPlanAtom,
-  applyDiscountAtom,
-} from '../store/funnelStore';
+import { selectedPlanAtom, applyDiscountAtom } from '../store/funnelStore';
 import { LogEvent } from '../../../lib/log';
+import { usePaymentContext } from '../../../contexts/payment/context';
 
 export const InnerFunnelCheckout = ({
   parameters: { discountCode },
   isActive,
 }: FunnelStepCheckout): ReactElement => {
-  const isCheckoutOpenedRef = useRef(false);
   const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
+  const { paddle, openCheckout } = usePaymentContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const paddle = useAtomValue(paddleInstanceAtom);
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
 
@@ -39,48 +31,21 @@ export const InnerFunnelCheckout = ({
       return;
     }
 
-    const props: CheckoutUpdateOptions = {
-      items: [{ priceId, quantity: 1 }],
+    openCheckout({
+      priceId,
       discountId: applyDiscount ? discountCode : undefined,
-      customer: {
-        email: user?.email,
-        ...(geo?.region && {
-          address: {
-            countryCode: geo?.region,
-          },
-        }),
-      },
-    };
-
-    if (isCheckoutOpenedRef.current) {
-      paddle.Checkout.updateCheckout(props);
-    } else {
-      paddle.Checkout.open({
-        ...props,
-        settings: {
-          displayMode: 'inline',
-          variant: 'one-page',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-        },
-        customData: {
-          user_id: user?.id,
-        },
-      } as CheckoutOpenOptions);
-    }
+    });
   }, [
     discountCode,
     applyDiscount,
-    geo?.region,
+    geo.region,
     isPlus,
     isPlusAvailable,
     paddle,
     priceId,
-    user?.email,
-    user?.id,
+    user.email,
+    user.id,
+    openCheckout,
   ]);
 
   return <div className="checkout-container" />;
