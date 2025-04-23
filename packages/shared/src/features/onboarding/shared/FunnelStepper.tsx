@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment } from 'react';
+import React, { Fragment, useRef } from 'react';
 import classNames from 'classnames';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
@@ -135,6 +135,12 @@ export const FunnelStepper = ({
     }
   };
 
+  const successCallbackRef = useRef(() =>
+    onTransition({
+      type: FunnelStepTransitionType.Complete,
+    }),
+  );
+
   if (!isReady) {
     return null;
   }
@@ -169,11 +175,7 @@ export const FunnelStepper = ({
           />
           <PaymentContextProvider
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-            successCallback={() =>
-              onTransition({
-                type: FunnelStepTransitionType.Complete,
-              })
-            }
+            successCallback={successCallbackRef.current}
           >
             {funnel.chapters.map((chapter: FunnelChapter) => (
               <Fragment key={chapter?.id}>
