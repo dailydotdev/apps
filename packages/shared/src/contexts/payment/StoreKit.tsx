@@ -115,8 +115,10 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
   return response;
 };
 
-export type StoreKitSubProviderProps =
-  PaymentContextProviderProps<PurchaseEventName>;
+export type StoreKitSubProviderProps = PaymentContextProviderProps<
+  CustomEvent<PurchaseEvent>,
+  PurchaseEventName
+>;
 
 export const StoreKitSubProvider = ({
   children,
@@ -185,7 +187,7 @@ export const StoreKitSubProvider = ({
               },
             });
             if (successCallback) {
-              successCallback();
+              successCallback(null);
             } else {
               router.push(plusSuccessUrl);
             }

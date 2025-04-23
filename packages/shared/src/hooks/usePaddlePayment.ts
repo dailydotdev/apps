@@ -10,10 +10,19 @@ import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
+import type { TargetType } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { plusSuccessUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import type { PaymentContextProviderProps } from '../contexts/payment/context';
+
+interface UsePaddlePaymentProps
+  extends Pick<
+    PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
+    'successCallback' | 'disabledEvents'
+  > {
+  targetType?: TargetType;
+}
 
 export interface PaddleCheckoutOptions {
   priceId: string;
@@ -24,7 +33,8 @@ export interface PaddleCheckoutOptions {
 export const usePaddlePayment = ({
   successCallback,
   disabledEvents,
-}: Pick<PaymentContextProviderProps, 'successCallback' | 'disabledEvents'>) => {
+  targetType,
+}: UsePaddlePaymentProps) => {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { user, geo } = useAuthContext();
@@ -56,6 +66,7 @@ export const usePaddlePayment = ({
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
             logRef.current({
+              target_type: targetType,
               event_name: LogEvent.InitiatePayment,
               target_id: event?.data?.payment.method_details.type,
             });
@@ -63,18 +74,21 @@ export const usePaddlePayment = ({
           case CheckoutEventNames.CHECKOUT_LOADED:
             isCheckoutOpenRef.current = true;
             logRef.current({
+              target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
             logRef.current({
+              target_type: targetType,
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             logRef.current({
+              target_type: targetType,
               event_name: LogEvent.CompleteCheckout,
               extra: JSON.stringify({
                 user_id:
@@ -90,13 +104,23 @@ export const usePaddlePayment = ({
             });
 
             if (successCallback) {
-              successCallback();
+              successCallback(event);
             } else {
               router.push(plusSuccessUrl);
             }
             break;
+          // This doesn't exist in the original code
+          case 'checkout.warning' as CheckoutEventNames:
+            logRef.current({
+              target_type: targetType,
+              event_name: LogEvent.WarningCheckout,
+            });
+            break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            logRef.current({ event_name: LogEvent.ErrorCheckout });
+            logRef.current({
+              target_type: targetType,
+              event_name: LogEvent.ErrorCheckout,
+            });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
             isCheckoutOpenRef.current = false;
@@ -121,7 +145,7 @@ export const usePaddlePayment = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router, successCallback, disabledEvents]);
+  }, [router, successCallback, disabledEvents, targetType]);
 
   const openCheckout = useCallback(
     ({ priceId, giftToUserId }: PaddleCheckoutOptions) => {

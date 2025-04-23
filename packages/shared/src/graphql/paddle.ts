@@ -23,7 +23,7 @@ export interface ProductPricingMetadata {
     paddle: string;
     ios: string;
   };
-  cores?: number;
+  coresValue?: number;
 }
 
 interface ProductPricing extends Price {

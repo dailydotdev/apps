@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import type { ProductPricingType } from '../graphql/paddle';
 import { fetchPricingPreview } from '../graphql/paddle';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export interface ProductPricingConfig {
   type: ProductPricingType;
@@ -19,5 +19,6 @@ export const useProductPricing = ({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, type),
     queryFn: () => fetchPricingPreview(type),
     enabled: enabled && !!user && isLoggedIn && isValidRegion,
+    staleTime: StaleTime.Default,
   });
 };
