@@ -65,8 +65,8 @@ const PRICING_METADATA_FRAGMENT = gql`
 `;
 
 const PRICING_PREVIEW_QUERY = gql`
-  query pricingPreview {
-    pricingPreview {
+  query PricingPreview($type: PricingType) {
+    pricingPreview(type: $type) {
       metadata {
         ...PricingMetadata
       }
@@ -109,8 +109,8 @@ export const fetchPricingPreview = async (
 };
 
 const PRICING_METADATA_QUERY = gql`
-  query PricingMetadata {
-    pricingMetadata {
+  query PricingMetadata($type: PricingType) {
+    pricingMetadata(type: $type) {
       ...PricingMetadataFragment
     }
   }
