@@ -15,33 +15,16 @@ import {
   selectedPlanAtom,
   paddleInstanceAtom,
 } from '../store/funnelStore';
+import { PaymentContext } from '../../../contexts/payment/context';
 
 const mockOnTransition = jest.fn();
-
-// Mock hooks
-jest.mock('../../payment/hooks/usePaddlePricePreview', () => ({
-  usePaddlePricePreview: jest.fn(() => ({
-    data: {
-      monthly: { price: { amount: 15, currency_code: 'USD' } },
-      annual: { price: { amount: 150, currency_code: 'USD' } },
-    },
-  })),
-}));
-
-jest.mock('../../payment/hooks/usePricingCycleConverter', () => ({
-  usePricingCycleConverter: jest.fn(() => ({
-    0: { price: '$0.49', priceId: 'monthly' },
-    1: { price: '$0.24', priceId: 'annual' },
-  })),
-}));
 
 jest.mock('jotai-history', () => ({
   withHistory: jest.fn(),
 }));
 
 type HydrateAtomsProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialValues: any[];
+  initialValues: [any, any][];
   children: React.ReactNode;
 };
 
@@ -119,6 +102,23 @@ interface InitialState {
   applyDiscount?: boolean;
 }
 
+const mockProductOptions = [
+  {
+    price: {
+      daily: {
+        formatted: '$0.49',
+      },
+    },
+  },
+  {
+    price: {
+      daily: {
+        formatted: '$0.24',
+      },
+    },
+  },
+];
+
 const renderComponent = (props = {}, initialState: InitialState = {}) => {
   // Use the provided values or defaults
   const selectedPlan = initialState.selectedPlan || 'annual';
@@ -136,7 +136,9 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
           [paddleInstanceAtom, undefined],
         ]}
       >
-        <FunnelPricing {...defaultProps} {...props} />
+        <PaymentContext.Provider value={{ productOptions: mockProductOptions }}>
+          <FunnelPricing {...defaultProps} {...props} />
+        </PaymentContext.Provider>
       </HydrateAtoms>
     </Provider>,
   );
