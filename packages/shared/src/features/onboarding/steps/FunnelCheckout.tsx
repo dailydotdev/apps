@@ -38,13 +38,13 @@ export const InnerFunnelCheckout = ({
   }, [
     discountCode,
     applyDiscount,
-    geo.region,
+    geo?.region,
     isPlus,
     isPlusAvailable,
     paddle,
     priceId,
-    user.email,
-    user.id,
+    user?.email,
+    user?.id,
     openCheckout,
   ]);
 
