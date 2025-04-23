@@ -49,7 +49,7 @@ export enum ProductPricingType {
 }
 
 const PRICING_METADATA_FRAGMENT = gql`
-  fragment PricingMetadataFragment on PricingMetadata {
+  fragment PricingMetadataFragment on ProductPricingMetadata {
     appsId
     title
     caption {
@@ -60,7 +60,7 @@ const PRICING_METADATA_FRAGMENT = gql`
       paddle
       ios
     }
-    cores
+    coresValue
   }
 `;
 
@@ -68,7 +68,7 @@ const PRICING_PREVIEW_QUERY = gql`
   query PricingPreview($type: PricingType) {
     pricingPreview(type: $type) {
       metadata {
-        ...PricingMetadata
+        ...PricingMetadataFragment
       }
       priceId
       price {
