@@ -36,24 +36,18 @@ export const PlusDesktop = ({
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
     ({ priceId, giftToUserId }) => {
       setSelectedOption(priceId);
-
-      if (priceId !== giftOneYear?.priceId && isPlus) {
-        paddle.Checkout.close();
-        return;
-      }
-
       openCheckout({ priceId, giftToUserId });
     },
-    [giftOneYear?.priceId, isPlus, paddle, openCheckout],
+    [openCheckout],
   );
 
   useEffect(() => {
-    if (!ref?.current || !paddle) {
+    if (!ref?.current || !paddle || selectedOption) {
       return;
     }
 
     if (giftToUser) {
-      if (!giftOneYear || selectedOption) {
+      if (!giftOneYear) {
         return;
       }
 
@@ -66,7 +60,7 @@ export const PlusDesktop = ({
 
     const option = initialPaymentOption || productOptions?.[0]?.priceId;
 
-    if (option && !selectedOption && !isPlus) {
+    if (option && !isPlus) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
