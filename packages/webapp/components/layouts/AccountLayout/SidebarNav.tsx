@@ -20,8 +20,8 @@ function SidebarNav(): ReactElement {
   return (
     <div
       className={classNames(
-        'ml-auto min-h-full border-l border-border-subtlest-tertiary px-6 pt-6',
-        featureTheme ? 'bg-transparent' : 'bg-background-default',
+        'ml-auto flex min-h-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
+        featureTheme ? 'bg-transparent' : undefined,
       )}
     >
       {pageKeys.map((key) => {
