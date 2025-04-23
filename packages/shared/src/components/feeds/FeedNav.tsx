@@ -221,13 +221,17 @@ function FeedNav(): ReactElement {
 
             <MyFeedHeading
               onOpenFeedFilters={() => {
-                router.push(
-                  `${webappUrl}feeds/${
-                    feedName === SharedFeedPage.Custom
-                      ? router.query.slugOrId
-                      : user.id
-                  }/edit`,
-                );
+                if (isCustomDefaultFeed && router.pathname === '/') {
+                  router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+                } else {
+                  router.push(
+                    `${webappUrl}feeds/${
+                      feedName === SharedFeedPage.Custom
+                        ? router.query.slugOrId
+                        : user.id
+                    }/edit`,
+                  );
+                }
               }}
             />
           </StickyNavIconWrapper>
