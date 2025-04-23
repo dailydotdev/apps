@@ -41,7 +41,7 @@ it('should show settings option that opens modal', async () => {
   });
 
   const settingsButton = await screen.findByRole('button', {
-    name: 'Settings',
+    name: 'Customize',
   });
   expect(settingsButton).toBeInTheDocument();
 });
