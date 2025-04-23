@@ -75,12 +75,13 @@ export function DiscountTimer({
     <div
       className={classNames(
         'flex flex-row items-center gap-6 bg-background-default px-4 py-2',
+        'tablet:relative tablet:left-1/2 tablet:min-w-[100dvw] tablet:-translate-x-1/2 tablet:justify-center',
         className,
       )}
       data-testid="discount-timer-container"
     >
       <p
-        className="flex-1 text-text-primary typo-callout"
+        className="flex-1 text-text-primary typo-callout tablet:max-w-70"
         dangerouslySetInnerHTML={{ __html: sanitizedMessage }}
         data-testid="discount-message"
       />

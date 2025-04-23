@@ -151,44 +151,46 @@ export const FunnelStepper = ({
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
-        <Header
-          chapters={chapters}
-          className={classNames({
-            hidden: !stepsWithHeader.includes(step.type),
-          })}
-          currentChapter={position.chapter}
-          currentStep={position.step}
-          onBack={back.navigate}
-          onSkip={() => {
-            onTransition({ type: FunnelStepTransitionType.Skip });
-          }}
-          showBackButton={back.hasTarget}
-          showSkipButton={skip.hasTarget}
-          showProgressBar={skip.hasTarget}
-        />
-        {funnel.chapters.map((chapter: FunnelChapter) => (
-          <Fragment key={chapter?.id}>
-            {chapter?.steps?.map((funnelStep: FunnelStep) => {
-              const isActive = funnelStep?.id === step?.id;
-              const Wrapper = isActive ? Fragment : HiddenStep;
-              return (
-                <Wrapper
-                  key={`${chapter?.id}-${funnelStep?.id}`}
-                  {...(!isActive && {
-                    'data-testid': `funnel-step`,
-                  })}
-                >
-                  <FunnelStepComponent
-                    {...funnelStep}
-                    isActive={isActive}
-                    key={step.id}
-                    onTransition={onTransition}
-                  />
-                </Wrapper>
-              );
+        <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+          <Header
+            chapters={chapters}
+            className={classNames({
+              hidden: !stepsWithHeader.includes(step.type),
             })}
-          </Fragment>
-        ))}
+            currentChapter={position.chapter}
+            currentStep={position.step}
+            onBack={back.navigate}
+            onSkip={() => {
+              onTransition({ type: FunnelStepTransitionType.Skip });
+            }}
+            showBackButton={back.hasTarget}
+            showSkipButton={skip.hasTarget}
+            showProgressBar={skip.hasTarget}
+          />
+          {funnel.chapters.map((chapter: FunnelChapter) => (
+            <Fragment key={chapter?.id}>
+              {chapter?.steps?.map((funnelStep: FunnelStep) => {
+                const isActive = funnelStep?.id === step?.id;
+                const Wrapper = isActive ? Fragment : HiddenStep;
+                return (
+                  <Wrapper
+                    key={`${chapter?.id}-${funnelStep?.id}`}
+                    {...(!isActive && {
+                      'data-testid': `funnel-step`,
+                    })}
+                  >
+                    <FunnelStepComponent
+                      {...funnelStep}
+                      isActive={isActive}
+                      key={step.id}
+                      onTransition={onTransition}
+                    />
+                  </Wrapper>
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
       </FunnelStepBackground>
     </section>
   );

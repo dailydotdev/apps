@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ReactElement } from 'react';
+import Head from 'next/head';
 import { FunnelStepCtaWrapper, Reviews } from '../shared';
 import type { FunnelStepSocialProof } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -26,7 +27,11 @@ export const FunnelSocialProof = ({
       cta={{ label: cta }}
     >
       <div className="flex flex-col gap-4 py-6">
+        <Head>
+          <link rel="preload" as="image" href={imageUrl} />
+        </Head>
         <LazyImage
+          aria-hidden
           eager
           imgSrc={imageUrl}
           imgAlt="Social proof illustration"
