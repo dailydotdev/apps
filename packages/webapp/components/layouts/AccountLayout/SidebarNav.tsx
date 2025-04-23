@@ -2,22 +2,16 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import SidebarNavItem from './SidebarNavItem';
 import type { AccountPage } from './common';
 import { accountPage } from './common';
 
-interface SidebarNavProps {
-  className?: string;
-  basePath?: string;
-}
-
 const pageKeys = Object.keys(accountPage) as AccountPage[];
 
-function SidebarNav({
-  className,
-  basePath = '',
-}: SidebarNavProps): ReactElement {
+function SidebarNav(): ReactElement {
   const { user } = useAuthContext();
+  const featureTheme = useFeatureTheme();
 
   if (!user) {
     return null;
@@ -26,12 +20,12 @@ function SidebarNav({
   return (
     <div
       className={classNames(
-        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
-        className,
+        'absolute z-3 ml-auto flex min-h-full w-full flex-col border-l border-border-subtlest-tertiary bg-background-default transition-transform ease-in-out tablet:relative tablet:w-[unset] tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
+        featureTheme ? 'bg-transparent' : 'bg-background-default',
       )}
     >
       {pageKeys.map((key) => {
-        const href = `/${basePath}${accountPage[key].href}`;
+        const href = `/account${accountPage[key].href}`;
         const isActive = globalThis?.window?.location.pathname === href;
 
         return (
