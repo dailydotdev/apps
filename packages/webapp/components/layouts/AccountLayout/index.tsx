@@ -101,6 +101,7 @@ export const getAccountLayout = (
 ): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
-      screenCentered: false,
+      screenCentered: true,
+      showSidebar: false,
     }),
   );
