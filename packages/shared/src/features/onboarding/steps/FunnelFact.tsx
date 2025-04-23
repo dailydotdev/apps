@@ -3,6 +3,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
+import Head from 'next/head';
 import { StepHeadline } from '../shared';
 import type { FunnelStepFact } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -16,17 +17,17 @@ const FunnelFact = ({
   return (
     <FunnelStepCtaWrapper
       containerClassName="flex"
+      cta={{ label: parameters?.cta ?? 'Next' }}
       onClick={() =>
         onTransition({
           type: FunnelStepTransitionType.Complete,
         })
       }
-      cta={{ label: parameters?.cta ?? 'Next' }}
     >
       <div
         data-testid="step-content"
         className={classNames(
-          'flex flex-1 items-center gap-12 px-4 pt-6',
+          'flex flex-1 items-center gap-12 px-4 pt-6 laptop:mb-10',
           parameters?.reverse
             ? 'flex-col-reverse justify-end'
             : 'flex-col justify-between',
@@ -38,13 +39,19 @@ const FunnelFact = ({
           align={parameters?.align}
         />
         {parameters?.visualUrl && (
-          <LazyImage
-            eager
-            imgSrc={parameters?.visualUrl}
-            className="h-auto w-full object-cover"
-            ratio="64%"
-            imgAlt="Supportive illustration for the information"
-          />
+          <>
+            <Head>
+              <link rel="preload" as="image" href={parameters.visualUrl} />
+            </Head>
+            <LazyImage
+              aria-hidden
+              eager
+              imgSrc={parameters?.visualUrl}
+              className="h-auto w-full object-cover"
+              ratio="64%"
+              imgAlt="Supportive illustration for the information"
+            />
+          </>
         )}
       </div>
     </FunnelStepCtaWrapper>

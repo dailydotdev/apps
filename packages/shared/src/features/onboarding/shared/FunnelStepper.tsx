@@ -100,6 +100,7 @@ export const FunnelStepper = ({
       onNavigation: trackOnNavigate,
     });
   const { transition: sendTransition } = useStepTransition(session.id);
+  const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
   const { showBanner, ...cookieConsentProps } = useFunnelCookies({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
@@ -146,33 +147,26 @@ export const FunnelStepper = ({
       onScrollCapture={trackOnScroll}
       className="flex min-h-dvh flex-col"
     >
-      {showBanner && (
+      {isCookieBannerActive && showBanner && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
-        <Header
-          chapters={chapters}
-          className={classNames({
-            hidden: !stepsWithHeader.includes(step.type),
-          })}
-          currentChapter={position.chapter}
-          currentStep={position.step}
-          onBack={back.navigate}
-          onSkip={() => {
-            onTransition({ type: FunnelStepTransitionType.Skip });
-          }}
-          showBackButton={back.hasTarget}
-          showSkipButton={skip.hasTarget}
-          showProgressBar={skip.hasTarget}
-        />
-        <PaymentContextProvider
-          disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-          successCallback={() =>
-            onTransition({
-              type: FunnelStepTransitionType.Complete,
-            })
-          }
-        >
+        <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+          <Header
+            chapters={chapters}
+            className={classNames({
+              hidden: !stepsWithHeader.includes(step.type),
+            })}
+            currentChapter={position.chapter}
+            currentStep={position.step}
+            onBack={back.navigate}
+            onSkip={() => {
+              onTransition({ type: FunnelStepTransitionType.Skip });
+            }}
+            showBackButton={back.hasTarget}
+            showSkipButton={skip.hasTarget}
+            showProgressBar={skip.hasTarget}
+          />
           {funnel.chapters.map((chapter: FunnelChapter) => (
             <Fragment key={chapter?.id}>
               {chapter?.steps?.map((funnelStep: FunnelStep) => {
@@ -196,7 +190,7 @@ export const FunnelStepper = ({
               })}
             </Fragment>
           ))}
-        </PaymentContextProvider>
+        </div>
       </FunnelStepBackground>
     </section>
   );
