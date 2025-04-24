@@ -18,6 +18,7 @@ type ProfileSectionItemPropsCommon = WithClassNameProps & {
   title: string;
   icon?: ReactElement;
   onClick?: () => void;
+  showExternalIcon?: boolean;
 };
 
 type ProfileSectionItemPropsWithHref = ProfileSectionItemPropsCommon & {
@@ -41,6 +42,7 @@ export const ProfileSectionItem = ({
   icon,
   onClick,
   external,
+  showExternalIcon,
 }: ProfileSectionItemProps): ReactElement => {
   const tag = href ? TypographyTag.Link : TypographyTag.Button;
 
@@ -69,7 +71,7 @@ export const ProfileSectionItem = ({
         {icon}
         <span>{title}</span>
 
-        {isExternal && (
+        {(isExternal || showExternalIcon) && (
           <OpenLinkIcon className="ml-auto text-text-quaternary" />
         )}
       </Typography>
