@@ -52,8 +52,10 @@ type MenuItems = Record<
   }
 >;
 
+const defineMenuItems = <T extends MenuItems>(items: T): T => items;
+
 // TODO: make the links actually work
-const menuItems: MenuItems = {
+const menuItems = defineMenuItems({
   main: {
     title: null,
     items: {
@@ -186,7 +188,7 @@ const menuItems: MenuItems = {
       },
     },
   },
-};
+});
 
 function SidebarNav(): ReactElement {
   const { user, logout } = useAuthContext();
