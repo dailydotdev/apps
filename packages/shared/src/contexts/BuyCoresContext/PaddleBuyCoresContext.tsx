@@ -1,7 +1,6 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -15,71 +14,24 @@ import type {
   PaddleEventData,
 } from '@paddle/paddle-js';
 import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
-import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { checkIsExtension } from '../lib/func';
-import type { OpenCheckoutFn } from './payment/context';
-import { useAuthContext } from './AuthContext';
-import type { Origin } from '../lib/log';
-import { LogEvent, TargetType } from '../lib/log';
+import { checkIsExtension } from '../../lib/func';
+import { useAuthContext } from '../AuthContext';
+import { LogEvent, TargetType } from '../../lib/log';
 import {
   getQuantityForPrice,
   transactionPricesQueryOptions,
-} from '../graphql/njord';
-import { useLogContext } from './LogContext';
+} from '../../graphql/njord';
+import { useLogContext } from '../LogContext';
+import type {
+  BuyCoresContextData,
+  BuyCoresContextProviderProps,
+  ProcessingError,
+  Screens,
+} from './types';
+import { BuyCoresContext, SCREENS } from './types';
 
-const SCREENS = {
-  INTRO: 'INTRO',
-  PROCESSING: 'PROCESSING',
-  COMPLETED: 'COMPLETED',
-  PROCESSING_ERROR: 'PROCESSING_ERROR',
-} as const;
-export type Screens = keyof typeof SCREENS;
-
-type CoreProductOption = {
-  id: string;
-  value: number;
-};
-
-export type ProcessingError = {
-  title: string;
-  description?: string;
-  onRequestClose?: () => void;
-};
-
-export type BuyCoresContextData = {
-  paddle?: Paddle | undefined;
-  openCheckout?: OpenCheckoutFn;
-  amountNeeded?: number;
-  onCompletion?: () => void;
-  selectedProduct?: CoreProductOption;
-  setSelectedProduct: (product: CoreProductOption) => void;
-  activeStep: Screens;
-  error?: ProcessingError;
-  setActiveStep: ({
-    step,
-    providerTransactionId,
-    error,
-  }: {
-    step: Screens;
-    providerTransactionId?: string;
-    error?: ProcessingError;
-  }) => void;
-  providerTransactionId?: string;
-  origin?: Origin;
-};
-
-const BuyCoresContext = React.createContext<BuyCoresContextData>(undefined);
-export default BuyCoresContext;
-
-export type BuyCoresContextProviderProps = {
-  children?: ReactNode;
-  origin: Origin;
-  amountNeeded?: number;
-  onCompletion?: () => void;
-};
-
-export const BuyCoresContextProvider = ({
+export const PaddleBuyCoresContextProvider = ({
   onCompletion,
   origin,
   amountNeeded,
@@ -287,33 +239,4 @@ export const BuyCoresContextProvider = ({
       {children}
     </BuyCoresContext.Provider>
   );
-};
-
-export const useBuyCoresContext = (): BuyCoresContextData =>
-  useContext(BuyCoresContext);
-
-export const useCoreProductOptionQuery = (): CoreProductOption => {
-  const { user, isLoggedIn } = useAuthContext();
-  const router = useRouter();
-  const pid = router?.query?.pid;
-
-  const { data: prices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
-
-  return useMemo(() => {
-    const price = prices?.find((item) => item.value === pid);
-
-    if (!price) {
-      return undefined;
-    }
-
-    return {
-      id: price.value,
-      value: price.coresValue,
-    };
-  }, [prices, pid]);
 };

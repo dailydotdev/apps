@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
-import { useBuyCoresContext } from '../../contexts/BuyCoresContext';
+import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   Typography,

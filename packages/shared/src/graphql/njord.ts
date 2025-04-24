@@ -9,6 +9,18 @@ import type { Author } from './comments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { getCorePricePreviews } from './paddle';
 import type { ProductOption } from '../contexts/payment/context';
+import {
+  isIOSNative,
+  isNullOrUndefined,
+  promisifyEventListener,
+} from '../lib/func';
+import type { IAPProduct } from '../contexts/payment/StoreKit';
+import {
+  iOSSupportsCoresPurchase,
+  postWebKitMessage,
+  WebKitMessageHandlers,
+} from '../lib/ios';
+import { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -158,7 +170,62 @@ export const transactionPricesQueryOptions = ({
 }) => {
   return {
     queryKey: generateQueryKey(RequestKey.PricePreview, user, 'cores'),
-    queryFn: getCorePricePreviews,
+    queryFn: async () => {
+      if (isIOSNative()) {
+        if (!iOSSupportsCoresPurchase()) {
+          return [];
+        }
+
+        const result = promisifyEventListener<
+          ProductOption[],
+          IAPProduct[] | string
+        >('iap-products-result', (event) => {
+          const productsRaw = !isNullOrUndefined(event?.detail)
+            ? event.detail
+            : [];
+
+          // Remove JSON parsing once usage of App v1.8 is low
+          const products: IAPProduct[] =
+            typeof productsRaw === 'string'
+              ? JSON.parse(productsRaw)
+              : productsRaw;
+
+          return products
+            ?.map((product: IAPProduct): ProductOption => {
+              const coresValue =
+                +product.attributes.offerName.match(/\d+/)?.[0];
+
+              return {
+                label: `${coresValue} Cores`,
+                value: product.attributes.offerName,
+                price: {
+                  amount: parseFloat(product.attributes.offers[0].price),
+                  formatted: product.attributes.offers[0].priceFormatted,
+                },
+                extraLabel: null,
+                appsId: PlusPriceTypeAppsId.Cores,
+                duration: PlusPriceType.OneTime,
+                durationLabel: 'one-time',
+                trialPeriod: null,
+                coresValue,
+              };
+            })
+            .sort((a, b) => {
+              return a.price.amount - b.price.amount;
+            });
+        });
+
+        postWebKitMessage(WebKitMessageHandlers.IAPProductList, [
+          'cores_100',
+          'cores_300',
+          'cores_600',
+        ]);
+
+        return result;
+      }
+
+      return getCorePricePreviews();
+    },
     enabled: isLoggedIn,
     staleTime: StaleTime.Default,
   };

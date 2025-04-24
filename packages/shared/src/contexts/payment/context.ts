@@ -20,7 +20,7 @@ export type ProductOption = {
   extraLabel: string;
   appsId: PlusPriceTypeAppsId;
   duration: PlusPriceType;
-  durationLabel: 'month' | 'year';
+  durationLabel: 'month' | 'year' | 'one-time';
   trialPeriod: TimePeriod | null;
   coresValue?: number;
 };
