@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
@@ -419,6 +420,7 @@ const ProfileIndex = ({
           <Button
             className="ml-auto"
             variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
             onClick={onSubmit}
             disabled={isLoading}
           >

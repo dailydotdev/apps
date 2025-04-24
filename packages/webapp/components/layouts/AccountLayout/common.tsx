@@ -27,7 +27,7 @@ export const AccountPageSection = classed(
 );
 export const AccountPageHeading = classed(
   'h1',
-  'font-bold typo-title3 py-[15px] px-6 border-b border-border-subtlest-tertiary w-full flex flex-row items-center',
+  'font-bold typo-title3 px-6 border-b border-border-subtlest-tertiary w-full flex flex-row items-center',
 );
 
 export const CommonTextField = classed(TextField, { container: 'max-w-sm' });
