@@ -66,16 +66,7 @@ export const AccountPageContainer = ({
         {title}
         {actions && <span className="ml-auto flex flex-row">{actions}</span>}
       </AccountPageHeading>
-      <AccountPageSection
-        /* eslint-disable-next-line tailwindcss/no-contradicting-classname */
-        className={classNames(
-          'h-full overflow-y-scroll',
-          footer
-            ? '!max-h-[calc(100dvh-12rem)] max-h-[calc(100vh-12rem)] !min-h-[calc(100dvh-12rem)] min-h-[calc(100vh-12rem)]'
-            : '!max-h-[calc(100dvh-7.75rem)] max-h-[calc(100vh-7.75rem)] !min-h-[calc(100dvh-7.75rem)] min-h-[calc(100vh-7.75rem)]',
-          className.section,
-        )}
-      >
+      <AccountPageSection className={className.section}>
         {children}
       </AccountPageSection>
       {footer && (

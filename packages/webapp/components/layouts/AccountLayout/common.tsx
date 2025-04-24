@@ -10,7 +10,6 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { ReactNode } from 'react';
@@ -117,9 +116,8 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
 };
 
 export const AccountPageContent = classed(
-  'div',
-  pageBorders,
-  'flex flex-col w-full laptop:max-w-[calc(100vw-19.75rem)] laptopL:max-w-[40.5rem] tablet:border-l flex-auto mr-auto',
+  'main',
+  'flex flex-col tablet:border border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
 );
 export const AccountPageSection = classed(
   'section',
@@ -127,7 +125,7 @@ export const AccountPageSection = classed(
 );
 export const AccountPageHeading = classed(
   'h1',
-  'font-bold typo-title3 py-4 px-6 border-b border-border-subtlest-tertiary w-full flex flex-row items-center',
+  'font-bold typo-title3 py-[15px] px-6 border-b border-border-subtlest-tertiary w-full flex flex-row items-center',
 );
 
 export const CommonTextField = classed(TextField, { container: 'max-w-sm' });

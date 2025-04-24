@@ -202,7 +202,7 @@ function SidebarNav(): ReactElement {
   }
 
   return (
-    <div
+    <aside
       className={classNames(
         'ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
         featureTheme ? 'bg-transparent' : undefined,
@@ -252,7 +252,7 @@ function SidebarNav(): ReactElement {
           );
         })}
       </nav>
-    </div>
+    </aside>
   );
 }
 

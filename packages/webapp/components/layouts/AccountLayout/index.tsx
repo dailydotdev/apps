@@ -80,7 +80,7 @@ export default function AccountLayout({
   }
 
   return (
-    <div className="mx-auto flex max-w-5xl gap-4 px-6 pt-6">
+    <div className="mx-auto flex w-full max-w-5xl gap-4 p-6">
       {/* {isMobile ? (
         <ProfileSettingsMenu
           shouldKeepOpen
