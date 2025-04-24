@@ -111,7 +111,7 @@ const AccountInvitePage = (): ReactElement => {
       {isPlusAvailable && (
         <div className="mb-6 flex flex-col gap-4">
           <div className="space-y-1">
-            <div className="flex gap-0.5">
+            <div className="flex gap-1">
               <Typography type={TypographyType.Body} bold>
                 Gift daily.dev Plus
               </Typography>
