@@ -24,7 +24,7 @@ import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -106,6 +106,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
                   null,
                 );
               }
+
+              logSubscriptionEvent({
+                event_name: LogEvent.ManageSubscription,
+              });
             }}
           >
             Manage subscription
@@ -116,7 +120,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             onClick={() => {
               logSubscriptionEvent({
                 event_name: LogEvent.GiftSubscription,
-                target_id: TargetId.InviteFriendsPage,
               });
               openModal({
                 type: LazyModal.GiftPlus,
