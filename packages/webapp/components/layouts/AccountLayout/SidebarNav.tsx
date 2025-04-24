@@ -43,11 +43,6 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import type { ProfileSectionItemProps } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSection';
-import SidebarNavItem from './SidebarNavItem';
-import type { AccountPage } from './common';
-import { accountPage } from './common';
-
-const pageKeys = Object.keys(accountPage) as AccountPage[];
 
 type MenuItems = Record<
   string,
@@ -235,22 +230,6 @@ function SidebarNav(): ReactElement {
             },
           ]}
         />
-
-        {/* TODO: remove old menu */}
-        {pageKeys.map((key) => {
-          const href = `/account${accountPage[key].href}`;
-          const isActive = globalThis?.window?.location.pathname === href;
-
-          return (
-            <SidebarNavItem
-              key={key}
-              title={accountPage[key].title}
-              href={href}
-              isActive={isActive}
-              icon={accountPage[key].getIcon({ user, isActive })}
-            />
-          );
-        })}
       </nav>
     </aside>
   );

@@ -1,8 +1,3 @@
-import {
-  Button,
-  ButtonColor,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
@@ -412,23 +407,6 @@ const ProfileIndex = ({
     );
   }
 
-  return (
-    <AccountPageContainer
-      title="Profile"
-      footer={
-        <Button
-          className="ml-auto"
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          onClick={onSubmit}
-          disabled={isLoading}
-        >
-          Save Changes
-        </Button>
-      }
-    >
-      {form}
-    </AccountPageContainer>
-  );
+  return <AccountPageContainer title="Profile">{form}</AccountPageContainer>;
 };
 export default ProfileIndex;
