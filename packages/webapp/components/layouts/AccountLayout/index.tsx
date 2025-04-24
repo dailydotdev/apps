@@ -58,7 +58,7 @@ export default function AccountLayout({
     return () => {
       router.events.off('routeChangeComplete', onClose);
     };
-  }, [router.asPath, router.events, setIsOpen]);
+  }, [router.events, setIsOpen]);
 
   const { formRef } = useAuthForms();
 
