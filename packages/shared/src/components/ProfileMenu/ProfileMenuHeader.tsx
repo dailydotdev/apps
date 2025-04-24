@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -31,7 +30,7 @@ export const ProfileMenuHeader = ({
   const { isPlus } = usePlusSubscription();
 
   return (
-    <div className={classNames('flex items-center gap-2', className)}>
+    <div className={classNames('relative flex items-center gap-2', className)}>
       <ProfilePicture
         user={user}
         nativeLazyLoading
@@ -63,11 +62,13 @@ export const ProfileMenuHeader = ({
       </div>
 
       {shouldOpenProfile && (
-        <Link href={`${webappUrl}${user.username}`} passHref>
-          <Typography tag={TypographyTag.Link} color={TypographyColor.Tertiary}>
-            <OpenLinkIcon />
-          </Typography>
-        </Link>
+        <>
+          <OpenLinkIcon className="text-text-quaternary" />
+          <Link href={`${webappUrl}${user.username}`} passHref>
+            {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
+            <a className="absolute left-0 top-0 h-full w-full" />
+          </Link>
+        </>
       )}
     </div>
   );
