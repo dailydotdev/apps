@@ -132,6 +132,7 @@ export * from './Terminal';
 export * from './ThemeAuto';
 export * from './Threads';
 export * from './Timer';
+export * from './TimeZone';
 export * from './Tip';
 export * from './TLDR';
 export * from './Tour';
