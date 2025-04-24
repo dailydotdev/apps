@@ -26,7 +26,12 @@ const ProfileSettingsMenu = dynamic(
 
 const SidebarNav = dynamic(
   () => import(/* webpackChunkName: "sidebarNav" */ './SidebarNav'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[669px] w-64 rounded-16 border border-border-subtlest-tertiary" />
+    ),
+  },
 );
 
 export interface AccountLayoutProps {
