@@ -1,14 +1,14 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-// import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-// import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
-// import { useRouter } from 'next/router';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { useRouter } from 'next/router';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
@@ -16,13 +16,13 @@ import dynamic from 'next/dynamic';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 
-// const ProfileSettingsMenu = dynamic(
-//   () =>
-//     import(
-//       /* webpackChunkName: "profileSettingsMenu" */ '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu'
-//     ),
-//   { ssr: false },
-// );
+const ProfileSettingsMenu = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileSettingsMenu" */ '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu'
+    ),
+  { ssr: false },
+);
 
 const SidebarNav = dynamic(
   () => import(/* webpackChunkName: "sidebarNav" */ './SidebarNav'),
@@ -42,23 +42,23 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  // const router = useRouter();
+  const router = useRouter();
   const { user: profile, isAuthReady } = useContext(AuthContext);
-  // const isMobile = useViewSize(ViewSize.MobileL);
-  // const [isOpen, setIsOpen] = useQueryState({
-  //   key: navigationKey,
-  //   defaultValue: false,
-  // });
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const [isOpen, setIsOpen] = useQueryState({
+    key: navigationKey,
+    defaultValue: false,
+  });
 
-  // useEffect(() => {
-  //   const onClose = () => setIsOpen(false);
+  useEffect(() => {
+    const onClose = () => setIsOpen(false);
 
-  //   router.events.on('routeChangeComplete', onClose);
+    router.events.on('routeChangeComplete', onClose);
 
-  //   return () => {
-  //     router.events.off('routeChangeComplete', onClose);
-  //   };
-  // }, [router.events, setIsOpen]);
+    return () => {
+      router.events.off('routeChangeComplete', onClose);
+    };
+  }, [router.asPath, router.events, setIsOpen]);
 
   const { formRef } = useAuthForms();
 
@@ -81,7 +81,7 @@ export default function AccountLayout({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl gap-4 p-6">
-      {/* {isMobile ? (
+      {isMobile ? (
         <ProfileSettingsMenu
           shouldKeepOpen
           isOpen={isOpen}
@@ -89,8 +89,7 @@ export default function AccountLayout({
         />
       ) : (
         <SidebarNav />
-      )} */}
-      <SidebarNav />
+      )}
       {children}
     </div>
   );
