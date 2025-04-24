@@ -6,11 +6,27 @@ import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { managePlusUrl, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { SubscriptionProvider } from '@dailydotdev/shared/src/lib/plus';
+
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { defaultSeo } from '../../next-seo';
@@ -23,37 +39,94 @@ const seo: NextSeoProps = {
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const router = useRouter();
-  const { isPlus, plusProvider } = usePlusSubscription();
+  const { openModal } = useLazyModal();
+  const { isPlus, plusProvider, logSubscriptionEvent } = usePlusSubscription();
 
   useEffect(() => {
     if (!isPlus) {
       router.push(plusUrl);
-      return;
     }
-
-    if (plusProvider === SubscriptionProvider.Paddle) {
-      router.push(managePlusUrl);
-      return;
-    }
-
-    if (isIOSNative() && plusProvider === SubscriptionProvider.AppleStoreKit) {
-      postWebKitMessage(WebKitMessageHandlers.IAPSubscriptionManage, null);
-
-      // Send the user back to the previous page as the native handler will take over
-      router.back();
-    }
-  }, [isPlus, plusProvider, router]);
+  }, [isPlus, router]);
 
   if (!router.isReady) {
     return null;
   }
 
   return (
-    <AccountPageContainer title="Manage plus">
-      <span className="text-text-tertiary typo-callout">
-        Your plus subscription is managed via App Store, to manage it please
-        visit the App Store
-      </span>
+    <AccountPageContainer title="Payment & Subscription">
+      <div className="flex flex-col gap-6">
+        <PlusUser
+          iconSize={IconSize.XSmall}
+          typographyType={TypographyType.Callout}
+        />
+
+        <div className="flex flex-col gap-1">
+          <Typography bold type={TypographyType.Body}>
+            You&apos;re already a Plus member!
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Thanks for supporting daily.dev and unlocking our most powerful
+            experience.
+          </Typography>
+
+          {!isIOSNative() &&
+            plusProvider === SubscriptionProvider.AppleStoreKit && (
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                className="mt-2"
+              >
+                Your plus subscription is managed via App Store, to manage it
+                please visit the App Store
+              </Typography>
+            )}
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            tag="a"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
+            href={managePlusUrl}
+            target="_blank"
+            disabled={
+              !isIOSNative() &&
+              plusProvider === SubscriptionProvider.AppleStoreKit
+            }
+            onClick={() => {
+              if (
+                isIOSNative() &&
+                plusProvider === SubscriptionProvider.AppleStoreKit
+              ) {
+                postWebKitMessage(
+                  WebKitMessageHandlers.IAPSubscriptionManage,
+                  null,
+                );
+              }
+            }}
+          >
+            Manage subscription
+          </Button>
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
+            onClick={() => {
+              logSubscriptionEvent({
+                event_name: LogEvent.GiftSubscription,
+                target_id: TargetId.InviteFriendsPage,
+              });
+              openModal({
+                type: LazyModal.GiftPlus,
+              });
+            }}
+          >
+            Gift plus
+          </Button>
+        </div>
+      </div>
     </AccountPageContainer>
   );
 };
