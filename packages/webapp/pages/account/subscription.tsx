@@ -24,7 +24,7 @@ import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -109,6 +109,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
               logSubscriptionEvent({
                 event_name: LogEvent.ManageSubscription,
+                target_id: TargetId.Account,
               });
             }}
           >
@@ -120,6 +121,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             onClick={() => {
               logSubscriptionEvent({
                 event_name: LogEvent.GiftSubscription,
+                target_id: TargetId.Account,
               });
               openModal({
                 type: LazyModal.GiftPlus,
