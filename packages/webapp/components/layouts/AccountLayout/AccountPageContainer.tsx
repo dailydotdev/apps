@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
   AccountPageContent,
   AccountPageHeading,
@@ -39,6 +40,7 @@ export const AccountPageContainer = ({
   className = {},
   onBack,
 }: AccountPageContainerProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
@@ -66,7 +68,13 @@ export const AccountPageContainer = ({
         {title}
         {actions && <span className="ml-auto flex flex-row">{actions}</span>}
       </AccountPageHeading>
-      <AccountPageSection className={className.section}>
+      <AccountPageSection
+        className={classNames(
+          isMobile &&
+            `h-[calc(100dvh-${footer ? '12' : '7.75'}rem)] overflow-y-scroll`,
+          className.section,
+        )}
+      >
         {children}
       </AccountPageSection>
       {footer && (
