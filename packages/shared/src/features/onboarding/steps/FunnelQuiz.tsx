@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import Head from 'next/head';
 import type {
   FunnelQuestion,
   FunnelQuestionCheckbox,
@@ -108,7 +107,7 @@ export function FunnelQuiz({
     >
       <div
         data-testid="funnel-step-quiz"
-        className="flex flex-1 flex-col gap-4 px-4 py-6 laptop:gap-10"
+        className={classNames('flex flex-1 flex-col gap-4 px-4 py-6')}
       >
         <StepHeadline
           heading={text}
@@ -117,10 +116,7 @@ export function FunnelQuiz({
           descriptionProps={{ color: TypographyColor.Tertiary }}
         />
         {imageUrl && (
-          <div className="grid flex-1 place-items-center laptop:my-10 laptop:flex-grow-0">
-            <Head>
-              <link rel="preload" as="image" href={imageUrl} />
-            </Head>
+          <div className="grid flex-1 place-items-center">
             <Image
               alt="Question additional context"
               aria-hidden

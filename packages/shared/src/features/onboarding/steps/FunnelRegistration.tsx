@@ -180,8 +180,8 @@ function InnerFunnelRegistration({
   }, [shouldRedirect]);
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 tablet:left-1/2 tablet:min-w-[100dvw] tablet:-translate-x-1/2">
+    <div className="relative flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
+      <div className="absolute inset-0">
         <div
           className={classNames(
             'absolute bottom-0 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%',
@@ -189,7 +189,7 @@ function InnerFunnelRegistration({
           )}
         />
         <img
-          className="pointer-events-none -z-1 max-h-full w-full object-cover object-center"
+          className="pointer-events-none -z-1 w-full"
           alt="background"
           src={isTablet ? image : imageMobile}
         />

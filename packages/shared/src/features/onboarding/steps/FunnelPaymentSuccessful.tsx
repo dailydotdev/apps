@@ -39,7 +39,7 @@ export const FunnelPaymentSuccessful = ({
   }, [headline, explainer]);
 
   return (
-    <div className="relative left-1/2 flex w-full min-w-[100dvw] flex-1 -translate-x-1/2 justify-center overflow-hidden">
+    <div className="relative flex w-full flex-1 justify-center overflow-hidden">
       <LazyImage
         className="left-0 top-0 -z-1 h-full w-full translate-y-52 scale-150 blur-3xl"
         imgSrc={imageUrl}
@@ -47,7 +47,7 @@ export const FunnelPaymentSuccessful = ({
         absolute
       />
       <div className="flex w-full flex-col gap-10">
-        <div className="grid h-12 place-items-center bg-background-default">
+        <div className="h-12 bg-background-default">
           <Logo isPlus />
         </div>
         <div className="flex flex-col items-center">
