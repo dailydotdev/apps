@@ -1,3 +1,7 @@
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
@@ -407,6 +411,24 @@ const ProfileIndex = ({
     );
   }
 
-  return <AccountPageContainer title="Profile">{form}</AccountPageContainer>;
+  return (
+    <AccountPageContainer
+      title="Profile"
+      actions={
+        <>
+          <Button
+            className="ml-auto"
+            variant={ButtonVariant.Primary}
+            onClick={onSubmit}
+            disabled={isLoading}
+          >
+            Save
+          </Button>
+        </>
+      }
+    >
+      {form}
+    </AccountPageContainer>
+  );
 };
 export default ProfileIndex;
