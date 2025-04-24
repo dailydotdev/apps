@@ -22,6 +22,7 @@ export async function getFunnelBootData({
     params.append('v', version);
   }
 
+  console.log('test');
   const paramString = params.toString();
   const url = `${apiUrl}/boot/funnel${paramString ? `?${paramString}` : ''}`;
 
