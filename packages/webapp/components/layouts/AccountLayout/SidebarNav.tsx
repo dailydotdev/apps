@@ -216,21 +216,30 @@ function SidebarNav(): ReactElement {
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">
-        {Object.entries(menuItems).map(([key, menuItem]) => (
-          <ProfileSection
-            key={key}
-            withSeparator
-            title={menuItem.title}
-            items={Object.entries(menuItem.items).map(
-              ([, item]: [string, ProfileSectionItemProps]) => {
-                return {
-                  ...item,
-                  isActive: router.asPath === item.href,
-                };
-              },
-            )}
-          />
-        ))}
+        {Object.entries(menuItems)
+          .filter(
+            ([, menuItem]) =>
+              Object.entries(menuItem.items).filter(
+                ([, item]: [string, ProfileSectionItemProps]) => !!item.href,
+              ).length > 0,
+          )
+          .map(([key, menuItem]) => (
+            <ProfileSection
+              key={key}
+              withSeparator
+              title={menuItem.title}
+              items={Object.entries(menuItem.items)
+                .filter(
+                  ([, item]: [string, ProfileSectionItemProps]) => !!item.href,
+                )
+                .map(([, item]: [string, ProfileSectionItemProps]) => {
+                  return {
+                    ...item,
+                    isActive: router.asPath === item.href,
+                  };
+                })}
+            />
+          ))}
 
         <ProfileSection
           items={[
