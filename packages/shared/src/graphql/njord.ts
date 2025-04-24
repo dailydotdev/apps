@@ -192,6 +192,7 @@ export const transactionPricesQueryOptions = ({
 
           return products
             ?.map((product: IAPProduct): ProductOption => {
+              // TODO feat/cores-iap load from api metadata/new endpoint
               const coresValue =
                 +product.attributes.offerName.match(/\d+/)?.[0];
 
