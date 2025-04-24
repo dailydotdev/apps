@@ -217,6 +217,7 @@ function SidebarNav(): ReactElement {
 
       <nav className="flex flex-col gap-2">
         {Object.entries(menuItems)
+          // TODO: remove this filter when all links are in place
           .filter(
             ([, menuItem]) =>
               Object.entries(menuItem.items).filter(
@@ -229,6 +230,7 @@ function SidebarNav(): ReactElement {
               withSeparator
               title={menuItem.title}
               items={Object.entries(menuItem.items)
+                // TODO: remove this filter when all links are in place
                 .filter(
                   ([, item]: [string, ProfileSectionItemProps]) => !!item.href,
                 )
