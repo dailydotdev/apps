@@ -68,6 +68,7 @@ export type PurchaseEvent = {
   name: PurchaseEventName;
   product?: IAPProduct;
   detail?: string;
+  transactionId?: string;
 };
 
 export const StoreKitSubProvider = ({

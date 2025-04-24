@@ -114,30 +114,6 @@ export const StoreKitBuyCoresContextProvider = ({
               target_id: event?.data?.payment.method_details.type,
             });
             break;
-          case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logRef.current({
-              event_name: LogEvent.CompleteCheckout,
-              target_type: TargetType.Credits,
-              extra: JSON.stringify({
-                user_id:
-                  'user_id' in event.data.custom_data
-                    ? event.data.custom_data.user_id
-                    : undefined,
-                quantity: getQuantityForPriceRef.current({
-                  priceId: event.data.items[0]?.price_id,
-                }),
-                localCost: event?.data.totals.total,
-                localCurrency: event?.data.currency_code,
-                payment: event?.data.payment.method_details.type,
-              }),
-            });
-
-            setActiveStep({
-              step: SCREENS.PROCESSING,
-              providerTransactionId: event.data.transaction_id,
-            });
-
-            break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
             logRef.current({
@@ -182,7 +158,7 @@ export const StoreKitBuyCoresContextProvider = ({
     promisifyEventListener<void, PurchaseEvent>(
       eventName,
       (event) => {
-        const { name, product } = event.detail;
+        const { name, product, transactionId } = event.detail;
         switch (name) {
           case PurchaseEventName.PurchaseCompleted:
             logRef.current({
@@ -201,8 +177,7 @@ export const StoreKitBuyCoresContextProvider = ({
 
             setActiveStep({
               step: SCREENS.PROCESSING,
-              // TODO feat/cores-iap
-              providerTransactionId: 'iap-transaction-id',
+              providerTransactionId: transactionId
             });
 
             break;
