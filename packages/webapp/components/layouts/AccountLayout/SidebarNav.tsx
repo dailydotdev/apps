@@ -65,10 +65,12 @@ const menuItems: MenuItems = {
       profile: {
         title: 'Profile Details',
         icon: <UserIcon />,
+        href: '/account/profile',
       },
       account: {
         title: 'Account',
         icon: <MailIcon />,
+        href: '/account/security',
       },
       appearance: {
         title: 'Appearance',
@@ -77,10 +79,12 @@ const menuItems: MenuItems = {
       notifications: {
         title: 'Notifications',
         icon: <BellIcon />,
+        href: '/account/notifications',
       },
       invite: {
         title: 'Invite Friends',
         icon: <InviteIcon />,
+        href: '/account/invite',
       },
     },
   },
@@ -90,6 +94,7 @@ const menuItems: MenuItems = {
       subscription: {
         title: 'Subscriptions',
         icon: <CardIcon />,
+        href: '/account/subscription',
       },
       coreWallet: {
         title: 'Core Wallet',
@@ -142,6 +147,7 @@ const menuItems: MenuItems = {
       integrations: {
         title: 'Integrations',
         icon: <EmbedIcon />,
+        href: '/account/integrations',
       },
     },
   },
@@ -151,6 +157,7 @@ const menuItems: MenuItems = {
       privacy: {
         title: 'Privacy',
         icon: <PrivacyIcon />,
+        href: '/account/privacy',
       },
       reputation: {
         title: 'Reputation',
