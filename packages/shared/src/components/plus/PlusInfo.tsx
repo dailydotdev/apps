@@ -23,7 +23,7 @@ import { GiftingSelectedUser } from './GiftingSelectedUser';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { GiftIcon } from '../icons/gift';
+import { GiftIcon } from '../icons';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
