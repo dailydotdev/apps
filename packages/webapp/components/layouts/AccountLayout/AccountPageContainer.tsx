@@ -20,12 +20,10 @@ interface ClassName {
   container?: string;
   heading?: string;
   section?: string;
-  footer?: string;
 }
 
 interface AccountPageContainerProps {
   title: string;
-  footer?: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: ClassName;
@@ -34,7 +32,6 @@ interface AccountPageContainerProps {
 
 export const AccountPageContainer = ({
   title,
-  footer,
   actions,
   children,
   className = {},
@@ -70,23 +67,12 @@ export const AccountPageContainer = ({
       </AccountPageHeading>
       <AccountPageSection
         className={classNames(
-          isMobile &&
-            `h-[calc(100dvh-${footer ? '12' : '7.75'}rem)] overflow-y-scroll`,
+          isMobile && `h-[calc(100dvh-7.75rem)] overflow-y-scroll`,
           className.section,
         )}
       >
         {children}
       </AccountPageSection>
-      {footer && (
-        <div
-          className={classNames(
-            'sticky flex flex-row gap-3 border-t border-border-subtlest-tertiary p-3',
-            className.footer,
-          )}
-        >
-          {footer}
-        </div>
-      )}
     </AccountPageContent>
   );
 };
