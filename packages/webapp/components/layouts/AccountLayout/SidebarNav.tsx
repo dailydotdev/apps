@@ -43,6 +43,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import type { ProfileSectionItemProps } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSection';
+import { useRouter } from 'next/router';
 
 type MenuItems = Record<
   string,
@@ -191,6 +192,7 @@ const menuItems = defineMenuItems({
 });
 
 function SidebarNav(): ReactElement {
+  const router = useRouter();
   const { user, logout } = useAuthContext();
   const featureTheme = useFeatureTheme();
 
@@ -219,7 +221,14 @@ function SidebarNav(): ReactElement {
             key={key}
             withSeparator
             title={menuItem.title}
-            items={Object.entries(menuItem.items).map(([, item]) => item)}
+            items={Object.entries(menuItem.items).map(
+              ([, item]: [string, ProfileSectionItemProps]) => {
+                return {
+                  ...item,
+                  isActive: router.asPath === item.href,
+                };
+              },
+            )}
           />
         ))}
 

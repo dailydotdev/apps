@@ -19,6 +19,7 @@ type ProfileSectionItemPropsCommon = WithClassNameProps & {
   icon?: ReactElement;
   onClick?: () => void;
   showExternalIcon?: boolean;
+  isActive?: boolean;
 };
 
 type ProfileSectionItemPropsWithHref = ProfileSectionItemPropsCommon & {
@@ -43,6 +44,7 @@ export const ProfileSectionItem = ({
   onClick,
   external,
   showExternalIcon,
+  isActive,
 }: ProfileSectionItemProps): ReactElement => {
   const tag = href ? TypographyTag.Link : TypographyTag.Button;
 
@@ -64,6 +66,7 @@ export const ProfileSectionItem = ({
         className={classNames(
           'flex cursor-pointer items-center gap-2 rounded-10 px-1 py-1.5',
           (href || onClick) && 'hover:bg-surface-float',
+          isActive ? 'bg-surface-active' : undefined,
           className,
           // TODO: remove this when all links are in place
           !href && !onClick && '!cursor-default !text-text-disabled',
