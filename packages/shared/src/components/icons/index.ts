@@ -1,3 +1,5 @@
+// When adding a new icon, please add it alphabetically to the list below.
+
 export * from './AddUser';
 export * from './Ai';
 export * from './Alert';
@@ -144,3 +146,5 @@ export * from './V';
 export * from './Warning';
 export * from './Whatsapp';
 export * from './Youtube';
+
+// When adding a new icon, please add it alphabetically to the list above.
