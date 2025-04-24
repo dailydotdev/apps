@@ -19,7 +19,7 @@ export enum AccountSecurityDisplay {
 
 export const AccountPageContent = classed(
   'main',
-  'flex flex-col tablet:border border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
+  'flex flex-col tablet:border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
 );
 export const AccountPageSection = classed(
   'section',
