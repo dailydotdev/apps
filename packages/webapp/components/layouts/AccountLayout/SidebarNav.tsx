@@ -202,7 +202,7 @@ function SidebarNav(): ReactElement {
       )}
     >
       <ProfileMenuHeader
-        className="px-1"
+        className="rounded-10 px-1 hover:bg-theme-active"
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
       />
