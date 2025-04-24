@@ -194,7 +194,7 @@ function AccountSecurityDefault({
     );
 
   return (
-    <AccountPageContainer title="Security">
+    <AccountPageContainer title="Account access">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
         title="Account email"
