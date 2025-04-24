@@ -55,6 +55,7 @@ export * from './Feedback';
 export * from './Filter';
 export * from './Flag';
 export * from './Folder';
+export * from './gift';
 export * from './GitHub';
 export * from './GitLab';
 export * from './Google';

@@ -5,7 +5,14 @@ import { reportSquadMember } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import type { SourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
-import { StarIcon, UserIcon, SquadIcon, BlockIcon, FlagIcon } from '../icons';
+import {
+  StarIcon,
+  UserIcon,
+  SquadIcon,
+  BlockIcon,
+  FlagIcon,
+  GiftIcon,
+} from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import type { MenuItemProps } from '../fields/ContextMenu';
@@ -16,7 +23,6 @@ import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { LazyModal } from '../modals/common/types';
-import { GiftIcon } from '../icons/gift';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LogEvent, TargetId } from '../../lib/log';
 
