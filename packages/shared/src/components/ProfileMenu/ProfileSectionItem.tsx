@@ -62,10 +62,11 @@ export const ProfileSectionItem = ({
         color={TypographyColor.Tertiary}
         type={TypographyType.Subhead}
         className={classNames(
-          'flex cursor-pointer items-center gap-2 rounded-10 px-1 py-1.5 hover:bg-theme-active',
+          'flex cursor-pointer items-center gap-2 rounded-10 px-1 py-1.5',
+          (href || onClick) && 'hover:bg-surface-float',
           className,
           // TODO: remove this when all links are in place
-          !href && !onClick && '!cursor-not-allowed !text-text-disabled',
+          !href && !onClick && '!cursor-default !text-text-disabled',
         )}
         {...combinedClicks(() => onClick?.())}
         {...(isExternal && { target: '_blank', rel: anchorDefaultRel })}
