@@ -19,11 +19,13 @@ import { webappUrl } from '../../lib/constants';
 
 type Props = WithClassNameProps & {
   shouldOpenProfile?: boolean;
+  profileImageSize?: ProfileImageSize;
 };
 
 export const ProfileMenuHeader = ({
   className,
   shouldOpenProfile = false,
+  profileImageSize = ProfileImageSize.Large,
 }: Props): ReactElement => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -34,7 +36,7 @@ export const ProfileMenuHeader = ({
         user={user}
         nativeLazyLoading
         eager
-        size={ProfileImageSize.Large}
+        size={profileImageSize}
         className="!rounded-10 border-background-default"
       />
 

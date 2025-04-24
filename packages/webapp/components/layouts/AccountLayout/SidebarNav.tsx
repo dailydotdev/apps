@@ -5,6 +5,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import { ProfileMenuHeader } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenuHeader';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import SidebarNavItem from './SidebarNavItem';
 import type { AccountPage } from './common';
 import { accountPage } from './common';
@@ -26,7 +27,11 @@ function SidebarNav(): ReactElement {
         featureTheme ? 'bg-transparent' : undefined,
       )}
     >
-      <ProfileMenuHeader className="px-1" shouldOpenProfile />
+      <ProfileMenuHeader
+        className="px-1"
+        shouldOpenProfile
+        profileImageSize={ProfileImageSize.Medium}
+      />
 
       <HorizontalSeparator />
 
