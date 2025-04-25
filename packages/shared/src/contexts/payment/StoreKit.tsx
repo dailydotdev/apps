@@ -138,6 +138,7 @@ export const StoreKitSubProvider = ({
     enabled: !!user && !!growthbook?.ready && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
   });
+
   const { data: productOptions } = useQuery({
     queryKey: ['iap-products'],
     enabled: !!data?.length && !!growthbook?.ready && iOSSupportsPlusPurchase(),
