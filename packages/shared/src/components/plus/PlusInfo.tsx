@@ -219,8 +219,8 @@ export const PlusInfo = ({
           />
         ) : (
           <>
-            {productOptions.length === 0 && <RadioGroupSkeleton />}
-            {productOptions.map((option) => (
+            {!productOptions && <RadioGroupSkeleton />}
+            {productOptions?.map((option) => (
               <PlusOptionRadio
                 key={option.priceId}
                 shouldShowMonthlyPrice={
