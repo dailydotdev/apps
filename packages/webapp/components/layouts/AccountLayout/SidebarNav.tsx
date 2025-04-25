@@ -11,8 +11,8 @@ import {
   AppIcon,
   BellIcon,
   BlockIcon,
-  CardIcon,
   CoinIcon,
+  CreditCardIcon,
   DevCardIcon,
   DocsIcon,
   EditIcon,
@@ -92,7 +92,7 @@ export const accountPageItems = defineMenuItems({
     items: {
       subscription: {
         title: 'Subscriptions',
-        icon: CardIcon,
+        icon: CreditCardIcon,
         href: `${webappUrl}account/subscription`,
       },
       coreWallet: {
