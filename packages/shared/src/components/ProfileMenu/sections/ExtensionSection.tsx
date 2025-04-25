@@ -27,18 +27,19 @@ export const ExtensionSection = (): ReactElement => {
         items={[
           {
             title: 'Shortcuts',
-            icon: <ShortcutsIcon />,
+            icon: ShortcutsIcon,
             onClick: () => openModal({ type: LazyModal.CustomLinks }),
           },
           {
             title: `${isDndActive ? 'Resume' : 'Pause'} new tab`,
-            icon: isDndActive ? <PlayIcon /> : <PauseIcon />,
+            icon: isDndActive ? PlayIcon : PauseIcon,
             onClick: () => setShowDnd?.(true),
           },
           {
             title: `${optOutCompanion ? 'Enable' : 'Disable'} companion widget`,
-            icon: <StoryIcon secondary={!optOutCompanion} />,
+            icon: StoryIcon,
             onClick: () => toggleOptOutCompanion(),
+            isActive: !optOutCompanion,
           },
         ]}
       />
