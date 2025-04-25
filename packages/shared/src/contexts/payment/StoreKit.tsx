@@ -30,6 +30,16 @@ import type {
 } from '../../graphql/paddle';
 import { fetchPricingMetadata, ProductPricingType } from '../../graphql/paddle';
 
+export enum StoreKitDuration {
+  Monthly = 'P1M',
+  Yearly = 'P1Y',
+}
+
+export const storekitDurationToPlusDurationMap = {
+  [StoreKitDuration.Monthly]: PlusPriceType.Monthly,
+  [StoreKitDuration.Yearly]: PlusPriceType.Yearly,
+};
+
 export type IAPProduct = {
   attributes: {
     description: {
@@ -93,7 +103,9 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
         }
 
         const duration =
-          product.attributes.offers[0].recurringSubscriptionPeriod;
+          storekitDurationToPlusDurationMap[
+            product.attributes.offers[0].recurringSubscriptionPeriod
+          ];
 
         return {
           metadata: item,
@@ -102,9 +114,7 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
             amount: parseFloat(product.attributes.offers[0].price),
             formatted: product.attributes.offers[0].priceFormatted,
           },
-          duration: ['year', 'years'].includes(duration)
-            ? PlusPriceType.Yearly
-            : PlusPriceType.Monthly,
+          duration,
           trialPeriod: null,
           currency: null,
         } as ProductPricingPreview;
