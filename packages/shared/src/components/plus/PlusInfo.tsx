@@ -222,7 +222,7 @@ export const PlusInfo = ({
               <PlusOptionRadio
                 key={option.priceId}
                 shouldShowMonthlyPrice
-                shoouldShowDuration
+                shouldShowDuration
                 option={option}
                 checked={selectedOption === option.priceId}
                 onChange={() => {
