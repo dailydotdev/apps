@@ -120,11 +120,11 @@ const PRICING_METADATA_QUERY = gql`
 export const fetchPricingMetadata = async (
   type: ProductPricingType,
 ): Promise<ProductPricingMetadata[]> => {
-  const { plusPricingMetadata } = await gqlClient.request<{
-    plusPricingMetadata: ProductPricingMetadata[];
+  const { pricingMetadata } = await gqlClient.request<{
+    pricingMetadata: ProductPricingMetadata[];
   }>(PRICING_METADATA_QUERY, { type });
 
-  return plusPricingMetadata;
+  return pricingMetadata;
 };
 
 export enum PricingCaptionColor {

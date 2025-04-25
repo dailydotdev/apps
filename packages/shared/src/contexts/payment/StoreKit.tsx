@@ -142,13 +142,14 @@ export const StoreKitSubProvider = ({
   const { data: productOptions } = useQuery({
     queryKey: ['iap-products'],
     enabled: !!data?.length && !!growthbook?.ready && iOSSupportsPlusPurchase(),
+    staleTime: StaleTime.Default,
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
       }
 
       const response = getApplePlusPricing(data);
-      const ids = data.map(({ idMap }) => idMap.ios);
+      const ids = data.map(({ idMap }) => idMap.ios).filter(Boolean);
 
       postWebKitMessage(WebKitMessageHandlers.IAPProductList, ids);
 
