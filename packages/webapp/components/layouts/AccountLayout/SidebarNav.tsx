@@ -74,6 +74,7 @@ export const accountPageItems = defineMenuItems({
       appearance: {
         title: 'Appearance',
         icon: NewTabIcon,
+        href: `${webappUrl}account/appearance`,
       },
       notifications: {
         title: 'Notifications',
