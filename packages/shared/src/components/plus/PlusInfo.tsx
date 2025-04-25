@@ -56,7 +56,7 @@ interface PageCopy {
   subtitle: string;
 }
 
-const copy: Record<PlusType, PageCopy> = {
+export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
     title: 'Fast-track your growth',
     description:
@@ -91,7 +91,8 @@ const RadioGroupSkeleton = () => (
 );
 
 const getCopy = ({ giftToUser, title, description, subtitle }) => {
-  const fallback = copy[giftToUser ? PlusType.Gift : PlusType.Self];
+  const fallback =
+    defaultPlusInfoCopy[giftToUser ? PlusType.Gift : PlusType.Self];
   return {
     titleCopy: title || fallback.title,
     descriptionCopy: description || fallback.description,

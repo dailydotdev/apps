@@ -27,6 +27,10 @@ import {
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import {
+  defaultPlusInfoCopy,
+  PlusType,
+} from '@dailydotdev/shared/src/components/plus/PlusInfo';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { defaultSeo } from '../../next-seo';
@@ -134,14 +138,13 @@ const UpgradeToPlusInfo = (): ReactElement => (
   <>
     <div className="flex flex-col gap-1">
       <Typography bold type={TypographyType.Body}>
-        Unlock more with Plus!
+        {defaultPlusInfoCopy[PlusType.Self].title}
       </Typography>
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        Upgrade to daily.dev Plus for an enhanced, ad-free experience with
-        exclusive features and perks to level up your game.
+        {defaultPlusInfoCopy[PlusType.Self].description}
       </Typography>
     </div>
     <UpgradeToPlus
