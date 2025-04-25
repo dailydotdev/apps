@@ -40,6 +40,7 @@ import {
   feedback,
   reputation,
   walletUrl,
+  webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import type { ProfileSectionItemProps } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSection';
@@ -56,19 +57,19 @@ type MenuItems = Record<
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
 // TODO: make the links actually work
-const menuItems = defineMenuItems({
+export const accountPageItems = defineMenuItems({
   main: {
     title: null,
     items: {
       profile: {
         title: 'Profile Details',
         icon: <UserIcon />,
-        href: '/account/profile',
+        href: `${webappUrl}account/profile`,
       },
       account: {
         title: 'Account',
         icon: <MailIcon />,
-        href: '/account/security',
+        href: `${webappUrl}account/security`,
       },
       appearance: {
         title: 'Appearance',
@@ -77,12 +78,12 @@ const menuItems = defineMenuItems({
       notifications: {
         title: 'Notifications',
         icon: <BellIcon />,
-        href: '/account/notifications',
+        href: `${webappUrl}account/notifications`,
       },
       invite: {
         title: 'Invite Friends',
         icon: <InviteIcon />,
-        href: '/account/invite',
+        href: `${webappUrl}account/invite`,
       },
     },
   },
@@ -92,7 +93,7 @@ const menuItems = defineMenuItems({
       subscription: {
         title: 'Subscriptions',
         icon: <CardIcon />,
-        href: '/account/subscription',
+        href: `${webappUrl}account/subscription`,
       },
       coreWallet: {
         title: 'Core Wallet',
@@ -145,7 +146,7 @@ const menuItems = defineMenuItems({
       integrations: {
         title: 'Integrations',
         icon: <EmbedIcon />,
-        href: '/account/integrations',
+        href: `${webappUrl}account/integrations`,
       },
     },
   },
@@ -155,7 +156,7 @@ const menuItems = defineMenuItems({
       privacy: {
         title: 'Privacy',
         icon: <PrivacyIcon />,
-        href: '/account/privacy',
+        href: `${webappUrl}account/privacy`,
       },
       reputation: {
         title: 'Reputation',
@@ -216,7 +217,7 @@ function SidebarNav(): ReactElement {
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">
-        {Object.entries(menuItems)
+        {Object.entries(accountPageItems)
           // TODO: remove this filter when all links are in place
           .filter(
             ([, menuItem]) =>
