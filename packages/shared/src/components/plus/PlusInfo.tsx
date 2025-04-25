@@ -45,7 +45,7 @@ type PlusInfoProps = {
   isContinueLoading?: boolean;
 };
 
-enum PlusType {
+export enum PlusType {
   Self = 'self',
   Gift = 'gift',
 }
