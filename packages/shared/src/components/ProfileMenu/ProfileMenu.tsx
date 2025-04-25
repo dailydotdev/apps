@@ -81,7 +81,7 @@ export default function ProfileMenu({
           items={[
             {
               title: 'Logout',
-              icon: <ExitIcon />,
+              icon: ExitIcon,
               onClick: () => logout(LogoutReason.ManualLogout),
             },
           ]}

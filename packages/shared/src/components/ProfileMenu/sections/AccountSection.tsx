@@ -21,22 +21,22 @@ export const AccountSection = (): ReactElement => {
         {
           title: 'Account details',
           href: `${webappUrl}account/profile`,
-          icon: <EditIcon />,
+          icon: EditIcon,
         },
         {
           title: 'Customize',
           onClick: () => openModal({ type: LazyModal.UserSettings }),
-          icon: <SettingsIcon />,
+          icon: SettingsIcon,
         },
         {
           title: 'Subscriptions',
           href: `${webappUrl}account/subscription`,
-          icon: <CreditCardIcon />,
+          icon: CreditCardIcon,
         },
         {
           title: 'Invite friends',
           href: `${webappUrl}account/invite`,
-          icon: <InviteIcon />,
+          icon: InviteIcon,
         },
       ]}
     />

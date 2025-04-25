@@ -14,10 +14,11 @@ import { combinedClicks } from '../../lib/click';
 import { OpenLinkIcon } from '../icons';
 import { anchorDefaultRel } from '../../lib/strings';
 import { webappUrl } from '../../lib/constants';
+import type { IconProps } from '../Icon';
 
 type ProfileSectionItemPropsCommon = WithClassNameProps & {
   title: string;
-  icon?: ReactElement;
+  icon?: (props: IconProps) => ReactElement;
   onClick?: () => void;
   isActive?: boolean;
 };
@@ -40,7 +41,7 @@ export const ProfileSectionItem = ({
   className,
   title,
   href,
-  icon,
+  icon: Icon,
   onClick,
   external,
   isActive,
@@ -74,7 +75,7 @@ export const ProfileSectionItem = ({
         {...combinedClicks(() => onClick?.())}
         {...(openNewTab && { target: '_blank', rel: anchorDefaultRel })}
       >
-        {icon}
+        <Icon secondary={isActive} />
         <span>{title}</span>
 
         {showLinkIcon && (

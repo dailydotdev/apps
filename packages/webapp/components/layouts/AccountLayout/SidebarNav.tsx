@@ -63,26 +63,26 @@ export const accountPageItems = defineMenuItems({
     items: {
       profile: {
         title: 'Profile Details',
-        icon: <UserIcon />,
+        icon: UserIcon,
         href: `${webappUrl}account/profile`,
       },
       account: {
         title: 'Account',
-        icon: <MailIcon />,
+        icon: MailIcon,
         href: `${webappUrl}account/security`,
       },
       appearance: {
         title: 'Appearance',
-        icon: <NewTabIcon />,
+        icon: NewTabIcon,
       },
       notifications: {
         title: 'Notifications',
-        icon: <BellIcon />,
+        icon: BellIcon,
         href: `${webappUrl}account/notifications`,
       },
       invite: {
         title: 'Invite Friends',
-        icon: <InviteIcon />,
+        icon: InviteIcon,
         href: `${webappUrl}account/invite`,
       },
     },
@@ -92,12 +92,12 @@ export const accountPageItems = defineMenuItems({
     items: {
       subscription: {
         title: 'Subscriptions',
-        icon: <CardIcon />,
+        icon: CardIcon,
         href: `${webappUrl}account/subscription`,
       },
       coreWallet: {
         title: 'Core Wallet',
-        icon: <CoinIcon />,
+        icon: CoinIcon,
         href: walletUrl,
         external: true,
       },
@@ -108,27 +108,27 @@ export const accountPageItems = defineMenuItems({
     items: {
       general: {
         title: 'General',
-        icon: <EditIcon />,
+        icon: EditIcon,
       },
       tags: {
         title: 'Tags',
-        icon: <HashtagIcon />,
+        icon: HashtagIcon,
       },
       sources: {
         title: 'Content sources',
-        icon: <AddUserIcon />,
+        icon: AddUserIcon,
       },
       preferences: {
         title: 'Content preferences',
-        icon: <AppIcon />,
+        icon: AppIcon,
       },
       ai: {
         title: 'AI superpowers',
-        icon: <MagicIcon />,
+        icon: MagicIcon,
       },
       blocked: {
         title: 'Blocked content',
-        icon: <BlockIcon />,
+        icon: BlockIcon,
       },
     },
   },
@@ -137,15 +137,15 @@ export const accountPageItems = defineMenuItems({
     items: {
       streaks: {
         title: 'Streaks',
-        icon: <HotIcon />,
+        icon: HotIcon,
       },
       devcard: {
         title: 'Devcard',
-        icon: <DevCardIcon />,
+        icon: DevCardIcon,
       },
       integrations: {
         title: 'Integrations',
-        icon: <EmbedIcon />,
+        icon: EmbedIcon,
         href: `${webappUrl}account/integrations`,
       },
     },
@@ -155,36 +155,36 @@ export const accountPageItems = defineMenuItems({
     items: {
       privacy: {
         title: 'Privacy',
-        icon: <PrivacyIcon />,
+        icon: PrivacyIcon,
         href: `${webappUrl}account/privacy`,
       },
       reputation: {
         title: 'Reputation',
-        icon: <ReputationLightningIcon />,
+        icon: ReputationLightningIcon,
         href: reputation,
         external: true,
       },
       advertise: {
         title: 'Advertise',
-        icon: <MegaphoneIcon />,
+        icon: MegaphoneIcon,
         href: businessWebsiteUrl,
         external: true,
       },
       apps: {
         title: 'Apps',
-        icon: <PhoneIcon />,
+        icon: PhoneIcon,
         href: appsUrl,
         external: true,
       },
       docs: {
         title: 'Docs',
-        icon: <DocsIcon />,
+        icon: DocsIcon,
         href: docs,
         external: true,
       },
       support: {
         title: 'Support',
-        icon: <FeedbackIcon />,
+        icon: FeedbackIcon,
         href: feedback,
         external: true,
       },
@@ -248,7 +248,7 @@ function SidebarNav(): ReactElement {
           items={[
             {
               title: 'Logout',
-              icon: <ExitIcon />,
+              icon: ExitIcon,
               onClick: () => logout(LogoutReason.ManualLogout),
             },
           ]}
