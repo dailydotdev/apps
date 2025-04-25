@@ -13,12 +13,12 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { combinedClicks } from '../../lib/click';
 import { OpenLinkIcon } from '../icons';
 import { anchorDefaultRel } from '../../lib/strings';
+import { webappUrl } from '../../lib/constants';
 
 type ProfileSectionItemPropsCommon = WithClassNameProps & {
   title: string;
   icon?: ReactElement;
   onClick?: () => void;
-  showExternalIcon?: boolean;
   isActive?: boolean;
 };
 
@@ -43,12 +43,12 @@ export const ProfileSectionItem = ({
   icon,
   onClick,
   external,
-  showExternalIcon,
   isActive,
 }: ProfileSectionItemProps): ReactElement => {
   const tag = href ? TypographyTag.Link : TypographyTag.Button;
 
-  const isExternal = href && external;
+  const showLinkIcon = href && external;
+  const openNewTab = showLinkIcon && !href.startsWith(webappUrl);
 
   return (
     <ConditionalWrapper
@@ -72,12 +72,12 @@ export const ProfileSectionItem = ({
           !href && !onClick && '!cursor-default !text-text-disabled',
         )}
         {...combinedClicks(() => onClick?.())}
-        {...(isExternal && { target: '_blank', rel: anchorDefaultRel })}
+        {...(openNewTab && { target: '_blank', rel: anchorDefaultRel })}
       >
         {icon}
         <span>{title}</span>
 
-        {(isExternal || showExternalIcon) && (
+        {showLinkIcon && (
           <OpenLinkIcon className="ml-auto text-text-quaternary" />
         )}
       </Typography>

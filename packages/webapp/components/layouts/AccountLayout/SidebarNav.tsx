@@ -99,7 +99,7 @@ export const accountPageItems = defineMenuItems({
         title: 'Core Wallet',
         icon: <CoinIcon />,
         href: walletUrl,
-        showExternalIcon: true,
+        external: true,
       },
     },
   },
