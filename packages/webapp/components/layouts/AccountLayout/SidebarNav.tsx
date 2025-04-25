@@ -143,6 +143,7 @@ export const accountPageItems = defineMenuItems({
       devcard: {
         title: 'Devcard',
         icon: DevCardIcon,
+        href: `${webappUrl}account/customization/devcard`,
       },
       integrations: {
         title: 'Integrations',
