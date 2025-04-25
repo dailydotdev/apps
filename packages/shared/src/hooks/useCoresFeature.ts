@@ -1,7 +1,7 @@
 import { useConditionalFeature } from './useConditionalFeature';
 import { featureCores } from '../lib/featureManagement';
 import { useAuthContext } from '../contexts/AuthContext';
-import { canAwardUser, hasAccessToCores } from '../lib/cores';
+import { canAwardUser } from '../lib/cores';
 import type { PropsParameters } from '../types';
 import { useIsSpecialUser } from './auth/useIsSpecialUser';
 import { isIOSNative } from '../lib/func';
@@ -22,7 +22,7 @@ export const useHasAccessToCores = (): boolean => {
 
   const hasAccess = useCoresFeature();
 
-  return hasAccess && hasAccessToCores(user);
+  return true;
 };
 
 export const useCanAwardUser = (
