@@ -75,7 +75,7 @@ export const ProfileSectionItem = ({
         {...combinedClicks(() => onClick?.())}
         {...(openNewTab && { target: '_blank', rel: anchorDefaultRel })}
       >
-        <Icon secondary={isActive} />
+        {Icon && <Icon secondary={isActive} />}
         <span>{title}</span>
 
         {showLinkIcon && (

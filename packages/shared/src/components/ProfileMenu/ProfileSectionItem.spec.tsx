@@ -41,7 +41,7 @@ describe('ProfileSectionItem', () => {
   });
 
   it('should render an icon when provided', () => {
-    const icon = <span data-testid="test-icon">Icon</span>;
+    const icon = () => <span data-testid="test-icon">Icon</span>;
     render(<ProfileSectionItem {...defaultProps} icon={icon} />);
     const renderedIcon = screen.getByTestId('test-icon');
     expect(renderedIcon).toBeInTheDocument();
