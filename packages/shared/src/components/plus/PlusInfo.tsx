@@ -26,6 +26,8 @@ import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
 import type { ProductPricingPreview } from '../../graphql/paddle';
+import { isIOSNative } from '../../lib/func';
+import { PlusPriceType } from '../../lib/featureValues';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -221,7 +223,10 @@ export const PlusInfo = ({
             {productOptions.map((option) => (
               <PlusOptionRadio
                 key={option.priceId}
-                shouldShowMonthlyPrice
+                shouldShowMonthlyPrice={
+                  !isIOSNative() ||
+                  (isIOSNative() && option.duration === PlusPriceType.Monthly)
+                }
                 shouldShowDuration
                 option={option}
                 checked={selectedOption === option.priceId}
