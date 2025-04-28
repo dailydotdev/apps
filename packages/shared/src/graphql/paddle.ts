@@ -65,8 +65,8 @@ const PRICING_METADATA_FRAGMENT = gql`
 `;
 
 const PRICING_PREVIEW_QUERY = gql`
-  query PricingPreview($type: PricingType) {
-    pricingPreview(type: $type) {
+  query PricingPreview($type: PricingType, $locale: String) {
+    pricingPreview(type: $type, locale: $locale) {
       metadata {
         ...PricingMetadataFragment
       }
@@ -103,10 +103,11 @@ interface PricingPreviewResponse {
 
 export const fetchPricingPreview = async (
   type: ProductPricingType,
+  locale = globalThis?.navigator?.language ?? 'en-US',
 ): Promise<ProductPricingPreview[]> => {
   const { pricingPreview } = await gqlClient.request<PricingPreviewResponse>(
     PRICING_PREVIEW_QUERY,
-    { type },
+    { type, locale },
   );
 
   return pricingPreview;
