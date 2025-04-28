@@ -112,8 +112,6 @@ export const FunnelPricing = ({
     });
   }, [onTransition, selectedPlan, applyDiscount]);
 
-  console.log(plans, productOptions);
-
   const organizedPlans = plans?.map((plan) => {
     const pricing = productOptions?.find(
       (option) => option?.priceId === plan.priceId,
@@ -127,7 +125,7 @@ export const FunnelPricing = ({
       ...plan,
       value: plan.priceId,
       price: {
-        amount: pricing.price.daily.formatted,
+        amount: pricing.price.daily?.formatted,
         subtitle: 'per day',
       },
     };
