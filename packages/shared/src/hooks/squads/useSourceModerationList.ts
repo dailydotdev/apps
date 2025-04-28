@@ -104,7 +104,7 @@ export const useSourceModerationList = ({
     user,
     squad?.id,
   );
-  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
+  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.id);
 
   const handleOptimistic = useCallback(
     (data: SquadPostModerationProps) => {
