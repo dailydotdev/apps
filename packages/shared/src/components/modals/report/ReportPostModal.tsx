@@ -40,7 +40,10 @@ const reportReasons: { value: ReportReason; label: string }[] = [
   { value: ReportReason.Spam, label: 'Spam or scam' },
   { value: ReportReason.Hateful, label: 'Hate speech or harassment' },
   { value: ReportReason.Nsfw, label: 'Inappropriate, explicit, or NSFW' },
-  { value: ReportReason.Misinformation, label: 'Misinformation or politically-oriented' },
+  {
+    value: ReportReason.Misinformation,
+    label: 'Misinformation or politically-oriented',
+  },
   { value: ReportReason.Copyright, label: 'Plagiarism or copyright violation' },
   { value: ReportReason.Privacy, label: 'Privacy violation' },
   { value: ReportReason.Other, label: 'Other' },

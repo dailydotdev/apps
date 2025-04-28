@@ -852,7 +852,7 @@ describe('Feed logged in', () => {
     );
 
     const irrelevantTagsBtn = await screen.findByText(
-      'The post is not about...',
+      'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
     const javascriptElements = await screen.findAllByText('#javascript');
