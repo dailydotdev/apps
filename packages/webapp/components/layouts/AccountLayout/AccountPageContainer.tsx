@@ -48,7 +48,7 @@ export const AccountPageContainer = ({
       <AccountPageHeading
         className={classNames(
           'sticky',
-          actions ? 'py-3' : 'py-[15px]',
+          actions ? 'py-3' : 'py-[0.9375rem]',
           className.heading,
         )}
       >
