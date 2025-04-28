@@ -20,7 +20,7 @@ export const MainSection = (): ReactElement => {
         { title: 'Core wallet', href: walletUrl, icon: CoinIcon },
         {
           title: 'DevCard',
-          href: `${webappUrl}devcard`,
+          href: `${webappUrl}account/customization/devcard`,
           icon: DevCardIcon,
         },
       ]}
