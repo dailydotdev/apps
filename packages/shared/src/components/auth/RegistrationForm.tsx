@@ -88,7 +88,7 @@ const RegistrationForm = ({
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
-  const ref = useRef<TurnstileInstance>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isOnboardingExperiment = !!(
     router.pathname?.startsWith('/onboarding') && isReorderExperiment
@@ -111,7 +111,7 @@ const RegistrationForm = ({
       if (hints?.csrf_token) {
         setTurnstileError(true);
       }
-      ref?.current?.reset();
+      turnstileRef?.current?.reset();
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -173,7 +173,7 @@ const RegistrationForm = ({
       return;
     }
 
-    if (!ref?.current?.getResponse()) {
+    if (!turnstileRef?.current?.getResponse()) {
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
@@ -213,7 +213,7 @@ const RegistrationForm = ({
       headers: {
         'True-Client-Ip': isDevelopment
           ? undefined
-          : ref?.current?.getResponse(),
+          : turnstileRef?.current?.getResponse(),
       },
     });
   };
@@ -410,7 +410,7 @@ const RegistrationForm = ({
           )}
         >
           <Turnstile
-            ref={ref}
+            ref={turnstileRef}
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
             options={{
               theme: 'dark',
