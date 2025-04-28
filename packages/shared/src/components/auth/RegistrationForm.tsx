@@ -84,6 +84,8 @@ const RegistrationForm = ({
   const { logEvent } = useLogContext();
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [turnstileLoaded, setTurnstileLoaded] = useState<boolean>(false);
+  const [turnstileErrorLoading, setTurnstileErrorLoading] =
+    useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
@@ -115,6 +117,19 @@ const RegistrationForm = ({
       turnstileRef?.current?.reset();
     }
   }, [hints]);
+
+  useEffect(() => {
+    const turnstileLoadTimeout = setTimeout(() => {
+      if (!turnstileLoaded) {
+        logRef.current({
+          event_name: AuthEventNames.TurnstileLoadError,
+        });
+        setTurnstileErrorLoading(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(turnstileLoadTimeout);
+  }, [turnstileLoaded]);
 
   const {
     email: { isCheckPending, alreadyExists },
@@ -417,12 +432,18 @@ const RegistrationForm = ({
             className="mx-auto min-h-[4.5rem]"
             onWidgetLoad={() => setTurnstileLoaded(true)}
           />
-          {turnstileError ? (
+          {turnstileError && (
             <Alert
               type={AlertType.Error}
               title="Please complete the security check."
             />
-          ) : undefined}
+          )}
+          {turnstileErrorLoading && (
+            <Alert
+              type={AlertType.Error}
+              title="Turnstile is taking too long to load. Please try again."
+            />
+          )}
           <Button
             className="w-full"
             disabled={isCheckPending || !turnstileLoaded}
