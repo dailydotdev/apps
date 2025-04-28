@@ -183,7 +183,8 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col tablet:pl-16 laptop:pl-11',
+          'flex flex-col',
+          showSidebar && 'tablet:pl-16 laptop:pl-11',
           className,
           isAuthReady &&
             !isScreenCentered &&

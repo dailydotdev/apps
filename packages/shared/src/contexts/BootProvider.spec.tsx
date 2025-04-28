@@ -103,9 +103,14 @@ const mockSettingsMutation = (params: Partial<RemoteSettings>) =>
 interface SettingsMockProps {
   toTheme?: ThemeMode;
   toSpaciness?: Spaciness;
+  toInsaneMode?: boolean;
 }
 
-const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
+const SettingsMock = ({
+  toTheme,
+  toSpaciness,
+  toInsaneMode,
+}: SettingsMockProps) => {
   const {
     toggleSidebarExpanded,
     sidebarExpanded,
@@ -158,7 +163,7 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         Spaciness
       </button>
       <button
-        onClick={toggleInsaneMode}
+        onClick={() => toggleInsaneMode(toInsaneMode)}
         type="button"
         data-test-value={insaneMode}
       >
@@ -240,9 +245,10 @@ it('should set spaciness callback', async () => {
 it('should toggle insane mode callback', async () => {
   const expected = true;
   mockSettingsMutation({ insaneMode: expected });
-  renderComponent(<SettingsMock />);
+  renderComponent(<SettingsMock toInsaneMode />);
   await waitForRemoteBoot();
   const insaneMode = await screen.findByText('Insane Mode');
+  // screen.debug();
   await expectToHaveTestValue(
     insaneMode,
     defaultSettings.insaneMode.toString(),

@@ -46,7 +46,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
-  toggleInsaneMode: () => Promise<void>;
+  toggleInsaneMode: (insaneMode: boolean) => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
@@ -229,8 +229,8 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, openNewTab: !settings.openNewTab }),
       setSpaciness: (density) =>
         setSettings({ ...settings, spaciness: density }),
-      toggleInsaneMode: () =>
-        setSettings({ ...settings, insaneMode: !settings.insaneMode }),
+      toggleInsaneMode: (insaneMode) =>
+        setSettings({ ...settings, insaneMode }),
       toggleShowTopSites: () =>
         setSettings({ ...settings, showTopSites: !settings.showTopSites }),
       toggleSidebarExpanded: () =>

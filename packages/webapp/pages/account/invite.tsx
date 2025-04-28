@@ -44,14 +44,14 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { GiftIcon } from '@dailydotdev/shared/src/components/icons/gift';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import { DevPlusIcon, InviteIcon } from '../../../shared/src/components/icons';
+import { GiftIcon, InviteIcon } from '../../../shared/src/components/icons';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -111,11 +111,11 @@ const AccountInvitePage = (): ReactElement => {
       {isPlusAvailable && (
         <div className="mb-6 flex flex-col gap-4">
           <div className="space-y-1">
-            <div className="flex gap-0.5">
+            <div className="flex gap-1">
               <Typography type={TypographyType.Body} bold>
                 Gift daily.dev Plus
               </Typography>
-              <DevPlusIcon size={IconSize.XSmall} />
+              <PlusUser iconSize={IconSize.XSmall} withText={false} />
             </div>
             <Typography
               className="border-plus"

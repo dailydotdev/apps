@@ -2,32 +2,27 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
-import { CreditCardIcon, InviteIcon, SettingsIcon } from '../../icons';
+import { CreditCardIcon, EditIcon, InviteIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
 
 export const AccountSection = (): ReactElement => {
-  const { openModal } = useLazyModal();
-
   return (
     <ProfileSection
       items={[
         {
-          title: 'Settings',
-          // href: `${webappUrl}account/profile`,
-          onClick: () => openModal({ type: LazyModal.UserSettings }),
-          icon: <SettingsIcon />,
+          title: 'Account details',
+          href: `${webappUrl}account/profile`,
+          icon: EditIcon,
         },
         {
           title: 'Subscriptions',
           href: `${webappUrl}account/subscription`,
-          icon: <CreditCardIcon />,
+          icon: CreditCardIcon,
         },
         {
           title: 'Invite friends',
           href: `${webappUrl}account/invite`,
-          icon: <InviteIcon />,
+          icon: InviteIcon,
         },
       ]}
     />

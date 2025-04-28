@@ -20,7 +20,7 @@ import { GiftingSelectedUser } from './GiftingSelectedUser';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { GiftIcon } from '../icons/gift';
+import { GiftIcon } from '../icons';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -45,7 +45,7 @@ type PlusInfoProps = {
   isContinueLoading?: boolean;
 };
 
-enum PlusType {
+export enum PlusType {
   Self = 'self',
   Gift = 'gift',
 }
@@ -56,7 +56,7 @@ interface PageCopy {
   subtitle: string;
 }
 
-const copy: Record<PlusType, PageCopy> = {
+export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
     title: 'Fast-track your growth',
     description:
@@ -91,7 +91,8 @@ const RadioGroupSkeleton = () => (
 );
 
 const getCopy = ({ giftToUser, title, description, subtitle }) => {
-  const fallback = copy[giftToUser ? PlusType.Gift : PlusType.Self];
+  const fallback =
+    defaultPlusInfoCopy[giftToUser ? PlusType.Gift : PlusType.Self];
   return {
     titleCopy: title || fallback.title,
     descriptionCopy: description || fallback.description,

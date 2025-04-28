@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect } from 'react';
-import classNames from 'classnames';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -10,7 +9,6 @@ import {
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
-import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
@@ -28,7 +26,12 @@ const ProfileSettingsMenu = dynamic(
 
 const SidebarNav = dynamic(
   () => import(/* webpackChunkName: "sidebarNav" */ './SidebarNav'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[669px] w-64 rounded-16 border border-border-subtlest-tertiary" />
+    ),
+  },
 );
 
 export interface AccountLayoutProps {
@@ -51,7 +54,6 @@ export default function AccountLayout({
     key: navigationKey,
     defaultValue: false,
   });
-  const featureTheme = useFeatureTheme();
 
   useEffect(() => {
     const onClose = () => setIsOpen(false);
@@ -83,7 +85,7 @@ export default function AccountLayout({
   }
 
   return (
-    <div className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
+    <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
       {isMobile ? (
         <ProfileSettingsMenu
           shouldKeepOpen
@@ -91,13 +93,7 @@ export default function AccountLayout({
           onClose={() => router.push(profile.permalink)}
         />
       ) : (
-        <SidebarNav
-          className={classNames(
-            'absolute z-3 ml-auto min-h-full w-full border-l border-border-subtlest-tertiary bg-background-default tablet:relative tablet:w-[unset]',
-            featureTheme ? 'bg-transparent' : 'bg-background-default',
-          )}
-          basePath="account"
-        />
+        <SidebarNav />
       )}
       {children}
     </div>
@@ -110,6 +106,7 @@ export const getAccountLayout = (
 ): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
-      screenCentered: false,
+      screenCentered: true,
+      showSidebar: false,
     }),
   );

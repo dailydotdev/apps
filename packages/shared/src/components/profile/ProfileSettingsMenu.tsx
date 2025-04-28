@@ -133,9 +133,9 @@ const useMenuItems = (): NavItemProps[] => {
         isHeader: true,
       },
       {
-        label: 'Customize',
+        label: 'Appearance',
         icon: <CardIcon />,
-        onClick: () => openModal({ type: LazyModal.UserSettings }),
+        href: '/account/appearance',
       },
       { label: 'Security', icon: <LockIcon />, href: '/account/security' },
       {

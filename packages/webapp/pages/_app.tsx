@@ -183,6 +183,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="slack-app-id" content="A07AM7XC529" />
         <meta name="apple-itunes-app" content="app-id=6740634400" />
+        <meta
+          name="facebook-domain-verification"
+          content="78sk2yqe8k6z8uznxwj6q82gklhy42"
+        />
 
         <link
           rel="apple-touch-icon"

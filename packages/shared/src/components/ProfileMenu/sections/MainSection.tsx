@@ -15,13 +15,13 @@ export const MainSection = (): ReactElement => {
         {
           title: 'Your profile',
           href: `${webappUrl}${user.username}`,
-          icon: <UserIcon />,
+          icon: UserIcon,
         },
-        { title: 'Core wallet', href: walletUrl, icon: <CoinIcon /> },
+        { title: 'Core wallet', href: walletUrl, icon: CoinIcon },
         {
           title: 'DevCard',
-          href: `${webappUrl}devcard`,
-          icon: <DevCardIcon />,
+          href: `${webappUrl}account/customization/devcard`,
+          icon: DevCardIcon,
         },
       ]}
     />

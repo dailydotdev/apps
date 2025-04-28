@@ -108,7 +108,7 @@ export function FunnelQuiz({
     >
       <div
         data-testid="funnel-step-quiz"
-        className="flex flex-1 flex-col gap-4 px-4 py-6 laptop:gap-10"
+        className="flex flex-1 flex-col gap-6 px-4 py-6 laptop:gap-10"
       >
         <StepHeadline
           heading={text}

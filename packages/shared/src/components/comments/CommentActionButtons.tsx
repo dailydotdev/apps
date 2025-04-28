@@ -13,6 +13,7 @@ import {
   DownvoteIcon,
   AddUserIcon,
   BlockIcon,
+  GiftIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
 import type { LoggedUser, UserShortProfile } from '../../lib/user';
@@ -51,7 +52,6 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
-import { GiftIcon } from '../icons/gift';
 import { AwardButton } from '../award/AwardButton';
 import {
   Typography,
