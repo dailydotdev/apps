@@ -14,7 +14,13 @@ export const useProductPricing = ({
   enabled = true,
 }: ProductPricingConfig) => {
   const { user, isLoggedIn, isValidRegion } = useAuthContext();
-
+  console.log('useProductPricing', {
+    type,
+    enabled,
+    user,
+    isLoggedIn,
+    isValidRegion,
+  });
   return useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, type),
     queryFn: () => fetchPricingPreview(type),
