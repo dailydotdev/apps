@@ -34,10 +34,11 @@ type SettingsSwitchProps = {
 
 const SettingsSwitch = ({ name, children, ...props }: SettingsSwitchProps) => {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between gap-4">
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
+        className="flex-1"
       >
         {children}
       </Typography>
