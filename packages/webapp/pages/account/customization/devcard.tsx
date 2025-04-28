@@ -9,7 +9,7 @@ import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { defaultSeo } from '../../../next-seo';
+import { defaultOpenGraph } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getAccountLayout } from '../../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
@@ -27,8 +27,14 @@ const DevCardStep2 = dynamic(() =>
 );
 
 const seo: NextSeoProps = {
-  ...defaultSeo,
-  title: getTemplatedTitle('Privacy'),
+  title: getTemplatedTitle('Grab your DevCard'),
+  description:
+    'DevCard will show you stats about the publications and topics you love to read. Generate yours now.',
+  openGraph: {
+    ...defaultOpenGraph,
+    type: 'website',
+    site_name: 'daily.dev',
+  },
 };
 
 const Page = (): ReactElement => {
