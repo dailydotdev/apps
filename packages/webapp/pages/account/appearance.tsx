@@ -125,7 +125,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               type={TypographyType.Subhead}
               color={TypographyColor.Tertiary}
             >
-              Density will be fixed for the list mode layout
+              Density is not customizable in list mode layout.
             </Typography>
           )}
 
