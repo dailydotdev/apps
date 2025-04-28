@@ -9,6 +9,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 export interface ClassName {
   container?: string;
   content?: string;
+  label?: string;
 }
 
 export type { RadioItemProps };
@@ -69,7 +70,7 @@ export function Radio<T extends string = string>({
             content={tooltip?.content}
             placement={tooltip?.placement}
           >
-            <span>{option.label}</span>
+            <span className={className.label}>{option.label}</span>
           </SimpleTooltip>
         </RadioItem>
       ))}

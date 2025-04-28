@@ -93,7 +93,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
         <ThemeSection />
 
         {isLaptop && (
-          <section className="flex flex-col gap-5">
+          <section className="flex flex-col gap-2">
             <Typography bold type={TypographyType.Subhead}>
               Layout
             </Typography>
@@ -105,6 +105,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               className={{
                 content: 'w-full justify-between !pr-0',
                 container: '!gap-0',
+                label: 'font-normal text-text-secondary typo-callout',
               }}
               reverse
               offLabel="Cards"
@@ -113,7 +114,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           </section>
         )}
 
-        <section className="flex flex-col gap-5">
+        <section className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Subhead}>
             Density
           </Typography>
@@ -133,6 +134,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             className={{
               content: 'w-full justify-between !pr-0',
               container: '!gap-0',
+              label: 'font-normal text-text-secondary typo-callout',
             }}
             reverse
           />
