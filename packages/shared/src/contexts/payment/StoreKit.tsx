@@ -86,11 +86,9 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
     ProductPricingPreview[],
     IAPProduct[] | string
   >('iap-products-result', (event) => {
-    const productsRaw = !isNullOrUndefined(event?.detail) ? event.detail : [];
-
-    // Remove JSON parsing once usage of App v1.8 is low
-    const products: IAPProduct[] =
-      typeof productsRaw === 'string' ? JSON.parse(productsRaw) : productsRaw;
+    const products = !isNullOrUndefined(event?.detail)
+      ? (event.detail as IAPProduct[])
+      : [];
 
     return metadata
       .map((item) => {
