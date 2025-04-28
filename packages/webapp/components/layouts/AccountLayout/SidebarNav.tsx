@@ -110,26 +110,32 @@ export const accountPageItems = defineMenuItems({
       general: {
         title: 'General',
         icon: EditIcon,
+        href: `${webappUrl}account/feed/general`,
       },
       tags: {
         title: 'Tags',
         icon: HashtagIcon,
+        href: `${webappUrl}account/feed/tags`,
       },
       sources: {
         title: 'Content sources',
         icon: AddUserIcon,
+        href: `${webappUrl}account/feed/sources`,
       },
       preferences: {
         title: 'Content preferences',
         icon: AppIcon,
+        href: `${webappUrl}account/feed/preferences`,
       },
       ai: {
         title: 'AI superpowers',
         icon: MagicIcon,
+        href: `${webappUrl}account/feed/ai`,
       },
       blocked: {
         title: 'Blocked content',
         icon: BlockIcon,
+        href: `${webappUrl}account/feed/blocked`,
       },
     },
   },
