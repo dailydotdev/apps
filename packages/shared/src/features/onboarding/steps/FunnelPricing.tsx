@@ -112,6 +112,8 @@ export const FunnelPricing = ({
     });
   }, [onTransition, selectedPlan, applyDiscount]);
 
+  console.log(plans);
+
   const pricingProps: Omit<Parameters<typeof PricingSection>[0], 'name'> = {
     headline,
     pricing: {
