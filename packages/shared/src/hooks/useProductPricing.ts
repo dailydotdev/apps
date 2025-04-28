@@ -13,12 +13,12 @@ export const useProductPricing = ({
   type,
   enabled = true,
 }: ProductPricingConfig) => {
-  const { user, isLoggedIn, isValidRegion } = useAuthContext();
+  const { user, isValidRegion } = useAuthContext();
 
   return useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, type),
     queryFn: () => fetchPricingPreview(type),
-    enabled: enabled && !!user && isLoggedIn && isValidRegion,
+    enabled: enabled && isValidRegion,
     staleTime: StaleTime.Default,
   });
 };
