@@ -47,8 +47,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             checked={!optOutReadingStreak}
             onToggle={toggleOptOutReadingStreak}
           >
-            Receive notifications for mentions, replies, comments and more,
-            keeping you connected with the community.
+            Toggle to display or hide your daily reading streaks. Turning
+            streaks off won’t affect your activity or progress.
           </SettingsSwitch>
         </section>
 
