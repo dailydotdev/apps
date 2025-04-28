@@ -19,6 +19,7 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
+import classNames from 'classnames';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { defaultSeo } from '../../next-seo';
@@ -119,22 +120,28 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             Density
           </Typography>
 
+          {insaneMode && (
+            <Typography
+              type={TypographyType.Subhead}
+              color={TypographyColor.Tertiary}
+            >
+              Density will be fixed for the list mode layout
+            </Typography>
+          )}
+
           <Radio
             name="density"
             options={densities}
             value={spaciness}
             onChange={setSpaciness}
-            tooltip={
-              insaneMode && {
-                content: 'Density will be fixed for the list mode layout',
-                placement: 'top-start',
-              }
-            }
             disabled={insaneMode}
             className={{
               content: 'w-full justify-between !pr-0',
               container: '!gap-0',
-              label: 'font-normal text-text-secondary typo-callout',
+              label: classNames(
+                'font-normal typo-callout',
+                insaneMode ? 'text-text-disabled' : 'text-text-secondary',
+              ),
             }}
             reverse
           />
