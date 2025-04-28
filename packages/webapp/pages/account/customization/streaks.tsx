@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -8,8 +8,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 
 import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
@@ -21,37 +19,10 @@ import { AccountPageContainer } from '../../../components/layouts/AccountLayout/
 import { getAccountLayout } from '../../../components/layouts/AccountLayout';
 import { defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-
-type SettingsSwitchProps = {
-  name?: string;
-  children: ReactNode;
-  checked: boolean;
-  onToggle: () => void;
-};
-
-const SettingsSwitch = ({ name, children, ...props }: SettingsSwitchProps) => {
-  return (
-    <div className="flex justify-between gap-4">
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        className="flex-1"
-      >
-        {children}
-      </Typography>
-      <Switch
-        inputId={`${name}-switch`}
-        name={name}
-        compact={false}
-        {...props}
-      />
-    </div>
-  );
-};
+import { SettingsSwitch } from '../../../components/layouts/AccountLayout/common';
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
