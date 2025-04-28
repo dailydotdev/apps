@@ -7,6 +7,7 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
@@ -33,7 +34,12 @@ type SettingsSwitchProps = {
 const SettingsSwitch = ({ name, children, ...props }: SettingsSwitchProps) => {
   return (
     <div className="flex justify-between">
-      <Typography type={TypographyType.Callout}>{children}</Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+      >
+        {children}
+      </Typography>
       <Switch
         inputId={`${name}-switch`}
         name={name}
