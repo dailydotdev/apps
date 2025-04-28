@@ -3,7 +3,6 @@ import React, { useEffect, useMemo } from 'react';
 import { addDays, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
@@ -15,10 +14,6 @@ import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon, WarningIcon } from '../../icons';
-import StreakReminderSwitch from '../StreakReminderSwitch';
-import ReadingStreakSwitch from '../ReadingStreakSwitch';
-import { useToggle } from '../../../hooks/useToggle';
-import { ToggleWeekStart } from '../../widgets/ToggleWeekStart';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
   DEFAULT_TIMEZONE,
@@ -36,6 +31,7 @@ import {
   TargetId,
 } from '../../../lib/log';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import Link from '../../utilities/Link';
 
 const getStreak = ({
   value,
@@ -112,7 +108,6 @@ export function ReadingStreakPopup({
     queryFn: () => getReadingStreak30Days(user?.id),
     staleTime: StaleTime.Default,
   });
-  const [showStreakConfig, toggleShowStreakConfig] = useToggle(false);
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -138,11 +133,10 @@ export function ReadingStreakPopup({
           streak={streakDef}
           date={value}
           shouldShowArrow={isToday}
-          onClick={() => toggleShowStreakConfig()}
         />
       );
     });
-  }, [history, streak.weekStart, toggleShowStreakConfig, user?.timezone]);
+  }, [history, streak.weekStart, user?.timezone]);
 
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {
@@ -266,37 +260,18 @@ export function ReadingStreakPopup({
               </div>
             </SimpleTooltip>
           </div>
-          <Button
-            onClick={() => toggleShowStreakConfig()}
-            variant={ButtonVariant.Float}
-            pressed={showStreakConfig}
-            icon={<SettingsIcon />}
-            className={classNames(
-              isMobile ? 'w-full' : 'ml-auto',
-              isMobile && showStreakConfig && 'hidden',
-            )}
-          >
-            {isMobile ? 'Settings' : null}
-          </Button>
+          <Link href={`${webappUrl}account/customization/streaks`} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Float}
+              icon={<SettingsIcon />}
+              className={isMobile ? 'w-full' : 'ml-auto'}
+            >
+              {isMobile ? 'Settings' : null}
+            </Button>
+          </Link>
         </div>
       </div>
-      {showStreakConfig && (
-        <div className="flex flex-col gap-5 border-t border-border-subtlest-tertiary p-4">
-          <div className="flex flex-col gap-3">
-            <p className="font-bold text-text-secondary typo-subhead">
-              General
-            </p>
-            <StreakReminderSwitch />
-            <ReadingStreakSwitch />
-          </div>
-          <div className="flex flex-col gap-3">
-            <p className="font-bold text-text-secondary typo-subhead">
-              Freeze days
-            </p>
-            <ToggleWeekStart />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -48,7 +48,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             onToggle={toggleOptOutReadingStreak}
           >
             Toggle to display or hide your daily reading streaks. Turning
-            streaks off won’t affect your activity or progress.
+            streaks off will not affect your activity or progress.
           </SettingsSwitch>
         </section>
 

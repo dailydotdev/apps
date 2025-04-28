@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { SimpleTooltip } from '../../tooltips';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { dateFormatInTimezone } from '../../../lib/timezones';
+import { webappUrl } from '../../../lib/constants';
 
 export enum Streak {
   Completed = 'completed',
@@ -21,7 +23,6 @@ interface DayStreakProps {
   size?: IconSize;
   className?: string;
   shouldShowArrow?: boolean;
-  onClick?: () => void;
 }
 
 const Circle = classed(
@@ -35,9 +36,9 @@ export function DayStreak({
   size = IconSize.Medium,
   className,
   shouldShowArrow,
-  onClick,
 }: DayStreakProps): ReactElement {
   const { user } = useAuthContext();
+  const router = useRouter();
 
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
@@ -61,8 +62,8 @@ export function DayStreak({
             'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
         )}
         onClick={() => {
-          if (isStreakFreeze && onClick) {
-            onClick();
+          if (isStreakFreeze) {
+            router.push(`${webappUrl}account/customization/streaks`);
           }
         }}
       >
