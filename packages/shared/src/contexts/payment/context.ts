@@ -20,7 +20,7 @@ export interface PaymentContextData {
   giftOneYear?: ProductPricingPreview;
   isPricesPending: boolean;
   isFreeTrialExperiment: boolean;
-  isCheckoutOpen: boolean;
+  isCheckoutOpen?: boolean;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);
