@@ -23,6 +23,8 @@ import { SettingsSwitch } from '../../../components/layouts/AccountLayout/common
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const { user } = useAuthContext();
+  const { optOutReadingStreak, toggleOptOutReadingStreak } =
+    useSettingsContext();
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
@@ -30,9 +32,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
       update: true,
     }),
   );
-
-  const { optOutReadingStreak, toggleOptOutReadingStreak } =
-    useSettingsContext();
 
   return (
     <AccountPageContainer title="Streaks">

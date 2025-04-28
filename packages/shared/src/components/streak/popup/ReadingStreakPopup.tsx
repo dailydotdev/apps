@@ -12,8 +12,8 @@ import { getReadingStreak30Days } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
-import { Button, ButtonVariant } from '../../buttons/Button';
-import { SettingsIcon, WarningIcon } from '../../icons';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
   DEFAULT_TIMEZONE,
@@ -27,11 +27,26 @@ import { usePrompt } from '../../../hooks/usePrompt';
 import { useLogContext } from '../../../contexts/LogContext';
 import {
   LogEvent,
+  NotificationCategory,
+  NotificationChannel,
+  NotificationPromptSource,
   StreakTimezonePromptAction,
   TargetId,
 } from '../../../lib/log';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import Link from '../../utilities/Link';
+import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '../../../hooks/usePersistentContext';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { cloudinaryNotificationsBrowser } from '../../../lib/image';
+import { usePushNotificationMutation } from '../../../hooks/notifications';
+import { IconSize } from '../../Icon';
 
 const getStreak = ({
   value,
@@ -112,6 +127,21 @@ export function ReadingStreakPopup({
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
 
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
+  const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
+    PersistentContextKeys.StreakAlertPushKey,
+    true,
+  );
+
+  const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
+
+  const showAlert =
+    isPushSupported &&
+    isAlertShown &&
+    isInitialized &&
+    (!isSubscribed || acceptedJustNow);
+
   const streaks = useMemo(() => {
     const today = new Date();
     const streakDays = getStreakDays(today);
@@ -138,6 +168,18 @@ export function ReadingStreakPopup({
     });
   }, [history, streak.weekStart, user?.timezone]);
 
+  const onTogglePush = async () => {
+    logEvent({
+      event_name: LogEvent.DisableNotification,
+      extra: JSON.stringify({
+        channel: NotificationChannel.Web,
+        category: NotificationCategory.Product,
+      }),
+    });
+
+    return onTogglePermission(NotificationPromptSource.NotificationsPage);
+  };
+
   useEffect(() => {
     if ([streak.max, streak.current].some((value) => value >= 2)) {
       completeAction(ActionType.StreakMilestone);
@@ -145,7 +187,7 @@ export function ReadingStreakPopup({
   }, [completeAction, streak]);
 
   return (
-    <div className="flex flex-col">
+    <div className="max-w- flex max-w-[21.75rem] flex-col">
       <div className="flex flex-col p-0 tablet:p-4">
         <div className="flex flex-row">
           <StreakSection streak={streak.current} label="Current streak" />
@@ -272,6 +314,71 @@ export function ReadingStreakPopup({
           </Link>
         </div>
       </div>
+      {showAlert && (
+        <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
+          {!isSubscribed && (
+            <>
+              <div className="flex w-full flex-1 justify-between gap-3">
+                <Typography
+                  bold
+                  type={TypographyType.Callout}
+                  className="flex-1"
+                >
+                  Get notified to keep your streak
+                </Typography>
+
+                <div className="h-12 w-22 overflow-hidden">
+                  <img
+                    src={cloudinaryNotificationsBrowser}
+                    alt="A sample browser notification"
+                  />
+                </div>
+              </div>
+
+              <div className="flex w-full justify-between gap-3">
+                <Button
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Primary}
+                  onClick={onTogglePush}
+                >
+                  Enable notification
+                </Button>
+                <Button
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  onClick={() => {
+                    setIsAlertShown(false);
+                  }}
+                >
+                  Dismiss
+                </Button>
+              </div>
+            </>
+          )}
+
+          {acceptedJustNow && (
+            <>
+              <VIcon size={IconSize.Small} />
+              <div className="flex flex-1 flex-col gap-2">
+                <Typography bold type={TypographyType.Callout}>
+                  Push notifications successfully enabled
+                </Typography>
+
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  Changing your{' '}
+                  <Link passHref href={`${webappUrl}account/notifications`}>
+                    <a className="underline">notification settings</a>
+                  </Link>{' '}
+                  can be done anytime through account details
+                </Typography>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
