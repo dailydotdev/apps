@@ -1,6 +1,15 @@
+import React from 'react';
+import type { ReactNode } from 'react';
+
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 
 import classed from '@dailydotdev/shared/src/lib/classed';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;
@@ -36,3 +45,34 @@ export const AccountSidebarPagesSection = classed(
   'div',
   'flex flex-col py-4 px-5 gap-3 mt-10 w-full rounded-16 border border-border-subtlest-tertiary',
 );
+
+type SettingsSwitchProps = {
+  name?: string;
+  children: ReactNode;
+  checked: boolean;
+  onToggle: () => void;
+};
+
+export const SettingsSwitch = ({
+  name,
+  children,
+  ...props
+}: SettingsSwitchProps) => {
+  return (
+    <div className="flex justify-between gap-4">
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+        className="flex-1"
+      >
+        {children}
+      </Typography>
+      <Switch
+        inputId={`${name}-switch`}
+        name={name}
+        compact={false}
+        {...props}
+      />
+    </div>
+  );
+};

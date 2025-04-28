@@ -145,6 +145,7 @@ export const accountPageItems = defineMenuItems({
       streaks: {
         title: 'Streaks',
         icon: HotIcon,
+        href: `${webappUrl}account/customization/streaks`,
       },
       devcard: {
         title: 'Devcard',
