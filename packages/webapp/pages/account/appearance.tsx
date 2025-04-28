@@ -98,6 +98,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               onToggle={onLayoutToggle}
               className={{
                 content: 'w-full justify-between !pr-0',
+                container: '!gap-0',
               }}
               reverse
               offLabel="Cards"
@@ -125,6 +126,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             disabled={insaneMode}
             className={{
               content: 'w-full justify-between !pr-0',
+              container: '!gap-0',
             }}
             reverse
           />
