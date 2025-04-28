@@ -564,7 +564,9 @@ describe('Feed logged in', () => {
     fireEvent.click(menuBtn);
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
-    const brokenLinkBtn = await screen.findByText('NSFW');
+    const brokenLinkBtn = await screen.findByText(
+      'Inappropriate, explicit, or NSFW',
+    );
     fireEvent.click(brokenLinkBtn);
 
     await screen.findByTitle(
@@ -852,7 +854,7 @@ describe('Feed logged in', () => {
     );
 
     const irrelevantTagsBtn = await screen.findByText(
-      'The post is not about...',
+      'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
     const javascriptElements = await screen.findAllByText('#javascript');
