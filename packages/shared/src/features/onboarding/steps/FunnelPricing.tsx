@@ -112,20 +112,32 @@ export const FunnelPricing = ({
     });
   }, [onTransition, selectedPlan, applyDiscount]);
 
-  console.log(plans);
+  console.log(plans, productOptions);
+
+  const organizedPlans = plans?.map((plan) => {
+    const pricing = productOptions?.find(
+      (option) => option?.priceId === plan.priceId,
+    );
+
+    if (!pricing) {
+      return null;
+    }
+
+    return {
+      ...plan,
+      value: plan.priceId,
+      price: {
+        amount: pricing.price.daily.formatted,
+        subtitle: 'per day',
+      },
+    };
+  });
 
   const pricingProps: Omit<Parameters<typeof PricingSection>[0], 'name'> = {
     headline,
     pricing: {
       perks,
-      plans: plans?.map((plan, index) => ({
-        ...plan,
-        value: plan.priceId,
-        price: {
-          amount: productOptions?.[index]?.price?.daily?.formatted,
-          subtitle: 'per day',
-        },
-      })),
+      plans: organizedPlans.filter((plan) => !!plan),
     },
     selectedPlan,
     onPlanChange: setSelectedPlan,
