@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { MutableRefObject, ReactElement } from 'react';
-import React, { useContext, useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { useRouter } from 'next/router';
@@ -27,7 +27,7 @@ import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -81,7 +81,7 @@ const RegistrationForm = ({
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const router = useRouter();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [turnstileLoaded, setTurnstileLoaded] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -94,17 +94,18 @@ const RegistrationForm = ({
     router.pathname?.startsWith('/onboarding') && isReorderExperiment
   );
 
+  const logRef = useRef<typeof logEvent>();
+  logRef.current = logEvent;
+
   useEffect(() => {
-    logEvent({
+    logRef.current({
       event_name: AuthEventNames.StartSignUpForm,
     });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (Object.keys(hints).length) {
-      logEvent({
+      logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
       });
@@ -113,8 +114,6 @@ const RegistrationForm = ({
       }
       turnstileRef?.current?.reset();
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hints]);
 
   const {
@@ -124,7 +123,7 @@ const RegistrationForm = ({
     onValidEmail: () => null,
     onAfterEmailCheck: (emailExists) => {
       if (emailExists && isOnboardingExperiment) {
-        logEvent({
+        logRef.current({
           event_name: AuthEventNames.OpenLogin,
           extra: JSON.stringify({ trigger }),
           target_id: targetId,
@@ -141,7 +140,7 @@ const RegistrationForm = ({
     }
 
     setTurnstileError(false);
-    logEvent({
+    logRef.current({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
 
@@ -174,7 +173,7 @@ const RegistrationForm = ({
     }
 
     if (!turnstileRef?.current?.getResponse()) {
-      logEvent({
+      logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
