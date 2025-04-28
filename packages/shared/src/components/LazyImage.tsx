@@ -76,13 +76,15 @@ function LazyImageComponent(
   );
 }
 
-
-export type LazyVideoProps = Omit<LazyImageProps, 'imgSrc' | 'imgAlt' | 'fallbackSrc' | 'fetchPriority'> & {
+export type LazyVideoProps = Omit<
+  LazyImageProps,
+  'imgSrc' | 'imgAlt' | 'fallbackSrc' | 'fetchPriority'
+> & {
   poster?: string;
   videoSrc: string;
-}
+};
 
- const LazyVideoComponent = (
+const LazyVideoComponent = (
   {
     videoSrc,
     poster,
@@ -108,7 +110,7 @@ export type LazyVideoProps = Omit<LazyImageProps, 'imgSrc' | 'imgAlt' | 'fallbac
         'overflow-hidden',
       )}
       style={{ background, ...props?.style }}
-      ref={ref as any} // because figure doesn't have a video ref, we cast
+      ref={ref}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
       <video
@@ -130,7 +132,7 @@ export type LazyVideoProps = Omit<LazyImageProps, 'imgSrc' | 'imgAlt' | 'fallbac
       {children}
     </figure>
   );
-}
+};
 
 export const LazyVideo = forwardRef(LazyVideoComponent);
 
