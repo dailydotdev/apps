@@ -83,6 +83,7 @@ const RegistrationForm = ({
   const router = useRouter();
   const { logEvent } = useContext(LogContext);
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
+  const [turnstileLoaded, setTurnstileLoaded] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
@@ -415,6 +416,7 @@ const RegistrationForm = ({
               theme: 'dark',
             }}
             className="mx-auto min-h-[4.5rem]"
+            onWidgetLoad={() => setTurnstileLoaded(true)}
           />
           {turnstileError ? (
             <Alert
@@ -424,7 +426,7 @@ const RegistrationForm = ({
           ) : undefined}
           <Button
             className="w-full"
-            disabled={isCheckPending}
+            disabled={isCheckPending || !turnstileLoaded}
             form="auth-form"
             type="submit"
             variant={ButtonVariant.Primary}
