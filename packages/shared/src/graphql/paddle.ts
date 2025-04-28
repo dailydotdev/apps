@@ -78,6 +78,10 @@ const PRICING_PREVIEW_QUERY = gql`
           amount
           formatted
         }
+        daily {
+          amount
+          formatted
+        }
       }
       currency {
         code
