@@ -26,7 +26,12 @@ const ProfileSettingsMenu = dynamic(
 
 const SidebarNav = dynamic(
   () => import(/* webpackChunkName: "sidebarNav" */ './SidebarNav'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[669px] w-64 rounded-16 border border-border-subtlest-tertiary" />
+    ),
+  },
 );
 
 export interface AccountLayoutProps {
@@ -80,7 +85,7 @@ export default function AccountLayout({
   }
 
   return (
-    <div className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
+    <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
       {isMobile ? (
         <ProfileSettingsMenu
           shouldKeepOpen
@@ -101,6 +106,7 @@ export const getAccountLayout = (
 ): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
-      screenCentered: false,
+      screenCentered: true,
+      showSidebar: false,
     }),
   );

@@ -31,6 +31,7 @@ body {
 
   overflow-x: hidden;
 
+  @apply antialiased;
   @screen mobileL {
     display: flex;
     flex-direction: column;

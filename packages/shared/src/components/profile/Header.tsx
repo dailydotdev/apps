@@ -42,6 +42,7 @@ import {
   useCanPurchaseCores,
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
+import Link from '../utilities/Link';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -167,15 +168,16 @@ export function Header({
       </>
       <div className="flex flex-row gap-2">
         {isSameUser && (
-          <Button
-            className="hidden laptop:flex"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            tag="a"
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-          >
-            Edit profile
-          </Button>
+          <Link href={`${webappUrl}account/profile`}>
+            <Button
+              tag="a"
+              className="hidden laptop:flex"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+            >
+              Edit profile
+            </Button>
+          </Link>
         )}
         {!blocked && (
           <FollowButton
