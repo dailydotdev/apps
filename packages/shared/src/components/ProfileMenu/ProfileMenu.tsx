@@ -63,7 +63,7 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <ThemeSection />
+        <ThemeSection className="px-1" />
 
         <HorizontalSeparator />
 
