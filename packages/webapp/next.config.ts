@@ -133,6 +133,10 @@ const nextConfig: NextConfig = {
               },
             ],
           },
+          {
+            source: '/devcard/',
+            destination: '/account/customization/devcard',
+          },
         ];
 
         // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
