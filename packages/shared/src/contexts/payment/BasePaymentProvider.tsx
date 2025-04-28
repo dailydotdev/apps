@@ -9,11 +9,13 @@ import { useAuthContext } from '../AuthContext';
 
 interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
+  isCheckoutOpen?: boolean;
 }
 
 export const BasePaymentProvider = ({
   children,
   openCheckout,
+  isCheckoutOpen,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { data, isPending: isPricesPending } = useProductPricing({
@@ -42,6 +44,7 @@ export const BasePaymentProvider = ({
       giftOneYear,
       isPricesPending,
       isFreeTrialExperiment,
+      isCheckoutOpen,
     }),
     [
       openCheckout,
@@ -50,6 +53,7 @@ export const BasePaymentProvider = ({
       isPlusAvailable,
       isPricesPending,
       isFreeTrialExperiment,
+      isCheckoutOpen,
     ],
   );
 
