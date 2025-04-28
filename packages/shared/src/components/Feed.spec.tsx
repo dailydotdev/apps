@@ -564,7 +564,9 @@ describe('Feed logged in', () => {
     fireEvent.click(menuBtn);
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
-    const brokenLinkBtn = await screen.findByText('NSFW');
+    const brokenLinkBtn = await screen.findByText(
+      'Inappropriate, explicit, or NSFW',
+    );
     fireEvent.click(brokenLinkBtn);
 
     await screen.findByTitle(
