@@ -20,7 +20,6 @@ export const InnerFunnelCheckout = ({
 
   useEffect(() => {
     if (isActive) {
-      console.log('logging initial checkout');
       logSubscriptionEvent({
         event_name: LogEvent.InitiateCheckout,
       });
@@ -31,14 +30,6 @@ export const InnerFunnelCheckout = ({
     if (!isPlusAvailable || isPlus) {
       return;
     }
-
-    console.log('Opening checkout: ', {
-      isPlus,
-      isPlusAvailable,
-      priceId,
-      discountCode,
-      applyDiscount,
-    });
 
     openCheckout({
       priceId,
