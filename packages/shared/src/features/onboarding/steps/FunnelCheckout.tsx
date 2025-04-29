@@ -32,7 +32,13 @@ export const InnerFunnelCheckout = ({
       return;
     }
 
-    console.log('Opening checkout: ', { isPlus, isPlusAvailable });
+    console.log('Opening checkout: ', {
+      isPlus,
+      isPlusAvailable,
+      priceId,
+      discountCode,
+      applyDiscount,
+    });
 
     openCheckout({
       priceId,
