@@ -14,13 +14,12 @@ export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
 
 export interface PaymentContextData {
   openCheckout?: OpenCheckoutFn;
-  paddle?: Paddle | undefined;
   productOptions?: ProductPricingPreview[];
   isPlusAvailable: boolean;
   giftOneYear?: ProductPricingPreview;
   isPricesPending: boolean;
   isFreeTrialExperiment: boolean;
-  isCheckoutOpen?: boolean;
+  isPaddleReady?: boolean;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);

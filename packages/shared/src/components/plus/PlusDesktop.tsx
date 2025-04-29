@@ -18,7 +18,7 @@ export const PlusDesktop = ({
 }: CommonPlusPageProps): ReactElement => {
   const {
     openCheckout,
-    paddle,
+    isPaddleReady,
     productOptions,
     giftOneYear,
     isFreeTrialExperiment,
@@ -42,7 +42,7 @@ export const PlusDesktop = ({
   );
 
   useEffect(() => {
-    if (!ref?.current || !paddle || selectedOption) {
+    if (!ref?.current || !isPaddleReady || selectedOption) {
       return;
     }
 
@@ -69,7 +69,7 @@ export const PlusDesktop = ({
     giftToUser,
     initialPaymentOption,
     openCheckout,
-    paddle,
+    isPaddleReady,
     isPlus,
     productOptions,
     selectedOption,

@@ -177,6 +177,6 @@ export const usePaddlePayment = ({
   return {
     paddle,
     openCheckout,
-    isCheckoutOpen: isCheckoutOpenRef.current,
+    isPaddleReady: !!paddle,
   };
 };

@@ -14,14 +14,14 @@ export const PaddleSubProvider = ({
   children,
   successCallback,
 }: PaymentContextProviderProps): ReactElement => {
-  const { openCheckout, isCheckoutOpen } = usePaddlePayment({
+  const { openCheckout, isPaddleReady } = usePaddlePayment({
     successCallback,
   });
 
   return (
     <BasePaymentProvider
       openCheckout={openCheckout}
-      isCheckoutOpen={isCheckoutOpen}
+      isPaddleReady={isPaddleReady}
     >
       {children}
     </BasePaymentProvider>

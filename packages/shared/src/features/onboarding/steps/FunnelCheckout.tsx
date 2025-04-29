@@ -12,17 +12,11 @@ export const InnerFunnelCheckout = ({
   parameters: { discountCode },
   isActive,
 }: FunnelStepCheckout): ReactElement => {
-  const { user, geo, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { paddle, openCheckout } = usePaymentContext();
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
+  const { openCheckout, isPaddleReady } = usePaymentContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
-
-  console.log({
-    isPlusAvailable,
-    isPlus,
-    paddle: !!paddle,
-  });
 
   useEffect(() => {
     if (isActive) {
@@ -33,7 +27,7 @@ export const InnerFunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    if (!isPlusAvailable || isPlus || !paddle) {
+    if (!isPlusAvailable || isPlus || !isPaddleReady) {
       return;
     }
 
@@ -44,13 +38,9 @@ export const InnerFunnelCheckout = ({
   }, [
     discountCode,
     applyDiscount,
-    geo?.region,
     isPlus,
     isPlusAvailable,
-    paddle,
     priceId,
-    user?.email,
-    user?.id,
     openCheckout,
   ]);
 
