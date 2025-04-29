@@ -18,7 +18,9 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
@@ -48,14 +50,12 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Manage account notifications'),
 };
 
-const ALERT_PUSH_KEY = 'alert_push_key';
-
 const AccountNotificationsPage = (): ReactElement => {
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const { onTogglePermission } = usePushNotificationMutation();
   const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
-    ALERT_PUSH_KEY,
+    PersistentContextKeys.AlertPushKey,
     true,
   );
   const { updateUserProfile } = useProfileForm();

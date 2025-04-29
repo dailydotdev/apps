@@ -295,6 +295,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     downvoted
     flags {
       promoteToPublic
+      coverVideo
     }
     userState {
       vote
