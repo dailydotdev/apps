@@ -18,6 +18,12 @@ export const InnerFunnelCheckout = ({
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
 
+  console.log({
+    isPlusAvailable,
+    isPlus,
+    paddle: !!paddle,
+  });
+
   useEffect(() => {
     if (isActive) {
       logSubscriptionEvent({
