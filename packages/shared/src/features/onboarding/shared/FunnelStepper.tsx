@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useRef } from 'react';
+import React, { Fragment, useCallback, useRef } from 'react';
 import classNames from 'classnames';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
@@ -110,35 +110,40 @@ export const FunnelStepper = ({
     onScroll: trackOnScroll,
   });
 
-  const onTransition: FunnelStepTransitionCallback = ({ type, details }) => {
-    const targetStepId = getTransitionDestination(step, type);
+  const onTransition: FunnelStepTransitionCallback = useCallback(
+    ({ type, details }) => {
+      const targetStepId = getTransitionDestination(step, type);
 
-    if (!targetStepId) {
-      return;
-    }
+      if (!targetStepId) {
+        return;
+      }
 
-    const isLastStep = targetStepId === COMPLETED_STEP_ID;
+      const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
-    sendTransition({
-      fromStep: step.id,
-      toStep: isLastStep ? null : targetStepId,
-      transitionEvent: type,
-      inputs: details,
-    });
+      sendTransition({
+        fromStep: step.id,
+        toStep: isLastStep ? null : targetStepId,
+        transitionEvent: type,
+        inputs: details,
+      });
 
-    // not navigating to the last step
-    if (!isLastStep) {
-      navigate({ to: targetStepId, type });
-    } else {
-      trackOnComplete();
-      onComplete?.();
-    }
-  };
+      // not navigating to the last step
+      if (!isLastStep) {
+        navigate({ to: targetStepId, type });
+      } else {
+        trackOnComplete();
+        onComplete?.();
+      }
+    },
+    [step, sendTransition, navigate, onComplete, trackOnComplete],
+  );
 
-  const successCallbackRef = useRef(() =>
-    onTransition({
-      type: FunnelStepTransitionType.Complete,
-    }),
+  const successCallback = useCallback(
+    () =>
+      onTransition({
+        type: FunnelStepTransitionType.Complete,
+      }),
+    [onTransition],
   );
 
   if (!isReady) {
@@ -175,7 +180,7 @@ export const FunnelStepper = ({
           />
           <PaymentContextProvider
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-            successCallback={successCallbackRef.current}
+            successCallback={successCallback}
           >
             {funnel.chapters.map((chapter: FunnelChapter) => (
               <Fragment key={chapter?.id}>

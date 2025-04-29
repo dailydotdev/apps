@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
-import React from 'react';
+import React, { useCallback } from 'react';
 import Head from 'next/head';
 import {
   HydrationBoundary,
@@ -100,6 +100,10 @@ export default function HelloWorldPage({
   const { isAuthReady, isValidRegion, user } = useAuthContext();
   const router = useRouter();
 
+  const onComplete = useCallback(() => {
+    router.replace('/onboarding');
+  }, [router]);
+
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
     return null;
@@ -123,7 +127,7 @@ export default function HelloWorldPage({
             initialStepId={initialStepId}
             session={session}
             showCookieBanner={showCookieBanner}
-            onComplete={() => router.replace('/onboarding')}
+            onComplete={onComplete}
           />
         )}
         <Toast autoDismissNotifications />
