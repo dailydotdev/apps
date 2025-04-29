@@ -76,4 +76,64 @@ function LazyImageComponent(
   );
 }
 
+export type LazyVideoProps = Omit<
+  LazyImageProps,
+  'imgSrc' | 'imgAlt' | 'fallbackSrc' | 'fetchPriority'
+> & {
+  poster?: string;
+  videoSrc: string;
+};
+
+const LazyVideoComponent = (
+  {
+    videoSrc,
+    poster,
+    eager,
+    className,
+    ratio,
+    background,
+    children,
+    absolute = false,
+    fit = 'cover',
+    ...props
+  }: LazyVideoProps,
+  ref?: Ref<HTMLImageElement>,
+): ReactElement => {
+  const src = videoSrc;
+
+  return (
+    <figure
+      {...props}
+      className={classNames(
+        className,
+        absolute ? 'absolute' : 'relative',
+        'overflow-hidden',
+      )}
+      style={{ background, ...props?.style }}
+      ref={ref}
+    >
+      {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
+      <video
+        className={classNames(
+          'absolute inset-0 m-auto block h-full w-full',
+          fit === 'cover' ? 'object-cover' : 'object-contain',
+        )}
+        key={src}
+        preload={eager ? 'auto' : 'metadata'}
+        poster={poster}
+        src={src}
+        muted
+        autoPlay
+        loop
+        playsInline
+        disablePictureInPicture
+        controls={false}
+      />
+      {children}
+    </figure>
+  );
+};
+
+export const LazyVideo = forwardRef(LazyVideoComponent);
+
 export const LazyImage = forwardRef(LazyImageComponent);

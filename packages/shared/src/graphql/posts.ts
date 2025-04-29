@@ -77,6 +77,7 @@ type PostFlags = {
   visible: boolean;
   showOnFeed: boolean;
   promoteToPublic: number;
+  coverVideo?: string;
 };
 
 export enum UserVote {
