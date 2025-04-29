@@ -26,9 +26,11 @@ export function ReviewCard({
         className,
       )}
     >
-      <h3 className="font-bold typo-callout">{title}</h3>
+      <h3 className="font-bold typo-callout text-text-primary">{title}</h3>
       <p className="text-text-secondary typo-footnote">{content}</p>
-      <span className="font-bold typo-footnote">{author}</span>
+      <span className="font-bold typo-footnote text-text-primary">
+        {author}
+      </span>
     </div>
   );
 }

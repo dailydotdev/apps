@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { FunnelStep } from '../types/funnel';
 import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
+import { useIsLightTheme } from '../../../hooks/utils';
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
@@ -48,11 +49,26 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   return FunnelBackgroundVariant.Default;
 };
 
+const alwaysDarkSteps = [
+  FunnelStepType.Fact,
+  FunnelStepType.SocialProof,
+  FunnelStepType.Loading,
+  FunnelStepType.Checkout,
+  FunnelStepType.PaymentSuccessful,
+];
+
 export const FunnelStepBackground = ({
   children,
   className,
   step,
 }: StepBackgroundProps): ReactElement => {
+  const isLightMode = useIsLightTheme();
+
+  const isForcedDarkThemeStep = useMemo(
+    () => alwaysDarkSteps.includes(step.type),
+    [step.type],
+  );
+
   const bgClassName = useMemo(() => {
     const variant = getVariantFromStep(step);
     return (
@@ -60,8 +76,14 @@ export const FunnelStepBackground = ({
       variantToClassName[FunnelBackgroundVariant.Default]
     );
   }, [step]);
+
   return (
-    <div className="relative flex flex-1 flex-col bg-background-default">
+    <div
+      className={classNames(
+        'relative flex flex-1 flex-col bg-background-default',
+        isForcedDarkThemeStep && isLightMode && 'invert',
+      )}
+    >
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>
       <div
         aria-hidden
