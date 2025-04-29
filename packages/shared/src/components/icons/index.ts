@@ -89,6 +89,7 @@ export * from './Minus';
 export * from './Moon';
 export * from './MoveTo';
 export * from './NewSquad';
+export * from './NewTab';
 export * from './OpenLink';
 export * from './Pause';
 export * from './Phone';

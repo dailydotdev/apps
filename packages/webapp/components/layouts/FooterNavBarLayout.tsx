@@ -27,7 +27,7 @@ export default function FooterNavBarLayout({
   return (
     <>
       {children}
-      {showNav && <div className={post ? 'h-40' : 'h-28'} />}
+      {showNav && <div className={post ? 'h-40' : 'h-16'} />}
       <FooterWrapper showNav={showNav} post={post} />
     </>
   );

@@ -112,11 +112,6 @@ const MarketingCtaModal = dynamic(
     ),
 );
 
-const UserSettingsModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
-);
-
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
@@ -292,7 +287,6 @@ export const modals = {
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
-  [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,

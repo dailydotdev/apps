@@ -40,8 +40,8 @@ it('should show settings option that opens modal', async () => {
     profileBtn.click();
   });
 
-  const settingsButton = await screen.findByRole('button', {
-    name: 'Customize',
+  const settingsButton = await screen.findByRole('link', {
+    name: 'Account details',
   });
   expect(settingsButton).toBeInTheDocument();
 });

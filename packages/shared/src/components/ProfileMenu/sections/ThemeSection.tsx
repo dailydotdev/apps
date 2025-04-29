@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -20,6 +21,7 @@ import {
 } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import type { WithClassNameProps } from '../../utilities';
 
 const ThemeIconMap = {
   [ThemeMode.Dark]: MoonIcon,
@@ -27,7 +29,9 @@ const ThemeIconMap = {
   [ThemeMode.Auto]: ThemeAutoIcon,
 };
 
-export const ThemeSection = (): ReactElement => {
+export const ThemeSection = ({
+  className,
+}: WithClassNameProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { setTheme, themeMode } = useSettingsContext();
 
@@ -44,7 +48,9 @@ export const ThemeSection = (): ReactElement => {
   );
 
   return (
-    <section className="flex items-center justify-between px-1">
+    <section
+      className={classNames('flex items-center justify-between', className)}
+    >
       <Typography
         color={TypographyColor.Tertiary}
         type={TypographyType.Subhead}

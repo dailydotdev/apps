@@ -365,6 +365,7 @@ export enum TargetId {
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
   ContextMenu = 'context',
   SmartPrompt = 'smart prompt',
+  Account = 'account',
 }
 
 export enum NotificationChannel {

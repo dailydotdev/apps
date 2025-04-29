@@ -9,6 +9,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 export interface ClassName {
   container?: string;
   content?: string;
+  label?: string;
 }
 
 export type { RadioItemProps };
@@ -24,6 +25,7 @@ export interface RadioProps<T extends string = string> {
     content?: string;
   };
   disabled?: boolean;
+  reverse?: boolean;
 }
 
 export function Radio<T extends string = string>({
@@ -34,6 +36,7 @@ export function Radio<T extends string = string>({
   className = {},
   tooltip,
   disabled,
+  reverse,
 }: RadioProps<T>): ReactElement {
   return (
     <div
@@ -61,12 +64,13 @@ export function Radio<T extends string = string>({
             wrapper: option.className?.wrapper,
           }}
           afterElement={option.afterElement}
+          reverse={reverse}
         >
           <SimpleTooltip
             content={tooltip?.content}
             placement={tooltip?.placement}
           >
-            <span>{option.label}</span>
+            <span className={className.label}>{option.label}</span>
           </SimpleTooltip>
         </RadioItem>
       ))}
