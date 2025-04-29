@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
-import type { Paddle } from '@paddle/paddle-js';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 
 export interface OpenCheckoutProps {

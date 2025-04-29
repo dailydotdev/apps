@@ -13,13 +13,14 @@ export const InnerFunnelCheckout = ({
   isActive,
 }: FunnelStepCheckout): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
-  const { openCheckout, isPaddleReady } = usePaymentContext();
+  const { openCheckout } = usePaymentContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
 
   useEffect(() => {
     if (isActive) {
+      console.log('logging initial checkout');
       logSubscriptionEvent({
         event_name: LogEvent.InitiateCheckout,
       });
@@ -27,11 +28,11 @@ export const InnerFunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    if (!isPlusAvailable || isPlus || !isPaddleReady) {
+    if (!isPlusAvailable || isPlus) {
       return;
     }
 
-    console.log('Opening checkout');
+    console.log('Opening checkout: ', { isPlus, isPlusAvailable });
 
     openCheckout({
       priceId,
@@ -46,7 +47,7 @@ export const InnerFunnelCheckout = ({
     openCheckout,
   ]);
 
-  return <div className="checkout-container" />;
+  return <div className="checkout-container" ref={(el) => {}} />;
 };
 
 export const FunnelCheckout = (props: FunnelStepCheckout): ReactElement => {
