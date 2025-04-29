@@ -119,6 +119,10 @@ const RegistrationForm = ({
   }, [hints]);
 
   useEffect(() => {
+    if (turnstileLoaded) {
+      return () => {};
+    }
+
     const turnstileLoadTimeout = setTimeout(() => {
       if (!turnstileLoaded) {
         logRef.current({
