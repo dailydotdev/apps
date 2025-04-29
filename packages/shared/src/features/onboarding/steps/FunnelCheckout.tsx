@@ -27,15 +27,18 @@ export const InnerFunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    if (!isPlusAvailable || isPlus) {
+    if (!isPlusAvailable || isPlus || !isActive) {
       return;
     }
+
+    console.log('open checkout');
 
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
     });
   }, [
+    isActive,
     discountCode,
     applyDiscount,
     isPlus,
