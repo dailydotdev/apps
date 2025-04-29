@@ -84,6 +84,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
+            isCheckoutOpenRef.current = false;
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.CompleteCheckout,
