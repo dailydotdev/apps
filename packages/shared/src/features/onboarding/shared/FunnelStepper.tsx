@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback, useRef } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import classNames from 'classnames';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {

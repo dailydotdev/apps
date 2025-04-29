@@ -45,7 +45,7 @@ export const InnerFunnelCheckout = ({
     openCheckout,
   ]);
 
-  return <div className="checkout-container" ref={(el) => {}} />;
+  return <div className="checkout-container" />;
 };
 
 export const FunnelCheckout = (props: FunnelStepCheckout): ReactElement => {
