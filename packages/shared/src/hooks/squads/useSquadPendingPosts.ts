@@ -44,11 +44,7 @@ export const useSquadPendingPosts = ({
   }, [squads]);
 
   const query = useInfiniteQuery<Connection<SourcePostModeration[]>>({
-    queryKey: generateQueryKey(
-      RequestKey.SquadPostRequests,
-      user,
-      squadId,
-    ),
+    queryKey: generateQueryKey(RequestKey.SquadPostRequests, user, squadId),
     queryFn: async ({ pageParam }) => {
       return gqlClient
         .request<{

@@ -99,10 +99,15 @@ export const useSourceModerationList = ({
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const listQueryKey = generateQueryKey(
+  const currentListKey = generateQueryKey(
     RequestKey.SquadPostRequests,
     user,
     squad?.id,
+  );
+  const multiSquadKey = generateQueryKey(
+    RequestKey.SquadPostRequests,
+    user,
+    undefined,
   );
   const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.id);
 
@@ -111,7 +116,12 @@ export const useSourceModerationList = ({
       const currentData =
         queryClient.getQueryData<
           InfiniteData<Connection<SourcePostModeration>>
-        >(listQueryKey);
+        >(currentListKey);
+
+      const multiSquadData =
+        queryClient.getQueryData<
+          InfiniteData<Connection<SourcePostModeration>>
+        >(multiSquadKey);
 
       const currentSquad = queryClient.getQueryData<Squad | null>(
         squadQueryKey,
@@ -127,7 +137,7 @@ export const useSourceModerationList = ({
       }
 
       queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
-        listQueryKey,
+        multiSquadKey,
         (oldData) => {
           if (!oldData) {
             return oldData;
@@ -144,9 +154,27 @@ export const useSourceModerationList = ({
         },
       );
 
-      return { currentData, currentSquad };
+      queryClient.setQueryData<InfiniteData<Connection<SourcePostModeration>>>(
+        currentListKey,
+        (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              edges: page.edges.filter(
+                (edge) => !data.postIds.includes(edge.node.id),
+              ),
+            })),
+          };
+        },
+      );
+
+      return { currentData, currentSquad, multiSquadData };
     },
-    [queryClient, listQueryKey, squadQueryKey],
+    [queryClient, currentListKey, squadQueryKey, multiSquadKey],
   );
 
   const {
@@ -170,8 +198,9 @@ export const useSourceModerationList = ({
         );
         return;
       }
-      queryClient.setQueryData(listQueryKey, context?.currentData);
+      queryClient.setQueryData(currentListKey, context?.currentData);
       queryClient.setQueryData(squadQueryKey, context?.currentSquad);
+      queryClient.setQueryData(multiSquadKey, context?.multiSquadData);
       displayToast('Failed to approve post(s)');
     },
   });
@@ -212,7 +241,7 @@ export const useSourceModerationList = ({
       });
     },
     onError: (_, __, context) => {
-      queryClient.setQueryData(listQueryKey, context.currentData);
+      queryClient.setQueryData(currentListKey, context.currentData);
       queryClient.setQueryData(squadQueryKey, context.currentSquad);
     },
   });
