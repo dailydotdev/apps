@@ -31,6 +31,8 @@ export const InnerFunnelCheckout = ({
       return;
     }
 
+    console.log('Opening checkout');
+
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
