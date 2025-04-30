@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MutableRefObject } from 'react';
 import type {
   CheckoutCustomer,
   CheckoutLineItem,
@@ -19,14 +18,6 @@ import type {
   OpenCheckoutProps,
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
-
-const useCallbackRef = <T>(
-  callback: (params: T) => void,
-): MutableRefObject<(params: T) => void> => {
-  const ref = useRef(callback);
-  ref.current = callback;
-  return ref;
-};
 
 interface UsePaddlePaymentProps
   extends Pick<
@@ -50,8 +41,10 @@ export const usePaddlePayment = ({
   const isCheckoutOpenRef = useRef(false);
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
-  const successCallbackRef = useCallbackRef(successCallback);
-  const getProductQuantityRef = useCallbackRef(getProductQuantity);
+  const successCallbackRef = useRef(successCallback);
+  successCallbackRef.current = successCallback;
+  const getProductQuantityRef = useRef(getProductQuantity);
+  getProductQuantityRef.current = getProductQuantity;
 
   useEffect(() => {
     if (checkIsExtension()) {
