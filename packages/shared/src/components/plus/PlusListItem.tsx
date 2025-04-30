@@ -13,8 +13,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -55,19 +53,6 @@ export const PlusListItem = ({
   typographyProps,
   onHover,
 }: PlusListItemProps): ReactElement => {
-  const { logEvent } = useLogContext();
-  const handleHover: MouseEventHandler = () => {
-    logEvent({
-      event_name: LogEvent.HoverPlusFeature,
-      target_type: TargetType.List,
-      target_id: item.id,
-    });
-
-    if (onHover) {
-      onHover();
-    }
-  };
-
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
@@ -89,7 +74,7 @@ export const PlusListItem = ({
           '-mx-1 flex gap-1 rounded-6 p-1',
           !!item.tooltip && 'hover:bg-surface-float',
         )}
-        onMouseEnter={handleHover}
+        onMouseEnter={onHover}
       >
         {Icon && (
           <Icon
