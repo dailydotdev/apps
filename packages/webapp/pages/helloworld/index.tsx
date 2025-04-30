@@ -1,13 +1,14 @@
 import type { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
-import React from 'react';
-import Head from 'next/head';
 import {
-  HydrationBoundary,
+  isServer,
   dehydrate,
+  HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
+import Head from 'next/head';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {
   FUNNEL_BOOT_QUERY_KEY,
@@ -21,6 +22,7 @@ import { useRouter } from 'next/router';
 import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 
 type PageProps = {
   dehydratedState: DehydratedState;
@@ -99,6 +101,14 @@ export default function HelloWorldPage({
   const { funnel, session } = funnelBoot?.funnelState ?? {};
   const { isAuthReady, isValidRegion, user } = useAuthContext();
   const router = useRouter();
+  const { applyThemeMode } = useSettingsContext();
+
+  useEffect(() => {
+    const theme = funnel?.parameters?.theme?.mode;
+    if (!isServer && !!theme) {
+      applyThemeMode(theme);
+    }
+  }, [applyThemeMode, funnel?.parameters?.theme?.mode]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
