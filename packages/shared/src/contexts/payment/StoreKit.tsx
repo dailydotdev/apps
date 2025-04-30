@@ -80,47 +80,44 @@ export type PurchaseEvent = {
   detail?: string;
 };
 
-const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
-  const response = promisifyEventListener<
-    ProductPricingPreview[],
-    IAPProduct[] | string
-  >('iap-products-result', (event) => {
-    const products = !isNullOrUndefined(event?.detail)
-      ? (event.detail as IAPProduct[])
-      : [];
+const getApplePlusPricing = (metadata: ProductPricingMetadata[]) =>
+  promisifyEventListener<ProductPricingPreview[], IAPProduct[] | string>(
+    'iap-products-result',
+    (event) => {
+      const products = !isNullOrUndefined(event?.detail)
+        ? (event.detail as IAPProduct[])
+        : [];
 
-    return metadata
-      .map((item) => {
-        const product = products.find(
-          (p) => p.attributes.offerName === item.idMap.ios,
-        );
+      return metadata
+        .map((item) => {
+          const product = products.find(
+            (p) => p.attributes.offerName === item.idMap.ios,
+          );
 
-        if (!product) {
-          return null;
-        }
+          if (!product) {
+            return null;
+          }
 
-        const duration =
-          storekitDurationToPlusDurationMap[
-            product.attributes.offers[0].recurringSubscriptionPeriod
-          ];
+          const duration =
+            storekitDurationToPlusDurationMap[
+              product.attributes.offers[0].recurringSubscriptionPeriod
+            ];
 
-        return {
-          metadata: item,
-          priceId: item.idMap.ios,
-          price: {
-            amount: parseFloat(product.attributes.offers[0].price),
-            formatted: product.attributes.offers[0].priceFormatted,
-          },
-          duration,
-          trialPeriod: null,
-          currency: null,
-        } as ProductPricingPreview;
-      })
-      .filter(Boolean);
-  });
-
-  return response;
-};
+          return {
+            metadata: item,
+            priceId: item.idMap.ios,
+            price: {
+              amount: parseFloat(product.attributes.offers[0].price),
+              formatted: product.attributes.offers[0].priceFormatted,
+            },
+            duration,
+            trialPeriod: null,
+            currency: null,
+          } as ProductPricingPreview;
+        })
+        .filter(Boolean);
+    },
+  );
 
 export type StoreKitSubProviderProps = PaymentContextProviderProps<
   CustomEvent<PurchaseEvent>,
