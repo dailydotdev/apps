@@ -270,7 +270,7 @@
 
 .btn-quiz {
   @apply !border-solid border-border-subtlest-tertiary;
-  @apply rounded-10 px-4;
+  @apply rounded-10 !px-4;
   @apply bg-surface-hover hover:bg-surface-active;
   @apply text-text-primary;
 

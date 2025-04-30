@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { MutableRefObject, ReactElement } from 'react';
-import React, { useContext, useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { useRouter } from 'next/router';
@@ -27,7 +27,7 @@ import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -81,40 +81,59 @@ const RegistrationForm = ({
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const router = useRouter();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
+  const [turnstileLoaded, setTurnstileLoaded] = useState<boolean>(false);
+  const [turnstileErrorLoading, setTurnstileErrorLoading] =
+    useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
-  const ref = useRef<TurnstileInstance>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isOnboardingExperiment = !!(
     router.pathname?.startsWith('/onboarding') && isReorderExperiment
   );
 
+  const logRef = useRef<typeof logEvent>();
+  logRef.current = logEvent;
+
   useEffect(() => {
-    logEvent({
+    logRef.current({
       event_name: AuthEventNames.StartSignUpForm,
     });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (Object.keys(hints).length) {
-      logEvent({
+      logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
       });
       if (hints?.csrf_token) {
         setTurnstileError(true);
       }
-      ref?.current?.reset();
+      turnstileRef?.current?.reset();
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hints]);
+
+  useEffect(() => {
+    if (turnstileLoaded) {
+      return () => {};
+    }
+
+    const turnstileLoadTimeout = setTimeout(() => {
+      if (!turnstileLoaded) {
+        logRef.current({
+          event_name: AuthEventNames.TurnstileLoadError,
+        });
+        setTurnstileErrorLoading(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(turnstileLoadTimeout);
+  }, [turnstileLoaded]);
 
   const {
     email: { isCheckPending, alreadyExists },
@@ -123,7 +142,7 @@ const RegistrationForm = ({
     onValidEmail: () => null,
     onAfterEmailCheck: (emailExists) => {
       if (emailExists && isOnboardingExperiment) {
-        logEvent({
+        logRef.current({
           event_name: AuthEventNames.OpenLogin,
           extra: JSON.stringify({ trigger }),
           target_id: targetId,
@@ -140,7 +159,7 @@ const RegistrationForm = ({
     }
 
     setTurnstileError(false);
-    logEvent({
+    logRef.current({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
 
@@ -172,8 +191,8 @@ const RegistrationForm = ({
       return;
     }
 
-    if (!ref?.current?.getResponse()) {
-      logEvent({
+    if (!turnstileRef?.current?.getResponse()) {
+      logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
@@ -212,7 +231,7 @@ const RegistrationForm = ({
       headers: {
         'True-Client-Ip': isDevelopment
           ? undefined
-          : ref?.current?.getResponse(),
+          : turnstileRef?.current?.getResponse(),
       },
     });
   };
@@ -409,22 +428,29 @@ const RegistrationForm = ({
           )}
         >
           <Turnstile
-            ref={ref}
+            ref={turnstileRef}
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
             options={{
               theme: 'dark',
             }}
             className="mx-auto min-h-[4.5rem]"
+            onWidgetLoad={() => setTurnstileLoaded(true)}
           />
-          {turnstileError ? (
+          {turnstileError && (
             <Alert
               type={AlertType.Error}
               title="Please complete the security check."
             />
-          ) : undefined}
+          )}
+          {turnstileErrorLoading && (
+            <Alert
+              type={AlertType.Error}
+              title="Turnstile is taking too long to load. Please try again."
+            />
+          )}
           <Button
             className="w-full"
-            disabled={isCheckPending}
+            disabled={isCheckPending || !turnstileLoaded}
             form="auth-form"
             type="submit"
             variant={ButtonVariant.Primary}
