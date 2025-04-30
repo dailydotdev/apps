@@ -177,7 +177,7 @@ export const StoreKitBuyCoresContextProvider = ({
 
             setActiveStep({
               step: SCREENS.PROCESSING,
-              providerTransactionId: transactionId
+              providerTransactionId: transactionId,
             });
 
             break;
