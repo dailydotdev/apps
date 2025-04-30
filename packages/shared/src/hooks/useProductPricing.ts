@@ -18,7 +18,7 @@ export const useProductPricing = ({
   const { user, isValidRegion } = useAuthContext();
 
   return useQuery({
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, type),
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, type, locale),
     queryFn: () => fetchPricingPreview(type, locale),
     enabled: enabled && isValidRegion,
     staleTime: StaleTime.Default,
