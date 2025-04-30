@@ -25,12 +25,14 @@ interface UsePaddlePaymentProps
     'successCallback' | 'disabledEvents'
   > {
   targetType?: TargetType;
+  getProductQuantity?: (event: PaddleEventData) => number;
 }
 
 export const usePaddlePayment = ({
   successCallback,
   disabledEvents,
   targetType,
+  getProductQuantity,
 }: UsePaddlePaymentProps) => {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -84,6 +86,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
+            const quantity = getProductQuantity?.(event);
             isCheckoutOpenRef.current = false;
             logRef.current({
               target_type: targetType,
@@ -93,6 +96,7 @@ export const usePaddlePayment = ({
                   'gifter_id' in customData && 'user_id' in customData
                     ? customData.user_id
                     : undefined,
+                quantity,
                 localCost: event?.data.totals.total,
                 localCurrency: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,

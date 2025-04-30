@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo, useRef, useState } from 'react';
-import type { Paddle } from '@paddle/paddle-js';
+import { CheckoutEventNames, type Paddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import type { OpenCheckoutFn } from './payment/context';
 import type { Origin } from '../lib/log';
@@ -83,15 +83,6 @@ export const BuyCoresContextProvider = ({
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
 
-  const { paddle, openCheckout } = usePaddlePayment({
-    successCallback: (event) => {
-      setActiveStep({
-        step: SCREENS.PROCESSING,
-        providerTransactionId: event.data.transaction_id,
-      });
-    },
-    targetType: TargetType.Credits,
-  });
   const { data: prices } = useProductPricing({
     type: ProductPricingType.Cores,
   });
@@ -101,6 +92,20 @@ export const BuyCoresContextProvider = ({
   };
   const getQuantityForPriceRef = useRef(getQuantityForPriceFn);
   getQuantityForPriceRef.current = getQuantityForPriceFn;
+
+  const { paddle, openCheckout } = usePaddlePayment({
+    successCallback: (event) => {
+      setActiveStep({
+        step: SCREENS.PROCESSING,
+        providerTransactionId: event.data.transaction_id,
+      });
+    },
+    getProductQuantity: (event) =>
+      getQuantityForPriceRef.current({
+        priceId: event.data.items[0]?.price_id,
+      }),
+    targetType: TargetType.Credits,
+  });
 
   const contextData = useMemo<BuyCoresContextData>(
     () => ({
