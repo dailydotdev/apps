@@ -117,7 +117,7 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) => {
           currency: null,
         } as ProductPricingPreview;
       })
-      .filter((item) => !!item);
+      .filter(Boolean);
   });
 
   return response;
