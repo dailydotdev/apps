@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from 'react';
 import type {
   CheckoutCustomer,
   CheckoutLineItem,
@@ -18,6 +24,14 @@ import type {
   OpenCheckoutProps,
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
+
+const useCallbackRefs = <T extends Function>(
+  callback: T,
+): MutableRefObject<T> => {
+  const ref = useRef(callback);
+  ref.current = callback;
+  return ref;
+};
 
 interface UsePaddlePaymentProps
   extends Pick<
@@ -41,12 +55,8 @@ export const usePaddlePayment = ({
   const isCheckoutOpenRef = useRef(false);
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
-
-  const callbacks = useRef({
-    successCallback,
-    getProductQuantity,
-  });
-  callbacks.current = { successCallback, getProductQuantity };
+  const successCallbackRef = useCallbackRefs(successCallback);
+  const getProductQuantityRef = useCallbackRefs(getProductQuantity);
 
   useEffect(() => {
     if (checkIsExtension()) {
@@ -101,7 +111,7 @@ export const usePaddlePayment = ({
                   'gifter_id' in customData && 'user_id' in customData
                     ? customData.user_id
                     : undefined,
-                quantity: callbacks.current.getProductQuantity?.(event),
+                quantity: getProductQuantityRef.current?.(event),
                 localCost: event?.data.totals.total,
                 localCurrency: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
@@ -110,8 +120,8 @@ export const usePaddlePayment = ({
               }),
             });
 
-            if (callbacks.current.successCallback) {
-              callbacks.current.successCallback(event);
+            if (successCallbackRef.current) {
+              successCallbackRef.current(event);
             } else {
               router.push(plusSuccessUrl);
             }
