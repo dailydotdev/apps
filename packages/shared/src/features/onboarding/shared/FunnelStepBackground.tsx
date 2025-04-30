@@ -53,6 +53,7 @@ const alwaysDarkSteps = [
   FunnelStepType.Fact,
   FunnelStepType.SocialProof,
   FunnelStepType.Loading,
+  FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.PaymentSuccessful,
 ];
