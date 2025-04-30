@@ -101,14 +101,14 @@ export default function HelloWorldPage({
   const { funnel, session } = funnelBoot?.funnelState ?? {};
   const { isAuthReady, isValidRegion, user } = useAuthContext();
   const router = useRouter();
-  const { applyThemeMode } = useSettingsContext();
+  const { setTheme, themeMode } = useSettingsContext();
 
   useEffect(() => {
     const theme = funnel?.parameters?.theme?.mode;
-    if (!isServer && !!theme) {
-      applyThemeMode(theme);
+    if (!isServer && !!theme && theme !== themeMode) {
+      setTheme(theme);
     }
-  }, [applyThemeMode, funnel?.parameters?.theme?.mode]);
+  }, [setTheme, funnel?.parameters?.theme?.mode, themeMode]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
