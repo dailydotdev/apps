@@ -42,6 +42,12 @@ export const usePaddlePayment = ({
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
 
+  const callbacks = useRef({
+    successCallback,
+    getProductQuantity,
+  });
+  callbacks.current = { successCallback, getProductQuantity };
+
   useEffect(() => {
     if (checkIsExtension()) {
       // Payment not available on extension
@@ -86,7 +92,6 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
-            const quantity = getProductQuantity?.(event);
             isCheckoutOpenRef.current = false;
             logRef.current({
               target_type: targetType,
@@ -96,7 +101,7 @@ export const usePaddlePayment = ({
                   'gifter_id' in customData && 'user_id' in customData
                     ? customData.user_id
                     : undefined,
-                quantity,
+                quantity: callbacks.current.getProductQuantity?.(event),
                 localCost: event?.data.totals.total,
                 localCurrency: event?.data.currency_code,
                 payment: event?.data.payment.method_details.type,
@@ -105,8 +110,8 @@ export const usePaddlePayment = ({
               }),
             });
 
-            if (successCallback) {
-              successCallback(event);
+            if (callbacks.current.successCallback) {
+              callbacks.current.successCallback(event);
             } else {
               router.push(plusSuccessUrl);
             }
@@ -147,7 +152,7 @@ export const usePaddlePayment = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router, successCallback, disabledEvents, targetType]);
+  }, [router, disabledEvents, targetType]);
 
   const openCheckout = useCallback(
     ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {

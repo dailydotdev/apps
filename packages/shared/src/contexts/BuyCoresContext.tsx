@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo, useRef, useState } from 'react';
-import { CheckoutEventNames, type Paddle } from '@paddle/paddle-js';
+import type { Paddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import type { OpenCheckoutFn } from './payment/context';
 import type { Origin } from '../lib/log';
