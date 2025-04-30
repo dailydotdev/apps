@@ -6,11 +6,9 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { Environments, Paddle, PaddleEventData } from '@paddle/paddle-js';
-import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { checkIsExtension, promisifyEventListener } from '../../lib/func';
+import { promisifyEventListener } from '../../lib/func';
 import { useAuthContext } from '../AuthContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
@@ -31,6 +29,8 @@ import { BuyCoresContext, SCREENS } from './types';
 import type { PurchaseEvent } from '../payment/StoreKit';
 import { PurchaseEventName } from '../payment/StoreKit';
 import { SubscriptionProvider } from '../../lib/plus';
+import { DEFAULT_ERROR } from '../../graphql/common';
+import { useToastNotification } from '../../hooks';
 
 export const StoreKitBuyCoresContextProvider = ({
   onCompletion,
@@ -51,8 +51,7 @@ export const StoreKitBuyCoresContextProvider = ({
     id: string;
     value: number;
   }>();
-  const [paddle, setPaddle] = useState<Paddle>();
-  const isCheckoutOpenRef = React.useRef(false);
+  const { displayToast } = useToastNotification();
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
 
@@ -70,95 +69,11 @@ export const StoreKitBuyCoresContextProvider = ({
   getQuantityForPriceRef.current = getQuantityForPriceFn;
 
   useEffect(() => {
-    if (checkIsExtension()) {
-      // Payment not available on extension
-      return;
-    }
-
-    isCheckoutOpenRef.current = false;
-
-    // TODO feat/transactions disabled for now since it looks like existing paddle instance does not load
-    // const existingPaddleInstance = getPaddleInstance();
-    // if (existingPaddleInstance) {
-    //   setPaddle(existingPaddleInstance);
-    //   return;
-    // }
-
-    initializePaddle({
-      environment:
-        (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
-        'production',
-      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
-      eventCallback: (event: PaddleEventData) => {
-        switch (event?.name) {
-          case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
-            logRef.current({
-              event_name: LogEvent.InitiatePayment,
-              target_type: TargetType.Credits,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_LOADED:
-            isCheckoutOpenRef.current = true;
-
-            logRef.current({
-              event_name: LogEvent.InitiateCheckout,
-              target_type: TargetType.Credits,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logRef.current({
-              event_name: LogEvent.SelectCheckoutPayment,
-              target_type: TargetType.Credits,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          // This doesn't exist in the original code
-          case 'checkout.warning' as CheckoutEventNames:
-            logRef.current({
-              event_name: LogEvent.WarningCheckout,
-              target_type: TargetType.Credits,
-            });
-            break;
-            break;
-          case CheckoutEventNames.CHECKOUT_ERROR:
-            logRef.current({
-              event_name: LogEvent.ErrorCheckout,
-              target_type: TargetType.Credits,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_CLOSED:
-            isCheckoutOpenRef.current = false;
-            break;
-          default:
-            break;
-        }
-      },
-      checkout: {
-        settings: {
-          displayMode: 'inline',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-          variant: 'one-page',
-        },
-      },
-    }).then((paddleInstance: Paddle | undefined) => {
-      if (paddleInstance) {
-        setPaddle(paddleInstance);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
     const eventName = 'iap-purchase-event';
     promisifyEventListener<void, PurchaseEvent>(
       eventName,
       (event) => {
-        const { name, product, transactionId } = event.detail;
+        const { name, product, transactionId, detail } = event.detail;
         switch (name) {
           case PurchaseEventName.PurchaseCompleted:
             logRef.current({
@@ -181,23 +96,25 @@ export const StoreKitBuyCoresContextProvider = ({
             });
 
             break;
-          // case PurchaseEventName.PurchaseInitiated:
-          //   logRef.current({
-          //     event_name: LogEvent.InitiatePayment,
-          //   });
-          //   break;
-          // case PurchaseEventName.PurchaseFailed:
-          //   logRef.current({
-          //     event_name: LogEvent.ErrorCheckout,
-          //     extra: {
-          //       errorCode: detail,
-          //     },
-          //   });
-          //   displayToast(DEFAULT_ERROR);
-          //   break;
-          // case PurchaseEventName.PurchasePending:
-          //   displayToast('Please wait for the purchase to be completed.');
-          //   break;
+          case PurchaseEventName.PurchaseInitiated:
+            logRef.current({
+              event_name: LogEvent.InitiatePayment,
+              target_type: TargetType.Credits,
+            });
+            break;
+          case PurchaseEventName.PurchaseFailed:
+            logRef.current({
+              event_name: LogEvent.ErrorCheckout,
+              target_type: TargetType.Credits,
+              extra: JSON.stringify({
+                errorCode: detail,
+              }),
+            });
+            displayToast(DEFAULT_ERROR);
+            break;
+          case PurchaseEventName.PurchasePending:
+            displayToast('Please wait for the purchase to be completed.');
+            break;
           case PurchaseEventName.PurchaseCancelled:
             setSelectedProduct(undefined);
             break;
@@ -213,7 +130,7 @@ export const StoreKitBuyCoresContextProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [user?.id]);
+  }, [user?.id, displayToast]);
 
   const openCheckout = useCallback(
     ({ priceId }: OpenCheckoutProps) => {
@@ -227,7 +144,6 @@ export const StoreKitBuyCoresContextProvider = ({
 
   const contextData = useMemo<BuyCoresContextData>(
     () => ({
-      paddle,
       amountNeeded,
       onCompletion,
       activeStep: activeStep.step,
@@ -245,7 +161,6 @@ export const StoreKitBuyCoresContextProvider = ({
       onCompletion,
       openCheckout,
       origin,
-      paddle,
       selectedProduct,
     ],
   );

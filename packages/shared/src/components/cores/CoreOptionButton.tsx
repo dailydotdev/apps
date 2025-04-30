@@ -13,12 +13,15 @@ import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { Image } from '../image/Image';
 import { getCoreCurrencyImage } from '../../lib/image';
+import { isIOSNative } from '../../lib/func';
 
 type CoreOptionButtonProps = {
   id: string;
   priceFormatted: string;
   cores: number;
   label: string;
+  isLoading?: boolean;
+  isDisabled?: boolean;
 };
 
 export const CoreOptionButton = ({
@@ -26,6 +29,8 @@ export const CoreOptionButton = ({
   priceFormatted,
   cores,
   label,
+  isLoading,
+  isDisabled,
 }: CoreOptionButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { logEvent } = useLogContext();
@@ -69,7 +74,8 @@ export const CoreOptionButton = ({
       aria-checked={selectedProduct?.id === id}
       role="radio"
       onClick={onSelect}
-      disabled={!paddle}
+      disabled={isDisabled || (isIOSNative() ? false : !paddle)}
+      loading={isLoading}
     >
       <Typography
         type={TypographyType.Body}
