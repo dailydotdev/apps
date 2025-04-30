@@ -50,7 +50,7 @@ export const PlusCheckoutContainer = ({
     !isPricesPending &&
     shouldRenderCheckout;
 
-  const handleHover: MouseEventHandler = (e) => {
+  const handleHover: MouseEventHandler = () => {
     logEvent({ event_name: LogEvent.HoverCheckoutWidget });
   };
 

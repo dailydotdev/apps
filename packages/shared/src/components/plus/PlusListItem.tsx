@@ -56,7 +56,7 @@ export const PlusListItem = ({
   onHover,
 }: PlusListItemProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const handleHover: MouseEventHandler = (e) => {
+  const handleHover: MouseEventHandler = () => {
     logEvent({
       event_name: LogEvent.HoverPlusFeature,
       target_type: TargetType.List,
