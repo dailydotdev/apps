@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
 import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
@@ -8,6 +8,8 @@ import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
 import { useGiftUserContext } from './GiftUserContext';
 import { Checkbox } from '../fields/Checkbox';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 export type PlusCheckoutContainerProps = {
   checkoutRef?: React.LegacyRef<HTMLDivElement>;
@@ -21,6 +23,7 @@ export const PlusCheckoutContainer = ({
   checkoutRef,
   className,
 }: PlusCheckoutContainerProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const { giftToUser } = useGiftUserContext();
   const { isPlusAvailable, isFreeTrialExperiment, isPricesPending } =
     usePaymentContext();
@@ -47,9 +50,14 @@ export const PlusCheckoutContainer = ({
     !isPricesPending &&
     shouldRenderCheckout;
 
+  const handleHover: MouseEventHandler = (e) => {
+    logEvent({ event_name: LogEvent.HoverCheckoutWidget });
+  };
+
   return (
     <div className={className?.container}>
       <div
+        onMouseEnter={handleHover}
         ref={shouldRenderCheckout ? checkoutRef : undefined}
         className={classNames(shouldRenderCheckout && 'checkout-container')}
       />
