@@ -11,29 +11,42 @@ import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
 import { plusFAQItems, plusFAQTrialItem } from './common';
 import { usePaymentContext } from '../../contexts/payment/context';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 interface FAQ {
   question: string;
   answer: ReactNode;
 }
 
-const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
-  <div className="rounded-10 bg-surface-float px-6 py-4">
-    <Accordion
-      title={
-        <Typography
-          bold
-          color={TypographyColor.Primary}
-          tag={TypographyTag.Span}
-        >
-          {item.question}
-        </Typography>
-      }
-    >
-      <div className="text-text-tertiary typo-callout">{item.answer}</div>
-    </Accordion>
-  </div>
-);
+const FAQItem = ({ item }: { item: FAQ }): ReactElement => {
+  const { logEvent } = useLogContext();
+  const handleClick = () => {
+    logEvent({
+      event_name: LogEvent.ClickPlusFaq,
+      target_id: item.question,
+    });
+  };
+
+  return (
+    <div className="rounded-10 bg-surface-float px-6 py-4">
+      <Accordion
+        onClick={handleClick}
+        title={
+          <Typography
+            bold
+            color={TypographyColor.Primary}
+            tag={TypographyTag.Span}
+          >
+            {item.question}
+          </Typography>
+        }
+      >
+        <div className="text-text-tertiary typo-callout">{item.answer}</div>
+      </Accordion>
+    </div>
+  );
+};
 
 export const PlusFAQ = (): ReactElement => {
   const { isFreeTrialExperiment } = usePaymentContext();
