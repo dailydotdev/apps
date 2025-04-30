@@ -244,6 +244,9 @@ export enum LogEvent {
   OnboardingUpgradePlus = 'upgrade subscription',
   GiftSubscription = 'gift subscription',
   CompleteGiftCheckout = 'complete gift checkout',
+  ClickPlusFaq = 'click plus faq',
+  HoverCheckoutWidget = 'hover checkout widget',
+  PageScroll = 'page scroll',
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',
