@@ -15,7 +15,6 @@ import {
   WebKitMessageHandlers,
 } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
-import { useGrowthBookContext } from '../../components/GrowthBookProvider';
 import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
 import { plusSuccessUrl } from '../../lib/constants';
@@ -136,28 +135,27 @@ export const StoreKitSubProvider = ({
   const { displayToast } = useToastNotification();
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { growthbook } = useGrowthBookContext();
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
 
-  const { data } = useQuery<ProductPricingMetadata[]>({
+  const { data: metadata } = useQuery<ProductPricingMetadata[]>({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
     queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
-    enabled: !!user && !!growthbook?.ready && iOSSupportsPlusPurchase(),
+    enabled: !!user && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
   });
 
-  const { data: productOptions } = useQuery({
+  const { data: products } = useQuery({
     queryKey: ['iap-products'],
-    enabled: !!data?.length && !!growthbook?.ready && iOSSupportsPlusPurchase(),
+    enabled: !!metadata?.length && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
       }
 
-      const response = getApplePlusPricing(data);
-      const ids = data.map(({ idMap }) => idMap.ios).filter(Boolean);
+      const response = getApplePlusPricing(metadata);
+      const ids = metadata.map(({ idMap }) => idMap.ios).filter(Boolean);
 
       postWebKitMessage(WebKitMessageHandlers.IAPProductList, ids);
 
@@ -181,7 +179,7 @@ export const StoreKitSubProvider = ({
       eventName,
       (event) => {
         const { name, detail, product } = event.detail;
-        const item = productOptions?.find(
+        const item = products?.find(
           ({ priceId }) => priceId === product?.attributes?.offerName,
         );
         switch (name) {
@@ -232,18 +230,18 @@ export const StoreKitSubProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [displayToast, productOptions, data, router, successCallback, user?.id]);
+  }, [displayToast, products, metadata, router, successCallback, user?.id]);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
-      productOptions,
+      productOptions: products,
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
       isFreeTrialExperiment: false,
     }),
-    [isPlusAvailable, openCheckout, productOptions],
+    [isPlusAvailable, openCheckout, products],
   );
 
   return (
