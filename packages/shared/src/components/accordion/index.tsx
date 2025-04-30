@@ -20,9 +20,7 @@ export function Accordion({
   const contentId = `accordion-content-${id}`;
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-    if (onClick) {
-      onClick(e);
-    }
+    onClick?.(e);
 
     setIsOpen((prev) => !prev);
   };
