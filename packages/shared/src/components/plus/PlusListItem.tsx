@@ -1,4 +1,4 @@
-import type { FC, MouseEventHandler, ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
