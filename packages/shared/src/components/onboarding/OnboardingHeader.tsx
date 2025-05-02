@@ -16,11 +16,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
 import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { usePaymentContext } from '../../contexts/payment/context';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import type { AuthProps } from '../auth/common';
@@ -42,7 +40,6 @@ export const OnboardingHeader = ({
   customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
-  const { isFreeTrialExperiment } = usePaymentContext();
   const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -89,7 +86,6 @@ export const OnboardingHeader = ({
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <>
-        {isPlusStep && isFreeTrialExperiment && <PlusFreeTrialAlert />}
         <header
           className={classNames(
             'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',

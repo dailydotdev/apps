@@ -15,14 +15,8 @@ const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 export const PlusDesktop = ({
   shouldShowPlusHeader,
 }: CommonPlusPageProps): ReactElement => {
-  const {
-    openCheckout,
-    paddle,
-    productOptions,
-    giftOneYear,
-    isFreeTrialExperiment,
-    isPricesPending,
-  } = usePaymentContext();
+  const { openCheckout, paddle, productOptions, giftOneYear, isPricesPending } =
+    usePaymentContext();
   const { giftToUser } = useGiftUserContext();
   const {
     query: { selectedPlan },
@@ -91,18 +85,13 @@ export const PlusDesktop = ({
               element: 'h-[35rem]',
             }}
           />
-          {!isFreeTrialExperiment && !isPricesPending && !giftToUser && (
+          {!isPricesPending && !giftToUser && (
             <div className="flex justify-center">
               <PlusTrustRefund />
             </div>
           )}
         </div>
       </div>
-      {isFreeTrialExperiment && !isPricesPending && !giftToUser && (
-        <div className="mx-auto mt-10 flex w-[62.5rem] gap-3">
-          <PlusTrustRefund />
-        </div>
-      )}
       <PlusFAQs />
     </>
   );

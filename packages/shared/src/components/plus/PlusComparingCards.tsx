@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useId } from 'react';
 import classNames from 'classnames';
 import type { ProductOption } from '../../contexts/payment/context';
-import { usePaymentContext } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,
@@ -58,7 +57,6 @@ const PlusCard = ({
 }: PlusCardProps): ReactElement => {
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { isFreeTrialExperiment } = usePaymentContext();
 
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
@@ -92,17 +90,11 @@ const PlusCard = ({
         </Typography>
         {plan?.extraLabel && (
           <PlusPlanExtraLabel
-            color={
-              isFreeTrialExperiment
-                ? PlusLabelColor.Success
-                : PlusLabelColor.Help
-            }
-            label={isFreeTrialExperiment ? '7-day free trial' : plan.extraLabel}
+            color={PlusLabelColor.Help}
+            label={plan.extraLabel}
             className="ml-3"
             typographyProps={{
-              color: isFreeTrialExperiment
-                ? TypographyColor.StatusSuccess
-                : TypographyColor.StatusHelp,
+              color: TypographyColor.StatusHelp,
             }}
           />
         )}
@@ -149,7 +141,7 @@ const PlusCard = ({
           title="Get started with Plus"
           variant={ButtonVariant.Primary}
         >
-          {isFreeTrialExperiment ? 'Get started for free' : 'Get started'}
+          Get started
         </Button>
       )}
       <Typography

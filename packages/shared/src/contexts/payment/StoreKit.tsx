@@ -215,7 +215,6 @@ export const StoreKitSubProvider = ({
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
-      isFreeTrialExperiment: false,
     }),
     [isPlusAvailable, openCheckout, productOptions],
   );

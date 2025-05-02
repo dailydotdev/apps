@@ -128,11 +128,6 @@ export const PaddleSubProvider = ({
     [productOptions],
   );
 
-  const isFreeTrialExperiment = useMemo(
-    () => productOptions.some(({ trialPeriod }) => !!trialPeriod),
-    [productOptions],
-  );
-
   const openCheckout = useCallback(
     ({ priceId, giftToUserId }: OpenCheckoutProps) => {
       if (isPlus && priceId !== giftOneYear?.value) {
@@ -190,7 +185,6 @@ export const PaddleSubProvider = ({
       isPlusAvailable,
       giftOneYear,
       isPricesPending,
-      isFreeTrialExperiment,
     }),
     [
       giftOneYear,
@@ -200,7 +194,6 @@ export const PaddleSubProvider = ({
       productOptions,
       isPlusAvailable,
       isPricesPending,
-      isFreeTrialExperiment,
     ],
   );
 

@@ -7,7 +7,6 @@ import { usePlusSubscription } from '../../hooks';
 import { PlusUnavailable } from './PlusUnavailable';
 import { PlusPlus } from './PlusPlus';
 import { useGiftUserContext } from './GiftUserContext';
-import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 
@@ -25,8 +24,7 @@ export const PlusCheckoutContainer = ({
 }: PlusCheckoutContainerProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { giftToUser } = useGiftUserContext();
-  const { isPlusAvailable, isFreeTrialExperiment, isPricesPending } =
-    usePaymentContext();
+  const { isPlusAvailable } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
   const ContainerElement = useMemo(() => {
     if (!isPlusAvailable) {
@@ -44,12 +42,6 @@ export const PlusCheckoutContainer = ({
     return null;
   }, [isPlusAvailable, giftToUser, isPlus]);
   const shouldRenderCheckout = !ContainerElement;
-  const showTrialCheckbox =
-    isFreeTrialExperiment &&
-    !giftToUser &&
-    !isPricesPending &&
-    shouldRenderCheckout;
-
   const handleHover: MouseEventHandler = () => {
     logEvent({ event_name: LogEvent.HoverCheckoutWidget });
   };
@@ -62,13 +54,6 @@ export const PlusCheckoutContainer = ({
         className={classNames(shouldRenderCheckout && 'checkout-container')}
       />
       {ContainerElement && <ContainerElement className={className?.element} />}
-      {showTrialCheckbox && (
-        <div className="mx-auto mt-4 max-w-[40rem]">
-          <Checkbox name="freeTrialReminder" defaultChecked>
-            Remind me before the trial ends
-          </Checkbox>
-        </div>
-      )}
     </div>
   );
 };

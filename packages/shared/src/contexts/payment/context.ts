@@ -40,7 +40,6 @@ export interface PaymentContextData {
   isPlusAvailable: boolean;
   giftOneYear?: ProductOption;
   isPricesPending: boolean;
-  isFreeTrialExperiment: boolean;
 }
 
 export type ProductMeta = {

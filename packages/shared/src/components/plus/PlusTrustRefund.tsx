@@ -2,32 +2,20 @@ import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
-import { BellIcon, PrivacyIcon, TipIcon } from '../icons';
+import { PrivacyIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { useViewSize, ViewSize } from '../../hooks';
-import { usePaymentContext } from '../../contexts/payment/context';
 
 type PlusTrustRefundProps = ComponentProps<'div'>;
 
 const alerts = {
-  trial: {
-    icon: TipIcon,
-    iconClassName: 'bg-action-upvote-float text-action-upvote-default',
-    text: '7-day free trial, Cancel anytime.',
-  },
   refund: {
     icon: PrivacyIcon,
     iconClassName: 'bg-action-comment-float text-accent-blueCheese-default',
     text: '30 day hassle-free refund. No questions asked.',
-  },
-  reminder: {
-    icon: BellIcon,
-    iconClassName: 'bg-action-bookmark-float text-accent-bun-default',
-    text: "We'll email you a reminder before your trial ends.",
   },
 };
 
@@ -35,12 +23,7 @@ export const PlusTrustRefund = ({
   className,
   ...attrs
 }: PlusTrustRefundProps): ReactElement => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isFreeTrialExperiment } = usePaymentContext();
-  const hasVerticalLayout = isFreeTrialExperiment && isLaptop;
-  const items = isFreeTrialExperiment
-    ? [alerts.trial, alerts.refund, alerts.reminder]
-    : [alerts.refund];
+  const items = [alerts.refund];
 
   return (
     <>
@@ -48,8 +31,7 @@ export const PlusTrustRefund = ({
         <div
           aria-label="Refund policy"
           className={classNames(
-            'flex items-center gap-2 rounded-10 bg-surface-float',
-            hasVerticalLayout ? 'flex-1 flex-col p-4 text-center' : 'px-3 py-2',
+            'flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2',
             className,
           )}
           key={text}
@@ -59,14 +41,10 @@ export const PlusTrustRefund = ({
             aria-hidden
             className={classNames(
               'grid size-8 place-items-center rounded-10',
-              hasVerticalLayout && 'laptop:size-12',
               iconClassName,
             )}
           >
-            <Icon
-              secondary
-              size={hasVerticalLayout ? IconSize.Large : IconSize.Medium}
-            />
+            <Icon secondary size={IconSize.Medium} />
           </div>
           <Typography
             className="min-w-0 flex-1"
