@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment } from 'react';
+import React, { useMemo, Fragment } from 'react';
 import classNames from 'classnames';
 import type {
   FunnelJSON,
@@ -35,6 +35,7 @@ import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
+import { FunnelBannerMessage } from './FunnelBannerMessage';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -135,19 +136,36 @@ export const FunnelStepper = ({
     }
   };
 
+  const layout = useMemo(() => {
+    const hasBanner = !!step?.parameters?.banner?.content;
+    const hasHeader = !hasBanner && stepsWithHeader.includes(step.type);
+    const hasCookieConsent = isCookieBannerActive && showBanner;
+
+    return {
+      hasHeader,
+      hasBanner,
+      hasCookieConsent,
+    };
+  }, [
+    isCookieBannerActive,
+    showBanner,
+    step?.parameters?.banner?.content,
+    step.type,
+  ]);
+
   if (!isReady) {
     return null;
   }
 
   return (
     <section
+      className="flex min-h-dvh flex-col"
       data-testid="funnel-stepper"
       onClickCapture={trackOnClickCapture}
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
-      className="flex min-h-dvh flex-col"
     >
-      {isCookieBannerActive && showBanner && (
+      {layout.hasCookieConsent && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
@@ -155,7 +173,7 @@ export const FunnelStepper = ({
           <Header
             chapters={chapters}
             className={classNames({
-              hidden: !stepsWithHeader.includes(step.type),
+              hidden: !layout.hasHeader,
             })}
             currentChapter={position.chapter}
             currentStep={position.step}
@@ -167,6 +185,9 @@ export const FunnelStepper = ({
             showSkipButton={skip.hasTarget}
             showProgressBar={skip.hasTarget}
           />
+          {layout.hasBanner && (
+            <FunnelBannerMessage {...step.parameters.banner} />
+          )}
           {funnel.chapters.map((chapter: FunnelChapter) => (
             <Fragment key={chapter?.id}>
               {chapter?.steps?.map((funnelStep: FunnelStep) => {
