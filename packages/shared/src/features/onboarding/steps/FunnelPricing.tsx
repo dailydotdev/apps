@@ -162,6 +162,8 @@ export const FunnelPricing = ({
         />
       )}
       <div className="flex flex-col gap-4 px-4 py-6">
+        <p>{JSON.stringify(plans)}</p>
+        <p>{JSON.stringify(productOptions)}</p>
         <PricingSection {...pricingProps} name="plan-1" />
         <CreditCards />
         <BoxList {...featuresList} />
