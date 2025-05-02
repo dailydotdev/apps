@@ -105,10 +105,10 @@ export default function HelloWorldPage({
 
   useEffect(() => {
     const theme = funnel?.parameters?.theme?.mode;
-    if (!isServer && !!theme && theme !== themeMode) {
+    if (!isServer && isAuthReady && !!theme && theme !== themeMode) {
       setTheme(theme);
     }
-  }, [setTheme, funnel?.parameters?.theme?.mode, themeMode]);
+  }, [setTheme, funnel?.parameters?.theme?.mode, themeMode, isAuthReady]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
