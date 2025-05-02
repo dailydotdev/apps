@@ -35,10 +35,6 @@ jest.mock('../../payment/hooks/usePricingCycleConverter', () => ({
   })),
 }));
 
-jest.mock('jotai-history', () => ({
-  withHistory: jest.fn(),
-}));
-
 type HydrateAtomsProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialValues: any[];

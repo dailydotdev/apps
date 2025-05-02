@@ -412,9 +412,6 @@ importers:
       jotai:
         specifier: ^2.12.2
         version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
-      jotai-history:
-        specifier: ^0.4.2
-        version: 0.4.2(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1))
       node-fetch:
         specifier: ^2.6.6
         version: 2.7.0
@@ -5995,12 +5992,6 @@ packages:
     resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
 
-  jotai-history@0.4.2:
-    resolution: {integrity: sha512-lwyp490JUSNjVVfHXa+pWvN0DKkMxSE2tpF0qaS3DpOzExZiMeQkmHnaw/xqpLjZiARRNItdr4572XRDRun+Aw==}
-    engines: {node: '>=12.20.0'}
-    peerDependencies:
-      jotai: '>=2.9.0'
-
   jotai@2.12.2:
     resolution: {integrity: sha512-oN8715y7MkjXlSrpyjlR887TOuc/NLZMs9gvgtfWH/JP47ChwO0lR2ijSwBvPMYyXRAPT+liIAhuBavluKGgtA==}
     engines: {node: '>=12.20.0'}
@@ -10215,7 +10206,11 @@ snapshots:
       jest-runner: 26.6.3
       jest-runtime: 26.6.3
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - ts-node
+      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -14623,10 +14618,6 @@ snapshots:
       - utf-8-validate
 
   jiti@1.21.6: {}
-
-  jotai-history@0.4.2(jotai@2.12.2(@types/react@18.3.12)(react@18.3.1)):
-    dependencies:
-      jotai: 2.12.2(@types/react@18.3.12)(react@18.3.1)
 
   jotai@2.12.2(@types/react@18.3.12)(react@18.3.1):
     optionalDependencies:

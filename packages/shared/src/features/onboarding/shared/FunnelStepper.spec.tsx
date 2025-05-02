@@ -24,9 +24,6 @@ jest.mock('../hooks/useStepTransition');
 jest.mock('../../common/hooks/useWindowScroll', () => ({
   useWindowScroll: jest.fn(),
 }));
-jest.mock('jotai-history', () => ({
-  withHistory: jest.fn(),
-}));
 
 let client: QueryClient;
 
