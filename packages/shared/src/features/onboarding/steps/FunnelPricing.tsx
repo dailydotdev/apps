@@ -135,7 +135,7 @@ export const FunnelPricing = ({
     headline,
     pricing: {
       perks,
-      plans: organizedPlans.filter((plan) => !!plan),
+      plans: organizedPlans.filter(Boolean),
     },
     selectedPlan,
     onPlanChange: setSelectedPlan,
