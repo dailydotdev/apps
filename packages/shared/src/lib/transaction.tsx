@@ -59,16 +59,18 @@ export const getTransactionLabel = ({
   }
 
   if (['receive', 'send'].includes(type)) {
-    return (
-      <div className="flex items-center gap-1">
-        <Image
-          src={transaction.product.image}
-          alt={transaction.product.name}
-          className="size-5"
-        />
-        Award{' '}
-      </div>
-    );
+    if (transaction.product) {
+      return (
+        <div className="flex items-center gap-1">
+          <Image
+            src={transaction.product.image}
+            alt={transaction.product.name}
+            className="size-5"
+          />
+          Award{' '}
+        </div>
+      );
+    }
   }
 
   return type.toUpperCase();
