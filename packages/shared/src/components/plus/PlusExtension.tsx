@@ -1,34 +1,23 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
 import { PlusInfo } from './PlusInfo';
-import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
-import { getPricePreviews } from '../../graphql/paddle';
-import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import PlusListModalSection from './PlusListModalSection';
 import { useFeature } from '../GrowthBookProvider';
 import { plusTakeoverContent } from '../../lib/featureManagement';
+import { usePaymentContext } from '../../contexts/payment/context';
 
 const PlusExtension = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta || {};
   const { logEvent } = useLogContext();
-  const { data: productOptions } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PricePreview),
-    queryFn: async () => {
-      const previews = await getPricePreviews();
-      return previews.filter(
-        (item) => item.appsId !== PlusPriceTypeAppsId.GiftOneYear,
-      );
-    },
-  });
+  const { productOptions } = usePaymentContext();
 
   const handleClick = () => {
     logEvent({

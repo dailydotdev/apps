@@ -73,7 +73,7 @@ export const isIOS = (): boolean =>
   /iPhone|iPad/i.test(globalThis?.navigator.userAgent);
 
 export const isIOSNative = (): boolean =>
-  globalThis.webkit && globalThis.webkit.messageHandlers;
+  globalThis.webkit && !!globalThis.webkit.messageHandlers;
 
 export enum ArrowKeyEnum {
   Up = 'ArrowUp',
