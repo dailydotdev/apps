@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
+import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
 import {
   Typography,
   TypographyColor,
@@ -51,14 +51,9 @@ export const OnboardingPlusControl = ({
   const { productOptions } = usePaymentContext();
   const item = useMemo(
     () =>
-      [...productOptions]
-        .sort(({ appsId, duration }) => {
-          if (appsId === PlusPriceTypeAppsId.EarlyAdopter) {
-            return -1;
-          }
-          return duration === PlusPriceType.Yearly ? 0 : 1;
-        })
-        .at(0),
+      productOptions?.find(
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      ),
     [productOptions],
   );
 

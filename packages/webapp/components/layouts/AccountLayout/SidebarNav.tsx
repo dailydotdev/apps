@@ -110,26 +110,32 @@ export const accountPageItems = defineMenuItems({
       general: {
         title: 'General',
         icon: EditIcon,
+        href: `${webappUrl}account/feed/general`,
       },
       tags: {
         title: 'Tags',
         icon: HashtagIcon,
+        href: `${webappUrl}account/feed/tags`,
       },
       sources: {
         title: 'Content sources',
         icon: AddUserIcon,
+        href: `${webappUrl}account/feed/sources`,
       },
       preferences: {
         title: 'Content preferences',
         icon: AppIcon,
+        href: `${webappUrl}account/feed/preferences`,
       },
       ai: {
         title: 'AI superpowers',
         icon: MagicIcon,
+        href: `${webappUrl}account/feed/ai`,
       },
       blocked: {
         title: 'Blocked content',
         icon: BlockIcon,
+        href: `${webappUrl}account/feed/blocked`,
       },
     },
   },
@@ -220,32 +226,21 @@ function SidebarNav(): ReactElement {
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">
-        {Object.entries(accountPageItems)
-          // TODO: remove this filter when all links are in place
-          .filter(
-            ([, menuItem]) =>
-              Object.entries(menuItem.items).filter(
-                ([, item]: [string, ProfileSectionItemProps]) => !!item.href,
-              ).length > 0,
-          )
-          .map(([key, menuItem]) => (
-            <ProfileSection
-              key={key}
-              withSeparator
-              title={menuItem.title}
-              items={Object.entries(menuItem.items)
-                // TODO: remove this filter when all links are in place
-                .filter(
-                  ([, item]: [string, ProfileSectionItemProps]) => !!item.href,
-                )
-                .map(([, item]: [string, ProfileSectionItemProps]) => {
-                  return {
-                    ...item,
-                    isActive: router.asPath === item.href,
-                  };
-                })}
-            />
-          ))}
+        {Object.entries(accountPageItems).map(([key, menuItem]) => (
+          <ProfileSection
+            key={key}
+            withSeparator
+            title={menuItem.title}
+            items={Object.entries(menuItem.items).map(
+              ([, item]: [string, ProfileSectionItemProps]) => {
+                return {
+                  ...item,
+                  isActive: router.asPath === item.href,
+                };
+              },
+            )}
+          />
+        ))}
 
         <ProfileSection
           items={[

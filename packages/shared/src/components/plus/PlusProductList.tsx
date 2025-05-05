@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ProductOption } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,
@@ -11,9 +10,11 @@ import {
 import { RadioItem } from '../fields/RadioItem';
 import { LogEvent } from '../../lib/log';
 import { usePlusSubscription } from '../../hooks';
+import type { ProductPricingPreview } from '../../graphql/paddle';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 
 type PlusProductListProps = {
-  productList: ProductOption[];
+  productList: ProductPricingPreview[];
   selected?: string;
   onChange?: (value: string) => void;
   backgroundImage?: string;
@@ -35,24 +36,24 @@ const PlusProductList = ({
         className,
       )}
     >
-      {productList.map(({ label, value, price, currencyCode, extraLabel }) => (
+      {productList.map(({ metadata, priceId, price, currency }) => (
         <RadioItem
-          key={label}
-          name={label}
-          id={`${label}-${value}`}
-          value={value}
-          checked={selected === value}
+          key={priceId}
+          name={metadata.title}
+          id={`${metadata.title}-${priceId}`}
+          value={priceId}
+          checked={selected === priceId}
           onChange={() => {
-            onChange(value);
+            onChange(priceId);
             logSubscriptionEvent({
               event_name: LogEvent.SelectBillingCycle,
-              target_id: label.toLowerCase(),
+              target_id: metadata.title.toLowerCase(),
             });
           }}
           className={{
             content: classNames(
               'min-h-12 w-full rounded-10 !p-2',
-              selected === value
+              selected === priceId
                 ? '-m-px border border-border-subtlest-primary bg-surface-float'
                 : undefined,
             ),
@@ -64,22 +65,13 @@ const PlusProductList = ({
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
             >
-              {label}
+              {metadata.title}
             </Typography>
-
-            {extraLabel && (
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.StatusSuccess}
-                className={classNames(
-                  'rounded-10 px-2 py-1',
-                  'bg-action-upvote-float',
-                )}
-                bold
-              >
-                {extraLabel}
-              </Typography>
+            {metadata.caption && (
+              <PlusPlanExtraLabel
+                color={metadata.caption.color}
+                label={metadata.caption.copy}
+              />
             )}
           </div>
           <div className="ml-auto mr-1 flex items-center gap-1">
@@ -97,7 +89,7 @@ const PlusProductList = ({
               color={TypographyColor.Secondary}
               className="font-normal"
             >
-              {currencyCode}
+              {currency?.code}
             </Typography>
           </div>
         </RadioItem>

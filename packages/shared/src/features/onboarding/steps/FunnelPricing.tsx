@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import type { ReactElement } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import type { FunnelStepPricing } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import type { PricingPlansProps } from '../shared';
@@ -26,14 +26,12 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { usePaddlePricePreview } from '../../payment/hooks/usePaddlePricePreview';
-import { usePricingCycleConverter } from '../../payment/hooks/usePricingCycleConverter';
 import {
-  paddleInstanceAtom,
   selectedPlanAtom,
   applyDiscountAtom,
   discountTimerAtom,
 } from '../store/funnelStore';
+import { usePaymentContext } from '../../../contexts/payment/context';
 
 const PricingSection = ({
   name,
@@ -97,7 +95,6 @@ export const FunnelPricing = ({
     faq,
   },
 }: FunnelStepPricing): ReactElement => {
-  const paddle = useAtomValue(paddleInstanceAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
@@ -106,14 +103,7 @@ export const FunnelPricing = ({
     setSelectedPlan(defaultPlan);
   }
 
-  const { data: pricePreview } = usePaddlePricePreview({
-    priceIds: plans?.map((plan) => plan.priceId),
-    paddle,
-  });
-
-  const pricingCycleConverter = usePricingCycleConverter({
-    pricePreview,
-  });
+  const { productOptions } = usePaymentContext();
 
   const onProceedToCheckout = useCallback(() => {
     onTransition({
@@ -122,18 +112,30 @@ export const FunnelPricing = ({
     });
   }, [onTransition, selectedPlan, applyDiscount]);
 
+  const organizedPlans = plans?.map((plan) => {
+    const pricing = productOptions?.find(
+      (option) => option?.priceId === plan.priceId,
+    );
+
+    if (!pricing) {
+      return null;
+    }
+
+    return {
+      ...plan,
+      value: plan.priceId,
+      price: {
+        amount: pricing.price.daily?.formatted,
+        subtitle: 'per day',
+      },
+    };
+  });
+
   const pricingProps: Omit<Parameters<typeof PricingSection>[0], 'name'> = {
     headline,
     pricing: {
       perks,
-      plans: plans?.map((plan, index) => ({
-        ...plan,
-        value: plan.priceId,
-        price: {
-          amount: pricingCycleConverter?.[index]?.price,
-          subtitle: 'per day',
-        },
-      })),
+      plans: organizedPlans.filter(Boolean),
     },
     selectedPlan,
     onPlanChange: setSelectedPlan,
