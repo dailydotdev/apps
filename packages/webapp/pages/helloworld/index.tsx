@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
+import Head from 'next/head';
 import {
   isServer,
   dehydrate,
@@ -110,6 +111,10 @@ export default function HelloWorldPage({
     }
   }, [setTheme, funnel?.parameters?.theme?.mode, themeMode, isAuthReady]);
 
+  const onComplete = useCallback(() => {
+    router.replace('/onboarding');
+  }, [router]);
+
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
     return null;
@@ -133,7 +138,7 @@ export default function HelloWorldPage({
             initialStepId={initialStepId}
             session={session}
             showCookieBanner={showCookieBanner}
-            onComplete={() => router.replace('/onboarding')}
+            onComplete={onComplete}
           />
         )}
         <Toast autoDismissNotifications />
