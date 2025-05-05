@@ -69,8 +69,6 @@ export const ProfileSectionItem = ({
           (href || onClick) && 'hover:bg-surface-float',
           isActive ? 'bg-surface-active' : undefined,
           className,
-          // TODO: remove this when all links are in place
-          !href && !onClick && '!cursor-default !text-text-disabled',
         )}
         {...combinedClicks(() => onClick?.())}
         {...(openNewTab && { target: '_blank', rel: anchorDefaultRel })}

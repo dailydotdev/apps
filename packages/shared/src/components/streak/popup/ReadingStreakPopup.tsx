@@ -187,7 +187,7 @@ export function ReadingStreakPopup({
   }, [completeAction, streak]);
 
   return (
-    <div className="flex max-w-[21.75rem] flex-col">
+    <div className="flex flex-col tablet:max-w-[21.75rem]">
       <div className="flex flex-col p-0 tablet:p-4">
         <div className="flex flex-row">
           <StreakSection streak={streak.current} label="Current streak" />
