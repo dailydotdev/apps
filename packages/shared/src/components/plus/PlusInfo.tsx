@@ -10,10 +10,7 @@ import {
 } from '../typography/Typography';
 import { PlusList } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
-import type {
-  OpenCheckoutFn,
-  ProductOption,
-} from '../../contexts/payment/context';
+import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -23,14 +20,17 @@ import { GiftingSelectedUser } from './GiftingSelectedUser';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { GiftIcon } from '../icons/gift';
+import { GiftIcon } from '../icons';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
+import type { ProductPricingPreview } from '../../graphql/paddle';
+import { isIOSNative } from '../../lib/func';
+import { PlusPriceType } from '../../lib/featureValues';
 
 type PlusInfoProps = {
-  productOptions: ProductOption[];
+  productOptions: ProductPricingPreview[];
   selectedOption: string | null;
   onChange: OpenCheckoutFn;
   onContinue?: () => void;
@@ -45,7 +45,7 @@ type PlusInfoProps = {
   isContinueLoading?: boolean;
 };
 
-enum PlusType {
+export enum PlusType {
   Self = 'self',
   Gift = 'gift',
 }
@@ -56,7 +56,7 @@ interface PageCopy {
   subtitle: string;
 }
 
-const copy: Record<PlusType, PageCopy> = {
+export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
     title: 'Fast-track your growth',
     description:
@@ -91,7 +91,8 @@ const RadioGroupSkeleton = () => (
 );
 
 const getCopy = ({ giftToUser, title, description, subtitle }) => {
-  const fallback = copy[giftToUser ? PlusType.Gift : PlusType.Self];
+  const fallback =
+    defaultPlusInfoCopy[giftToUser ? PlusType.Gift : PlusType.Self];
   return {
     titleCopy: title || fallback.title,
     descriptionCopy: description || fallback.description,
@@ -154,7 +155,7 @@ export const PlusInfo = ({
       </Typography>
       <div className="mb-4">
         <ConditionalWrapper
-          condition={!giftToUser && showGiftButton}
+          condition={!giftToUser && showGiftButton && !!giftOneYear}
           wrapper={(component) => (
             <div className="flex flex-row items-center justify-between">
               <span>{component}</span>
@@ -172,7 +173,7 @@ export const PlusInfo = ({
                     props: {
                       onSelected: (user) => {
                         onChange({
-                          priceId: productOptions[0].value,
+                          priceId: giftOneYear.priceId,
                           giftToUserId: user.id,
                         });
                       },
@@ -201,7 +202,7 @@ export const PlusInfo = ({
           className="mb-6"
           onClose={() => {
             router.push('/plus');
-            onChange({ priceId: productOptions[0].value });
+            onChange({ priceId: productOptions[0].priceId });
           }}
         />
       )}
@@ -213,30 +214,32 @@ export const PlusInfo = ({
       >
         {giftToUser ? (
           <PlusOptionRadio
-            key={giftOneYear?.value}
+            key={giftOneYear?.priceId}
             option={giftOneYear}
             checked
           />
         ) : (
           <>
-            {productOptions.length === 0 && <RadioGroupSkeleton />}
-            {productOptions.map((option) => {
-              const { label, value } = option;
-              return (
-                <PlusOptionRadio
-                  key={value}
-                  option={option}
-                  checked={selectedOption === value}
-                  onChange={() => {
-                    onChange({ priceId: value });
-                    logSubscriptionEvent({
-                      event_name: LogEvent.SelectBillingCycle,
-                      target_id: label.toLowerCase(),
-                    });
-                  }}
-                />
-              );
-            })}
+            {!productOptions && <RadioGroupSkeleton />}
+            {productOptions?.map((option) => (
+              <PlusOptionRadio
+                key={option.priceId}
+                shouldShowMonthlyPrice={
+                  !isIOSNative() ||
+                  (isIOSNative() && option.duration === PlusPriceType.Monthly)
+                }
+                shouldShowDuration
+                option={option}
+                checked={selectedOption === option.priceId}
+                onChange={() => {
+                  onChange({ priceId: option.priceId });
+                  logSubscriptionEvent({
+                    event_name: LogEvent.SelectBillingCycle,
+                    target_id: option.metadata.title.toLowerCase(),
+                  });
+                }}
+              />
+            ))}
           </>
         )}
       </div>

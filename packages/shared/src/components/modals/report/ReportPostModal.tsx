@@ -32,11 +32,20 @@ interface Props extends ModalProps {
 }
 
 const reportReasons: { value: ReportReason; label: string }[] = [
-  { value: ReportReason.Irrelevant, label: 'The post is not about...' },
+  { value: ReportReason.Irrelevant, label: 'Off-topic or wrong tags' },
   { value: ReportReason.Broken, label: 'Broken link' },
-  { value: ReportReason.Clickbait, label: 'Clickbait' },
-  { value: ReportReason.Low, label: 'Low-quality content' },
-  { value: ReportReason.Nsfw, label: 'NSFW' },
+  { value: ReportReason.Clickbait, label: 'Misleading or clickbait' },
+  { value: ReportReason.Paywall, label: 'Paywalled or inaccessible content' },
+  { value: ReportReason.Low, label: 'Low-quality or AI-generated' },
+  { value: ReportReason.Spam, label: 'Spam or scam' },
+  { value: ReportReason.Hateful, label: 'Hate speech or harassment' },
+  { value: ReportReason.Nsfw, label: 'Inappropriate, explicit, or NSFW' },
+  {
+    value: ReportReason.Misinformation,
+    label: 'Misinformation or politically-oriented',
+  },
+  { value: ReportReason.Copyright, label: 'Plagiarism or copyright violation' },
+  { value: ReportReason.Privacy, label: 'Privacy violation' },
   { value: ReportReason.Other, label: 'Other' },
 ];
 

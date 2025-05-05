@@ -6,16 +6,12 @@ import {
   DocsIcon,
   FeedbackIcon,
   MegaphoneIcon,
-  PhoneIcon,
-  ReputationLightningIcon,
   TerminalIcon,
 } from '../../icons';
 import {
-  appsUrl,
   businessWebsiteUrl,
   docs,
   feedback,
-  reputation,
   webappUrl,
 } from '../../../lib/constants';
 
@@ -25,36 +21,24 @@ export const ResourceSection = (): ReactElement => {
       items={[
         {
           title: 'Changelog',
-          icon: <TerminalIcon />,
+          icon: TerminalIcon,
           href: `${webappUrl}sources/daily_updates`,
         },
         {
-          title: 'Reputation',
-          icon: <ReputationLightningIcon />,
-          href: reputation,
-          external: true,
-        },
-        {
           title: 'Advertise',
-          icon: <MegaphoneIcon />,
+          icon: MegaphoneIcon,
           href: businessWebsiteUrl,
           external: true,
         },
         {
-          title: 'Apps',
-          icon: <PhoneIcon />,
-          href: appsUrl,
-          external: true,
-        },
-        {
           title: 'Docs',
-          icon: <DocsIcon />,
+          icon: DocsIcon,
           href: docs,
           external: true,
         },
         {
           title: 'Support',
-          icon: <FeedbackIcon />,
+          icon: FeedbackIcon,
           href: feedback,
           external: true,
         },

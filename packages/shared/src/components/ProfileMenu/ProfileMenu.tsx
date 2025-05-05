@@ -63,7 +63,7 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <ThemeSection />
+        <ThemeSection className="px-1" />
 
         <HorizontalSeparator />
 
@@ -81,7 +81,7 @@ export default function ProfileMenu({
           items={[
             {
               title: 'Logout',
-              icon: <ExitIcon />,
+              icon: ExitIcon,
               onClick: () => logout(LogoutReason.ManualLogout),
             },
           ]}

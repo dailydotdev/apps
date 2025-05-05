@@ -22,7 +22,7 @@ interface ShortcutLinksListProps {
   shouldUseListFeedLayout: boolean;
   showTopSites: boolean;
   toggleShowTopSites: () => void;
-  hasCheckedPermission: boolean;
+  hasCheckedPermission?: boolean;
 }
 
 const placeholderLinks = Array.from({ length: 6 }).map((_, index) => index);

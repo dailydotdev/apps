@@ -152,7 +152,7 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-interface FunnelStepPricingParameters {
+export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
   discount: {
@@ -260,7 +260,11 @@ export type FunnelPosition = {
 export interface FunnelJSON {
   id: string;
   version: number;
-  parameters: FunnelStepParameters;
+  parameters: FunnelStepParameters<{
+    cookieConsent: {
+      show: boolean;
+    };
+  }>;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
 }

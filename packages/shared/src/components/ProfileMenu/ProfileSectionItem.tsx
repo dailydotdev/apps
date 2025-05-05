@@ -13,11 +13,14 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { combinedClicks } from '../../lib/click';
 import { OpenLinkIcon } from '../icons';
 import { anchorDefaultRel } from '../../lib/strings';
+import { webappUrl } from '../../lib/constants';
+import type { IconProps } from '../Icon';
 
 type ProfileSectionItemPropsCommon = WithClassNameProps & {
   title: string;
-  icon?: ReactElement;
+  icon?: (props: IconProps) => ReactElement;
   onClick?: () => void;
+  isActive?: boolean;
 };
 
 type ProfileSectionItemPropsWithHref = ProfileSectionItemPropsCommon & {
@@ -38,13 +41,15 @@ export const ProfileSectionItem = ({
   className,
   title,
   href,
-  icon,
+  icon: Icon,
   onClick,
   external,
+  isActive,
 }: ProfileSectionItemProps): ReactElement => {
   const tag = href ? TypographyTag.Link : TypographyTag.Button;
 
-  const isExternal = href && external;
+  const showLinkIcon = href && external;
+  const openNewTab = showLinkIcon && !href.startsWith(webappUrl);
 
   return (
     <ConditionalWrapper
@@ -60,16 +65,18 @@ export const ProfileSectionItem = ({
         color={TypographyColor.Tertiary}
         type={TypographyType.Subhead}
         className={classNames(
-          'flex cursor-pointer items-center gap-2 rounded-10 px-1 py-1.5 hover:bg-theme-active',
+          'flex cursor-pointer items-center gap-2 rounded-10 px-1 py-1.5',
+          (href || onClick) && 'hover:bg-surface-float',
+          isActive ? 'bg-surface-active' : undefined,
           className,
         )}
         {...combinedClicks(() => onClick?.())}
-        {...(isExternal && { target: '_blank', rel: anchorDefaultRel })}
+        {...(openNewTab && { target: '_blank', rel: anchorDefaultRel })}
       >
-        {icon}
+        {Icon && <Icon secondary={isActive} />}
         <span>{title}</span>
 
-        {isExternal && (
+        {showLinkIcon && (
           <OpenLinkIcon className="ml-auto text-text-quaternary" />
         )}
       </Typography>

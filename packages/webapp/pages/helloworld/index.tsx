@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
-import React from 'react';
+import React, { useCallback } from 'react';
 import Head from 'next/head';
 import {
   HydrationBoundary,
@@ -24,6 +24,7 @@ import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 
 type PageProps = {
   dehydratedState: DehydratedState;
+  initialStepId: string | null;
   showCookieBanner?: boolean;
 };
 
@@ -74,23 +75,34 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Check if the user already accepted cookies
   const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
 
+  // Determine the initial step ID
+  const queryStepId = query?.stepId as string | undefined;
+  const initialStepId: string | null =
+    queryStepId ?? boot.data?.funnelState?.session?.currentStep;
+
   // Return props including the dehydrated state
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
+      initialStepId,
     },
   };
 };
 
 export default function HelloWorldPage({
   dehydratedState,
+  initialStepId,
   showCookieBanner,
 }: PageProps): ReactElement {
   const { data: funnelBoot } = useFunnelBoot();
   const { funnel, session } = funnelBoot?.funnelState ?? {};
   const { isAuthReady, isValidRegion, user } = useAuthContext();
   const router = useRouter();
+
+  const onComplete = useCallback(() => {
+    router.replace('/onboarding');
+  }, [router]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
@@ -112,9 +124,10 @@ export default function HelloWorldPage({
         {!!funnel && !!session.id && (
           <FunnelStepper
             funnel={funnel}
+            initialStepId={initialStepId}
             session={session}
             showCookieBanner={showCookieBanner}
-            onComplete={() => router.replace('/onboarding')}
+            onComplete={onComplete}
           />
         )}
         <Toast autoDismissNotifications />

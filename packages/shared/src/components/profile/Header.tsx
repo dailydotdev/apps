@@ -7,7 +7,7 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '../../lib/user';
-import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
+import { BlockIcon, FlagIcon, GiftIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
@@ -32,7 +32,6 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
-import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
@@ -43,6 +42,7 @@ import {
   useCanPurchaseCores,
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
+import Link from '../utilities/Link';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -168,15 +168,16 @@ export function Header({
       </>
       <div className="flex flex-row gap-2">
         {isSameUser && (
-          <Button
-            className="hidden laptop:flex"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            tag="a"
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-          >
-            Edit profile
-          </Button>
+          <Link href={`${webappUrl}account/profile`}>
+            <Button
+              tag="a"
+              className="hidden laptop:flex"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+            >
+              Edit profile
+            </Button>
+          </Link>
         )}
         {!blocked && (
           <FollowButton

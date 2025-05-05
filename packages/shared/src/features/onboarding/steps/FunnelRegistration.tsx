@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -29,7 +29,11 @@ import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
 import { FunnelStepTransitionType } from '../types/funnel';
-import { sanitizeMessage, shouldRedirectAuth } from '../shared';
+import {
+  AUTH_REDIRECT_KEY,
+  sanitizeMessage,
+  shouldRedirectAuth,
+} from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
@@ -50,15 +54,9 @@ const useRegistrationListeners = (
   const { logEvent } = useLogContext();
   const router = useRouter();
 
-  const onProviderMessage = async (e: MessageEvent) => {
-    const isEventSupported = supportedEvents.includes(e.data?.eventKey);
-
-    if (!isEventSupported) {
-      return undefined;
-    }
-
-    if (e.data?.flow) {
-      const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
+  const handleExistingFlow = useCallback(
+    async (flow: string) => {
+      const connected = await getKratosFlow(AuthFlow.Registration, flow);
 
       logEvent({
         event_name: AuthEventNames.RegistrationError,
@@ -78,6 +76,19 @@ const useRegistrationListeners = (
       }
 
       return displayToast(`${labels.auth.error.generic} Code: ${code}`);
+    },
+    [displayToast, logEvent],
+  );
+
+  const onProviderMessage = async (e: MessageEvent) => {
+    const isEventSupported = supportedEvents.includes(e.data?.eventKey);
+
+    if (!isEventSupported) {
+      return undefined;
+    }
+
+    if (e.data?.flow) {
+      return handleExistingFlow(e.data.flow);
     }
 
     const bootResponse = await refetchBoot();
@@ -100,6 +111,23 @@ const useRegistrationListeners = (
   useEventListener(broadcastChannel, 'message', onProviderMessage);
 
   useEventListener(globalThis, 'message', onProviderMessage);
+
+  useEffect(() => {
+    if (!router?.isReady || !router?.query?.flow) {
+      return;
+    }
+
+    const flowFn = async () => {
+      await handleExistingFlow(router.query.flow as string);
+      const url = new URL(window.location.href);
+      const fullPath = url.origin + url.pathname;
+      const { flow, ...rest } = router.query;
+      const params = new URLSearchParams(rest as Record<string, string>);
+      router.replace(`${fullPath}?${params}`);
+    };
+
+    flowFn();
+  }, [handleExistingFlow, router]);
 };
 
 function InnerFunnelRegistration({
@@ -123,6 +151,7 @@ function InnerFunnelRegistration({
     },
     onRedirect: (redirect) => {
       if (shouldRedirect) {
+        window.sessionStorage.setItem(AUTH_REDIRECT_KEY, window.location.href);
         window.location.href = redirect;
       } else {
         windowPopup.current.location.href = redirect;
@@ -142,9 +171,17 @@ function InnerFunnelRegistration({
 
   const sanitizedHeading = useMemo(() => sanitizeMessage(headline), [headline]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !shouldRedirect) {
+      return;
+    }
+
+    window.sessionStorage.removeItem(AUTH_REDIRECT_KEY);
+  }, [shouldRedirect]);
+
   return (
-    <div className="relative flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
-      <div className="absolute inset-0">
+    <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 tablet:left-1/2 tablet:min-w-[100dvw] tablet:-translate-x-1/2">
         <div
           className={classNames(
             'absolute bottom-0 w-full bg-gradient-to-t from-surface-invert via-surface-invert via-70% to-transparent to-90%',
@@ -152,7 +189,7 @@ function InnerFunnelRegistration({
           )}
         />
         <img
-          className="pointer-events-none -z-1 w-full"
+          className="pointer-events-none -z-1 max-h-full w-full object-cover object-center"
           alt="background"
           src={isTablet ? image : imageMobile}
         />
