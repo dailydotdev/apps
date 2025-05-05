@@ -5,8 +5,6 @@ import {
 } from './image';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
-import { PlusPriceType, PlusPriceTypeAppsId } from './featureValues';
-import type { ProductMeta } from '../contexts/payment/context';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 
@@ -35,34 +33,7 @@ const feature = {
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
-  pricingIds: new Feature('pricing_ids', {
-    pri_01jkzj0n2jf89kts09xztfr47b: PlusPriceType.Yearly, // Annual discounted
-    pri_01jbscda57910yvwjtyapnrrzc: PlusPriceType.Yearly, // Annual
-    pri_01jbsccbdbcwyhdy8hy3c2etyn: PlusPriceType.Monthly, // Monthly
-    pri_01jjvm32ygwb1ja7w52e668fr2: PlusPriceType.Yearly, // One-Year Gift
-  }),
 };
-
-export const featureIAPProducts = new Feature<Record<string, ProductMeta>>(
-  'iap_products',
-  {
-    annualSpecial: {
-      label: 'Annual Special',
-      extraLabel: '💜 Early bird',
-      duration: PlusPriceType.Yearly,
-      appsId: PlusPriceTypeAppsId.EarlyAdopter,
-    },
-    annual: {
-      label: 'Annual',
-      extraLabel: 'Save 50%',
-      duration: PlusPriceType.Yearly,
-    },
-    monthly: {
-      label: 'Monthly',
-      duration: PlusPriceType.Monthly,
-    },
-  },
-);
 
 export const plusTakeoverContent = new Feature<{
   title: string;

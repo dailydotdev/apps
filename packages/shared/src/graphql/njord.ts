@@ -7,8 +7,7 @@ import type { LoggedUser } from '../lib/user';
 import { PRODUCT_FRAGMENT, TRANSACTION_FRAGMENT } from './fragments';
 import type { Author } from './comments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
-import { getCorePricePreviews } from './paddle';
-import type { ProductOption } from '../contexts/payment/context';
+import type { ProductPricingPreview } from './paddle';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -149,21 +148,6 @@ export const getTransactionByProvider = async ({
 
 export const transactionRefetchIntervalMs = 2500;
 
-export const transactionPricesQueryOptions = ({
-  isLoggedIn,
-  user,
-}: {
-  isLoggedIn: boolean;
-  user: LoggedUser;
-}) => {
-  return {
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'cores'),
-    queryFn: getCorePricePreviews,
-    enabled: isLoggedIn,
-    staleTime: StaleTime.Default,
-  };
-};
-
 type UserTransactionSummary = {
   purchased: number;
   received: number;
@@ -278,7 +262,7 @@ export const getQuantityForPrice = ({
   prices,
 }: {
   priceId: string;
-  prices?: ProductOption[];
+  prices?: ProductPricingPreview[];
 }): number | undefined => {
-  return prices?.find((item) => item.value === priceId)?.coresValue;
+  return prices?.find((item) => item.priceId === priceId)?.metadata.coresValue;
 };
