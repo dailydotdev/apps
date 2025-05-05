@@ -1,6 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect } from 'react';
-import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,
@@ -34,11 +33,6 @@ const SidebarNav = dynamic(
   },
 );
 
-export interface AccountLayoutProps {
-  profile: PublicProfile;
-  children?: ReactNode;
-}
-
 export const navigationKey = generateQueryKey(
   RequestKey.AccountNavigation,
   null,
@@ -46,7 +40,7 @@ export const navigationKey = generateQueryKey(
 
 export default function AccountLayout({
   children,
-}: AccountLayoutProps): ReactElement {
+}: PropsWithChildren): ReactElement {
   const router = useRouter();
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -100,12 +94,9 @@ export default function AccountLayout({
   );
 }
 
-export const getAccountLayout = (
-  page: ReactNode,
-  props: AccountLayoutProps,
-): ReactNode =>
+export const getAccountLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
+    getMainLayout(<AccountLayout>{page}</AccountLayout>, null, {
       screenCentered: true,
       showSidebar: false,
     }),
