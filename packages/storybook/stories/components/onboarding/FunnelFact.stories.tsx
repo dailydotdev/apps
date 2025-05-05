@@ -4,6 +4,12 @@ import FunnelFact
 import {
   FunnelStepType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import {
+  FunnelStepBackground,
+} from '@dailydotdev/shared/src/features/onboarding/shared';
+// @ts-ignore
+import image from '../../../public/images/onboarding/onboarding-fact-img.png';
+import ExtensionProviders from '../../extension/_providers';
 
 const meta: Meta<typeof FunnelFact> = {
   title: 'Components/Onboarding/Steps/Fact',
@@ -16,9 +22,13 @@ const meta: Meta<typeof FunnelFact> = {
   },
   tags: ['autodocs'],
   render: (props) => (
-    <div className='invert'>
-      <FunnelFact {...props} />
-    </div>
+    <ExtensionProviders>
+      <div className='flex flex-col min-h-dvh'>
+        <FunnelStepBackground step={props}>
+          <FunnelFact {...props} />
+        </FunnelStepBackground>
+      </div>
+    </ExtensionProviders>
   ),
 };
 
@@ -48,7 +58,7 @@ export const WithVisual: Story = {
     ...defaultArgs,
     parameters: {
       ...defaultArgs.parameters,
-      visualUrl: 'https://daily.dev/daily-logo.svg',
+      visualUrl: image,
     },
   } as any,
 };
@@ -58,7 +68,7 @@ export const ReverseLayout: Story = {
     ...defaultArgs,
     parameters: {
       ...defaultArgs.parameters,
-      visualUrl: 'https://daily.dev/daily-logo.svg',
+      visualUrl: image,
       reverse: 'true',
     },
   } as any,
