@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
+import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
 
 import {
   Typography,
@@ -97,14 +97,9 @@ export const OnboardingPlusVariation = ({
   const { logEvent } = useLogContext();
   const item = useMemo(
     () =>
-      [...productOptions]
-        .sort(({ appsId, duration }) => {
-          if (appsId === PlusPriceTypeAppsId.EarlyAdopter) {
-            return -1;
-          }
-          return duration === PlusPriceType.Yearly ? 0 : 1;
-        })
-        .at(0),
+      productOptions.find(
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
+      ),
     [productOptions],
   );
 
@@ -177,7 +172,7 @@ export const OnboardingPlusVariation = ({
               }}
               title="Free"
               description="For casual browsing. Get the basics and stay updated with the essentials."
-              price={`${item?.currencySymbol ?? '$'}0`}
+              price={`${item?.currency?.symbol ?? '$'}0`}
             />
           </div>
 
@@ -205,7 +200,7 @@ export const OnboardingPlusVariation = ({
                 }}
                 title="Plus"
                 description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
-                price={item?.price.monthlyFormatted ?? '0'}
+                price={item?.price.monthly?.formatted ?? '0'}
                 note="30 day hassle-free refund. No questions asked."
               />
             </div>
