@@ -160,7 +160,7 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-interface FunnelStepPricingParameters {
+export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
   discount: {

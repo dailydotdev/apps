@@ -1,21 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   CoreOptionButton,
   CoreOptionButtonPlaceholder,
 } from './CoreOptionButton';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { transactionPricesQueryOptions } from '../../graphql/njord';
+import { useProductPricing } from '../../hooks/useProductPricing';
+import { ProductPricingType } from '../../graphql/paddle';
 
 export const CoreOptionList = (): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
-  const { data: prices, isPending: isPendingPrices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
+  const { data: prices, isPending: isPendingPrices } = useProductPricing({
+    type: ProductPricingType.Cores,
+  });
 
   return (
     <ul className="mt-4 flex flex-col gap-2" role="radiogroup">
@@ -28,10 +23,10 @@ export const CoreOptionList = (): ReactElement => {
         prices?.map((price) => {
           return (
             <CoreOptionButton
-              key={price.value}
-              id={price.value}
-              label={price.label}
-              cores={price.coresValue}
+              key={price.priceId}
+              id={price.priceId}
+              label={price.metadata.title}
+              cores={price.metadata.coresValue}
               priceFormatted={price.price.formatted}
             />
           );

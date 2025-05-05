@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { transactionPricesQueryOptions } from '../../graphql/njord';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
@@ -17,6 +14,8 @@ import { BuyCore } from './BuyCore';
 import type { LogStartBuyingCreditsProps } from '../../types';
 import type { Origin } from '../../lib/log';
 import { getPathnameWithQuery } from '../../lib';
+import { useProductPricing } from '../../hooks/useProductPricing';
+import { ProductPricingType } from '../../graphql/paddle';
 
 export const FeaturedCoresWidget = ({
   className,
@@ -29,14 +28,9 @@ export const FeaturedCoresWidget = ({
   origin: Origin;
   amounts: number[];
 }): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
-
-  const { data: prices, isPending: isPendingPrices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
+  const { data: prices, isPending: isPendingPrices } = useProductPricing({
+    type: ProductPricingType.Cores,
+  });
 
   return (
     <WidgetContainer
@@ -68,16 +62,16 @@ export const FeaturedCoresWidget = ({
           })}
         {!isPendingPrices &&
           prices
-            ?.filter((item) => amounts.includes(item.coresValue))
+            ?.filter((item) => amounts.includes(item.metadata.coresValue))
             .map((item) => {
               return (
                 <BuyCore
-                  key={item.value}
+                  key={item.priceId}
                   onBuyCoresClick={onClick}
-                  amount={item.coresValue}
+                  amount={item.metadata.coresValue}
                   priceFormatted={item.price.formatted}
                   origin={origin}
-                  pid={item.value}
+                  pid={item.priceId}
                 />
               );
             })}
