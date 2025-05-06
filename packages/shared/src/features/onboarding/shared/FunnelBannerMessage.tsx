@@ -1,14 +1,13 @@
 import type { ComponentProps } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import type { FunnelStepCommonParameters } from '../types/funnel';
 import { LazyImage } from '../../../components/LazyImage';
 import { sanitizeMessage } from './utils';
+import type { FunnelBannerMessage } from '../types/funnel';
 
-type FunnelStepBannerProps = Required<FunnelStepCommonParameters>['banner'] &
-  ComponentProps<'div'>;
+type FunnelStepBannerProps = FunnelBannerMessage & ComponentProps<'div'>;
 
-export const FunnelBannerMessage = ({
+export const FunnelBanner = ({
   image,
   content,
   className,
