@@ -1,35 +1,18 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import type {
-  CheckoutCustomer,
-  CheckoutLineItem,
-  Environments,
-  Paddle,
-  PaddleEventData,
-} from '@paddle/paddle-js';
-import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
-import { useQuery } from '@tanstack/react-query';
-import { checkIsExtension } from '../../lib/func';
-import { useAuthContext } from '../AuthContext';
-import { LogEvent, TargetType } from '../../lib/log';
-import {
-  getQuantityForPrice,
-  transactionPricesQueryOptions,
-} from '../../graphql/njord';
+import React, { useMemo, useRef, useState } from 'react';
+import { getQuantityForPrice } from '../../graphql/njord';
+import { ProductPricingType } from '../../graphql/paddle';
+import { usePaddlePayment } from '../../hooks/usePaddlePayment';
+import { useProductPricing } from '../../hooks/useProductPricing';
+import { TargetType } from '../../lib/log';
 import { useLogContext } from '../LogContext';
+import { BuyCoresContext, SCREENS } from './types';
 import type {
-  BuyCoresContextData,
   BuyCoresContextProviderProps,
   ProcessingError,
+  BuyCoresContextData,
   Screens,
 } from './types';
-import { BuyCoresContext, SCREENS } from './types';
 
 export const PaddleBuyCoresContextProvider = ({
   onCompletion,
@@ -38,7 +21,6 @@ export const PaddleBuyCoresContextProvider = ({
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const { user, geo, isLoggedIn } = useAuthContext();
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
     providerTransactionId?: string;
@@ -50,17 +32,12 @@ export const PaddleBuyCoresContextProvider = ({
     id: string;
     value: number;
   }>();
-  const [paddle, setPaddle] = useState<Paddle>();
-  const isCheckoutOpenRef = React.useRef(false);
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
 
-  const { data: prices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
+  const { data: prices } = useProductPricing({
+    type: ProductPricingType.Cores,
+  });
 
   const getQuantityForPriceFn = ({ priceId }: { priceId: string }) => {
     return getQuantityForPrice({ priceId, prices });
@@ -68,146 +45,19 @@ export const PaddleBuyCoresContextProvider = ({
   const getQuantityForPriceRef = useRef(getQuantityForPriceFn);
   getQuantityForPriceRef.current = getQuantityForPriceFn;
 
-  useEffect(() => {
-    if (checkIsExtension()) {
-      // Payment not available on extension
-      return;
-    }
-
-    isCheckoutOpenRef.current = false;
-
-    // TODO feat/transactions disabled for now since it looks like existing paddle instance does not load
-    // const existingPaddleInstance = getPaddleInstance();
-    // if (existingPaddleInstance) {
-    //   setPaddle(existingPaddleInstance);
-    //   return;
-    // }
-
-    initializePaddle({
-      environment:
-        (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
-        'production',
-      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
-      eventCallback: (event: PaddleEventData) => {
-        switch (event?.name) {
-          case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
-            logRef.current({
-              event_name: LogEvent.InitiatePayment,
-              target_type: TargetType.Credits,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_LOADED:
-            isCheckoutOpenRef.current = true;
-
-            logRef.current({
-              event_name: LogEvent.InitiateCheckout,
-              target_type: TargetType.Credits,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logRef.current({
-              event_name: LogEvent.SelectCheckoutPayment,
-              target_type: TargetType.Credits,
-              target_id: event?.data?.payment.method_details.type,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_COMPLETED:
-            logRef.current({
-              event_name: LogEvent.CompleteCheckout,
-              target_type: TargetType.Credits,
-              extra: JSON.stringify({
-                user_id:
-                  'user_id' in event.data.custom_data
-                    ? event.data.custom_data.user_id
-                    : undefined,
-                quantity: getQuantityForPriceRef.current({
-                  priceId: event.data.items[0]?.price_id,
-                }),
-                localCost: event?.data.totals.total,
-                localCurrency: event?.data.currency_code,
-                payment: event?.data.payment.method_details.type,
-              }),
-            });
-
-            setActiveStep({
-              step: SCREENS.PROCESSING,
-              providerTransactionId: event.data.transaction_id,
-            });
-
-            break;
-          // This doesn't exist in the original code
-          case 'checkout.warning' as CheckoutEventNames:
-            logRef.current({
-              event_name: LogEvent.WarningCheckout,
-              target_type: TargetType.Credits,
-            });
-            break;
-            break;
-          case CheckoutEventNames.CHECKOUT_ERROR:
-            logRef.current({
-              event_name: LogEvent.ErrorCheckout,
-              target_type: TargetType.Credits,
-            });
-            break;
-          case CheckoutEventNames.CHECKOUT_CLOSED:
-            isCheckoutOpenRef.current = false;
-            break;
-          default:
-            break;
-        }
-      },
-      checkout: {
-        settings: {
-          displayMode: 'inline',
-          frameTarget: 'checkout-container',
-          frameInitialHeight: 500,
-          frameStyle:
-            'width: 100%; background-color: transparent; border: none;',
-          theme: 'dark',
-          variant: 'one-page',
-        },
-      },
-    }).then((paddleInstance: Paddle | undefined) => {
-      if (paddleInstance) {
-        setPaddle(paddleInstance);
-      }
-    });
-  }, []);
-
-  const openCheckout = useCallback(
-    ({ priceId }) => {
-      const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
-      const customer: CheckoutCustomer = {
-        email: user?.email,
-        ...(geo?.region && {
-          address: {
-            countryCode: geo?.region,
-          },
-        }),
-      };
-      const customData = {
-        user_id: user?.id,
-      };
-
-      if (isCheckoutOpenRef.current) {
-        // only update items because updating whole checkout can fail
-        // due to address being incomplete based on region restrictions
-        // for example UK requires postal code
-        paddle?.Checkout.updateItems(items);
-
-        return;
-      }
-
-      paddle?.Checkout.open({
-        items,
-        customer,
-        customData,
+  const { paddle, openCheckout } = usePaddlePayment({
+    successCallback: (event) => {
+      setActiveStep({
+        step: SCREENS.PROCESSING,
+        providerTransactionId: event.data.transaction_id,
       });
     },
-    [paddle?.Checkout, user?.email, user?.id, geo?.region],
-  );
+    getProductQuantity: (event) =>
+      getQuantityForPriceRef.current({
+        priceId: event.data.items[0]?.price_id,
+      }),
+    targetType: TargetType.Credits,
+  });
 
   const contextData = useMemo<BuyCoresContextData>(
     () => ({

@@ -388,6 +388,8 @@ export function OnboardPage(): ReactElement {
     return router.replace({ pathname: afterAuth || '/' });
   };
 
+  const successCallbackRef = useRef(() => onClickNext({ plusSuccess: true }));
+
   const onClickCreateFeed = () => {
     logSubscriptionEvent({
       event_name: LogEvent.OnboardingSkipPlus,
@@ -459,9 +461,7 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <PaymentContextProvider
-      successCallback={() => onClickNext({ plusSuccess: true })}
-    >
+    <PaymentContextProvider successCallback={successCallbackRef.current}>
       <div
         className={classNames(
           'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',

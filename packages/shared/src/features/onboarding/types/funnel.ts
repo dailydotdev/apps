@@ -8,6 +8,7 @@ import type {
   StepHeadlineAlign,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
+import type { ThemeMode } from '../../../contexts/SettingsContext';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -152,7 +153,7 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-interface FunnelStepPricingParameters {
+export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
   discount: {
@@ -260,11 +261,16 @@ export type FunnelPosition = {
 export interface FunnelJSON {
   id: string;
   version: number;
-  parameters: FunnelStepParameters<{
-    cookieConsent: {
-      show: boolean;
-    };
-  }>;
+  parameters: FunnelStepParameters<
+    Partial<{
+      cookieConsent: {
+        show: boolean;
+      };
+      theme: {
+        mode: ThemeMode;
+      };
+    }>
+  >;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
 }

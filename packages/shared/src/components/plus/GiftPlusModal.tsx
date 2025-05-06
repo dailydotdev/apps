@@ -23,7 +23,7 @@ import { RecommendedMention } from '../RecommendedMention';
 import { BaseTooltip } from '../tooltips/BaseTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import { ArrowKey, KeyboardCommand } from '../../lib/element';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import Link from '../utilities/Link';
@@ -229,16 +229,15 @@ export function GiftPlusModalComponent({
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>
-          {giftOneYear?.extraLabel && (
+          {giftOneYear?.metadata.caption && (
             <PlusPlanExtraLabel
-              color={PlusLabelColor.Success}
-              label={giftOneYear?.extraLabel}
-              typographyProps={{ color: TypographyColor.StatusSuccess }}
+              color={giftOneYear?.metadata.caption.color}
+              label={giftOneYear?.metadata.caption.copy}
             />
           )}
           <Typography type={TypographyType.Body} className="ml-auto mr-1">
             <strong className="mr-1">{giftOneYear?.price?.formatted}</strong>
-            {giftOneYear?.currencyCode}
+            {giftOneYear?.currency?.code}
           </Typography>
         </div>
         <Typography type={TypographyType.Callout}>

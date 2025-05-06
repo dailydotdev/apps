@@ -11,6 +11,8 @@ import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery } from '../lib';
+import type { Screens } from './BuyCoresContext/types';
+import { SCREENS } from './BuyCoresContext/types';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -19,19 +21,11 @@ const AWARD_TYPES = {
 } as const;
 export type AwardTypes = keyof typeof AWARD_TYPES;
 
-const SCREENS = {
-  INTRO: 'INTRO',
-  COMMENT: 'COMMENT',
-  SUCCESS: 'SUCCESS',
-} as const;
-
 const MODALRENDERS = {
   AWARD: 'AWARD',
   BUY_CORES: 'BUY_CORES',
 } as const;
 export type ModalRenders = keyof typeof MODALRENDERS;
-
-export type Screens = keyof typeof SCREENS;
 
 const AWARD_EVENTS = {
   START: 'START',

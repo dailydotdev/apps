@@ -37,9 +37,8 @@ export const ExtensionSection = (): ReactElement => {
           },
           {
             title: `${optOutCompanion ? 'Enable' : 'Disable'} companion widget`,
-            icon: StoryIcon,
+            icon: () => <StoryIcon secondary={!optOutCompanion} />,
             onClick: () => toggleOptOutCompanion(),
-            isActive: !optOutCompanion,
           },
         ]}
       />

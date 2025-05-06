@@ -1,26 +1,21 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   CoreOptionButton,
   CoreOptionButtonPlaceholder,
 } from './CoreOptionButton';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { transactionPricesQueryOptions } from '../../graphql/njord';
+import { useProductPricing } from '../../hooks/useProductPricing';
+import { ProductPricingType } from '../../graphql/paddle';
 import { promisifyEventListener } from '../../lib/func';
 import { stringToBoolean } from '../../lib/utils';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
 
 export const CoreOptionList = (): ReactElement => {
   const { selectedProduct } = useBuyCoresContext();
-  const { user, isLoggedIn } = useAuthContext();
   const [isLoadingNative, setLoadingNative] = useState(false);
-  const { data: prices, isPending: isPendingPrices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
+  const { data: prices, isPending: isPendingPrices } = useProductPricing({
+    type: ProductPricingType.Cores,
+  });
 
   useEffect(() => {
     promisifyEventListener<void, 'true' | 'false'>(
@@ -51,12 +46,14 @@ export const CoreOptionList = (): ReactElement => {
         prices?.map((price) => {
           return (
             <CoreOptionButton
-              key={price.value}
-              id={price.value}
-              label={price.label}
-              cores={price.coresValue}
+              key={price.priceId}
+              id={price.priceId}
+              label={price.metadata.title}
+              cores={price.metadata.coresValue}
               priceFormatted={price.price.formatted}
-              isLoading={isLoadingNative && price.value === selectedProduct?.id}
+              isLoading={
+                isLoadingNative && price.priceId === selectedProduct?.id
+              }
               // prevent clicks while native iap is loading
               isDisabled={isLoadingNative}
             />

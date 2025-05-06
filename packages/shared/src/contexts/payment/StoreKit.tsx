@@ -4,56 +4,27 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type {
   PaymentContextProviderProps,
-  OpenCheckoutProps,
   PaymentContextData,
-  ProductOption,
+  OpenCheckoutProps,
 } from './context';
 import { PaymentContext } from './context';
 import {
   iOSSupportsPlusPurchase,
-  messageHandlerExists,
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '../../components/GrowthBookProvider';
-import { featureIAPProducts } from '../../lib/featureManagement';
-import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { promisifyEventListener } from '../../lib/func';
 import { plusSuccessUrl } from '../../lib/constants';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { LogEvent } from '../../lib/log';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import { SubscriptionProvider } from '../../lib/plus';
-
-export type IAPProduct = {
-  attributes: {
-    description: {
-      standard: string;
-    };
-    icuLocale: string;
-    isFamilyShareable: number;
-    kind: string;
-    name: string;
-    offerName: string;
-    offers: {
-      currencyCode: string;
-      discounts: unknown[]; // Specify a more detailed type if known
-      price: string;
-      priceFormatted: string;
-      recurringSubscriptionPeriod: string;
-    }[];
-    subscriptionFamilyId: string;
-    subscriptionFamilyName: string;
-    subscriptionFamilyRank: number;
-  };
-  href: string;
-  id: string;
-  type: string;
-};
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import type { ProductPricingMetadata } from '../../graphql/paddle';
+import { fetchPricingMetadata, ProductPricingType } from '../../graphql/paddle';
+import type { IAPProduct } from './common';
+import { getApplePricing } from './common';
 
 export enum PurchaseEventName {
   PurchaseCompleted = 'PurchaseCompleted',
@@ -71,6 +42,11 @@ export type PurchaseEvent = {
   transactionId?: string;
 };
 
+export type StoreKitSubProviderProps = PaymentContextProviderProps<
+  CustomEvent<PurchaseEvent>,
+  PurchaseEventName
+>;
+
 export const StoreKitSubProvider = ({
   children,
   successCallback,
@@ -79,67 +55,21 @@ export const StoreKitSubProvider = ({
   const { displayToast } = useToastNotification();
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { growthbook } = useGrowthBookContext();
-  const productIds = useFeature(featureIAPProducts);
-  const productList = useMemo(() => Object.keys(productIds), [productIds]);
   const logRef = useRef<typeof logSubscriptionEvent>();
   logRef.current = logSubscriptionEvent;
 
-  const { data: productOptions } = useQuery({
+  const { data: metadata } = useQuery<ProductPricingMetadata[]>({
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
+    queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
+    enabled: !!user && iOSSupportsPlusPurchase(),
+    staleTime: StaleTime.Default,
+  });
+
+  const { data: products } = useQuery({
     queryKey: ['iap-products'],
-    enabled: !!productIds && !!growthbook?.ready && iOSSupportsPlusPurchase(),
-    queryFn: async () => {
-      if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
-        return [];
-      }
-
-      const response = promisifyEventListener<
-        ProductOption[],
-        IAPProduct[] | string
-      >('iap-products-result', (event) => {
-        const productsRaw = !isNullOrUndefined(event?.detail)
-          ? event.detail
-          : [];
-
-        // Remove JSON parsing once usage of App v1.8 is low
-        const products: IAPProduct[] =
-          typeof productsRaw === 'string'
-            ? JSON.parse(productsRaw)
-            : productsRaw;
-
-        return products
-          ?.map((product: IAPProduct): ProductOption => {
-            const { duration, label, extraLabel, appsId } =
-              productIds[product.attributes.offerName];
-
-            return {
-              label,
-              value: product.attributes.offerName,
-              price: {
-                amount: parseFloat(product.attributes.offers[0].price),
-                formatted: product.attributes.offers[0].priceFormatted,
-              },
-              extraLabel,
-              appsId: appsId ?? PlusPriceTypeAppsId.Default,
-              duration,
-              durationLabel:
-                duration === PlusPriceType.Yearly ? 'year' : 'month',
-              trialPeriod: null,
-            };
-          })
-          .sort((a: { value: string }, b: { value: string }) => {
-            // Make sure that the products are sorted in the same order as the product list
-            // because the native code does not guarantee the order of the products
-            const aIndex = productList.indexOf(a.value);
-            const bIndex = productList.indexOf(b.value);
-            return aIndex - bIndex;
-          });
-      });
-
-      postWebKitMessage(WebKitMessageHandlers.IAPProductList, productList);
-
-      return response;
-    },
+    enabled: !!metadata?.length && iOSSupportsPlusPurchase(),
+    staleTime: StaleTime.Default,
+    queryFn: async () => getApplePricing(metadata),
   });
 
   const openCheckout = useCallback(
@@ -158,20 +88,23 @@ export const StoreKitSubProvider = ({
       eventName,
       (event) => {
         const { name, detail, product } = event.detail;
+        const item = products?.find(
+          ({ priceId }) => priceId === product?.attributes?.offerName,
+        );
         switch (name) {
           case PurchaseEventName.PurchaseCompleted:
             logRef.current({
               event_name: LogEvent.CompleteCheckout,
               extra: {
                 user_id: user?.id,
-                cycle: productIds[product.attributes.offerName].duration,
+                cycle: item.duration,
                 localCost: product.attributes.offers[0].price,
                 localCurrency: product.attributes.offers[0].currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
               },
             });
             if (successCallback) {
-              successCallback();
+              successCallback(null);
             } else {
               router.push(plusSuccessUrl);
             }
@@ -206,19 +139,18 @@ export const StoreKitSubProvider = ({
     return () => {
       globalThis?.eventControllers?.[eventName]?.abort();
     };
-  }, [displayToast, productIds, router, successCallback, user?.id]);
+  }, [displayToast, products, metadata, router, successCallback, user?.id]);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
-      productOptions,
-      earlyAdopterPlanId: null,
+      productOptions: products,
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
       isFreeTrialExperiment: false,
     }),
-    [isPlusAvailable, openCheckout, productOptions],
+    [isPlusAvailable, openCheckout, products],
   );
 
   return (
