@@ -46,6 +46,15 @@ export type IAPProduct = {
   type: string;
 };
 
+export enum PurchaseEventName {
+  PurchaseCompleted = 'PurchaseCompleted',
+  PurchaseInitiated = 'PurchaseInitiated',
+  PurchasePending = 'PurchasePending',
+  PurchaseFailed = 'PurchaseFailed',
+  PurchaseError = 'PurchaseError',
+  PurchaseCancelled = 'PurchaseCancelled',
+}
+
 export const getAppleProducts = (metadata: ProductPricingMetadata[]) =>
   promisifyEventListener<ProductPricingPreview[], IAPProduct[] | string>(
     'iap-products-result',
