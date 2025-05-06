@@ -34,7 +34,7 @@ import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { buyCoreStarField } from '@dailydotdev/shared/src/lib/image';
 import { useBuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
-import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { iOSSupportsCoresPurchase } from '@dailydotdev/shared/src/lib/ios';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -104,7 +104,7 @@ const CorePageMobile = (): ReactElement => {
 
   useEffect(() => {
     if (selectedProduct) {
-      if (isIOSNative()) {
+      if (iOSSupportsCoresPurchase()) {
         openCheckout({ priceId: selectedProduct.id });
 
         return;
