@@ -11,10 +11,8 @@ export const useBuyCoresContext = (): BuyCoresContextData =>
 
 export const SCREENS = {
   INTRO: 'INTRO',
-  COMMENT: 'COMMENT',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
-  SUCCESS: 'SUCCESS',
   PROCESSING_ERROR: 'PROCESSING_ERROR',
 } as const;
 export type Screens = keyof typeof SCREENS;

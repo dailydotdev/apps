@@ -20,6 +20,7 @@ import type {
   AwardTypes,
 } from '../../../contexts/GiveAwardModalContext';
 import {
+  AWARD_SCREENS,
   GiveAwardModalContextProvider,
   maxNoteLength,
   useGiveAwardModalContext,
@@ -51,7 +52,6 @@ import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
-import { SCREENS } from '../../../contexts/BuyCoresContext/types';
 
 const AwardItem = ({
   item,
@@ -178,7 +178,7 @@ const IntroScreen = () => {
               onClick={({ product: clickedProduct }) => {
                 if (clickedProduct.value > user.balance.amount) {
                   setActiveStep({
-                    screen: SCREENS.INTRO,
+                    screen: AWARD_SCREENS.INTRO,
                     product: clickedProduct,
                   });
                   setShowBuyCores(true);
@@ -188,7 +188,7 @@ const IntroScreen = () => {
 
                 setShowBuyCores(false);
                 setActiveStep({
-                  screen: SCREENS.COMMENT,
+                  screen: AWARD_SCREENS.COMMENT,
                   product: clickedProduct,
                 });
               }}
@@ -251,7 +251,7 @@ const CommentScreen = () => {
         balance: result.balance,
       });
 
-      setActiveStep({ screen: SCREENS.SUCCESS, product });
+      setActiveStep({ screen: AWARD_SCREENS.SUCCESS, product });
     },
     onError: async (data: ApiErrorResult) => {
       if (

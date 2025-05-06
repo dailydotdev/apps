@@ -11,8 +11,6 @@ import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery } from '../lib';
-import type { Screens } from './BuyCoresContext/types';
-import { SCREENS } from './BuyCoresContext/types';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -20,6 +18,13 @@ const AWARD_TYPES = {
   COMMENT: 'COMMENT',
 } as const;
 export type AwardTypes = keyof typeof AWARD_TYPES;
+
+export const AWARD_SCREENS = {
+  INTRO: 'INTRO',
+  COMMENT: 'COMMENT',
+  SUCCESS: 'SUCCESS',
+} as const;
+export type AwardScreens = keyof typeof AWARD_SCREENS;
 
 const MODALRENDERS = {
   AWARD: 'AWARD',
@@ -66,9 +71,9 @@ export type AwardEntity = {
 export type GiveAwardModalContextData = {
   activeModal: ModalRenders;
   setActiveModal: (modal: ModalRenders) => void;
-  activeStep: Screens;
+  activeStep: AwardScreens;
   setActiveStep: Dispatch<
-    SetStateAction<{ screen: Screens; product?: Product }>
+    SetStateAction<{ screen: AwardScreens; product?: Product }>
   >;
   type: AwardTypes;
   entity: AwardEntity;
@@ -100,10 +105,10 @@ export const GiveAwardModalContextProvider = ({
   const router = useRouter();
   const { logEvent } = useLogContext();
   const [activeStep, setActiveStep] = useState<{
-    screen: Screens;
+    screen: AwardScreens;
     product?: Product;
   }>({
-    screen: SCREENS.INTRO,
+    screen: AWARD_SCREENS.INTRO,
   });
   const [activeModal, setActiveModal] = useState<ModalRenders>(
     MODALRENDERS.AWARD,
