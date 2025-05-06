@@ -34,14 +34,22 @@ export const StoreKitSubProvider = ({
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();
 
   const { data: metadata } = useQuery<ProductPricingMetadata[]>({
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
+    queryKey: generateQueryKey(
+      RequestKey.PriceMetadata,
+      user,
+      ProductPricingType.Plus,
+    ),
     queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
     enabled: !!user && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
   });
 
   const { data: products } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'cores'),
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      ProductPricingType.Plus,
+    ),
     enabled: !!metadata?.length && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
     queryFn: async () => getApplePricing(metadata),

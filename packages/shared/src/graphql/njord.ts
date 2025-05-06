@@ -163,7 +163,11 @@ export const transactionPricesQueryOptions = ({
   user: LoggedUser;
 }) => {
   return {
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'cores'),
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      ProductPricingType.Cores,
+    ),
     queryFn: async () => {
       if (iOSSupportsCoresPurchase()) {
         const metadata = await fetchPricingMetadata(ProductPricingType.Cores);
