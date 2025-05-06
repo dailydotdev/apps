@@ -147,7 +147,10 @@ const IntroScreen = () => {
             color={TypographyColor.Primary}
           >
             {hasAwards ? (
-              <>{largeNumberFormat(entity.numAwards)} Awards given</>
+              <>
+                {largeNumberFormat(entity.numAwards)} Award
+                {entity.numAwards === 1 ? '' : 's'} given
+              </>
             ) : (
               <>Give an Award</>
             )}
