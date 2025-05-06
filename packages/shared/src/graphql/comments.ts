@@ -51,6 +51,9 @@ export interface Comment {
   userState?: CommentUserState;
   fromAward?: boolean;
   award?: Pick<Product, 'name' | 'image'>;
+  featuredAward?: {
+    award?: Pick<Product, 'name' | 'image' | 'value'>;
+  };
 }
 
 export const getCommentHash = (id: string): string => `#c-${id}`;

@@ -14,6 +14,7 @@ import {
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
+import type { Product } from './njord';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -146,6 +147,9 @@ export interface Post {
   clickbaitTitleDetected?: boolean;
   translation?: PostTranslation;
   language?: string;
+  featuredAward?: {
+    award?: Pick<Product, 'name' | 'image' | 'value'>;
+  };
 }
 
 export type RelatedPost = Pick<

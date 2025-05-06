@@ -62,6 +62,7 @@ import {
   useCanAwardUser,
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
+import { Image } from '../image/Image';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -379,15 +380,24 @@ export default function CommentActionButtons({
         />
       )}
       {hasAccessToCores && !!comment.numAwards && (
-        <Typography
-          className="ml-1 mr-3"
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          bold
-        >
-          {largeNumberFormat(comment.numAwards)} Award
-          {comment.numAwards > 1 ? 's' : ''}
-        </Typography>
+        <>
+          {!!comment.featuredAward?.award && (
+            <Image
+              src={comment.featuredAward.award.image}
+              alt={comment.featuredAward.award.name}
+              className="size-6"
+            />
+          )}
+          <Typography
+            className="ml-1 mr-3"
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            bold
+          >
+            {largeNumberFormat(comment.numAwards)} Award
+            {comment.numAwards > 1 ? 's' : ''}
+          </Typography>
+        </>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button

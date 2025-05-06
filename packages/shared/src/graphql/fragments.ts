@@ -311,6 +311,13 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     translation {
       ...PostTranslateableFields
     }
+    featuredAward {
+      award {
+        name
+        image
+        value
+      }
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
@@ -338,6 +345,13 @@ export const COMMENT_FRAGMENT = gql`
     award {
       name
       image
+    }
+    featuredAward {
+      award {
+        name
+        image
+        value
+      }
     }
   }
   ${USER_AUTHOR_FRAGMENT}
