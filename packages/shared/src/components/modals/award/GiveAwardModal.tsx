@@ -51,6 +51,7 @@ import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
+import { SCREENS } from '../../../contexts/BuyCoresContext/types';
 
 const AwardItem = ({
   item,
@@ -176,14 +177,20 @@ const IntroScreen = () => {
               item={item}
               onClick={({ product: clickedProduct }) => {
                 if (clickedProduct.value > user.balance.amount) {
-                  setActiveStep({ screen: 'INTRO', product: clickedProduct });
+                  setActiveStep({
+                    screen: SCREENS.INTRO,
+                    product: clickedProduct,
+                  });
                   setShowBuyCores(true);
 
                   return;
                 }
 
                 setShowBuyCores(false);
-                setActiveStep({ screen: 'COMMENT', product: clickedProduct });
+                setActiveStep({
+                  screen: SCREENS.COMMENT,
+                  product: clickedProduct,
+                });
               }}
             />
           ))}
@@ -244,7 +251,7 @@ const CommentScreen = () => {
         balance: result.balance,
       });
 
-      setActiveStep({ screen: 'SUCCESS', product });
+      setActiveStep({ screen: SCREENS.SUCCESS, product });
     },
     onError: async (data: ApiErrorResult) => {
       if (
