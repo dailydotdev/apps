@@ -148,7 +148,7 @@ export const FunnelStepper = ({
   );
 
   const layout = useMemo(() => {
-    const hasBanner = !!step?.parameters?.banner?.stepsToDisplay?.includes(
+    const hasBanner = !!funnel?.parameters?.banner?.stepsToDisplay?.includes(
       step.id,
     );
     const hasHeader = stepsWithHeader.includes(step.type);
@@ -163,8 +163,8 @@ export const FunnelStepper = ({
     isCookieBannerActive,
     showBanner,
     step.id,
-    step?.parameters?.banner?.stepsToDisplay,
     step.type,
+    funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
   if (!isReady) {
@@ -185,7 +185,7 @@ export const FunnelStepper = ({
       <FunnelStepBackground step={step}>
         <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
           {layout.hasBanner && (
-            <FunnelBannerMessage {...step.parameters.banner} />
+            <FunnelBannerMessage {...funnel.parameters.banner} />
           )}
           <Header
             chapters={chapters}

@@ -55,7 +55,6 @@ interface FunnelBannerMessage {
 
 export interface FunnelStepCommonParameters {
   backgroundType?: FunnelBackgroundVariant;
-  banner?: FunnelBannerMessage;
   cta?: string;
   reverse?: boolean;
 }
@@ -266,14 +265,17 @@ export type FunnelPosition = {
   step: number;
 };
 
+interface FunnelParameters {
+  cookieConsent: {
+    show: boolean;
+  };
+  banner: FunnelBannerMessage;
+}
+
 export interface FunnelJSON {
   id: string;
   version: number;
-  parameters: FunnelStepParameters<{
-    cookieConsent: {
-      show: boolean;
-    };
-  }>;
+  parameters: FunnelParameters;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
 }
