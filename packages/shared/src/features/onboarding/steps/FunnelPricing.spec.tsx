@@ -125,7 +125,6 @@ const mockProductOptions: ProductPricingPreview[] = [
       symbol: '$',
     },
     duration: PlusPriceType.Monthly,
-    trialPeriod: null,
   },
   {
     metadata: {
@@ -150,7 +149,6 @@ const mockProductOptions: ProductPricingPreview[] = [
       symbol: '$',
     },
     duration: PlusPriceType.Yearly,
-    trialPeriod: null,
   },
 ];
 
@@ -175,7 +173,6 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
             productOptions: mockProductOptions,
             isPlusAvailable: true,
             isPricesPending: false,
-            isFreeTrialExperiment: false,
           }}
         >
           <FunnelPricing {...defaultProps} {...props} />

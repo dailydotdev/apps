@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
 import classNames from 'classnames';
-import { usePaymentContext } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,
@@ -58,7 +57,6 @@ const PlusCard = ({
 }: PlusCardProps): ReactElement => {
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { isFreeTrialExperiment } = usePaymentContext();
 
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
@@ -140,7 +138,7 @@ const PlusCard = ({
           title="Get started with Plus"
           variant={ButtonVariant.Primary}
         >
-          {isFreeTrialExperiment ? 'Get started for free' : 'Get started'}
+          Get started
         </Button>
       )}
       <Typography
