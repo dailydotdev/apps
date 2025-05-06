@@ -10,6 +10,10 @@ import { fn } from '@storybook/test';
 import {
   CheckboxGroupVariant,
 } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
+import {
+  FunnelStepBackground, Header,
+} from '@dailydotdev/shared/src/features/onboarding/shared';
+import ExtensionProviders from '../../extension/_providers';
 
 const meta: Meta<typeof FunnelQuiz> = {
   title: 'Components/Onboarding/Steps/Quiz',
@@ -26,9 +30,15 @@ const meta: Meta<typeof FunnelQuiz> = {
   },
   tags: ['autodocs'],
   render: (props) => (
-    <div className='invert'>
-      <FunnelQuiz {...props} />
-    </div>
+    <ExtensionProviders>
+      <div className='flex flex-col min-h-dvh'>
+        <FunnelStepBackground step={props}>
+          <Header currentChapter={0} currentStep={0}
+                  chapters={[{ steps: 1 }]} />
+          <FunnelQuiz {...props} />
+        </FunnelStepBackground>
+      </div>
+    </ExtensionProviders>
   ),
 };
 
@@ -37,9 +47,10 @@ export default meta;
 type Story = StoryObj<typeof FunnelQuiz>;
 
 const commonProps = {
-  parameters: {},
+  parameters: {
+    explainer: 'This is an explainer text for the quiz',
+  },
   transitions: [],
-  explainer: 'This is an explainer text for the quiz',
   onTransition: fn(),
 };
 

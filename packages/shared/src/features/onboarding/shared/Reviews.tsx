@@ -1,7 +1,12 @@
-import React from 'react';
 import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Stars } from './Stars';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
 
 export interface Review {
   title: string;
@@ -26,9 +31,11 @@ export function ReviewCard({
         className,
       )}
     >
-      <h3 className="font-bold typo-callout">{title}</h3>
+      <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
       <p className="text-text-secondary typo-footnote">{content}</p>
-      <span className="font-bold typo-footnote">{author}</span>
+      <span className="font-bold text-text-primary typo-footnote">
+        {author}
+      </span>
     </div>
   );
 }
@@ -55,10 +62,21 @@ export function Reviews({
     >
       <div className="flex flex-col items-center gap-1">
         <div className="flex items-center gap-1">
-          <span className="font-bold typo-title3">{rating}</span>
+          <Typography
+            bold
+            color={TypographyColor.Primary}
+            type={TypographyType.Title3}
+          >
+            {rating}
+          </Typography>
           <Stars />
         </div>
-        <span className="typo-footnote">{reviewSubtitle}</span>
+        <Typography
+          color={TypographyColor.Primary}
+          type={TypographyType.Footnote}
+        >
+          {reviewSubtitle}
+        </Typography>
       </div>
 
       <div className="no-scrollbar flex max-w-full gap-3 overflow-x-auto laptop:grid laptop:grid-cols-2 laptop:place-content-around">
