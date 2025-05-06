@@ -148,8 +148,10 @@ export const FunnelStepper = ({
   );
 
   const layout = useMemo(() => {
-    const hasBanner = !!step?.parameters?.banner?.content;
-    const hasHeader = !hasBanner && stepsWithHeader.includes(step.type);
+    const hasBanner = !!step?.parameters?.banner?.stepsToDisplay?.includes(
+      step.id,
+    );
+    const hasHeader = stepsWithHeader.includes(step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
 
     return {
@@ -160,7 +162,8 @@ export const FunnelStepper = ({
   }, [
     isCookieBannerActive,
     showBanner,
-    step?.parameters?.banner?.content,
+    step.id,
+    step?.parameters?.banner?.stepsToDisplay,
     step.type,
   ]);
 
@@ -181,6 +184,9 @@ export const FunnelStepper = ({
       )}
       <FunnelStepBackground step={step}>
         <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+          {layout.hasBanner && (
+            <FunnelBannerMessage {...step.parameters.banner} />
+          )}
           <Header
             chapters={chapters}
             className={classNames({
@@ -196,9 +202,6 @@ export const FunnelStepper = ({
             showSkipButton={skip.hasTarget}
             showProgressBar={skip.hasTarget}
           />
-          {layout.hasBanner && (
-            <FunnelBannerMessage {...step.parameters.banner} />
-          )}
           <PaymentContextProvider
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
             successCallback={successCallback}

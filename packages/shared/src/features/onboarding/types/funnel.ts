@@ -50,6 +50,7 @@ interface FunnelBannerMessage {
     src: string;
   };
   content: string;
+  stepsToDisplay: string[];
 }
 
 export interface FunnelStepCommonParameters {
