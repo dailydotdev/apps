@@ -151,7 +151,11 @@ export function ReportPostModal({
       return;
     }
 
-    logEvent(postLogEvent('report post', post, { extra: { origin } }));
+    logEvent(
+      postLogEvent('report post', post, {
+        extra: { origin, reason, comment: text },
+      }),
+    );
 
     if (typeof onReported === 'function') {
       onReported(post, { index, shouldBlockSource: inputRef.current?.checked });
