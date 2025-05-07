@@ -23,6 +23,7 @@ export enum FunnelStepType {
   SocialProof = 'socialProof',
   Loading = 'loading',
   ProfileForm = 'profileForm',
+  EditTags = 'editTags',
 }
 
 export enum FunnelBackgroundVariant {
@@ -250,6 +251,15 @@ export interface FunnelStepProfileForm
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepEditTags
+  extends FunnelStepCommon<{
+    headline: string;
+    minimumRequirement: number;
+  }> {
+  type: FunnelStepType.EditTags;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -262,7 +272,8 @@ export type FunnelStep =
   | FunnelStepAppPromotion
   | FunnelStepSocialProof
   | FunnelStepLoading
-  | FunnelStepProfileForm;
+  | FunnelStepProfileForm
+  | FunnelStepEditTags;
 
 export type FunnelPosition = {
   chapter: number;

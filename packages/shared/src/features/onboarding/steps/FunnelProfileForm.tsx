@@ -68,7 +68,6 @@ function InnerFunnelProfileForm({
 }
 
 export default function FunnelProfileForm({
-  onTransition,
   isActive,
   ...props
 }: FunnelStepProfileForm): ReactElement | null {
@@ -76,5 +75,5 @@ export default function FunnelProfileForm({
     return null;
   }
 
-  return <InnerFunnelProfileForm {...props} onTransition={onTransition} />;
+  return <InnerFunnelProfileForm {...props} />;
 }
