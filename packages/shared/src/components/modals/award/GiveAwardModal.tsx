@@ -483,11 +483,11 @@ const ModalRender = ({ ...props }: ModalProps) => {
             instantOpen: true,
           }}
           {...props}
-          onRequestClose={() => {
+          onRequestClose={(event) => {
             if (activeStep === 'SUCCESS' && product) {
               setActiveModal('AWARD_ANIMATION');
             } else {
-              props.onRequestClose?.(undefined);
+              props.onRequestClose?.(event);
             }
           }}
         >
