@@ -155,7 +155,7 @@ export const accountPageItems = defineMenuItems({
       integrations: {
         title: 'Integrations',
         icon: EmbedIcon,
-        href: `${webappUrl}account/integrations`,
+        href: `${webappUrl}account/customization/integrations`,
       },
     },
   },
