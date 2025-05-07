@@ -121,11 +121,12 @@ export function PostActions({
             awarded: true,
           },
           numAwards: (post.numAwards || 0) + 1,
-          featuredAward: awardProduct
-            ? {
-                award: awardProduct,
-              }
-            : undefined,
+          featuredAward:
+            awardProduct?.value > post.featuredAward?.award?.value
+              ? {
+                  award: awardProduct,
+                }
+              : post.featuredAward,
         });
       }
 
