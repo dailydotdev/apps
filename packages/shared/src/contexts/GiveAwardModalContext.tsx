@@ -28,6 +28,7 @@ const SCREENS = {
 const MODALRENDERS = {
   AWARD: 'AWARD',
   BUY_CORES: 'BUY_CORES',
+  AWARD_ANIMATION: 'AWARD_ANIMATION',
 } as const;
 export type ModalRenders = keyof typeof MODALRENDERS;
 

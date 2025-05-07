@@ -50,6 +50,7 @@ import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
+import { AnimatedAward } from '../../AnimatedAward';
 
 const AwardItem = ({
   item,
@@ -362,7 +363,7 @@ const CommentScreen = () => {
 };
 
 const SuccessScreen = () => {
-  const { entity, product, onRequestClose } = useGiveAwardModalContext();
+  const { entity, product, setActiveModal } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
@@ -415,7 +416,7 @@ const SuccessScreen = () => {
             variant={ButtonVariant.Primary}
             className="w-full"
             onClick={() => {
-              onRequestClose(undefined);
+              setActiveModal('AWARD_ANIMATION');
             }}
           >
             Close
@@ -439,8 +440,14 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeStep, activeModal, setActiveModal, product, logAwardEvent } =
-    useGiveAwardModalContext();
+  const {
+    activeStep,
+    activeModal,
+    setActiveModal,
+    product,
+    logAwardEvent,
+    onRequestClose: onRequestCloseContext,
+  } = useGiveAwardModalContext();
 
   const trackingRef = useRef(false);
 
@@ -461,6 +468,15 @@ const ModalRender = ({ ...props }: ModalProps) => {
 
   return (
     <>
+      {activeModal === 'AWARD_ANIMATION' && (
+        <AnimatedAward
+          src={product?.flags?.imageGlow || product?.image}
+          alt={product?.name}
+          onDone={() => {
+            onRequestCloseContext(undefined);
+          }}
+        />
+      )}
       {activeModal === 'AWARD' ? (
         <Modal
           kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}

@@ -9,6 +9,7 @@ export const PRODUCT_FRAGMENT = gql`
     value
     flags {
       description
+      imageGlow
     }
   }
 `;
