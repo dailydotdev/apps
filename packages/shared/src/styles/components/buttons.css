@@ -2,7 +2,10 @@
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow, color;
   background: var(--button-background, var(--button-default-background, none));
-  border-color: var(--button-border-color, var(--button-default-border-color, transparent));
+  border-color: var(
+    --button-border-color,
+    var(--button-default-border-color, transparent)
+  );
   color: var(--button-color, var(--button-default-color));
   --loader-color: var(--button-color, var(--button-default-color));
 
@@ -45,7 +48,7 @@
   }
 
   &.bg-accent-cabbage-default {
-    color: #FFFFFF;
+    color: #ffffff;
   }
 
   &:not(.iconOnly) {
@@ -115,10 +118,13 @@
   }
 
   &:not(:focus-visible) {
-    box-shadow: var(--button-box-shadow, var(--button-default-box-shadow, none));
+    box-shadow: var(
+      --button-box-shadow,
+      var(--button-default-box-shadow, none)
+    );
   }
 
-  &[aria-pressed="true"] {
+  &[aria-pressed='true'] {
     --button-background: var(--button-pressed-background);
     --button-border-color: var(--button-pressed-border-color);
     --button-color: var(--button-pressed-color);
@@ -126,14 +132,15 @@
   }
 
   &:not(.readOnly) {
-    &:hover, &.hover, &:focus:focus-visible {
+    &:hover,
+    &.hover,
+    &:focus:focus-visible {
       --button-background: var(--button-hover-background);
       --button-border-color: var(--button-hover-border-color);
       --button-color: var(--button-hover-color);
       --button-box-shadow: var(--button-hover-box-shadow);
     }
   }
-
 
   &:active {
     --button-background: var(--button-active-background);
@@ -168,11 +175,13 @@
     transition-property: color;
   }
 
-  & [aria-pressed="true"] ~ label {
+  & [aria-pressed='true'] ~ label {
     color: var(--button-pressed-color);
   }
 
-  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
+  & :hover ~ label,
+  & .hover ~ label,
+  & :focus:focus-visible ~ label {
     color: var(--button-hover-color);
   }
 
@@ -213,12 +222,14 @@
     color: var(--button-icon, var(--button-default-icon, none));
   }
 
-  &[aria-pressed="true"] {
+  &[aria-pressed='true'] {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
   }
 
-  &:hover, &.hover, &:focus:focus-visible {
+  &:hover,
+  &.hover,
+  &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
   }
 
@@ -235,12 +246,14 @@
     color: var(--button-icon, var(--button-default-icon, none));
   }
 
-  &[aria-pressed="true"] {
+  &[aria-pressed='true'] {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
   }
 
-  &:hover, &.hover, &:focus:focus-visible {
+  &:hover,
+  &.hover,
+  &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
   }
 
@@ -274,7 +287,11 @@
   @apply bg-surface-hover hover:bg-surface-active;
   @apply text-text-primary;
 
-  &:is([aria-pressed="true"], [aria-checked="true"]) {
+  &.simplified {
+    @apply bg-[unset];
+  }
+
+  &:is([aria-pressed='true'], [aria-checked='true']) {
     @apply bg-brand-active;
     @apply border-brand-default;
   }
