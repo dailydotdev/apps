@@ -71,6 +71,8 @@ export type Product = {
   }>;
 };
 
+export type FeaturedAward = Pick<Product, 'name' | 'image' | 'value'>;
+
 export const PRODUCTS_QUERY = gql`
   query products($first: Int) {
     products(first: $first) {

@@ -14,7 +14,7 @@ import {
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
-import type { Product } from './njord';
+import type { FeaturedAward } from './njord';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -148,7 +148,7 @@ export interface Post {
   translation?: PostTranslation;
   language?: string;
   featuredAward?: {
-    award?: Pick<Product, 'name' | 'image' | 'value'>;
+    award?: FeaturedAward;
   };
 }
 
@@ -310,6 +310,11 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         ...SharedPostInfo
       }
       clickbaitTitleDetected
+      featuredAward {
+        award {
+          ...FeaturedAwardFragment
+        }
+      }
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
