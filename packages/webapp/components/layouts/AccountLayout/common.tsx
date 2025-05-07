@@ -62,7 +62,7 @@ export const SettingsSwitch = ({
     <div className="flex justify-between gap-4">
       <Typography
         type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
+        color={TypographyColor.Tertiary}
         className="flex-1"
       >
         {children}
