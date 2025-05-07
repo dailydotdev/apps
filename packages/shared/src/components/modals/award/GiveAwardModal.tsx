@@ -363,7 +363,7 @@ const CommentScreen = () => {
 };
 
 const SuccessScreen = () => {
-  const { entity, product, setActiveModal } = useGiveAwardModalContext();
+  const { entity, product, onRequestClose } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
@@ -416,7 +416,7 @@ const SuccessScreen = () => {
             variant={ButtonVariant.Primary}
             className="w-full"
             onClick={() => {
-              setActiveModal('AWARD_ANIMATION');
+              onRequestClose(undefined);
             }}
           >
             Close
@@ -440,14 +440,8 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const {
-    activeStep,
-    activeModal,
-    setActiveModal,
-    product,
-    logAwardEvent,
-    onRequestClose: onRequestCloseContext,
-  } = useGiveAwardModalContext();
+  const { activeStep, activeModal, setActiveModal, product, logAwardEvent } =
+    useGiveAwardModalContext();
 
   const trackingRef = useRef(false);
 
@@ -473,7 +467,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
           src={product?.flags?.imageGlow || product?.image}
           alt={product?.name}
           onDone={() => {
-            onRequestCloseContext(undefined);
+            props.onRequestClose?.(undefined);
           }}
         />
       )}
@@ -489,6 +483,13 @@ const ModalRender = ({ ...props }: ModalProps) => {
             instantOpen: true,
           }}
           {...props}
+          onRequestClose={() => {
+            if (activeStep === 'SUCCESS' && product) {
+              setActiveModal('AWARD_ANIMATION');
+            } else {
+              props.onRequestClose?.(undefined);
+            }
+          }}
         >
           <ModalBody />
         </Modal>
