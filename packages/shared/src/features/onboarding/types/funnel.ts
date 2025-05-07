@@ -22,6 +22,7 @@ export enum FunnelStepType {
   AppPromotion = 'appPromotion',
   SocialProof = 'socialProof',
   Loading = 'loading',
+  ProfileForm = 'profileForm',
 }
 
 export enum FunnelBackgroundVariant {
@@ -239,6 +240,16 @@ export interface FunnelStepPaymentSuccessful
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
+export interface FunnelStepProfileForm
+  extends FunnelStepCommon<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }> {
+  type: FunnelStepType.ProfileForm;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -250,7 +261,8 @@ export type FunnelStep =
   | FunnelStepReadingReminder
   | FunnelStepAppPromotion
   | FunnelStepSocialProof
-  | FunnelStepLoading;
+  | FunnelStepLoading
+  | FunnelStepProfileForm;
 
 export type FunnelPosition = {
   chapter: number;
