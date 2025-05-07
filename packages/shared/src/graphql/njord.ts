@@ -84,7 +84,7 @@ export const PRODUCTS_QUERY = gql`
   ${PRODUCT_FRAGMENT}
 `;
 
-export const getProducts = async ({
+const getProducts = async ({
   first = 100,
 }: {
   first?: number;
@@ -94,6 +94,14 @@ export const getProducts = async ({
   }>(PRODUCTS_QUERY, { first });
 
   return result.products;
+};
+
+export const getProductsQueryOptions = () => {
+  return {
+    queryKey: generateQueryKey(RequestKey.Products),
+    queryFn: () => getProducts(),
+    staleTime: StaleTime.Default,
+  };
 };
 
 export enum UserTransactionStatus {

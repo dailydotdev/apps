@@ -28,9 +28,11 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
+import { getProductsQueryOptions } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 
 interface PostActionsProps {
   post: Post;
@@ -82,6 +84,8 @@ export function PostActions({
     await toggleDownvote({ payload: post, origin });
   };
 
+  const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+
   useMutationSubscription({
     matcher: ({ mutation }) => {
       const [requestKey] = Array.isArray(mutation.options.mutationKey)
@@ -94,7 +98,8 @@ export function PostActions({
       variables: mutationVariables,
       queryClient: mutationQueryClient,
     }) => {
-      const { entityId, type, note } = mutationVariables as AwardProps;
+      const { entityId, type, note, productId } =
+        mutationVariables as AwardProps;
 
       mutationQueryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Transactions, user),
@@ -106,12 +111,21 @@ export function PostActions({
           return;
         }
 
+        const awardProduct = getProducts()?.edges.find(
+          (item) => item.node.id === productId,
+        )?.node;
+
         updatePostCache(mutationQueryClient, post.id, {
           userState: {
             ...post.userState,
             awarded: true,
           },
           numAwards: (post.numAwards || 0) + 1,
+          featuredAward: awardProduct
+            ? {
+                award: awardProduct,
+              }
+            : undefined,
         });
       }
 
