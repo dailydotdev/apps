@@ -67,8 +67,10 @@ const PlusInfo = (): ReactElement => {
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Thanks for supporting daily.dev and unlocking our most powerful
-          experience.
+          Thank you for supporting daily.dev and unlocking the best experience
+          we offer. Manage your subscription to update your plan, payment
+          details, or preferences anytime. Know a friend or colleague who might
+          love daily.dev? Gift them daily.dev Plus!
         </Typography>
 
         {!isIOSNative() &&
@@ -127,7 +129,7 @@ const PlusInfo = (): ReactElement => {
             });
           }}
         >
-          Gift plus
+          Gift Plus
         </Button>
       </div>
     </>

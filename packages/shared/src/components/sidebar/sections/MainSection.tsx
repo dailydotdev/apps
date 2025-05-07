@@ -3,13 +3,7 @@ import React, { useMemo } from 'react';
 import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import {
-  EyeIcon,
-  HomeIcon,
-  HotIcon,
-  SettingsIcon,
-  SquadIcon,
-} from '../../icons';
+import { EyeIcon, HomeIcon, HotIcon, SquadIcon } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -83,13 +77,6 @@ export const MainSection = ({
         ),
         title: 'History',
         path: `${webappUrl}history`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
-      {
-        icon: () => <ListIcon Icon={SettingsIcon} />,
-        title: 'Settings',
-        path: `${webappUrl}account/profile`,
         isForcedLink: true,
         requiresLogin: true,
       },
