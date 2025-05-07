@@ -9,10 +9,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalBody } from '../common/ModalBody';
-import {
-  BuyCoresContextProvider,
-  useBuyCoresContext,
-} from '../../../contexts/BuyCoresContext';
+import { useBuyCoresContext } from '../../../contexts/BuyCoresContext/types';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
@@ -46,6 +43,7 @@ import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
+import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 
 export type CoreOptionsProps = {
   className?: string;

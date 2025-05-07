@@ -14,6 +14,8 @@ export enum WebKitMessageHandlers {
   IAPSubscriptionManage = 'iap-subscription-manage',
   IAPSubscriptionRequest = 'iap-subscription-request',
   IAPSetAppAccountToken = 'iap-set-app-account-token',
+
+  IAPCoresPurchase = 'iap-cores-purchase',
 }
 
 export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
@@ -22,6 +24,9 @@ export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
 export const iOSSupportsPlusPurchase = (): boolean =>
   isIOSNative() &&
   messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest);
+
+export const iOSSupportsCoresPurchase = (): boolean =>
+  isIOSNative() && messageHandlerExists(WebKitMessageHandlers.IAPCoresPurchase);
 
 export const postWebKitMessage = <T = unknown>(
   handler: WebKitMessageHandlers,

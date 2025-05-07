@@ -6,7 +6,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { useBuyCoresContext } from '../../contexts/BuyCoresContext';
+import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
 import { formatCoresCurrency } from '../../lib/utils';
 
 export const CoreAmountNeeded = (): ReactElement => {

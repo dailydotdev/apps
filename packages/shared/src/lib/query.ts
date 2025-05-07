@@ -198,6 +198,7 @@ export enum RequestKey {
   Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
+  PriceMetadata = 'price_metadata',
   Products = 'products',
   Transactions = 'transactions',
   CheckCoresRole = 'check_cores_role',

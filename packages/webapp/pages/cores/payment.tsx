@@ -6,7 +6,7 @@ import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 
-import { BuyCoresContextProvider } from '@dailydotdev/shared/src/contexts/BuyCoresContext';
+import { BuyCoresContextProvider } from '@dailydotdev/shared/src/contexts/BuyCoresContext/BuyCoresContext';
 import { TransactionStatusListener } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import {
   getPathnameWithQuery,
