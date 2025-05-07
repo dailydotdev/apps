@@ -440,8 +440,14 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeStep, activeModal, setActiveModal, product, logAwardEvent } =
-    useGiveAwardModalContext();
+  const {
+    activeStep,
+    activeModal,
+    setActiveModal,
+    product,
+    logAwardEvent,
+    onRequestClose: onRequestCloseContext,
+  } = useGiveAwardModalContext();
 
   const trackingRef = useRef(false);
 
@@ -483,13 +489,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
             instantOpen: true,
           }}
           {...props}
-          onRequestClose={(event) => {
-            if (activeStep === 'SUCCESS' && product) {
-              setActiveModal('AWARD_ANIMATION');
-            } else {
-              props.onRequestClose?.(event);
-            }
-          }}
+          onRequestClose={onRequestCloseContext}
         >
           <ModalBody />
         </Modal>

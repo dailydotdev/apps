@@ -160,7 +160,13 @@ export const GiveAwardModalContextProvider = ({
 
         setActiveModal(modal);
       },
-      onRequestClose,
+      onRequestClose: (event) => {
+        if (activeStep.screen === 'SUCCESS' && activeStep.product) {
+          setActiveModal('AWARD_ANIMATION');
+        } else {
+          onRequestClose?.(event);
+        }
+      },
       activeStep: activeStep.screen,
       product: activeStep.product,
       setActiveStep,
