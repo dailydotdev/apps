@@ -245,7 +245,7 @@ function SidebarNav(): ReactElement {
         <ProfileSection
           items={[
             {
-              title: 'Logout',
+              title: 'Log out',
               icon: ExitIcon,
               onClick: () => logout(LogoutReason.ManualLogout),
             },
