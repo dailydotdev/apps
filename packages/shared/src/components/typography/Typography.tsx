@@ -26,6 +26,7 @@ export enum TypographyType {
   Subhead = 'typo-subhead',
   Callout = 'typo-callout',
   Body = 'typo-body',
+  Title4 = 'typo-title4',
   Title3 = 'typo-title3',
   Title2 = 'typo-title2',
   Title1 = 'typo-title1',

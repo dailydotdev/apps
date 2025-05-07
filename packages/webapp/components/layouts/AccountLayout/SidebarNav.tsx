@@ -62,7 +62,7 @@ export const accountPageItems = defineMenuItems({
     title: null,
     items: {
       profile: {
-        title: 'Profile Details',
+        title: 'Profile details',
         icon: UserIcon,
         href: `${webappUrl}account/profile`,
       },
@@ -148,14 +148,14 @@ export const accountPageItems = defineMenuItems({
         href: `${webappUrl}account/customization/streaks`,
       },
       devcard: {
-        title: 'Devcard',
+        title: 'DevCard',
         icon: DevCardIcon,
         href: `${webappUrl}account/customization/devcard`,
       },
       integrations: {
         title: 'Integrations',
         icon: EmbedIcon,
-        href: `${webappUrl}account/integrations`,
+        href: `${webappUrl}account/customization/integrations`,
       },
     },
   },
@@ -245,7 +245,7 @@ function SidebarNav(): ReactElement {
         <ProfileSection
           items={[
             {
-              title: 'Logout',
+              title: 'Log out',
               icon: ExitIcon,
               onClick: () => logout(LogoutReason.ManualLogout),
             },

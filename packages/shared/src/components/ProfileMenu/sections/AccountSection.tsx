@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
-import { CreditCardIcon, EditIcon, InviteIcon } from '../../icons';
+import { CreditCardIcon, InviteIcon, SettingsIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
 
 export const AccountSection = (): ReactElement => {
@@ -10,9 +10,9 @@ export const AccountSection = (): ReactElement => {
     <ProfileSection
       items={[
         {
-          title: 'Account details',
+          title: 'Settings',
           href: `${webappUrl}account/profile`,
-          icon: EditIcon,
+          icon: SettingsIcon,
         },
         {
           title: 'Subscriptions',
