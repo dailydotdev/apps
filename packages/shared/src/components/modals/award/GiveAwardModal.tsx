@@ -236,8 +236,6 @@ const CommentScreen = () => {
     ],
     mutationFn: award,
     onSuccess: async (result) => {
-      // TODO feat/transactions animation show award
-
       await updateUser({
         ...user,
         balance: result.balance,
