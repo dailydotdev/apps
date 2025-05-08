@@ -15,16 +15,19 @@ import dynamic from 'next/dynamic';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 
-const ProfileSettingsMenu = dynamic(
+const ProfileSettingsMenuMobile = dynamic(
   () =>
     import(
-      /* webpackChunkName: "profileSettingsMenu" */ '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu'
-    ),
+      /* webpackChunkName: "profileSettingsMenuMobile" */ '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu'
+    ).then((mod) => mod.ProfileSettingsMenuMobile),
   { ssr: false },
 );
 
-const SidebarNav = dynamic(
-  () => import(/* webpackChunkName: "sidebarNav" */ './SidebarNav'),
+const ProfileSettingsMenuDesktop = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileSettingsMenuDesktop" */ '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu'
+    ).then((mod) => mod.ProfileSettingsMenuDesktop),
   {
     ssr: false,
     loading: () => (
@@ -81,13 +84,13 @@ export default function SettingsLayout({
   return (
     <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
       {isMobile ? (
-        <ProfileSettingsMenu
+        <ProfileSettingsMenuMobile
           shouldKeepOpen
           isOpen={isOpen}
           onClose={() => router.push(profile.permalink)}
         />
       ) : (
-        <SidebarNav />
+        <ProfileSettingsMenuDesktop />
       )}
       {children}
     </div>

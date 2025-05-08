@@ -1,33 +1,25 @@
-import type { ReactElement } from 'react';
 import React from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
 import type { DrawerRef, DrawerWrapperProps } from './Drawer';
 import { Drawer, DrawerPosition } from './Drawer';
-import type { NavItemProps } from './NavDrawerItem';
-import { NavDrawerItem } from './NavDrawerItem';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import classed from '../../lib/classed';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 
-interface NavDrawerProps {
+interface NavDrawerProps extends PropsWithChildren {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
-  items: NavItemProps[];
   header?: string;
   shouldKeepOpen?: boolean;
 }
 
-const NavDrawerHeader = classed(
-  'div',
-  'flex items-center gap-3 px-4 border-b border-border-subtlest-tertiary h-12',
-);
-
-const NavDrawerContent = classed('div', 'flex flex-col px-4 py-5');
-
-const NavHeading = classed('h2', 'typo-body font-bold');
-
 export function NavDrawer({
+  children,
   drawerProps,
   header,
-  items,
   shouldKeepOpen,
 }: NavDrawerProps): ReactElement {
   const ref = React.useRef<DrawerRef>();
@@ -52,7 +44,7 @@ export function NavDrawer({
       }}
     >
       {header && (
-        <NavDrawerHeader>
+        <div className="flex h-12 items-center gap-3 border-b border-border-subtlest-tertiary">
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
@@ -61,14 +53,12 @@ export function NavDrawer({
             }
             icon={<ArrowIcon className="-rotate-90" />}
           />
-          <NavHeading>{header}</NavHeading>
-        </NavDrawerHeader>
+          <Typography bold tag={TypographyTag.H2} type={TypographyType.Body}>
+            {header}
+          </Typography>
+        </div>
       )}
-      <NavDrawerContent>
-        {items.map((item) => (
-          <NavDrawerItem key={item.label} {...item} drawerRef={ref} />
-        ))}
-      </NavDrawerContent>
+      {children}
     </Drawer>
   );
 }
