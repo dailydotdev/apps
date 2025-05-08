@@ -4,7 +4,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { FeedSettingsEditContext } from '@dailydotdev/shared/src/components/feeds/FeedSettings/FeedSettingsEditContext';
 import { useFeedSettingsEdit } from '@dailydotdev/shared/src/components/feeds/FeedSettings/useFeedSettingsEdit';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getAccountLayout } from '.';
+import { getSettingsLayout } from '.';
 
 export const FeedSettingsLayout = ({ children }: PropsWithChildren) => {
   const { user } = useAuthContext();
@@ -19,5 +19,5 @@ export const FeedSettingsLayout = ({ children }: PropsWithChildren) => {
 };
 
 export const getFeedSettingsLayout = (page: ReactNode) => {
-  return getAccountLayout(<FeedSettingsLayout>{page}</FeedSettingsLayout>);
+  return getSettingsLayout(<FeedSettingsLayout>{page}</FeedSettingsLayout>);
 };

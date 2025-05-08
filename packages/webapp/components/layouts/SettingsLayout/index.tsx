@@ -38,7 +38,7 @@ export const navigationKey = generateQueryKey(
   null,
 );
 
-export default function AccountLayout({
+export default function SettingsLayout({
   children,
 }: PropsWithChildren): ReactElement {
   const router = useRouter();
@@ -94,9 +94,9 @@ export default function AccountLayout({
   );
 }
 
-export const getAccountLayout = (page: ReactNode): ReactNode =>
+export const getSettingsLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<AccountLayout>{page}</AccountLayout>, null, {
+    getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
       screenCentered: true,
       showSidebar: false,
     }),

@@ -30,14 +30,14 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
-import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountSecurityDisplay as Display } from '../../components/layouts/SettingsLayout/common';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import type {
   ChangePasswordParams,
   UpdateProvidersParams,
-} from '../../components/layouts/AccountLayout/Security';
-import AccountSecurityDefault from '../../components/layouts/AccountLayout/Security';
-import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
+} from '../../components/layouts/SettingsLayout/Security';
+import AccountSecurityDefault from '../../components/layouts/SettingsLayout/Security';
+import EmailFormPage from '../../components/layouts/SettingsLayout/Security/EmailFormPage';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -237,7 +237,7 @@ const AccountSecurityPage = (): ReactElement => {
   );
 };
 
-AccountSecurityPage.getLayout = getAccountLayout;
+AccountSecurityPage.getLayout = getSettingsLayout;
 AccountSecurityPage.layoutProps = { seo };
 
 export default AccountSecurityPage;
