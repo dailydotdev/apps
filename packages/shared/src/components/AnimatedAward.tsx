@@ -33,7 +33,7 @@ export const AnimatedAward = ({
       <img
         src={src}
         alt={alt ?? 'Award animation'}
-        className="award-animation h-64 w-64 object-contain"
+        className="award-animation size-64 object-contain"
         loading="eager"
       />
     </div>
