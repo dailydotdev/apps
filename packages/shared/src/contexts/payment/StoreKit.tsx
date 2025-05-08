@@ -111,7 +111,6 @@ const getApplePlusPricing = (metadata: ProductPricingMetadata[]) =>
               formatted: product.attributes.offers[0].priceFormatted,
             },
             duration,
-            trialPeriod: null,
             currency: null,
           } as ProductPricingPreview;
         })
@@ -236,7 +235,6 @@ export const StoreKitSubProvider = ({
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
-      isFreeTrialExperiment: false,
     }),
     [isPlusAvailable, openCheckout, products],
   );
