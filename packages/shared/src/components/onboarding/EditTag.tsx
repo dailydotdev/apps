@@ -23,6 +23,7 @@ interface EditTagProps {
   customActionName?: string;
   activeScreen?: OnboardingStep;
   headline?: string;
+  requiredTags?: number;
 }
 export const EditTag = ({
   feedSettings,
@@ -31,6 +32,7 @@ export const EditTag = ({
   customActionName,
   activeScreen,
   headline = 'Pick tags that are relevant to you',
+  requiredTags,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -87,6 +89,7 @@ export const EditTag = ({
             allowPin
           />
           <CreateFeedButton
+            requiredTags={requiredTags}
             className="mt-20"
             onClick={onClick}
             customActionName={customActionName}
