@@ -67,7 +67,7 @@ export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
 export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
-export const settingsUrl = `${webappUrl}settings/`;
+export const settingsUrl = `${webappUrl}settings`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
