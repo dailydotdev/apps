@@ -3,6 +3,7 @@ import React from 'react';
 import type { Post } from '../../graphql/posts';
 import { ClickableText } from '../buttons/ClickableText';
 import { largeNumberFormat } from '../../lib';
+import { Image } from '../image/Image';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;
@@ -39,6 +40,13 @@ export function PostUpvotesCommentsCount({
       )}
       {awards > 0 && (
         <span className="flex items-center gap-1">
+          {!!post.featuredAward?.award && (
+            <Image
+              src={post.featuredAward.award.image}
+              alt={post.featuredAward.award.name}
+              className="size-6"
+            />
+          )}
           <span>
             {largeNumberFormat(awards)}
             {` Award${awards === 1 ? '' : 's'}`}

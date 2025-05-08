@@ -43,6 +43,12 @@ import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import classNames from 'classnames';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import { GENERATE_DEVCARD_MUTATION } from '../../../../../graphql/devcard';
 import type { GenerateDevCardParams } from '../../../../../graphql/devcard';
 
@@ -161,9 +167,14 @@ export const DevCardStep2 = ({
   return (
     <>
       <section className="flex flex-col">
-        <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
+        <Typography
+          bold
+          tag={TypographyTag.H1}
+          type={TypographyType.Title1}
+          className="mx-3 mb-8 text-center"
+        >
           Share your #DevCard!
-        </h1>
+        </Typography>
         <div className="flex grow-0 flex-row justify-center">
           <RadioItem
             disabled={isLoading}
@@ -257,19 +268,31 @@ export const DevCardStep2 = ({
         <div className="flex flex-col gap-8 p-5">
           {selectedTab === 0 && (
             <>
-              <p className="text-text-tertiary typo-callout">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
                 Show off your daily.dev activity easily by adding your DevCard
                 to GitHub, your website, or use it as a dynamic Twitter cover
                 (now called X, but we still like the old name better).
-              </p>
+              </Typography>
 
               <div>
-                <h3 className="typo-title4 flex font-bold">
+                <Typography
+                  bold
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Title4}
+                  className="flex"
+                >
                   <GitHubIcon className="mr-2" size={IconSize.Small} />
                   Embed the DevCard on your GitHub profile
-                </h3>
+                </Typography>
 
-                <p className="mt-2 inline-block text-text-tertiary typo-callout">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                  className="mt-2 inline-block"
+                >
                   Find out how to put your DevCard in your GitHub README and
                   make it update automatically using GitHub Actions.{' '}
                   <ClickableText
@@ -285,11 +308,14 @@ export const DevCardStep2 = ({
                       size={IconSize.XXSmall}
                     />
                   </ClickableText>
-                </p>
+                </Typography>
 
-                <p className="white-space-pre-wrap mt-4 break-words rounded-10 bg-surface-float px-4 py-2 text-text-tertiary">
+                <Typography
+                  color={TypographyColor.Tertiary}
+                  className="white-space-pre-wrap mt-4 break-words rounded-10 bg-surface-float px-4 py-2"
+                >
                   {embedCode}
-                </p>
+                </Typography>
                 <Button
                   className="mt-4"
                   variant={ButtonVariant.Secondary}
@@ -306,13 +332,22 @@ export const DevCardStep2 = ({
               </div>
 
               <div>
-                <h3 className="typo-title4 flex font-bold">
+                <Typography
+                  bold
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Title4}
+                  className="flex"
+                >
                   <TwitterIcon size={IconSize.Small} className="mr-1.5" />
                   Use as X header
-                </h3>
-                <p className="mt-2 text-text-tertiary typo-callout">
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                  className="mt-2"
+                >
                   Level up your Twitter game with a DevCard header image!
-                </p>
+                </Typography>
                 <Button
                   className="mt-5"
                   variant={ButtonVariant.Secondary}
@@ -331,7 +366,14 @@ export const DevCardStep2 = ({
           {selectedTab === 1 && (
             <>
               <div>
-                <h3 className="typo-title4 mb-2 font-bold">Theme</h3>
+                <Typography
+                  bold
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Title4}
+                  className="mb-2"
+                >
+                  Theme
+                </Typography>
 
                 <div className="flex flex-row flex-wrap">
                   {Object.keys(themeToLinearGradient).map((value) => {
@@ -374,11 +416,21 @@ export const DevCardStep2 = ({
                 </div>
               </div>
               <div>
-                <h3 className="typo-title4 mb-2 font-bold">Cover image</h3>
-                <p className="text-text-tertiary typo-callout">
+                <Typography
+                  bold
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Title4}
+                  className="mb-2"
+                >
+                  Cover image
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
                   You can use our default image or update the image by editing
                   your profile
-                </p>
+                </Typography>
 
                 <RadioItem
                   disabled={isLoading}
@@ -401,7 +453,14 @@ export const DevCardStep2 = ({
                 </RadioItem>
               </div>
               <div>
-                <h3 className="typo-title4 mb-2 font-bold">Profile image</h3>
+                <Typography
+                  bold
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Title4}
+                  className="mb-2"
+                >
+                  Profile image
+                </Typography>
 
                 <Switch
                   inputId="show-border"
