@@ -863,6 +863,6 @@ meter::-webkit-meter-bar {
   }
 
   .award-animation {
-    animation: full-sequence 2s ease-in-out forwards;
+    animation: full-sequence 1s ease-in-out forwards;
   }
 }

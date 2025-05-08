@@ -17,7 +17,7 @@ export const AnimatedAward = ({
 }: AnimatedAwardProps) => {
   useTimeout(() => {
     onDone?.();
-  }, 3000);
+  }, 1000);
 
   if (!src) {
     return null;
