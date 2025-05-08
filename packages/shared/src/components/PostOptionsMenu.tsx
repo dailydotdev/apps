@@ -425,7 +425,9 @@ export default function PostOptionsMenu({
         }
 
         if (isCustomDefaultFeed && router.pathname === '/') {
-          return router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+          return router.push(
+            `${webappUrl}feeds/${defaultFeedId}/edit?dview=${FeedSettingsMenu.AI}`,
+          );
         }
         if (feedName === SharedFeedPage.Custom) {
           return router.push(
