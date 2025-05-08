@@ -858,11 +858,11 @@ meter::-webkit-meter-bar {
       transform: scale(1.4);
     }
     100% {
-      transform: scale(0) rotateZ(360deg);
+      transform: scale(0);
     }
   }
 
   .award-animation {
-    animation: full-sequence 3s ease-in-out forwards;
+    animation: full-sequence 2s ease-in-out forwards;
   }
 }
