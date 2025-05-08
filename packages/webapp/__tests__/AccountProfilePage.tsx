@@ -5,7 +5,7 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AccountProfilePage from '../pages/account/profile';
+import AccountProfilePage from '../pages/settings/profile';
 
 jest.mock('next/router', () => ({
   useRouter() {

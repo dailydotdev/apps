@@ -214,6 +214,11 @@ const nextConfig: NextConfig = {
             destination: '/account/customization/devcard',
             permanent: true,
           },
+          {
+            source: '/account/:path*',
+            destination: '/settings/:path*',
+            permanent: true,
+          },
         ];
       },
       headers: async () => {
