@@ -34,7 +34,7 @@ import { BuyCoresModal } from './BuyCoresModal';
 import type { Product } from '../../../graphql/njord';
 import {
   award,
-  getProducts,
+  getProductsQueryOptions,
   UserTransactionStatus,
 } from '../../../graphql/njord';
 import { labels, largeNumberFormat } from '../../../lib';
@@ -44,7 +44,6 @@ import type {
   ApiUserTransactionErrorExtension,
 } from '../../../graphql/common';
 import { ApiError } from '../../../graphql/common';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
@@ -98,11 +97,7 @@ const IntroScreen = () => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
 
-  const { data: awards } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Products),
-    queryFn: () => getProducts(),
-    staleTime: StaleTime.Default,
-  });
+  const { data: awards } = useQuery(getProductsQueryOptions());
 
   const onBuyCores = () => {
     setShowBuyCores(false);
