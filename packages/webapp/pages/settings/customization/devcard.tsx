@@ -11,18 +11,18 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { defaultOpenGraph } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { getAccountLayout } from '../../../components/layouts/AccountLayout';
-import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
+import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const DevCardStep1 = dynamic(() =>
   import(
-    /* webpackChunkName: "devCardStep1" */ '../../../components/layouts/AccountLayout/Customization/DevCard/DevCardStep1'
+    /* webpackChunkName: "devCardStep1" */ '../../../components/layouts/SettingsLayout/Customization/DevCard/DevCardStep1'
   ).then((mod) => mod.DevCardStep1),
 );
 
 const DevCardStep2 = dynamic(() =>
   import(
-    /* webpackChunkName: "devCardStep1" */ '../../../components/layouts/AccountLayout/Customization/DevCard/DevCardStep2'
+    /* webpackChunkName: "devCardStep1" */ '../../../components/layouts/SettingsLayout/Customization/DevCard/DevCardStep2'
   ).then((mod) => mod.DevCardStep2),
 );
 
@@ -69,7 +69,7 @@ const Page = (): ReactElement => {
   );
 };
 
-Page.getLayout = getAccountLayout;
+Page.getLayout = getSettingsLayout;
 Page.layoutProps = { seo };
 
 export default Page;

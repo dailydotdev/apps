@@ -2,24 +2,24 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
-import { FeedSettingsTagsSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsTagsSection';
-import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
+import { FeedSettingsContentPreferencesSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
+import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { getFeedSettingsLayout } from '../../../components/layouts/AccountLayout/FeedSettingsLayout';
+import { getFeedSettingsLayout } from '../../../components/layouts/SettingsLayout/FeedSettingsLayout';
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   return (
-    <AccountPageContainer title="Tags">
+    <AccountPageContainer title="Content preferences">
       <section className="flex flex-col gap-4">
-        <FeedSettingsTagsSection />
+        <FeedSettingsContentPreferencesSection />
       </section>
     </AccountPageContainer>
   );
 };
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Edit tags'),
+  title: getTemplatedTitle('Edit content preferences'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };

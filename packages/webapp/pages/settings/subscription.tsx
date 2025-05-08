@@ -31,8 +31,8 @@ import {
   defaultPlusInfoCopy,
   PlusType,
 } from '@dailydotdev/shared/src/components/plus/PlusInfo';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -175,7 +175,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   );
 };
 
-AccountManageSubscriptionPage.getLayout = getAccountLayout;
+AccountManageSubscriptionPage.getLayout = getSettingsLayout;
 AccountManageSubscriptionPage.layoutProps = { seo };
 
 export default AccountManageSubscriptionPage;

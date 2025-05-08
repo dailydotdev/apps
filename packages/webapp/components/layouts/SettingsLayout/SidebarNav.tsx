@@ -39,8 +39,8 @@ import {
   docs,
   feedback,
   reputation,
+  settingsUrl,
   walletUrl,
-  webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import type { ProfileSectionItemProps } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSection';
@@ -64,27 +64,27 @@ export const accountPageItems = defineMenuItems({
       profile: {
         title: 'Profile details',
         icon: UserIcon,
-        href: `${webappUrl}account/profile`,
+        href: `${settingsUrl}/profile`,
       },
       account: {
         title: 'Account',
         icon: MailIcon,
-        href: `${webappUrl}account/security`,
+        href: `${settingsUrl}/security`,
       },
       appearance: {
         title: 'Appearance',
         icon: NewTabIcon,
-        href: `${webappUrl}account/appearance`,
+        href: `${settingsUrl}/appearance`,
       },
       notifications: {
         title: 'Notifications',
         icon: BellIcon,
-        href: `${webappUrl}account/notifications`,
+        href: `${settingsUrl}/notifications`,
       },
       invite: {
         title: 'Invite Friends',
         icon: InviteIcon,
-        href: `${webappUrl}account/invite`,
+        href: `${settingsUrl}/invite`,
       },
     },
   },
@@ -94,7 +94,7 @@ export const accountPageItems = defineMenuItems({
       subscription: {
         title: 'Subscriptions',
         icon: CreditCardIcon,
-        href: `${webappUrl}account/subscription`,
+        href: `${settingsUrl}/subscription`,
       },
       coreWallet: {
         title: 'Core Wallet',
@@ -110,32 +110,32 @@ export const accountPageItems = defineMenuItems({
       general: {
         title: 'General',
         icon: EditIcon,
-        href: `${webappUrl}account/feed/general`,
+        href: `${settingsUrl}/feed/general`,
       },
       tags: {
         title: 'Tags',
         icon: HashtagIcon,
-        href: `${webappUrl}account/feed/tags`,
+        href: `${settingsUrl}/feed/tags`,
       },
       sources: {
         title: 'Content sources',
         icon: AddUserIcon,
-        href: `${webappUrl}account/feed/sources`,
+        href: `${settingsUrl}/feed/sources`,
       },
       preferences: {
         title: 'Content preferences',
         icon: AppIcon,
-        href: `${webappUrl}account/feed/preferences`,
+        href: `${settingsUrl}/feed/preferences`,
       },
       ai: {
         title: 'AI superpowers',
         icon: MagicIcon,
-        href: `${webappUrl}account/feed/ai`,
+        href: `${settingsUrl}/feed/ai`,
       },
       blocked: {
         title: 'Blocked content',
         icon: BlockIcon,
-        href: `${webappUrl}account/feed/blocked`,
+        href: `${settingsUrl}/feed/blocked`,
       },
     },
   },
@@ -145,17 +145,17 @@ export const accountPageItems = defineMenuItems({
       streaks: {
         title: 'Streaks',
         icon: HotIcon,
-        href: `${webappUrl}account/customization/streaks`,
+        href: `${settingsUrl}/customization/streaks`,
       },
       devcard: {
         title: 'DevCard',
         icon: DevCardIcon,
-        href: `${webappUrl}account/customization/devcard`,
+        href: `${settingsUrl}/customization/devcard`,
       },
       integrations: {
         title: 'Integrations',
         icon: EmbedIcon,
-        href: `${webappUrl}account/customization/integrations`,
+        href: `${settingsUrl}/customization/integrations`,
       },
     },
   },
@@ -165,7 +165,7 @@ export const accountPageItems = defineMenuItems({
       privacy: {
         title: 'Privacy',
         icon: PrivacyIcon,
-        href: `${webappUrl}account/privacy`,
+        href: `${settingsUrl}/privacy`,
       },
       reputation: {
         title: 'Reputation',
