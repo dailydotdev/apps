@@ -127,6 +127,7 @@ export type FunnelQuestionCommon = {
     image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
+  optionStyle?: 'default' | 'simplified';
 };
 
 export type FunnelQuestionCheckbox = FunnelQuestionCommon &

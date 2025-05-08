@@ -7,27 +7,6 @@ export interface CommonPlusPageProps {
   shouldShowPlusHeader?: boolean;
 }
 
-export const plusFAQTrialItem = {
-  question: 'Why do I need to enter a credit card to start a trial?',
-  answer: (
-    <div className="flex flex-col gap-4">
-      <p>
-        We ask for a credit card to ensure a seamless experience if you decide
-        to continue with Plus after your trial. No interruptions, no hassle.
-      </p>
-      <p>
-        It also helps prevent abuse, as some Plus features, especially those
-        powered by AI, come with additional costs on our end. This way, we can
-        keep providing high-quality tools without misuse.
-      </p>
-      <p>
-        You won’t be charged during the trial, and you can cancel anytime before
-        it ends without paying a cent.
-      </p>
-    </div>
-  ),
-};
-
 export const plusFAQItems: FAQItem[] = [
   {
     question: 'Why should I get the Annual Special Plan now?',
