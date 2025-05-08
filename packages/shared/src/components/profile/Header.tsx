@@ -195,7 +195,7 @@ export function Header({
             onPlusClick={() => {
               router.push(
                 getPathnameWithQuery(
-                  `${webappUrl}/cores`,
+                  `${webappUrl}cores`,
                   new URLSearchParams({
                     origin: Origin.Profile,
                   }),

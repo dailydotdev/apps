@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { CoreIcon, SettingsIcon } from '../icons';
+import { CoinIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -72,7 +72,7 @@ export default function ProfileButton({
               <div>
                 <Link href={walletUrl} passHref>
                   <Button
-                    icon={<CoreIcon />}
+                    icon={<CoinIcon className="text-text-credit" />}
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
