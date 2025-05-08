@@ -30,11 +30,6 @@ export const BasePaymentProvider = ({
     [data],
   );
 
-  const isFreeTrialExperiment = useMemo(
-    () => data?.some(({ trialPeriod }) => !!trialPeriod),
-    [data],
-  );
-
   const value = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
@@ -43,7 +38,6 @@ export const BasePaymentProvider = ({
       isPlusAvailable,
       giftOneYear,
       isPricesPending,
-      isFreeTrialExperiment,
       isPaddleReady,
     }),
     [
@@ -52,7 +46,6 @@ export const BasePaymentProvider = ({
       giftOneYear,
       isPlusAvailable,
       isPricesPending,
-      isFreeTrialExperiment,
       isPaddleReady,
     ],
   );
