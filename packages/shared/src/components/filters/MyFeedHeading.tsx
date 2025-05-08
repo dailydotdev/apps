@@ -54,7 +54,7 @@ function MyFeedHeading({
       return `${webappUrl}feeds/${query.slugOrId}/edit`;
     }
 
-    return `${settingsUrl}feed/general`;
+    return `${settingsUrl}/feed/general`;
   }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query]);
 
   const onClick = useCallback(() => {
