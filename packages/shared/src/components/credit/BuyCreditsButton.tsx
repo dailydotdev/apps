@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CoinIcon, PlusIcon } from '../icons';
+import { CoreIcon, PlusIcon } from '../icons';
 
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
@@ -49,7 +49,7 @@ export const BuyCreditsButton = ({
           target={isInsideModal ? '_blank' : undefined}
           rel={anchorDefaultRel}
           variant={ButtonVariant.Tertiary}
-          icon={<CoinIcon className="text-text-credit" />}
+          icon={<CoreIcon />}
           size={ButtonSize.Small}
         >
           {largeNumberFormat(user?.balance?.amount || 0)}
