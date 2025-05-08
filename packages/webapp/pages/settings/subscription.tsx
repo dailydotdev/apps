@@ -4,7 +4,6 @@ import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 
-import { managePlusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { SubscriptionProvider } from '@dailydotdev/shared/src/lib/plus';
 
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
@@ -55,7 +54,8 @@ const seo: NextSeoProps = {
 
 const PlusInfo = (): ReactElement => {
   const { openModal } = useLazyModal();
-  const { plusProvider, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
+    usePlusSubscription();
 
   return (
     <>
@@ -91,8 +91,12 @@ const PlusInfo = (): ReactElement => {
           tag="a"
           size={ButtonSize.Small}
           variant={ButtonVariant.Secondary}
-          href={managePlusUrl}
-          target="_blank"
+          href={plusHref}
+          target={
+            isPlus && plusProvider === SubscriptionProvider.Paddle
+              ? '_blank'
+              : undefined
+          }
           disabled={
             !isIOSNative() &&
             plusProvider === SubscriptionProvider.AppleStoreKit
