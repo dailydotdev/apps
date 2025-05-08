@@ -68,6 +68,7 @@ export enum Origin {
   Award = 'award',
   CoresPage = 'cores page',
   // End Credits
+  ProfileMenu = 'profile menu',
 }
 
 export enum LogEvent {
