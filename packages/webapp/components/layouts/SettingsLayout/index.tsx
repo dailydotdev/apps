@@ -12,8 +12,25 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import dynamic from 'next/dynamic';
-import { getLayout as getMainLayout } from '../MainLayout';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
+import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
+import { getLayout as getMainLayout } from '../MainLayout';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -47,6 +64,8 @@ export default function SettingsLayout({
   const router = useRouter();
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const canPurchaseCores = useCanPurchaseCores();
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
@@ -82,18 +101,52 @@ export default function SettingsLayout({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
-      {isMobile ? (
-        <ProfileSettingsMenuMobile
-          shouldKeepOpen
-          isOpen={isOpen}
-          onClose={() => router.push(profile.permalink)}
-        />
-      ) : (
-        <ProfileSettingsMenuDesktop />
+    <>
+      {!isMobile && !isLaptop && (
+        <div className="hidden h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:flex laptop:hidden">
+          <Link href={webappUrl} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<ArrowIcon className="-rotate-90" />}
+            />
+          </Link>
+
+          <Typography bold tag={TypographyTag.H2} type={TypographyType.Body}>
+            Settings
+          </Typography>
+
+          <BuyCreditsButton
+            className="ml-auto"
+            hideBuyButton={!canPurchaseCores}
+            onPlusClick={() => {
+              router.push(
+                getPathnameWithQuery(
+                  `${webappUrl}cores`,
+                  new URLSearchParams({
+                    origin: Origin.Settings,
+                  }),
+                ),
+              );
+            }}
+          />
+        </div>
       )}
-      {children}
-    </div>
+
+      <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+        {isMobile ? (
+          <ProfileSettingsMenuMobile
+            shouldKeepOpen
+            isOpen={isOpen}
+            onClose={() => router.push(profile.permalink)}
+          />
+        ) : (
+          <ProfileSettingsMenuDesktop />
+        )}
+        {children}
+      </div>
+    </>
   );
 }
 
