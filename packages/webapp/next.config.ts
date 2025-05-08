@@ -206,12 +206,12 @@ const nextConfig: NextConfig = {
           // well-known redirect for change password
           {
             source: '/.well-known/change-password',
-            destination: '/account/security',
+            destination: '/settings/security',
             permanent: false,
           },
           {
             source: '/devcard',
-            destination: '/account/customization/devcard',
+            destination: '/settings/customization/devcard',
             permanent: true,
           },
           {
