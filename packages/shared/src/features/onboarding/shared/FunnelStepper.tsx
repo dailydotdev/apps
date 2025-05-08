@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback } from 'react';
+import React, { Fragment, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
@@ -35,6 +35,7 @@ import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
+import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 
 export interface FunnelStepperProps {
@@ -146,27 +147,50 @@ export const FunnelStepper = ({
     [onTransition],
   );
 
+  const layout = useMemo(() => {
+    const hasBanner = !!funnel?.parameters?.banner?.stepsToDisplay?.includes(
+      step.id,
+    );
+    const hasHeader = stepsWithHeader.includes(step.type);
+    const hasCookieConsent = isCookieBannerActive && showBanner;
+
+    return {
+      hasHeader,
+      hasBanner,
+      hasCookieConsent,
+    };
+  }, [
+    isCookieBannerActive,
+    showBanner,
+    step.id,
+    step.type,
+    funnel?.parameters?.banner?.stepsToDisplay,
+  ]);
+
   if (!isReady) {
     return null;
   }
 
   return (
     <section
+      className="flex min-h-dvh flex-col"
       data-testid="funnel-stepper"
       onClickCapture={trackOnClickCapture}
       onMouseOverCapture={trackOnHoverCapture}
       onScrollCapture={trackOnScroll}
-      className="flex min-h-dvh flex-col"
     >
-      {isCookieBannerActive && showBanner && (
+      {layout.hasCookieConsent && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
         <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+          {layout.hasBanner && (
+            <FunnelBannerMessage {...funnel.parameters.banner} />
+          )}
           <Header
             chapters={chapters}
             className={classNames({
-              hidden: !stepsWithHeader.includes(step.type),
+              hidden: !layout.hasHeader,
             })}
             currentChapter={position.chapter}
             currentStep={position.step}

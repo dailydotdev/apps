@@ -68,6 +68,7 @@ export type Product = {
   value: number;
   flags?: Partial<{
     description: string;
+    imageGlow: string;
   }>;
 };
 

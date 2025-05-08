@@ -11,6 +11,7 @@ import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery } from '../lib';
+import { useMedia } from '../hooks';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -28,6 +29,7 @@ const SCREENS = {
 const MODALRENDERS = {
   AWARD: 'AWARD',
   BUY_CORES: 'BUY_CORES',
+  AWARD_ANIMATION: 'AWARD_ANIMATION',
 } as const;
 export type ModalRenders = keyof typeof MODALRENDERS;
 
@@ -115,6 +117,13 @@ export const GiveAwardModalContextProvider = ({
     MODALRENDERS.AWARD,
   );
 
+  const prefersReducedMotion = useMedia(
+    ['(prefers-reduced-motion)'],
+    [true],
+    false,
+    false,
+  );
+
   const logAwardEvent = useCallback(
     ({
       awardEvent,
@@ -159,7 +168,17 @@ export const GiveAwardModalContextProvider = ({
 
         setActiveModal(modal);
       },
-      onRequestClose,
+      onRequestClose: (event) => {
+        if (
+          !prefersReducedMotion &&
+          activeStep.screen === 'SUCCESS' &&
+          activeStep.product
+        ) {
+          setActiveModal('AWARD_ANIMATION');
+        } else {
+          onRequestClose?.(event);
+        }
+      },
       activeStep: activeStep.screen,
       product: activeStep.product,
       setActiveStep,
@@ -177,6 +196,7 @@ export const GiveAwardModalContextProvider = ({
       logAwardEvent,
       router,
       post,
+      prefersReducedMotion,
     ],
   );
 
