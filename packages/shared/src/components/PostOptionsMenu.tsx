@@ -71,8 +71,7 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
-import { FeedSettingsMenu } from './feeds/FeedSettings/types';
-import { webappUrl } from '../lib/constants';
+import { settingsUrl } from '../lib/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -420,11 +419,8 @@ export default function PostOptionsMenu({
             target_id: TargetId.ContextMenu,
           });
         }
-        router.push(
-          `${webappUrl}feeds/${router.query?.slugOrId || user.id}/edit?dview=${
-            FeedSettingsMenu.AI
-          }`,
-        );
+
+        router.push(`${settingsUrl}/feed/ai`);
       },
     });
 
