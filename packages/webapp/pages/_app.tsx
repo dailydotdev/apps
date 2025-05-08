@@ -20,6 +20,7 @@ import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
+import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -35,6 +36,7 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
   messageHandlerExists,
   postWebKitMessage,
@@ -77,16 +79,20 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
-  const { user, trackingId } = useAuthContext();
+  const { user, trackingId, isFunnel } = useAuthContext();
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
+  useIOSError();
+
+  useCheckCoresRole();
 
   useEffect(() => {
     if (
+      !isFunnel &&
       isOnboardingActionsReady &&
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
@@ -94,6 +100,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       router.replace('/onboarding');
     }
   }, [
+    isFunnel,
     isOnboardingActionsReady,
     router,
     hasCompletedEditTags,
@@ -176,6 +183,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="slack-app-id" content="A07AM7XC529" />
         <meta name="apple-itunes-app" content="app-id=6740634400" />
+        <meta
+          name="facebook-domain-verification"
+          content="78sk2yqe8k6z8uznxwj6q82gklhy42"
+        />
 
         <link
           rel="apple-touch-icon"
@@ -226,7 +237,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {showBanner && (
+      {showBanner && !isFunnel && (
         <CookieBanner
           onAccepted={onAcceptCookies}
           onHideBanner={onHideBanner}

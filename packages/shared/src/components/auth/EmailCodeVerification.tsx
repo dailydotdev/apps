@@ -16,10 +16,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { CodeField } from '../fields/CodeField';
+import { useAuthData } from '../../contexts/AuthDataContext';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
-  email: string;
   flowId: string;
   onSubmit?: () => void;
   className?: string;
@@ -27,11 +27,11 @@ interface EmailCodeVerificationProps extends AuthFormProps {
 
 function EmailCodeVerification({
   code: codeProp,
-  email,
   flowId,
   onSubmit,
   className,
 }: EmailCodeVerificationProps): ReactElement {
+  const { email } = useAuthData();
   const { logEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
@@ -40,6 +40,7 @@ function EmailCodeVerification({
     useAccountEmailFlow({
       flow: AuthFlow.Verification,
       flowId,
+      timerOnLoad: 60,
       onError: setHint,
       onVerifyCodeSuccess: () => {
         logEvent({

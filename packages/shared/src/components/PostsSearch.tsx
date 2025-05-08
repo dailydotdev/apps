@@ -33,6 +33,7 @@ export type PostsSearchProps = {
   autoFocus?: boolean;
   className?: string;
   onSubmitQuery: (query: string) => Promise<unknown>;
+  onClearQuery?: () => Promise<unknown>;
 } & Pick<HTMLAttributes<HTMLInputElement>, 'onFocus'>;
 
 const SEARCH_TYPES = {
@@ -49,6 +50,7 @@ export default function PostsSearch({
   className,
   suggestionType = 'searchPostSuggestions',
   onFocus,
+  onClearQuery,
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
@@ -124,6 +126,7 @@ export default function PostsSearch({
     if (!value.length) {
       hideMenu();
       setQuery('');
+      onClearQuery?.();
       return;
     }
 

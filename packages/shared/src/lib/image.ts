@@ -252,3 +252,89 @@ export const plusFeaturesImage =
 
 export const plusRedBackgroundImage =
   'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';
+
+export const interactiveFeedEmpty =
+  'https://media.daily.dev/image/upload/s--I40-3-Oa--/f_auto/v1741779283/public/cards';
+
+export const purchaseCoinsCheckoutVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/s--1p9Qw5ey--/v1741849174/videos/daily.dev_-_get_cores.mp4';
+
+export const purchaseCoinsCheckoutVideoPoster =
+  'https://media.daily.dev/image/upload/s--A_4rXIh7--/f_auto/v1741779750/public/Giving%20cores';
+
+export const featuredAwardImage =
+  'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
+
+export const disabledCoreImage =
+  'https://media.daily.dev/image/upload/s--kTMWrmJV--/f_auto/v1743599810/public/Core-disabled';
+
+export const coreImage =
+  'https://media.daily.dev/image/upload/s--YAvJnCmq--/f_auto/v1743599810/public/Core-front';
+
+export const buyCoreStarField =
+  'https://media.daily.dev/image/upload/s--W4W5Gmjh--/f_auto,q_auto/v1744197985/webapp/Stars';
+
+const coreValueMap = [
+  {
+    maxValue: 200,
+    image:
+      'https://media.daily.dev/image/upload/s--9IXwSmB---/f_auto/v1743599811/public/Core1',
+  },
+  {
+    maxValue: 1_000,
+    image:
+      'https://media.daily.dev/image/upload/s--ybFIBUnx--/f_auto/v1743599810/public/Core2',
+  },
+  {
+    maxValue: 10_000,
+    image:
+      'https://media.daily.dev/image/upload/s--kai_mE1u--/f_auto/v1743599810/public/Core3',
+  },
+  {
+    maxValue: 20_000,
+    image:
+      'https://media.daily.dev/image/upload/s--bSCtv96n--/f_auto/v1743599810/public/Core4',
+  },
+  {
+    maxValue: Infinity,
+    image:
+      'https://media.daily.dev/image/upload/s--54JYAftK--/f_auto/v1743599810/public/Core5',
+  },
+];
+
+export const getCoreCurrencyImage = (value: number): string => {
+  return coreValueMap.find((core) => core.maxValue > value).image;
+};
+
+export const creditCardsImage =
+  'https://media.daily.dev/image/upload/s--GG1rD-wP--/f_auto/v1743491782/public/credit';
+
+/**
+ * Plus showcase video/images
+ */
+export const plusShowcaseTeamImage =
+  'https://media.daily.dev/image/upload/s--FM6ekBTf--/f_auto/v1741698925/public/team';
+export const plusShowcaseTeamVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/team.mp4';
+export const plusShowcaseCustomFeedsImage =
+  'https://media.daily.dev/image/upload/s--OU22D-Xf--/f_auto/v1741690961/public/customfeed';
+export const plusShowcaseCustomFeedsVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/customfeeds.webm';
+export const plusShowcaseSmartPrompsImage =
+  'https://media.daily.dev/image/upload/s--3WScQpUE--/f_auto/v1741698925/public/smartprompts';
+export const plusShowcaseSmartPrompsVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/smartprompts.webm';
+export const plusShowcaseShieldImage =
+  'https://media.daily.dev/image/upload/s--UlKSWTvF--/f_auto/v1741698925/public/shield';
+export const plusShowcaseShieldVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/shield.webm';
+export const plusShowcaseBookmarkImage =
+  'https://media.daily.dev/image/upload/s--PZk2a1PY--/f_auto/v1741690961/public/bookmark';
+export const plusShowcaseBookmarkVideo =
+  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/bookmark.webm';
+export const plusShowcaseKeywordImage =
+  'https://media.daily.dev/image/upload/s--r2BZKWPk--/f_auto/v1741690961/public/Keyword filters';
+export const plusShowcaseAdFreeImage =
+  'https://media.daily.dev/image/upload/s--jlfaLYq_--/f_auto/v1741690961/public/Ad-free experience';
+export const plusShowcaseSquadImage =
+  'https://media.daily.dev/image/upload/s--LKIr_f6r--/f_auto/v1741698925/public/Members-only Squad';

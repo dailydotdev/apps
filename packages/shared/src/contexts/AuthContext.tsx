@@ -1,5 +1,13 @@
+'use client';
+
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
@@ -15,7 +23,7 @@ import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
-import { invalidPlusRegions } from '../lib/constants';
+import { invalidPlusRegions, webFunnelPrefix } from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -65,7 +73,9 @@ export interface AuthContextData {
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
+  isFunnel?: boolean;
 }
+
 const isExtension = checkIsExtension();
 const AuthContext = React.createContext<AuthContextData>(null);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
@@ -77,14 +87,12 @@ export const getQueryParams = (): Record<string, string> => {
   }
 
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-
-  return params;
+  return Object.fromEntries(urlSearchParams.entries());
 };
 
 export const REGISTRATION_PATH = '/register';
 
-const logout = async (reason: string): Promise<void> => {
+export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
@@ -99,6 +107,14 @@ const logout = async (reason: string): Promise<void> => {
     window.location.replace('/');
   }
 };
+
+export function checkIfGdprCovered(geo?: Boot['geo']): boolean {
+  return (
+    geo?.continent === Continent.Europe ||
+    !outsideGdpr.includes(geo?.region) ||
+    isIOSNative()
+  );
+}
 
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
@@ -142,7 +158,14 @@ export const AuthContextProvider = ({
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
-  if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
+  const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
+
+  if (
+    firstLoad === true &&
+    endUser &&
+    !endUser?.infoConfirmed &&
+    !isFunnelRef.current
+  ) {
     logout(LogoutReason.IncomleteOnboarding);
   }
 
@@ -154,6 +177,7 @@ export const AuthContextProvider = ({
   return (
     <AuthContext.Provider
       value={{
+        isFunnel: isFunnelRef.current,
         isAuthReady: !isNullOrUndefined(firstLoad),
         user: endUser,
         isLoggedIn: !!endUser?.id,
@@ -198,10 +222,7 @@ export const AuthContextProvider = ({
         geo,
         isAndroidApp,
         isValidRegion,
-        isGdprCovered:
-          geo?.continent === Continent.Europe ||
-          !outsideGdpr.includes(geo?.region) ||
-          isIOSNative(),
+        isGdprCovered: checkIfGdprCovered(geo),
       }}
     >
       {children}

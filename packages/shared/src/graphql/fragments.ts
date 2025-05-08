@@ -1,5 +1,26 @@
 import { gql } from 'graphql-request';
 
+export const PRODUCT_FRAGMENT = gql`
+  fragment ProductFragment on Product {
+    id
+    type
+    name
+    image
+    value
+    flags {
+      description
+    }
+  }
+`;
+
+export const FEATURED_AWARD_FRAGMENT = gql`
+  fragment FeaturedAwardFragment on Product {
+    name
+    image
+    value
+  }
+`;
+
 export const CURRENT_MEMBER_FRAGMENT = gql`
   fragment CurrentMember on SourceMember {
     user {
@@ -31,6 +52,7 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
     }
     isPlus
     plusMemberSince
+    coresRole
   }
 `;
 
@@ -178,6 +200,7 @@ export const POST_TRANSLATEABLE_FIELDS_FRAGMENT = gql`
     title
     titleHtml
     smartTitle
+    summary
   }
 `;
 
@@ -195,6 +218,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     views
     numUpvotes
     numComments
+    numAwards
     summary
     bookmark {
       remindAt
@@ -229,6 +253,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       flags {
         feedbackDismiss
       }
+      awarded
     }
     slug
     clickbaitTitleDetected
@@ -258,6 +283,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     views
     numUpvotes
     numComments
+    numAwards
     videoId
     bookmark {
       remindAt
@@ -277,12 +303,14 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     downvoted
     flags {
       promoteToPublic
+      coverVideo
     }
     userState {
       vote
       flags {
         feedbackDismiss
       }
+      awarded
     }
     slug
     domain
@@ -291,11 +319,17 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     translation {
       ...PostTranslateableFields
     }
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`
@@ -306,14 +340,27 @@ export const COMMENT_FRAGMENT = gql`
     lastUpdatedAt
     permalink
     numUpvotes
+    numAwards
     author {
       ...UserAuthor
     }
     userState {
       vote
+      awarded
+    }
+    fromAward
+    award {
+      name
+      image
+    }
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
     }
   }
   ${USER_AUTHOR_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const RELATED_POST_FRAGMENT = gql`
@@ -398,4 +445,29 @@ export const TOP_READER_BADGE_FRAGMENT = gql`
       }
     }
   }
+`;
+
+export const TRANSACTION_FRAGMENT = gql`
+  fragment TransactionFragment on UserTransaction {
+    id
+    product {
+      ...ProductFragment
+    }
+    status
+    receiver {
+      ...UserShortInfo
+    }
+    sender {
+      ...UserShortInfo
+    }
+    value
+    valueIncFees
+    flags {
+      note
+      error
+    }
+    createdAt
+  }
+  ${PRODUCT_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
 `;

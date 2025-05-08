@@ -21,6 +21,8 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { ProfileImageSize } from '../ProfilePicture';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import { Image } from '../image/Image';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -62,12 +64,16 @@ export default function CommentContainer({
     source: post.source,
     user: comment.author,
   });
+  const hasAccessToCores = useHasAccessToCores();
 
   return (
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'flex flex-col rounded-16 p-4 hover:bg-surface-hover focus:outline',
+        'relative flex flex-col rounded-16 p-4 hover:bg-surface-hover focus:outline',
+        hasAccessToCores &&
+          comment.userState?.awarded &&
+          'bg-overlay-float-onion',
         isCommentReferenced
           ? 'border border-accent-cabbage-default'
           : 'border-border-subtlest-tertiary',
@@ -118,7 +124,7 @@ export default function CommentContainer({
             {!!comment.author?.isPlus && (
               <PlusUserBadge user={comment.author} />
             )}
-            <div className="flex items-center">
+            <div className="flex min-w-0 shrink items-center">
               <ProfileLink href={comment.author.permalink}>
                 <TruncateText
                   className="text-text-tertiary typo-footnote"
@@ -127,6 +133,8 @@ export default function CommentContainer({
                   @{comment.author.username}
                 </TruncateText>
               </ProfileLink>
+            </div>
+            <div>
               <Separator className="!mx-0.5" />
               <CommentPublishDate comment={comment} />
             </div>
@@ -143,6 +151,15 @@ export default function CommentContainer({
             {comment.author.id === postScoutId && <UserBadge>Scout</UserBadge>}
           </FlexRow>
         </div>
+        {hasAccessToCores && !!comment.award && (
+          <div className="ml-2 flex size-7 items-center justify-center rounded-10 bg-surface-float">
+            <Image
+              src={comment.award.image}
+              alt={comment.award.name}
+              className="size-5 object-contain"
+            />
+          </div>
+        )}
       </header>
       <div
         className={classNames(

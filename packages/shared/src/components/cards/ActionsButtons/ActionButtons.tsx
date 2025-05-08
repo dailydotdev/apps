@@ -146,7 +146,6 @@ const ActionButtons = ({
           onClick={() => onCommentClick?.(post)}
           size={ButtonSize.Small}
           className="btn-tertiary-blueCheese"
-          labelClassName="!pr-0"
         >
           {post.numComments ? (
             <InteractionCounter value={post.numComments} />

@@ -71,6 +71,11 @@ Object.defineProperty(global, 'open', {
   value: jest.fn(),
 });
 
+Object.defineProperty(global, 'scrollTo', {
+  writable: true,
+  value: jest.fn(),
+});
+
 Object.defineProperty(global, 'TransformStream', {
   writable: true,
   value: jest.fn().mockImplementation(() => ({
@@ -88,6 +93,28 @@ Object.defineProperty(global, 'BroadcastChannel', {
     removeEventListener: jest.fn(),
     readable: jest.fn(),
     writable: jest.fn(),
+  })),
+});
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+  }),
+  usePathname: () => '',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+Object.defineProperty(global, 'ResizeObserver', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+    trigger: jest.fn(),
   })),
 });
 

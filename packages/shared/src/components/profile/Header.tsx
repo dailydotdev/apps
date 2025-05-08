@@ -2,11 +2,19 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import type { PublicProfile, UserShortProfile } from '../../lib/user';
-import { BlockIcon, FlagIcon, SettingsIcon } from '../icons';
+import type {
+  LoggedUser,
+  PublicProfile,
+  UserShortProfile,
+} from '../../lib/user';
+import { BlockIcon, FlagIcon, GiftIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
+import {
+  getPathnameWithQuery,
+  largeNumberFormat,
+  ReferralCampaignKey,
+} from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
@@ -16,17 +24,25 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
-import { GiftIcon } from '../icons/gift';
 import type { MenuItemProps } from '../fields/ContextMenu';
+import { AwardButton } from '../award/AwardButton';
+import { BuyCreditsButton } from '../credit/BuyCreditsButton';
+import { webappUrl } from '../../lib/constants';
+import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  useCanAwardUser,
+  useCanPurchaseCores,
+  useHasAccessToCores,
+} from '../../hooks/useCoresFeature';
+import Link from '../utilities/Link';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -44,10 +60,10 @@ export function Header({
   className,
   style,
 }: HeaderProps): ReactElement {
+  const { user: loggedUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isPlus } = usePlusSubscription();
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -56,6 +72,12 @@ export function Header({
   });
   const { unblock, block } = useContentPreference();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const canAward = useCanAwardUser({
+    sendingUser: loggedUser,
+    receivingUser: user as LoggedUser,
+  });
+  const hasCoresAccess = useHasAccessToCores();
+  const canPurchaseCores = useCanPurchaseCores();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -146,22 +168,16 @@ export function Header({
       </>
       <div className="flex flex-row gap-2">
         {isSameUser && (
-          <Button
-            className="hidden laptop:flex"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            tag="a"
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-          >
-            Edit profile
-          </Button>
-        )}
-        {isSameUser && !isPlus && (
-          <UpgradeToPlus
-            className="max-w-fit laptop:hidden"
-            size={ButtonSize.Small}
-            target={TargetId.MyProfile}
-          />
+          <Link href={`${webappUrl}account/profile`}>
+            <Button
+              tag="a"
+              className="hidden laptop:flex"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+            >
+              Edit profile
+            </Button>
+          </Link>
         )}
         {!blocked && (
           <FollowButton
@@ -170,6 +186,33 @@ export function Header({
             status={contentPreference?.status}
             entityName={`@${user.username}`}
             className="flex-row-reverse"
+          />
+        )}
+        {isSameUser && hasCoresAccess && (
+          <BuyCreditsButton
+            className="laptop:hidden"
+            hideBuyButton={!canPurchaseCores}
+            onPlusClick={() => {
+              router.push(
+                getPathnameWithQuery(
+                  `${webappUrl}/cores`,
+                  new URLSearchParams({
+                    origin: Origin.Profile,
+                  }),
+                ),
+              );
+            }}
+          />
+        )}
+        {canAward && (
+          <AwardButton
+            appendTo="parent"
+            type="USER"
+            entity={{
+              id: user.id,
+              receiver: user,
+            }}
+            variant={ButtonVariant.Float}
           />
         )}
         {!isSameUser && (

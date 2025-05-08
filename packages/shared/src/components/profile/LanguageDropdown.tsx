@@ -8,6 +8,7 @@ import type { BaseFieldProps } from '../fields/BaseFieldContainer';
 import type { IconProps } from '../Icon';
 import { featureValidLanguages } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
+import { ButtonSize } from '../buttons/common';
 
 type ClassName = {
   hint?: string;
@@ -19,6 +20,7 @@ type Props = {
   defaultValue?: string;
   onChange?: (value: string, index: number) => void;
   icon?: ReactElement<IconProps>;
+  disabled?: boolean;
 } & Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'>;
 
 const defaultIcon = <LanguageIcon className="ml-0 mr-1" />;
@@ -32,6 +34,7 @@ export const LanguageDropdown = ({
   name,
   saveHintSpace = false,
   icon = defaultIcon,
+  disabled = false,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
   const validLanguages = useFeature(featureValidLanguages);
@@ -64,7 +67,11 @@ export const LanguageDropdown = ({
     >
       <Dropdown
         className={{
-          label: classNames(labelClassName, 'typo-body'),
+          label: classNames(
+            labelClassName,
+            'typo-body',
+            disabled && 'text-text-disabled',
+          ),
           button: classNames(
             buttonClassName,
             '!px-3',
@@ -87,9 +94,11 @@ export const LanguageDropdown = ({
           onChange?.(val, index);
           setSelectedIndex(index);
         }}
+        buttonSize={ButtonSize.Small}
         onOpenChange={setOpen}
         placeholder="Preferred content language"
         icon={icon}
+        disabled={disabled}
       />
       {name && selectedIndex > -1 && (
         <input

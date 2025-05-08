@@ -34,6 +34,7 @@ export enum AuthEventNames {
   RegistrationError = 'registration error',
   RegistrationInitializationError = 'registration initialization error',
   VerifiedSuccessfully = 'verified successfully',
+  TurnstileLoadError = 'turnstile load error',
 }
 
 export enum AuthTriggers {
@@ -72,6 +73,7 @@ export enum AuthTriggers {
   FromNotification = 'from notification',
   Follow = 'follow',
   Plus = 'plus',
+  GiveAward = 'give award',
 }
 
 export type AuthTriggersType =
@@ -142,6 +144,7 @@ export interface RegistrationParameters {
   optOutMarketing?: boolean;
   id_token?: string;
   id_token_nonce?: string;
+  'traits.region'?: string;
 }
 
 export interface SettingsParameters extends AuthPostParams {
@@ -203,9 +206,16 @@ export const isNativeAuthSupported = (provider: string): boolean =>
   messageHandlerExists(WebKitMessageHandlers.NativeAuth) &&
   ['apple', 'google'].includes(provider);
 
+export type NativeAuthResponse = {
+  provider: string;
+  token: string;
+  nonce: string;
+  name?: string;
+};
+
 export const iosNativeAuth = async (
   provider: string,
-): Promise<{ provider: string; token: string; nonce: string } | undefined> => {
+): Promise<NativeAuthResponse | undefined> => {
   const promise = promisifyEventListener(
     'native-auth',
     (event) => event.detail,

@@ -1,12 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
-import { checkKratosEmail } from '../../lib/kratos';
 import type { AuthFormProps } from './common';
-import { getFormEmail, providerMap } from './common';
+import { providerMap } from './common';
 import OrDivider from './OrDivider';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
@@ -18,6 +16,10 @@ import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { isIOSNative } from '../../lib/func';
 
+import { useCheckExistingEmail } from '../../hooks';
+import { MemberAlready } from '../onboarding/MemberAlready';
+import SignupDisclaimer from './SignupDisclaimer';
+
 interface ClassName {
   onboardingSignup?: string;
   onboardingForm?: string;
@@ -25,6 +27,7 @@ interface ClassName {
 }
 
 interface OnboardingRegistrationFormProps extends AuthFormProps {
+  onContinueWithEmail?: () => void;
   onExistingEmail?: (email: string) => unknown;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
@@ -38,7 +41,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   onboardingSignupButton?: ButtonProps<'button'>;
 }
 
-const isWebView = () => {
+export const isWebView = (): boolean => {
   const { userAgent } = navigator;
 
   // Define patterns for detecting in-app browsers and devices
@@ -87,7 +90,17 @@ const isWebView = () => {
   return isInAppBrowser || advancedInAppDetection();
 };
 
-const OnboardingRegistrationForm = ({
+const getSignupProviders = () => {
+  if (isIOSNative()) {
+    return [providerMap.google, providerMap.apple];
+  }
+  if (isWebView()) {
+    return [providerMap.github];
+  }
+  return [providerMap.google, providerMap.github];
+};
+
+export const OnboardingRegistrationForm = ({
   onSignup,
   onExistingEmail,
   onProviderClick,
@@ -97,11 +110,17 @@ const OnboardingRegistrationForm = ({
   className,
   onboardingSignupButton,
 }: OnboardingRegistrationFormProps): ReactElement => {
-  const { logEvent } = useContext(LogContext);
-  const [shouldLogin, setShouldLogin] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState<string>(null);
-  const { mutateAsync: checkEmail, isPending: isLoading } = useMutation({
-    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
+  const { logEvent } = useLogContext();
+  const { email, onEmailCheck } = useCheckExistingEmail({
+    onBeforeEmailCheck: () => {
+      logEvent({
+        event_name: 'click',
+        target_type: AuthEventNames.SignUpProvider,
+        target_id: 'email',
+        extra: JSON.stringify({ trigger }),
+      });
+    },
+    onValidEmail: onSignup,
   });
   const onboardingSignupButtonProps = {
     size: ButtonSize.Large,
@@ -109,19 +128,13 @@ const OnboardingRegistrationForm = ({
     ...onboardingSignupButton,
   };
 
-  const getSignupProviders = () => {
-    if (isIOSNative()) {
-      return [providerMap.google, providerMap.apple];
-    }
-    if (isWebView()) {
-      return [providerMap.github];
-    }
-    return [providerMap.google, providerMap.github];
+  const onSocialClick = (provider: string) => {
+    onProviderClick?.(provider, email.alreadyExists);
   };
 
   useEffect(() => {
     logEvent({
-      event_name: shouldLogin
+      event_name: email.alreadyExists
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
@@ -129,46 +142,14 @@ const OnboardingRegistrationForm = ({
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLogin]);
-
-  const onEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading) {
-      return null;
-    }
-
-    logEvent({
-      event_name: 'click',
-      target_type: AuthEventNames.SignUpProvider,
-      target_id: 'email',
-      extra: JSON.stringify({ trigger }),
-    });
-
-    const email = getFormEmail(e);
-
-    if (!email) {
-      return null;
-    }
-    const res = await checkEmail(email);
-
-    if (res?.result) {
-      setRegisterEmail(email);
-      return setShouldLogin(true);
-    }
-
-    return onSignup(email);
-  };
-
-  const onSocialClick = (provider: string) => {
-    onProviderClick?.(provider, shouldLogin);
-  };
+  }, [email.alreadyExists]);
 
   return (
     <>
       <AuthForm
         className={classNames('mb-8 gap-8', className?.onboardingForm)}
-        onSubmit={onEmailSignup}
-        aria-label={shouldLogin ? 'Login form' : 'Signup form'}
+        onSubmit={onEmailCheck}
+        aria-label={email.alreadyExists ? 'Login form' : 'Signup form'}
       >
         <TextField
           leftIcon={
@@ -184,7 +165,7 @@ const OnboardingRegistrationForm = ({
           className={{ container: 'bg-overlay-active-salt' }}
         />
 
-        {shouldLogin && (
+        {email.alreadyExists && (
           <>
             <Alert type={AlertType.Error} flexDirection="flex-row">
               <AlertParagraph className="!mt-0 flex-1">
@@ -192,7 +173,7 @@ const OnboardingRegistrationForm = ({
                 <button
                   type="button"
                   onClick={() => {
-                    onExistingEmail(registerEmail);
+                    onExistingEmail(email.value);
                   }}
                   className="font-bold underline"
                 >
@@ -205,7 +186,7 @@ const OnboardingRegistrationForm = ({
 
         <Button
           className="w-full"
-          loading={!isReady || isLoading}
+          loading={!isReady || email.isCheckPending}
           type="submit"
           variant={ButtonVariant.Primary}
         >
@@ -230,13 +211,14 @@ const OnboardingRegistrationForm = ({
       >
         {getSignupProviders().map((provider) => (
           <Button
-            aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${
+            aria-label={`${email.alreadyExists ? 'Login' : 'Signup'} using ${
               provider.label
             }`}
             icon={provider.icon}
             key={provider.value}
             loading={!isReady}
             onClick={() => onSocialClick(provider.value)}
+            type="button"
             {...onboardingSignupButtonProps}
           >
             {provider.label}
@@ -244,6 +226,88 @@ const OnboardingRegistrationForm = ({
         ))}
       </div>
     </>
+  );
+};
+
+export const OnboardingRegistrationFormExperiment = ({
+  isReady,
+  onContinueWithEmail,
+  onExistingEmail,
+  onProviderClick,
+  targetId,
+  trigger,
+}: OnboardingRegistrationFormProps): ReactElement => {
+  const { logEvent } = useLogContext();
+
+  const trackOpenSignup = () => {
+    logEvent({
+      event_name: 'click',
+      target_type: AuthEventNames.SignUpProvider,
+      target_id: 'email',
+      extra: JSON.stringify({ trigger }),
+    });
+  };
+
+  useEffect(() => {
+    logEvent({
+      event_name: AuthEventNames.OpenSignup,
+      extra: JSON.stringify({ trigger }),
+      target_id: targetId,
+    });
+    // Need to run only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div aria-label="Login/Register options" className="flex flex-col gap-4">
+      <ul aria-label="Social login buttons" className="flex flex-col gap-4">
+        {getSignupProviders().map((provider) => (
+          <li key={provider.value}>
+            <Button
+              aria-label={`Continue using ${provider.label}`}
+              className="w-full"
+              icon={provider.icon}
+              loading={!isReady}
+              onClick={() => onProviderClick?.(provider.value, false)}
+              size={ButtonSize.Large}
+              type="button"
+              variant={ButtonVariant.Primary}
+            >
+              Continue with {provider.label}
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <OrDivider
+        className={{
+          text: 'text-text-tertiary typo-footnote',
+        }}
+        label="OR"
+      />
+      <div className="flex flex-col-reverse text-center">
+        <MemberAlready
+          onLogin={() => onExistingEmail?.('')}
+          className={{
+            container:
+              'mx-auto mt-6 text-center text-text-secondary typo-callout',
+            login: '!text-inherit',
+          }}
+        />
+        <SignupDisclaimer className="!text-text-tertiary !typo-footnote" />
+        <Button
+          aria-label="Signup using email"
+          className="mb-8"
+          onClick={() => {
+            trackOpenSignup();
+            onContinueWithEmail?.();
+          }}
+          size={ButtonSize.Large}
+          variant={ButtonVariant.Float}
+        >
+          Continue with email
+        </Button>
+      </div>
+    </div>
   );
 };
 

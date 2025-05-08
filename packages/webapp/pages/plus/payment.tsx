@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
 
 import { useRouter } from 'next/router';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 
 import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
@@ -35,11 +35,11 @@ const PlusPaymentPage = (): ReactElement => {
       return;
     }
     if (!pid) {
-      router.replace(`${webappUrl}plus`);
+      router.replace(plusUrl);
     }
   }, [pid, router]);
 
-  const selectedProduct = productOptions.find((option) => option.value === pid);
+  const selectedProduct = productOptions.find(({ priceId }) => priceId === pid);
 
   return (
     <>
@@ -53,7 +53,7 @@ const PlusPaymentPage = (): ReactElement => {
             <PlusProductList
               className="w-full"
               productList={[selectedProduct]}
-              selected={selectedProduct?.value}
+              selected={selectedProduct?.priceId}
             />
           </div>
         )}

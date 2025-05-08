@@ -5,6 +5,8 @@
     "components/**/*.ts",
     "components/**/*.tsx",
     "graphql/**/*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
     "pages/**/*.tsx",
     "pages/**/*.ts",
     "*.js",

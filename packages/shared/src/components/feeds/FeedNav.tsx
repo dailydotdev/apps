@@ -26,6 +26,9 @@ import classed from '../../lib/classed';
 import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
+import MyFeedHeading from '../filters/MyFeedHeading';
+import { SharedFeedPage } from '../utilities';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -43,13 +46,14 @@ enum FeedNavTab {
 
 const StickyNavIconWrapper = classed(
   'div',
-  'sticky flex h-11 w-20 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
+  'sticky flex h-11 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
 const MIN_SCROLL_BEFORE_HIDING = 60;
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+  const { user } = useAuthContext();
   const [, startTransition] = useTransition();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { feedName } = useActiveFeedNameContext();
@@ -68,6 +72,10 @@ function FeedNav(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
+
+  const showStickyButton =
+    isMobile &&
+    ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
@@ -184,24 +192,47 @@ function FeedNav(): ReactElement {
           ))}
         </TabContainer>
 
-        {isMobile && sortingEnabled && isSortableFeed && (
-          <StickyNavIconWrapper className="translate-x-[calc(100vw-100%)]">
-            <Dropdown
-              className={{
-                label: 'hidden',
-                chevron: 'hidden',
-                button: '!px-1',
+        {showStickyButton && (
+          <StickyNavIconWrapper
+            className={classNames(
+              'translate-x-[calc(100vw-100%)]',
+              sortingEnabled && isSortableFeed ? 'w-32' : 'w-20',
+            )}
+          >
+            {sortingEnabled && isSortableFeed && (
+              <Dropdown
+                className={{
+                  label: 'hidden',
+                  chevron: 'hidden',
+                  button: '!px-1',
+                }}
+                dynamicMenuWidth
+                shouldIndicateSelected
+                buttonSize={ButtonSize.Small}
+                buttonVariant={ButtonVariant.Tertiary}
+                icon={<SortIcon />}
+                iconOnly
+                selectedIndex={selectedAlgo}
+                options={algorithmsList}
+                onChange={(_, index) => setSelectedAlgo(index)}
+                drawerProps={{ displayCloseButton: true }}
+              />
+            )}
+
+            <MyFeedHeading
+              onOpenFeedFilters={() => {
+                if (isCustomDefaultFeed && router.pathname === '/') {
+                  router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+                } else {
+                  router.push(
+                    `${webappUrl}feeds/${
+                      feedName === SharedFeedPage.Custom
+                        ? router.query.slugOrId
+                        : user.id
+                    }/edit`,
+                  );
+                }
               }}
-              dynamicMenuWidth
-              shouldIndicateSelected
-              buttonSize={ButtonSize.Small}
-              buttonVariant={ButtonVariant.Tertiary}
-              icon={<SortIcon />}
-              iconOnly
-              selectedIndex={selectedAlgo}
-              options={algorithmsList}
-              onChange={(_, index) => setSelectedAlgo(index)}
-              drawerProps={{ displayCloseButton: true }}
             />
           </StickyNavIconWrapper>
         )}

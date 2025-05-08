@@ -11,8 +11,7 @@ import PlusListModalSection from './PlusListModalSection';
 const PlusWebapp = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
-  const { flags } = marketingCta;
-  const { title, description } = flags;
+  const { flags } = marketingCta || {};
   const { openCheckout, productOptions, isPricesPending } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>();
   const checkoutRef = useRef();
@@ -20,7 +19,7 @@ const PlusWebapp = (): ReactElement => {
 
   useEffect(() => {
     if (!isPricesPending && !selectedOption) {
-      setSelectedOption(productOptions?.[0]?.value);
+      setSelectedOption(productOptions?.[0]?.priceId);
     }
   }, [isPricesPending, productOptions, selectedOption]);
 
@@ -37,8 +36,8 @@ const PlusWebapp = (): ReactElement => {
           showPlusList={false}
           showGiftButton={false}
           showDailyDevLogo
-          title={title}
-          description={description}
+          title={flags?.title}
+          description={flags?.description}
           showTrustReviews={false}
         />
         {!showCheckout && (
@@ -47,7 +46,7 @@ const PlusWebapp = (): ReactElement => {
             variant={ButtonVariant.Primary}
             className="mt-8"
           >
-            {flags.ctaText}
+            {flags?.ctaText}
           </Button>
         )}
       </div>

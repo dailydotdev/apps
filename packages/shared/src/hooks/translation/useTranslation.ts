@@ -17,6 +17,7 @@ import {
 } from '../../lib/query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription } from '../usePlusSubscription';
+import { isExtension } from '../../lib/func';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -100,6 +101,7 @@ const updateTranslation = ({
     case 'smartTitle':
       updatedPost = updateTitleTranslation({ post, translation });
       break;
+    case 'summary':
     case 'titleHtml':
       updatedPost = updateGenericPostField({ post, translation });
       break;
@@ -125,7 +127,7 @@ export const useTranslation: UseTranslation = ({
   const { isPlus } = usePlusSubscription();
 
   const { language } = user || {};
-  const isStreamActive = isLoggedIn && !!language;
+  const isStreamActive = isLoggedIn && isPlus && !!language;
 
   const updateFeed = useCallback(
     (translatedPost: TranslateEvent) => {
@@ -199,7 +201,7 @@ export const useTranslation: UseTranslation = ({
         const fields = [];
 
         const shouldUseSmartTitle =
-          isPlus && post.clickbaitTitleDetected && clickbaitShieldEnabled;
+          post.clickbaitTitleDetected && clickbaitShieldEnabled;
 
         if (shouldUseSmartTitle && !post.translation?.smartTitle) {
           fields.push('smartTitle');
@@ -211,6 +213,14 @@ export const useTranslation: UseTranslation = ({
 
         if (post.type === PostType.Share && !post?.translation?.titleHtml) {
           fields.push('titleHtml');
+        }
+
+        if (
+          queryType !== 'feed' &&
+          post.summary &&
+          !post.translation?.summary
+        ) {
+          fields.push('summary');
         }
 
         if (fields.length > 0) {
@@ -232,6 +242,8 @@ export const useTranslation: UseTranslation = ({
           Authorization: `Bearer ${accessToken?.token}`,
           'Content-Language': language as string,
           'Content-Type': 'application/json',
+          'X-Daily-Client': isExtension ? 'extension' : 'webapp',
+          'X-Daily-Version': process.env.CURRENT_VERSION,
         },
         body: JSON.stringify(payload),
       });
@@ -267,7 +279,6 @@ export const useTranslation: UseTranslation = ({
       updateFeed,
       updatePost,
       clickbaitShieldEnabled,
-      isPlus,
     ],
   );
 

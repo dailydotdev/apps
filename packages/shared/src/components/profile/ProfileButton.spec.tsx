@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import type { RenderResult } from '@testing-library/react';
-import { waitFor, render, screen } from '@testing-library/react';
+import { waitFor, render, screen, act } from '@testing-library/react';
 import ProfileButton from './ProfileButton';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -32,23 +32,29 @@ const renderComponent = (): RenderResult => {
   );
 };
 
-it('account details should link to account profile page', async () => {
+it('should show settings option that opens modal', async () => {
   renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
-  profileBtn.click();
+  await act(async () => {
+    profileBtn.click();
+  });
 
-  const accountBtn = await screen.findByText('Account details');
-  expect(accountBtn).toHaveAttribute('href', '/account/profile');
+  const settingsButton = await screen.findByRole('link', {
+    name: 'Settings',
+  });
+  expect(settingsButton).toBeInTheDocument();
 });
 
 it('should click the logout button and logout', async () => {
   renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
-  profileBtn.click();
+  await act(async () => {
+    profileBtn.click();
+  });
 
-  const logoutBtn = await screen.findByText('Logout');
+  const logoutBtn = await screen.findByText('Log out');
   logoutBtn.click();
 
   await waitFor(async () => expect(logout).toBeCalled());

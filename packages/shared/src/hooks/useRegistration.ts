@@ -44,6 +44,9 @@ interface UseRegistrationProps {
   onRedirectFail?: () => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
   onInitializeVerification?: () => void;
+  enabled?: boolean;
+  params?: Record<string, string>;
+  keepSession?: boolean;
 }
 
 interface UseRegistration {
@@ -62,15 +65,18 @@ const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
 
 const useRegistration = ({
   key,
+  params: _params,
+  enabled = true,
   onRedirect,
   onRedirectFail,
   onInvalidRegistration,
   onInitializeVerification,
+  keepSession = false,
 }: UseRegistrationProps): UseRegistration => {
   const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout } =
+  const { trackingId, referral, referralOrigin, logout, geo } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -79,8 +85,9 @@ const useRegistration = ({
     error: registrationError,
   } = useQuery({
     queryKey: key,
-    queryFn: () => initializeKratosFlow(AuthFlow.Registration),
+    queryFn: () => initializeKratosFlow(AuthFlow.Registration, _params),
     ...disabledRefetch,
+    enabled,
   });
 
   if (registration?.error) {
@@ -100,7 +107,8 @@ const useRegistration = ({
     if (
       registration.error?.id ===
         KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE &&
-      !afterAuth
+      !afterAuth &&
+      !keepSession
     ) {
       logout(LogoutReason.KratosSessionAlreadyAvailable);
     }
@@ -216,6 +224,7 @@ const useRegistration = ({
       'traits.userId': trackingId,
       ...referralTraits,
       'traits.timezone': timezone,
+      'traits.region': geo?.region,
     };
 
     await validate({ action, params: postData });
@@ -258,6 +267,9 @@ const useRegistration = ({
       const res = await iosNativeAuth(provider);
       postData.id_token = res.token;
       postData.id_token_nonce = res.nonce;
+      if (res.name) {
+        postData['traits.name'] = res.name;
+      }
     }
 
     await onValidateRegistration(postData);

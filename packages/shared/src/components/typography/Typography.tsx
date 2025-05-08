@@ -1,5 +1,5 @@
-import type { HTMLAttributes, ReactElement, RefAttributes } from 'react';
-import React from 'react';
+import type { ReactElement, RefAttributes } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { truncateTextClassNames } from '../utilities/common';
@@ -16,6 +16,7 @@ export enum TypographyTag {
   Span = 'span',
   Label = 'label',
   Link = 'a',
+  Button = 'button',
 }
 
 export enum TypographyType {
@@ -25,6 +26,7 @@ export enum TypographyType {
   Subhead = 'typo-subhead',
   Callout = 'typo-callout',
   Body = 'typo-body',
+  Title4 = 'typo-title4',
   Title3 = 'typo-title3',
   Title2 = 'typo-title2',
   Title1 = 'typo-title1',
@@ -50,6 +52,7 @@ export enum TypographyColor {
   StatusError = 'text-status-error',
   Plus = 'text-action-plus-default',
   Brand = 'text-brand-default',
+  Credit = 'text-text-credit',
 }
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;
@@ -60,25 +63,26 @@ export type TypographyProps<Tag extends AllowedTags> = {
   type?: TypographyType;
   color?: TypographyColor;
   bold?: boolean;
-  ref?: RefAttributes<AllowedElements>['ref'];
   truncate?: boolean;
-} & HTMLAttributes<AllowedElements> &
-  JSX.IntrinsicElements[Tag];
+} & JSX.IntrinsicElements[Tag];
 
 const tagToColor = {
   [TypographyTag.Link]: TypographyColor.Link,
 };
 
-export function Typography<TagName extends AllowedTags>({
-  tag = TypographyTag.P,
-  type,
-  color,
-  bold = false,
-  children,
-  className,
-  truncate = false,
-  ...props
-}: TypographyProps<TagName>): ReactElement {
+function BaseTypography<TagName extends AllowedTags>(
+  {
+    tag = TypographyTag.P,
+    type,
+    color,
+    bold = false,
+    children,
+    className,
+    truncate = false,
+    ...props
+  }: TypographyProps<TagName>,
+  ref?: RefAttributes<AllowedElements>['ref'],
+): ReactElement {
   const classes = classNames(
     className,
     type,
@@ -88,5 +92,11 @@ export function Typography<TagName extends AllowedTags>({
   );
   const Tag = classed(tag, classes);
 
-  return <Tag {...props}>{children}</Tag>;
+  return (
+    <Tag {...props} ref={ref}>
+      {children}
+    </Tag>
+  );
 }
+
+export const Typography = forwardRef(BaseTypography) as typeof BaseTypography;

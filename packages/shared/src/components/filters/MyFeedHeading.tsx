@@ -11,7 +11,7 @@ import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
-import { useShortcutsUser } from '../../hooks/useShortcutsUser';
+import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 interface MyFeedHeadingProps {
@@ -41,7 +41,6 @@ function MyFeedHeading({
     <>
       <FeedSettingsButton
         onClick={onOpenFeedFilters}
-        className={!customFeedPlacement ? 'mr-auto' : ''}
         size={ButtonSize.Medium}
         variant={getSetttingsVariant()}
         icon={<FilterIcon />}

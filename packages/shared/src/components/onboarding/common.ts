@@ -2,12 +2,15 @@ import classed from '../../lib/classed';
 
 export type OnboardingOnClickNext = (
   options?: Partial<{
+    plusPayment: boolean;
+    plusSuccess: boolean;
     clickExtension: boolean;
   }>,
 ) => void;
 
 export enum OnboardingStep {
   Intro = 'intro',
+  Signup = 'signup',
   Topics = 'topics',
   Theme = 'theme',
   EditTag = 'edit_tag',
@@ -15,7 +18,11 @@ export enum OnboardingStep {
   ReadingReminder = 'reading_reminder',
   PWA = 'pwa',
   Plus = 'plus',
+  PlusPayment = 'plus_payment',
+  PlusSuccess = 'plus_success',
   Extension = 'extension',
+  InteractiveFeed = 'interactive_feed',
+  PreviewFeed = 'preview_feed',
 }
 
 export const onboardingStepsWithFooter: Array<OnboardingStep> = [
@@ -25,6 +32,7 @@ export const onboardingStepsWithFooter: Array<OnboardingStep> = [
 export const onboardingStepsWithCTA: Array<OnboardingStep> = [
   OnboardingStep.PWA,
   OnboardingStep.Extension,
+  OnboardingStep.PlusPayment,
 ];
 
 export const OnboardingTitle = classed(
@@ -32,9 +40,9 @@ export const OnboardingTitle = classed(
   'text-center typo-title2 font-bold px-4',
 );
 
-export const OnboardingGradientClasses =
+export const onboardingGradientClasses =
   'font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default';
-export const OnboardingTitleGradient = classed('h1', OnboardingGradientClasses);
+export const OnboardingTitleGradient = classed('h1', onboardingGradientClasses);
 
 export const REQUIRED_TAGS_THRESHOLD = 5;
 

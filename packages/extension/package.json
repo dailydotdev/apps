@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.36.20",
+  "version": "3.37.0",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:opera": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=opera webpack --watch",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "workspace:*",
+    "@kickass-coderz/react": "^0.0.4",
     "@tanstack/react-query": "^5.59.16",
     "@tanstack/react-query-devtools": "^5.59.16",
     "classnames": "^2.5.1",
@@ -63,6 +64,7 @@
     "babel-loader": "^8.2.5",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-react-remove-properties": "^0.3.0",
+    "caniuse-lite": "^1.0.30001717",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.3.1",
     "cross-env": "^7.0.3",

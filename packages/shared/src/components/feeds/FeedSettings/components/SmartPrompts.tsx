@@ -8,14 +8,7 @@ import {
 } from '../../../typography/Typography';
 import { PlusUser } from '../../../PlusUser';
 import { LogEvent, Origin, TargetId } from '../../../../lib/log';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { plusUrl } from '../../../../lib/constants';
-import { DevPlusIcon } from '../../../icons';
-import {
-  useConditionalFeature,
-  usePlusSubscription,
-  useToastNotification,
-} from '../../../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { usePromptsQuery } from '../../../../hooks/prompt/usePromptsQuery';
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
@@ -24,22 +17,15 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { SimpleTooltip } from '../../../tooltips';
 import ConditionalWrapper from '../../../ConditionalWrapper';
-import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 
 export const SmartPrompts = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { flags, updatePromptFlag } = useSettingsContext();
   const { prompt: promptFlags } = flags;
   const { data: prompts, isLoading } = usePromptsQuery();
-  const {
-    value: { full: plusCta },
-  } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus,
-  });
 
   return (
     <section className="flex flex-col gap-4" aria-busy={isLoading}>
@@ -113,25 +99,6 @@ export const SmartPrompts = (): ReactElement => {
           </ConditionalWrapper>
         ))}
       </div>
-      {!isPlus && (
-        <Button
-          className="w-fit"
-          tag="a"
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
-          href={plusUrl}
-          icon={<DevPlusIcon className="text-action-plus-default" />}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.ClickbaitShield,
-            });
-          }}
-        >
-          {plusCta}
-        </Button>
-      )}
     </section>
   );
 };

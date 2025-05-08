@@ -203,6 +203,17 @@ const nextConfig: NextConfig = {
             destination: '/plus',
             permanent: false,
           },
+          // well-known redirect for change password
+          {
+            source: '/.well-known/change-password',
+            destination: '/account/security',
+            permanent: false,
+          },
+          {
+            source: '/devcard',
+            destination: '/account/customization/devcard',
+            permanent: true,
+          },
         ];
       },
       headers: async () => {

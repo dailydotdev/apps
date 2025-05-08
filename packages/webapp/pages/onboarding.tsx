@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
-import type {
-  AuthOptionsProps,
-  AuthProps,
-} from '@dailydotdev/shared/src/components/auth/AuthOptions';
-import AuthOptions, {
-  AuthDisplay,
-} from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import {
@@ -21,9 +21,9 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { OnboardingOnClickNext } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
+  OnboardingStep,
   onboardingStepsWithCTA,
   onboardingStepsWithFooter,
-  OnboardingStep,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -42,10 +42,12 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   feature,
-  featureOnboardingPlusCheckout,
+  featureInteractiveFeed,
+  featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useActions,
+  useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -61,11 +63,20 @@ import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
+import type {
+  AuthOptionsProps,
+  AuthProps,
+} from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AFTER_AUTH_PARAM,
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
+import { HotJarTracking } from '../components/Pixels';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -87,8 +98,12 @@ const ReadingReminder = dynamic(() =>
 
 const OnboardingPlusStep = dynamic(() =>
   import(
-    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/OnboardingPlusStep'
-  ).then((mod) => mod.OnboardingPlusStep),
+    /* webpackChunkName: "onboardingPlusStep" */ '@dailydotdev/shared/src/components/onboarding/Plus/OnboardingPlus'
+  ).then((mod) => mod.OnboardingPlus),
+);
+
+const PlusPaymentStep = dynamic(
+  () => import(/* webpackChunkName: "plusPaymentStep" */ './plus'),
 );
 
 const OnboardingPWA = dynamic(() =>
@@ -103,8 +118,24 @@ const OnboardingExtension = dynamic(() =>
   ).then((mod) => mod.OnboardingExtension),
 );
 
-const PlusPage = dynamic(
-  () => import(/* webpackChunkName: "plusPage" */ './plus'),
+const InteractiveFeedStep = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "interactiveFeedStep" */ '@dailydotdev/shared/src/components/onboarding/InteractiveFeedStep'
+    ),
+);
+
+const FeedPreviewStep = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedPreviewStep" */ '@dailydotdev/shared/src/components/onboarding/FeedPreviewStep'
+    ),
+);
+
+const PlusSuccess = dynamic(() =>
+  import(
+    /* webpackChunkName: "plusSuccess" */ '@dailydotdev/shared/src/components/onboarding/Plus/PlusSuccess'
+  ).then((mod) => mod.PlusSuccess),
 );
 
 type OnboardingVisual = {
@@ -173,18 +204,37 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
-  const [isPlusCheckout, setIsPlusCheckout] = useState(false);
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
+  const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
+  const isIntro = activeScreen === OnboardingStep.Intro;
+  const { value: isReorderExperiment } = useConditionalFeature({
+    feature: featureOnboardingReorder,
+    shouldEvaluate: isOnboardingReady && !user && isIntro && !shouldVerify,
+  });
+
+  const isExperimental = {
+    reorder: {
+      registration: !!(
+        isReorderExperiment && defaultDisplay === AuthDisplay.Registration
+      ),
+    },
+  };
+
+  const showOnboardingPage = !isAuthenticating && !shouldVerify && isIntro;
+  const showBackground =
+    showOnboardingPage || isExperimental.reorder.registration;
+  const showGenerigLoader =
+    isAuthenticating && isAuthLoading && isIntro && !isOnboardingReady;
 
   const layout = useMemo(
     () => ({
-      hasFooter: onboardingStepsWithFooter.includes(activeScreen),
       hasCta: onboardingStepsWithCTA.includes(activeScreen),
+      hasFooterLinks: onboardingStepsWithFooter.includes(activeScreen),
     }),
     [activeScreen],
   );
-
-  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
 
   useEffect(() => {
     if (
@@ -199,7 +249,11 @@ export function OnboardPage(): ReactElement {
     isLogged.current = true;
 
     if (!hasCompletedEditTags) {
-      setActiveScreen(OnboardingStep.EditTag);
+      if (getFeatureValue(featureInteractiveFeed) && isLaptop) {
+        setActiveScreen(OnboardingStep.InteractiveFeed);
+      } else {
+        setActiveScreen(OnboardingStep.EditTag);
+      }
       return;
     }
 
@@ -208,7 +262,7 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    if (activeScreen === OnboardingStep.Intro) {
+    if (isIntro) {
       const params = new URLSearchParams(window.location.search);
       const afterAuth = params.get(AFTER_AUTH_PARAM);
       params.delete(AFTER_AUTH_PARAM);
@@ -218,22 +272,55 @@ export function OnboardPage(): ReactElement {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    isIntro,
     isPageReady,
     user,
     isOnboardingReady,
     hasCompletedEditTags,
     hasCompletedContentTypes,
     activeScreen,
+    getFeatureValue,
   ]);
 
-  const onClickNext: OnboardingOnClickNext = () => {
+  const onTagsNext = useCallback(() => {
+    const shouldEnroll = getFeatureValue(featureInteractiveFeed) && isLaptop;
+    setIsInteractiveFeed(shouldEnroll);
+    if (shouldEnroll) {
+      return setActiveScreen(OnboardingStep.InteractiveFeed);
+    }
+
+    return setActiveScreen(OnboardingStep.EditTag);
+  }, [getFeatureValue, isLaptop]);
+
+  const onClickNext: OnboardingOnClickNext = (options) => {
+    const { plusPayment, plusSuccess } = options || {};
     logEvent({
       event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
+    if (plusSuccess) {
+      return setActiveScreen(OnboardingStep.PlusSuccess);
+    }
+
+    if (plusPayment && activeScreen === OnboardingStep.Plus) {
+      return setActiveScreen(OnboardingStep.PlusPayment);
+    }
+
+    if (
+      activeScreen === OnboardingStep.InteractiveFeed &&
+      !hasCompletedContentTypes
+    ) {
+      completeStep(ActionType.EditTag);
+      return setActiveScreen(OnboardingStep.ContentTypes);
+    }
+
+    if (activeScreen === OnboardingStep.InteractiveFeed) {
+      return setActiveScreen(OnboardingStep.PreviewFeed);
+    }
+
     if (activeScreen === OnboardingStep.Intro) {
-      return setActiveScreen(OnboardingStep.EditTag);
+      return onTagsNext();
     }
 
     if (activeScreen === OnboardingStep.EditTag) {
@@ -257,11 +344,13 @@ export function OnboardPage(): ReactElement {
       OnboardingStep.ContentTypes,
       OnboardingStep.ReadingReminder,
     ].includes(activeScreen);
-    if (isLastStepBeforePlus && !isIOSNative() && isValidRegion) {
-      const isPlusCheckoutExperiment = getFeatureValue(
-        featureOnboardingPlusCheckout,
-      );
-      setIsPlusCheckout(isPlusCheckoutExperiment);
+
+    if (
+      isLastStepBeforePlus &&
+      !isIOSNative() &&
+      isValidRegion &&
+      !user?.isPlus
+    ) {
       return setActiveScreen(OnboardingStep.Plus);
     }
 
@@ -269,12 +358,22 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.PWA);
     }
 
-    const isNotExtensionRelatedStep = ![OnboardingStep.Extension].includes(
-      activeScreen,
-    );
+    const isNotExtensionRelatedStep = ![
+      OnboardingStep.Extension,
+      OnboardingStep.InteractiveFeed,
+      OnboardingStep.PreviewFeed,
+    ].includes(activeScreen);
 
     if (shouldShowExtensionOnboarding && isNotExtensionRelatedStep) {
       return setActiveScreen(OnboardingStep.Extension);
+    }
+
+    if (
+      isInteractiveFeed &&
+      (!shouldShowExtensionOnboarding ||
+        activeScreen === OnboardingStep.Extension)
+    ) {
+      return setActiveScreen(OnboardingStep.PreviewFeed);
     }
 
     logEvent({
@@ -289,6 +388,8 @@ export function OnboardPage(): ReactElement {
     return router.replace({ pathname: afterAuth || '/' });
   };
 
+  const successCallbackRef = useRef(() => onClickNext({ plusSuccess: true }));
+
   const onClickCreateFeed = () => {
     logSubscriptionEvent({
       event_name: LogEvent.OnboardingSkipPlus,
@@ -300,18 +401,17 @@ export function OnboardPage(): ReactElement {
     return onClickNext();
   };
 
-  const onSuccessfulRegistration = () => {
-    setActiveScreen(OnboardingStep.EditTag);
-  };
-
   const authOptionProps: AuthOptionsProps = useMemo(() => {
+    const onSuccessfulRegistration = () => {
+      onTagsNext();
+    };
+
     return {
       simplified: true,
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
-          isAuthenticating && 'h-full',
-          !isAuthenticating && 'max-w-full',
+          isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
@@ -338,48 +438,43 @@ export function OnboardPage(): ReactElement {
     isMobile,
     targetId,
     loginState,
+    onTagsNext,
   ]);
 
   const customActionName = useMemo(() => {
-    if (activeScreen === OnboardingStep.EditTag) {
+    if (
+      activeScreen === OnboardingStep.EditTag ||
+      activeScreen === OnboardingStep.InteractiveFeed
+    ) {
       return 'Continue';
     }
 
-    if (activeScreen === OnboardingStep.Plus) {
-      return 'Skip for now ➞';
-    }
-    if (layout.hasCta) {
-      return 'Not now →';
+    if (layout.hasCta || [OnboardingStep.Plus].includes(activeScreen)) {
+      return 'Skip →';
     }
 
     return undefined;
   }, [activeScreen, layout.hasCta]);
-
-  const showOnboardingPage =
-    !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
-
-  const showGenerigLoader =
-    isAuthenticating &&
-    isAuthLoading &&
-    activeScreen === OnboardingStep.Intro &&
-    !isOnboardingReady;
 
   if (!isPageReady) {
     return null;
   }
 
   return (
-    <PaymentContextProvider>
+    <PaymentContextProvider successCallback={successCallbackRef.current}>
       <div
         className={classNames(
           'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
           layout.hasCta && 'fixed',
         )}
       >
-        {showOnboardingPage && (
+        {showBackground && (
           <img
             alt="Onboarding background"
-            className="pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover tablet:object-center"
+            className={classNames(
+              'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
+              isExperimental.reorder.registration && 'opacity-[.24] ',
+            )}
             fetchPriority="high"
             loading="eager"
             role="presentation"
@@ -396,18 +491,19 @@ export function OnboardPage(): ReactElement {
           customActionName={customActionName}
           onClick={onClickCreateFeed}
           activeScreen={activeScreen}
-          showPlusIcon={isPlusCheckout && activeScreen === OnboardingStep.Plus}
         />
         <div
           className={classNames(
             'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-            activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-            !isAuthenticating && 'mt-7.5 flex-1 content-center',
+            (isIntro || isExperimental.reorder.registration) && wrapperMaxWidth,
+            (!isAuthenticating || isExperimental.reorder.registration) &&
+              'mt-7.5 flex-1 content-center',
             [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
           )}
         >
           {showOnboardingPage && (
             <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+              <HotJarTracking hotjarId="3871311" />
               <OnboardingHeadline
                 className={{
                   title: 'tablet:typo-mega-1 typo-large-title',
@@ -415,16 +511,21 @@ export function OnboardPage(): ReactElement {
                 }}
               />
               <AuthOptions {...authOptionProps} />
-              <SignupDisclaimer className="mb-4" />
+              {!isReorderExperiment && <SignupDisclaimer className="mb-4" />}
             </div>
           )}
-          {isAuthenticating && activeScreen === OnboardingStep.Intro ? (
-            <AuthOptions {...authOptionProps} />
+          {isAuthenticating && isIntro ? (
+            <>
+              <AuthOptions {...authOptionProps} />
+              {isExperimental.reorder.registration && (
+                <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+              )}
+            </>
           ) : (
             <div
               className={classNames(
                 'flex tablet:flex-1',
-                activeScreen === OnboardingStep.Intro
+                isIntro
                   ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
                   : 'mb-10 ml-0 w-full flex-col items-center justify-start',
                 layout.hasCta &&
@@ -444,20 +545,37 @@ export function OnboardPage(): ReactElement {
                 />
               )}
               {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-              {activeScreen === OnboardingStep.Plus &&
-                (isPlusCheckout ? (
-                  <PlusPage shouldShowPlusHeader={false} />
-                ) : (
-                  <OnboardingPlusStep onClickNext={onClickNext} />
-                ))}
+              {activeScreen === OnboardingStep.Plus && (
+                <OnboardingPlusStep
+                  onClickNext={onClickNext}
+                  onClickPlus={() => onClickNext({ plusPayment: true })}
+                />
+              )}
+              {activeScreen === OnboardingStep.PlusPayment && (
+                <PlusPaymentStep />
+              )}
+              {activeScreen === OnboardingStep.PlusSuccess && (
+                <PlusSuccess onClickNext={onClickNext} />
+              )}
               {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
               {activeScreen === OnboardingStep.Extension && (
                 <OnboardingExtension onClickNext={onClickNext} />
               )}
+              {activeScreen === OnboardingStep.InteractiveFeed && (
+                <InteractiveFeedProvider>
+                  <InteractiveFeedStep />
+                </InteractiveFeedProvider>
+              )}
+              {activeScreen === OnboardingStep.PreviewFeed && (
+                <FeedPreviewStep
+                  onComplete={onClickNext}
+                  onEdit={() => setActiveScreen(OnboardingStep.InteractiveFeed)}
+                />
+              )}
             </div>
           )}
         </div>
-        {layout.hasFooter && <FooterLinks className="mx-auto pb-6" />}
+        {layout.hasFooterLinks && <FooterLinks className="mx-auto pb-6" />}
       </div>
     </PaymentContextProvider>
   );

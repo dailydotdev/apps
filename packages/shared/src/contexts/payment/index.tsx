@@ -1,9 +1,13 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import { isIOSNative } from '../../lib/func';
+import { checkIsExtension } from '../../lib/func';
+import type { PaddleSubProviderProps } from './Paddle';
 import { PaddleSubProvider } from './Paddle';
+import { ChromeExtensionProvider } from './ChromeExtension';
 import type { PaymentContextProviderProps } from './context';
+import type { StoreKitSubProviderProps } from './StoreKit';
+import { iOSSupportsPlusPurchase } from '../../lib/ios';
 
 const StoreKitSubProvider = dynamic(() =>
   import('./StoreKit').then((mod) => mod.StoreKitSubProvider),
@@ -11,10 +15,25 @@ const StoreKitSubProvider = dynamic(() =>
 
 export const PaymentContextProvider = ({
   children,
+  ...props
 }: PaymentContextProviderProps): ReactElement => {
-  if (isIOSNative()) {
-    return <StoreKitSubProvider>{children}</StoreKitSubProvider>;
+  if (iOSSupportsPlusPurchase()) {
+    return (
+      <StoreKitSubProvider {...(props as StoreKitSubProviderProps)}>
+        {children}
+      </StoreKitSubProvider>
+    );
   }
 
-  return <PaddleSubProvider>{children}</PaddleSubProvider>;
+  if (checkIsExtension()) {
+    return (
+      <ChromeExtensionProvider {...props}>{children}</ChromeExtensionProvider>
+    );
+  }
+
+  return (
+    <PaddleSubProvider {...(props as PaddleSubProviderProps)}>
+      {children}
+    </PaddleSubProvider>
+  );
 };

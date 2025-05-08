@@ -1,26 +1,43 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import type {
   PaymentContextProviderProps,
   OpenCheckoutProps,
   PaymentContextData,
-  ProductOption,
 } from './context';
 import { PaymentContext } from './context';
 import {
+  iOSSupportsPlusPurchase,
   messageHandlerExists,
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '../../components/GrowthBookProvider';
-import { featureIAPProducts } from '../../lib/featureManagement';
 import { isNullOrUndefined, promisifyEventListener } from '../../lib/func';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
+import { PlusPriceType } from '../../lib/featureValues';
+import { plusSuccessUrl } from '../../lib/constants';
+import { usePlusSubscription, useToastNotification } from '../../hooks';
+import { LogEvent } from '../../lib/log';
+import { DEFAULT_ERROR } from '../../graphql/common';
+import { SubscriptionProvider } from '../../lib/plus';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import type {
+  ProductPricingMetadata,
+  ProductPricingPreview,
+} from '../../graphql/paddle';
+import { fetchPricingMetadata, ProductPricingType } from '../../graphql/paddle';
+
+export enum StoreKitDuration {
+  Monthly = 'P1M',
+  Yearly = 'P1Y',
+}
+
+export const storekitDurationToPlusDurationMap = {
+  [StoreKitDuration.Monthly]: PlusPriceType.Monthly,
+  [StoreKitDuration.Yearly]: PlusPriceType.Yearly,
+};
 
 export type IAPProduct = {
   attributes: {
@@ -48,66 +65,98 @@ export type IAPProduct = {
   type: string;
 };
 
+export enum PurchaseEventName {
+  PurchaseCompleted = 'PurchaseCompleted',
+  PurchaseInitiated = 'PurchaseInitiated',
+  PurchasePending = 'PurchasePending',
+  PurchaseFailed = 'PurchaseFailed',
+  PurchaseError = 'PurchaseError',
+  PurchaseCancelled = 'PurchaseCancelled',
+}
+
+export type PurchaseEvent = {
+  name: PurchaseEventName;
+  product?: IAPProduct;
+  detail?: string;
+};
+
+const getApplePlusPricing = (metadata: ProductPricingMetadata[]) =>
+  promisifyEventListener<ProductPricingPreview[], IAPProduct[] | string>(
+    'iap-products-result',
+    (event) => {
+      const products = !isNullOrUndefined(event?.detail)
+        ? (event.detail as IAPProduct[])
+        : [];
+
+      return metadata
+        .map((item) => {
+          const product = products.find(
+            (p) => p.attributes.offerName === item.idMap.ios,
+          );
+
+          if (!product) {
+            return null;
+          }
+
+          const duration =
+            storekitDurationToPlusDurationMap[
+              product.attributes.offers[0].recurringSubscriptionPeriod
+            ];
+
+          return {
+            metadata: item,
+            priceId: item.idMap.ios,
+            price: {
+              amount: parseFloat(product.attributes.offers[0].price),
+              formatted: product.attributes.offers[0].priceFormatted,
+            },
+            duration,
+            trialPeriod: null,
+            currency: null,
+          } as ProductPricingPreview;
+        })
+        .filter(Boolean);
+    },
+  );
+
+export type StoreKitSubProviderProps = PaymentContextProviderProps<
+  CustomEvent<PurchaseEvent>,
+  PurchaseEventName
+>;
+
 export const StoreKitSubProvider = ({
   children,
+  successCallback,
 }: PaymentContextProviderProps): ReactElement => {
+  const router = useRouter();
+  const { displayToast } = useToastNotification();
   const { user, isValidRegion: isPlusAvailable } = useAuthContext();
-  const { growthbook } = useGrowthBookContext();
-  const productIds = useFeature(featureIAPProducts);
-  const productList = useMemo(() => Object.keys(productIds), [productIds]);
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const logRef = useRef<typeof logSubscriptionEvent>();
+  logRef.current = logSubscriptionEvent;
 
-  const { data: productOptions } = useQuery({
+  const { data: metadata } = useQuery<ProductPricingMetadata[]>({
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
+    queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
+    enabled: !!user && iOSSupportsPlusPurchase(),
+    staleTime: StaleTime.Default,
+  });
+
+  const { data: products } = useQuery({
     queryKey: ['iap-products'],
-    enabled:
-      !!productIds &&
-      messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest) &&
-      !!user?.isTeamMember &&
-      !!growthbook?.ready,
+    enabled: !!metadata?.length && iOSSupportsPlusPurchase(),
+    staleTime: StaleTime.Default,
     queryFn: async () => {
       if (!messageHandlerExists(WebKitMessageHandlers.IAPSubscriptionRequest)) {
         return [];
       }
 
-      const products = promisifyEventListener(
-        'iap-products-result',
-        (event) => {
-          const productsRaw = !isNullOrUndefined(event?.detail)
-            ? JSON.parse(event.detail)
-            : [];
+      const response = getApplePlusPricing(metadata);
+      const ids = metadata.map(({ idMap }) => idMap.ios).filter(Boolean);
 
-          return productsRaw
-            ?.map((product: IAPProduct): ProductOption => {
-              const { duration, label, extraLabel, appsId } =
-                productIds[product.attributes.offerName];
+      postWebKitMessage(WebKitMessageHandlers.IAPProductList, ids);
 
-              return {
-                label,
-                value: product.attributes.offerName,
-                price: {
-                  amount: parseFloat(product.attributes.offers[0].price),
-                  formatted: product.attributes.offers[0].priceFormatted,
-                },
-                extraLabel,
-                appsId: appsId ?? PlusPriceTypeAppsId.Default,
-                duration,
-                durationLabel:
-                  duration === PlusPriceType.Yearly ? 'year' : 'month',
-                trialPeriod: null,
-              };
-            })
-            .sort((a: { value: string }, b: { value: string }) => {
-              // Make sure that the products are sorted in the same order as the product list
-              // because the native code does not guarantee the order of the products
-              const aIndex = productList.indexOf(a.value);
-              const bIndex = productList.indexOf(b.value);
-              return aIndex - bIndex;
-            });
-        },
-      );
-
-      postWebKitMessage(WebKitMessageHandlers.IAPProductList, productList);
-
-      return products;
+      return response;
     },
   });
 
@@ -121,17 +170,75 @@ export const StoreKitSubProvider = ({
     [user?.subscriptionFlags?.appAccountToken],
   );
 
+  useEffect(() => {
+    const eventName = 'iap-purchase-event';
+    promisifyEventListener<void, PurchaseEvent>(
+      eventName,
+      (event) => {
+        const { name, detail, product } = event.detail;
+        const item = products?.find(
+          ({ priceId }) => priceId === product?.attributes?.offerName,
+        );
+        switch (name) {
+          case PurchaseEventName.PurchaseCompleted:
+            logRef.current({
+              event_name: LogEvent.CompleteCheckout,
+              extra: {
+                user_id: user?.id,
+                cycle: item.duration,
+                localCost: product.attributes.offers[0].price,
+                localCurrency: product.attributes.offers[0].currencyCode,
+                payment: SubscriptionProvider.AppleStoreKit,
+              },
+            });
+            if (successCallback) {
+              successCallback(null);
+            } else {
+              router.push(plusSuccessUrl);
+            }
+            break;
+          case PurchaseEventName.PurchaseInitiated:
+            logRef.current({
+              event_name: LogEvent.InitiatePayment,
+            });
+            break;
+          case PurchaseEventName.PurchaseFailed:
+            logRef.current({
+              event_name: LogEvent.ErrorCheckout,
+              extra: {
+                errorCode: detail,
+              },
+            });
+            displayToast(DEFAULT_ERROR);
+            break;
+          case PurchaseEventName.PurchasePending:
+            displayToast('Please wait for the purchase to be completed.');
+            break;
+          case PurchaseEventName.PurchaseCancelled:
+          default:
+            break;
+        }
+      },
+      {
+        once: false,
+      },
+    );
+
+    return () => {
+      globalThis?.eventControllers?.[eventName]?.abort();
+    };
+  }, [displayToast, products, metadata, router, successCallback, user?.id]);
+
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
-      productOptions,
-      earlyAdopterPlanId: null,
+      productOptions: products,
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
       isFreeTrialExperiment: false,
     }),
-    [isPlusAvailable, openCheckout, productOptions],
+    [isPlusAvailable, openCheckout, products],
   );
 
   return (

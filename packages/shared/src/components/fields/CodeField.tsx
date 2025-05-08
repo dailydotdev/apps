@@ -121,6 +121,7 @@ export function CodeField({
         <TextField
           // eslint-disable-next-line react/no-array-index-key
           key={`code-${index}`}
+          type="tel"
           inputId={`code-${index}`}
           tabIndex={index + 1}
           label={null}

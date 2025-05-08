@@ -18,7 +18,9 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
@@ -48,14 +50,12 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Manage account notifications'),
 };
 
-const ALERT_PUSH_KEY = 'alert_push_key';
-
 const AccountNotificationsPage = (): ReactElement => {
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const { onTogglePermission } = usePushNotificationMutation();
   const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
-    ALERT_PUSH_KEY,
+    PersistentContextKeys.AlertPushKey,
     true,
   );
   const { updateUserProfile } = useProfileForm();
@@ -110,12 +110,15 @@ const AccountNotificationsPage = (): ReactElement => {
     notificationEmail,
     followingEmail,
     followNotifications,
+    awardEmail,
+    awardNotifications,
   } = user ?? {};
   const emailNotification =
     acceptedMarketing ||
     notificationEmail ||
     !!personalizedDigest ||
-    followingEmail;
+    followingEmail ||
+    awardEmail;
 
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
@@ -147,6 +150,7 @@ const AccountNotificationsPage = (): ReactElement => {
       acceptedMarketing: value,
       notificationEmail: value,
       followingEmail: value,
+      awardEmail: value,
     });
 
     if (value) {
@@ -271,6 +275,18 @@ const AccountNotificationsPage = (): ReactElement => {
     const value = !followNotifications;
     onLogToggle(value, NotificationChannel.Web, NotificationCategory.Following);
     updateUserProfile({ followNotifications: value });
+  };
+
+  const onToggleAwardEmail = () => {
+    const value = !awardEmail;
+    onLogToggle(value, NotificationChannel.Email, NotificationCategory.Award);
+    updateUserProfile({ awardEmail: value });
+  };
+
+  const onToggleAwardNotifications = () => {
+    const value = !awardNotifications;
+    onLogToggle(value, NotificationChannel.Web, NotificationCategory.Award);
+    updateUserProfile({ awardNotifications: value });
   };
 
   const setPersonalizedDigestType = (sendType: SendType): void => {
@@ -420,6 +436,14 @@ const AccountNotificationsPage = (): ReactElement => {
         >
           Updates from followed users
         </Checkbox>
+        <Checkbox
+          name="award"
+          data-testid="award-switch"
+          checked={awardEmail}
+          onToggleCallback={onToggleAwardEmail}
+        >
+          Transactions (Cores earnings & rewards)
+        </Checkbox>
         <div className="my-2 gap-1">
           <h3 className="font-bold typo-callout">Personalized digest</h3>
           <p className="text-text-tertiary typo-footnote">
@@ -558,6 +582,14 @@ const AccountNotificationsPage = (): ReactElement => {
               onToggleCallback={onToggleFollowingNotifications}
             >
               Updates from followed users
+            </Checkbox>
+            <Checkbox
+              name="awardPush"
+              data-testid="award-push-switch"
+              checked={awardNotifications}
+              onToggleCallback={onToggleAwardNotifications}
+            >
+              Transactions (Cores earnings & rewards)
             </Checkbox>
             {!!readingReminder && (
               <>

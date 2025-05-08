@@ -242,11 +242,8 @@ export const BootDataProvider = ({
     },
     [cachedBootData],
   );
-  if ((user as Partial<LoggedUser>)?.language) {
-    gqlClient.setHeader(
-      'content-language',
-      (user as Partial<LoggedUser>).language as string,
-    );
+  if (logged?.language && logged?.isPlus) {
+    gqlClient.setHeader('content-language', logged.language as string);
   } else {
     gqlClient.unsetHeader('content-language');
   }

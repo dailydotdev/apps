@@ -1,7 +1,11 @@
+import type { MutableRefObject } from 'react';
 import React from 'react';
 import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
 import classed from '../../lib/classed';
-import type { IconType } from '../buttons/Button';
+import type { IconType, ButtonProps } from '../buttons/Button';
+import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
+import type { AnonymousUser, LoggedUser } from '../../lib/user';
+import type { AuthTriggersType } from '../../lib/auth';
 
 export interface Provider {
   icon: IconType;
@@ -59,9 +63,55 @@ export interface AuthFormProps {
 
 export const getFormEmail = (e: React.FormEvent): string => {
   const form = e.currentTarget as HTMLFormElement;
-  const input = Array.from(form.elements).find(
-    (el) => el.getAttribute('name') === 'email',
+  const input = Array.from(form.elements).find((el) =>
+    ['email', 'traits.email'].includes(el.getAttribute('name')),
   ) as HTMLInputElement;
 
   return input?.value?.trim();
 };
+
+export enum AuthDisplay {
+  Default = 'default',
+  Registration = 'registration',
+  SocialRegistration = 'social_registration',
+  SignBack = 'sign_back',
+  ForgotPassword = 'forgot_password',
+  CodeVerification = 'code_verification',
+  ChangePassword = 'change_password',
+  OnboardingSignup = 'onboarding_signup',
+  EmailVerification = 'email_verification',
+}
+
+export interface AuthProps {
+  isAuthenticating: boolean;
+  isLoginFlow: boolean;
+  isLoading?: boolean;
+  email?: string;
+  defaultDisplay?: AuthDisplay;
+}
+
+interface ClassName {
+  container?: string;
+  onboardingSignup?: string;
+  onboardingForm?: string;
+  onboardingDivider?: string;
+}
+
+export interface AuthOptionsProps {
+  onClose?: CloseAuthModalFunc;
+  onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
+  onSuccessfulLogin?: () => unknown;
+  onSuccessfulRegistration?: (user?: LoggedUser | AnonymousUser) => unknown;
+  formRef: MutableRefObject<HTMLFormElement>;
+  trigger: AuthTriggersType;
+  defaultDisplay?: AuthDisplay;
+  forceDefaultDisplay?: boolean;
+  className?: ClassName;
+  simplified?: boolean;
+  isLoginFlow?: boolean;
+  onDisplayChange?: (value: string) => void;
+  initialEmail?: string;
+  targetId?: string;
+  ignoreMessages?: boolean;
+  onboardingSignupButton?: ButtonProps<'button'>;
+}

@@ -11,9 +11,9 @@
                         "comment": "Matches any OAuth callback URL"
                     },
                     {
-                        "/": "/plus*",
+                        "/": "/cores*",
                         "exclude": true,
-                        "comment": "Matches any plus URL"
+                        "comment": "Matches any cores URL"
                     },
                     {
                         "/": "/*",
@@ -22,5 +22,8 @@
                 ]
             }
         ]
+    },
+    "webcredentials": {
+        "apps": [ "C97TTQ7W57.dev.daily.app" ]
     }
 }

@@ -42,11 +42,14 @@ export const CreateFeedButton = ({
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const tagsCountMatch =
     tagsCount >= REQUIRED_TAGS_THRESHOLD &&
-    activeScreen === OnboardingStep.EditTag;
-
-  const isPlusStep = activeScreen === OnboardingStep.Plus;
+    (activeScreen === OnboardingStep.EditTag ||
+      activeScreen === OnboardingStep.InteractiveFeed);
+  const isPlusStep = [OnboardingStep.Plus, OnboardingStep.PlusPayment].includes(
+    activeScreen,
+  );
   const canCreateFeed =
     tagsCountMatch || contentTypeNotEmpty || isPlusStep || CTAStep;
+
   const { sidebarRendered } = useSidebarRendered();
   const buttonName =
     customActionName ??
@@ -70,10 +73,7 @@ export const CreateFeedButton = ({
   };
 
   const getButtonVariant = () => {
-    if (isPlusStep) {
-      return ButtonVariant.Secondary;
-    }
-    if (CTAStep) {
+    if (CTAStep || isPlusStep) {
       return ButtonVariant.Tertiary;
     }
     return ButtonVariant.Primary;

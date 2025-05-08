@@ -105,6 +105,7 @@ export const generateStorageKey = (
   (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
+  InteractiveFeed = 'InteractiveFeed',
   DevCard = 'devcard',
   Providers = 'providers',
   Bookmarks = 'bookmarks',
@@ -197,6 +198,9 @@ export enum RequestKey {
   Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
+  Products = 'products',
+  Transactions = 'transactions',
+  CheckCoresRole = 'check_cores_role',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

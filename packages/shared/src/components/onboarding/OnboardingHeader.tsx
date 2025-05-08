@@ -8,17 +8,23 @@ import {
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
-import type { AuthProps } from '../auth/AuthOptions';
-import { AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { OnboardingStep, wrapperMaxWidth } from './common';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { PlusUser } from '../PlusUser';
-import { IconSize } from '../Icon';
-import { TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
+import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { usePaymentContext } from '../../contexts/payment/context';
+import { useFeature } from '../GrowthBookProvider';
+import { featureOnboardingReorder } from '../../lib/featureManagement';
+import type { AuthProps } from '../auth/common';
+import { AuthDisplay } from '../auth/common';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -26,7 +32,6 @@ type OnboardingHeaderProps = {
   onClick: () => void;
   activeScreen: OnboardingStep;
   customActionName?: string;
-  showPlusIcon?: boolean;
 };
 
 export const OnboardingHeader = ({
@@ -35,12 +40,14 @@ export const OnboardingHeader = ({
   setAuth,
   onClick,
   customActionName,
-  showPlusIcon,
 }: OnboardingHeaderProps): ReactElement => {
+  const { user } = useAuthContext();
   const { isFreeTrialExperiment } = usePaymentContext();
+  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
+  const { completion } = useInteractiveCompletion();
 
   const getImage = () => {
     if (isMobile) {
@@ -55,51 +62,88 @@ export const OnboardingHeader = ({
     OnboardingStep.ContentTypes,
     OnboardingStep.PWA,
     OnboardingStep.Plus,
+    OnboardingStep.PlusPayment,
     OnboardingStep.Extension,
+    OnboardingStep.InteractiveFeed,
   ];
-  const isPlusStep = activeScreen === OnboardingStep.Plus;
+  const isPlusStep = [OnboardingStep.Plus, OnboardingStep.PlusPayment].includes(
+    activeScreen,
+  );
+  const fullWidth =
+    activeScreen === OnboardingStep.InteractiveFeed ||
+    activeScreen === OnboardingStep.PreviewFeed;
+
+  const getCompletionColor = () => {
+    if (completion < 25) {
+      return 'text-text-tertiary';
+    }
+    if (completion < 50) {
+      return 'text-accent-bun-default';
+    }
+    if (completion < 75) {
+      return 'text-status-help';
+    }
+    return 'text-status-success';
+  };
 
   if (activeScreen !== OnboardingStep.Intro) {
     return (
       <>
-        {activeScreen === OnboardingStep.Plus && isFreeTrialExperiment && (
-          <PlusFreeTrialAlert />
-        )}
-        <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
+        {isPlusStep && isFreeTrialExperiment && <PlusFreeTrialAlert />}
+        <header
+          className={classNames(
+            'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',
+            completion > 0 &&
+              activeScreen === OnboardingStep.InteractiveFeed &&
+              'text-status-help',
+          )}
+        >
           <img
             className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
             src={getImage()}
             alt="Gradient background"
           />
-          <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
-            <ConditionalWrapper
-              condition={showPlusIcon}
-              wrapper={(component) => (
-                <div className="flex flex-row items-center gap-1">
-                  {component}
-                  <PlusUser
-                    iconSize={IconSize.Small}
-                    typographyType={TypographyType.Title3}
-                  />
-                </div>
-              )}
-            >
-              {!isPlusStep ? (
-                <Logo
-                  logoClassName={{ container: 'h-6' }}
-                  position={LogoPosition.Relative}
-                  linkDisabled
-                />
-              ) : (
-                <LogoWithPlus />
-              )}
-            </ConditionalWrapper>
+          <div
+            className={classNames(
+              'flex w-full items-center justify-between !px-4 py-10 tablet:!px-6',
+              !fullWidth && ' max-w-4xl ',
+            )}
+          >
+            {!isPlusStep ? (
+              <Logo
+                logoClassName={{ container: 'h-6' }}
+                position={LogoPosition.Relative}
+                linkDisabled
+              />
+            ) : (
+              <LogoWithPlus />
+            )}
+            {activeScreen === OnboardingStep.InteractiveFeed && (
+              <div className="z-0 flex flex-col text-center">
+                <Typography
+                  color={TypographyColor.Primary}
+                  bold
+                  type={TypographyType.Callout}
+                >
+                  Let&apos;s make your feed work for you
+                </Typography>
+                <Typography
+                  type={TypographyType.Body}
+                  className={getCompletionColor()}
+                >
+                  {completion}% optimized
+                </Typography>
+              </div>
+            )}
             {showCreateFeedButton.includes(activeScreen) && (
               <CreateFeedButton
                 onClick={onClick}
                 customActionName={customActionName}
                 activeScreen={activeScreen}
               />
+            )}
+            {activeScreen === OnboardingStep.PreviewFeed && (
+              <ProfilePicture user={user} size={ProfileImageSize.Medium} />
             )}
           </div>
         </header>
@@ -130,30 +174,32 @@ export const OnboardingHeader = ({
         position={LogoPosition.Relative}
         linkDisabled
       />
-      <span className={classNames('flex items-center', 'text-text-tertiary')}>
-        <span
-          className="hidden tablet:block"
-          id={`login-label-${id}`}
-          aria-hidden
-        >
-          Already using daily.dev?
+      {!isReorderExperiment && (
+        <span className={classNames('flex items-center', 'text-text-tertiary')}>
+          <span
+            className="hidden tablet:block"
+            id={`login-label-${id}`}
+            aria-hidden
+          >
+            Already using daily.dev?
+          </span>
+          <Button
+            aria-label="Already using daily.dev? Login now"
+            className="ml-3"
+            onClick={(e) => {
+              e.preventDefault();
+              setAuth({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                defaultDisplay: AuthDisplay.Default,
+              });
+            }}
+            variant={ButtonVariant.Secondary}
+          >
+            Log in
+          </Button>
         </span>
-        <Button
-          aria-label="Already using daily.dev? Login now"
-          className="ml-3"
-          onClick={(e) => {
-            e.preventDefault();
-            setAuth({
-              isAuthenticating: true,
-              isLoginFlow: true,
-              defaultDisplay: AuthDisplay.Default,
-            });
-          }}
-          variant={ButtonVariant.Secondary}
-        >
-          Log in
-        </Button>
-      </span>
+      )}
     </header>
   );
 };

@@ -44,7 +44,6 @@ export enum LazyModal {
   RecoverStreak = 'recoverStreak',
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
-  UserSettings = 'userSettings',
   Share = 'share',
   PrivilegedMembers = 'privilegedMembers',
   BookmarkReminder = 'bookmarkReminder',
@@ -67,6 +66,9 @@ export enum LazyModal {
   SmartPrompt = 'smartPrompt',
   PlusMarketing = 'plusMarketing',
   MobileSmartPrompts = 'mobileSmartPrompts',
+  GiveAward = 'giveAward',
+  ContentModal = 'contentModal',
+  CustomLinks = 'customLinks',
 }
 
 export type ModalTabItem = {

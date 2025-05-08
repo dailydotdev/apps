@@ -58,6 +58,16 @@ Object.defineProperty(global, 'BroadcastChannel', {
   })),
 });
 
+Object.defineProperty(global, 'ResizeObserver', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+    trigger: jest.fn(),
+  })),
+});
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
@@ -65,6 +75,18 @@ jest.mock('next/router', () => ({
         query: {},
       } as unknown as NextRouter),
   ),
+}));
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+  }),
+  usePathname: () => '',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 structuredCloneJsonPolyfill();

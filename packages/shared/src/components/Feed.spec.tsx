@@ -11,6 +11,7 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
 import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
@@ -66,6 +67,19 @@ import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
+import { InteractiveFeedProvider } from '../contexts/InteractiveFeedContext';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+mocked(useRouter).mockImplementation(
+  () =>
+    ({
+      pathname: '/',
+      query: {},
+    } as unknown as NextRouter),
+);
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -216,12 +230,14 @@ const renderComponent = (
         <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
           <Toast autoDismissNotifications={false} />
-          <Feed
-            feedQueryKey={['feed']}
-            feedName={feedName}
-            query={ANONYMOUS_FEED_QUERY}
-            variables={variables}
-          />
+          <InteractiveFeedProvider>
+            <Feed
+              feedQueryKey={['feed']}
+              feedName={feedName}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </InteractiveFeedProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -548,7 +564,9 @@ describe('Feed logged in', () => {
     fireEvent.click(menuBtn);
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
-    const brokenLinkBtn = await screen.findByText('NSFW');
+    const brokenLinkBtn = await screen.findByText(
+      'Inappropriate, explicit, or NSFW',
+    );
     fireEvent.click(brokenLinkBtn);
 
     await screen.findByTitle(
@@ -674,9 +692,9 @@ describe('Feed logged in', () => {
       expect(data).toBeTruthy();
     });
     const contextBtn = await screen.findByText('Unblock Echo JS');
+    fireEvent.click(contextBtn);
 
     await waitFor(async () => {
-      fireEvent.click(contextBtn);
       const alert = screen.getByRole('alert');
       expect(alert).toBeInTheDocument();
       const feed = screen.getByTestId('posts-feed');
@@ -836,7 +854,7 @@ describe('Feed logged in', () => {
     );
 
     const irrelevantTagsBtn = await screen.findByText(
-      'The post is not about...',
+      'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
     const javascriptElements = await screen.findAllByText('#javascript');

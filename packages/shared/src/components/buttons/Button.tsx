@@ -1,3 +1,5 @@
+'use client';
+
 import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef, useState } from 'react';
 import classNames from 'classnames';
@@ -17,10 +19,16 @@ import {
   VariantToClassName,
 } from './common';
 import { isNullOrUndefined } from '../../lib/func';
+import classed from '../../lib/classed';
 
 export type IconType = React.ReactElement<IconProps>;
 
 export { ButtonColor, ButtonSize, ButtonVariant, ButtonIconPosition };
+
+export const ButtonGroup = classed(
+  'div',
+  'flex gap-1 rounded-12 border border-border-subtlest-tertiary p-1',
+);
 
 interface CommonButtonProps {
   size?: ButtonSize;
@@ -93,7 +101,8 @@ function ButtonComponent<TagName extends AllowedTags>(
         `btn focus-outline inline-flex cursor-pointer select-none flex-row
         items-center border no-underline shadow-none transition
         duration-200 ease-in-out typo-callout`,
-        variant !== ButtonVariant.Option && 'justify-center font-bold',
+        ![ButtonVariant.Option, ButtonVariant.Quiz].includes(variant) &&
+          'justify-center font-bold',
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
         iconPosition === ButtonIconPosition.Top && `flex-col !px-2`,

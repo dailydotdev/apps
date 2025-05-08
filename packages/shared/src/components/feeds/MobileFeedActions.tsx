@@ -1,25 +1,34 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { Divider, SharedFeedPage } from '../utilities';
-import MyFeedHeading from '../filters/MyFeedHeading';
+import { Divider } from '../utilities';
 import { useReadingStreak } from '../../hooks/streaks';
-import { ButtonIconPosition } from '../buttons/common';
+import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
 import { webappUrl } from '../../lib/constants';
-import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { getFeedName } from '../../lib/feed';
+import { Button } from '../buttons/Button';
+import { SettingsIcon } from '../icons';
+import { RootPortal } from '../tooltips/Portal';
+
+const ProfileSettingsMenu = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileSettingsMenu" */ '../profile/ProfileSettingsMenu'
+    ),
+  { ssr: false },
+);
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -37,33 +46,29 @@ export function MobileFeedActions(): ReactElement {
           />
         )}
         <Divider className="bg-border-subtlest-tertiary" vertical />
-        <MyFeedHeading
-          onOpenFeedFilters={() => {
-            if (isCustomDefaultFeed && router.pathname === '/') {
-              router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-            } else {
-              const feedName = getFeedName(router.pathname);
-
-              router.push(
-                `${webappUrl}feeds/${
-                  feedName === SharedFeedPage.Custom
-                    ? router.query.slugOrId
-                    : user.id
-                }/edit`,
-              );
-            }
-          }}
-        />
         {user && (
-          <Link href={`${webappUrl}/${user.username}`} passHref>
-            <a>
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.Medium}
-                nativeLazyLoading
+          <>
+            <Button
+              icon={<SettingsIcon />}
+              variant={ButtonVariant.Tertiary}
+              onClick={() => setIsMenuOpen(true)}
+            />
+            <RootPortal>
+              <ProfileSettingsMenu
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
               />
-            </a>
-          </Link>
+            </RootPortal>
+            <Link href={`${webappUrl}${user.username}`} passHref>
+              <a>
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Medium}
+                  nativeLazyLoading
+                />
+              </a>
+            </Link>
+          </>
         )}
       </span>
     </div>

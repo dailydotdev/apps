@@ -1,13 +1,20 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
+import {
+  useConditionalFeature,
+  useMedia,
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
+import { useInteractiveFeedContext } from './InteractiveFeedContext';
 
 export type FeedContextData = {
   pageSize: number;
@@ -111,6 +118,9 @@ const FeedContext = React.createContext<FeedContextData>(
 export function FeedLayoutProvider({
   children,
 }: PropsWithChildren): ReactElement {
+  const isLaptopL = useViewSize(ViewSize.LaptopL);
+  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
+  const { interactiveFeedExp } = useInteractiveFeedContext();
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
@@ -173,8 +183,39 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
+  const getExpNumCards = () => {
+    if (isLaptopXL) {
+      return {
+        eco: 4,
+        roomy: 4,
+        cozy: 4,
+      };
+    }
+
+    if (isLaptopL) {
+      return {
+        eco: 3,
+        roomy: 3,
+        cozy: 3,
+      };
+    }
+
+    return {
+      eco: 2,
+      roomy: 2,
+      cozy: 2,
+    };
+  };
+
+  const finalSettings = interactiveFeedExp
+    ? {
+        ...currentSettings,
+        numCards: getExpNumCards(),
+      }
+    : currentSettings;
+
   return (
-    <FeedContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={finalSettings}>
       {children}
     </FeedContext.Provider>
   );

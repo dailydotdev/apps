@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -9,10 +9,11 @@ import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plu
 import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
-import { HotJarTracking } from '../../components/Pixels';
 
 const PlusMobile = dynamic(() =>
   import(
@@ -46,8 +47,26 @@ const PlusPage = ({
   giftToUser,
   shouldShowPlusHeader,
 }: PlusPageProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+
+  useEffect(() => {
+    const onScroll = () => {
+      logEvent({
+        event_name: LogEvent.PageScroll,
+        extra: JSON.stringify({
+          scrollTop: window.scrollY,
+        }),
+      });
+    };
+
+    globalThis?.window?.addEventListener('scrollend', onScroll);
+
+    return () => {
+      globalThis?.window?.removeEventListener('scrollend', onScroll);
+    };
+  }, [logEvent]);
 
   if (!isReady) {
     return null;
@@ -59,7 +78,7 @@ const PlusPage = ({
 
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
-      <HotJarTracking hotjarId="5215055" />
+      {/* <HotJarTracking hotjarId="5215055" /> */}
       {isLaptop ? (
         <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
       ) : (

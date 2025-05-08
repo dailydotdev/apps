@@ -43,6 +43,7 @@ export const searchDocs = 'https://r.daily.dev/search-docs';
 export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
+export const appsUrl = 'https://daily.dev/apps';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =
@@ -64,7 +65,8 @@ export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
-export const plusSuccessUrl = `${webappUrl}plus/success`;
+export const plusSuccessUrl = `${plusUrl}/success`;
+export const walletUrl = `${webappUrl}wallet`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
@@ -130,19 +132,51 @@ export const feedRangeFilters: RadioItemProps[] = [
 
 export const customFeedsPlusDate = new Date('2024-12-11');
 
+/*
+  The list below must match the Confluence page attached
+  https://dailydotdev.atlassian.net/wiki/spaces/HAN/pages/1571946510/Restricted+countries+for+business+activities+aka+sanctioned+countries#Restricted-Countries-and-Regions
+*/
 export const invalidPlusRegions = [
-  'CU',
-  'IR',
-  'MM',
-  'SD',
-  'SY',
-  'KP',
-  'BY',
-  'ZW',
-  'RU',
+  'AF', // Afghanistan
+  'AQ', // Antarctica
+  'BY', // Belarus
+  'MM', // Burma (Myanmar)
+  'CF', // Central African Republic
+  'UA-43', // Crimea (Region of Ukraine)
+  'CU', // Cuba
+  'CD', // Democratic Republic of Congo
+  'UA-14', // Donetsk (Region of Ukraine)
+  'HT', // Haiti
+  'IR', // Iran
+  'IQ', // Iraq
+  'UA-65', // Kherson (Region of Ukraine)
+  'LB', // Lebanon
+  'LY', // Libya
+  'UA-09', // Luhansk (Region of Ukraine)
+  'ML', // Mali
+  'AN', // Netherlands Antilles
+  'NI', // Nicaragua
+  'KP', // North Korea
+  'RU', // Russia
+  'SO', // Somalia
+  'SS', // South Sudan
+  'SD', // Sudan
+  'SY', // Syria
+  'VE', // Venezuela
+  'YE', // Yemen
+  'UA-23', // Zaporizhzhia (Region of Ukraine)
+  'ZW', // Zimbabwe
 ];
 
 export const DeletedPostId = '404';
 
 export const BROADCAST_CHANNEL_NAME = 'dailydev_broadcast';
 export const broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+
+export const withdrawLink = 'https://r.daily.dev/withdraw';
+
+export const coresDocsLink = 'https://r.daily.dev/cores';
+
+export const webFunnelPrefix = '/helloworld';
+
+export const creatorsTermsOfService = 'https://r.daily.dev/creators-terms';

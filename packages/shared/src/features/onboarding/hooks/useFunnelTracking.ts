@@ -1,0 +1,210 @@
+import type { MouseEventHandler } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
+import { useAtomValue } from 'jotai';
+import { useLogContext } from '../../../contexts/LogContext';
+import type {
+  FunnelStep,
+  FunnelJSON,
+  FunnelStepTransitionType,
+} from '../types/funnel';
+import { FunnelEventName } from '../types/funnelEvents';
+import type { FunnelEvent, FunnelTargetId } from '../types/funnelEvents';
+import {
+  getFunnelStepByPosition,
+  funnelPositionAtom,
+} from '../store/funnelStore';
+import type { FunnelSession } from '../types/funnelBoot';
+import type { LogEvent } from '../../../hooks/log/useLogQueue';
+
+type TrackOnMouseCapture = MouseEventHandler<HTMLElement>;
+type TrackOnScroll = () => void;
+type TrackOnEvent = (event: FunnelEvent) => void;
+type TrackOnComplete = () => void;
+export type TrackOnNavigate = (event: {
+  from: FunnelStep['id'];
+  to: FunnelStep['id'];
+  timeDuration: number;
+  type: FunnelStepTransitionType;
+}) => void;
+
+interface UseFunnelTrackingProps {
+  funnel: FunnelJSON;
+  session: FunnelSession;
+}
+
+interface UseFunnelTrackingReturn {
+  trackOnClickCapture: TrackOnMouseCapture;
+  trackOnHoverCapture: TrackOnMouseCapture;
+  trackFunnelEvent: TrackOnEvent;
+  trackOnNavigate: TrackOnNavigate;
+  trackOnScroll: TrackOnScroll;
+  trackOnComplete: TrackOnComplete;
+}
+
+const trackOnMouseCapture = ({
+  selector,
+  eventName,
+  trackFunnelEvent,
+}: {
+  selector: string;
+  eventName:
+    | FunnelEventName.ClickFunnelElement
+    | FunnelEventName.HoverFunnelElement;
+  trackFunnelEvent?: TrackOnEvent;
+}): TrackOnMouseCapture => {
+  return (event) => {
+    if (!(event.target instanceof HTMLElement)) {
+      return;
+    }
+
+    // eslint-disable-next-line testing-library/no-node-access
+    const trackedElement = event.target.closest(selector);
+
+    if (!(trackedElement instanceof HTMLElement)) {
+      return;
+    }
+
+    trackFunnelEvent?.({
+      name: eventName,
+      target_type: trackedElement.dataset.funnelTrack as FunnelTargetId,
+      target_id: (trackedElement.ariaLabel || trackedElement.innerText).trim(),
+    });
+  };
+};
+
+export const useFunnelTracking = ({
+  funnel,
+  session,
+}: UseFunnelTrackingProps): UseFunnelTrackingReturn => {
+  const { id: sessionId } = session;
+  const { logEvent, sendBeacon } = useLogContext();
+  const position = useAtomValue(funnelPositionAtom);
+  const step = useMemo(
+    () => getFunnelStepByPosition(funnel, position),
+    [funnel, position],
+  );
+  const isFunnelCompletedRef = useRef(false);
+  const trackFunnelEventRef = useRef<TrackOnEvent | undefined>();
+
+  useEffect(() => {
+    const didInit = !!trackFunnelEventRef.current;
+
+    trackFunnelEventRef.current = (event) => {
+      const commonTrackingProps = {
+        funnel_id: funnel.id,
+        funnel_version: funnel.version,
+        session_id: sessionId,
+        step_id: step?.id,
+        step_type: step?.type,
+      };
+
+      const props: Partial<LogEvent> = {};
+      if ('target_id' in event) {
+        props.target_id = event.target_id;
+      }
+      if ('target_type' in event) {
+        props.target_type = event.target_type;
+      }
+      logEvent({
+        event_name: event.name,
+        ...props,
+        extra: JSON.stringify({
+          ...commonTrackingProps,
+          ...('details' in event ? event.details : {}),
+        }),
+      });
+    };
+
+    if (!didInit) {
+      const firstStepId = funnel?.chapters[0]?.steps[0]?.id;
+      const isResumedSession = session.currentStep !== firstStepId;
+
+      trackFunnelEventRef.current?.({
+        name: isResumedSession
+          ? FunnelEventName.ResumeFunnel
+          : FunnelEventName.StartFunnel,
+      });
+    }
+  }, [
+    funnel?.chapters,
+    funnel.id,
+    funnel.version,
+    logEvent,
+    session?.currentStep,
+    sessionId,
+    step?.id,
+    step?.type,
+  ]);
+
+  const trackFunnelEvent = useCallback((event: FunnelEvent) => {
+    trackFunnelEventRef?.current?.(event);
+  }, []);
+
+  const trackOnClickCapture: TrackOnMouseCapture = trackOnMouseCapture({
+    selector: '[data-funnel-track]',
+    eventName: FunnelEventName.ClickFunnelElement,
+    trackFunnelEvent,
+  });
+
+  const trackOnHoverCapture: TrackOnMouseCapture = trackOnMouseCapture({
+    selector: '[data-funnel-track]',
+    eventName: FunnelEventName.HoverFunnelElement,
+    trackFunnelEvent,
+  });
+
+  const trackOnScroll: TrackOnScroll = useCallback(() => {
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.ScrollFunnel,
+      details: {
+        scroll_y: globalThis.scrollY,
+      },
+    });
+  }, []);
+
+  const trackOnNavigate: TrackOnNavigate = useCallback((event) => {
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.TransitionFunnel,
+      target_type: event.type,
+      target_id: event.to,
+      details: {
+        duration: event.timeDuration,
+      },
+    });
+  }, []);
+
+  const trackOnComplete: TrackOnComplete = useCallback(() => {
+    isFunnelCompletedRef.current = true;
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.CompleteFunnel,
+    });
+  }, []);
+
+  useEffect(() => {
+    trackFunnelEventRef.current?.({
+      name: FunnelEventName.FunnelStepView,
+    });
+  }, [step?.id]);
+
+  useEffect(() => {
+    const callback = () => {
+      if (!isFunnelCompletedRef.current) {
+        trackFunnelEventRef.current?.({ name: FunnelEventName.LeaveFunnel });
+        sendBeacon();
+      }
+    };
+    window.addEventListener('beforeunload', callback);
+
+    return () => {
+      window.removeEventListener('beforeunload', callback);
+    };
+  }, [sendBeacon]);
+
+  return {
+    trackOnClickCapture,
+    trackOnHoverCapture,
+    trackFunnelEvent,
+    trackOnNavigate,
+    trackOnScroll,
+    trackOnComplete,
+  };
+};

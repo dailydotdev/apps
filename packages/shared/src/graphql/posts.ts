@@ -12,10 +12,13 @@ import {
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
-import { acceptedTypesList, MEGABYTE } from '../components/fields/ImageInput';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
+import type { FeaturedAward } from './njord';
 
+export const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const acceptedTypesList = ACCEPTED_TYPES.split(',');
+export const MEGABYTE = 1024 * 1024;
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
@@ -60,6 +63,7 @@ export const translateablePostFields = [
   'title',
   'smartTitle',
   'titleHtml',
+  'summary',
 ] as const;
 export type TranslateablePostField = (typeof translateablePostFields)[number];
 export type PostTranslation = {
@@ -74,6 +78,7 @@ type PostFlags = {
   visible: boolean;
   showOnFeed: boolean;
   promoteToPublic: number;
+  coverVideo?: string;
 };
 
 export enum UserVote {
@@ -89,6 +94,7 @@ export type UserPostFlags = {
 export interface PostUserState {
   vote: UserVote;
   flags?: UserPostFlags;
+  awarded?: boolean;
 }
 
 export interface Post {
@@ -112,6 +118,7 @@ export interface Post {
   commentsPermalink: string;
   numUpvotes?: number;
   numComments?: number;
+  numAwards?: number;
   author?: Author;
   scout?: Scout;
   views?: number;
@@ -140,6 +147,9 @@ export interface Post {
   clickbaitTitleDetected?: boolean;
   translation?: PostTranslation;
   language?: string;
+  featuredAward?: {
+    award?: FeaturedAward;
+  };
 }
 
 export type RelatedPost = Pick<
@@ -278,6 +288,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       commentsPermalink
       numUpvotes
       numComments
+      numAwards
       source {
         ...SourceShortInfo
       }
@@ -299,6 +310,11 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         ...SharedPostInfo
       }
       clickbaitTitleDetected
+      featuredAward {
+        award {
+          ...FeaturedAwardFragment
+        }
+      }
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}

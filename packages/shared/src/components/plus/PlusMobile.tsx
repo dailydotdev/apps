@@ -7,7 +7,7 @@ import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { CommonPlusPageProps } from './common';
 import { useGiftUserContext } from './GiftUserContext';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 
 const PlusTrustRefund = dynamic(() =>
@@ -34,7 +34,7 @@ export const PlusMobile = ({
       gift: giftToUser?.id,
     });
 
-    router.push(`${webappUrl}plus/payment?${params}`);
+    router.push(`${plusUrl}/payment?${params}`);
   }, [router, giftToUser, selectedOption]);
 
   return (
@@ -45,8 +45,8 @@ export const PlusMobile = ({
           return;
         }
 
-        if (productOptions?.[0]?.value && !selectedOption) {
-          setSelectedOption(productOptions?.[0]?.value);
+        if (productOptions?.[0]?.priceId && !selectedOption) {
+          setSelectedOption(productOptions[0].priceId);
         }
       }}
     >

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
@@ -7,12 +7,13 @@ import {
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
+  MedalBadgeIcon,
 } from '../icons';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
-import { useVotePost } from '../../hooks';
+import { useMutationSubscription, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import { Card } from '../cards/common/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -21,11 +22,21 @@ import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { BookmarkButton } from '../buttons';
+import { AuthTriggers } from '../../lib/auth';
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { SimpleTooltip } from '../tooltips';
+import type { AwardProps } from '../../graphql/njord';
+import { getProductsQueryOptions } from '../../graphql/njord';
+import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
+import type { LoggedUser } from '../../lib/user';
+import { useCanAwardUser } from '../../hooks/useCoresFeature';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 
 interface PostActionsProps {
   post: Post;
   postQueryKey: QueryKey;
-  actionsClassName?: string;
   onComment?: () => unknown;
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
@@ -34,12 +45,18 @@ interface PostActionsProps {
 export function PostActions({
   onCopyLinkClick,
   post,
-  actionsClassName = 'hidden mobileL:flex',
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
+  const { showLogin, user } = useAuthContext();
+  const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const canAward = useCanAwardUser({
+    sendingUser: user,
+    receivingUser: post.author as LoggedUser,
+  });
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
@@ -66,6 +83,95 @@ export function PostActions({
 
     await toggleDownvote({ payload: post, origin });
   };
+
+  const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+
+  useMutationSubscription({
+    matcher: ({ mutation }) => {
+      const [requestKey] = Array.isArray(mutation.options.mutationKey)
+        ? mutation.options.mutationKey
+        : [];
+
+      return requestKey === 'awards';
+    },
+    callback: ({
+      variables: mutationVariables,
+      queryClient: mutationQueryClient,
+    }) => {
+      const { entityId, type, note, productId } =
+        mutationVariables as AwardProps;
+
+      mutationQueryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
+
+      if (type === 'POST') {
+        if (entityId !== post.id) {
+          return;
+        }
+
+        const awardProduct = getProducts()?.edges.find(
+          (item) => item.node.id === productId,
+        )?.node;
+
+        updatePostCache(mutationQueryClient, post.id, {
+          userState: {
+            ...post.userState,
+            awarded: true,
+          },
+          numAwards: (post.numAwards || 0) + 1,
+          featuredAward:
+            awardProduct?.value > post.featuredAward?.award?.value
+              ? {
+                  award: awardProduct,
+                }
+              : post.featuredAward,
+        });
+      }
+
+      if (note || type === 'COMMENT') {
+        mutationQueryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.PostComments, undefined, {
+            postId: post.id,
+          }),
+          exact: false,
+        });
+      }
+    },
+  });
+
+  useEffect(() => {
+    const adjustActions = () => {
+      const actions = actionsRef.current;
+      if (!actions) {
+        return;
+      }
+
+      const labels = actions.querySelectorAll('.btn-quaternary label');
+      labels.forEach((label) => label.classList.remove('hidden'));
+
+      const isOverflowing = actions.scrollWidth > actions.clientWidth;
+      if (isOverflowing) {
+        labels.forEach((label) => label.classList.add('hidden'));
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      adjustActions();
+    });
+
+    if (actionsRef.current && globalThis) {
+      resizeObserver.observe(actionsRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+
+    // It needs the post?.userState?.awarded and canAward dependency to ensure that the querySelector
+    // for labels is executed after the DOM is updated with the new state.
+  }, [post?.userState?.awarded, canAward]);
 
   return (
     <ConditionalWrapper
@@ -97,7 +203,6 @@ export function PostActions({
               <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
             }
             aria-label="Upvote"
-            responsiveLabelClass={actionsClassName}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Avocado}
           />
@@ -111,23 +216,66 @@ export function PostActions({
               />
             }
             aria-label="Downvote"
-            responsiveLabelClass={actionsClassName}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Ketchup}
           />
         </Card>
-        <div className="flex flex-1 items-center justify-between px-4 py-2">
+        <div
+          className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
+          ref={actionsRef}
+        >
           <QuaternaryButton
             id="comment-post-btn"
             pressed={post.commented}
             onClick={onComment}
             icon={<CommentIcon secondary={post.commented} />}
             aria-label="Comment"
-            responsiveLabelClass={actionsClassName}
             className="btn-tertiary-blueCheese"
           >
             Comment
           </QuaternaryButton>
+          {canAward && (
+            <ConditionalWrapper
+              condition={post?.userState?.awarded}
+              wrapper={(children) => {
+                return (
+                  <SimpleTooltip content="You already awarded this post!">
+                    <div>{children}</div>
+                  </SimpleTooltip>
+                );
+              }}
+            >
+              <QuaternaryButton
+                id="award-post-btn"
+                pressed={post?.userState?.awarded}
+                onClick={() => {
+                  if (!user) {
+                    return showLogin({ trigger: AuthTriggers.GiveAward });
+                  }
+
+                  return openModal({
+                    type: LazyModal.GiveAward,
+                    props: {
+                      type: 'POST',
+                      entity: {
+                        id: post.id,
+                        receiver: post.author,
+                        numAwards: post.numAwards,
+                      },
+                      post,
+                    },
+                  });
+                }}
+                icon={<MedalBadgeIcon secondary={!post?.userState?.awarded} />}
+                className={classNames(
+                  'btn-tertiary-cabbage',
+                  post?.userState?.awarded && 'pointer-events-none',
+                )}
+              >
+                Award
+              </QuaternaryButton>
+            </ConditionalWrapper>
+          )}
           <BookmarkButton
             post={post}
             contextMenuId="post-content-bookmark"
@@ -135,7 +283,6 @@ export function PostActions({
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
-              responsiveLabelClass: actionsClassName,
               className: 'btn-tertiary-bun',
             }}
           >
@@ -145,7 +292,6 @@ export function PostActions({
             id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
-            responsiveLabelClass={actionsClassName}
             className="btn-tertiary-cabbage"
           >
             Copy

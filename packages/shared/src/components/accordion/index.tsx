@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React, { useId, useState } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
@@ -7,12 +7,23 @@ import { ArrowIcon } from '../icons';
 interface AccordionProps {
   title: ReactNode;
   children: ReactNode;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
-export function Accordion({ title, children }: AccordionProps): ReactElement {
+export function Accordion({
+  title,
+  children,
+  onClick,
+}: AccordionProps): ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const id = useId();
   const contentId = `accordion-content-${id}`;
+
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+    onClick?.(e);
+
+    setIsOpen((prev) => !prev);
+  };
 
   return (
     <div className="flex w-full flex-col">
@@ -21,7 +32,7 @@ export function Accordion({ title, children }: AccordionProps): ReactElement {
         aria-expanded={isOpen}
         className="flex w-full flex-row gap-4 !px-0 text-left"
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
       >
         <div className="min-w-0 flex-1">{title}</div>
         <ArrowIcon

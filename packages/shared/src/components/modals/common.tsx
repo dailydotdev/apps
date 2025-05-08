@@ -112,11 +112,6 @@ const MarketingCtaModal = dynamic(
     ),
 );
 
-const UserSettingsModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
-);
-
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
@@ -258,6 +253,22 @@ const GiftReceivedPlusModal = dynamic(
     ),
 );
 
+const GiveAwardModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "giveAwardModal" */ './award/GiveAwardModal'),
+);
+
+const ContentModal = dynamic(
+  () => import(/* webpackChunkName: "contentModal" */ './ContentModal'),
+);
+
+const CustomLinksModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "customLinksModal" */ '../../features/shortcuts/components/modals/CustomLinksModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -276,7 +287,6 @@ export const modals = {
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
-  [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
@@ -301,6 +311,9 @@ export const modals = {
   [LazyModal.PlusMarketing]: PlusMarketingModal,
   [LazyModal.GiftPlus]: GiftPlusModal,
   [LazyModal.GiftPlusReceived]: GiftReceivedPlusModal,
+  [LazyModal.GiveAward]: GiveAwardModal,
+  [LazyModal.ContentModal]: ContentModal,
+  [LazyModal.CustomLinks]: CustomLinksModal,
 };
 
 type GetComponentProps<T> = T extends

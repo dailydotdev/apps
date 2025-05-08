@@ -6,6 +6,35 @@ import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import type { ReactElement } from 'react';
 import { useContext, useEffect } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  AUTH_REDIRECT_KEY,
+  shouldRedirectAuth,
+} from '@dailydotdev/shared/src/features/onboarding/shared';
+
+const checkShouldSendBroadcast = () => {
+  const ua = navigator.userAgent;
+  const isFromFacebook = document.referrer === 'https://www.facebook.com/';
+  const isInstagramWebview = /Instagram/i.test(ua);
+  const postMessageUndefined = !window.opener?.postMessage;
+  const conditions = [isFromFacebook, isInstagramWebview, postMessageUndefined];
+
+  return conditions.some(Boolean);
+};
+
+const handleRedirectAuth = (params: URLSearchParams) => {
+  const href = window.sessionStorage.getItem(AUTH_REDIRECT_KEY);
+
+  if (href) {
+    const [redirect, hrefParams] = href.split('?');
+    const redirectParams = new URLSearchParams(hrefParams);
+
+    Object.entries(redirectParams).forEach(([key, value]) =>
+      params.set(key, value),
+    );
+
+    window.location.replace(`${redirect}?${params}`);
+  }
+};
 
 function CallbackPage(): ReactElement {
   const { logEvent } = useContext(LogContext);
@@ -26,10 +55,12 @@ function CallbackPage(): ReactElement {
         return;
       }
 
-      if (
-        !window.opener?.postMessage ||
-        document.referrer === 'https://www.facebook.com/'
-      ) {
+      if (shouldRedirectAuth()) {
+        handleRedirectAuth(urlSearchParams);
+        return;
+      }
+
+      if (checkShouldSendBroadcast()) {
         broadcastMessage({ ...params, eventKey });
       } else {
         postWindowMessage(eventKey, params);

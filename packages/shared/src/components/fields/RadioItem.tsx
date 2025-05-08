@@ -15,6 +15,7 @@ export interface RadioItemProps<T extends string = string>
   label?: ReactNode;
   className?: ClassName;
   afterElement?: ReactNode;
+  reverse?: boolean;
 }
 
 export function RadioItem<T extends string>({
@@ -23,6 +24,7 @@ export function RadioItem<T extends string>({
   checked,
   disabled,
   afterElement,
+  reverse,
   ...props
 }: RadioItemProps<T>): ReactElement {
   const { id } = props;
@@ -30,7 +32,10 @@ export function RadioItem<T extends string>({
     <ConditionalWrapper
       condition={!!className?.wrapper}
       wrapper={(component) => (
-        <div className={classNames('flex flex-col', className?.wrapper)}>
+        <div
+          className={classNames('flex flex-col', className?.wrapper)}
+          data-testid="radio-item-wrapper"
+        >
           {component}
         </div>
       )}
@@ -42,7 +47,8 @@ export function RadioItem<T extends string>({
           disabled
             ? '!text-text-disabled'
             : 'pointer cursor-pointer text-text-tertiary focus-within:text-text-primary hover:text-text-primary',
-          'relative flex select-none flex-row items-center pr-3 font-bold typo-footnote',
+          'relative flex select-none items-center pr-3 font-bold typo-footnote',
+          reverse ? 'flex-row-reverse' : 'flex-row',
           className?.content,
         )}
         htmlFor={id}
@@ -56,7 +62,8 @@ export function RadioItem<T extends string>({
         />
         <span
           className={classNames(
-            'mr-1.5 h-8 w-8 rounded-10 p-1.5',
+            'h-8 w-8 rounded-10 p-1.5',
+            reverse ? 'ml-1.5' : 'mr-1.5',
             !disabled && styles.checkmark,
           )}
         >

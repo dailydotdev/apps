@@ -62,6 +62,7 @@
         margin-right: -0.5rem;
       }
     }
+
     & .socialIcon {
       margin-right: 0.75rem;
     }
@@ -163,6 +164,8 @@
 .btn-quaternary {
   & label {
     color: var(--button-color, var(--button-default-color));
+    transition: 0.2s ease-in-out;
+    transition-property: color;
   }
 
   & [aria-pressed="true"] ~ label {
@@ -185,19 +188,6 @@
     pointer-events: none;
   }
 
-  & label {
-    padding-left: 0.25rem;
-    padding-right: 1.5rem;
-  }
-
-  &.small > label {
-    padding-right: 1rem;
-  }
-
-  &.large > label {
-    padding-right: 2rem;
-  }
-
   &.reverse {
     flex-direction: row-reverse;
 
@@ -215,8 +205,10 @@
     }
   }
 }
+
 .btn-tag {
   color: var(--button-color, var(--button-default-color));
+
   & .icon {
     color: var(--button-icon, var(--button-default-icon, none));
   }
@@ -235,11 +227,14 @@
     --button-icon: var(--button-hover-icon);
   }
 }
+
 .btn-tagBlocked {
   color: var(--button-color, var(--button-default-color));
+
   & .icon {
     color: var(--button-icon, var(--button-default-icon, none));
   }
+
   &[aria-pressed="true"] {
     --button-background: var(--button-pressed-background);
     --button-icon: var(--button-hover-icon);
@@ -266,9 +261,21 @@
   }
 
   &:hover {
-     background: var(--button-hover-background);
-     border-color: var(--button-hover-border-color);
-     color: var(--button-hover-color);
-     box-shadow: var(--button-hover-box-shadow);
-   }
+    background: var(--button-hover-background);
+    border-color: var(--button-hover-border-color);
+    color: var(--button-hover-color);
+    box-shadow: var(--button-hover-box-shadow);
+  }
+}
+
+.btn-quiz {
+  @apply !border-solid border-border-subtlest-tertiary;
+  @apply rounded-10 !px-4;
+  @apply bg-surface-hover hover:bg-surface-active;
+  @apply text-text-primary;
+
+  &:is([aria-pressed="true"], [aria-checked="true"]) {
+    @apply bg-brand-active;
+    @apply border-brand-default;
+  }
 }

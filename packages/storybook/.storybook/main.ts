@@ -30,6 +30,9 @@ const config: StorybookConfig = {
     );
 
     return mergeConfig(config, {
+      core: {
+        disableTelemetry: true,
+      },
       server: {
         fs: {
           strict: false,
@@ -52,10 +55,13 @@ const config: StorybookConfig = {
             '../mock/boot.ts',
           ),
           '../lib/boot': path.resolve(__dirname, '../mock/boot.ts'),
+          'next/navigation': path.resolve(__dirname, '../mock/next-router.ts'),
         },
       },
       define: {
-        'process.env': {},
+        'process.env': {
+          NEXT_PUBLIC_WEBAPP_URL: 'https://app.daily.dev',
+        },
         browser,
       },
       plugins: [
@@ -76,6 +82,10 @@ const config: StorybookConfig = {
           },
         }),
       ],
+      env: {
+        NEXT_PUBLIC_PADDLE_ENVIRONMENT: process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT,
+        NEXT_PUBLIC_PADDLE_TOKEN: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
+      },
     });
   },
 };

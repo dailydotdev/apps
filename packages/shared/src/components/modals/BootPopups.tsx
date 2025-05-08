@@ -17,7 +17,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';
-import { isIOSNative, isNullOrUndefined } from '../../lib/func';
+import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
@@ -102,7 +102,7 @@ export const BootPopups = (): ReactElement => {
    * Boot popup based on marketing CTA
    */
   useEffect(() => {
-    if (marketingCtaPlus && !isIOSNative() && isValidRegion && !user?.isPlus) {
+    if (marketingCtaPlus && isValidRegion && !user?.isPlus) {
       addBootPopup({
         type: LazyModal.PlusMarketing,
         props: {

@@ -24,6 +24,7 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { useVisitLink } from './list/hooks';
+import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
 
 interface CardHeaderProps {
   post: Post;
@@ -54,6 +55,7 @@ export const PostCardHeader = ({
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
   const visitLinkCopy = useVisitLink({ post });
+  const { interactiveFeedExp } = useInteractiveFeedContext();
 
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
@@ -81,9 +83,17 @@ export const PostCardHeader = ({
         className={classNames(
           className,
           highlightBookmarkedPost && headerHiddenClassName,
+          interactiveFeedExp && 'mx-0',
         )}
       >
-        <SourceButton source={source} />
+        <SourceButton
+          size={
+            isFeedPreview && interactiveFeedExp
+              ? ProfileImageSize.Small
+              : undefined
+          }
+          source={source}
+        />
         {!!post?.author && (
           <ProfileTooltip userId={post.author.id}>
             <ProfileImageLink
