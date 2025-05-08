@@ -433,7 +433,7 @@ export default function PostOptionsMenu({
           );
         }
 
-        router.push(`${settingsUrl}/feed/ai`);
+        return router.push(`${settingsUrl}/feed/ai`);
       },
     });
 
