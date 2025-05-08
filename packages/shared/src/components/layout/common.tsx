@@ -99,9 +99,7 @@ export const SearchControlHeader = ({
     : undefined;
 
   const actionButtons = [
-    feedsWithActions.includes(feedName as SharedFeedPage) && (
-      <MyFeedHeading key="my-feed" />
-    ),
+    feedsWithActions.includes(feedName as SharedFeedPage) && <MyFeedHeading />,
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
