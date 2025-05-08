@@ -22,7 +22,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
-import { webappUrl } from '../../lib/constants';
+import { settingsUrl, webappUrl } from '../../lib/constants';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
@@ -111,16 +111,16 @@ export const SearchControlHeader = ({
         key="my-feed"
         onOpenFeedFilters={() => {
           if (isCustomDefaultFeed && router.pathname === '/') {
-            router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-          } else {
-            router.push(
-              `${webappUrl}feeds/${
-                feedName === SharedFeedPage.Custom
-                  ? router.query.slugOrId
-                  : user.id
-              }/edit`,
+            return router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+          }
+
+          if (feedName === SharedFeedPage.Custom) {
+            return router.push(
+              `${webappUrl}feeds/${router.query.slugOrId}/edit`,
             );
           }
+
+          return router.push(`${settingsUrl}feed/general`);
         }}
       />
     ),

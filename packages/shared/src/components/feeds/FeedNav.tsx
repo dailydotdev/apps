@@ -20,7 +20,7 @@ import { PlusIcon, SortIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { webappUrl } from '../../lib/constants';
+import { settingsUrl, webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { OtherFeedPage } from '../../lib/query';
@@ -222,16 +222,16 @@ function FeedNav(): ReactElement {
             <MyFeedHeading
               onOpenFeedFilters={() => {
                 if (isCustomDefaultFeed && router.pathname === '/') {
-                  router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-                } else {
-                  router.push(
-                    `${webappUrl}feeds/${
-                      feedName === SharedFeedPage.Custom
-                        ? router.query.slugOrId
-                        : user.id
-                    }/edit`,
+                  return router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+                }
+
+                if (feedName === SharedFeedPage.Custom) {
+                  return router.push(
+                    `${webappUrl}feeds/${router.query.slugOrId}/edit`,
                   );
                 }
+
+                return router.push(`${settingsUrl}feed/general`);
               }}
             />
           </StickyNavIconWrapper>
