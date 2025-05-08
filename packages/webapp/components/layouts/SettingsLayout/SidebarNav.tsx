@@ -64,27 +64,27 @@ export const accountPageItems = defineMenuItems({
       profile: {
         title: 'Profile details',
         icon: UserIcon,
-        href: `${settingsUrl}/profile`,
+        href: `${settingsUrl}profile`,
       },
       account: {
         title: 'Account',
         icon: MailIcon,
-        href: `${settingsUrl}/security`,
+        href: `${settingsUrl}security`,
       },
       appearance: {
         title: 'Appearance',
         icon: NewTabIcon,
-        href: `${settingsUrl}/appearance`,
+        href: `${settingsUrl}appearance`,
       },
       notifications: {
         title: 'Notifications',
         icon: BellIcon,
-        href: `${settingsUrl}/notifications`,
+        href: `${settingsUrl}notifications`,
       },
       invite: {
         title: 'Invite Friends',
         icon: InviteIcon,
-        href: `${settingsUrl}/invite`,
+        href: `${settingsUrl}invite`,
       },
     },
   },
@@ -94,7 +94,7 @@ export const accountPageItems = defineMenuItems({
       subscription: {
         title: 'Subscriptions',
         icon: CreditCardIcon,
-        href: `${settingsUrl}/subscription`,
+        href: `${settingsUrl}subscription`,
       },
       coreWallet: {
         title: 'Core Wallet',
@@ -110,32 +110,32 @@ export const accountPageItems = defineMenuItems({
       general: {
         title: 'General',
         icon: EditIcon,
-        href: `${settingsUrl}/feed/general`,
+        href: `${settingsUrl}feed/general`,
       },
       tags: {
         title: 'Tags',
         icon: HashtagIcon,
-        href: `${settingsUrl}/feed/tags`,
+        href: `${settingsUrl}feed/tags`,
       },
       sources: {
         title: 'Content sources',
         icon: AddUserIcon,
-        href: `${settingsUrl}/feed/sources`,
+        href: `${settingsUrl}feed/sources`,
       },
       preferences: {
         title: 'Content preferences',
         icon: AppIcon,
-        href: `${settingsUrl}/feed/preferences`,
+        href: `${settingsUrl}feed/preferences`,
       },
       ai: {
         title: 'AI superpowers',
         icon: MagicIcon,
-        href: `${settingsUrl}/feed/ai`,
+        href: `${settingsUrl}feed/ai`,
       },
       blocked: {
         title: 'Blocked content',
         icon: BlockIcon,
-        href: `${settingsUrl}/feed/blocked`,
+        href: `${settingsUrl}feed/blocked`,
       },
     },
   },
@@ -145,17 +145,17 @@ export const accountPageItems = defineMenuItems({
       streaks: {
         title: 'Streaks',
         icon: HotIcon,
-        href: `${settingsUrl}/customization/streaks`,
+        href: `${settingsUrl}customization/streaks`,
       },
       devcard: {
         title: 'DevCard',
         icon: DevCardIcon,
-        href: `${settingsUrl}/customization/devcard`,
+        href: `${settingsUrl}customization/devcard`,
       },
       integrations: {
         title: 'Integrations',
         icon: EmbedIcon,
-        href: `${settingsUrl}/customization/integrations`,
+        href: `${settingsUrl}customization/integrations`,
       },
     },
   },
@@ -165,7 +165,7 @@ export const accountPageItems = defineMenuItems({
       privacy: {
         title: 'Privacy',
         icon: PrivacyIcon,
-        href: `${settingsUrl}/privacy`,
+        href: `${settingsUrl}privacy`,
       },
       reputation: {
         title: 'Reputation',
