@@ -17,7 +17,6 @@ export interface PaymentContextData {
   isPlusAvailable: boolean;
   giftOneYear?: ProductPricingPreview;
   isPricesPending: boolean;
-  isFreeTrialExperiment: boolean;
   isPaddleReady?: boolean;
 }
 

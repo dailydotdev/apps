@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
-import type { TimePeriod } from '@paddle/paddle-js';
 import { gqlClient } from './common';
 import type { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 
@@ -40,7 +39,6 @@ export interface ProductPricingPreview {
     symbol: string;
   };
   duration: PlusPriceType;
-  trialPeriod: TimePeriod | null;
 }
 
 export enum ProductPricingType {
@@ -88,10 +86,6 @@ const PRICING_PREVIEW_QUERY = gql`
         symbol
       }
       duration
-      trialPeriod {
-        interval
-        frequency
-      }
     }
   }
   ${PRICING_METADATA_FRAGMENT}

@@ -11,7 +11,6 @@ export const dummyPaddleProductItemYen: PaddleProductLineItem = {
       interval: 'year',
       frequency: 1,
     },
-    trialPeriod: null,
     taxMode: 'account_setting',
     unitPrice: {
       amount: '5999',
@@ -442,7 +441,6 @@ export const dummyPaddleProductItemDollar: PaddleProductLineItem = {
       interval: 'year',
       frequency: 1,
     },
-    trialPeriod: null,
     taxMode: 'account_setting',
     unitPrice: {
       amount: '5999',
