@@ -71,7 +71,10 @@ import {
 import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
-import { settingsUrl } from '../lib/constants';
+import { FeedSettingsMenu } from './feeds/FeedSettings/types';
+import { settingsUrl, webappUrl } from '../lib/constants';
+import { SharedFeedPage } from './utilities';
+import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -162,6 +165,7 @@ export default function PostOptionsMenu({
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   const {
     onBlockSource,
@@ -418,6 +422,15 @@ export default function PostOptionsMenu({
             event_name: LogEvent.UpgradeSubscription,
             target_id: TargetId.ContextMenu,
           });
+        }
+
+        if (isCustomDefaultFeed && router.pathname === '/') {
+          return router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
+        }
+        if (feedName === SharedFeedPage.Custom) {
+          return router.push(
+            `${webappUrl}feeds/${router.query.slugOrId}/edit?dview=${FeedSettingsMenu.AI}`,
+          );
         }
 
         router.push(`${settingsUrl}/feed/ai`);
