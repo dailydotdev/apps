@@ -46,7 +46,7 @@ export const COMPLETED_STEP_ID = 'finish' as const;
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-export interface FunnelBannerMessage {
+export interface FunnelBannerMessageParameters {
   image: {
     src: string;
   };
@@ -274,7 +274,7 @@ interface FunnelParameters {
   theme: {
     mode: ThemeMode;
   };
-  banner: FunnelBannerMessage;
+  banner: FunnelBannerMessageParameters;
 }
 
 export interface FunnelJSON {

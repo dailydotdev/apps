@@ -3,15 +3,16 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { LazyImage } from '../../../components/LazyImage';
 import { sanitizeMessage } from './utils';
-import type { FunnelBannerMessage } from '../types/funnel';
+import type { FunnelBannerMessageParameters } from '../types/funnel';
 
-type FunnelStepBannerProps = FunnelBannerMessage & ComponentProps<'div'>;
+type FunnelBannerMessageProps = FunnelBannerMessageParameters &
+  ComponentProps<'div'>;
 
-export const FunnelBanner = ({
+export const FunnelBannerMessage = ({
   image,
   content,
   className,
-}: FunnelStepBannerProps) => {
+}: FunnelBannerMessageProps) => {
   const contentHtml = useMemo(() => sanitizeMessage(content), [content]);
 
   return (

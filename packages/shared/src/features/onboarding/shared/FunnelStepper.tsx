@@ -35,7 +35,7 @@ import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
-import { FunnelBanner } from './FunnelBannerMessage';
+import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 
 export interface FunnelStepperProps {
@@ -184,7 +184,9 @@ export const FunnelStepper = ({
       )}
       <FunnelStepBackground step={step}>
         <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
-          {layout.hasBanner && <FunnelBanner {...funnel.parameters.banner} />}
+          {layout.hasBanner && (
+            <FunnelBannerMessage {...funnel.parameters.banner} />
+          )}
           <Header
             chapters={chapters}
             className={classNames({
