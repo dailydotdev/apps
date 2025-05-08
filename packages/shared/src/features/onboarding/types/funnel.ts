@@ -46,7 +46,15 @@ export const COMPLETED_STEP_ID = 'finish' as const;
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-interface FunnelStepCommonParameters {
+export interface FunnelBannerMessageParameters {
+  image: {
+    src: string;
+  };
+  content: string;
+  stepsToDisplay: string[];
+}
+
+export interface FunnelStepCommonParameters {
   backgroundType?: FunnelBackgroundVariant;
   cta?: string;
   reverse?: boolean;
@@ -259,19 +267,20 @@ export type FunnelPosition = {
   step: number;
 };
 
+interface FunnelParameters {
+  cookieConsent: {
+    show: boolean;
+  };
+  theme: {
+    mode: ThemeMode;
+  };
+  banner: FunnelBannerMessageParameters;
+}
+
 export interface FunnelJSON {
   id: string;
   version: number;
-  parameters: FunnelStepParameters<
-    Partial<{
-      cookieConsent: {
-        show: boolean;
-      };
-      theme: {
-        mode: ThemeMode;
-      };
-    }>
-  >;
+  parameters: Partial<FunnelParameters>;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
 }
