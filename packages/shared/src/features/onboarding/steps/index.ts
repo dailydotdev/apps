@@ -5,3 +5,4 @@ export { FunnelPaymentSuccessful } from './FunnelPaymentSuccessful';
 export { default as FunnelProfileForm } from './FunnelProfileForm';
 export { default as FunnelEditTags } from './FunnelEditTags';
 export { default as FunnelContentTypes } from './FunnelContentTypes';
+export { default as FunnelReadingReminder } from './FunnelReadingReminder';

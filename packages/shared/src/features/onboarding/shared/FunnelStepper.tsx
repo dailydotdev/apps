@@ -25,6 +25,7 @@ import {
   FunnelProfileForm,
   FunnelEditTags,
   FunnelContentTypes,
+  FunnelReadingReminder,
 } from '../steps';
 import FunnelFact from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -59,6 +60,7 @@ const stepComponentMap = {
   [FunnelStepType.ProfileForm]: FunnelProfileForm,
   [FunnelStepType.EditTags]: FunnelEditTags,
   [FunnelStepType.ContentTypes]: FunnelContentTypes,
+  [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {

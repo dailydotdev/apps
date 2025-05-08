@@ -209,11 +209,7 @@ export interface FunnelStepTagSelection extends FunnelStepCommon {
 }
 
 export interface FunnelStepReadingReminder
-  extends FunnelStepCommon<{
-    headline: string;
-    cta?: string;
-    minimumRequirement: number;
-  }> {
+  extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.ReadingReminder;
   onTransition: FunnelStepTransitionCallback;
 }
