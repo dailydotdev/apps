@@ -9,8 +9,7 @@ import {
 import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
-import { plusFAQItems, plusFAQTrialItem } from './common';
-import { usePaymentContext } from '../../contexts/payment/context';
+import { plusFAQItems } from './common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 
@@ -49,12 +48,8 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => {
 };
 
 export const PlusFAQ = (): ReactElement => {
-  const { isFreeTrialExperiment } = usePaymentContext();
   const id = useId();
   const titleId = `${id}-title`;
-  const items = isFreeTrialExperiment
-    ? plusFAQItems.toSpliced(3, 0, plusFAQTrialItem)
-    : plusFAQItems;
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography
@@ -67,7 +62,7 @@ export const PlusFAQ = (): ReactElement => {
         Frequently asked questions
       </Typography>
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        {items.map((item) => (
+        {plusFAQItems.map((item) => (
           <FAQItem key={item.question} item={item} />
         ))}
       </div>

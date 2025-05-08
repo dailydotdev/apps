@@ -50,6 +50,7 @@ export interface FormInputCheckboxGroupProps
    * @default CheckboxGroupVariant.Horizontal
    */
   variant?: CheckboxGroupVariant;
+  optionStyle?: 'default' | 'simplified';
 }
 
 const getChangedValue = ({
@@ -75,18 +76,22 @@ const FormInputCheckbox = ({
   isVertical,
   item,
   name,
+  optionStyle,
   ...props
 }: ButtonProps<'button'> & {
   isSelected: boolean;
   isVertical: boolean;
   name: string;
   item: CheckboxItem;
+  optionStyle?: 'default' | 'simplified';
 }) => {
   return (
     <Button
       aria-checked={isSelected}
       aria-label={item.label}
-      className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body')}
+      className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
+        simplified: optionStyle === 'simplified',
+      })}
       data-funnel-track={FunnelTargetId.QuizInput}
       name={name}
       pressed={isSelected}
@@ -141,6 +146,7 @@ export const FormInputCheckboxGroup = ({
   cols = 1,
   value,
   variant = CheckboxGroupVariant.Horizontal,
+  optionStyle,
 }: FormInputCheckboxGroupProps): ReactElement => {
   const [checkedValue, setCheckedValue] = useState<CheckboxValues | undefined>(
     defaultValue,
@@ -172,6 +178,7 @@ export const FormInputCheckboxGroup = ({
           onClick={() => onSelect(item.value)}
           size={ButtonSize.XLarge}
           variant={ButtonVariant.Quiz}
+          optionStyle={optionStyle}
         />
       ))}
     </div>
