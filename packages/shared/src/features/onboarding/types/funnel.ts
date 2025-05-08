@@ -25,6 +25,7 @@ export enum FunnelStepType {
   ProfileForm = 'profileForm',
   EditTags = 'editTags',
   ContentTypes = 'contentTypes',
+  InstallPwa = 'installPwa',
 }
 
 export enum FunnelBackgroundVariant {
@@ -268,6 +269,12 @@ export interface FunnelStepContentTypes
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepInstallPwa
+  extends FunnelStepCommon<{ headline: string }> {
+  type: FunnelStepType.InstallPwa;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -282,7 +289,8 @@ export type FunnelStep =
   | FunnelStepLoading
   | FunnelStepProfileForm
   | FunnelStepEditTags
-  | FunnelStepContentTypes;
+  | FunnelStepContentTypes
+  | FunnelStepInstallPwa;
 
 export type FunnelPosition = {
   chapter: number;

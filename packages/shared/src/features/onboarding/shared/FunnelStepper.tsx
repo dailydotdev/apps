@@ -26,6 +26,7 @@ import {
   FunnelEditTags,
   FunnelContentTypes,
   FunnelReadingReminder,
+  FunnelInstallPwa,
 } from '../steps';
 import FunnelFact from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -61,6 +62,7 @@ const stepComponentMap = {
   [FunnelStepType.EditTags]: FunnelEditTags,
   [FunnelStepType.ContentTypes]: FunnelContentTypes,
   [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
+  [FunnelStepType.InstallPwa]: FunnelInstallPwa,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
