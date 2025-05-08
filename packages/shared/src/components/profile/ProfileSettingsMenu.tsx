@@ -259,7 +259,7 @@ export function ProfileSettingsMenuMobile({
         onClose,
       }}
     >
-      <InnerProfileSettingsMenu className="py-4" />
+      <InnerProfileSettingsMenu className="p-4" />
     </NavDrawer>
   );
 }

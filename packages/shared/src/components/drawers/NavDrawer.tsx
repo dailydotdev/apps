@@ -41,13 +41,14 @@ export function NavDrawer({
       role="menu"
       className={{
         drawer: 'py-0',
+        wrapper: '!px-0 !pt-0',
       }}
     >
       {header && (
-        <div className="flex h-12 items-center gap-3 border-b border-border-subtlest-tertiary">
+        <div className="flex h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4">
           <Button
             variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
+            size={ButtonSize.XSmall}
             onClick={
               shouldKeepOpen ? drawerProps.onClose : ref.current?.onClose
             }

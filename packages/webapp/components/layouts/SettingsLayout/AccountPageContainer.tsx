@@ -45,13 +45,7 @@ export const AccountPageContainer = ({
 
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
-      <AccountPageHeading
-        className={classNames(
-          'sticky',
-          actions ? 'py-3' : 'py-[0.9375rem]',
-          className.heading,
-        )}
-      >
+      <AccountPageHeading className={classNames('sticky', className.heading)}>
         <Button
           className={classNames('mr-2 flex tablet:hidden', { hidden: onBack })}
           icon={<ArrowIcon className="-rotate-90" />}
