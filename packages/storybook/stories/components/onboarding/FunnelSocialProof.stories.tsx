@@ -10,6 +10,10 @@ import { fn } from '@storybook/test';
 import {
   FunnelStepSocialProof,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import ExtensionProviders from '../../extension/_providers';
+import {
+  FunnelStepBackground
+} from '@dailydotdev/shared/src/features/onboarding/shared';
 
 const meta: Meta<typeof FunnelSocialProof> = {
   title: 'Components/Onboarding/Steps/SocialProof',
@@ -25,6 +29,15 @@ const meta: Meta<typeof FunnelSocialProof> = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
+  render: (props) => (
+    <ExtensionProviders>
+      <FunnelStepBackground step={props}>
+        <div className='flex flex-col min-h-dvh'>
+          <FunnelSocialProof {...props} />
+        </div>
+      </FunnelStepBackground>
+    </ExtensionProviders>
+  ),
 };
 
 export default meta;

@@ -41,7 +41,7 @@ it('should show settings option that opens modal', async () => {
   });
 
   const settingsButton = await screen.findByRole('link', {
-    name: 'Account details',
+    name: 'Settings',
   });
   expect(settingsButton).toBeInTheDocument();
 });
@@ -54,7 +54,7 @@ it('should click the logout button and logout', async () => {
     profileBtn.click();
   });
 
-  const logoutBtn = await screen.findByText('Logout');
+  const logoutBtn = await screen.findByText('Log out');
   logoutBtn.click();
 
   await waitFor(async () => expect(logout).toBeCalled());

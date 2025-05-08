@@ -58,7 +58,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             </Typography>
 
             <Typography
-              type={TypographyType.Footnote}
+              type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
               Select your time zone and the beginning of the weekend in your
@@ -87,7 +87,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             </Typography>
 
             <Typography
-              type={TypographyType.Footnote}
+              type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
               This will affect the personalized digest, reading reminders and
