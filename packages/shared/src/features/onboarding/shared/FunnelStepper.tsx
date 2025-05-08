@@ -24,6 +24,7 @@ import {
   FunnelPaymentSuccessful,
   FunnelProfileForm,
   FunnelEditTags,
+  FunnelContentTypes,
 } from '../steps';
 import FunnelFact from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -57,6 +58,7 @@ const stepComponentMap = {
   [FunnelStepType.PaymentSuccessful]: FunnelPaymentSuccessful,
   [FunnelStepType.ProfileForm]: FunnelProfileForm,
   [FunnelStepType.EditTags]: FunnelEditTags,
+  [FunnelStepType.ContentTypes]: FunnelContentTypes,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {

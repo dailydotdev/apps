@@ -24,6 +24,7 @@ export enum FunnelStepType {
   Loading = 'loading',
   ProfileForm = 'profileForm',
   EditTags = 'editTags',
+  ContentTypes = 'contentTypes',
 }
 
 export enum FunnelBackgroundVariant {
@@ -207,7 +208,12 @@ export interface FunnelStepTagSelection extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepReadingReminder extends FunnelStepCommon {
+export interface FunnelStepReadingReminder
+  extends FunnelStepCommon<{
+    headline: string;
+    cta?: string;
+    minimumRequirement: number;
+  }> {
   type: FunnelStepType.ReadingReminder;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -260,6 +266,12 @@ export interface FunnelStepEditTags
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepContentTypes
+  extends FunnelStepCommon<{ headline: string }> {
+  type: FunnelStepType.ContentTypes;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -273,7 +285,8 @@ export type FunnelStep =
   | FunnelStepSocialProof
   | FunnelStepLoading
   | FunnelStepProfileForm
-  | FunnelStepEditTags;
+  | FunnelStepEditTags
+  | FunnelStepContentTypes;
 
 export type FunnelPosition = {
   chapter: number;
