@@ -13,6 +13,14 @@ export const PRODUCT_FRAGMENT = gql`
   }
 `;
 
+export const FEATURED_AWARD_FRAGMENT = gql`
+  fragment FeaturedAwardFragment on Product {
+    name
+    image
+    value
+  }
+`;
+
 export const CURRENT_MEMBER_FRAGMENT = gql`
   fragment CurrentMember on SourceMember {
     user {
@@ -311,11 +319,17 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     translation {
       ...PostTranslateableFields
     }
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`
@@ -339,8 +353,14 @@ export const COMMENT_FRAGMENT = gql`
       name
       image
     }
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
   }
   ${USER_AUTHOR_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const RELATED_POST_FRAGMENT = gql`

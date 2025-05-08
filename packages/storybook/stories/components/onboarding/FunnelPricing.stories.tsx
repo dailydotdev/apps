@@ -1,59 +1,21 @@
 import React, { ReactElement } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { FunnelPricing } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing';
+import {
+  FunnelPricing,
+} from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing';
 import {
   FunnelStepType,
   FunnelStepPricing,
-  FunnelStepPricingParameters,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { fn } from '@storybook/test';
-import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useInitFunnelPaddle } from '@dailydotdev/shared/src/features/onboarding/hooks/useInitFunnelPaddle';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-
-const withQueryClient = (
-  Story: () => ReactElement,
-  { parameters }: { parameters: { region: string } },
-): ReactElement => {
-  useInitFunnelPaddle();
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthContextProvider
-        user={{
-          id: '1',
-          email: 'test@test.com',
-          name: 'Test User',
-          username: 'testuser',
-        }}
-        updateUser={fn()}
-        tokenRefreshed={true}
-        getRedirectUri={fn()}
-        loadingUser={false}
-        loadedUserFromCache={true}
-        refetchBoot={fn()}
-        isFetched={true}
-        squads={[]}
-        firstLoad={true}
-        geo={{
-          region: parameters?.region || 'US',
-        }}
-        isAndroidApp={false}
-      >
-        <Story />
-      </AuthContextProvider>
-    </QueryClientProvider>
-  );
-};
+import {
+  PricingPlanVariation,
+} from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
+import { QueryClient } from '@tanstack/react-query';
+import ExtensionProviders from '../../extension/_providers';
+import {
+  FunnelStepBackground,
+} from '@dailydotdev/shared/src/features/onboarding/shared';
 
 const meta: Meta<typeof FunnelPricing> = {
   title: 'Components/Onboarding/Steps/Pricing',
@@ -69,14 +31,20 @@ const meta: Meta<typeof FunnelPricing> = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-  decorators: [withQueryClient],
+  render: (props): ReactElement => {
+    return <ExtensionProviders>
+      <FunnelStepBackground step={props}>
+        <FunnelPricing {...props} />
+      </FunnelStepBackground>
+    </ExtensionProviders>;
+  },
 };
 
 export default meta;
 
 type Story = StoryObj<typeof FunnelPricing>;
 
-const commonParams: FunnelStepPricingParameters = {
+const commonParams: FunnelStepPricing['parameters'] = {
   headline: 'Choose your plan',
   cta: 'Proceed to checkout →',
   discount: {
@@ -136,23 +104,23 @@ const commonParams: FunnelStepPricingParameters = {
       'https://media.daily.dev/image/upload/s--QHvr7zBd--/f_auto/v1743491782/public/approved',
     title: '100% money back guarantee',
     content:
-      "We're confident in the quality of our plan. More than a million developers around the world use daily.dev to grow professionally. To get the most out of it, use daily.dev daily. Consume content, explore, and interact with the community. If you still don't love it after 30 days, contact us. We guarantee a full hassle-free refund. No questions asked.",
+      'We\'re confident in the quality of our plan. More than a million developers around the world use daily.dev to grow professionally. To get the most out of it, use daily.dev daily. Consume content, explore, and interact with the community. If you still don\'t love it after 30 days, contact us. We guarantee a full hassle-free refund. No questions asked.',
   },
   faq: [
     {
       question: 'Can I cancel anytime?',
       answer:
-        "Yes. You can cancel your plan at any point from your account settings. You'll keep access until the end of your billing cycle.",
+        'Yes. You can cancel your plan at any point from your account settings. You\'ll keep access until the end of your billing cycle.',
     },
     {
       question: 'What happens if I forget to use it?',
       answer:
-        "We'll send personalized nudges to help you stay consistent, and your feed will always be waiting. No FOMO required.",
+        'We\'ll send personalized nudges to help you stay consistent, and your feed will always be waiting. No FOMO required.',
     },
     {
-      question: "Is this useful if I'm not a full-time developer?",
+      question: 'Is this useful if I\'m not a full-time developer?',
       answer:
-        "Absolutely. daily.dev is built for anyone in tech. From junior devs to DevOps, PMs, and hobbyists. If you want to stay sharp, it's for you.",
+        'Absolutely. daily.dev is built for anyone in tech. From junior devs to DevOps, PMs, and hobbyists. If you want to stay sharp, it\'s for you.',
     },
   ],
 };

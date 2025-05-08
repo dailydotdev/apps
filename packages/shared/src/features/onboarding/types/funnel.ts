@@ -8,6 +8,7 @@ import type {
   StepHeadlineAlign,
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
+import type { ThemeMode } from '../../../contexts/SettingsContext';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -49,7 +50,15 @@ export const COMPLETED_STEP_ID = 'finish' as const;
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-interface FunnelStepCommonParameters {
+export interface FunnelBannerMessageParameters {
+  image: {
+    src: string;
+  };
+  content: string;
+  stepsToDisplay: string[];
+}
+
+export interface FunnelStepCommonParameters {
   backgroundType?: FunnelBackgroundVariant;
   cta?: string;
   reverse?: boolean;
@@ -122,6 +131,7 @@ export type FunnelQuestionCommon = {
     image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
+  optionStyle?: 'default' | 'simplified';
 };
 
 export type FunnelQuestionCheckbox = FunnelQuestionCommon &
@@ -156,7 +166,7 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-interface FunnelStepPricingParameters {
+export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
   discount: {
@@ -297,14 +307,20 @@ export type FunnelPosition = {
   step: number;
 };
 
+interface FunnelParameters {
+  cookieConsent: {
+    show: boolean;
+  };
+  theme: {
+    mode: ThemeMode;
+  };
+  banner: FunnelBannerMessageParameters;
+}
+
 export interface FunnelJSON {
   id: string;
   version: number;
-  parameters: FunnelStepParameters<{
-    cookieConsent: {
-      show: boolean;
-    };
-  }>;
+  parameters: Partial<FunnelParameters>;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
 }

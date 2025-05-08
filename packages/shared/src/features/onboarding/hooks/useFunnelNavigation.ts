@@ -1,14 +1,12 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAtom } from 'jotai/react';
-import { UNDO } from 'jotai-history';
 import type { FunnelJSON, FunnelPosition, FunnelStep } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import type { TrackOnNavigate } from './useFunnelTracking';
 import {
   funnelPositionAtom,
   getFunnelStepByPosition,
-  funnelPositionHistoryAtom,
 } from '../store/funnelStore';
 import { useToggle } from '../../../hooks/useToggle';
 
@@ -83,7 +81,6 @@ export const useFunnelNavigation = ({
   const pathname = usePathname();
   const [stepTimerStart, setStepTimerStart] = useState<number>(0);
   const [position, setPosition] = useAtom(funnelPositionAtom);
-  const [history, dispatchHistory] = useAtom(funnelPositionHistoryAtom);
   const isFirstStep = !position.step && !position.chapter;
   const isInitialized = useRef<boolean>(false);
   const [isReady, setIsReady] = useToggle(false);
@@ -149,17 +146,18 @@ export const useFunnelNavigation = ({
   );
 
   const back: HeaderNavigation = useMemo(() => {
-    const hasTarget = !isFirstStep && history.canUndo;
+    const hasTarget = !isFirstStep;
+
     return {
       hasTarget,
       navigate: () => {
         if (!hasTarget) {
           return;
         }
-        dispatchHistory(UNDO);
+        router.back();
       },
     };
-  }, [dispatchHistory, history.canUndo, isFirstStep]);
+  }, [isFirstStep, router]);
 
   const skip: UseFunnelNavigationReturn['skip'] = useMemo(
     () => ({

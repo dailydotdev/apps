@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
 import classNames from 'classnames';
-import type { ProductOption } from '../../contexts/payment/context';
-import { usePaymentContext } from '../../contexts/payment/context';
 import {
   Typography,
   TypographyColor,
@@ -15,7 +13,8 @@ import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
 import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
-import { PlusLabelColor, PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
+import type { ProductPricingPreview } from '../../graphql/paddle';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -26,7 +25,7 @@ interface PlusCardProps {
   currency: string;
   onClickNext: () => void;
   onClickPlus: () => void;
-  productOption?: ProductOption;
+  productOption?: ProductPricingPreview;
 }
 
 const cardContent = {
@@ -58,7 +57,6 @@ const PlusCard = ({
 }: PlusCardProps): ReactElement => {
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { isFreeTrialExperiment } = usePaymentContext();
 
   const isPaidPlan = !!plan;
   const cardContentName = isPaidPlan
@@ -67,7 +65,7 @@ const PlusCard = ({
   const { heading, features } = cardContent[cardContentName];
 
   const price = {
-    amount: plan?.price.monthlyFormatted ?? '0',
+    amount: plan?.price.monthly?.formatted ?? '0',
   };
 
   return (
@@ -90,20 +88,11 @@ const PlusCard = ({
           {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
           {heading.label}
         </Typography>
-        {plan?.extraLabel && (
+        {plan?.metadata.caption && (
           <PlusPlanExtraLabel
-            color={
-              isFreeTrialExperiment
-                ? PlusLabelColor.Success
-                : PlusLabelColor.Help
-            }
-            label={isFreeTrialExperiment ? '7-day free trial' : plan.extraLabel}
+            color={plan?.metadata.caption.color}
+            label={plan?.metadata.caption.copy}
             className="ml-3"
-            typographyProps={{
-              color: isFreeTrialExperiment
-                ? TypographyColor.StatusSuccess
-                : TypographyColor.StatusHelp,
-            }}
           />
         )}
       </div>
@@ -149,7 +138,7 @@ const PlusCard = ({
           title="Get started with Plus"
           variant={ButtonVariant.Primary}
         >
-          {isFreeTrialExperiment ? 'Get started for free' : 'Get started'}
+          Get started
         </Button>
       )}
       <Typography
@@ -196,7 +185,7 @@ const PlusCard = ({
 interface PlusComparingCardsProps {
   onClickNext: () => void;
   onClickPlus: () => void;
-  productOption?: ProductOption;
+  productOption?: ProductPricingPreview;
 }
 
 export const PlusComparingCards = ({
@@ -204,7 +193,7 @@ export const PlusComparingCards = ({
   onClickNext,
   onClickPlus,
 }: PlusComparingCardsProps): ReactElement => {
-  const currency = productOption.currencySymbol;
+  const currency = productOption.currency?.symbol;
 
   return (
     <ul

@@ -274,6 +274,10 @@
   @apply bg-surface-hover hover:bg-surface-active;
   @apply text-text-primary;
 
+  &.simplified {
+    @apply bg-[unset];
+  }
+
   &:is([aria-pressed="true"], [aria-checked="true"]) {
     @apply bg-brand-active;
     @apply border-brand-default;

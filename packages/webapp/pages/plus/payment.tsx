@@ -39,7 +39,7 @@ const PlusPaymentPage = (): ReactElement => {
     }
   }, [pid, router]);
 
-  const selectedProduct = productOptions.find((option) => option.value === pid);
+  const selectedProduct = productOptions.find(({ priceId }) => priceId === pid);
 
   return (
     <>
@@ -53,7 +53,7 @@ const PlusPaymentPage = (): ReactElement => {
             <PlusProductList
               className="w-full"
               productList={[selectedProduct]}
-              selected={selectedProduct?.value}
+              selected={selectedProduct?.priceId}
             />
           </div>
         )}

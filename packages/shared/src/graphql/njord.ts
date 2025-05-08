@@ -7,8 +7,7 @@ import type { LoggedUser } from '../lib/user';
 import { PRODUCT_FRAGMENT, TRANSACTION_FRAGMENT } from './fragments';
 import type { Author } from './comments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
-import { getCorePricePreviews } from './paddle';
-import type { ProductOption } from '../contexts/payment/context';
+import type { ProductPricingPreview } from './paddle';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -72,6 +71,8 @@ export type Product = {
   }>;
 };
 
+export type FeaturedAward = Pick<Product, 'name' | 'image' | 'value'>;
+
 export const PRODUCTS_QUERY = gql`
   query products($first: Int) {
     products(first: $first) {
@@ -85,7 +86,7 @@ export const PRODUCTS_QUERY = gql`
   ${PRODUCT_FRAGMENT}
 `;
 
-export const getProducts = async ({
+const getProducts = async ({
   first = 100,
 }: {
   first?: number;
@@ -95,6 +96,14 @@ export const getProducts = async ({
   }>(PRODUCTS_QUERY, { first });
 
   return result.products;
+};
+
+export const getProductsQueryOptions = () => {
+  return {
+    queryKey: generateQueryKey(RequestKey.Products),
+    queryFn: () => getProducts(),
+    staleTime: StaleTime.Default,
+  };
 };
 
 export enum UserTransactionStatus {
@@ -148,21 +157,6 @@ export const getTransactionByProvider = async ({
 };
 
 export const transactionRefetchIntervalMs = 2500;
-
-export const transactionPricesQueryOptions = ({
-  isLoggedIn,
-  user,
-}: {
-  isLoggedIn: boolean;
-  user: LoggedUser;
-}) => {
-  return {
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, 'cores'),
-    queryFn: getCorePricePreviews,
-    enabled: isLoggedIn,
-    staleTime: StaleTime.Default,
-  };
-};
 
 type UserTransactionSummary = {
   purchased: number;
@@ -278,7 +272,7 @@ export const getQuantityForPrice = ({
   prices,
 }: {
   priceId: string;
-  prices?: ProductOption[];
+  prices?: ProductPricingPreview[];
 }): number | undefined => {
-  return prices?.find((item) => item.value === priceId)?.coresValue;
+  return prices?.find((item) => item.priceId === priceId)?.metadata.coresValue;
 };

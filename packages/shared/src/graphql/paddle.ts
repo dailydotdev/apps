@@ -1,62 +1,132 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
-import type { ProductOption } from '../contexts/payment/context';
 import { gqlClient } from './common';
+import type { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 
-const PRICE_FRAGMENT = gql`
-  fragment Price on Price {
-    label
-    value
-    price {
-      amount
-      formatted
-      monthlyAmount
-      monthlyFormatted
-    }
-    currencyCode
-    currencySymbol
-    extraLabel
+export type PaddleProductLineItem =
+  PricePreviewResponse['data']['details']['lineItems'][0];
+
+interface Price {
+  amount: number;
+  formatted: string;
+}
+
+export interface ProductPricingMetadata {
+  appsId: PlusPriceTypeAppsId;
+  title: string;
+  caption?: {
+    copy: string;
+    color: PricingCaptionColor;
+  };
+  idMap: {
+    paddle: string;
+    ios: string;
+  };
+  coresValue?: number;
+}
+
+interface ProductPricing extends Price {
+  monthly?: Price;
+  daily?: Price;
+}
+
+export interface ProductPricingPreview {
+  metadata: ProductPricingMetadata;
+  priceId: string;
+  price: ProductPricing;
+  currency: {
+    code: string;
+    symbol: string;
+  };
+  duration: PlusPriceType;
+}
+
+export enum ProductPricingType {
+  Plus = 'plus',
+  Cores = 'cores',
+}
+
+const PRICING_METADATA_FRAGMENT = gql`
+  fragment PricingMetadataFragment on ProductPricingMetadata {
     appsId
-    duration
-    trialPeriod {
-      interval
-      frequency
+    title
+    caption {
+      copy
+      color
+    }
+    idMap {
+      paddle
+      ios
     }
     coresValue
   }
 `;
 
-export const PRICE_PREVIEWS = gql`
-  query PricePreviews {
-    pricePreviews {
-      items {
-        ...Price
+const PRICING_PREVIEW_QUERY = gql`
+  query PricingPreview($type: PricingType, $locale: String) {
+    pricingPreview(type: $type, locale: $locale) {
+      metadata {
+        ...PricingMetadataFragment
       }
+      priceId
+      price {
+        amount
+        formatted
+        monthly {
+          amount
+          formatted
+        }
+        daily {
+          amount
+          formatted
+        }
+      }
+      currency {
+        code
+        symbol
+      }
+      duration
     }
   }
-  ${PRICE_FRAGMENT}
+  ${PRICING_METADATA_FRAGMENT}
 `;
 
-export const getPricePreviews = async (): Promise<ProductOption[]> => {
-  const response = await gqlClient.request(PRICE_PREVIEWS);
-  return response.pricePreviews.items;
+interface PricingPreviewResponse {
+  pricingPreview: ProductPricingPreview[];
+}
+
+export const fetchPricingPreview = async (
+  type: ProductPricingType,
+  locale = globalThis?.navigator?.language ?? 'en-US',
+): Promise<ProductPricingPreview[]> => {
+  const { pricingPreview } = await gqlClient.request<PricingPreviewResponse>(
+    PRICING_PREVIEW_QUERY,
+    { type, locale },
+  );
+
+  return pricingPreview;
 };
 
-export type PaddleProductLineItem =
-  PricePreviewResponse['data']['details']['lineItems'][0];
-
-export const CORE_PRICE_PREVIEWS = gql`
-  query CorePricePreviews {
-    corePricePreviews {
-      items {
-        ...Price
-      }
+const PRICING_METADATA_QUERY = gql`
+  query PricingMetadata($type: PricingType) {
+    pricingMetadata(type: $type) {
+      ...PricingMetadataFragment
     }
   }
-  ${PRICE_FRAGMENT}
+  ${PRICING_METADATA_FRAGMENT}
 `;
 
-export const getCorePricePreviews = async (): Promise<ProductOption[]> => {
-  const response = await gqlClient.request(CORE_PRICE_PREVIEWS);
-  return response.corePricePreviews.items;
+export const fetchPricingMetadata = async (
+  type: ProductPricingType,
+): Promise<ProductPricingMetadata[]> => {
+  const { pricingMetadata } = await gqlClient.request<{
+    pricingMetadata: ProductPricingMetadata[];
+  }>(PRICING_METADATA_QUERY, { type });
+
+  return pricingMetadata;
 };
+
+export enum PricingCaptionColor {
+  Success = 'success',
+  Help = 'help',
+}

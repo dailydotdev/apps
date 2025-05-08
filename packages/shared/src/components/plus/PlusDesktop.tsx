@@ -9,6 +9,7 @@ import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
+import { usePlusSubscription } from '../../hooks';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
@@ -17,16 +18,16 @@ export const PlusDesktop = ({
 }: CommonPlusPageProps): ReactElement => {
   const {
     openCheckout,
-    paddle,
+    isPaddleReady,
     productOptions,
     giftOneYear,
-    isFreeTrialExperiment,
     isPricesPending,
   } = usePaymentContext();
   const { giftToUser } = useGiftUserContext();
   const {
     query: { selectedPlan },
   } = useRouter();
+  const { isPlus } = usePlusSubscription();
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
@@ -40,24 +41,25 @@ export const PlusDesktop = ({
   );
 
   useEffect(() => {
-    if (!ref?.current || !paddle) {
+    if (!ref?.current || !isPaddleReady || selectedOption) {
       return;
     }
 
     if (giftToUser) {
-      if (!giftOneYear || selectedOption) {
+      if (!giftOneYear) {
         return;
       }
 
-      const { value } = giftOneYear;
-      setSelectedOption(value);
-      openCheckout({ priceId: value, giftToUserId: giftToUser.id });
+      const { priceId } = giftOneYear;
+      setSelectedOption(priceId);
+      openCheckout({ priceId, giftToUserId: giftToUser.id });
 
       return;
     }
 
-    const option = initialPaymentOption || productOptions?.[0]?.value;
-    if (option && !selectedOption) {
+    const option = initialPaymentOption || productOptions?.[0]?.priceId;
+
+    if (option && !isPlus) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
@@ -66,7 +68,8 @@ export const PlusDesktop = ({
     giftToUser,
     initialPaymentOption,
     openCheckout,
-    paddle,
+    isPaddleReady,
+    isPlus,
     productOptions,
     selectedOption,
   ]);
@@ -91,18 +94,13 @@ export const PlusDesktop = ({
               element: 'h-[35rem]',
             }}
           />
-          {!isFreeTrialExperiment && !isPricesPending && !giftToUser && (
+          {!isPricesPending && !giftToUser && (
             <div className="flex justify-center">
               <PlusTrustRefund />
             </div>
           )}
         </div>
       </div>
-      {isFreeTrialExperiment && !isPricesPending && !giftToUser && (
-        <div className="mx-auto mt-10 flex w-[62.5rem] gap-3">
-          <PlusTrustRefund />
-        </div>
-      )}
       <PlusFAQs />
     </>
   );
