@@ -48,10 +48,10 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { GiftIcon, InviteIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { GiftIcon, InviteIcon } from '@dailydotdev/shared/src/components/icons';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
