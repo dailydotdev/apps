@@ -5,7 +5,6 @@ import type {
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
-import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -22,14 +21,11 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
-import { settingsUrl, webappUrl } from '../../lib/constants';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
-import { useAuthContext } from '../../contexts/AuthContext';
-import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import CustomFeedSlider from '../feeds/CustomFeedSlider';
 import type { ButtonProps } from '../buttons/Button';
 import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
@@ -69,14 +65,11 @@ export const SearchControlHeader = ({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const router = useRouter();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { user } = useAuthContext();
-  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { customFeedPlacement } = useCustomFeedHeader();
 
   if (isMobile) {
@@ -107,22 +100,7 @@ export const SearchControlHeader = ({
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) && (
-      <MyFeedHeading
-        key="my-feed"
-        onOpenFeedFilters={() => {
-          if (isCustomDefaultFeed && router.pathname === '/') {
-            return router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-          }
-
-          if (feedName === SharedFeedPage.Custom) {
-            return router.push(
-              `${webappUrl}feeds/${router.query.slugOrId}/edit`,
-            );
-          }
-
-          return router.push(`${settingsUrl}feed/general`);
-        }}
-      />
+      <MyFeedHeading key="my-feed" />
     ),
     isUpvoted ? (
       <Dropdown

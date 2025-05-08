@@ -20,7 +20,7 @@ import { PlusIcon, SortIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
-import { settingsUrl, webappUrl } from '../../lib/constants';
+import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { OtherFeedPage } from '../../lib/query';
@@ -28,7 +28,6 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -53,7 +52,6 @@ const MIN_SCROLL_BEFORE_HIDING = 60;
 
 function FeedNav(): ReactElement {
   const router = useRouter();
-  const { user } = useAuthContext();
   const [, startTransition] = useTransition();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { feedName } = useActiveFeedNameContext();
@@ -219,21 +217,7 @@ function FeedNav(): ReactElement {
               />
             )}
 
-            <MyFeedHeading
-              onOpenFeedFilters={() => {
-                if (isCustomDefaultFeed && router.pathname === '/') {
-                  return router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-                }
-
-                if (feedName === SharedFeedPage.Custom) {
-                  return router.push(
-                    `${webappUrl}feeds/${router.query.slugOrId}/edit`,
-                  );
-                }
-
-                return router.push(`${settingsUrl}feed/general`);
-              }}
-            />
+            <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
         <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">
