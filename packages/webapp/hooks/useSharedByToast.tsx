@@ -97,7 +97,7 @@ const useSharedByToast = (): void => {
         </div>,
       );
       // Set a small timeout to ensure its shown after the page is loaded and won't be cleared by updates.
-    }, 1000);
+    }, 100);
 
     return () => clearTimeout(timeout);
   }, [
