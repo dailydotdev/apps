@@ -842,3 +842,27 @@ meter::-webkit-meter-bar {
     radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);
   }
 }
+
+@layer utilities {
+  @keyframes full-sequence {
+    0% {
+      transform: scale(0);
+    }
+    20% {
+      transform: scale(1.2);
+    }
+    40% {
+      transform: scale(1);
+    }
+    70% {
+      transform: scale(1.4);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+
+  .award-animation {
+    animation: full-sequence 1s ease-in-out forwards;
+  }
+}
