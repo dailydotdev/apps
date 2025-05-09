@@ -47,6 +47,8 @@ import { HorizontalSeparator } from '../utilities';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../ProfilePicture';
+import { useViewSize, ViewSize } from '../../hooks';
+import { TypographyType } from '../typography/Typography';
 
 type MenuItems = Record<
   string,
@@ -213,6 +215,7 @@ interface ProfileSettingsMenuProps {
 export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
   const { asPath } = useRouter();
   const { logout } = useAuthContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -226,6 +229,9 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
               return {
                 ...item,
                 isActive: asPath === item.href,
+                typographyType: isMobile
+                  ? TypographyType.Body
+                  : item.typographyType,
               };
             },
           )}
@@ -238,6 +244,9 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
             title: 'Log out',
             icon: ExitIcon,
             onClick: () => logout(LogoutReason.ManualLogout),
+            typographyType: isMobile
+              ? TypographyType.Body
+              : TypographyType.Body,
           },
         ]}
       />
