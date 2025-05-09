@@ -4,6 +4,8 @@ import type { Post } from '../../graphql/posts';
 import { ClickableText } from '../buttons/ClickableText';
 import { largeNumberFormat } from '../../lib';
 import { Image } from '../image/Image';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;
@@ -14,6 +16,7 @@ export function PostUpvotesCommentsCount({
   post,
   onUpvotesClick,
 }: PostUpvotesCommentsCountProps): ReactElement {
+  const { openModal } = useLazyModal();
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
@@ -47,10 +50,22 @@ export function PostUpvotesCommentsCount({
               className="size-6"
             />
           )}
-          <span>
+          <ClickableText
+            onClick={() => {
+              openModal({
+                type: LazyModal.ListAwards,
+                props: {
+                  queryProps: {
+                    id: post.id,
+                    type: 'POST',
+                  },
+                },
+              });
+            }}
+          >
             {largeNumberFormat(awards)}
             {` Award${awards === 1 ? '' : 's'}`}
-          </span>
+          </ClickableText>
         </span>
       )}
     </div>

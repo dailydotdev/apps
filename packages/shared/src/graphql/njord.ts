@@ -4,9 +4,19 @@ import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
-import { PRODUCT_FRAGMENT, TRANSACTION_FRAGMENT } from './fragments';
+import {
+  FEATURED_AWARD_FRAGMENT,
+  PRODUCT_FRAGMENT,
+  TRANSACTION_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 import type { Author } from './comments';
-import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../lib/query';
 import type { ProductPricingPreview } from './paddle';
 
 export const AWARD_MUTATION = gql`
@@ -276,4 +286,84 @@ export const getQuantityForPrice = ({
   prices?: ProductPricingPreview[];
 }): number | undefined => {
   return prices?.find((item) => item.priceId === priceId)?.metadata.coresValue;
+};
+
+export const LIST_POST_AWARDS_QUERY = gql`
+  query PostAwards($id: ID!, $first: Int, $after: String) {
+    awards: postAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UserShortInfo
+          }
+          award {
+            ...FeaturedAwardFragment
+          }
+        }
+      }
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+`;
+
+export const DEFAULT_AWARDS_LIMIT = 20;
+
+export type AwardListItem = {
+  user: Author;
+  award: FeaturedAward;
+};
+
+const listAwardsQueryMap: Record<AwardTypes, string> = {
+  POST: LIST_POST_AWARDS_QUERY,
+  COMMENT: '',
+  USER: '',
+};
+
+export const listAwardsInfiniteQueryOptions = ({
+  id,
+  type,
+  limit = DEFAULT_AWARDS_LIMIT,
+}: {
+  id: string;
+  type: AwardTypes;
+  limit?: number;
+}) => {
+  return {
+    queryKey: generateQueryKey(RequestKey.Awards, null, {
+      id,
+      type,
+      first: limit,
+    }),
+    queryFn: async ({ queryKey: queryKeyArg, pageParam }) => {
+      const gqlQuery = listAwardsQueryMap[type];
+
+      if (!gqlQuery) {
+        throw new Error(`Unsupported award type: ${type}`);
+      }
+
+      const [, , queryVariables] = queryKeyArg as [
+        unknown,
+        unknown,
+        { id: string; type: AwardTypes; first: number },
+      ];
+      const result = await gqlClient.request<{
+        awards: Connection<AwardListItem>;
+      }>(gqlQuery, {
+        ...queryVariables,
+        after: pageParam,
+      });
+
+      return result.awards;
+    },
+    initialPageParam: '',
+    staleTime: StaleTime.Default,
+    getNextPageParam: ({ pageInfo }: Connection<AwardListItem>) =>
+      getNextPageParam(pageInfo),
+    enabled: !!(id && type),
+  };
 };

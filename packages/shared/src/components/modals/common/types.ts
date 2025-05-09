@@ -69,6 +69,7 @@ export enum LazyModal {
   GiveAward = 'giveAward',
   ContentModal = 'contentModal',
   CustomLinks = 'customLinks',
+  ListAwards = 'listAwards',
 }
 
 export type ModalTabItem = {
