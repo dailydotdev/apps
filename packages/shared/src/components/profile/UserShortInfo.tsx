@@ -16,6 +16,14 @@ import type { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 import UserBadge from '../UserBadge';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { isPrivilegedRole } from '../../graphql/squads';
+import { CoreIcon } from '../icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { formatCoresCurrency } from '../../lib/utils';
+import { Image } from '../image/Image';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -154,7 +162,29 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           feedId={feedId}
         />
       )}
-      {!!showAward && !!user.award && <div>{user.award.name}</div>}
+      {!!showAward && !!user.award && (
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <CoreIcon />
+            <Typography
+              bold
+              type={TypographyType.Callout}
+              color={TypographyColor.Primary}
+            >
+              {user.award.value === 0
+                ? 'Free'
+                : formatCoresCurrency(user.award.value)}
+            </Typography>
+          </div>
+          <div className="flex size-7 items-center justify-center rounded-10 bg-surface-float">
+            <Image
+              src={user.award.image}
+              alt={user.award.name}
+              className="size-6 object-contain"
+            />
+          </div>
+        </div>
+      )}
       <div className="z-1">{afterContent}</div>
     </Element>
   );
