@@ -50,6 +50,7 @@ export interface UserShortInfoProps<
   copyType?: CopyType;
   origin?: Origin;
   feedId?: string;
+  showAward?: boolean;
 }
 
 const defaultClassName = {
@@ -75,6 +76,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     copyType,
     origin,
     feedId,
+    showAward,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -152,6 +154,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           feedId={feedId}
         />
       )}
+      {!!showAward && !!user.award && <div>{user.award.name}</div>}
       <div className="z-1">{afterContent}</div>
     </Element>
   );

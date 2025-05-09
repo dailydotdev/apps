@@ -25,6 +25,8 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   >;
   onSearch?(query: string): void;
   origin?: Origin;
+  showAward?: boolean;
+  showFollow?: boolean;
 }
 
 function UserListModal({
@@ -37,6 +39,8 @@ function UserListModal({
   userListProps,
   onSearch,
   origin,
+  showFollow = true,
+  showAward,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -69,7 +73,8 @@ function UserListModal({
             scrollingContainer: container.current,
             appendTooltipTo: modalRef,
             origin,
-            showFollow: true,
+            showFollow,
+            showAward,
           }}
         />
       </Modal.Body>
