@@ -21,7 +21,10 @@ type ProfileSectionItemPropsCommon = WithClassNameProps & {
   icon?: (props: IconProps) => ReactElement;
   onClick?: () => void;
   isActive?: boolean;
-  typographyType?: TypographyType;
+  typography?: Partial<{
+    type: TypographyType;
+    color: TypographyColor;
+  }>;
 };
 
 type ProfileSectionItemPropsWithHref = ProfileSectionItemPropsCommon & {
@@ -46,7 +49,7 @@ export const ProfileSectionItem = ({
   onClick,
   external,
   isActive,
-  typographyType = TypographyType.Subhead,
+  typography,
 }: ProfileSectionItemProps): ReactElement => {
   const tag = href ? TypographyTag.Link : TypographyTag.Button;
 
@@ -64,8 +67,8 @@ export const ProfileSectionItem = ({
     >
       <Typography<typeof tag>
         tag={tag}
-        color={TypographyColor.Tertiary}
-        type={typographyType}
+        color={typography?.color ?? TypographyColor.Tertiary}
+        type={typography?.type ?? TypographyType.Subhead}
         className={classNames(
           'flex cursor-pointer items-center gap-2 rounded-10 px-1 py-1.5',
           (href || onClick) && 'hover:bg-surface-float',

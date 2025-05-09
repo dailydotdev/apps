@@ -48,7 +48,7 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
-import { TypographyType } from '../typography/Typography';
+import { TypographyColor, TypographyType } from '../typography/Typography';
 
 type MenuItems = Record<
   string,
@@ -229,9 +229,12 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
               return {
                 ...item,
                 isActive: asPath === item.href,
-                typographyType: isMobile
-                  ? TypographyType.Body
-                  : item.typographyType,
+                ...(isMobile && {
+                  typography: {
+                    type: TypographyType.Body,
+                    color: TypographyColor.Primary,
+                  },
+                }),
               };
             },
           )}
@@ -244,9 +247,12 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
             title: 'Log out',
             icon: ExitIcon,
             onClick: () => logout(LogoutReason.ManualLogout),
-            typographyType: isMobile
-              ? TypographyType.Body
-              : TypographyType.Body,
+            ...(isMobile && {
+              typography: {
+                type: TypographyType.Body,
+                color: TypographyColor.Primary,
+              },
+            }),
           },
         ]}
       />
