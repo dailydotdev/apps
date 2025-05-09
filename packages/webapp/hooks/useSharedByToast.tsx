@@ -51,7 +51,10 @@ const useSharedByToast = (): void => {
 
     const showFollow =
       !!currentUser &&
-      ![ContentPreferenceStatus.Follow, ContentPreferenceStatus.Subscribed].includes(contentPreference?.status);
+      ![
+        ContentPreferenceStatus.Follow,
+        ContentPreferenceStatus.Subscribed,
+      ].includes(contentPreference?.status);
 
     const timeout = setTimeout(() => {
       hasShownToast.current = true;
