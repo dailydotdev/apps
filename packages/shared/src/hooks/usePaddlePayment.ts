@@ -156,7 +156,11 @@ export const usePaddlePayment = ({
     ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {
       const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
       const customer: CheckoutCustomer = {
-        email: user?.email,
+        ...(user?.email ? {
+          email: user?.email,
+        } : {
+          id: 'anonymous',
+        },),
         ...(geo?.region && {
           address: { countryCode: geo?.region },
         }),

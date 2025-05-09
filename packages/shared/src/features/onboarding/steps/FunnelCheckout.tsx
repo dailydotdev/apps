@@ -8,7 +8,7 @@ import { selectedPlanAtom, applyDiscountAtom } from '../store/funnelStore';
 import { LogEvent } from '../../../lib/log';
 import { usePaymentContext } from '../../../contexts/payment/context';
 
-export const InnerFunnelCheckout = ({
+export const FunnelCheckout = ({
   parameters: { discountCode },
   isActive,
 }: FunnelStepCheckout): ReactElement => {
@@ -46,14 +46,4 @@ export const InnerFunnelCheckout = ({
   ]);
 
   return <div className="checkout-container" />;
-};
-
-export const FunnelCheckout = (props: FunnelStepCheckout): ReactElement => {
-  const { isLoggedIn } = useAuthContext();
-
-  if (!isLoggedIn) {
-    return null;
-  }
-
-  return <InnerFunnelCheckout {...props} />;
 };
