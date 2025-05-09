@@ -533,7 +533,7 @@ export function OnboardPage(): ReactElement {
               )}
             >
               {activeScreen === OnboardingStep.ReadingReminder && (
-                <ReadingReminder onClickNext={onClickNext} />
+                <ReadingReminder onClickNext={() => onClickNext()} />
               )}
               {activeScreen === OnboardingStep.EditTag && (
                 <EditTag

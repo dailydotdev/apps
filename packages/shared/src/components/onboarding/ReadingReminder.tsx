@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { FormEventHandler, ReactElement } from 'react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
 import { Radio } from '../fields/Radio';
@@ -22,10 +22,13 @@ const ReadingReminderOptions = [
 ];
 
 interface ReadingReminderProps {
-  onClickNext: () => void;
+  onClickNext: (skipped?: boolean) => void;
+  headline?: string;
 }
+
 export const ReadingReminder = ({
   onClickNext,
+  headline,
 }: ReadingReminderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
@@ -57,10 +60,10 @@ export const ReadingReminder = ({
     logEvent({
       event_name: LogEvent.SkipReadingReminder,
     });
-    onClickNext();
+    onClickNext(true);
   };
 
-  const onSubmit = async () => {
+  const onSubmit: FormEventHandler = async () => {
     if (loading) {
       return;
     }
@@ -89,7 +92,7 @@ export const ReadingReminder = ({
       <div className="flex flex-col items-center gap-4">
         <p className="text-center typo-mega1">⏰</p>
         <h2 className="typo-bold text-center typo-large-title">
-          When do you need that reading nudge?
+          {headline || 'When do you need that reading nudge?'}
         </h2>
         <p className="text-center text-text-quaternary typo-callout">
           Your timezone: {userTimeZone}{' '}

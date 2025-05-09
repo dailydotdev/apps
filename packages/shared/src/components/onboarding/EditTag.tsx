@@ -22,6 +22,8 @@ interface EditTagProps {
   onClick: () => void;
   customActionName?: string;
   activeScreen?: OnboardingStep;
+  headline?: string;
+  requiredTags?: number;
 }
 export const EditTag = ({
   feedSettings,
@@ -29,6 +31,8 @@ export const EditTag = ({
   onClick,
   customActionName,
   activeScreen,
+  headline = 'Pick tags that are relevant to you',
+  requiredTags,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -46,9 +50,7 @@ export const EditTag = ({
 
   return (
     <>
-      <h2 className="text-center font-bold typo-large-title">
-        Pick tags that are relevant to you
-      </h2>
+      <h2 className="text-center font-bold typo-large-title">{headline}</h2>
       <TagSelection
         className="mt-10 max-w-4xl"
         searchElement={
@@ -87,6 +89,7 @@ export const EditTag = ({
             allowPin
           />
           <CreateFeedButton
+            requiredTags={requiredTags}
             className="mt-20"
             onClick={onClick}
             customActionName={customActionName}

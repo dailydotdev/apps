@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import type { UseMutateFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
@@ -163,18 +163,11 @@ const useProfileForm = ({
     },
   });
 
-  const handleUpdate: typeof updateUserProfile = useCallback(
-    (values) => {
-      return updateUserProfile(values);
-    },
-    [updateUserProfile],
-  );
-
   return {
     hint,
     isLoading,
     onUpdateHint: setHint,
-    updateUserProfile: handleUpdate,
+    updateUserProfile,
   };
 };
 
