@@ -180,7 +180,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             <Image
               src={user.award.image}
               alt={user.award.name}
-              className="size-6 object-contain"
+              className="size-5 object-contain"
             />
           </div>
         </div>
