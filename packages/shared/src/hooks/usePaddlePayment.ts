@@ -24,7 +24,7 @@ interface UsePaddlePaymentProps
     PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
     'successCallback' | 'disabledEvents'
   > {
-  targetType?: TargetType;
+  targetType: TargetType;
   getProductQuantity?: (event: PaddleEventData) => number;
 }
 
