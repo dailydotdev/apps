@@ -16,6 +16,7 @@ const preview: Preview = {
       },
     },
   },
+
   decorators: [
     withThemeByClassName<ReactRenderer>({
       themes: {
@@ -25,7 +26,9 @@ const preview: Preview = {
       defaultTheme: 'light',
     }),
   ],
+
   loaders: [mswLoader],
+  tags: ['autodocs']
 };
 
 export default preview;
