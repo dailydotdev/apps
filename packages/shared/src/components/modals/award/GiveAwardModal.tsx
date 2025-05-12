@@ -27,7 +27,7 @@ import {
 import { Justify } from '../../utilities';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
-import { ModalKind } from '../common/types';
+import { LazyModal, ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
@@ -51,6 +51,7 @@ import { AwardFeesNote } from '../../cores/AwardFeesNote';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { AnimatedAward } from '../../AnimatedAward';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 
 const AwardItem = ({
   item,
@@ -91,10 +92,18 @@ const AwardItem = ({
 };
 
 const IntroScreen = () => {
+  const { openModal } = useLazyModal();
   const [showBuyCores, setShowBuyCores] = useState(false);
   const { user } = useAuthContext();
-  const { onRequestClose, entity, setActiveModal, setActiveStep, product } =
-    useGiveAwardModalContext();
+  const {
+    onRequestClose,
+    entity,
+    type,
+    setActiveModal,
+    setActiveStep,
+    product,
+    post,
+  } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
 
@@ -130,8 +139,8 @@ const IntroScreen = () => {
           </Button>
         ) : null}
       </Modal.Header>
-      <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
-        <div className="flex flex-col items-center justify-center gap-2 p-4">
+      <Modal.Body className="gap-2 bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
+        <div className="flex flex-col items-center justify-center gap-2 px-4">
           <Image
             src={hasAwards ? featuredAwardImage : entity.receiver.image}
             alt="Award user"
@@ -152,6 +161,34 @@ const IntroScreen = () => {
             )}
           </Typography>
         </div>
+        <Button
+          className="mx-auto max-w-28"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Float}
+          onClick={() => {
+            openModal({
+              type: LazyModal.ListAwards,
+              props: {
+                onBack: () => {
+                  openModal({
+                    type: LazyModal.GiveAward,
+                    props: {
+                      type,
+                      entity,
+                      post,
+                    },
+                  });
+                },
+                queryProps: {
+                  id: entity.id,
+                  type,
+                },
+              },
+            });
+          }}
+        >
+          Show all →
+        </Button>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}

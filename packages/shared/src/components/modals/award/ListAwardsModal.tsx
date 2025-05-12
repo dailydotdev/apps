@@ -3,6 +3,7 @@ import React from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { checkFetchMore } from '../../containers/InfiniteScrolling';
 import UserListModal from '../UserListModal';
 
@@ -10,15 +11,17 @@ import { FlexCentered } from '../../utilities';
 import { Origin } from '../../../lib/log';
 import { listAwardsInfiniteQueryOptions } from '../../../graphql/njord';
 import type { PropsParameters } from '../../../types';
-import { CoreIcon } from '../../icons';
+import { ArrowIcon, CoreIcon } from '../../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
 import { formatCoresCurrency } from '../../../lib/utils';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 export interface ListAwardsModalProps extends ModalProps {
+  onBack?: ModalProps['onAfterClose'];
   queryProps: PropsParameters<typeof listAwardsInfiniteQueryOptions>;
 }
 
@@ -26,6 +29,7 @@ export const ListAwardsModal = ({
   queryProps,
   children,
   className,
+  onBack,
   ...props
 }: ListAwardsModalProps): ReactElement => {
   const queryResult = useInfiniteQuery(
@@ -33,13 +37,27 @@ export const ListAwardsModal = ({
   );
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
 
+  const title = 'Awards given';
   const coresTotal = data?.pages[0]?.awardsTotal?.amount ?? 0;
 
   return (
     <UserListModal
       {...props}
       className={classNames('pb-2', className)}
-      title="Awards given"
+      title={title}
+      header={
+        typeof onBack === 'function' ? (
+          <Modal.Header title={title} showCloseButton>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              onClick={onBack}
+              size={ButtonSize.Small}
+              className="mr-2 flex -rotate-90"
+              icon={<ArrowIcon />}
+            />
+          </Modal.Header>
+        ) : null
+      }
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
