@@ -161,34 +161,36 @@ const IntroScreen = () => {
             )}
           </Typography>
         </div>
-        <Button
-          className="mx-auto max-w-28"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Float}
-          onClick={() => {
-            openModal({
-              type: LazyModal.ListAwards,
-              props: {
-                onBack: () => {
-                  openModal({
-                    type: LazyModal.GiveAward,
-                    props: {
-                      type,
-                      entity,
-                      post,
-                    },
-                  });
+        {hasAwards && (
+          <Button
+            className="mx-auto max-w-28"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            onClick={() => {
+              openModal({
+                type: LazyModal.ListAwards,
+                props: {
+                  onBack: () => {
+                    openModal({
+                      type: LazyModal.GiveAward,
+                      props: {
+                        type,
+                        entity,
+                        post,
+                      },
+                    });
+                  },
+                  queryProps: {
+                    id: entity.id,
+                    type,
+                  },
                 },
-                queryProps: {
-                  id: entity.id,
-                  type,
-                },
-              },
-            });
-          }}
-        >
-          Show all →
-        </Button>
+              });
+            }}
+          >
+            Show all →
+          </Button>
+        )}
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
