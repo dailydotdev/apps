@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
 import { checkFetchMore } from '../../containers/InfiniteScrolling';
 import UserListModal from '../UserListModal';
@@ -9,6 +10,13 @@ import { FlexCentered } from '../../utilities';
 import { Origin } from '../../../lib/log';
 import { listAwardsInfiniteQueryOptions } from '../../../graphql/njord';
 import type { PropsParameters } from '../../../types';
+import { CoreIcon } from '../../icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { formatCoresCurrency } from '../../../lib/utils';
 
 export interface ListAwardsModalProps extends ModalProps {
   queryProps: PropsParameters<typeof listAwardsInfiniteQueryOptions>;
@@ -17,6 +25,7 @@ export interface ListAwardsModalProps extends ModalProps {
 export const ListAwardsModal = ({
   queryProps,
   children,
+  className,
   ...props
 }: ListAwardsModalProps): ReactElement => {
   const queryResult = useInfiniteQuery(
@@ -24,17 +33,20 @@ export const ListAwardsModal = ({
   );
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
 
+  const coresTotal = data?.pages[0]?.awardsTotal?.amount ?? 0;
+
   return (
     <UserListModal
       {...props}
-      title="Awards"
+      className={classNames('pb-2', className)}
+      title="Awards given"
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
       users={data?.pages.reduce((acc, p) => {
-        p?.edges.forEach(({ node }) => {
+        p?.awards?.edges.forEach(({ node }) => {
           acc.push({
             ...node.user,
             award: node.award,
@@ -53,6 +65,24 @@ export const ListAwardsModal = ({
       origin={Origin.AwardsList}
       showFollow={false}
       showAward
-    />
+    >
+      <div className="flex flex-col px-6">
+        <div className="flex items-center gap-2 py-4">
+          <CoreIcon className="!size-14" />
+          <div className="flex flex-col">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Tertiary}
+            >
+              Cores given
+            </Typography>
+            <Typography bold type={TypographyType.Title2}>
+              {formatCoresCurrency(coresTotal)}
+            </Typography>
+          </div>
+        </div>
+        <hr className="border-border-subtlest-tertiary pb-2" />
+      </div>
+    </UserListModal>
   );
 };

@@ -27,6 +27,7 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   origin?: Origin;
   showAward?: boolean;
   showFollow?: boolean;
+  children?: ReactNode;
 }
 
 function UserListModal({
@@ -41,6 +42,7 @@ function UserListModal({
   origin,
   showFollow = true,
   showAward,
+  children,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -64,6 +66,7 @@ function UserListModal({
             valueChanged={onSearch}
           />
         )}
+        {children}
         <UserList
           {...userListProps}
           users={users}

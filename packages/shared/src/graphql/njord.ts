@@ -288,7 +288,17 @@ export const getQuantityForPrice = ({
   return prices?.find((item) => item.priceId === priceId)?.metadata.coresValue;
 };
 
-export const LIST_POST_AWARDS_QUERY = gql`
+const TOTAL_POST_AWARDS_QUERY_PART = gql`
+    awardsTotal: postAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+type AwardsQueryFunction = (props: { includeTotal?: boolean }) => string;
+
+export const LIST_POST_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
   query PostAwards($id: ID!, $first: Int, $after: String) {
     awards: postAwards(id: $id, first: $first, after: $after) {
       pageInfo {
@@ -306,12 +316,21 @@ export const LIST_POST_AWARDS_QUERY = gql`
         }
       }
     }
+    ${includeTotal ? TOTAL_POST_AWARDS_QUERY_PART : ''}
   }
   ${USER_SHORT_INFO_FRAGMENT}
   ${FEATURED_AWARD_FRAGMENT}
 `;
 
-export const LIST_COMMENT_AWARDS_QUERY = gql`
+const TOTAL_COMMENT_AWARDS_QUERY_PART = gql`
+    awardsTotal: commentAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+export const LIST_COMMENT_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
   query CommentAwards($id: ID!, $first: Int, $after: String) {
     awards: commentAwards(id: $id, first: $first, after: $after) {
       pageInfo {
@@ -329,6 +348,7 @@ export const LIST_COMMENT_AWARDS_QUERY = gql`
         }
       }
     }
+    ${includeTotal ? TOTAL_COMMENT_AWARDS_QUERY_PART : ''}
   }
   ${USER_SHORT_INFO_FRAGMENT}
   ${FEATURED_AWARD_FRAGMENT}
@@ -341,11 +361,12 @@ export type AwardListItem = {
   award: FeaturedAward;
 };
 
-const listAwardsQueryMap: Record<AwardTypes, string> = {
-  POST: LIST_POST_AWARDS_QUERY,
-  COMMENT: LIST_COMMENT_AWARDS_QUERY,
-  USER: '',
-};
+const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =
+  {
+    POST: LIST_POST_AWARDS_QUERY,
+    COMMENT: LIST_COMMENT_AWARDS_QUERY,
+    USER: undefined,
+  };
 
 export const listAwardsInfiniteQueryOptions = ({
   id,
@@ -363,11 +384,17 @@ export const listAwardsInfiniteQueryOptions = ({
       first: limit,
     }),
     queryFn: async ({ queryKey: queryKeyArg, pageParam }) => {
-      const gqlQuery = listAwardsQueryMap[type];
+      const gqlQueryFunction = listAwardsQueryMap[type];
 
-      if (!gqlQuery) {
+      if (!gqlQueryFunction) {
         throw new Error(`Unsupported award type: ${type}`);
       }
+
+      const isInitialPage = pageParam === '';
+
+      const gqlQuery = gqlQueryFunction({
+        includeTotal: isInitialPage,
+      });
 
       const [, , queryVariables] = queryKeyArg as [
         unknown,
@@ -376,17 +403,22 @@ export const listAwardsInfiniteQueryOptions = ({
       ];
       const result = await gqlClient.request<{
         awards: Connection<AwardListItem>;
+        awardsTotal?: LoggedUser['balance'];
       }>(gqlQuery, {
         ...queryVariables,
         after: pageParam,
       });
 
-      return result.awards;
+      return result;
     },
     initialPageParam: '',
     staleTime: StaleTime.Default,
-    getNextPageParam: ({ pageInfo }: Connection<AwardListItem>) =>
-      getNextPageParam(pageInfo),
+    getNextPageParam: ({
+      awards: { pageInfo },
+    }: {
+      awards: Connection<AwardListItem>;
+      awardsTotal?: LoggedUser['balance'];
+    }) => getNextPageParam(pageInfo),
     enabled: !!(id && type),
   };
 };
