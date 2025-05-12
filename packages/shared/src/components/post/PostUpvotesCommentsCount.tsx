@@ -6,6 +6,7 @@ import { largeNumberFormat } from '../../lib';
 import { Image } from '../image/Image';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;
@@ -21,6 +22,7 @@ export function PostUpvotesCommentsCount({
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
   const hasStats = upvotes > 0 || comments > 0 || post.views > 0 || awards > 0;
+  const hasAccessToCores = useHasAccessToCores();
 
   return !hasStats ? (
     <></>
@@ -41,7 +43,7 @@ export function PostUpvotesCommentsCount({
           {` Comment${comments === 1 ? '' : 's'}`}
         </span>
       )}
-      {awards > 0 && (
+      {hasAccessToCores && awards > 0 && (
         <span className="flex items-center gap-1">
           {!!post.featuredAward?.award && (
             <Image
