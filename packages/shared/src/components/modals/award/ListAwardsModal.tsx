@@ -19,6 +19,7 @@ import {
 } from '../../typography/Typography';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
 export interface ListAwardsModalProps extends ModalProps {
   onBack?: ModalProps['onAfterClose'];
@@ -32,6 +33,7 @@ export const ListAwardsModal = ({
   onBack,
   ...props
 }: ListAwardsModalProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const queryResult = useInfiniteQuery(
     listAwardsInfiniteQueryOptions(queryProps),
   );
@@ -47,7 +49,7 @@ export const ListAwardsModal = ({
       title={title}
       header={
         typeof onBack === 'function' ? (
-          <Modal.Header title={title} showCloseButton>
+          <Modal.Header title={title} showCloseButton={!isMobile}>
             <Button
               variant={ButtonVariant.Tertiary}
               onClick={onBack}
