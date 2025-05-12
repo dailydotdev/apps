@@ -37,7 +37,7 @@ export const ListAwardsModal = ({
   const queryResult = useInfiniteQuery(
     listAwardsInfiniteQueryOptions(queryProps),
   );
-  const { data, isFetchingNextPage, fetchNextPage } = queryResult;
+  const { data, isFetchingNextPage, fetchNextPage, isPending } = queryResult;
 
   const title = 'Awards given';
   const coresTotal = data?.pages[0]?.awardsTotal?.amount ?? 0;
@@ -76,7 +76,7 @@ export const ListAwardsModal = ({
         return acc;
       }, [])}
       userListProps={{
-        emptyPlaceholder: (
+        emptyPlaceholder: isPending ? null : (
           <FlexCentered className="p-10 text-text-tertiary typo-callout">
             No awards found
           </FlexCentered>
