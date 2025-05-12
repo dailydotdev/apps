@@ -311,6 +311,29 @@ export const LIST_POST_AWARDS_QUERY = gql`
   ${FEATURED_AWARD_FRAGMENT}
 `;
 
+export const LIST_COMMENT_AWARDS_QUERY = gql`
+  query CommentAwards($id: ID!, $first: Int, $after: String) {
+    awards: commentAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UserShortInfo
+          }
+          award {
+            ...FeaturedAwardFragment
+          }
+        }
+      }
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+`;
+
 export const DEFAULT_AWARDS_LIMIT = 20;
 
 export type AwardListItem = {
@@ -320,7 +343,7 @@ export type AwardListItem = {
 
 const listAwardsQueryMap: Record<AwardTypes, string> = {
   POST: LIST_POST_AWARDS_QUERY,
-  COMMENT: '',
+  COMMENT: LIST_COMMENT_AWARDS_QUERY,
   USER: '',
 };
 

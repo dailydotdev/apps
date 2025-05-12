@@ -388,15 +388,29 @@ export default function CommentActionButtons({
               className="size-6"
             />
           )}
-          <Typography
-            className="ml-1 mr-3"
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            bold
+          <ClickableText
+            onClick={() => {
+              openModal({
+                type: LazyModal.ListAwards,
+                props: {
+                  queryProps: {
+                    id: comment.id,
+                    type: 'COMMENT',
+                  },
+                },
+              });
+            }}
           >
-            {largeNumberFormat(comment.numAwards)} Award
-            {comment.numAwards > 1 ? 's' : ''}
-          </Typography>
+            <Typography
+              className="ml-1 mr-3"
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              {largeNumberFormat(comment.numAwards)} Award
+              {comment.numAwards > 1 ? 's' : ''}
+            </Typography>
+          </ClickableText>
         </>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
