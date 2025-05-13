@@ -22,6 +22,8 @@ interface EditTagProps {
   onClick: () => void;
   customActionName?: string;
   activeScreen?: OnboardingStep;
+  headline?: string;
+  requiredTags?: number;
 }
 export const EditTag = ({
   feedSettings,
@@ -29,11 +31,13 @@ export const EditTag = ({
   onClick,
   customActionName,
   activeScreen,
+  headline,
+  requiredTags = REQUIRED_TAGS_THRESHOLD,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
   const tagsCount = feedSettings?.includeTags?.length || 0;
-  const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+  const isPreviewEnabled = tagsCount >= requiredTags;
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onSearch] = useDebounceFn(setSearchQuery, 200);
@@ -47,7 +51,7 @@ export const EditTag = ({
   return (
     <>
       <h2 className="text-center font-bold typo-large-title">
-        Pick tags that are relevant to you
+        {headline || 'Pick tags that are relevant to you'}
       </h2>
       <TagSelection
         className="mt-10 max-w-4xl"
@@ -67,7 +71,7 @@ export const EditTag = ({
       <FeedPreviewControls
         isOpen={isPreviewVisible}
         isDisabled={!isPreviewEnabled}
-        textDisabled={`${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
+        textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}
         origin={Origin.EditTag}
         onClick={setPreviewVisible}
       />
@@ -87,6 +91,7 @@ export const EditTag = ({
             allowPin
           />
           <CreateFeedButton
+            requiredTags={requiredTags}
             className="mt-20"
             onClick={onClick}
             customActionName={customActionName}

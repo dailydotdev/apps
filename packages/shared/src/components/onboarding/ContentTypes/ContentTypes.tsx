@@ -10,7 +10,11 @@ import {
 } from '../../filters/helpers';
 import { CardCheckbox } from '../../fields/CardCheckbox';
 
-export const ContentTypes = (): ReactElement => {
+interface ContentTypesProps {
+  headline?: string;
+}
+
+export const ContentTypes = ({ headline }: ContentTypesProps): ReactElement => {
   const { advancedSettings } = useFeedSettings();
   const {
     selectedSettings,
@@ -43,7 +47,7 @@ export const ContentTypes = (): ReactElement => {
   return (
     <div className="flex max-w-screen-laptop flex-col tablet:px-10">
       <h2 className="typo-bold mb-10 text-center typo-large-title">
-        What kind of posts would you like to see on your feed?
+        {headline || 'What kind of posts would you like to see on your feed?'}
       </h2>
       <div className="m-auto grid grid-cols-1 gap-2 tablet:grid-cols-2 tablet:gap-5 laptop:grid-cols-3">
         {contentSourceList?.map(({ id, title, description, options }) => (

@@ -10,7 +10,11 @@ import {
 import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
-import { OnboardingStep, wrapperMaxWidth } from './common';
+import {
+  OnboardingStep,
+  REQUIRED_TAGS_THRESHOLD,
+  wrapperMaxWidth,
+} from './common';
 import {
   Typography,
   TypographyColor,
@@ -135,6 +139,7 @@ export const OnboardingHeader = ({
               onClick={onClick}
               customActionName={customActionName}
               activeScreen={activeScreen}
+              requiredTags={REQUIRED_TAGS_THRESHOLD}
             />
           )}
           {activeScreen === OnboardingStep.PreviewFeed && (
