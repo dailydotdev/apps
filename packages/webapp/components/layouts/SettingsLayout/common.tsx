@@ -36,7 +36,7 @@ export const AccountPageSection = classed(
 );
 export const AccountPageHeading = classed(
   'h1',
-  'font-bold typo-title3 px-6 border-b border-border-subtlest-tertiary w-full flex flex-row items-center',
+  'flex h-14 w-full flex-row items-center border-b border-border-subtlest-tertiary px-4 font-bold typo-body tablet:px-6 tablet:typo-title3',
 );
 
 export const CommonTextField = classed(TextField, { container: 'max-w-sm' });

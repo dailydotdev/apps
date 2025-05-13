@@ -25,6 +25,9 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   >;
   onSearch?(query: string): void;
   origin?: Origin;
+  showAward?: boolean;
+  showFollow?: boolean;
+  children?: ReactNode;
 }
 
 function UserListModal({
@@ -37,6 +40,9 @@ function UserListModal({
   userListProps,
   onSearch,
   origin,
+  showFollow = true,
+  showAward,
+  children,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -60,6 +66,7 @@ function UserListModal({
             valueChanged={onSearch}
           />
         )}
+        {children}
         <UserList
           {...userListProps}
           users={users}
@@ -69,7 +76,8 @@ function UserListModal({
             scrollingContainer: container.current,
             appendTooltipTo: modalRef,
             origin,
-            showFollow: true,
+            showFollow,
+            showAward,
           }}
         />
       </Modal.Body>

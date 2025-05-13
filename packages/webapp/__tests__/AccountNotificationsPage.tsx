@@ -31,7 +31,7 @@ import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { SendType } from '@dailydotdev/shared/src/hooks';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
-import ProfileNotificationsPage from '../pages/account/notifications';
+import ProfileNotificationsPage from '../pages/settings/notifications';
 
 jest.mock('next/router', () => ({
   useRouter() {

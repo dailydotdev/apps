@@ -72,7 +72,9 @@ import { isFollowingContent } from '../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
 import { useActiveFeedContext } from '../contexts';
 import { FeedSettingsMenu } from './feeds/FeedSettings/types';
-import { webappUrl } from '../lib/constants';
+import { settingsUrl, webappUrl } from '../lib/constants';
+import { SharedFeedPage } from './utilities';
+import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -163,6 +165,7 @@ export default function PostOptionsMenu({
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
   const {
     onBlockSource,
@@ -420,11 +423,19 @@ export default function PostOptionsMenu({
             target_id: TargetId.ContextMenu,
           });
         }
-        router.push(
-          `${webappUrl}feeds/${router.query?.slugOrId || user.id}/edit?dview=${
-            FeedSettingsMenu.AI
-          }`,
-        );
+
+        if (isCustomDefaultFeed && router.pathname === '/') {
+          return router.push(
+            `${webappUrl}feeds/${defaultFeedId}/edit?dview=${FeedSettingsMenu.AI}`,
+          );
+        }
+        if (feedName === SharedFeedPage.Custom) {
+          return router.push(
+            `${webappUrl}feeds/${router.query.slugOrId}/edit?dview=${FeedSettingsMenu.AI}`,
+          );
+        }
+
+        return router.push(`${settingsUrl}/feed/ai`);
       },
     });
 

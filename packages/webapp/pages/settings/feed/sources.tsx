@@ -2,24 +2,24 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
-import { FeedSettingsContentPreferencesSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
-import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
+import { FeedSettingsContentSourcesSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsContentSourcesSection';
+import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { getFeedSettingsLayout } from '../../../components/layouts/AccountLayout/FeedSettingsLayout';
+import { getFeedSettingsLayout } from '../../../components/layouts/SettingsLayout/FeedSettingsLayout';
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   return (
-    <AccountPageContainer title="Content preferences">
+    <AccountPageContainer title="Content sources">
       <section className="flex flex-col gap-4">
-        <FeedSettingsContentPreferencesSection />
+        <FeedSettingsContentSourcesSection />
       </section>
     </AccountPageContainer>
   );
 };
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Edit content preferences'),
+  title: getTemplatedTitle('Edit content sources'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };

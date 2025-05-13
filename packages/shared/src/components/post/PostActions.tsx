@@ -122,6 +122,7 @@ export function PostActions({
           },
           numAwards: (post.numAwards || 0) + 1,
           featuredAward:
+            !post.featuredAward?.award?.value ||
             awardProduct?.value > post.featuredAward?.award?.value
               ? {
                   award: awardProduct,

@@ -36,12 +36,12 @@ import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/Togg
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 
 import type { NextSeoProps } from 'next-seo';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
+import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
   ContentHeading,
   ContentText,
-} from '../../components/layouts/AccountLayout/AccountContentSection';
+} from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -625,7 +625,7 @@ const AccountNotificationsPage = (): ReactElement => {
   );
 };
 
-AccountNotificationsPage.getLayout = getAccountLayout;
+AccountNotificationsPage.getLayout = getSettingsLayout;
 AccountNotificationsPage.layoutProps = { seo };
 
 export default AccountNotificationsPage;
