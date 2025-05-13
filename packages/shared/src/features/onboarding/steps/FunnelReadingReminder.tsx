@@ -9,7 +9,7 @@ function FunnelReadingReminderComponent({
   parameters: { headline },
   onTransition,
 }: FunnelStepReadingReminder): ReactElement | null {
-  const handleSubmit = ({ skipped }: { skipped: boolean }) => {
+  const handleSubmit = ({ skipped }: { skipped?: boolean } = {}) => {
     onTransition({
       type: skipped
         ? FunnelStepTransitionType.Skip
