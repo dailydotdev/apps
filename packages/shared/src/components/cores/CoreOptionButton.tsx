@@ -12,7 +12,7 @@ import {
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { Image } from '../image/Image';
-import { getCoreCurrencyImage } from '../../lib/image';
+import { coreImage, getCoreCurrencyImage } from '../../lib/image';
 
 type CoreOptionButtonProps = {
   id: string;
@@ -68,7 +68,7 @@ export const CoreOptionButton = ({
         <Image
           className="mr-2 size-8"
           src={getCoreCurrencyImage(cores)}
-          fallbackSrc=""
+          fallbackSrc={coreImage}
         />
       }
       size={ButtonSize.Large}
