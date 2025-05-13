@@ -17,9 +17,9 @@ import {
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
-import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
+import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -134,7 +134,7 @@ const AccountInvitePage = (): ReactElement => {
   );
 };
 
-AccountInvitePage.getLayout = getAccountLayout;
+AccountInvitePage.getLayout = getSettingsLayout;
 AccountInvitePage.layoutProps = { seo };
 
 export default AccountInvitePage;

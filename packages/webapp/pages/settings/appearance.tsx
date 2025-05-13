@@ -19,11 +19,11 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
-import { SettingsSwitch } from '../../components/layouts/AccountLayout/common';
+import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -174,7 +174,7 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Appearance'),
 };
 
-AccountManageSubscriptionPage.getLayout = getAccountLayout;
+AccountManageSubscriptionPage.getLayout = getSettingsLayout;
 AccountManageSubscriptionPage.layoutProps = { seo };
 
 export default AccountManageSubscriptionPage;

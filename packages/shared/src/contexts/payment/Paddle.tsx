@@ -4,6 +4,7 @@ import type { CheckoutEventNames, PaddleEventData } from '@paddle/paddle-js';
 import { usePaddlePayment } from '../../hooks/usePaddlePayment';
 import type { PaymentContextProviderProps } from './context';
 import { BasePaymentProvider } from './BasePaymentProvider';
+import { TargetType } from '../../lib/log';
 
 export type PaddleSubProviderProps = PaymentContextProviderProps<
   PaddleEventData,
@@ -16,6 +17,7 @@ export const PaddleSubProvider = ({
 }: PaymentContextProviderProps): ReactElement => {
   const { openCheckout, isPaddleReady } = usePaddlePayment({
     successCallback,
+    targetType: TargetType.Plus,
   });
 
   return (

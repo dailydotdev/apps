@@ -4,10 +4,10 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import type { NextSeoProps } from 'next-seo';
-import { AccountSecurityDisplay as Display } from '../../components/layouts/AccountLayout/common';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import VerifyWorkEmail from '../../components/layouts/AccountLayout/Profile/VerifyWorkEmail';
-import ProfileIndex from '../../components/layouts/AccountLayout/Profile';
+import { AccountSecurityDisplay as Display } from '../../components/layouts/SettingsLayout/common';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
+import VerifyWorkEmail from '../../components/layouts/SettingsLayout/Profile/VerifyWorkEmail';
+import ProfileIndex from '../../components/layouts/SettingsLayout/Profile';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
@@ -39,7 +39,7 @@ const AccountProfilePage = (): ReactElement => {
   );
 };
 
-AccountProfilePage.getLayout = getAccountLayout;
+AccountProfilePage.getLayout = getSettingsLayout;
 AccountProfilePage.layoutProps = { seo };
 
 export default AccountProfilePage;

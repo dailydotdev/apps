@@ -14,8 +14,8 @@ import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrat
 import { NewUserIntegration } from '@dailydotdev/shared/src/components/integrations/NewUserIntegration';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { getAccountLayout } from '../../../components/layouts/AccountLayout';
-import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
+import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const AccountIntegrationsPage = (): ReactElement => {
   const [state, setState] = useState<{
@@ -83,6 +83,6 @@ const AccountIntegrationsPage = (): ReactElement => {
   );
 };
 
-AccountIntegrationsPage.getLayout = getAccountLayout;
+AccountIntegrationsPage.getLayout = getSettingsLayout;
 
 export default AccountIntegrationsPage;

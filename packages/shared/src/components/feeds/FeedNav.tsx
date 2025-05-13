@@ -28,7 +28,6 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -53,7 +52,6 @@ const MIN_SCROLL_BEFORE_HIDING = 60;
 
 function FeedNav(): ReactElement {
   const router = useRouter();
-  const { user } = useAuthContext();
   const [, startTransition] = useTransition();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { feedName } = useActiveFeedNameContext();
@@ -219,21 +217,7 @@ function FeedNav(): ReactElement {
               />
             )}
 
-            <MyFeedHeading
-              onOpenFeedFilters={() => {
-                if (isCustomDefaultFeed && router.pathname === '/') {
-                  router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-                } else {
-                  router.push(
-                    `${webappUrl}feeds/${
-                      feedName === SharedFeedPage.Custom
-                        ? router.query.slugOrId
-                        : user.id
-                    }/edit`,
-                  );
-                }
-              }}
-            />
+            <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
         <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">

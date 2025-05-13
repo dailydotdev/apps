@@ -69,16 +69,18 @@ export default function ProfileButton({
                 </>
               }
             >
-              <Link href={walletUrl} passHref>
-                <Button
-                  icon={<CoreIcon />}
-                  tag="a"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Small}
-                >
-                  {largeNumberFormat(user?.balance?.amount || 0)}
-                </Button>
-              </Link>
+              <div>
+                <Link href={walletUrl} passHref>
+                  <Button
+                    icon={<CoreIcon />}
+                    tag="a"
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Small}
+                  >
+                    {largeNumberFormat(user?.balance?.amount || 0)}
+                  </Button>
+                </Link>
+              </div>
             </SimpleTooltip>
           )}
           <SimpleTooltip placement="bottom" content="Profile settings">
