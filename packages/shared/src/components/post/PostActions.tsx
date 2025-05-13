@@ -106,6 +106,10 @@ export function PostActions({
         exact: false,
       });
 
+      mutationQueryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Products, null, 'summary'),
+      });
+
       if (type === 'POST') {
         if (entityId !== post.id) {
           return;
