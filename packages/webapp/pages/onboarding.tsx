@@ -57,7 +57,6 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { isIOS, isIOSNative, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingExtension } from '@dailydotdev/shared/src/components/onboarding/Extension/useOnboardingExtension';
@@ -74,9 +73,25 @@ import {
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import type { GetServerSideProps } from 'next';
+import type { DehydratedState } from '@tanstack/react-query';
+import {
+  HydrationBoundary,
+  dehydrate,
+  QueryClient,
+} from '@tanstack/react-query';
+import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { ONBOARDING_BOOT_QUERY_KEY } from '@dailydotdev/shared/src/features/onboarding/hooks/useOnboardingBoot';
+import {
+  getCookiesAndHeadersFromRequest,
+  setResponseHeaderFromBoot,
+} from '@dailydotdev/shared/src/features/onboarding/lib/utils';
+import { Provider as JotaiProvider } from 'jotai/react';
 import { HotJarTracking } from '../components/Pixels';
+import { getTemplatedTitle } from '../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const ContentTypes = dynamic(() =>
   import(
@@ -151,7 +166,58 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-export function OnboardPage(): ReactElement {
+type PageProps = {
+  dehydratedState: DehydratedState;
+  initialStepId: string | null;
+  showCookieBanner?: boolean;
+  params: Record<'id' | 'version' | 'stepId', string | string[]>;
+};
+
+export const getServerSideProps: GetServerSideProps<PageProps> = async ({
+  query,
+  req,
+  res,
+}) => {
+  const { id, version, stepId } = query;
+  const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
+
+  // Get the boot data
+  const boot = await getFunnelBootData({
+    app: BootApp.Webapp,
+    cookies,
+    id: id as string,
+    version: version as string,
+    forwardedHeaders,
+  });
+
+  // Handle any cookies from the response
+  setResponseHeaderFromBoot(boot, res);
+
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ONBOARDING_BOOT_QUERY_KEY,
+    queryFn: () => boot.data,
+  });
+
+  // Check if the user already accepted cookies
+  const hasAcceptedCookies = cookies.includes(GdprConsentKey.Marketing);
+
+  // Determine the initial step ID
+  const queryStepId = stepId as string | undefined;
+  const initialStepId: string | null =
+    queryStepId ?? boot.data?.funnelState?.session?.currentStep;
+
+  return {
+    props: {
+      params: { id, version, stepId },
+      dehydratedState: dehydrate(queryClient),
+      showCookieBanner: !hasAcceptedCookies,
+      initialStepId,
+    },
+  };
+};
+
+export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
   const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
     useOnboarding();
   const router = useRouter();
@@ -388,8 +454,6 @@ export function OnboardPage(): ReactElement {
     return router.replace({ pathname: afterAuth || '/' });
   };
 
-  const successCallbackRef = useRef(() => onClickNext({ plusSuccess: true }));
-
   const onClickCreateFeed = () => {
     logSubscriptionEvent({
       event_name: LogEvent.OnboardingSkipPlus,
@@ -461,123 +525,130 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <PaymentContextProvider successCallback={successCallbackRef.current}>
-      <div
-        className={classNames(
-          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
-          layout.hasCta && 'fixed',
-        )}
-      >
-        {showBackground && (
-          <img
-            alt="Onboarding background"
-            className={classNames(
-              'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
-              isExperimental.reorder.registration && 'opacity-[.24] ',
-            )}
-            fetchPriority="high"
-            loading="eager"
-            role="presentation"
-            src={onboardingVisual.fullBackground.mobile}
-            srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
-            sizes="(max-width: 655px) 450px, 1024px"
-          />
-        )}
-        <Toast autoDismissNotifications={autoDismissNotifications} />
-        {showGenerigLoader && <GenericLoader />}
-        <OnboardingHeader
-          showOnboardingPage={showOnboardingPage}
-          setAuth={setAuth}
-          customActionName={customActionName}
-          onClick={onClickCreateFeed}
-          activeScreen={activeScreen}
-        />
+    <HydrationBoundary state={dehydratedState}>
+      <JotaiProvider>
         <div
           className={classNames(
-            'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-            (isIntro || isExperimental.reorder.registration) && wrapperMaxWidth,
-            (!isAuthenticating || isExperimental.reorder.registration) &&
-              'mt-7.5 flex-1 content-center',
-            [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
+            'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+            layout.hasCta && 'fixed',
           )}
         >
-          {showOnboardingPage && (
-            <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
-              <HotJarTracking hotjarId="3871311" />
-              <OnboardingHeadline
-                className={{
-                  title: 'tablet:typo-mega-1 typo-large-title',
-                  description: 'mb-8 typo-body tablet:typo-title2',
-                }}
-              />
-              <AuthOptions {...authOptionProps} />
-              {!isReorderExperiment && <SignupDisclaimer className="mb-4" />}
-            </div>
-          )}
-          {isAuthenticating && isIntro ? (
-            <>
-              <AuthOptions {...authOptionProps} />
-              {isExperimental.reorder.registration && (
-                <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
-              )}
-            </>
-          ) : (
-            <div
+          {showBackground && (
+            <img
+              alt="Onboarding background"
               className={classNames(
-                'flex tablet:flex-1',
-                isIntro
-                  ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
-                  : 'mb-10 ml-0 w-full flex-col items-center justify-start',
-                layout.hasCta &&
-                  'relative mb-auto flex-1 !justify-between overflow-hidden',
+                'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
+                isExperimental.reorder.registration && 'opacity-[.24] ',
               )}
-            >
-              {activeScreen === OnboardingStep.ReadingReminder && (
-                <ReadingReminder onClickNext={() => onClickNext()} />
-              )}
-              {activeScreen === OnboardingStep.EditTag && (
-                <EditTag
-                  feedSettings={feedSettings}
-                  userId={user?.id}
-                  customActionName={customActionName}
-                  onClick={onClickNext}
-                  activeScreen={activeScreen}
-                />
-              )}
-              {activeScreen === OnboardingStep.ContentTypes && <ContentTypes />}
-              {activeScreen === OnboardingStep.Plus && (
-                <OnboardingPlusStep
-                  onClickNext={onClickNext}
-                  onClickPlus={() => onClickNext({ plusPayment: true })}
-                />
-              )}
-              {activeScreen === OnboardingStep.PlusPayment && (
-                <PlusPaymentStep />
-              )}
-              {activeScreen === OnboardingStep.PlusSuccess && (
-                <PlusSuccess onClickNext={onClickNext} />
-              )}
-              {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
-              {activeScreen === OnboardingStep.Extension && (
-                <OnboardingExtension onClickNext={onClickNext} />
-              )}
-              {activeScreen === OnboardingStep.InteractiveFeed && (
-                <InteractiveFeedProvider>
-                  <InteractiveFeedStep />
-                </InteractiveFeedProvider>
-              )}
-              {activeScreen === OnboardingStep.PreviewFeed && (
-                <FeedPreviewStep
-                  onComplete={onClickNext}
-                  onEdit={() => setActiveScreen(OnboardingStep.InteractiveFeed)}
-                />
-              )}
-            </div>
+              fetchPriority="high"
+              loading="eager"
+              role="presentation"
+              src={onboardingVisual.fullBackground.mobile}
+              srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
+              sizes="(max-width: 655px) 450px, 1024px"
+            />
           )}
+          <Toast autoDismissNotifications={autoDismissNotifications} />
+          {showGenerigLoader && <GenericLoader />}
+          <OnboardingHeader
+            showOnboardingPage={showOnboardingPage}
+            setAuth={setAuth}
+            customActionName={customActionName}
+            onClick={onClickCreateFeed}
+            activeScreen={activeScreen}
+          />
+          <div
+            className={classNames(
+              'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
+              (isIntro || isExperimental.reorder.registration) &&
+                wrapperMaxWidth,
+              (!isAuthenticating || isExperimental.reorder.registration) &&
+                'mt-7.5 flex-1 content-center',
+              [OnboardingStep.Extension].includes(activeScreen) && '!flex-col',
+            )}
+          >
+            {showOnboardingPage && (
+              <div className="mt-5 flex flex-1 flex-grow-0 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8 laptop:max-w-[27.5rem]">
+                <HotJarTracking hotjarId="3871311" />
+                <OnboardingHeadline
+                  className={{
+                    title: 'tablet:typo-mega-1 typo-large-title',
+                    description: 'mb-8 typo-body tablet:typo-title2',
+                  }}
+                />
+                <AuthOptions {...authOptionProps} />
+                {!isReorderExperiment && <SignupDisclaimer className="mb-4" />}
+              </div>
+            )}
+            {isAuthenticating && isIntro ? (
+              <>
+                <AuthOptions {...authOptionProps} />
+                {isExperimental.reorder.registration && (
+                  <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+                )}
+              </>
+            ) : (
+              <div
+                className={classNames(
+                  'flex tablet:flex-1',
+                  isIntro
+                    ? 'flex-1 tablet:ml-auto laptop:max-w-[37.5rem]'
+                    : 'mb-10 ml-0 w-full flex-col items-center justify-start',
+                  layout.hasCta &&
+                    'relative mb-auto flex-1 !justify-between overflow-hidden',
+                )}
+              >
+                {activeScreen === OnboardingStep.ReadingReminder && (
+                  <ReadingReminder onClickNext={() => onClickNext()} />
+                )}
+                {activeScreen === OnboardingStep.EditTag && (
+                  <EditTag
+                    feedSettings={feedSettings}
+                    userId={user?.id}
+                    customActionName={customActionName}
+                    onClick={onClickNext}
+                    activeScreen={activeScreen}
+                  />
+                )}
+                {activeScreen === OnboardingStep.ContentTypes && (
+                  <ContentTypes />
+                )}
+                {activeScreen === OnboardingStep.Plus && (
+                  <OnboardingPlusStep
+                    onClickNext={onClickNext}
+                    onClickPlus={() => onClickNext({ plusPayment: true })}
+                  />
+                )}
+                {activeScreen === OnboardingStep.PlusPayment && (
+                  <PlusPaymentStep />
+                )}
+                {activeScreen === OnboardingStep.PlusSuccess && (
+                  <PlusSuccess onClickNext={onClickNext} />
+                )}
+                {activeScreen === OnboardingStep.PWA && <OnboardingPWA />}
+                {activeScreen === OnboardingStep.Extension && (
+                  <OnboardingExtension onClickNext={onClickNext} />
+                )}
+                {activeScreen === OnboardingStep.InteractiveFeed && (
+                  <InteractiveFeedProvider>
+                    <InteractiveFeedStep />
+                  </InteractiveFeedProvider>
+                )}
+                {activeScreen === OnboardingStep.PreviewFeed && (
+                  <FeedPreviewStep
+                    onComplete={onClickNext}
+                    onEdit={() =>
+                      setActiveScreen(OnboardingStep.InteractiveFeed)
+                    }
+                  />
+                )}
+              </div>
+            )}
+          </div>
+          {layout.hasFooterLinks && <FooterLinks className="mx-auto pb-6" />}
         </div>
-        {layout.hasFooterLinks && <FooterLinks className="mx-auto pb-6" />}
-      </div>
-    </PaymentContextProvider>
+      </JotaiProvider>
+    </HydrationBoundary>
   );
 }
 
