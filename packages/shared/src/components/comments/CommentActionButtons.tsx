@@ -380,7 +380,19 @@ export default function CommentActionButtons({
         />
       )}
       {hasAccessToCores && !!comment.numAwards && (
-        <>
+        <ClickableText
+          onClick={() => {
+            openModal({
+              type: LazyModal.ListAwards,
+              props: {
+                queryProps: {
+                  id: comment.id,
+                  type: 'COMMENT',
+                },
+              },
+            });
+          }}
+        >
           {!!comment.featuredAward?.award && (
             <Image
               src={comment.featuredAward.award.image}
@@ -388,30 +400,16 @@ export default function CommentActionButtons({
               className="size-6"
             />
           )}
-          <ClickableText
-            onClick={() => {
-              openModal({
-                type: LazyModal.ListAwards,
-                props: {
-                  queryProps: {
-                    id: comment.id,
-                    type: 'COMMENT',
-                  },
-                },
-              });
-            }}
+          <Typography
+            className="ml-1 mr-3"
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            bold
           >
-            <Typography
-              className="ml-1 mr-3"
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              bold
-            >
-              {largeNumberFormat(comment.numAwards)} Award
-              {comment.numAwards > 1 ? 's' : ''}
-            </Typography>
-          </ClickableText>
-        </>
+            {largeNumberFormat(comment.numAwards)} Award
+            {comment.numAwards > 1 ? 's' : ''}
+          </Typography>
+        </ClickableText>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button

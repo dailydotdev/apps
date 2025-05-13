@@ -44,31 +44,31 @@ export function PostUpvotesCommentsCount({
         </span>
       )}
       {hasAccessToCores && awards > 0 && (
-        <span className="flex items-center gap-1">
-          {!!post.featuredAward?.award && (
-            <Image
-              src={post.featuredAward.award.image}
-              alt={post.featuredAward.award.name}
-              className="size-6"
-            />
-          )}
-          <ClickableText
-            onClick={() => {
-              openModal({
-                type: LazyModal.ListAwards,
-                props: {
-                  queryProps: {
-                    id: post.id,
-                    type: 'POST',
-                  },
+        <ClickableText
+          onClick={() => {
+            openModal({
+              type: LazyModal.ListAwards,
+              props: {
+                queryProps: {
+                  id: post.id,
+                  type: 'POST',
                 },
-              });
-            }}
-          >
+              },
+            });
+          }}
+        >
+          <span className="flex items-center gap-1">
+            {!!post.featuredAward?.award && (
+              <Image
+                src={post.featuredAward.award.image}
+                alt={post.featuredAward.award.name}
+                className="size-6"
+              />
+            )}
             {largeNumberFormat(awards)}
             {` Award${awards === 1 ? '' : 's'}`}
-          </ClickableText>
-        </span>
+          </span>
+        </ClickableText>
       )}
     </div>
   );
