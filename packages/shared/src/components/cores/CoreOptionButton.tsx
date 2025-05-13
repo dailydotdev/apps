@@ -64,7 +64,13 @@ export const CoreOptionButton = ({
           : undefined,
       )}
       variant={ButtonVariant.Float}
-      icon={<Image className="mr-2 size-8" src={getCoreCurrencyImage(cores)} />}
+      icon={
+        <Image
+          className="mr-2 size-8"
+          src={getCoreCurrencyImage(cores)}
+          fallbackSrc=""
+        />
+      }
       size={ButtonSize.Large}
       aria-checked={selectedProduct?.id === id}
       role="radio"
