@@ -85,6 +85,7 @@ export type GiveAwardModalContextData = {
     awardEvent: AwardEvents;
     extra?: Record<string, unknown>;
   }) => void;
+  post?: Post;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -185,6 +186,7 @@ export const GiveAwardModalContextProvider = ({
       type,
       entity,
       logAwardEvent,
+      post,
     }),
     [
       activeModal,

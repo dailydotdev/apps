@@ -67,6 +67,7 @@ export enum Origin {
   WalletPagePackage = 'wallet page package',
   Award = 'award',
   CoresPage = 'cores page',
+  AwardsList = 'awards list',
   // End Credits
   ProfileMenu = 'profile menu',
 }
