@@ -27,6 +27,7 @@ export enum FunnelStepType {
   EditTags = 'editTags',
   ContentTypes = 'contentTypes',
   InstallPwa = 'installPwa',
+  OrganicRegistration = 'organicRegistration',
 }
 
 export enum FunnelBackgroundVariant {
@@ -166,7 +167,7 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPricingParameters {
+export interface FunnelStepPricingParameters extends FunnelStepParameters {
   headline: string;
   cta: string;
   discount: {
@@ -285,6 +286,22 @@ export interface FunnelStepInstallPwa
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepOrganicRegistration
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+    image: {
+      src: string;
+      srcSet: string;
+    };
+    experiments?: Partial<{
+      reorderRegistration: boolean;
+    }>;
+  }> {
+  type: FunnelStepType.OrganicRegistration;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -300,7 +317,8 @@ export type FunnelStep =
   | FunnelStepProfileForm
   | FunnelStepEditTags
   | FunnelStepContentTypes
-  | FunnelStepInstallPwa;
+  | FunnelStepInstallPwa
+  | FunnelStepOrganicRegistration;
 
 export type FunnelPosition = {
   chapter: number;
