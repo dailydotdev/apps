@@ -28,7 +28,7 @@ export function PostUpvotesCommentsCount({
     <></>
   ) : (
     <div
-      className="mb-5 flex items-center gap-x-4 text-text-tertiary typo-callout"
+      className="mb-5 flex flex-wrap items-center gap-x-4 !leading-7 text-text-tertiary typo-callout"
       data-testid="statsBar"
     >
       {post.views > 0 && <span>{largeNumberFormat(post.views)} Views</span>}
