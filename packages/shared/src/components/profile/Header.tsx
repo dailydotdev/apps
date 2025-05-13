@@ -15,7 +15,7 @@ import {
   largeNumberFormat,
   ReferralCampaignKey,
 } from '../../lib';
-import { ProfileSettingsMenu } from './ProfileSettingsMenu';
+import { ProfileSettingsMenuMobile } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -195,7 +195,7 @@ export function Header({
             onPlusClick={() => {
               router.push(
                 getPathnameWithQuery(
-                  `${webappUrl}/cores`,
+                  `${webappUrl}cores`,
                   new URLSearchParams({
                     origin: Origin.Profile,
                   }),
@@ -262,7 +262,7 @@ export function Header({
             aria-label="Edit profile"
           />
           <RootPortal>
-            <ProfileSettingsMenu
+            <ProfileSettingsMenuMobile
               isOpen={isMenuOpen}
               onClose={() => setIsMenuOpen(false)}
             />
