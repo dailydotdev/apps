@@ -35,15 +35,11 @@ function InnerFunnelProfileForm({
   }
 
   const handleSubmit = ({
-    username,
-    name,
-    experienceLevel,
     optOutMarketing,
-  }: RegistrationFieldsFormValues) => {
+    ...profile
+  }: Omit<RegistrationFieldsFormValues, 'image'>) => {
     updateUserProfile({
-      username,
-      name,
-      experienceLevel,
+      ...profile,
       acceptedMarketing: !optOutMarketing,
     });
   };
