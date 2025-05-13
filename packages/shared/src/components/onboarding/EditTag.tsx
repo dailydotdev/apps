@@ -31,7 +31,7 @@ export const EditTag = ({
   onClick,
   customActionName,
   activeScreen,
-  headline = 'Pick tags that are relevant to you',
+  headline,
   requiredTags = REQUIRED_TAGS_THRESHOLD,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -50,7 +50,9 @@ export const EditTag = ({
 
   return (
     <>
-      <h2 className="text-center font-bold typo-large-title">{headline}</h2>
+      <h2 className="text-center font-bold typo-large-title">
+        {headline || 'Pick tags that are relevant to you'}
+      </h2>
       <TagSelection
         className="mt-10 max-w-4xl"
         searchElement={
