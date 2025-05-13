@@ -22,7 +22,7 @@ const ReadingReminderOptions = [
 ];
 
 interface ReadingReminderProps {
-  onClickNext: (skipped?: boolean) => void;
+  onClickNext: (options?: {skipped?: boolean}) => void;
   headline?: string;
 }
 
