@@ -12,6 +12,7 @@ import { largeNumberFormat } from '../../lib';
 import { LogEvent, Origin } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useModalContext } from '../modals/common/types';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 type BuyCreditsButtonProps = {
   className?: string;
@@ -23,6 +24,7 @@ export const BuyCreditsButton = ({
   onPlusClick,
   hideBuyButton,
 }: BuyCreditsButtonProps): ReactElement => {
+  const hasCoresAccess = useHasAccessToCores();
   const isInsideModal = useModalContext().onRequestClose !== null;
   const { user } = useAuthContext();
 
@@ -35,6 +37,10 @@ export const BuyCreditsButton = ({
     });
     onPlusClick?.();
   };
+
+  if (!hasCoresAccess) {
+    return null;
+  }
 
   return (
     <div

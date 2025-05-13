@@ -49,6 +49,7 @@ import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 type MenuItems = Record<
   string,
@@ -216,6 +217,7 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
   const { asPath } = useRouter();
   const { logout } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const hasAccessToCores = useHasAccessToCores();
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -224,8 +226,15 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
           key={key}
           withSeparator
           title={menuItem.title}
-          items={Object.entries(menuItem.items).map(
-            ([, item]: [string, ProfileSectionItemProps]) => {
+          items={Object.entries(menuItem.items)
+            .filter(([, item]) => {
+              if (item.href === walletUrl && !hasAccessToCores) {
+                return false;
+              }
+
+              return true;
+            })
+            .map(([, item]: [string, ProfileSectionItemProps]) => {
               return {
                 ...item,
                 isActive: asPath === item.href,
@@ -236,8 +245,7 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
                   },
                 }),
               };
-            },
-          )}
+            })}
         />
       ))}
 
