@@ -22,7 +22,7 @@ const ReadingReminderOptions = [
 ];
 
 interface ReadingReminderProps {
-  onClickNext: (options?: {skipped?: boolean}) => void;
+  onClickNext: (options?: { skipped?: boolean }) => void;
   headline?: string;
 }
 
@@ -60,7 +60,7 @@ export const ReadingReminder = ({
     logEvent({
       event_name: LogEvent.SkipReadingReminder,
     });
-    onClickNext({skipped: true});
+    onClickNext({ skipped: true });
   };
 
   const onSubmit: FormEventHandler = async () => {
