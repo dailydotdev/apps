@@ -6,7 +6,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
+import { OnboardingStep } from './common';
 import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
 import { getContentTypeNotEmpty } from './ContentTypes/helpers';
 
@@ -14,7 +14,7 @@ export type CreateFeedButtonProps = {
   className?: string;
   customActionName?: string;
   activeScreen?: OnboardingStep;
-  requiredTags?: number;
+  requiredTags: number;
 } & Pick<HTMLAttributes<ButtonElementType<'button'>>, 'onClick'>;
 
 export const CreateFeedButton = ({
@@ -22,7 +22,7 @@ export const CreateFeedButton = ({
   onClick,
   customActionName,
   activeScreen,
-  requiredTags = REQUIRED_TAGS_THRESHOLD,
+  requiredTags,
 }: CreateFeedButtonProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { advancedSettings } = useFeedSettings();

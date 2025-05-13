@@ -32,12 +32,12 @@ export const EditTag = ({
   customActionName,
   activeScreen,
   headline = 'Pick tags that are relevant to you',
-  requiredTags,
+  requiredTags = REQUIRED_TAGS_THRESHOLD,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
   const tagsCount = feedSettings?.includeTags?.length || 0;
-  const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+  const isPreviewEnabled = tagsCount >= requiredTags;
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onSearch] = useDebounceFn(setSearchQuery, 200);
@@ -69,7 +69,7 @@ export const EditTag = ({
       <FeedPreviewControls
         isOpen={isPreviewVisible}
         isDisabled={!isPreviewEnabled}
-        textDisabled={`${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
+        textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}
         origin={Origin.EditTag}
         onClick={setPreviewVisible}
       />
