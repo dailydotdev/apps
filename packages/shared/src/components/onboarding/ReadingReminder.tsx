@@ -60,7 +60,7 @@ export const ReadingReminder = ({
     logEvent({
       event_name: LogEvent.SkipReadingReminder,
     });
-    onClickNext(true);
+    onClickNext({skipped: true});
   };
 
   const onSubmit: FormEventHandler = async () => {
