@@ -10,6 +10,7 @@ import RegistrationFieldsForm from '../../../components/auth/RegistrationFieldsF
 import type { FunnelStepProfileForm } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import useProfileForm from '../../../hooks/useProfileForm';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
 function InnerFunnelProfileForm({
   parameters: { headline },
@@ -63,13 +64,4 @@ function InnerFunnelProfileForm({
   );
 }
 
-export default function FunnelProfileForm({
-  isActive,
-  ...props
-}: FunnelStepProfileForm): ReactElement | null {
-  if (!isActive) {
-    return null;
-  }
-
-  return <InnerFunnelProfileForm {...props} />;
-}
+export const FunnelProfileForm = withIsActiveGuard(InnerFunnelProfileForm);

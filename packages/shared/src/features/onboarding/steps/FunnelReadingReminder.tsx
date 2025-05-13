@@ -3,8 +3,9 @@ import React from 'react';
 import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
-function FunnelReadingReminder({
+function FunnelReadingReminderComponent({
   parameters: { headline },
   onTransition,
 }: FunnelStepReadingReminder): ReactElement | null {
@@ -23,13 +24,6 @@ function FunnelReadingReminder({
   );
 }
 
-export default function FunnelReadingReminderInner({
-  isActive,
-  ...props
-}: FunnelStepReadingReminder): ReactElement | null {
-  if (!isActive) {
-    return null;
-  }
-
-  return <FunnelReadingReminder {...props} />;
-}
+export const FunnelReadingReminder = withIsActiveGuard(
+  FunnelReadingReminderComponent,
+);

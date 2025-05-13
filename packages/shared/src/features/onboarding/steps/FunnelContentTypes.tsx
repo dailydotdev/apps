@@ -6,8 +6,9 @@ import { ContentTypes } from '../../../components/onboarding/ContentTypes/Conten
 import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
-function FunnelContentTypes({
+function FunnelContentTypesComponent({
   parameters: { headline, cta },
   onTransition,
 }: FunnelStepContentTypes): ReactElement | null {
@@ -31,13 +32,6 @@ function FunnelContentTypes({
   );
 }
 
-export default function FunnelContentTypesInner({
-  isActive,
-  ...props
-}: FunnelStepContentTypes): ReactElement | null {
-  if (!isActive) {
-    return null;
-  }
-
-  return <FunnelContentTypes {...props} />;
-}
+export const FunnelContentTypes = withIsActiveGuard(
+  FunnelContentTypesComponent,
+);

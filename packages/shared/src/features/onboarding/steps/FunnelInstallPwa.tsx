@@ -4,8 +4,9 @@ import type { FunnelStepInstallPwa } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingPWA } from '../../../components/onboarding';
 import { FunnelStepCtaWrapper } from '../shared';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
-function FunnelInstallPwa({
+function FunnelInstallPwaComponent({
   parameters: { headline, cta },
   onTransition,
 }: FunnelStepInstallPwa): ReactElement | null {
@@ -25,12 +26,4 @@ function FunnelInstallPwa({
   );
 }
 
-export default function FunnelInstallPwaInner({
-  isActive,
-  ...props
-}: FunnelStepInstallPwa): ReactElement | null {
-  if (!isActive) {
-    return null;
-  }
-  return <FunnelInstallPwa {...props} />;
-}
+export const FunnelInstallPwa = withIsActiveGuard(FunnelInstallPwaComponent);

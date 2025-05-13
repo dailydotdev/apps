@@ -8,8 +8,9 @@ import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
-function FunnelEditTags({
+function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
@@ -42,13 +43,4 @@ function FunnelEditTags({
   );
 }
 
-export default function FunnelEditTagsInner({
-  isActive,
-  ...props
-}: FunnelStepEditTags): ReactElement | null {
-  if (!isActive) {
-    return null;
-  }
-
-  return <FunnelEditTags {...props} />;
-}
+export const FunnelEditTags = withIsActiveGuard(FunnelEditTagsComponent);
