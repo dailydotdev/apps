@@ -266,7 +266,7 @@ export const userProductSummaryQueryOptions = ({
 
       return result.userProductSummary;
     },
-    staleTIme: StaleTime.Default,
+    staleTime: StaleTime.Default,
   };
 };
 
