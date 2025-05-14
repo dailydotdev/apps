@@ -11,14 +11,14 @@ export const FunnelOrganicRegistration = ({
   const { headline, explainer, image, experiments: isExperiment } = parameters;
 
   return (
-    <div className="z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden">
+    <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
       {!!image && (
         <img
           {...image}
           alt="Onboarding background"
           aria-hidden
           className={classNames(
-            'pointer-events-none absolute inset-0 -z-1 h-full w-full object-cover transition-opacity duration-300 tablet:object-center',
+            'pointer-events-none absolute inset-0 -z-1 size-full object-cover',
             isExperiment.reorderRegistration && 'opacity-[.24] ',
           )}
           fetchPriority="high"
@@ -40,7 +40,8 @@ export const FunnelOrganicRegistration = ({
           <OnboardingHeadline
             className={{
               title: 'tablet:typo-mega-1 typo-large-title',
-              description: 'mb-8 typo-body tablet:typo-title2',
+              description:
+                'mb-8 text-text-primary typo-body tablet:typo-title2',
             }}
           />
         </div>
@@ -48,3 +49,5 @@ export const FunnelOrganicRegistration = ({
     </div>
   );
 };
+
+export default FunnelOrganicRegistration;
