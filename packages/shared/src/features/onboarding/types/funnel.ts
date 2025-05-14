@@ -323,6 +323,7 @@ export interface FunnelJSON {
   parameters: Partial<FunnelParameters>;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
+  redirectOnFinish?: string;
 }
 
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
