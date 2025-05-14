@@ -170,7 +170,6 @@ type PageProps = {
   dehydratedState: DehydratedState;
   initialStepId: string | null;
   showCookieBanner?: boolean;
-  params: Record<'id' | 'version' | 'stepId', string | string[]>;
 };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
@@ -178,15 +177,15 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id, version, stepId } = query;
+  const { id = 'test-funnel', version, stepId } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
   const boot = await getFunnelBootData({
     app: BootApp.Webapp,
     cookies,
-    id: id as string,
-    version: version as string,
+    id: id ? `${id}` : undefined,
+    version: version ? `${version}` : undefined,
     forwardedHeaders,
   });
 
@@ -209,7 +208,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   return {
     props: {
-      params: { id, version, stepId },
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
       initialStepId,

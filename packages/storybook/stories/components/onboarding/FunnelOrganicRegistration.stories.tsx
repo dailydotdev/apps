@@ -50,8 +50,8 @@ const defaultArgs: FunnelStepOrganicRegistration = {
   transitions: [],
   onTransition: action('onTransition'),
   parameters: {
-    headline: 'Join the developer community',
-    explainer: 'Get personalized content, connect with fellow developers, and grow your skills.',
+    headline: 'Where developers suffer together',
+    explainer: `We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)`,
     image: {
       src: cloudinaryOnboardingFullBackgroundMobile,
       srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
