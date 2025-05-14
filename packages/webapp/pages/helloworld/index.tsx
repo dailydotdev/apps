@@ -35,7 +35,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id, version } = query;
+  const { id, v: version } = query;
   const allCookies = req.headers.cookie || '';
 
   // Extract forwarded headers
