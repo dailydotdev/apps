@@ -21,6 +21,7 @@ export type StepHeadlineProps = {
   description?: string;
   descriptionProps?: TypographyProps<TypographyTag.P>;
   heading: string;
+  className?: string;
 };
 
 export const StepHeadline = ({
@@ -28,6 +29,7 @@ export const StepHeadline = ({
   description,
   descriptionProps,
   heading,
+  className,
 }: StepHeadlineProps): ReactElement => {
   const titleHtml = useMemo(() => sanitizeMessage(heading), [heading]);
   const descHtml = useMemo(() => sanitizeMessage(description), [description]);
@@ -35,7 +37,7 @@ export const StepHeadline = ({
   return (
     <div
       data-testid="step-headline-container"
-      className={classNames('flex flex-col gap-2', {
+      className={classNames('flex flex-col gap-2', className, {
         'text-left': align === StepHeadlineAlign.Left,
         'text-center': align === StepHeadlineAlign.Center,
         'text-right': align === StepHeadlineAlign.Right,

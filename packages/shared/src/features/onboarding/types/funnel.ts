@@ -108,6 +108,7 @@ export interface FunnelStepFactParameters {
   explainer: string;
   align: StepHeadlineAlign;
   visualUrl?: string;
+  layout?: 'default' | 'reversed' | 'centered';
 }
 
 export interface FunnelStepFact

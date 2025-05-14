@@ -29,7 +29,7 @@ import {
   FunnelReadingReminder,
   FunnelInstallPwa,
 } from '../steps';
-import FunnelFact from '../steps/FunnelFact';
+import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
