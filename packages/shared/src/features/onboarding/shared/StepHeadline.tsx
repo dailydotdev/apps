@@ -9,6 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import type { TypographyProps } from '../../../components/typography/Typography';
 import { sanitizeMessage } from './utils';
+import type { WithClassNameProps } from '../../../components/utilities';
 
 export enum StepHeadlineAlign {
   Left = 'left',
@@ -16,13 +17,12 @@ export enum StepHeadlineAlign {
   Right = 'right',
 }
 
-export type StepHeadlineProps = {
+export interface StepHeadlineProps extends WithClassNameProps {
   align?: StepHeadlineAlign;
   description?: string;
   descriptionProps?: TypographyProps<TypographyTag.P>;
   heading: string;
-  className?: string;
-};
+}
 
 export const StepHeadline = ({
   align = StepHeadlineAlign.Center,
