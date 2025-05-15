@@ -110,7 +110,10 @@ export const usePaddlePayment = ({
             });
 
             if (router.pathname.includes('/helloworld')) {
-              localStorage.setItem('funnelSubscribed', 'true');
+              localStorage.setItem(
+                'funnelSubscribed',
+                event?.data.customer.email,
+              );
             }
 
             if (successCallbackRef.current) {

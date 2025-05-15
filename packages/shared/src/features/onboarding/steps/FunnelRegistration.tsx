@@ -215,7 +215,7 @@ function InnerFunnelRegistration({
         {didSubscribe && (
           <Alert
             type={AlertType.Info}
-            title="Please sign up with the same email address you used to purchase your daily.dev Plus subscription."
+            title={`Please sign up using the email address ${didSubscribe} to claim your daily.dev Plus subscription.`}
           />
         )}
         <SocialRegistration onClick={onRegister} />
