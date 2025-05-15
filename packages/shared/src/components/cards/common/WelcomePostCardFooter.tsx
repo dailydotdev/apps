@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { sanitize } from 'dompurify';
 import { CardSpace } from './Card';
 import type { Post } from '../../../graphql/posts';
 import { CardCover } from './CardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
+import { sanitizeMessage } from '../../../features/onboarding/shared';
 
 interface WelcomePostCardFooterProps {
   post: Post;
@@ -28,7 +28,7 @@ export const WelcomePostCardFooter = ({
     },
   });
   const content = useMemo(
-    () => (contentHtml ? sanitize(contentHtml, { ALLOWED_TAGS: [] }) : ''),
+    () => (contentHtml ? sanitizeMessage(contentHtml, []) : ''),
     [contentHtml],
   );
   const decodedText = useMemo(() => {
