@@ -129,7 +129,7 @@ const getDefaultDisplay = ({
   return AuthDisplay.OnboardingSignup;
 };
 
-export function OnboardPage(): ReactElement {
+function Onboarding(): ReactElement {
   const router = useRouter();
   const { isAuthReady, anonymous, loginState } = useAuthContext();
 
@@ -277,13 +277,13 @@ function Page({ dehydratedState }: PageProps) {
   return (
     <HydrationBoundary state={dehydratedState}>
       <JotaiProvider>
-        <OnboardPage />
+        <Onboarding />
         <Toast autoDismissNotifications={autoDismissNotifications} />
       </JotaiProvider>
     </HydrationBoundary>
   );
 }
 
-OnboardPage.layoutProps = { seo };
+Page.layoutProps = { seo };
 
 export default withFeaturesBoundary(Page);
