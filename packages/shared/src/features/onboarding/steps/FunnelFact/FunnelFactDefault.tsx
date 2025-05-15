@@ -1,19 +1,20 @@
-'use client';
-
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import Head from 'next/head';
-import { StepHeadline } from '../shared';
-import type { FunnelStepFact } from '../types/funnel';
-import { FunnelStepTransitionType } from '../types/funnel';
-import { FunnelStepCtaWrapper } from '../shared/FunnelStepCtaWrapper';
-import { LazyImage } from '../../../components/LazyImage';
+import { StepHeadline } from '../../shared';
+import type { FunnelStepFact } from '../../types/funnel';
+import { FunnelStepTransitionType } from '../../types/funnel';
+import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
+import { LazyImage } from '../../../../components/LazyImage';
 
-const FunnelFact = ({
+export const FunnelFactDefault = ({
   parameters,
   onTransition,
 }: FunnelStepFact): ReactElement => {
+  const isLayoutReversed =
+    parameters.layout === 'reversed' || parameters.reverse;
+
   return (
     <FunnelStepCtaWrapper
       containerClassName="flex"
@@ -28,7 +29,7 @@ const FunnelFact = ({
         data-testid="step-content"
         className={classNames(
           'flex flex-1 items-center gap-12 px-4 pt-6 laptop:mb-10',
-          parameters?.reverse
+          isLayoutReversed
             ? 'flex-col-reverse justify-end'
             : 'flex-col justify-between',
         )}
@@ -57,5 +58,3 @@ const FunnelFact = ({
     </FunnelStepCtaWrapper>
   );
 };
-
-export default FunnelFact;

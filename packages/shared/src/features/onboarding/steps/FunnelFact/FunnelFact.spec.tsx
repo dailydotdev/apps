@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import FunnelFact from './FunnelFact';
-import { FunnelStepType } from '../types/funnel';
-import type { FunnelStepFact } from '../types/funnel';
+import { FunnelFact } from '.';
+import { FunnelStepType } from '../../types/funnel';
+import type { FunnelStepFact } from '../../types/funnel';
 
 const mockOnTransition = jest.fn();
 
