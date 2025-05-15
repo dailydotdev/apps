@@ -12,7 +12,11 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import type { AuthProps } from '../../../components/auth/common';
 import { AuthDisplay } from '../../../components/auth/common';
 import { ExperimentWinner } from '../../../lib/featureValues';
-import { wrapperMaxWidth } from '../../../components/onboarding/common';
+import {
+  OnboardingStep,
+  wrapperMaxWidth,
+} from '../../../components/onboarding/common';
+import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
 
 interface FunnelOrganicRegistrationProps extends FunnelStepOrganicRegistration {
   formRef: React.RefObject<HTMLFormElement>;
@@ -25,6 +29,7 @@ const staticAuthProps = {
     ),
     onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
   },
+  forceDefaultDisplay: true,
   simplified: true,
   targetId: ExperimentWinner.OnboardingV4,
   trigger: AuthTriggers.Onboarding,
@@ -43,7 +48,6 @@ export const FunnelOrganicRegistration = ({
   const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
   const onAuthStateUpdate = useCallback(
     ({ defaultDisplay }: Partial<AuthProps>) => {
-      console.log({ defaultDisplay });
       if (defaultDisplay) {
         setAuthDisplay(defaultDisplay);
       }
@@ -54,30 +58,23 @@ export const FunnelOrganicRegistration = ({
   return (
     <>
       <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
-        {!!image && (
-          <img
-            {...image}
-            alt="Onboarding background"
-            aria-hidden
-            className={classNames(
-              'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
-              { 'opacity-[.24]': isEmailSignupActive },
-            )}
-            fetchPriority="high"
-            loading="eager"
-            role="presentation"
-            sizes="(max-width: 655px) 450px, 1024px"
-            {...image}
-          />
-        )}
+        <OnboardingHeader
+          showOnboardingPage
+          activeScreen={OnboardingStep.Intro}
+        />
         <div
           className={classNames(
             `flex w-full flex-1 flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,
             wrapperMaxWidth,
-            isEmailSignupActive && 'mt-7.5 ',
+            isEmailSignupActive && 'mt-7.5',
           )}
         >
-          <div className="mt-5 flex flex-1 flex-col tablet:mt-0 tablet:flex-grow laptop:mr-8">
+          <div
+            className={classNames(
+              'mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow',
+              !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
+            )}
+          >
             {!isEmailSignupActive && (
               <OnboardingHeadline
                 className={{
@@ -92,7 +89,6 @@ export const FunnelOrganicRegistration = ({
             <AuthOptions
               {...staticAuthProps}
               defaultDisplay={authDisplay}
-              forceDefaultDisplay
               formRef={formRef}
               onboardingSignupButton={{
                 size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
@@ -109,6 +105,22 @@ export const FunnelOrganicRegistration = ({
           </div>
           <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
         </div>
+        {!!image && (
+          <img
+            {...image}
+            alt="Onboarding background"
+            aria-hidden
+            className={classNames(
+              'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
+              { 'opacity-[.24]': isEmailSignupActive },
+            )}
+            fetchPriority="high"
+            loading="eager"
+            role="presentation"
+            sizes="(max-width: 655px) 450px, 1024px"
+            {...image}
+          />
+        )}
         <FooterLinks className="mx-auto pb-6" />
       </div>
     </>

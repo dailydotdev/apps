@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import type { Dispatch, ReactElement, SetStateAction } from 'react';
-import React, { useId } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
   cloudinaryFeedBgLaptop,
@@ -22,27 +22,30 @@ import {
 import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
-import type { AuthProps } from '../auth/common';
 
-type OnboardingHeaderProps = {
-  showOnboardingPage: boolean;
-  setAuth: Dispatch<SetStateAction<AuthProps>>;
-  onClick: () => void;
-  activeScreen: OnboardingStep;
-  customActionName?: string;
-};
+type OnboardingHeaderProps =
+  | {
+      showOnboardingPage: boolean;
+      onClick: () => void;
+      activeScreen: OnboardingStep;
+      customActionName?: string;
+    }
+  | {
+      showOnboardingPage: true;
+      onClick?: () => void;
+      activeScreen?: OnboardingStep;
+      customActionName?: string;
+    };
 
 export const OnboardingHeader = ({
   showOnboardingPage,
   activeScreen,
-  setAuth,
   onClick,
   customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const id = useId();
   const { completion } = useInteractiveCompletion();
 
   const getImage = () => {
