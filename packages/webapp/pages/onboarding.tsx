@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -13,14 +13,8 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
-import {
-  useActions,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
-import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
   AuthOptionsProps,
@@ -137,32 +131,26 @@ const getDefaultDisplay = ({
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const { user, isAuthReady, anonymous, loginState } = useAuthContext();
-  const { isActionsFetched } = useActions();
-  const { growthbook } = useGrowthBookContext();
+  const { isAuthReady, anonymous, loginState } = useAuthContext();
 
   const [auth, setAuth] = useAtom(authAtom);
+  const updateAuth = useCallback(
+    (props: Partial<AuthProps>) => {
+      setAuth((prev) => ({ ...prev, ...props }));
+    },
+    [setAuth],
+  );
 
-  const {
-    isAuthenticating,
-    isLoginFlow,
-    defaultDisplay,
-    isLoading: isAuthLoading,
-  } = auth;
-  const isPageReady = growthbook?.ready && isAuthReady;
+  const { isAuthenticating, isLoginFlow, defaultDisplay } = auth;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
-  const showGenerigLoader =
-    isAuthenticating && isAuthLoading && !isOnboardingReady;
 
   useEffect(
     () => {
       const email = loginState?.formValues?.email || anonymous?.email;
       const shouldVerify = anonymous?.shouldVerify;
       const isLogin = loginState?.isLogin;
-      setAuth({
+      updateAuth({
         defaultDisplay: getDefaultDisplay({ email, isLogin, shouldVerify }),
         email,
         isAuthenticating:
@@ -175,7 +163,7 @@ export function OnboardPage(): ReactElement {
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [updateAuth],
   );
 
   /*
@@ -199,7 +187,7 @@ export function OnboardPage(): ReactElement {
   const authOptionProps: AuthOptionsProps = useMemo(() => {
     const onSuccessfulRegistration = () => {
       // display funnel
-      setAuth((prev) => ({ ...prev, isAuthenticating: false }));
+      updateAuth({ isAuthenticating: false });
 
       // onTagsNext();
     };
@@ -219,10 +207,10 @@ export function OnboardPage(): ReactElement {
       forceDefaultDisplay: !isAuthenticating,
       initialEmail: auth.email,
       isLoginFlow,
-      targetId,
+      targetId: ExperimentWinner.OnboardingV4,
       onSuccessfulRegistration,
       onAuthStateUpdate: (props: AuthProps) =>
-        setAuth({ isAuthenticating: true, ...props }),
+        updateAuth({ isAuthenticating: true, ...props }),
       onboardingSignupButton: {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
@@ -235,13 +223,8 @@ export function OnboardPage(): ReactElement {
     isLoginFlow,
     isMobile,
     loginState?.trigger,
-    setAuth,
-    targetId,
+    updateAuth,
   ]);
-
-  if (!isPageReady) {
-    return null;
-  }
 
   const step: FunnelStepOrganicRegistration = {
     id: 'a',
@@ -249,8 +232,9 @@ export function OnboardPage(): ReactElement {
     transitions: [],
     type: FunnelStepType.OrganicRegistration,
     parameters: {
-      headline: 'Welcome to Daily.dev',
-      explainer: 'Get the latest news from the developer community',
+      headline: 'Where developers suffer together',
+      explainer:
+        "We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)",
       image: {
         src: cloudinaryOnboardingFullBackgroundMobile,
         srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
@@ -260,12 +244,6 @@ export function OnboardPage(): ReactElement {
 
   return (
     <>
-      {showGenerigLoader && <GenericLoader />}
-      {/* {(1 || isAuthenticating) && ( */}
-      {/*   */}
-      {/* )} */}
-      {!isAuthenticating && <HotJarTracking hotjarId="3871311" />}
-
       {isAuthenticating ? (
         <div
           className={classNames(
@@ -278,15 +256,16 @@ export function OnboardPage(): ReactElement {
             showOnboardingPage={false}
           />
           <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
-            {authOptionProps.defaultDisplay}
             <AuthOptions {...authOptionProps} />
           </div>
         </div>
       ) : (
         <div className="flex min-h-dvh min-w-full flex-col">
+          {/* Replace this with funnel */}
           <FunnelStepBackground step={step}>
             <FunnelOrganicRegistration formRef={formRef} {...step} />
           </FunnelStepBackground>
+          <HotJarTracking hotjarId="3871311" />
         </div>
       )}
     </>
