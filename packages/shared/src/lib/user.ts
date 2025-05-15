@@ -8,7 +8,7 @@ import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
 import type { SubscriptionProvider, UserSubscriptionStatus } from './plus';
-import type { FeaturedAward } from '../graphql/njord';
+import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -118,6 +118,7 @@ export interface UserShortProfile
   contentPreference?: ContentPreference;
   topReader?: Partial<TopReader>;
   award?: FeaturedAward;
+  awardTransaction?: UserTransactionPublic;
 }
 
 export type UserFlagsPublic = Partial<{

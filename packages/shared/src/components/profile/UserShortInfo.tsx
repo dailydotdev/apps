@@ -162,7 +162,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           feedId={feedId}
         />
       )}
-      {!!showAward && !!user.award && (
+      {!!showAward && !!user.award && !!user.awardTransaction && (
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
             <CoreIcon />
@@ -171,9 +171,9 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
             >
-              {user.award.value === 0
+              {user.awardTransaction.value === 0
                 ? 'Free'
-                : formatCoresCurrency(user.award.value)}
+                : formatCoresCurrency(user.awardTransaction.value)}
             </Typography>
           </div>
           <div className="flex size-7 items-center justify-center rounded-10 bg-surface-float">
