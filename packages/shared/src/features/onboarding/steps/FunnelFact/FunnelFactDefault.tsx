@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
