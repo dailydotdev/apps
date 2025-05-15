@@ -1,7 +1,12 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAtom } from 'jotai/react';
-import type { FunnelJSON, FunnelPosition, FunnelStep } from '../types/funnel';
+import type {
+  FunnelJSON,
+  FunnelPosition,
+  FunnelStep,
+  FunnelStepTransition,
+} from '../types/funnel';
 import {
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
@@ -32,7 +37,9 @@ interface HeaderNavigation {
   navigate: () => void;
 }
 
-interface SkipNavigation extends Omit<HeaderNavigation, 'navigate'> {
+interface SkipNavigation
+  extends Omit<HeaderNavigation, 'navigate'>,
+    Pick<FunnelStepTransition, 'placement'> {
   destination?: FunnelStep['id'];
 }
 
@@ -182,6 +189,7 @@ export const useFunnelNavigation = ({
     if (!isNextStep || isLastStep) {
       return {
         destination: transition.destination,
+        placement: transition.placement,
         hasTarget: true,
       };
     }
@@ -194,6 +202,7 @@ export const useFunnelNavigation = ({
         funnel.chapters[position.chapter].steps[position.step + 1];
 
       return {
+        placement: transition.placement,
         destination: nextStep.id,
         hasTarget: true,
       };
@@ -203,6 +212,7 @@ export const useFunnelNavigation = ({
 
     if (isLastChapter) {
       return {
+        placement: transition.placement,
         destination: COMPLETED_STEP_ID,
         hasTarget: true,
       };
@@ -212,6 +222,7 @@ export const useFunnelNavigation = ({
     const nextStep = nextChapter.steps[0];
 
     return {
+      placement: transition.placement,
       destination: nextStep.id,
       hasTarget: true,
     };

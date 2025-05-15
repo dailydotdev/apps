@@ -183,6 +183,9 @@ export const FunnelStepper = ({
     return null;
   }
 
+  const shouldShowHeaderSkip =
+    skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
+
   return (
     <section
       className="flex min-h-dvh flex-col"
@@ -211,8 +214,8 @@ export const FunnelStepper = ({
               onTransition({ type: FunnelStepTransitionType.Skip });
             }}
             showBackButton={back.hasTarget}
-            showSkipButton={skip.hasTarget}
-            showProgressBar={skip.hasTarget}
+            showSkipButton={shouldShowHeaderSkip}
+            showProgressBar={shouldShowHeaderSkip}
           />
           <PaymentContextProvider
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
