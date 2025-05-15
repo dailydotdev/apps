@@ -6,6 +6,17 @@ import ProfileButton from './ProfileButton';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
+jest.mock('next/router', () => ({
+  useRouter: () => ({
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
+    },
+    pathname: '/',
+    query: {},
+  }),
+}));
+
 const logout = jest.fn();
 
 const renderComponent = (): RenderResult => {

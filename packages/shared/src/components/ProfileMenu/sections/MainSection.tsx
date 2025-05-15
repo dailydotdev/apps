@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
 import { CoinIcon, DevCardIcon, UserIcon } from '../../icons';
-import { walletUrl, webappUrl } from '../../../lib/constants';
+import { settingsUrl, walletUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 
@@ -26,7 +26,7 @@ export const MainSection = (): ReactElement => {
         },
         {
           title: 'DevCard',
-          href: `${webappUrl}account/customization/devcard`,
+          href: `${settingsUrl}/customization/devcard`,
           icon: DevCardIcon,
         },
       ].filter(Boolean)}
