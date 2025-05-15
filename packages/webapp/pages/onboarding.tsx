@@ -129,21 +129,19 @@ const getDefaultDisplay = ({
   return AuthDisplay.OnboardingSignup;
 };
 
-function Onboarding(): ReactElement {
-  const router = useRouter();
+const useOnboardingAuth = () => {
+  const formRef = useRef<HTMLFormElement>();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState } = useAuthContext();
 
   const [auth, setAuth] = useAtom(authAtom);
+  const { isAuthenticating, isLoginFlow, defaultDisplay } = auth;
   const updateAuth = useCallback(
     (props: Partial<AuthProps>) => {
       setAuth((prev) => ({ ...prev, ...props }));
     },
     [setAuth],
   );
-
-  const { isAuthenticating, isLoginFlow, defaultDisplay } = auth;
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const formRef = useRef<HTMLFormElement>();
 
   useEffect(
     () => {
@@ -166,6 +164,59 @@ function Onboarding(): ReactElement {
     [updateAuth],
   );
 
+  const authOptionProps: AuthOptionsProps = useMemo(
+    () => ({
+      simplified: true,
+      className: {
+        container: classNames(
+          'w-full rounded-none tablet:max-w-[30rem]',
+          isAuthenticating ? 'h-full' : 'max-w-full',
+        ),
+        onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+      },
+      trigger: loginState?.trigger || AuthTriggers.Onboarding,
+      formRef,
+      defaultDisplay,
+      forceDefaultDisplay: !isAuthenticating,
+      initialEmail: auth.email,
+      isLoginFlow,
+      targetId: ExperimentWinner.OnboardingV4,
+      onSuccessfulRegistration: () => {
+        // display funnel
+        updateAuth({ isAuthenticating: false });
+
+        // onTagsNext();
+      },
+      onAuthStateUpdate: (props: AuthProps) =>
+        updateAuth({ isAuthenticating: true, ...props }),
+      onboardingSignupButton: {
+        size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+        variant: ButtonVariant.Primary,
+      },
+    }),
+    [
+      auth.email,
+      defaultDisplay,
+      isAuthenticating,
+      isLoginFlow,
+      isMobile,
+      loginState?.trigger,
+      updateAuth,
+    ],
+  );
+
+  return {
+    authOptionProps,
+    isAuthenticating,
+    auth,
+    updateAuth,
+  };
+};
+
+function Onboarding(): ReactElement {
+  const router = useRouter();
+  const { isAuthenticating, authOptionProps } = useOnboardingAuth();
+
   /*
    * Complete steps on transition
    * OnboardingStep.InteractiveFeed -> completeStep(ActionType.EditTag)
@@ -183,48 +234,6 @@ function Onboarding(): ReactElement {
   // const afterAuth = params.get(AFTER_AUTH_PARAM);
   //
   // return router.replace({ pathname: afterAuth || '/' });
-
-  const authOptionProps: AuthOptionsProps = useMemo(() => {
-    const onSuccessfulRegistration = () => {
-      // display funnel
-      updateAuth({ isAuthenticating: false });
-
-      // onTagsNext();
-    };
-
-    return {
-      simplified: true,
-      className: {
-        container: classNames(
-          'w-full rounded-none tablet:max-w-[30rem]',
-          isAuthenticating ? 'h-full' : 'max-w-full',
-        ),
-        onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
-      },
-      trigger: loginState?.trigger || AuthTriggers.Onboarding,
-      formRef,
-      defaultDisplay,
-      forceDefaultDisplay: !isAuthenticating,
-      initialEmail: auth.email,
-      isLoginFlow,
-      targetId: ExperimentWinner.OnboardingV4,
-      onSuccessfulRegistration,
-      onAuthStateUpdate: (props: AuthProps) =>
-        updateAuth({ isAuthenticating: true, ...props }),
-      onboardingSignupButton: {
-        size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-        variant: ButtonVariant.Primary,
-      },
-    };
-  }, [
-    auth.email,
-    defaultDisplay,
-    isAuthenticating,
-    isLoginFlow,
-    isMobile,
-    loginState?.trigger,
-    updateAuth,
-  ]);
 
   const step: FunnelStepOrganicRegistration = {
     id: 'a',
@@ -263,7 +272,10 @@ function Onboarding(): ReactElement {
         <div className="flex min-h-dvh min-w-full flex-col">
           {/* Replace this with funnel */}
           <FunnelStepBackground step={step}>
-            <FunnelOrganicRegistration formRef={formRef} {...step} />
+            <FunnelOrganicRegistration
+              formRef={authOptionProps.formRef}
+              {...step}
+            />
           </FunnelStepBackground>
           <HotJarTracking hotjarId="3871311" />
         </div>
