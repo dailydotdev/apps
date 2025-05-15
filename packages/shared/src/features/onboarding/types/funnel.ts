@@ -46,6 +46,7 @@ export enum FunnelStepTransitionType {
 }
 
 export const COMPLETED_STEP_ID = 'finish' as const;
+export const NEXT_STEP_ID = 'next' as const;
 
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
