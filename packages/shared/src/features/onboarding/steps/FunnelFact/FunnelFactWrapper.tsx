@@ -3,10 +3,6 @@ import type { PropsWithChildren } from 'react';
 import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { FunnelStepCtaWrapper } from '../../shared';
-import { Button } from '../../../../components/buttons/Button';
-import { ButtonVariant } from '../../../../components/buttons/common';
-import { FunnelTargetId } from '../../types/funnelEvents';
-import { StraightArrowIcon } from '../../../../components/icons';
 
 export const FunnelFactWrapper = ({
   children,
@@ -18,6 +14,14 @@ export const FunnelFactWrapper = ({
     [transitions],
   );
 
+  const skipButton = {
+    cta: skip?.cta,
+    onClick: () =>
+      onTransition({
+        type: FunnelStepTransitionType.Skip,
+      }),
+  };
+
   return (
     <FunnelStepCtaWrapper
       containerClassName="flex"
@@ -27,18 +31,8 @@ export const FunnelFactWrapper = ({
           type: FunnelStepTransitionType.Complete,
         })
       }
-      skip={skip?.placement === 'bottom' ? { cta: skip.cta } : undefined}
+      skip={skip?.placement === 'bottom' ? skipButton : undefined}
     >
-      {skip?.placement === 'top' && (
-        <Button
-          data-funnel-track={FunnelTargetId.StepCta}
-          variant={ButtonVariant.Float}
-          type="button"
-          icon={<StraightArrowIcon className="-rotate-90" />}
-        >
-          {skip?.cta ?? 'Skip'}
-        </Button>
-      )}
       {children}
     </FunnelStepCtaWrapper>
   );
