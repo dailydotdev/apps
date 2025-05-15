@@ -4,27 +4,16 @@ import classNames from 'classnames';
 import Head from 'next/head';
 import { StepHeadline } from '../../shared';
 import type { FunnelStepFact } from '../../types/funnel';
-import { FunnelStepTransitionType } from '../../types/funnel';
-import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
+import { FunnelFactWrapper } from './FunnelFactWrapper';
 
-export const FunnelFactDefault = ({
-  parameters,
-  onTransition,
-}: FunnelStepFact): ReactElement => {
+export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
+  const { parameters } = props;
   const isLayoutReversed =
     parameters.layout === 'reversed' || parameters.reverse;
 
   return (
-    <FunnelStepCtaWrapper
-      containerClassName="flex"
-      cta={{ label: parameters?.cta ?? 'Next' }}
-      onClick={() =>
-        onTransition({
-          type: FunnelStepTransitionType.Complete,
-        })
-      }
-    >
+    <FunnelFactWrapper {...props}>
       <div
         data-testid="step-content"
         className={classNames(
@@ -55,6 +44,6 @@ export const FunnelFactDefault = ({
           </>
         )}
       </div>
-    </FunnelStepCtaWrapper>
+    </FunnelFactWrapper>
   );
 };

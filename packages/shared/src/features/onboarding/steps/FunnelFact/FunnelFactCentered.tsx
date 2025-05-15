@@ -3,24 +3,14 @@ import type { ReactElement } from 'react';
 import Head from 'next/head';
 import { StepHeadline } from '../../shared';
 import type { FunnelStepFact } from '../../types/funnel';
-import { FunnelStepTransitionType } from '../../types/funnel';
-import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
+import { FunnelFactWrapper } from './FunnelFactWrapper';
 
-export const FunnelFactCentered = ({
-  parameters,
-  onTransition,
-}: FunnelStepFact): ReactElement => {
+export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
+  const { parameters } = props;
+
   return (
-    <FunnelStepCtaWrapper
-      containerClassName="flex max-h-screen"
-      cta={{ label: parameters?.cta ?? 'Next' }}
-      onClick={() =>
-        onTransition({
-          type: FunnelStepTransitionType.Complete,
-        })
-      }
-    >
+    <FunnelFactWrapper {...props}>
       <div
         data-testid="step-content"
         className="flex flex-1 flex-col items-center justify-center gap-6 p-6 laptop:mb-10"
@@ -47,6 +37,6 @@ export const FunnelFactCentered = ({
           align={parameters?.align}
         />
       </div>
-    </FunnelStepCtaWrapper>
+    </FunnelFactWrapper>
   );
 };

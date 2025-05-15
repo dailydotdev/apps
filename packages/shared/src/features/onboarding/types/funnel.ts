@@ -73,7 +73,12 @@ type FunnelStepParameters<Params = Record<string, unknown>> = {
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
-  destination: FunnelStep['id'] | typeof COMPLETED_STEP_ID;
+  destination:
+    | FunnelStep['id']
+    | typeof COMPLETED_STEP_ID
+    | typeof NEXT_STEP_ID;
+  cta?: string;
+  placement?: 'default' | 'bottom' | 'top';
 };
 
 interface FunnelStepCommon<T = FunnelStepParameters> {

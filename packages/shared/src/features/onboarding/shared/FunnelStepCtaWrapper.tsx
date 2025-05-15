@@ -14,12 +14,16 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
     label?: string;
   };
   containerClassName?: string;
+  skip?: ButtonProps<'button'> & {
+    cta?: string;
+  };
 };
 
 export function FunnelStepCtaWrapper({
   children,
   className,
   cta,
+  skip,
   containerClassName,
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
@@ -37,6 +41,16 @@ export function FunnelStepCtaWrapper({
         >
           {cta?.label ?? 'Next'}
         </Button>
+        {skip && (
+          <Button
+            data-funnel-track={FunnelTargetId.StepCta}
+            variant={ButtonVariant.Tertiary}
+            type="button"
+            {...props}
+          >
+            {skip?.cta ?? 'Skip'}
+          </Button>
+        )}
       </div>
     </div>
   );
