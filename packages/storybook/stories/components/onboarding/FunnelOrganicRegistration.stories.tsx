@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import {
   FunnelStepOrganicRegistration,
@@ -29,15 +29,18 @@ const meta: Meta<typeof FunnelOrganicRegistration> = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-  render: (props) => (
-    <ExtensionProviders>
-      <div className='flex flex-col min-h-dvh'>
-        <FunnelStepBackground step={props}>
-          <FunnelOrganicRegistration {...props} />
-        </FunnelStepBackground>
-      </div>
-    </ExtensionProviders>
-  ),
+  render: (props) => {
+    const ref = useRef<HTMLFormElement>(null);
+    return (
+      <ExtensionProviders>
+        <div className='flex flex-col min-h-dvh'>
+          <FunnelStepBackground step={props}>
+            <FunnelOrganicRegistration {...props} formRef={ref} />
+          </FunnelStepBackground>
+        </div>
+      </ExtensionProviders>
+    );
+  },
 };
 
 export default meta;

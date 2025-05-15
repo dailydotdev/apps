@@ -1,16 +1,42 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepOrganicRegistration } from '../types/funnel';
 import { wrapperMaxWidth } from '../../../components/onboarding/common';
 import { OnboardingHeadline } from '../../../components/auth';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
 import { FooterLinks } from '../../../components/footer';
+import AuthOptions from '../../../components/auth/AuthOptions';
+import { AuthTriggers } from '../../../lib/auth';
+import { useFeature } from '../../../components/GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { AuthDisplay } from '../../../components/auth/common';
+import { ExperimentWinner } from '../../../lib/featureValues';
+
+interface FunnelOrganicRegistrationProps extends FunnelStepOrganicRegistration {
+  formRef: React.RefObject<HTMLFormElement>;
+}
 
 export const FunnelOrganicRegistration = ({
   parameters,
-}: FunnelStepOrganicRegistration): ReactElement => {
-  const { headline, explainer, image, experiments: isExperiment } = parameters;
+  formRef,
+}: FunnelOrganicRegistrationProps): ReactElement => {
+  const { headline, explainer, image, experiments } = parameters;
+  const onboardingVisual = useFeature(feature.onboardingVisual);
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  const imageSources = useMemo(() => {
+    if (!image) {
+      return {
+        src: onboardingVisual?.fullBackground.mobile,
+        srcSet: `${onboardingVisual?.fullBackground.mobile} 450w, ${onboardingVisual?.fullBackground.desktop} 1024w`,
+      };
+    }
+
+    return image;
+  }, [onboardingVisual, image]);
 
   return (
     <>
@@ -22,14 +48,13 @@ export const FunnelOrganicRegistration = ({
             aria-hidden
             className={classNames(
               'pointer-events-none absolute inset-0 -z-1 size-full object-cover',
-              isExperiment.reorderRegistration && 'opacity-[.24] ',
+              experiments.reorderRegistration && 'opacity-[.24] ',
             )}
             fetchPriority="high"
             loading="eager"
             role="presentation"
-            src={image.src}
-            srcSet={image.srcSet}
             sizes="(max-width: 655px) 450px, 1024px"
+            {...imageSources}
           />
         )}
         <div
@@ -48,7 +73,26 @@ export const FunnelOrganicRegistration = ({
               title={headline}
               description={explainer}
             />
-            {!isExperiment.reorderRegistration && (
+            <AuthOptions
+              formRef={formRef}
+              trigger={AuthTriggers.Onboarding}
+              targetId={ExperimentWinner.OnboardingV4}
+              simplified
+              className={{
+                container: classNames(
+                  'w-full max-w-full rounded-none tablet:max-w-[30rem]',
+                ),
+                onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+              }}
+              onboardingSignupButton={{
+                size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+                variant: ButtonVariant.Primary,
+              }}
+              defaultDisplay={AuthDisplay.OnboardingSignup}
+              forceDefaultDisplay
+              experiments={experiments}
+            />
+            {!experiments.reorderRegistration && (
               <SignupDisclaimer className="mb-4" />
             )}
           </div>
