@@ -64,7 +64,8 @@ export const usePaddlePayment = ({
           return;
         }
 
-        const customData = event?.data?.custom_data as Record<string, unknown>;
+        const customData =
+          event?.data?.custom_data || ({} as Record<string, unknown>);
 
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
