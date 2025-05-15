@@ -15,7 +15,7 @@ export const FunnelFactDefault = ({
   onTransition,
 }: FunnelStepFact): ReactElement => {
   const isLayoutReversed =
-    parameters?.layout === 'reversed' || parameters?.reverse;
+    parameters.layout === 'reversed' || parameters.reverse;
 
   return (
     <FunnelStepCtaWrapper
