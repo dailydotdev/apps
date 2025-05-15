@@ -114,4 +114,7 @@ export interface AuthOptionsProps {
   targetId?: string;
   ignoreMessages?: boolean;
   onboardingSignupButton?: ButtonProps<'button'>;
+  experiments?: {
+    reorderRegistration?: boolean;
+  };
 }

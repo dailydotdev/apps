@@ -36,8 +36,6 @@ import { labels } from '../../lib';
 import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 
@@ -119,6 +117,7 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  experiments,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -131,7 +130,7 @@ function AuthOptionsInner({
   const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
   const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isReorderExperiment = !!experiments?.reorderRegistration;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
@@ -389,10 +388,9 @@ function AuthOptionsInner({
     onPasswordLogin(params);
   };
 
-  const RegistrationFormComponent =
-    isReorderExperiment && isOnboardingPage
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
+  const RegistrationFormComponent = isReorderExperiment
+    ? OnboardingRegistrationFormExperiment
+    : OnboardingRegistrationForm;
 
   return (
     <div
