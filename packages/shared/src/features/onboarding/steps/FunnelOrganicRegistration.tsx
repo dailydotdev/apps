@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
+import { useSetAtom } from 'jotai/react';
 import type { FunnelStepOrganicRegistration } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
@@ -17,6 +18,7 @@ import {
   wrapperMaxWidth,
 } from '../../../components/onboarding/common';
 import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
+import { authAtom } from '../store/onboarding.store';
 
 interface FunnelOrganicRegistrationProps extends FunnelStepOrganicRegistration {
   formRef: React.RefObject<HTMLFormElement>;
@@ -42,17 +44,27 @@ export const FunnelOrganicRegistration = ({
 }: FunnelOrganicRegistrationProps): ReactElement => {
   const { headline, explainer, image } = parameters;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const setAuth = useSetAtom(authAtom);
   const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
     AuthDisplay.OnboardingSignup,
   );
   const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
   const onAuthStateUpdate = useCallback(
-    ({ defaultDisplay }: Partial<AuthProps>) => {
+    ({ defaultDisplay, isLoginFlow }: Partial<AuthProps>) => {
       if (defaultDisplay) {
         setAuthDisplay(defaultDisplay);
       }
+
+      if (isLoginFlow) {
+        setAuth((prev) => ({
+          ...prev,
+          isLoginFlow: true,
+          isAuthenticating: true,
+          defaultDisplay: AuthDisplay.Default,
+        }));
+      }
     },
-    [setAuthDisplay],
+    [setAuthDisplay, setAuth],
   );
 
   return (

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -43,13 +43,18 @@ import {
   getCookiesAndHeadersFromRequest,
   setResponseHeaderFromBoot,
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
-import { Provider as JotaiProvider } from 'jotai/react';
+import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 import FunnelOrganicRegistration from '@dailydotdev/shared/src/features/onboarding/steps/FunnelOrganicRegistration';
 import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from '@dailydotdev/shared/src/lib/image';
+import type { FunnelStepOrganicRegistration } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
+import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import { OnboardingStep } from '@dailydotdev/shared/src/components/onboarding/common';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -109,39 +114,38 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   };
 };
 
-export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
+const getDefaultDisplay = ({
+  email,
+  isLogin,
+  shouldVerify,
+}: {
+  isLogin?: boolean;
+  shouldVerify?: boolean;
+  email?: string;
+}): AuthDisplay => {
+  if (email) {
+    return AuthDisplay.Registration;
+  }
+  if (shouldVerify) {
+    return AuthDisplay.EmailVerification;
+  }
+  if (isLogin) {
+    return AuthDisplay.Default;
+  }
+  return AuthDisplay.OnboardingSignup;
+};
+
+export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const { autoDismissNotifications } = useSettingsContext();
-  const isLogged = useRef(false);
   const { user, isAuthReady, anonymous, loginState } = useAuthContext();
   const { isActionsFetched } = useActions();
-  const shouldVerify = anonymous?.shouldVerify;
   const { growthbook } = useGrowthBookContext();
-  const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating:
-      !!storage.getItem(SIGNIN_METHOD_KEY) ||
-      shouldVerify ||
-      !!loginState?.formValues?.email ||
-      loginState?.isLogin,
-    isLoginFlow: loginState?.isLogin,
-    defaultDisplay: (() => {
-      if (loginState?.formValues?.email) {
-        return AuthDisplay.Registration;
-      }
-      if (shouldVerify) {
-        return AuthDisplay.EmailVerification;
-      }
-      if (loginState?.isLogin) {
-        return AuthDisplay.Default;
-      }
-      return AuthDisplay.OnboardingSignup;
-    })(),
-    email: loginState?.formValues?.email || anonymous?.email,
-  });
+
+  const [auth, setAuth] = useAtom(authAtom);
+
   const {
     isAuthenticating,
     isLoginFlow,
-    email,
     defaultDisplay,
     isLoading: isAuthLoading,
   } = auth;
@@ -150,33 +154,29 @@ export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const isOnboardingReady = isAuthReady && (isActionsFetched || !user);
-
-  const showOnboardingPage = !isAuthenticating && !shouldVerify;
   const showGenerigLoader =
     isAuthenticating && isAuthLoading && !isOnboardingReady;
 
-  useEffect(() => {
-    if (
-      !isPageReady ||
-      isLogged.current ||
-      !isOnboardingReady ||
-      !user?.infoConfirmed
-    ) {
-      return;
-    }
-
-    isLogged.current = true;
-
-    // if (isIntro) {
-    //   const params = new URLSearchParams(window.location.search);
-    //   const afterAuth = params.get(AFTER_AUTH_PARAM);
-    //   params.delete(AFTER_AUTH_PARAM);
-    //   router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
-    // }
-
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  useEffect(
+    () => {
+      const email = loginState?.formValues?.email || anonymous?.email;
+      const shouldVerify = anonymous?.shouldVerify;
+      const isLogin = loginState?.isLogin;
+      setAuth({
+        defaultDisplay: getDefaultDisplay({ email, isLogin, shouldVerify }),
+        email,
+        isAuthenticating:
+          !!storage.getItem(SIGNIN_METHOD_KEY) ||
+          shouldVerify ||
+          !!loginState?.formValues?.email ||
+          loginState?.isLogin,
+        isLoading: !isAuthReady,
+        isLoginFlow: loginState?.isLogin,
+      });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageReady, isOnboardingReady, user?.infoConfirmed, router]);
+    [],
+  );
 
   /*
    * Complete steps on transition
@@ -198,6 +198,9 @@ export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
 
   const authOptionProps: AuthOptionsProps = useMemo(() => {
     const onSuccessfulRegistration = () => {
+      // display funnel
+      setAuth((prev) => ({ ...prev, isAuthenticating: false }));
+
       // onTagsNext();
     };
 
@@ -214,7 +217,7 @@ export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
       formRef,
       defaultDisplay,
       forceDefaultDisplay: !isAuthenticating,
-      initialEmail: email,
+      initialEmail: auth.email,
       isLoginFlow,
       targetId,
       onSuccessfulRegistration,
@@ -226,66 +229,76 @@ export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
       },
     };
   }, [
+    auth.email,
     defaultDisplay,
-    email,
     isAuthenticating,
     isLoginFlow,
     isMobile,
+    loginState?.trigger,
+    setAuth,
     targetId,
-    loginState,
-    // onTagsNext,
   ]);
 
   if (!isPageReady) {
     return null;
   }
 
+  const step: FunnelStepOrganicRegistration = {
+    id: 'a',
+    onTransition: () => null,
+    transitions: [],
+    type: FunnelStepType.OrganicRegistration,
+    parameters: {
+      headline: 'Welcome to Daily.dev',
+      explainer: 'Get the latest news from the developer community',
+      image: {
+        src: cloudinaryOnboardingFullBackgroundMobile,
+        srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
+      },
+    },
+  };
+
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <JotaiProvider>
+    <>
+      {showGenerigLoader && <GenericLoader />}
+      {/* {(1 || isAuthenticating) && ( */}
+      {/*   */}
+      {/* )} */}
+      {!isAuthenticating && <HotJarTracking hotjarId="3871311" />}
+
+      {isAuthenticating ? (
         <div
           className={classNames(
             'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
           )}
         >
-          {showGenerigLoader && <GenericLoader />}
-          {/* {(1 || isAuthenticating) && ( */}
-          {/*  <OnboardingHeader */}
-          {/*    showOnboardingPage={showOnboardingPage} */}
-          {/*    setAuth={setAuth} */}
-          {/*    onClick={onClickCreateFeed} */}
-          {/*  /> */}
-          {/* )} */}
-          <div
-            className={classNames(
-              'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-              !isAuthenticating && 'mt-7.5 flex-1 content-center',
-            )}
-          >
-            {showOnboardingPage && <HotJarTracking hotjarId="3871311" />}
-
-            {isAuthenticating ? (
-              <AuthOptions {...authOptionProps} />
-            ) : (
-              <FunnelOrganicRegistration
-                id="a"
-                onTransition={() => null}
-                transitions={[]}
-                type={FunnelStepType.OrganicRegistration}
-                formRef={formRef}
-                parameters={{
-                  headline: 'Welcome to Daily.dev',
-                  explainer: 'Get the latest news from the developer community',
-                  image: {
-                    src: cloudinaryOnboardingFullBackgroundMobile,
-                    srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
-                  },
-                }}
-              />
-            )}
+          <OnboardingHeader
+            activeScreen={OnboardingStep.Intro}
+            onClick={() => router.push('/')}
+            showOnboardingPage={false}
+          />
+          <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+            {authOptionProps.defaultDisplay}
+            <AuthOptions {...authOptionProps} />
           </div>
         </div>
+      ) : (
+        <div className="flex min-h-dvh min-w-full flex-col">
+          <FunnelStepBackground step={step}>
+            <FunnelOrganicRegistration formRef={formRef} {...step} />
+          </FunnelStepBackground>
+        </div>
+      )}
+    </>
+  );
+}
 
+function Page({ dehydratedState }: PageProps) {
+  const { autoDismissNotifications } = useSettingsContext();
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <JotaiProvider>
+        <OnboardPage />
         <Toast autoDismissNotifications={autoDismissNotifications} />
       </JotaiProvider>
     </HydrationBoundary>
@@ -294,4 +307,4 @@ export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
 
 OnboardPage.layoutProps = { seo };
 
-export default withFeaturesBoundary(OnboardPage);
+export default withFeaturesBoundary(Page);
