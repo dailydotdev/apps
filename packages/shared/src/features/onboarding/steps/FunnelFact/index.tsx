@@ -4,7 +4,9 @@ import { FunnelFactCentered } from './FunnelFactCentered';
 import { FunnelFactDefault } from './FunnelFactDefault';
 
 export const FunnelFact = (props: FunnelStepFact) => {
-  switch (props.parameters.layout) {
+  const { parameters } = props;
+
+  switch (parameters.layout) {
     case 'centered':
       return <FunnelFactCentered {...props} />;
     default:
