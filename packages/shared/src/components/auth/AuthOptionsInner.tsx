@@ -117,7 +117,6 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
-  experiments,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -129,8 +128,8 @@ function AuthOptionsInner({
   );
   const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
-  const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
-  const isReorderExperiment = !!experiments?.reorderRegistration;
+  const isOnboardingPage =
+    !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
@@ -388,7 +387,7 @@ function AuthOptionsInner({
     onPasswordLogin(params);
   };
 
-  const RegistrationFormComponent = isReorderExperiment
+  const RegistrationFormComponent = isOnboardingPage
     ? OnboardingRegistrationFormExperiment
     : OnboardingRegistrationForm;
 

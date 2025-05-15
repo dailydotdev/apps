@@ -17,6 +17,8 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from '@dailydotdev/shared/src/lib/image';
+import { useRouter } from '../../../mock/next-router';
+import { fn } from '@storybook/test';
 
 
 const meta: Meta<typeof FunnelOrganicRegistration> = {
@@ -41,6 +43,14 @@ const meta: Meta<typeof FunnelOrganicRegistration> = {
       </ExtensionProviders>
     );
   },
+  beforeEach: () => {
+    useRouter.mockImplementation(() => ({
+      replace: fn(),
+      push: fn(),
+      pathname: '/onboarding',
+      query: {},
+    }));
+  },
 };
 
 export default meta;
@@ -59,26 +69,11 @@ const defaultArgs: FunnelStepOrganicRegistration = {
       src: cloudinaryOnboardingFullBackgroundMobile,
       srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
     },
-    experiments: {
-      reorderRegistration: false,
-    },
   },
 };
 
 export const Default: Story = {
   args: defaultArgs,
-};
-
-export const WithReorderExperiment: Story = {
-  args: {
-    ...defaultArgs,
-    parameters: {
-      ...defaultArgs.parameters,
-      experiments: {
-        reorderRegistration: true,
-      },
-    },
-  },
 };
 
 export const CustomContent: Story = {
@@ -90,9 +85,6 @@ export const CustomContent: Story = {
       image: {
         src: 'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration.jpg',
         srcSet: 'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration.jpg 1x, https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration@2x.jpg 2x',
-      },
-      experiments: {
-        reorderRegistration: false,
       },
     },
   },

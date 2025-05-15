@@ -8,7 +8,6 @@ import {
   cloudinaryFeedBgTablet,
 } from '../../lib/image';
 import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
-import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import {
   OnboardingStep,
@@ -23,10 +22,7 @@ import {
 import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingReorder } from '../../lib/featureManagement';
 import type { AuthProps } from '../auth/common';
-import { AuthDisplay } from '../auth/common';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
@@ -44,7 +40,6 @@ export const OnboardingHeader = ({
   customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const id = useId();
@@ -173,32 +168,6 @@ export const OnboardingHeader = ({
         position={LogoPosition.Relative}
         linkDisabled
       />
-      {!isReorderExperiment && (
-        <span className={classNames('flex items-center', 'text-text-tertiary')}>
-          <span
-            className="hidden tablet:block"
-            id={`login-label-${id}`}
-            aria-hidden
-          >
-            Already using daily.dev?
-          </span>
-          <Button
-            aria-label="Already using daily.dev? Login now"
-            className="ml-3"
-            onClick={(e) => {
-              e.preventDefault();
-              setAuth({
-                isAuthenticating: true,
-                isLoginFlow: true,
-                defaultDisplay: AuthDisplay.Default,
-              });
-            }}
-            variant={ButtonVariant.Secondary}
-          >
-            Log in
-          </Button>
-        </span>
-      )}
     </header>
   );
 };

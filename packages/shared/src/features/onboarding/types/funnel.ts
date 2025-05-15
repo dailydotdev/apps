@@ -9,6 +9,7 @@ import type {
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
+import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -299,7 +300,9 @@ export interface FunnelStepOrganicRegistration
     }>;
   }> {
   type: FunnelStepType.OrganicRegistration;
-  onTransition: FunnelStepTransitionCallback;
+  onTransition: FunnelStepTransitionCallback<{
+    user: LoggedUser | AnonymousUser;
+  }>;
 }
 
 export type FunnelStep =

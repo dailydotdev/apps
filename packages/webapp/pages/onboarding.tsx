@@ -31,8 +31,8 @@ import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
 import {
-  HydrationBoundary,
   dehydrate,
+  HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
@@ -44,6 +44,12 @@ import {
   setResponseHeaderFromBoot,
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { Provider as JotaiProvider } from 'jotai/react';
+import FunnelOrganicRegistration from '@dailydotdev/shared/src/features/onboarding/steps/FunnelOrganicRegistration';
+import {
+  cloudinaryOnboardingFullBackgroundDesktop,
+  cloudinaryOnboardingFullBackgroundMobile,
+} from '@dailydotdev/shared/src/lib/image';
+import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -257,18 +263,25 @@ export function OnboardPage({ dehydratedState }: PageProps): ReactElement {
             )}
           >
             {showOnboardingPage && <HotJarTracking hotjarId="3871311" />}
-            {showOnboardingPage && (
-              <>
-                <div>Organic signup component &&</div>
-                <AuthOptions {...authOptionProps} />
-              </>
-            )}
+
             {isAuthenticating ? (
-              <>
-                <AuthOptions {...authOptionProps} />
-              </>
+              <AuthOptions {...authOptionProps} />
             ) : (
-              'Funnel stepper'
+              <FunnelOrganicRegistration
+                id="a"
+                onTransition={() => null}
+                transitions={[]}
+                type={FunnelStepType.OrganicRegistration}
+                formRef={formRef}
+                parameters={{
+                  headline: 'Welcome to Daily.dev',
+                  explainer: 'Get the latest news from the developer community',
+                  image: {
+                    src: cloudinaryOnboardingFullBackgroundMobile,
+                    srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
+                  },
+                }}
+              />
             )}
           </div>
         </div>
