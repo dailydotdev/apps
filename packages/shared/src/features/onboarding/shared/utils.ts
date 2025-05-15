@@ -11,8 +11,6 @@ export const sanitizeMessage = (
 
   const purify = createDOMPurify(window);
 
-  // Configure DOMPurify to only allow <b> and <strong> tags
-  // and <br> tags for line breaks
   return purify.sanitize(message, {
     ALLOWED_TAGS: allowedTags,
     ALLOWED_ATTR: [],
