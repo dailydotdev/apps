@@ -1,8 +1,5 @@
 import createDOMPurify from 'dompurify';
 
-/**
- * Sanitizes HTML string and allows only bold tags
- */
 export const sanitizeMessage = (
   message: string,
   allowedTags = ['b', 'strong', 'br'],
