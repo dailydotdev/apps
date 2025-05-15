@@ -109,6 +109,10 @@ export const usePaddlePayment = ({
               }),
             });
 
+            if (router.pathname.includes('/helloworld')) {
+              localStorage.setItem('funnelSubscribed', 'true');
+            }
+
             if (successCallbackRef.current) {
               successCallbackRef.current(event);
             } else {

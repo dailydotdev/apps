@@ -37,6 +37,7 @@ import {
 import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
+import Alert, { AlertType } from '../../../components/widgets/Alert';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -160,6 +161,8 @@ function InnerFunnelRegistration({
     keepSession: true,
   });
 
+  const didSubscribe = localStorage?.getItem('funnelSubscribed');
+
   const onRegister = (provider: SocialProvider) => {
     if (!isNativeAuthSupported(provider) && !shouldRedirect) {
       windowPopup.current = window.open();
@@ -209,6 +212,12 @@ function InnerFunnelRegistration({
           dangerouslySetInnerHTML={{ __html: sanitizedHeading }}
           data-testid="registgration-heading"
         />
+        {didSubscribe && (
+          <Alert
+            type={AlertType.Info}
+            title="Please sign up with the same email address you used to purchase your daily.dev Plus subscription."
+          />
+        )}
         <SocialRegistration onClick={onRegister} />
       </div>
     </div>
