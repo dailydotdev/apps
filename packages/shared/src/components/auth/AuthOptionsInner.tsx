@@ -128,7 +128,7 @@ function AuthOptionsInner({
   );
   const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
-  const isOnboardingPage =
+  const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
@@ -204,7 +204,7 @@ function AuthOptionsInner({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
-    keepSession: isFunnel,
+    keepSession: isOnboardingOrFunnel,
   });
 
   const {
@@ -387,7 +387,7 @@ function AuthOptionsInner({
     onPasswordLogin(params);
   };
 
-  const RegistrationFormComponent = isOnboardingPage
+  const RegistrationFormComponent = isOnboardingOrFunnel
     ? OnboardingRegistrationFormExperiment
     : OnboardingRegistrationForm;
 

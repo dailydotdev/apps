@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
-import { selectedPlanAtom, applyDiscountAtom } from '../store/funnelStore';
+import { selectedPlanAtom, applyDiscountAtom } from '../store/funnel.store';
 import { LogEvent } from '../../../lib/log';
 import { usePaymentContext } from '../../../contexts/payment/context';
 
