@@ -38,6 +38,7 @@ import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import Alert, { AlertType } from '../../../components/widgets/Alert';
+import { FUNNEL_SUBSCRIPTION } from '../../../hooks/usePaddlePayment';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -161,7 +162,7 @@ function InnerFunnelRegistration({
     keepSession: true,
   });
 
-  const didSubscribe = localStorage?.getItem('funnelSubscribed');
+  const didSubscribe = localStorage?.getItem(FUNNEL_SUBSCRIPTION);
 
   const onRegister = (provider: SocialProvider) => {
     if (!isNativeAuthSupported(provider) && !shouldRedirect) {

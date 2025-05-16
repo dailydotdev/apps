@@ -19,6 +19,8 @@ import type {
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
 
+export const FUNNEL_SUBSCRIPTION = 'FUNNEL_SUBSCRIPTION';
+
 interface UsePaddlePaymentProps
   extends Pick<
     PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
@@ -111,7 +113,7 @@ export const usePaddlePayment = ({
 
             if (router.pathname.includes('/helloworld')) {
               localStorage.setItem(
-                'funnelSubscribed',
+                FUNNEL_SUBSCRIPTION,
                 event?.data.customer.email,
               );
             }
