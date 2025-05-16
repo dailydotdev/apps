@@ -41,7 +41,7 @@ import {
 import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '../ProfileMenu/ProfileSection';
 import { LogoutReason } from '../../lib/user';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { logout, useAuthContext } from '../../contexts/AuthContext';
 import type { WithClassNameProps } from '../utilities';
 import { HorizontalSeparator } from '../utilities';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
@@ -49,6 +49,7 @@ import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 
 type MenuItems = Record<
   string,
@@ -202,6 +203,16 @@ export const accountPageItems = defineMenuItems({
       },
     },
   },
+  logout: {
+    title: null,
+    items: {
+      logout: {
+        title: 'Log out',
+        icon: ExitIcon,
+        onClick: () => logout(LogoutReason.ManualLogout),
+      },
+    },
+  },
 });
 
 export type AccountPageItemsType = typeof accountPageItems;
@@ -214,48 +225,42 @@ interface ProfileSettingsMenuProps {
 
 export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
   const { asPath } = useRouter();
-  const { logout } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const hasAccessToCores = useHasAccessToCores();
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
-      {Object.entries(accountPageItems).map(([key, menuItem]) => (
-        <ProfileSection
-          key={key}
-          withSeparator
-          title={menuItem.title}
-          items={Object.entries(menuItem.items).map(
-            ([, item]: [string, ProfileSectionItemProps]) => {
-              return {
-                ...item,
-                isActive: asPath === item.href,
-                ...(isMobile && {
-                  typography: {
-                    type: TypographyType.Body,
-                    color: TypographyColor.Primary,
-                  },
-                }),
-              };
-            },
-          )}
-        />
-      ))}
+      {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
+        const lastItem = index === arr.length - 1;
 
-      <ProfileSection
-        items={[
-          {
-            title: 'Log out',
-            icon: ExitIcon,
-            onClick: () => logout(LogoutReason.ManualLogout),
-            ...(isMobile && {
-              typography: {
-                type: TypographyType.Body,
-                color: TypographyColor.Primary,
-              },
-            }),
-          },
-        ]}
-      />
+        return (
+          <ProfileSection
+            key={key}
+            withSeparator={!lastItem}
+            title={menuItem.title}
+            items={Object.entries(menuItem.items)
+              .filter(([, item]) => {
+                if (item.href === walletUrl && !hasAccessToCores) {
+                  return false;
+                }
+
+                return true;
+              })
+              .map(([, item]: [string, ProfileSectionItemProps]) => {
+                return {
+                  ...item,
+                  isActive: asPath === item.href,
+                  ...(isMobile && {
+                    typography: {
+                      type: TypographyType.Body,
+                      color: TypographyColor.Primary,
+                    },
+                  }),
+                };
+              })}
+          />
+        );
+      })}
     </nav>
   );
 };

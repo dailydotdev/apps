@@ -6,11 +6,11 @@ import { Image } from '../../image/Image';
 import { coreImage, disabledCoreImage } from '../../../lib/image';
 
 const IconPrimary: IconItemType = (props) => {
-  return <Image {...props} src={coreImage} alt="Core" />;
+  return <Image {...props} src={coreImage} alt="Core" fallbackSrc="" />;
 };
 
 const IconSecondary: IconItemType = (props) => {
-  return <Image {...props} src={disabledCoreImage} alt="Core" />;
+  return <Image {...props} src={disabledCoreImage} alt="Core" fallbackSrc="" />;
 };
 
 export const CoreIcon = (props: IconProps): ReactElement => (

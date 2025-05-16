@@ -472,3 +472,9 @@ export const TRANSACTION_FRAGMENT = gql`
   ${PRODUCT_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export const TRANSACTION_PUBLIC_FRAGMENT = gql`
+  fragment TransactionPublicFragment on UserTransactionPublic {
+    value
+  }
+`;

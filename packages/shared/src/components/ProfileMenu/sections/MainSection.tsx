@@ -3,10 +3,12 @@ import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
 import { CoinIcon, DevCardIcon, UserIcon } from '../../icons';
-import { walletUrl, webappUrl } from '../../../lib/constants';
+import { settingsUrl, walletUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 
 export const MainSection = (): ReactElement => {
+  const hasAccessToCores = useHasAccessToCores();
   const { user } = useAuthContext();
 
   return (
@@ -17,13 +19,17 @@ export const MainSection = (): ReactElement => {
           href: `${webappUrl}${user.username}`,
           icon: UserIcon,
         },
-        { title: 'Core wallet', href: walletUrl, icon: CoinIcon },
+        hasAccessToCores && {
+          title: 'Core wallet',
+          href: walletUrl,
+          icon: CoinIcon,
+        },
         {
           title: 'DevCard',
-          href: `${webappUrl}account/customization/devcard`,
+          href: `${settingsUrl}/customization/devcard`,
           icon: DevCardIcon,
         },
-      ]}
+      ].filter(Boolean)}
     />
   );
 };

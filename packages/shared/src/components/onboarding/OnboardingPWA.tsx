@@ -10,7 +10,13 @@ import {
 import { Typography } from '../typography/Typography';
 import { checkIsChromeOnly } from '../../lib/func';
 
-export const OnboardingPWA = (): ReactElement => {
+interface OnboardingPWAProps {
+  headline?: string;
+}
+
+export const OnboardingPWA = ({
+  headline,
+}: OnboardingPWAProps): ReactElement => {
   const isChrome = checkIsChromeOnly();
   return (
     <>
@@ -28,7 +34,7 @@ export const OnboardingPWA = (): ReactElement => {
       />
       <div className="z-1 flex flex-col gap-4">
         <OnboardingTitle className="!px-0">
-          Add daily.dev to Home Screen
+          {headline || 'Add daily.dev to Home Screen'}
         </OnboardingTitle>
         <Typography className="text-center text-text-tertiary typo-body">
           Tap “Add to Home Screen” below to get daily.dev at your fingertips,

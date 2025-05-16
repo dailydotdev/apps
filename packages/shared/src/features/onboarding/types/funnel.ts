@@ -23,6 +23,10 @@ export enum FunnelStepType {
   AppPromotion = 'appPromotion',
   SocialProof = 'socialProof',
   Loading = 'loading',
+  ProfileForm = 'profileForm',
+  EditTags = 'editTags',
+  ContentTypes = 'contentTypes',
+  InstallPwa = 'installPwa',
 }
 
 export enum FunnelBackgroundVariant {
@@ -104,6 +108,7 @@ export interface FunnelStepFactParameters {
   explainer: string;
   align: StepHeadlineAlign;
   visualUrl?: string;
+  layout?: 'default' | 'reversed' | 'centered';
 }
 
 export interface FunnelStepFact
@@ -215,7 +220,8 @@ export interface FunnelStepTagSelection extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepReadingReminder extends FunnelStepCommon {
+export interface FunnelStepReadingReminder
+  extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.ReadingReminder;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -249,6 +255,37 @@ export interface FunnelStepPaymentSuccessful
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
+export interface FunnelStepProfileForm
+  extends FunnelStepCommon<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }> {
+  type: FunnelStepType.ProfileForm;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepEditTags
+  extends FunnelStepCommon<{
+    headline: string;
+    minimumRequirement: number;
+  }> {
+  type: FunnelStepType.EditTags;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepContentTypes
+  extends FunnelStepCommon<{ headline: string }> {
+  type: FunnelStepType.ContentTypes;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepInstallPwa
+  extends FunnelStepCommon<{ headline: string }> {
+  type: FunnelStepType.InstallPwa;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -260,7 +297,11 @@ export type FunnelStep =
   | FunnelStepReadingReminder
   | FunnelStepAppPromotion
   | FunnelStepSocialProof
-  | FunnelStepLoading;
+  | FunnelStepLoading
+  | FunnelStepProfileForm
+  | FunnelStepEditTags
+  | FunnelStepContentTypes
+  | FunnelStepInstallPwa;
 
 export type FunnelPosition = {
   chapter: number;
@@ -283,6 +324,7 @@ export interface FunnelJSON {
   parameters: Partial<FunnelParameters>;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
+  redirectOnFinish?: string;
 }
 
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];

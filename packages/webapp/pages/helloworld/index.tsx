@@ -35,7 +35,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id, version } = query;
+  const { id, v: version } = query;
   const allCookies = req.headers.cookie || '';
 
   // Extract forwarded headers
@@ -111,8 +111,8 @@ export default function HelloWorldPage({
   }, [setTheme, funnel?.parameters?.theme?.mode, themeMode, isAuthReady]);
 
   const onComplete = useCallback(() => {
-    router.replace('/onboarding');
-  }, [router]);
+    router.replace(funnel?.redirectOnFinish || '/onboarding');
+  }, [router, funnel?.redirectOnFinish]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');

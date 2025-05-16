@@ -63,6 +63,7 @@ import {
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
 import { Image } from '../image/Image';
+import { truncateTextClassNames } from '../utilities';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -376,11 +377,23 @@ export default function CommentActionButtons({
           }}
           pressed={!!comment.userState?.awarded}
           post={post}
-          className={!comment.numAwards ? 'mr-3' : undefined}
+          className={!comment.numAwards ? 'mr-3' : 'mr-1'}
         />
       )}
       {hasAccessToCores && !!comment.numAwards && (
-        <>
+        <ClickableText
+          onClick={() => {
+            openModal({
+              type: LazyModal.ListAwards,
+              props: {
+                queryProps: {
+                  id: comment.id,
+                  type: 'COMMENT',
+                },
+              },
+            });
+          }}
+        >
           {!!comment.featuredAward?.award && (
             <Image
               src={comment.featuredAward.award.image}
@@ -389,15 +402,18 @@ export default function CommentActionButtons({
             />
           )}
           <Typography
-            className="ml-1 mr-3"
+            className="ml-1 mr-3 flex items-center gap-1"
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
             bold
           >
-            {largeNumberFormat(comment.numAwards)} Award
-            {comment.numAwards > 1 ? 's' : ''}
+            {largeNumberFormat(comment.numAwards)}
+            <span className="hidden tablet:block">
+              Award
+              {comment.numAwards > 1 ? 's' : ''}
+            </span>
           </Typography>
-        </>
+        </ClickableText>
       )}
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
@@ -415,7 +431,7 @@ export default function CommentActionButtons({
       {voteState.numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted" appendTo={appendTo}>
           <ClickableText
-            className="ml-auto"
+            className={classNames('ml-auto !block', truncateTextClassNames)}
             onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
           >
             {largeNumberFormat(voteState.numUpvotes)} upvote

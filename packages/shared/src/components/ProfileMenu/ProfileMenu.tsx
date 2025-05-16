@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ExitIcon } from '../icons';
 import InteractivePopup, {
@@ -35,7 +36,16 @@ interface ProfileMenuProps {
 export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
+  const { events } = useRouter();
   const { user, logout } = useAuthContext();
+
+  useEffect(() => {
+    events.on('routeChangeStart', onClose);
+
+    return () => {
+      events.off('routeChangeStart', onClose);
+    };
+  }, [events, onClose]);
 
   if (!user) {
     return null;

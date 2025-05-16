@@ -24,8 +24,13 @@ import {
   FunnelSocialProof,
   FunnelPricing,
   FunnelPaymentSuccessful,
+  FunnelProfileForm,
+  FunnelEditTags,
+  FunnelContentTypes,
+  FunnelReadingReminder,
+  FunnelInstallPwa,
 } from '../steps';
-import FunnelFact from '../steps/FunnelFact';
+import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
@@ -56,6 +61,11 @@ const stepComponentMap = {
   [FunnelStepType.Pricing]: FunnelPricing,
   [FunnelStepType.Signup]: FunnelRegistration,
   [FunnelStepType.PaymentSuccessful]: FunnelPaymentSuccessful,
+  [FunnelStepType.ProfileForm]: FunnelProfileForm,
+  [FunnelStepType.EditTags]: FunnelEditTags,
+  [FunnelStepType.ContentTypes]: FunnelContentTypes,
+  [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
+  [FunnelStepType.InstallPwa]: FunnelInstallPwa,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
