@@ -13,10 +13,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import type { AuthProps } from '../../../components/auth/common';
 import { AuthDisplay } from '../../../components/auth/common';
 import { ExperimentWinner } from '../../../lib/featureValues';
-import {
-  OnboardingStep,
-  wrapperMaxWidth,
-} from '../../../components/onboarding/common';
+import { wrapperMaxWidth } from '../../../components/onboarding/common';
 import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
 import { authAtom } from '../store/onboarding.store';
 
@@ -70,10 +67,7 @@ export const FunnelOrganicRegistration = ({
   return (
     <>
       <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
-        <OnboardingHeader
-          showOnboardingPage
-          activeScreen={OnboardingStep.Intro}
-        />
+        <OnboardingHeader isLanding />
         <div
           className={classNames(
             `flex w-full flex-1 flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,

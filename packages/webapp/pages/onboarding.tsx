@@ -48,7 +48,6 @@ import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/type
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
-import { OnboardingStep } from '@dailydotdev/shared/src/components/onboarding/common';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -259,11 +258,7 @@ function Onboarding(): ReactElement {
             'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
           )}
         >
-          <OnboardingHeader
-            activeScreen={OnboardingStep.Intro}
-            onClick={() => router.push('/')}
-            showOnboardingPage={false}
-          />
+          <OnboardingHeader />
           <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
             <AuthOptions {...authOptionProps} />
           </div>
