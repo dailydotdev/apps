@@ -7,7 +7,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { getBootMock } from '../../../mock/boot';
-import { useInitFunnelPaddle } from '@dailydotdev/shared/src/features/onboarding/hooks/useInitFunnelPaddle';
 import { set } from 'date-fns';
 import { useAtom } from 'jotai';
 import { selectedPlanAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
@@ -21,7 +20,6 @@ const queryClient = new QueryClient({
 });
 
 const withRequiredProviders = (Story: () => ReactElement): ReactElement => {
-  useInitFunnelPaddle();
   const [, setSelectedPlan] = useAtom(selectedPlanAtom);
   setSelectedPlan('pri_01jkzypjstw7k6w82375mafc89');
 

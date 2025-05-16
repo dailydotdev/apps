@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { Fragment, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
+import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
@@ -29,7 +30,7 @@ import {
   FunnelReadingReminder,
   FunnelInstallPwa,
 } from '../steps';
-import FunnelFact from '../steps/FunnelFact';
+import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
@@ -140,7 +141,11 @@ export const FunnelStepper = ({
 
       // not navigating to the last step
       if (!isLastStep) {
-        navigate({ to: targetStepId, type });
+        navigate({
+          to: targetStepId,
+          type,
+          details: details || {},
+        });
       } else {
         trackOnComplete();
         onComplete?.();
@@ -150,9 +155,12 @@ export const FunnelStepper = ({
   );
 
   const successCallback = useCallback(
-    () =>
+    (event?: PaddleEventData) =>
       onTransition({
         type: FunnelStepTransitionType.Complete,
+        details: {
+          subscribed: event?.data.customer.email,
+        },
       }),
     [onTransition],
   );

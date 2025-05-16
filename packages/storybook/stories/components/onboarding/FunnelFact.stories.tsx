@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import FunnelFact
+import { FunnelFact }
   from '@dailydotdev/shared/src/features/onboarding/steps/FunnelFact';
 import {
   FunnelStepType,
@@ -63,7 +63,29 @@ export const WithVisual: Story = {
   } as any,
 };
 
-export const ReverseLayout: Story = {
+export const ReversedLayout: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      visualUrl: image,
+      layout: 'reversed',
+    },
+  } as any,
+};
+
+export const CenteredLayout: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      visualUrl: image,
+      layout: 'centered',
+    },
+  } as any,
+};
+
+export const LegacyReverseLayout: Story = {
   args: {
     ...defaultArgs,
     parameters: {

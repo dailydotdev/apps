@@ -39,8 +39,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id, version } = query;
+  const { id, v: version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
+
 
   // Get the boot data
   const boot = await getFunnelBootData({
@@ -98,15 +99,15 @@ export default function HelloWorldPage({
   }, [setTheme, funnel?.parameters?.theme?.mode, themeMode, isAuthReady]);
 
   const onComplete = useCallback(() => {
-    router.replace('/onboarding');
-  }, [router]);
+    router.replace(funnel?.redirectOnFinish || '/onboarding');
+  }, [router, funnel?.redirectOnFinish]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
     return null;
   }
 
-  if (isAuthReady && user?.isPlus) {
+  if (isAuthReady && user?.isPlus && !router?.query?.subscribed) {
     router.replace('/');
     return null;
   }

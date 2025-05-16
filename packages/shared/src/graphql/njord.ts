@@ -8,6 +8,7 @@ import {
   FEATURED_AWARD_FRAGMENT,
   PRODUCT_FRAGMENT,
   TRANSACTION_FRAGMENT,
+  TRANSACTION_PUBLIC_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import type { Author } from './comments';
@@ -266,7 +267,7 @@ export const userProductSummaryQueryOptions = ({
 
       return result.userProductSummary;
     },
-    staleTIme: StaleTime.Default,
+    staleTime: StaleTime.Default,
   };
 };
 
@@ -313,6 +314,9 @@ export const LIST_POST_AWARDS_QUERY: AwardsQueryFunction = ({
           award {
             ...FeaturedAwardFragment
           }
+          awardTransaction {
+            ...TransactionPublicFragment
+          }
         }
       }
     }
@@ -320,6 +324,7 @@ export const LIST_POST_AWARDS_QUERY: AwardsQueryFunction = ({
   }
   ${USER_SHORT_INFO_FRAGMENT}
   ${FEATURED_AWARD_FRAGMENT}
+  ${TRANSACTION_PUBLIC_FRAGMENT}
 `;
 
 const TOTAL_COMMENT_AWARDS_QUERY_PART = gql`
@@ -345,6 +350,9 @@ export const LIST_COMMENT_AWARDS_QUERY: AwardsQueryFunction = ({
           award {
             ...FeaturedAwardFragment
           }
+          awardTransaction {
+            ...TransactionPublicFragment
+          }
         }
       }
     }
@@ -352,13 +360,17 @@ export const LIST_COMMENT_AWARDS_QUERY: AwardsQueryFunction = ({
   }
   ${USER_SHORT_INFO_FRAGMENT}
   ${FEATURED_AWARD_FRAGMENT}
+  ${TRANSACTION_PUBLIC_FRAGMENT}
 `;
 
 export const DEFAULT_AWARDS_LIMIT = 20;
 
+export type UserTransactionPublic = Pick<UserTransaction, 'value'>;
+
 export type AwardListItem = {
   user: Author;
   award: FeaturedAward;
+  awardTransaction?: UserTransactionPublic;
 };
 
 const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =

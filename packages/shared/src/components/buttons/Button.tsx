@@ -1,5 +1,3 @@
-'use client';
-
 import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef, useState } from 'react';
 import classNames from 'classnames';

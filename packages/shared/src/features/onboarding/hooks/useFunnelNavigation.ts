@@ -21,6 +21,7 @@ type StepMap = Record<FunnelStep['id'], { position: FunnelPosition }>;
 type NavigateFunction = (options: {
   to: FunnelStep['id'];
   type?: FunnelStepTransitionType;
+  details?: Record<string, unknown>;
 }) => void;
 
 interface HeaderNavigation {
@@ -109,7 +110,7 @@ export const useFunnelNavigation = ({
   );
 
   const navigate: NavigateFunction = useCallback(
-    ({ to, type = FunnelStepTransitionType.Complete }) => {
+    ({ to, type = FunnelStepTransitionType.Complete, details }) => {
       if (!step) {
         return;
       }
@@ -130,8 +131,19 @@ export const useFunnelNavigation = ({
       // Reset the timer when the step changes
       setStepTimerStart(Date.now());
 
+      const updatedSearchParams = new URLSearchParams(searchParams.toString());
+
+      if (details?.subscribed) {
+        updatedSearchParams.set('subscribed', details?.subscribed as string);
+      }
+
       // update URL with new stepId
-      updateURLWithStepId({ router, pathname, searchParams, stepId: to });
+      updateURLWithStepId({
+        router,
+        pathname,
+        searchParams: updatedSearchParams,
+        stepId: to,
+      });
     },
     [
       onNavigation,
