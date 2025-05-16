@@ -348,6 +348,7 @@ export enum TargetId {
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
   General = 'general',
+  OrganizationsPage = 'organizations page',
   // Settings
   Cards = 'cards',
   List = 'list',
