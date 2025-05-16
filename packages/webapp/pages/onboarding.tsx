@@ -21,6 +21,8 @@ import type {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/common';
 import {
+  actionToAuthDisplay,
+  OnboardingActions,
   AFTER_AUTH_PARAM,
   AuthDisplay,
 } from '@dailydotdev/shared/src/components/auth/common';
@@ -114,11 +116,17 @@ const getDefaultDisplay = ({
   email,
   isLogin,
   shouldVerify,
+  action,
 }: {
   isLogin?: boolean;
   shouldVerify?: boolean;
   email?: string;
+  action?: OnboardingActions;
 }): AuthDisplay => {
+  if (!!action && actionToAuthDisplay[action]) {
+    return actionToAuthDisplay[action];
+  }
+
   if (email) {
     return AuthDisplay.Registration;
   }
@@ -131,10 +139,18 @@ const getDefaultDisplay = ({
   return AuthDisplay.OnboardingSignup;
 };
 
+const isValidAction = (
+  action?: string | string[],
+): action is OnboardingActions => {
+  return typeof action === 'string' && action in actionToAuthDisplay;
+};
+
 const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState } = useAuthContext();
+  const router = useRouter();
+  const action = isValidAction(router.query.action) && router.query.action;
 
   const [auth, setAuth] = useAtom(authAtom);
   const { isAuthenticating, isLoginFlow, defaultDisplay } = auth;
@@ -151,19 +167,25 @@ const useOnboardingAuth = () => {
       const shouldVerify = anonymous?.shouldVerify;
       const isLogin = loginState?.isLogin;
       updateAuth({
-        defaultDisplay: getDefaultDisplay({ email, isLogin, shouldVerify }),
+        defaultDisplay: getDefaultDisplay({
+          email,
+          isLogin,
+          shouldVerify,
+          action,
+        }),
         email,
         isAuthenticating:
+          !!action ||
           !!storage.getItem(SIGNIN_METHOD_KEY) ||
           shouldVerify ||
           !!loginState?.formValues?.email ||
           loginState?.isLogin,
         isLoading: !isAuthReady,
-        isLoginFlow: loginState?.isLogin,
+        isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [updateAuth],
+    [action, updateAuth],
   );
 
   const authOptionProps: AuthOptionsProps = useMemo(
@@ -179,7 +201,6 @@ const useOnboardingAuth = () => {
       trigger: loginState?.trigger || AuthTriggers.Onboarding,
       formRef,
       defaultDisplay,
-      forceDefaultDisplay: !isAuthenticating,
       initialEmail: auth.email,
       isLoginFlow,
       targetId: ExperimentWinner.OnboardingV4,
@@ -212,12 +233,14 @@ const useOnboardingAuth = () => {
     isAuthenticating,
     auth,
     updateAuth,
+    isAuthReady,
   };
 };
 
 function Onboarding(): ReactElement {
   const router = useRouter();
-  const { isAuthenticating, authOptionProps } = useOnboardingAuth();
+  const { isAuthenticating, isAuthReady, authOptionProps } =
+    useOnboardingAuth();
 
   /*
    * Complete steps on transition
@@ -235,7 +258,7 @@ function Onboarding(): ReactElement {
 
   const step: FunnelStepOrganicRegistration = {
     id: 'a',
-    onTransition: () => null,
+    onTransition: (data) => console.log('Transition data:', data),
     transitions: [],
     type: FunnelStepType.OrganicRegistration,
     parameters: {
@@ -248,6 +271,10 @@ function Onboarding(): ReactElement {
       },
     },
   };
+
+  if (!isAuthReady) {
+    return null;
+  }
 
   return (
     <>
