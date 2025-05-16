@@ -361,11 +361,12 @@ function AuthOptionsInner({
     await syncSettings();
   };
 
-  const onRegister = (params: RegistrationFormValues) => {
-    validateRegistration({
+  const onRegister = async (params: RegistrationFormValues) => {
+    await validateRegistration({
       ...params,
       method: 'password',
     });
+    await onProfileSuccess();
   };
 
   const onForgotPassword = (withEmail?: string) => {

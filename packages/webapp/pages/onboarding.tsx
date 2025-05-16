@@ -204,10 +204,10 @@ const useOnboardingAuth = () => {
       initialEmail: auth.email,
       isLoginFlow,
       targetId: ExperimentWinner.OnboardingV4,
-      onSuccessfulRegistration: () => {
+      onSuccessfulRegistration: (user) => {
         // display funnel
         updateAuth({ isAuthenticating: false });
-
+        console.log('User:', user);
         // onTagsNext();
       },
       onAuthStateUpdate: (props: AuthProps) =>
