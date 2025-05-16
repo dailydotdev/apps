@@ -17,7 +17,11 @@ export const OnboardingHeader = ({
   const returnToLanding = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      setAuth((prev) => ({ ...prev, isAuthenticating: false }));
+      setAuth((prev) => ({
+        ...prev,
+        isAuthenticating: false,
+        isLoginFlow: false,
+      }));
     },
     [setAuth],
   );

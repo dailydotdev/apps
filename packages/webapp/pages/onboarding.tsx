@@ -20,7 +20,10 @@ import type {
   AuthOptionsProps,
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/common';
-import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AFTER_AUTH_PARAM,
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
@@ -222,17 +225,13 @@ function Onboarding(): ReactElement {
    * OnboardingStep.EditTag -> completeStep(ActionType.EditTag)
    * OnboardingStep.ContentTypes -> completeStep(ActionType.ContentTypes)
    * */
-  //
-  // todo: add this as complete
-  // logEvent({
-  //   event_name: hasSelectTopics
-  //     ? LogEvent.CreateFeed
-  //     : LogEvent.OnboardingSkip,
-  // });
-  // const params = new URLSearchParams(window.location.search);
-  // const afterAuth = params.get(AFTER_AUTH_PARAM);
-  //
-  // return router.replace({ pathname: afterAuth || '/' });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onComplete = useCallback(async () => {
+    const params = new URLSearchParams(window.location.search);
+    const afterAuth = params.get(AFTER_AUTH_PARAM);
+    return router.replace({ pathname: afterAuth || '/' });
+  }, [router]);
 
   const step: FunnelStepOrganicRegistration = {
     id: 'a',
