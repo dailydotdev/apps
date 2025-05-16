@@ -91,6 +91,7 @@ export * from './MoveTo';
 export * from './NewSquad';
 export * from './NewTab';
 export * from './OpenLink';
+export * from './Organization';
 export * from './Pause';
 export * from './Phone';
 export * from './Pin';
