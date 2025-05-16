@@ -99,9 +99,10 @@ const useRegistrationListeners = (
       return displayToast(labels.auth.error.generic);
     }
 
+    const params = new URLSearchParams(window.location.search);
     const isPlus = (bootResponse?.data?.user as LoggedUser)?.isPlus;
 
-    if (isPlus) {
+    if (isPlus && !params.get('subscribed')) {
       displayToast('You are already a daily.dev Plus user');
       return router.push('/');
     }
