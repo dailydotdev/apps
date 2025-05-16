@@ -1,8 +1,17 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAtom } from 'jotai/react';
-import type { FunnelJSON, FunnelPosition, FunnelStep } from '../types/funnel';
-import { FunnelStepTransitionType } from '../types/funnel';
+import type {
+  FunnelJSON,
+  FunnelPosition,
+  FunnelStep,
+  FunnelStepTransition,
+} from '../types/funnel';
+import {
+  COMPLETED_STEP_ID,
+  FunnelStepTransitionType,
+  NEXT_STEP_ID,
+} from '../types/funnel';
 import type { TrackOnNavigate } from './useFunnelTracking';
 import {
   funnelPositionAtom,
@@ -29,6 +38,12 @@ interface HeaderNavigation {
   navigate: () => void;
 }
 
+interface SkipNavigation
+  extends Omit<HeaderNavigation, 'navigate'>,
+    Pick<FunnelStepTransition, 'placement'> {
+  destination?: FunnelStep['id'];
+}
+
 export interface UseFunnelNavigationReturn {
   chapters: Chapters;
   isReady: boolean;
@@ -36,7 +51,7 @@ export interface UseFunnelNavigationReturn {
   position: FunnelPosition;
   step: FunnelStep;
   back: HeaderNavigation;
-  skip: Omit<HeaderNavigation, 'navigate'>;
+  skip: SkipNavigation;
 }
 
 function getStepMap(funnel: FunnelJSON): StepMap {
@@ -171,17 +186,65 @@ export const useFunnelNavigation = ({
     };
   }, [isFirstStep, router]);
 
-  const skip: UseFunnelNavigationReturn['skip'] = useMemo(
-    () => ({
-      hasTarget:
-        !isFirstStep &&
-        !!step?.transitions?.some(
-          ({ on, destination }) =>
-            on === FunnelStepTransitionType.Skip && !!destination,
-        ),
-    }),
-    [isFirstStep, step?.transitions],
-  );
+  const skip: UseFunnelNavigationReturn['skip'] = useMemo(() => {
+    const transition = step?.transitions?.find(
+      ({ on }) => on === FunnelStepTransitionType.Skip,
+    );
+
+    if (!transition?.destination) {
+      return { hasTarget: false };
+    }
+
+    const isNextStep = transition.destination === NEXT_STEP_ID;
+    const isLastStep = transition.destination === COMPLETED_STEP_ID;
+
+    if (!isNextStep || isLastStep) {
+      return {
+        destination: transition.destination,
+        placement: transition.placement,
+        hasTarget: true,
+      };
+    }
+
+    const chapter = chapters[position.chapter];
+    const isLastItem = chapter?.steps === position.step + 1;
+
+    if (!isLastItem) {
+      const nextStep =
+        funnel.chapters[position.chapter].steps[position.step + 1];
+
+      return {
+        placement: transition.placement,
+        destination: nextStep.id,
+        hasTarget: true,
+      };
+    }
+
+    const isLastChapter = position.chapter === chapters.length - 1;
+
+    if (isLastChapter) {
+      return {
+        placement: transition.placement,
+        destination: COMPLETED_STEP_ID,
+        hasTarget: true,
+      };
+    }
+
+    const nextChapter = funnel.chapters[position.chapter + 1];
+    const nextStep = nextChapter.steps[0];
+
+    return {
+      placement: transition.placement,
+      destination: nextStep.id,
+      hasTarget: true,
+    };
+  }, [
+    step?.transitions,
+    chapters,
+    position.chapter,
+    position.step,
+    funnel.chapters,
+  ]);
 
   // On load: Update the initial position in state and URL
   useEffect(() => {

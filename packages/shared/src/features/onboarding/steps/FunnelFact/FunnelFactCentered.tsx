@@ -1,30 +1,47 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import Head from 'next/head';
 import { StepHeadline } from '../../shared';
 import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
-import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
+import { FunnelFactWrapper } from './FunnelFactWrapper';
+import { Button } from '../../../../components/buttons/Button';
+import {
+  ButtonVariant,
+  ButtonIconPosition,
+} from '../../../../components/buttons/common';
+import { MoveToIcon } from '../../../../components/icons';
+import { FunnelTargetId } from '../../types/funnelEvents';
 
-export const FunnelFactCentered = ({
-  parameters,
-  onTransition,
-}: FunnelStepFact): ReactElement => {
+export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
+  const { parameters, transitions, onTransition } = props;
+  const skip = useMemo(
+    () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
+    [transitions],
+  );
+
   return (
-    <FunnelStepCtaWrapper
-      containerClassName="flex max-h-screen"
-      cta={{ label: parameters?.cta ?? 'Next' }}
-      onClick={() =>
-        onTransition({
-          type: FunnelStepTransitionType.Complete,
-        })
-      }
-    >
+    <FunnelFactWrapper {...props}>
       <div
         data-testid="step-content"
         className="flex flex-1 flex-col items-center justify-center gap-6 p-6 laptop:mb-10"
       >
+        {skip?.placement === 'top' && (
+          <Button
+            className="w-fit"
+            data-funnel-track={FunnelTargetId.StepCta}
+            variant={ButtonVariant.Float}
+            type="button"
+            icon={<MoveToIcon />}
+            iconPosition={ButtonIconPosition.Right}
+            onClick={() =>
+              onTransition({ type: FunnelStepTransitionType.Skip })
+            }
+          >
+            {skip?.cta ?? 'Skip'}
+          </Button>
+        )}
         {parameters?.visualUrl && (
           <>
             <Head>
@@ -47,6 +64,6 @@ export const FunnelFactCentered = ({
           align={parameters?.align}
         />
       </div>
-    </FunnelStepCtaWrapper>
+    </FunnelFactWrapper>
   );
 };

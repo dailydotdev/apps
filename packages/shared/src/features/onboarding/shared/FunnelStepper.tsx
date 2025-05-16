@@ -8,13 +8,13 @@ import type {
   FunnelChapter,
   FunnelStep,
   FunnelStepTransitionCallback,
-  FunnelStepTransition,
 } from '../types/funnel';
 import {
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
   stepsWithHeader,
+  NEXT_STEP_ID,
 } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
@@ -79,15 +79,6 @@ function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   return <Component {...props} />;
 }
 
-function getTransitionDestination(
-  step: FunnelStep,
-  transitionType: FunnelStepTransitionType,
-): FunnelStepTransition['destination'] | undefined {
-  return step.transitions.find((transition) => {
-    return transition.on === transitionType;
-  })?.destination;
-}
-
 const HiddenStep = classed('div', 'hidden');
 
 export const FunnelStepper = ({
@@ -124,12 +115,15 @@ export const FunnelStepper = ({
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
-      const targetStepId = getTransitionDestination(step, type);
+      const transition = step.transitions.find((item) => item.on === type);
+      const destination = transition?.destination;
 
-      if (!targetStepId) {
+      if (!destination) {
         return;
       }
 
+      const targetStepId =
+        destination === NEXT_STEP_ID ? skip.destination : destination;
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
       sendTransition({
@@ -151,7 +145,15 @@ export const FunnelStepper = ({
         onComplete?.();
       }
     },
-    [step, sendTransition, navigate, onComplete, trackOnComplete],
+    [
+      step.transitions,
+      step.id,
+      skip.destination,
+      sendTransition,
+      navigate,
+      trackOnComplete,
+      onComplete,
+    ],
   );
 
   const successCallback = useCallback(
@@ -189,6 +191,9 @@ export const FunnelStepper = ({
     return null;
   }
 
+  const shouldShowHeaderSkip =
+    skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
+
   return (
     <section
       className="flex min-h-dvh flex-col"
@@ -217,8 +222,8 @@ export const FunnelStepper = ({
               onTransition({ type: FunnelStepTransitionType.Skip });
             }}
             showBackButton={back.hasTarget}
-            showSkipButton={skip.hasTarget}
-            showProgressBar={skip.hasTarget}
+            showSkipButton={shouldShowHeaderSkip}
+            showProgressBar={shouldShowHeaderSkip}
           />
           <PaymentContextProvider
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
