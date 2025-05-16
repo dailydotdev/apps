@@ -1,54 +1,34 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
-import { useSetAtom } from 'jotai/react';
+import React, { Fragment } from 'react';
 import Logo, { LogoPosition } from '../Logo';
 import { wrapperMaxWidth } from './common';
-import { authAtom } from '../../features/onboarding/store/onboarding.store';
+import classed from '../../lib/classed';
 
 type OnboardingHeaderProps = {
   isLanding?: boolean;
 };
 
+const Header = classed(
+  'header',
+  `flew-row mt-6 flex h-full w-full justify-between px-6 tablet:mt-16 laptop:mt-20 ${wrapperMaxWidth}`,
+);
+
 export const OnboardingHeader = ({
   isLanding = false,
 }: OnboardingHeaderProps): ReactElement => {
-  const setAuth = useSetAtom(authAtom);
-  const returnToLanding = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      setAuth((prev) => ({
-        ...prev,
-        isAuthenticating: false,
-        isLoginFlow: false,
-      }));
-    },
-    [setAuth],
-  );
-
-  if (!isLanding) {
-    return (
-      <Logo
-        className="w-auto px-10 py-8 laptop:w-full"
-        onLogoClick={returnToLanding}
-        position={LogoPosition.Relative}
-      />
-    );
-  }
-
+  const Wrapper = isLanding ? Header : Fragment;
   return (
-    <header
-      className={classNames(
-        'flew-row mt-6 flex h-full w-full justify-between px-6 tablet:mt-16 laptop:mt-20',
-        wrapperMaxWidth,
-      )}
-    >
+    <Wrapper>
       <Logo
-        className="w-auto"
+        className={classNames(
+          'w-auto',
+          !isLanding && 'px-10 py-8 laptop:w-full',
+        )}
         linkDisabled
-        logoClassName={{ container: 'h-6 tablet:h-8' }}
+        logoClassName={isLanding ? { container: 'h-6 tablet:h-8' } : undefined}
         position={LogoPosition.Relative}
       />
-    </header>
+    </Wrapper>
   );
 };
