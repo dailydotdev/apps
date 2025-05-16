@@ -48,7 +48,7 @@ export const FunnelPaymentSuccessful = ({
         <div className="grid h-12 place-items-center bg-background-default">
           <Logo isPlus />
         </div>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center p-6">
           <ChecklistAIcon
             size={IconSize.XXXLarge}
             className="mb-4 text-action-plus-default"
