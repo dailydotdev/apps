@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 import type { MutableRefObject, ReactElement } from 'react';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
-import { useRouter } from 'next/router';
 import type {
   AuthTriggersType,
   RegistrationError,
@@ -23,7 +22,6 @@ import {
   ArrowIcon,
 } from '../icons';
 import type { CloseModalFunc } from '../modals/common';
-import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
@@ -36,8 +34,6 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingReorder } from '../../lib/featureManagement';
 import {
   Typography,
   TypographyTag,
@@ -68,7 +64,6 @@ export type RegistrationFormValues = Omit<
 
 const RegistrationForm = ({
   formRef,
-  onBack,
   onBackToIntro,
   onExistingEmailLoginClick,
   onSignup,
@@ -80,7 +75,6 @@ const RegistrationForm = ({
   targetId,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
-  const router = useRouter();
   const { logEvent } = useLogContext();
   const [turnstileError, setTurnstileError] = useState<boolean>(false);
   const [turnstileLoaded, setTurnstileLoaded] = useState<boolean>(false);
@@ -91,10 +85,6 @@ const RegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
-  const isOnboardingExperiment = !!(
-    router.pathname?.startsWith('/onboarding') && isReorderExperiment
-  );
 
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
@@ -141,7 +131,7 @@ const RegistrationForm = ({
   } = useCheckExistingEmail({
     onValidEmail: () => null,
     onAfterEmailCheck: (emailExists) => {
-      if (emailExists && isOnboardingExperiment) {
+      if (emailExists) {
         logRef.current({
           event_name: AuthEventNames.OpenLogin,
           extra: JSON.stringify({ trigger }),
@@ -154,7 +144,7 @@ const RegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isOnboardingExperiment && (isCheckPending || alreadyExists)) {
+    if (isCheckPending || alreadyExists) {
       return;
     }
 
@@ -237,11 +227,6 @@ const RegistrationForm = ({
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
-    if (!isOnboardingExperiment) {
-      onSubmit(e);
-      return;
-    }
-
     const emailCheck = await onEmailCheck(e);
     if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
       onSubmit(e);
@@ -253,40 +238,27 @@ const RegistrationForm = ({
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
 
-  const headingId = useId();
-
   return (
     <>
-      {!isOnboardingExperiment ? (
-        <AuthHeader
-          id={headingId}
-          simplified={simplified}
-          title="Sign up"
-          onBack={onBack}
+      <div className="flex gap-4">
+        <Button
+          className="border-border-subtlest-tertiary text-text-secondary"
+          icon={<ArrowIcon className="-rotate-90" />}
+          onClick={onBackToIntro}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Secondary}
         />
-      ) : (
-        <div className="flex gap-4">
-          <Button
-            className="border-border-subtlest-tertiary text-text-secondary"
-            icon={<ArrowIcon className="-rotate-90" />}
-            onClick={onBackToIntro}
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Secondary}
-          />
-          <Typography
-            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
-            tag={TypographyTag.H2}
-            type={TypographyType.Title1}
-          >
-            Join daily.dev
-          </Typography>
-        </div>
-      )}
+        <Typography
+          className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+          tag={TypographyTag.H2}
+          type={TypographyType.Title1}
+        >
+          Join daily.dev
+        </Typography>
+      </div>
       <AuthForm
-        aria-labelledby={!isOnboardingExperiment && headingId}
         className={classNames(
-          'w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
-          isOnboardingExperiment ? 'mt-10' : 'mt-6 px-6 tablet:px-[3.75rem]',
+          'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
         )}
         data-testid="registration_form"
         id="auth-form"
@@ -295,7 +267,7 @@ const RegistrationForm = ({
       >
         <TokenInput token={token} />
         <TextField
-          autoFocus={!!isOnboardingExperiment}
+          autoFocus
           autoComplete="email"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -305,7 +277,6 @@ const RegistrationForm = ({
           label="Email"
           type="email"
           value={email}
-          readOnly={!isOnboardingExperiment}
           rightIcon={
             <VIcon
               aria-hidden
@@ -314,7 +285,7 @@ const RegistrationForm = ({
             />
           }
         />
-        {isOnboardingExperiment && alreadyExists && (
+        {alreadyExists && (
           <Alert
             className="-mt-4 mb-3 min-w-full"
             type={AlertType.Error}
@@ -333,7 +304,6 @@ const RegistrationForm = ({
           </Alert>
         )}
         <TextField
-          autoFocus={!isOnboardingExperiment}
           autoComplete="name"
           saveHintSpace
           className={{ container: 'w-full' }}
@@ -455,7 +425,7 @@ const RegistrationForm = ({
             type="submit"
             variant={ButtonVariant.Primary}
           >
-            {!isOnboardingExperiment ? 'Sign up' : 'Create account'}
+            Sign up
           </Button>
         </ConditionalWrapper>
       </AuthForm>

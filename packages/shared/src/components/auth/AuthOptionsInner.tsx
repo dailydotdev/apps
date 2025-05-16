@@ -36,8 +36,6 @@ import { labels } from '../../lib';
 import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 
@@ -130,8 +128,8 @@ function AuthOptionsInner({
   );
   const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
-  const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isOnboardingOrFunnel =
+    !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
@@ -206,7 +204,7 @@ function AuthOptionsInner({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
-    keepSession: isFunnel,
+    keepSession: isOnboardingOrFunnel,
   });
 
   const {
@@ -363,11 +361,12 @@ function AuthOptionsInner({
     await syncSettings();
   };
 
-  const onRegister = (params: RegistrationFormValues) => {
-    validateRegistration({
+  const onRegister = async (params: RegistrationFormValues) => {
+    await validateRegistration({
       ...params,
       method: 'password',
     });
+    await onProfileSuccess();
   };
 
   const onForgotPassword = (withEmail?: string) => {
@@ -381,7 +380,13 @@ function AuthOptionsInner({
 
   const onForgotPasswordBack = () => {
     setIsForgotPasswordReturn(true);
-    onSetActiveDisplay(defaultDisplay);
+    const target = [
+      AuthDisplay.ForgotPassword,
+      AuthDisplay.CodeVerification,
+    ].includes(defaultDisplay)
+      ? AuthDisplay.Default
+      : defaultDisplay;
+    onSetActiveDisplay(target);
   };
 
   const onEmailLogin: typeof onPasswordLogin = (params) => {
@@ -389,10 +394,9 @@ function AuthOptionsInner({
     onPasswordLogin(params);
   };
 
-  const RegistrationFormComponent =
-    isReorderExperiment && isOnboardingPage
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
+  const RegistrationFormComponent = isOnboardingOrFunnel
+    ? OnboardingRegistrationFormExperiment
+    : OnboardingRegistrationForm;
 
   return (
     <div
