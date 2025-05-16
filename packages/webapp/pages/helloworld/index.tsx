@@ -42,7 +42,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const { id, v: version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
-
   // Get the boot data
   const boot = await getFunnelBootData({
     app: BootApp.Webapp,
