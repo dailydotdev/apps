@@ -5,6 +5,7 @@ import { webappUrl } from '../../lib/constants';
 import { SourcePermissions } from '../../graphql/sources';
 import { verifyPermission } from '../../graphql/squads';
 import { useSquad } from '../../hooks';
+import { useSquadPendingPosts } from '../../hooks/squads/useSquadPendingPosts';
 
 export enum SquadTab {
   Settings = 'Settings',
@@ -20,10 +21,13 @@ export function SquadTabs({ active, handle }: SquadTabsProps): ReactElement {
   const { squad } = useSquad({
     handle,
   });
+  const { count } = useSquadPendingPosts({
+    squadId: squad?.id,
+  });
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
   const squadLink = `${webappUrl}squads/${handle}`;
-  const pendingTabLabel = squad?.moderationPostCount
-    ? `${SquadTab.PendingPosts} (${squad?.moderationPostCount})`
+  const pendingTabLabel = count
+    ? `${SquadTab.PendingPosts} (${count})`
     : SquadTab.PendingPosts;
 
   const links = [

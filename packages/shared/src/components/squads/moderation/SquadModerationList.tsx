@@ -20,9 +20,7 @@ export function SquadModerationList({
   squad,
   isModerator,
 }: SquadModerationListProps): ReactElement {
-  const moderate = useSourceModerationList({
-    squad,
-  });
+  const moderate = useSourceModerationList();
 
   const { data, isFetched, fetchNextPage, hasNextPage, isPending } =
     useSquadPendingPosts({

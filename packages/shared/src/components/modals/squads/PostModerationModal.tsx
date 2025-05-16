@@ -63,7 +63,7 @@ function PostModerationModal({
     post: sharedPost,
   });
   const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
-  const { onDelete } = useSourceModerationList({ squad });
+  const { onDelete } = useSourceModerationList();
   const onDeleteClick = (postId: string) =>
     onDelete(postId).then(() => modalProps.onRequestClose(null));
 
