@@ -134,7 +134,7 @@ export const FunnelStepper = ({
         navigate({
           to: targetStepId,
           type,
-          details,
+          details: details || {},
         });
       } else {
         trackOnComplete();
