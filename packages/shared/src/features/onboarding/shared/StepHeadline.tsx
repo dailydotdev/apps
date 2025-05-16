@@ -8,7 +8,7 @@ import {
   TypographyColor,
 } from '../../../components/typography/Typography';
 import type { TypographyProps } from '../../../components/typography/Typography';
-import { sanitizeMessage } from './utils';
+import { sanitizeMessage } from '../lib/utils';
 import type { WithClassNameProps } from '../../../components/utilities';
 
 export enum StepHeadlineAlign {
