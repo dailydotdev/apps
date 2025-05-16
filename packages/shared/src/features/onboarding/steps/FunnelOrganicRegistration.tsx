@@ -101,10 +101,11 @@ export const FunnelOrganicRegistration = ({
                 variant: ButtonVariant.Primary,
               }}
               onSuccessfulRegistration={(user) => {
-                onTransition({
+                onTransition?.({
                   type: FunnelStepTransitionType.Complete,
                   details: { user },
                 });
+                console.log('onSuccessfulRegistration', { user });
               }}
               onAuthStateUpdate={onAuthStateUpdate}
             />
