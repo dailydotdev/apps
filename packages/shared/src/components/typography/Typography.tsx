@@ -63,6 +63,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   type?: TypographyType;
   color?: TypographyColor;
   bold?: boolean;
+  center?: boolean;
   truncate?: boolean;
 } & JSX.IntrinsicElements[Tag];
 
@@ -76,6 +77,7 @@ function BaseTypography<TagName extends AllowedTags>(
     type,
     color,
     bold = false,
+    center = false,
     children,
     className,
     truncate = false,
@@ -86,7 +88,7 @@ function BaseTypography<TagName extends AllowedTags>(
   const classes = classNames(
     className,
     type,
-    { 'font-bold': bold },
+    { 'font-bold': bold, 'text-center': center },
     color ?? tagToColor[tag],
     truncate && truncateTextClassNames,
   );
