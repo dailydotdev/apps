@@ -119,7 +119,7 @@ export default function HelloWorldPage({
     return null;
   }
 
-  if (isAuthReady && user?.isPlus) {
+  if (isAuthReady && user?.isPlus && !router?.query?.subscribed) {
     router.replace('/');
     return null;
   }
