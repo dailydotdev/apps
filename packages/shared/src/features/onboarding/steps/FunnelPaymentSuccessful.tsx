@@ -59,12 +59,13 @@ export const FunnelPaymentSuccessful = ({
             color={TypographyColor.Primary}
             bold
             dangerouslySetInnerHTML={{ __html: headHtml }}
+            className="text-center"
           />
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
-            className="my-6"
+            className="my-6 text-center"
             dangerouslySetInnerHTML={{ __html: descHtml }}
           />
 
