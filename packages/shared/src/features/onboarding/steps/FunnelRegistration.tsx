@@ -38,7 +38,6 @@ import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import Alert, { AlertType } from '../../../components/widgets/Alert';
-import { FUNNEL_SUBSCRIPTION } from '../../../hooks/usePaddlePayment';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -162,7 +161,7 @@ function InnerFunnelRegistration({
     keepSession: true,
   });
 
-  const didSubscribe = localStorage?.getItem(FUNNEL_SUBSCRIPTION);
+  const subscriberEmail = router?.query?.subscribed;
 
   const onRegister = (provider: SocialProvider) => {
     if (!isNativeAuthSupported(provider) && !shouldRedirect) {
@@ -213,10 +212,10 @@ function InnerFunnelRegistration({
           dangerouslySetInnerHTML={{ __html: sanitizedHeading }}
           data-testid="registgration-heading"
         />
-        {didSubscribe && (
+        {subscriberEmail && (
           <Alert
             type={AlertType.Info}
-            title={`Please sign up using the email address ${didSubscribe} to claim your daily.dev Plus subscription.`}
+            title={`Please sign up using the email address ${subscriberEmail} to claim your daily.dev Plus subscription.`}
           />
         )}
         <SocialRegistration onClick={onRegister} />
