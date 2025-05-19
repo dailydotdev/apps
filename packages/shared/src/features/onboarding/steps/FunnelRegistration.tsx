@@ -37,6 +37,7 @@ import {
 import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
+import Alert, { AlertType } from '../../../components/widgets/Alert';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
@@ -98,9 +99,10 @@ const useRegistrationListeners = (
       return displayToast(labels.auth.error.generic);
     }
 
+    const params = new URLSearchParams(window.location.search);
     const isPlus = (bootResponse?.data?.user as LoggedUser)?.isPlus;
 
-    if (isPlus) {
+    if (isPlus && !params.get('subscribed')) {
       displayToast('You are already a daily.dev Plus user');
       return router.push('/');
     }
@@ -160,6 +162,8 @@ function InnerFunnelRegistration({
     keepSession: true,
   });
 
+  const subscriberEmail = router?.query?.subscribed;
+
   const onRegister = (provider: SocialProvider) => {
     if (!isNativeAuthSupported(provider) && !shouldRedirect) {
       windowPopup.current = window.open();
@@ -209,6 +213,12 @@ function InnerFunnelRegistration({
           dangerouslySetInnerHTML={{ __html: sanitizedHeading }}
           data-testid="registgration-heading"
         />
+        {subscriberEmail && (
+          <Alert
+            type={AlertType.Info}
+            title={`Please sign up using the email address ${subscriberEmail} to claim your daily.dev Plus subscription.`}
+          />
+        )}
         <SocialRegistration onClick={onRegister} />
       </div>
     </div>

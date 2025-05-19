@@ -52,7 +52,7 @@ export const OnboardingPlusControl = ({
   const item = useMemo(
     () =>
       productOptions?.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.EarlyAdopter,
+        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.Annual,
       ),
     [productOptions],
   );
