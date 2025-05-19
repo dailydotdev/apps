@@ -1,7 +1,7 @@
 import type { PropsWithChildren, ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { OpenCheckoutProps, PaymentContextData } from './context';
-import { PaymentContext } from './context';
+import { PaymentContext, useFunnelPaymentPricingContext } from './context';
 import { ProductPricingType } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useProductPricing } from '../../hooks/useProductPricing';
@@ -18,9 +18,12 @@ export const BasePaymentProvider = ({
   isPaddleReady,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
-  const { data, isPending: isPricesPending } = useProductPricing({
+  const { pricing: funnelPricing } = useFunnelPaymentPricingContext();
+  const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: ProductPricingType.Plus,
+    enabled: !funnelPricing,
   });
+  const data = funnelPricing ?? plusPricing;
 
   const giftOneYear = useMemo(
     () =>

@@ -43,6 +43,8 @@ import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
 import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
+import { useFunnelPricing } from '../hooks/useFunnelPricing';
+import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -97,6 +99,7 @@ export const FunnelStepper = ({
   showCookieBanner,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
+  const { data: pricing } = useFunnelPricing(funnel);
   const {
     trackOnClickCapture,
     trackOnHoverCapture,
@@ -220,34 +223,36 @@ export const FunnelStepper = ({
             showSkipButton={skip.hasTarget}
             showProgressBar={skip.hasTarget}
           />
-          <PaymentContextProvider
-            disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-            successCallback={successCallback}
-          >
-            {funnel.chapters.map((chapter: FunnelChapter) => (
-              <Fragment key={chapter?.id}>
-                {chapter?.steps?.map((funnelStep: FunnelStep) => {
-                  const isActive = funnelStep?.id === step?.id;
-                  const Wrapper = isActive ? Fragment : HiddenStep;
-                  return (
-                    <Wrapper
-                      key={`${chapter?.id}-${funnelStep?.id}`}
-                      {...(!isActive && {
-                        'data-testid': `funnel-step`,
-                      })}
-                    >
-                      <FunnelStepComponent
-                        {...funnelStep}
-                        isActive={isActive}
-                        key={step.id}
-                        onTransition={onTransition}
-                      />
-                    </Wrapper>
-                  );
-                })}
-              </Fragment>
-            ))}
-          </PaymentContextProvider>
+          <FunnelPaymentPricingContext.Provider value={{ pricing }}>
+            <PaymentContextProvider
+              disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
+              successCallback={successCallback}
+            >
+              {funnel.chapters.map((chapter: FunnelChapter) => (
+                <Fragment key={chapter?.id}>
+                  {chapter?.steps?.map((funnelStep: FunnelStep) => {
+                    const isActive = funnelStep?.id === step?.id;
+                    const Wrapper = isActive ? Fragment : HiddenStep;
+                    return (
+                      <Wrapper
+                        key={`${chapter?.id}-${funnelStep?.id}`}
+                        {...(!isActive && {
+                          'data-testid': `funnel-step`,
+                        })}
+                      >
+                        <FunnelStepComponent
+                          {...funnelStep}
+                          isActive={isActive}
+                          key={step.id}
+                          onTransition={onTransition}
+                        />
+                      </Wrapper>
+                    );
+                  })}
+                </Fragment>
+              ))}
+            </PaymentContextProvider>
+          </FunnelPaymentPricingContext.Provider>
         </div>
       </FunnelStepBackground>
     </section>
