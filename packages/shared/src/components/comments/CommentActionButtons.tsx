@@ -42,7 +42,9 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import type { VoteEntityPayload } from '../../hooks';
 import {
   usePlusSubscription,
+  useViewSize,
   useVoteComment,
+  ViewSize,
   voteMutationHandlers,
 } from '../../hooks';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -54,6 +56,7 @@ import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { truncateTextClassNames } from '../utilities';
 import { CommentAwardActions } from './CommentAwardActions';
+import { MenuIcon } from '../MenuIcon';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -83,6 +86,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const isMobileSmall = useViewSize(ViewSize.MobileXL);
   const { isLoggedIn, user, showLogin } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
@@ -184,6 +188,14 @@ export default function CommentActionButtons({
       label: 'Delete comment',
       action: () => onDelete(comment, parentId),
       icon: <TrashIcon />,
+    });
+  }
+
+  if (isMobileSmall) {
+    commentOptions.push({
+      icon: <MenuIcon Icon={ShareIcon} />,
+      label: 'Share via',
+      action: () => onShare(comment),
     });
   }
 
@@ -357,7 +369,7 @@ export default function CommentActionButtons({
           size={ButtonSize.Small}
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
-          className="mr-3"
+          className="mr-3 hidden mobileXL:flex"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />
