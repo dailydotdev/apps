@@ -14,6 +14,7 @@ const oneWeek = 7 * oneDay;
 const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const publishTimeRelative = (
   value: Date | number | string,
   now = new Date(),
@@ -54,6 +55,43 @@ const publishTimeRelative = (
 
   const numYears = Math.round(dt / oneYear);
   return `${numYears} ${numYears === 1 ? 'year' : 'years'} ago`;
+};
+
+const publishTimeRelativeShort = (
+  value: Date | number | string,
+  now = new Date(),
+): string => {
+  const date = new Date(value);
+
+  // Calculate time delta in seconds.
+  const dt = (now.getTime() - date.getTime()) / 1000;
+
+  if (dt <= oneMinute) {
+    return 'now';
+  }
+
+  if (dt <= oneHour) {
+    const numMinutes = Math.round(dt / oneMinute);
+    return `${numMinutes}m`;
+  }
+
+  if (dt <= oneDay) {
+    const numHours = Math.round(dt / oneHour);
+    return `${numHours}h`;
+  }
+
+  if (dt <= oneWeek) {
+    const numDays = Math.round(dt / oneDay);
+    return `${numDays}d`;
+  }
+
+  if (dt <= oneYear) {
+    const numMonths = Math.round(dt / oneMonth);
+    return `${numMonths}w`;
+  }
+
+  const numYears = Math.round(dt / oneYear);
+  return `${numYears}y`;
 };
 
 export enum TimeFormatType {
@@ -211,7 +249,7 @@ export const formatDate = ({ value, type }: FormatDateProps): string => {
   }
 
   if (type === TimeFormatType.Comment) {
-    return publishTimeRelative(date);
+    return publishTimeRelativeShort(date);
   }
 
   if (type === TimeFormatType.ReadHistory) {
