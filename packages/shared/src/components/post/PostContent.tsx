@@ -24,7 +24,6 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import { SharedByUserBanner } from '../SharedByUserBanner';
 import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import { PostTagList } from './tags/PostTagList';
 
@@ -147,7 +146,6 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <SharedByUserBanner />
           <div className="my-6">
             <h1
               className="break-words font-bold typo-large-title"
