@@ -41,6 +41,7 @@ import {
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
+import useSharedByToast from '../../../hooks/useSharedByToast';
 
 const Unauthorized = dynamic(
   () =>
@@ -124,6 +125,7 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
     featureTheme && 'bg-transparent',
   );
+  useSharedByToast();
 
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),

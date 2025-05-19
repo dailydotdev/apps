@@ -21,7 +21,6 @@ import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
-import { SharedByUserBanner } from '../../SharedByUserBanner';
 import { PostTagList } from '../tags/PostTagList';
 
 const CollectionPostContentRaw = ({
@@ -118,7 +117,6 @@ const CollectionPostContentRaw = ({
           origin={origin}
           post={post}
         >
-          <SharedByUserBanner className="mb-3" />
           <div
             className={classNames(
               'mb-6 flex flex-col gap-6',

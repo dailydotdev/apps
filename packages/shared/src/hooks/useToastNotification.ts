@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type AnyFunction = (() => Promise<unknown>) | (() => unknown);
 
 interface UseToastNotification {
-  displayToast: (message: string, params?: NotifyOptionalProps) => void;
+  displayToast: (message: ReactNode, params?: NotifyOptionalProps) => void;
   dismissToast: () => void;
   subject?: ToastSubject;
 }
@@ -15,7 +16,7 @@ export enum ToastSubject {
 }
 
 export interface ToastNotification {
-  message: string;
+  message: ReactNode;
   timer: number;
   subject?: ToastSubject;
   onUndo?: AnyFunction;
@@ -39,7 +40,7 @@ export const useToastNotification = (): UseToastNotification => {
     client.setQueryData(TOAST_NOTIF_KEY, data);
 
   const displayToast = (
-    message: string,
+    message: ReactNode,
     { timer = 5000, ...props }: NotifyOptionalProps = {},
   ) => setToastNotification({ message, timer, ...props });
 
