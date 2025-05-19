@@ -24,7 +24,7 @@ interface UsePaddlePaymentProps
     PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
     'successCallback' | 'disabledEvents'
   > {
-  targetType?: TargetType;
+  targetType: TargetType;
   getProductQuantity?: (event: PaddleEventData) => number;
 }
 
@@ -64,7 +64,8 @@ export const usePaddlePayment = ({
           return;
         }
 
-        const customData = event?.data?.custom_data as Record<string, unknown>;
+        const customData =
+          event?.data?.custom_data || ({} as Record<string, unknown>);
 
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
@@ -156,7 +157,13 @@ export const usePaddlePayment = ({
     ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {
       const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
       const customer: CheckoutCustomer = {
-        email: user?.email,
+        ...(user?.email
+          ? {
+              email: user?.email,
+            }
+          : {
+              id: 'anonymous',
+            }),
         ...(geo?.region && {
           address: { countryCode: geo?.region },
         }),

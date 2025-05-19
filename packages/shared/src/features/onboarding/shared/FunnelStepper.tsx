@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { Fragment, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
+import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
@@ -23,8 +24,13 @@ import {
   FunnelSocialProof,
   FunnelPricing,
   FunnelPaymentSuccessful,
+  FunnelProfileForm,
+  FunnelEditTags,
+  FunnelContentTypes,
+  FunnelReadingReminder,
+  FunnelInstallPwa,
 } from '../steps';
-import FunnelFact from '../steps/FunnelFact';
+import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
@@ -55,6 +61,11 @@ const stepComponentMap = {
   [FunnelStepType.Pricing]: FunnelPricing,
   [FunnelStepType.Signup]: FunnelRegistration,
   [FunnelStepType.PaymentSuccessful]: FunnelPaymentSuccessful,
+  [FunnelStepType.ProfileForm]: FunnelProfileForm,
+  [FunnelStepType.EditTags]: FunnelEditTags,
+  [FunnelStepType.ContentTypes]: FunnelContentTypes,
+  [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
+  [FunnelStepType.InstallPwa]: FunnelInstallPwa,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
@@ -130,7 +141,11 @@ export const FunnelStepper = ({
 
       // not navigating to the last step
       if (!isLastStep) {
-        navigate({ to: targetStepId, type });
+        navigate({
+          to: targetStepId,
+          type,
+          details: details || {},
+        });
       } else {
         trackOnComplete();
         onComplete?.();
@@ -140,9 +155,12 @@ export const FunnelStepper = ({
   );
 
   const successCallback = useCallback(
-    () =>
+    (event?: PaddleEventData) =>
       onTransition({
         type: FunnelStepTransitionType.Complete,
+        details: {
+          subscribed: event?.data.customer.email,
+        },
       }),
     [onTransition],
   );

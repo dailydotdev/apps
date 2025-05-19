@@ -12,9 +12,12 @@ import {
 } from '../../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
 import { SimpleTooltip } from '../../../tooltips/SimpleTooltip';
-import { useFeedPreviewMode } from '../../../../hooks';
+import {
+  useFeedPreviewMode,
+  usePostActions,
+  useBlockPostPanel,
+} from '../../../../hooks';
 import { combinedClicks } from '../../../../lib/click';
-import { useBlockPostPanel } from '../../../../hooks/post/useBlockPostPanel';
 import ConditionalWrapper from '../../../ConditionalWrapper';
 import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
 import { IconSize } from '../../../Icon';
@@ -22,7 +25,6 @@ import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
 import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
-import { usePostActions } from '../../../../hooks/post/usePostActions';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;

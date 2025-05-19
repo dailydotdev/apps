@@ -15,11 +15,11 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { AccountPageContainer } from '../../../components/layouts/AccountLayout/AccountPageContainer';
-import { getAccountLayout } from '../../../components/layouts/AccountLayout';
+import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { SettingsSwitch } from '../../../components/layouts/AccountLayout/common';
+import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/common';
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const { user } = useAuthContext();
@@ -107,7 +107,7 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Streaks'),
 };
 
-AccountManageSubscriptionPage.getLayout = getAccountLayout;
+AccountManageSubscriptionPage.getLayout = getSettingsLayout;
 AccountManageSubscriptionPage.layoutProps = { seo };
 
 export default AccountManageSubscriptionPage;

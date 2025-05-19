@@ -106,6 +106,18 @@ export function PostActions({
         exact: false,
       });
 
+      mutationQueryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Products, null, 'summary'),
+      });
+
+      mutationQueryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Awards, null, {
+          id: entityId,
+          type,
+        }),
+        exact: false,
+      });
+
       if (type === 'POST') {
         if (entityId !== post.id) {
           return;
@@ -122,6 +134,7 @@ export function PostActions({
           },
           numAwards: (post.numAwards || 0) + 1,
           featuredAward:
+            !post.featuredAward?.award?.value ||
             awardProduct?.value > post.featuredAward?.award?.value
               ? {
                   award: awardProduct,

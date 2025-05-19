@@ -16,11 +16,11 @@ import { Button } from '../buttons/Button';
 import { SettingsIcon } from '../icons';
 import { RootPortal } from '../tooltips/Portal';
 
-const ProfileSettingsMenu = dynamic(
+const ProfileSettingsMenuMobile = dynamic(
   () =>
     import(
-      /* webpackChunkName: "profileSettingsMenu" */ '../profile/ProfileSettingsMenu'
-    ),
+      /* webpackChunkName: "profileSettingsMenuMobile" */ '../profile/ProfileSettingsMenu'
+    ).then((mod) => mod.ProfileSettingsMenuMobile),
   { ssr: false },
 );
 
@@ -54,7 +54,7 @@ export function MobileFeedActions(): ReactElement {
               onClick={() => setIsMenuOpen(true)}
             />
             <RootPortal>
-              <ProfileSettingsMenu
+              <ProfileSettingsMenuMobile
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
               />

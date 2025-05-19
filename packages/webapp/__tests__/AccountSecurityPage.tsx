@@ -25,7 +25,7 @@ import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import nock from 'nock';
-import SecurityProfilePage from '../pages/account/security';
+import SecurityProfilePage from '../pages/settings/security';
 
 jest.mock('next/router', () => ({
   useRouter() {

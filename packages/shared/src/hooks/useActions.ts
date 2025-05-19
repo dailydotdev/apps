@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import type { Action, ActionType } from '../graphql/actions';
@@ -45,11 +45,13 @@ export const useActions = (): UseActions => {
 
   const actions = data?.actions;
   const isActionsFetched = !isPending && !!data?.serverLoaded;
+  const queueRef = useRef<ActionType[]>([]);
 
   const { mutateAsync: completeAction } = useMutation({
     mutationFn: completeUserAction,
     onMutate: (type) => {
       if (!user?.id) {
+        queueRef.current = [...queueRef.current, type];
         return () => undefined;
       }
 
@@ -88,6 +90,28 @@ export const useActions = (): UseActions => {
       actions?.some((action) => action.type === type && !!action.completedAt),
     [actions],
   );
+
+  const handleCompleteAction = useCallback(
+    (type: ActionType) => {
+      if (checkHasCompleted(type)) {
+        return undefined;
+      }
+
+      return completeAction(type);
+    },
+    [checkHasCompleted, completeAction],
+  );
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    if (queueRef.current.length > 0) {
+      queueRef.current.forEach((type) => handleCompleteAction(type));
+      queueRef.current = [];
+    }
+  }, [handleCompleteAction, user]);
 
   return useMemo<UseActions>(() => {
     return {

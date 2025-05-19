@@ -6,7 +6,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { OnboardingStep, REQUIRED_TAGS_THRESHOLD } from './common';
+import { OnboardingStep } from './common';
 import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
 import { getContentTypeNotEmpty } from './ContentTypes/helpers';
 
@@ -14,6 +14,7 @@ export type CreateFeedButtonProps = {
   className?: string;
   customActionName?: string;
   activeScreen?: OnboardingStep;
+  requiredTags: number;
 } & Pick<HTMLAttributes<ButtonElementType<'button'>>, 'onClick'>;
 
 export const CreateFeedButton = ({
@@ -21,6 +22,7 @@ export const CreateFeedButton = ({
   onClick,
   customActionName,
   activeScreen,
+  requiredTags,
 }: CreateFeedButtonProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { advancedSettings } = useFeedSettings();
@@ -41,7 +43,7 @@ export const CreateFeedButton = ({
 
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const tagsCountMatch =
-    tagsCount >= REQUIRED_TAGS_THRESHOLD &&
+    tagsCount >= requiredTags &&
     (activeScreen === OnboardingStep.EditTag ||
       activeScreen === OnboardingStep.InteractiveFeed);
   const isPlusStep = [OnboardingStep.Plus, OnboardingStep.PlusPayment].includes(
@@ -57,7 +59,7 @@ export const CreateFeedButton = ({
 
   const tooltipName = () => {
     if (activeScreen === OnboardingStep.EditTag && !canCreateFeed) {
-      return `Choose at least ${REQUIRED_TAGS_THRESHOLD} tags`;
+      return `Choose at least ${requiredTags} tags`;
     }
     if (contentTypeStep && !canCreateFeed) {
       return 'Choose at least one content type';
