@@ -37,22 +37,19 @@ import {
 import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
-import { ONBOARDING_BOOT_QUERY_KEY } from '@dailydotdev/shared/src/features/onboarding/hooks/useOnboardingBoot';
+import {
+  ONBOARDING_BOOT_QUERY_KEY,
+  useOnboardingBoot,
+} from '@dailydotdev/shared/src/features/onboarding/hooks/useOnboardingBoot';
 import {
   getCookiesAndHeadersFromRequest,
   setResponseHeaderFromBoot,
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { Provider as JotaiProvider, useAtom } from 'jotai/react';
-import FunnelOrganicRegistration from '@dailydotdev/shared/src/features/onboarding/steps/FunnelOrganicRegistration';
-import {
-  cloudinaryOnboardingFullBackgroundDesktop,
-  cloudinaryOnboardingFullBackgroundMobile,
-} from '@dailydotdev/shared/src/lib/image';
-import type { FunnelStepOrganicRegistration } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
-import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -241,6 +238,9 @@ function Onboarding(): ReactElement {
   const router = useRouter();
   const { isAuthenticating, isAuthReady, authOptionProps } =
     useOnboardingAuth();
+  const {
+    data: { funnelState },
+  } = useOnboardingBoot();
 
   /*
    * Complete steps on transition
@@ -255,22 +255,6 @@ function Onboarding(): ReactElement {
     const afterAuth = params.get(AFTER_AUTH_PARAM);
     return router.replace({ pathname: afterAuth || '/' });
   }, [router]);
-
-  const step: FunnelStepOrganicRegistration = {
-    id: 'a',
-    onTransition: (data) => console.log('Transition data:', data),
-    transitions: [],
-    type: FunnelStepType.OrganicRegistration,
-    parameters: {
-      headline: 'Where developers suffer together',
-      explainer:
-        "We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)",
-      image: {
-        src: cloudinaryOnboardingFullBackgroundMobile,
-        srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
-      },
-    },
-  };
 
   if (!isAuthReady) {
     return null;
@@ -291,13 +275,7 @@ function Onboarding(): ReactElement {
         </div>
       ) : (
         <div className="flex min-h-dvh min-w-full flex-col">
-          {/* Replace this with funnel */}
-          <FunnelStepBackground step={step}>
-            <FunnelOrganicRegistration
-              formRef={authOptionProps.formRef}
-              {...step}
-            />
-          </FunnelStepBackground>
+          <FunnelStepper {...funnelState} onComplete={onComplete} />
           <HotJarTracking hotjarId="3871311" />
         </div>
       )}

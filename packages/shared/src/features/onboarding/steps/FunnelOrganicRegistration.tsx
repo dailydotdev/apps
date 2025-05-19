@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useSetAtom } from 'jotai/react';
 import type { FunnelStepOrganicRegistration } from '../types/funnel';
@@ -17,9 +17,7 @@ import { wrapperMaxWidth } from '../../../components/onboarding/common';
 import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
 import { authAtom } from '../store/onboarding.store';
 
-interface FunnelOrganicRegistrationProps extends FunnelStepOrganicRegistration {
-  formRef: React.RefObject<HTMLFormElement>;
-}
+type FunnelOrganicRegistrationProps = FunnelStepOrganicRegistration;
 
 const staticAuthProps = {
   className: {
@@ -36,10 +34,10 @@ const staticAuthProps = {
 
 export const FunnelOrganicRegistration = ({
   parameters,
-  formRef,
   onTransition,
 }: FunnelOrganicRegistrationProps): ReactElement => {
   const { headline, explainer, image } = parameters;
+  const formRef = useRef<HTMLFormElement>(null);
   const isMobile = useViewSize(ViewSize.MobileL);
   const setAuth = useSetAtom(authAtom);
   const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(

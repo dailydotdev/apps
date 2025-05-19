@@ -246,6 +246,7 @@ const RegistrationForm = ({
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={onBackToIntro}
           size={ButtonSize.Medium}
+          type="button"
           variant={ButtonVariant.Secondary}
         />
         <Typography

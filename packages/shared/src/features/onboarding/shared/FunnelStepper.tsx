@@ -11,6 +11,7 @@ import type {
   FunnelStepTransition,
 } from '../types/funnel';
 import {
+  stepsFullWidth,
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
@@ -43,6 +44,7 @@ import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import classed from '../../../lib/classed';
 import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
+import { FunnelOrganicRegistration } from '../steps/FunnelOrganicRegistration';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -66,6 +68,7 @@ const stepComponentMap = {
   [FunnelStepType.ContentTypes]: FunnelContentTypes,
   [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
   [FunnelStepType.InstallPwa]: FunnelInstallPwa,
+  [FunnelStepType.OrganicRegistration]: FunnelOrganicRegistration,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
@@ -171,11 +174,13 @@ export const FunnelStepper = ({
     );
     const hasHeader = stepsWithHeader.includes(step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
+    const isFullWidth = stepsFullWidth.includes(step.type);
 
     return {
       hasHeader,
       hasBanner,
       hasCookieConsent,
+      isFullWidth,
     };
   }, [
     isCookieBannerActive,
@@ -201,7 +206,12 @@ export const FunnelStepper = ({
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
-        <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+        <div
+          className={
+            !layout.isFullWidth &&
+            'mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg'
+          }
+        >
           {layout.hasBanner && (
             <FunnelBannerMessage {...funnel.parameters.banner} />
           )}
