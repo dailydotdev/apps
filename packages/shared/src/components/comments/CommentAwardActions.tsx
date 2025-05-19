@@ -22,6 +22,7 @@ import { largeNumberFormat } from '../../lib/numberFormat';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MedalBadgeIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 export type CommentAwardActionsProps = {
   comment: Comment;
@@ -109,7 +110,9 @@ export const CommentAwardActions = ({
           className="size-6"
         />
       )}
-      {!comment.featuredAward?.award && <MedalBadgeIcon secondary />}
+      {!comment.featuredAward?.award && (
+        <MedalBadgeIcon size={IconSize.Small} secondary />
+      )}
       <Typography
         className="ml-1 mr-3 flex items-center gap-1"
         type={TypographyType.Callout}
