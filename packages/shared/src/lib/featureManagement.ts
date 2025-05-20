@@ -1,8 +1,4 @@
 import type { JSONValue } from '@growthbook/growthbook';
-import {
-  cloudinaryOnboardingFullBackgroundDesktop,
-  cloudinaryOnboardingFullBackgroundMobile,
-} from './image';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -22,12 +18,6 @@ export class Feature<T extends JSONValue> {
 const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
-  onboardingVisual: new Feature('onboarding_visual', {
-    fullBackground: {
-      mobile: cloudinaryOnboardingFullBackgroundMobile,
-      desktop: cloudinaryOnboardingFullBackgroundDesktop,
-    },
-  }),
   feedAdSpot: new Feature('feed_ad_spot', 2),
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
