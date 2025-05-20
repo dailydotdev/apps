@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import Head from 'next/head';
@@ -7,6 +7,8 @@ import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
+import { Badge } from '../../../../components/Badge';
+import { ReputationLightningIcon } from '../../../../components/icons';
 
 export const FunnelFactDefault = ({
   parameters,
@@ -14,6 +16,21 @@ export const FunnelFactDefault = ({
 }: FunnelStepFact): ReactElement => {
   const isLayoutReversed =
     parameters.layout === 'reversed' || parameters.reverse;
+
+  const { badge } = parameters;
+
+  const badgeComponent = useMemo(() => {
+    if (!badge?.cta) {
+      return null;
+    }
+    return (
+      <Badge
+        label={badge.cta}
+        icon={<ReputationLightningIcon secondary />}
+        variant={badge.variant}
+      />
+    );
+  }, [badge?.cta, badge?.variant]);
 
   return (
     <FunnelStepCtaWrapper
@@ -34,11 +51,15 @@ export const FunnelFactDefault = ({
             : 'flex-col justify-between',
         )}
       >
-        <StepHeadline
-          heading={parameters?.headline}
-          description={parameters?.explainer}
-          align={parameters?.align}
-        />
+        <div className="flex flex-col items-center gap-4">
+          {badge.placement === 'top' && badgeComponent}
+          <StepHeadline
+            heading={parameters?.headline}
+            description={parameters?.explainer}
+            align={parameters?.align}
+          />
+          {badge.placement === 'bottom' && badgeComponent}
+        </div>
         {parameters?.visualUrl && (
           <>
             <Head>

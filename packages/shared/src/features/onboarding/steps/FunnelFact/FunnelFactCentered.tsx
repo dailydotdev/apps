@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import Head from 'next/head';
 import { StepHeadline } from '../../shared';
@@ -6,11 +6,28 @@ import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
+import { ReputationLightningIcon } from '../../../../components/icons';
+import { Badge } from '../../../../components/Badge';
 
 export const FunnelFactCentered = ({
   parameters,
   onTransition,
 }: FunnelStepFact): ReactElement => {
+  const { badge } = parameters;
+
+  const badgeComponent = useMemo(() => {
+    if (!badge?.cta) {
+      return null;
+    }
+    return (
+      <Badge
+        label={badge.cta}
+        icon={<ReputationLightningIcon secondary />}
+        variant={badge.variant}
+      />
+    );
+  }, [badge?.cta, badge?.variant]);
+
   return (
     <FunnelStepCtaWrapper
       containerClassName="flex max-h-screen"
@@ -40,12 +57,16 @@ export const FunnelFactCentered = ({
             />
           </>
         )}
-        <StepHeadline
-          className="!gap-6"
-          heading={parameters?.headline}
-          description={parameters?.explainer}
-          align={parameters?.align}
-        />
+        <div className="flex flex-col items-center gap-4">
+          {badge.placement === 'top' && badgeComponent}
+          <StepHeadline
+            className="!gap-6"
+            heading={parameters?.headline}
+            description={parameters?.explainer}
+            align={parameters?.align}
+          />
+          {badge.placement === 'bottom' && badgeComponent}
+        </div>
       </div>
     </FunnelStepCtaWrapper>
   );

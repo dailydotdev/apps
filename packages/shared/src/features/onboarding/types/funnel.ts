@@ -105,6 +105,11 @@ export interface FunnelStepFactParameters {
   headline: string;
   cta?: string;
   reverse?: boolean;
+  badge?: {
+    placement?: 'bottom' | 'top';
+    cta?: string;
+    variant?: 'primary' | 'onion';
+  };
   explainer: string;
   align: StepHeadlineAlign;
   visualUrl?: string;
