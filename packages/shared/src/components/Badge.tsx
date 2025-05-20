@@ -15,7 +15,7 @@ type BadgeProps = {
 
 const variantToClassName = {
   primary: 'border-border-subtlest-secondary text-surface-primary',
-  onion: 'border-overlays-secondary-onion text-accent-onion-subtler',
+  onion: 'border-overlay-secondary-onion text-accent-onion-subtler',
 };
 
 export const Badge = ({ label, icon, variant }: BadgeProps) => {
