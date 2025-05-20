@@ -41,11 +41,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
-export const featureOnboardingAndroid = new Feature(
-  'onboarding_android',
-  false,
-);
-
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
     adStart: 2,
