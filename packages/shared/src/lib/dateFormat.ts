@@ -14,8 +14,7 @@ const oneWeek = 7 * oneDay;
 const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const publishTimeRelative = (
+export const publishTimeRelative = (
   value: Date | number | string,
   now = new Date(),
 ): string => {
