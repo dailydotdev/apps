@@ -58,14 +58,14 @@ export const FunnelFactCentered = ({
           </>
         )}
         <div className="flex flex-col items-center gap-4">
-          {badge.placement === 'top' && badgeComponent}
+          {badge?.placement === 'top' && badgeComponent}
           <StepHeadline
             className="!gap-6"
             heading={parameters?.headline}
             description={parameters?.explainer}
             align={parameters?.align}
           />
-          {badge.placement === 'bottom' && badgeComponent}
+          {badge?.placement === 'bottom' && badgeComponent}
         </div>
       </div>
     </FunnelStepCtaWrapper>
