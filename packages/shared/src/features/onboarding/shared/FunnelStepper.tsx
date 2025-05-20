@@ -225,7 +225,7 @@ export const FunnelStepper = ({
             successCallback={successCallback}
           >
             {funnel.chapters.map((chapter: FunnelChapter) => (
-              <Fragment key={chapter?.id}>
+              <div key={chapter?.id}>
                 {chapter?.steps?.map((funnelStep: FunnelStep) => {
                   const isActive = funnelStep?.id === step?.id;
                   const Wrapper = isActive ? Fragment : HiddenStep;
@@ -245,7 +245,7 @@ export const FunnelStepper = ({
                     </Wrapper>
                   );
                 })}
-              </Fragment>
+              </div>
             ))}
           </PaymentContextProvider>
         </div>
