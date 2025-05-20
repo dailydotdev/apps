@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
@@ -89,6 +89,7 @@ function getTransitionDestination(
 }
 
 const HiddenStep = classed('div', 'hidden');
+const RegularStep = classed('div', '');
 
 export const FunnelStepper = ({
   funnel,
@@ -228,7 +229,7 @@ export const FunnelStepper = ({
               <div key={chapter?.id}>
                 {chapter?.steps?.map((funnelStep: FunnelStep) => {
                   const isActive = funnelStep?.id === step?.id;
-                  const Wrapper = isActive ? Fragment : HiddenStep;
+                  const Wrapper = isActive ? RegularStep : HiddenStep;
                   return (
                     <Wrapper
                       key={`${chapter?.id}-${funnelStep?.id}`}
