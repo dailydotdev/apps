@@ -230,7 +230,9 @@ export const FunnelStepper = ({
               return (
                 <div
                   key={funnelStep.id}
-                  data-testid="funnel-step"
+                  {...(!isActive && {
+                    'data-testid': `funnel-step`,
+                  })}
                   className={classNames('flex flex-1 flex-col', {
                     hidden: !isActive,
                   })}
