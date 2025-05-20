@@ -56,7 +56,7 @@ export const publishTimeRelative = (
   return `${numYears} ${numYears === 1 ? 'year' : 'years'} ago`;
 };
 
-const publishTimeRelativeShort = (
+export const publishTimeRelativeShort = (
   value: Date | number | string,
   now = new Date(),
 ): string => {
