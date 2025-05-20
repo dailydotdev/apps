@@ -229,13 +229,13 @@ export const FunnelStepper = ({
               <div key={chapter?.id}>
                 {chapter?.steps?.map((funnelStep: FunnelStep) => {
                   const isActive = funnelStep?.id === step?.id;
-                  const Wrapper = isActive ? RegularStep : HiddenStep;
                   return (
-                    <Wrapper
+                    <div
                       key={`${chapter?.id}-${funnelStep?.id}`}
                       {...(!isActive && {
                         'data-testid': `funnel-step`,
                       })}
+                      className={isActive ? 'flex-1' : 'hidden'}
                     >
                       <FunnelStepComponent
                         {...funnelStep}
@@ -243,7 +243,7 @@ export const FunnelStepper = ({
                         key={step.id}
                         onTransition={onTransition}
                       />
-                    </Wrapper>
+                    </div>
                   );
                 })}
               </div>
