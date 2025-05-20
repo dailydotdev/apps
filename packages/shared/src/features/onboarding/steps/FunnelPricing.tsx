@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 import type { FunnelStepPricing } from '../types/funnel';
@@ -143,12 +143,18 @@ export const FunnelPricing = ({
     cta,
   };
 
+  const [isMounted, setIsMounted] = useState(false);
   // todo: in order to resume funnel implement persist on timer initial date
   useEffect(() => {
+    console.log('pricing step mounted: ', isMounted);
     if (isActive && !discountStartDate) {
       setTimer(new Date());
     }
-  }, [isActive, discountStartDate, setTimer]);
+
+    if (!isMounted) {
+      setIsMounted(true);
+    }
+  }, [isActive, discountStartDate, setTimer, isMounted]);
 
   return (
     <>
