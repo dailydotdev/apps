@@ -34,7 +34,7 @@ export const useFollowPostTags = ({
       };
     }
 
-    const all = post.tags;
+    const all = post?.tags ?? [];
     const followedTags = new Set(feedSettings?.includeTags || []);
     return all.reduce(
       (acc, tag) => {
