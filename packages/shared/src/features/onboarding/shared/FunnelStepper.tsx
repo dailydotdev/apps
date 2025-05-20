@@ -185,6 +185,11 @@ export const FunnelStepper = ({
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
+  const steps = useMemo(
+    () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
+    [funnel?.chapters],
+  );
+
   if (!isReady) {
     return null;
   }
@@ -224,28 +229,24 @@ export const FunnelStepper = ({
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
             successCallback={successCallback}
           >
-            {funnel.chapters.map((chapter: FunnelChapter) => (
-              <Fragment key={chapter?.id}>
-                {chapter?.steps?.map((funnelStep: FunnelStep) => {
-                  const isActive = funnelStep?.id === step?.id;
-                  const Wrapper = isActive ? Fragment : HiddenStep;
-                  return (
-                    <Wrapper
-                      key={`${chapter?.id}-${funnelStep?.id}`}
-                      {...(!isActive && {
-                        'data-testid': `funnel-step`,
-                      })}
-                    >
-                      <FunnelStepComponent
-                        {...funnelStep}
-                        isActive={isActive}
-                        onTransition={onTransition}
-                      />
-                    </Wrapper>
-                  );
-                })}
-              </Fragment>
-            ))}
+            {steps?.map((funnelStep: FunnelStep) => {
+              const isActive = funnelStep?.id === step?.id;
+              return (
+                <div
+                  key={funnelStep.id}
+                  data-testid="funnel-step"
+                  className={classNames('flex flex-1 flex-col', {
+                    hidden: !isActive,
+                  })}
+                >
+                  <FunnelStepComponent
+                    {...funnelStep}
+                    isActive={isActive}
+                    onTransition={onTransition}
+                  />
+                </div>
+              );
+            })}
           </PaymentContextProvider>
         </div>
       </FunnelStepBackground>
