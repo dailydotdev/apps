@@ -39,7 +39,6 @@ import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
-import classed from '../../../lib/classed';
 import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 
@@ -86,8 +85,6 @@ function getTransitionDestination(
     return transition.on === transitionType;
   })?.destination;
 }
-
-const HiddenStep = classed('div', 'hidden');
 
 export const FunnelStepper = ({
   funnel,
