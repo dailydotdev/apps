@@ -64,8 +64,6 @@ export const featurePlusButtonColors = new Feature<
   'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
 >('plus_button_colors', '');
 
-export const featureSocialShare = new Feature('social_share', false);
-
 export const featureCustomFeedPlacement = new Feature(
   'custom_feed_placement',
   false,
