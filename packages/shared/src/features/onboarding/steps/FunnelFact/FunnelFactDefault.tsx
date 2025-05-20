@@ -26,7 +26,7 @@ export const FunnelFactDefault = ({
     return (
       <Badge
         label={badge.cta}
-        icon={<ReputationLightningIcon secondary />}
+        icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
         variant={badge.variant}
       />
     );
