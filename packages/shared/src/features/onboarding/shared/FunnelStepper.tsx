@@ -1,11 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
-  FunnelChapter,
   FunnelStep,
   FunnelStepTransitionCallback,
   FunnelStepTransition,
