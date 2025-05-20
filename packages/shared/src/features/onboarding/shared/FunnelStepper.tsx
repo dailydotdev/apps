@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
@@ -39,7 +39,6 @@ import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
-import classed from '../../../lib/classed';
 import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 
@@ -86,8 +85,6 @@ function getTransitionDestination(
     return transition.on === transitionType;
   })?.destination;
 }
-
-const HiddenStep = classed('div', 'hidden');
 
 export const FunnelStepper = ({
   funnel,
@@ -230,12 +227,12 @@ export const FunnelStepper = ({
           >
             {steps?.map((funnelStep: FunnelStep) => {
               const isActive = funnelStep?.id === step?.id;
-              const Wrapper = isActive ? Fragment : HiddenStep;
               return (
-                <Wrapper
-                  key={funnelStep?.id}
-                  {...(!isActive && {
-                    'data-testid': `funnel-step`,
+                <div
+                  key={funnelStep.id}
+                  data-testid="funnel-step"
+                  className={classNames('flex flex-1 flex-col', {
+                    hidden: !isActive,
                   })}
                 >
                   <FunnelStepComponent
@@ -243,7 +240,7 @@ export const FunnelStepper = ({
                     isActive={isActive}
                     onTransition={onTransition}
                   />
-                </Wrapper>
+                </div>
               );
             })}
           </PaymentContextProvider>
