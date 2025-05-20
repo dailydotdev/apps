@@ -10,6 +10,7 @@ import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
 import {
+  getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
 } from '../../../graphql/posts';
@@ -23,7 +24,6 @@ import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
-import { useVisitLink } from './list/hooks';
 import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
 
 interface CardHeaderProps {
@@ -54,7 +54,6 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
-  const visitLinkCopy = useVisitLink({ post });
   const { interactiveFeedExp } = useInteractiveFeedContext();
 
   const { highlightBookmarkedPost } = useBookmarkProvider({
@@ -111,7 +110,7 @@ export const PostCardHeader = ({
             <>
               {!isSharedPostDeleted && (
                 <ReadArticleButton
-                  content={visitLinkCopy}
+                  content={getReadPostButtonText(post)}
                   className="mr-2"
                   variant={ButtonVariant.Primary}
                   href={articleLink}
