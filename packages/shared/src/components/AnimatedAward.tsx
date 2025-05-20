@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import React, { useState } from 'react';
 import type { Product } from '../graphql/njord';
 import { Image } from './image/Image';
+import { Portal } from './tooltips/Portal';
 
 export type AnimatedAwardProps = {
   className?: string;
@@ -28,7 +29,7 @@ export const AnimatedAward = ({
   return (
     <div
       className={classNames(
-        'pointer-events-none fixed inset-0 !z-max flex items-center justify-center',
+        'pointer-events-none fixed inset-0 z-max flex items-center justify-center',
         className,
       )}
     >
@@ -74,11 +75,15 @@ export const AnimatedAwardImage = ({
         />
       </button>
       {showAnimation && (
-        <AnimatedAward
-          src={showAnimation ? award.image : ''}
-          alt={award.name}
-          onDone={() => setShowAnimation(false)}
-        />
+        <Portal
+          container={document.querySelector('.award-easter-egg-container')}
+        >
+          <AnimatedAward
+            src={showAnimation ? award.image : ''}
+            alt={award.name}
+            onDone={() => setShowAnimation(false)}
+          />
+        </Portal>
       )}
     </>
   );
