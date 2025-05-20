@@ -27,10 +27,12 @@ export const FunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
+    console.log('mounted');
     if (!isPlusAvailable || isPlus) {
       return;
     }
 
+    console.log('opening checkout');
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
