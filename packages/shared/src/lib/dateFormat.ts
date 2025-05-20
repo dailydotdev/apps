@@ -86,8 +86,8 @@ const publishTimeRelativeShort = (
   }
 
   if (dt <= oneYear) {
-    const numMonths = Math.round(dt / oneMonth);
-    return `${numMonths}w`;
+    const numWeeks = Math.round(dt / oneWeek);
+    return `${numWeeks}w`;
   }
 
   const numYears = Math.round(dt / oneYear);
