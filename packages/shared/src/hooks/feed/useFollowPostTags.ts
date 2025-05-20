@@ -1,8 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
 import useFeedSettings from '../useFeedSettings';
-import { featurePostTagSorting } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../useConditionalFeature';
 import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -10,18 +8,15 @@ import { useCustomFeed } from './useCustomFeed';
 
 interface UseFollowPostTagsProps {
   post: Post;
-  shouldEvaluateExperiment?: boolean;
 }
 
 interface UseFollowPostTags {
-  isTagExperiment: boolean;
   onFollowTag: (tag: string) => void;
   tags: Record<'all' | 'followed' | 'notFollowed', string[]>;
 }
 
 export const useFollowPostTags = ({
   post,
-  shouldEvaluateExperiment = false,
 }: UseFollowPostTagsProps): UseFollowPostTags => {
   const { isLoggedIn } = useAuthContext();
   const { feedId, isCustomFeed } = useCustomFeed();
@@ -29,17 +24,6 @@ export const useFollowPostTags = ({
     feedId: isCustomFeed ? feedId : undefined,
   });
   const isModerationItem = !post?.permalink;
-  const hasFollowedTags = !!feedSettings?.includeTags?.length;
-  const shouldEvaluate =
-    isLoggedIn &&
-    shouldEvaluateExperiment &&
-    !isModerationItem &&
-    hasFollowedTags;
-
-  const { value: isTagExperiment, isLoading } = useConditionalFeature({
-    feature: featurePostTagSorting,
-    shouldEvaluate,
-  });
 
   const tags = useMemo(() => {
     if (!isLoggedIn || isModerationItem) {
@@ -50,7 +34,7 @@ export const useFollowPostTags = ({
       };
     }
 
-    const all = isLoading && shouldEvaluate ? [] : post.tags ?? [];
+    const all = post.tags;
     const followedTags = new Set(feedSettings?.includeTags || []);
     return all.reduce(
       (acc, tag) => {
@@ -65,14 +49,7 @@ export const useFollowPostTags = ({
         notFollowed: [],
       },
     );
-  }, [
-    feedSettings?.includeTags,
-    isLoading,
-    isLoggedIn,
-    isModerationItem,
-    post?.tags,
-    shouldEvaluate,
-  ]);
+  }, [feedSettings?.includeTags, isLoggedIn, isModerationItem, post?.tags]);
 
   const { onFollowTags } = useTagAndSource({
     origin: Origin.PostTags,
@@ -90,7 +67,6 @@ export const useFollowPostTags = ({
   );
 
   return {
-    isTagExperiment,
     onFollowTag,
     tags,
   };
