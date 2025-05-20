@@ -83,11 +83,6 @@ export const featurePlusButtonColors = new Feature<
 
 export const featureSocialShare = new Feature('social_share', false);
 
-export const featureCustomFeedPlacement = new Feature(
-  'custom_feed_placement',
-  false,
-);
-
 export const featureInteractiveFeed = new Feature('interactive_feed', false);
 export const featureOnboardingReorder = new Feature(
   'onboarding_reorder',

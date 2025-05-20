@@ -13,7 +13,6 @@ import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
-import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -34,7 +33,6 @@ export const SidebarDesktop = ({
   const { sidebarExpanded } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const { customFeedPlacement } = useCustomFeedHeader();
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -44,25 +42,6 @@ export const SidebarDesktop = ({
     }),
     [sidebarExpanded, activePage],
   );
-
-  // For experiment purposes. Can insert the winning order directly into the return jsx on cleanup.
-  const bookmarkAndNetworkSection = useMemo(() => {
-    const sections: ReactElement[] = [
-      <NetworkSection
-        {...defaultRenderSectionProps}
-        title="Network"
-        isItemsButton={isNavButtons}
-        key="network-section"
-      />,
-      <BookmarkSection
-        {...defaultRenderSectionProps}
-        title="Bookmarks"
-        isItemsButton={false}
-        key="bookmark-section"
-      />,
-    ];
-    return customFeedPlacement ? sections.reverse() : sections;
-  }, [defaultRenderSectionProps, customFeedPlacement, isNavButtons]);
 
   return (
     <SidebarAside
@@ -92,15 +71,24 @@ export const SidebarDesktop = ({
             onNavTabClick={onNavTabClick}
             isItemsButton={isNavButtons}
           />
-          {!customFeedPlacement && (
-            <CustomFeedSection
-              {...defaultRenderSectionProps}
-              onNavTabClick={onNavTabClick}
-              title="Custom feeds"
-              isItemsButton={false}
-            />
-          )}
-          {bookmarkAndNetworkSection}
+          <CustomFeedSection
+            {...defaultRenderSectionProps}
+            onNavTabClick={onNavTabClick}
+            title="Custom feeds"
+            isItemsButton={false}
+          />
+          <NetworkSection
+            {...defaultRenderSectionProps}
+            title="Network"
+            isItemsButton={isNavButtons}
+            key="network-section"
+          />
+          <BookmarkSection
+            {...defaultRenderSectionProps}
+            title="Bookmarks"
+            isItemsButton={false}
+            key="bookmark-section"
+          />
           <DiscoverSection
             {...defaultRenderSectionProps}
             title="Discover"
