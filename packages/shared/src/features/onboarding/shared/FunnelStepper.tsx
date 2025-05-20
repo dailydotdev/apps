@@ -70,7 +70,7 @@ const stepComponentMap = {
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   const { type } = props;
-  const Component = stepComponentMap[type];
+  const Component = useMemo(() => stepComponentMap[type], [type]);
 
   if (!Component) {
     return null;
