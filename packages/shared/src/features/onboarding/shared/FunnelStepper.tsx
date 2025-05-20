@@ -229,11 +229,12 @@ export const FunnelStepper = ({
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
             successCallback={successCallback}
           >
-            {steps?.map((funnelStep: FunnelStep) => {
+            {steps?.map((funnelStep: FunnelStep, index) => {
               const isActive = funnelStep?.id === step?.id;
               return (
                 <div
-                  key={funnelStep?.id}
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={index}
                   {...(!isActive && {
                     'data-testid': `funnel-step`,
                   })}
