@@ -13,7 +13,7 @@ type BadgeProps = {
   variant: 'primary' | 'onion';
 };
 
-const variantToClassName = {
+const variantToClassName: Record<BadgeProps['variant'], string> = {
   primary: 'border-border-subtlest-secondary text-surface-primary',
   onion: 'border-overlay-secondary-onion text-accent-onion-subtler',
 };
