@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
@@ -8,6 +8,7 @@ import type {
   FunnelStep,
   FunnelStepTransitionCallback,
   FunnelStepTransition,
+  FunnelChapter,
 } from '../types/funnel';
 import {
   FunnelStepType,
@@ -69,7 +70,7 @@ const stepComponentMap = {
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   const { type } = props;
-  const Component = useMemo(() => stepComponentMap[type], [type]);
+  const Component = stepComponentMap[type];
 
   if (!Component) {
     return null;
@@ -88,7 +89,6 @@ function getTransitionDestination(
 }
 
 const HiddenStep = classed('div', 'hidden');
-const RegularStep = classed('div', '');
 
 export const FunnelStepper = ({
   funnel,
@@ -185,11 +185,6 @@ export const FunnelStepper = ({
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
-  const steps = useMemo(
-    () => funnel.chapters.flatMap((chapter) => chapter.steps),
-    [funnel.chapters],
-  );
-
   if (!isReady) {
     return null;
   }
@@ -229,24 +224,28 @@ export const FunnelStepper = ({
             disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
             successCallback={successCallback}
           >
-            {steps?.map((funnelStep: FunnelStep) => {
-              const isActive = funnelStep?.id === step?.id;
-              return (
-                <div
-                  key={funnelStep.id}
-                  {...(!isActive && {
-                    'data-testid': `funnel-step`,
-                  })}
-                  className={isActive ? 'flex-1' : 'hidden'}
-                >
-                  <FunnelStepComponent
-                    {...funnelStep}
-                    isActive={isActive}
-                    onTransition={onTransition}
-                  />
-                </div>
-              );
-            })}
+            {funnel.chapters.map((chapter: FunnelChapter) => (
+              <Fragment key={chapter?.id}>
+                {chapter?.steps?.map((funnelStep: FunnelStep) => {
+                  const isActive = funnelStep?.id === step?.id;
+                  const Wrapper = isActive ? Fragment : HiddenStep;
+                  return (
+                    <Wrapper
+                      key={`${chapter?.id}-${funnelStep?.id}`}
+                      {...(!isActive && {
+                        'data-testid': `funnel-step`,
+                      })}
+                    >
+                      <FunnelStepComponent
+                        {...funnelStep}
+                        isActive={isActive}
+                        onTransition={onTransition}
+                      />
+                    </Wrapper>
+                  );
+                })}
+              </Fragment>
+            ))}
           </PaymentContextProvider>
         </div>
       </FunnelStepBackground>
