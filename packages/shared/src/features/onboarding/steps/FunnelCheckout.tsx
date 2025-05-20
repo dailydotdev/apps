@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -17,7 +17,6 @@ export const FunnelCheckout = ({
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
-  const [isMounting, setIsMounting] = useState(false);
 
   useEffect(() => {
     if (isActive) {
@@ -28,13 +27,10 @@ export const FunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    console.log('mounted: ', isMounting);
-    if (!isPlusAvailable || isPlus || isMounting) {
+    if (!isPlusAvailable || isPlus || !isActive) {
       return;
     }
 
-    setIsMounting(true);
-    console.log('opening checkout');
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
@@ -47,7 +43,6 @@ export const FunnelCheckout = ({
     isPlusAvailable,
     priceId,
     openCheckout,
-    isMounting,
   ]);
 
   return <div className="checkout-container" />;
