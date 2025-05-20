@@ -28,7 +28,7 @@ export const AnimatedAward = ({
   return (
     <div
       className={classNames(
-        'pointer-events-none fixed inset-0 z-max flex items-center justify-center',
+        'pointer-events-none fixed inset-0 !z-max flex items-center justify-center',
         className,
       )}
     >
