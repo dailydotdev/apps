@@ -28,7 +28,7 @@ export const FunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    console.log('mounted');
+    console.log('mounted: ', isMounting);
     if (!isPlusAvailable || isPlus || isMounting) {
       return;
     }
