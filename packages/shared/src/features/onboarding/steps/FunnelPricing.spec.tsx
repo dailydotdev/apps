@@ -5,9 +5,14 @@ import { useHydrateAtoms } from 'jotai/utils';
 import { FunnelPricing } from './FunnelPricing';
 import type {
   FunnelStepPricing,
+  FunnelStepParameters,
   FunnelStepPricingParameters,
 } from '../types/funnel';
-import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
+import {
+  FunnelStepType,
+  FunnelStepTransitionType,
+  FunnelPricingType,
+} from '../types/funnel';
 import { PricingPlanVariation } from '../shared/PricingPlan';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
 import { applyDiscountAtom, selectedPlanAtom } from '../store/funnelStore';
@@ -29,57 +34,60 @@ const HydrateAtoms = ({ initialValues, children }: HydrateAtomsProps) => {
   return children;
 };
 
-const mockPricingParameters: FunnelStepPricingParameters = {
-  headline: 'Choose your plan',
-  cta: 'Checkout',
-  discount: {
-    message:
-      'Get <b>additional 20% discount</b> if you subscribe in the next 15 minutes',
-    duration: 15,
-  },
-  defaultPlan: 'annual',
-  plans: [
-    {
-      priceId: 'monthly',
-      label: 'Monthly',
-      badge: {
-        text: 'Popular',
-        background: '#CE3DF3',
+const mockPricingParameters: FunnelStepParameters<FunnelStepPricingParameters> =
+  {
+    headline: 'Choose your plan',
+    cta: 'Checkout',
+    pricingType: FunnelPricingType.Monthly,
+    discount: {
+      message:
+        'Get <b>additional 20% discount</b> if you subscribe in the next 15 minutes',
+      duration: 15,
+    },
+    defaultPlan: 'annual',
+    plans: [
+      {
+        priceId: 'monthly',
+        label: 'Monthly',
+        badge: {
+          text: 'Popular',
+          background: '#CE3DF3',
+        },
       },
-    },
-    {
-      priceId: 'annual',
-      label: 'Annual',
-      variation: PricingPlanVariation.BEST_VALUE,
-      badge: {
-        text: 'Save 50%',
-        background: '#0ABA6E',
+      {
+        priceId: 'annual',
+        label: 'Annual',
+        variation: PricingPlanVariation.BEST_VALUE,
+        badge: {
+          text: 'Save 50%',
+          background: '#0ABA6E',
+        },
       },
+    ],
+    perks: ['Unlimited Access', '24/7 Support'],
+    featuresList: {
+      title: 'Your new abilities',
+      items: ['Access to premium content', 'Advanced filtering'],
     },
-  ],
-  perks: ['Unlimited Access', '24/7 Support'],
-  featuresList: {
-    title: 'Your new abilities',
-    items: ['Access to premium content', 'Advanced filtering'],
-  },
-  review: {
-    reviewText: "This is the only tool I've stuck with for more than a month.",
-    authorInfo: 'Dave N., Senior Data Scientist',
-    image: 'https://example.com/review.jpg',
-    authorImage: 'https://example.com/avatar.jpg',
-  },
-  refund: {
-    title: '100% money back guarantee',
-    content: "We're confident in the quality of our plan.",
-    image: 'https://example.com/checkmark.jpg',
-  },
-  faq: [
-    {
-      question: 'How do I cancel?',
-      answer: 'You can cancel anytime from your account settings.',
+    review: {
+      reviewText:
+        "This is the only tool I've stuck with for more than a month.",
+      authorInfo: 'Dave N., Senior Data Scientist',
+      image: 'https://example.com/review.jpg',
+      authorImage: 'https://example.com/avatar.jpg',
     },
-  ],
-};
+    refund: {
+      title: '100% money back guarantee',
+      content: "We're confident in the quality of our plan.",
+      image: 'https://example.com/checkmark.jpg',
+    },
+    faq: [
+      {
+        question: 'How do I cancel?',
+        answer: 'You can cancel anytime from your account settings.',
+      },
+    ],
+  } as FunnelStepParameters<FunnelStepPricingParameters>;
 
 const defaultProps: FunnelStepPricing = {
   id: 'test-id',
