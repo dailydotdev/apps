@@ -38,6 +38,11 @@ export enum FunnelBackgroundVariant {
   CircleTop = 'circleTop',
   CircleBottom = 'circleBottom',
   Hourglass = 'hourglass',
+  Cheese = 'cheese',
+  BlueCheese = 'blueCheese',
+  Onion = 'onion',
+  Water = 'water',
+  Burger = 'burger',
 }
 
 export enum FunnelStepTransitionType {
