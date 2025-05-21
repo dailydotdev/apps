@@ -10,7 +10,6 @@ import type { ContentPreference } from './contentPreference';
 
 export enum SearchProviderEnum {
   Posts = 'posts',
-  Chat = 'chat',
   Tags = 'tags',
   Google = 'google',
   Sources = 'sources',
