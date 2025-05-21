@@ -250,6 +250,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
       )}
+      <div className="award-easter-egg-container" />
     </>
   );
 }

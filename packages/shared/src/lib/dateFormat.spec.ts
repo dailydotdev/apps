@@ -5,6 +5,7 @@ import {
   getReadHistoryDateFormat,
   isDateOnlyEqual,
   getTodayTz,
+  publishTimeRelativeShort,
 } from './dateFormat';
 
 const now = new Date(2020, 5, 1, 12, 0, 0);
@@ -171,5 +172,49 @@ describe('getTodayTz', () => {
 
   it('should throw an error for invalid timezone', () => {
     expect(() => getTodayTz('Invalid/Timezone')).toThrow();
+  });
+});
+
+describe('publishTimeRelativeShort', () => {
+  it('should return now when less than a minute', () => {
+    const expected = 'now';
+    const date = new Date(2020, 5, 1, 11, 59, 22);
+    const actual = publishTimeRelativeShort(date.toISOString(), now);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return time ago in minutes when less than an hour', () => {
+    const expected = '17m';
+    const date = new Date(2020, 5, 1, 11, 43, 16);
+    const actual = publishTimeRelativeShort(date.toISOString(), now);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return time ago in hours when less than a day', () => {
+    const expected = '11h';
+    const date = new Date(2020, 5, 1, 1, 23, 45);
+    const actual = publishTimeRelativeShort(date.toISOString(), now);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return time ago in days when less than a week', () => {
+    const expected = '2d';
+    const date = new Date(2020, 4, 30, 6, 36, 46);
+    const actual = publishTimeRelativeShort(date.toISOString(), now);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return time ago in weeks when less than a year', () => {
+    const expected = '5w';
+    const date = new Date(2020, 3, 30, 6, 36, 46);
+    const actual = publishTimeRelativeShort(date.toISOString(), now);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return time ago in years when more than a year', () => {
+    const expected = '2y';
+    const date = new Date(2018, 5, 1, 12, 0, 0);
+    const actual = publishTimeRelativeShort(date.toISOString(), now);
+    expect(actual).toEqual(expected);
   });
 });
