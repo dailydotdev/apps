@@ -30,15 +30,15 @@ const mockPricing: ProductPricingPreview[] = [
   {
     priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
     price: {
-      amount: 9.99,
-      formatted: '$9.99',
+      amount: 15,
+      formatted: '$15',
       monthly: {
-        amount: 9.99,
-        formatted: '$9.99',
+        amount: 15,
+        formatted: '$15',
       },
       daily: {
-        amount: 0.33,
-        formatted: '$0.33',
+        amount: 0.49,
+        formatted: '$0.49',
       },
     },
     currency: {
@@ -58,15 +58,15 @@ const mockPricing: ProductPricingPreview[] = [
   {
     priceId: 'pri_01jmf95s11a9hedbh2bfcz5dz7',
     price: {
-      amount: 59.99,
-      formatted: '$59.99',
+      amount: 150,
+      formatted: '$150',
       monthly: {
-        amount: 4.99,
-        formatted: '$4.99',
+        amount: 12.50,
+        formatted: '$12.50',
       },
       daily: {
-        amount: 0.16,
-        formatted: '$0.16',
+        amount: 0.24,
+        formatted: '$0.24',
       },
     },
     currency: {
@@ -75,7 +75,7 @@ const mockPricing: ProductPricingPreview[] = [
     },
     duration: PlusPriceType.Yearly,
     metadata: {
-      appsId: PlusPriceTypeAppsId.Annual,
+      appsId: PlusPriceTypeAppsId.Default,
       title: 'Annual',
       idMap: {
         paddle: 'pri_01jmf95s11a9hedbh2bfcz5dz7',

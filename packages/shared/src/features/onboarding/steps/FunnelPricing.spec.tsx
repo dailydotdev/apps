@@ -119,6 +119,10 @@ const mockProductOptions: ProductPricingPreview[] = [
     price: {
       amount: 15,
       formatted: '$15',
+      monthly: {
+        amount: 15,
+        formatted: '$15',
+      },
       daily: {
         amount: 0.49,
         formatted: '$0.49',
@@ -143,6 +147,10 @@ const mockProductOptions: ProductPricingPreview[] = [
     price: {
       amount: 150,
       formatted: '$150',
+      monthly: {
+        amount: 12.5,
+        formatted: '$12.50',
+      },
       daily: {
         amount: 0.24,
         formatted: '$0.24',
