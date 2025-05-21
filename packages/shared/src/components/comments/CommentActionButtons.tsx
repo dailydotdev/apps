@@ -16,7 +16,7 @@ import {
   GiftIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
-import type { LoggedUser, UserShortProfile } from '../../lib/user';
+import type { UserShortProfile } from '../../lib/user';
 import { Roles } from '../../lib/user';
 import {
   Button,
@@ -42,7 +42,9 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import type { VoteEntityPayload } from '../../hooks';
 import {
   usePlusSubscription,
+  useViewSize,
   useVoteComment,
+  ViewSize,
   voteMutationHandlers,
 } from '../../hooks';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -52,18 +54,9 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
-import { AwardButton } from '../award/AwardButton';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
-import {
-  useCanAwardUser,
-  useHasAccessToCores,
-} from '../../hooks/useCoresFeature';
-import { Image } from '../image/Image';
 import { truncateTextClassNames } from '../utilities';
+import { CommentAwardActions } from './CommentAwardActions';
+import { MenuIcon } from '../MenuIcon';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -93,6 +86,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const isMobileSmall = useViewSize(ViewSize.MobileXL);
   const { isLoggedIn, user, showLogin } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
@@ -111,11 +105,6 @@ export default function CommentActionButtons({
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
   const appendTo = isCompanion ? getCompanionWrapper : 'parent';
-  const canAward = useCanAwardUser({
-    sendingUser: user,
-    receivingUser: comment.author as LoggedUser,
-  });
-  const hasAccessToCores = useHasAccessToCores();
 
   useEffect(() => {
     setVoteState({
@@ -199,6 +188,14 @@ export default function CommentActionButtons({
       label: 'Delete comment',
       action: () => onDelete(comment, parentId),
       icon: <TrashIcon />,
+    });
+  }
+
+  if (isMobileSmall) {
+    commentOptions.push({
+      icon: <MenuIcon Icon={ShareIcon} />,
+      label: 'Share via',
+      action: () => onShare(comment),
     });
   }
 
@@ -366,61 +363,13 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      {canAward && !comment.userState?.awarded && (
-        <AwardButton
-          appendTo={appendTo}
-          type="COMMENT"
-          entity={{
-            id: comment.id,
-            receiver: comment.author,
-            numAwards: comment.numAwards,
-          }}
-          pressed={!!comment.userState?.awarded}
-          post={post}
-          className={!comment.numAwards ? 'mr-3' : 'mr-1'}
-        />
-      )}
-      {hasAccessToCores && !!comment.numAwards && (
-        <ClickableText
-          onClick={() => {
-            openModal({
-              type: LazyModal.ListAwards,
-              props: {
-                queryProps: {
-                  id: comment.id,
-                  type: 'COMMENT',
-                },
-              },
-            });
-          }}
-        >
-          {!!comment.featuredAward?.award && (
-            <Image
-              src={comment.featuredAward.award.image}
-              alt={comment.featuredAward.award.name}
-              className="size-6"
-            />
-          )}
-          <Typography
-            className="ml-1 mr-3 flex items-center gap-1"
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            {largeNumberFormat(comment.numAwards)}
-            <span className="hidden tablet:block">
-              Award
-              {comment.numAwards > 1 ? 's' : ''}
-            </span>
-          </Typography>
-        </ClickableText>
-      )}
+      <CommentAwardActions comment={comment} post={post} />
       <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
-          className="mr-3"
+          className="mr-3 hidden mobileXL:flex"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />
