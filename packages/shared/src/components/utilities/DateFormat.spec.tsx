@@ -77,7 +77,7 @@ describe('date format comment type', () => {
       type: TimeFormatType.Comment,
     });
     const element = screen.getByRole('time');
-    expect(element).toHaveTextContent('3 years ago');
+    expect(element).toHaveTextContent('3y');
   });
 
   it('should render comment time format as now', async () => {
@@ -86,7 +86,7 @@ describe('date format comment type', () => {
       type: TimeFormatType.Comment,
     });
     const element = screen.getByRole('time');
-    expect(element).toHaveTextContent('Now');
+    expect(element).toHaveTextContent('now');
   });
 
   it('should render comment time format as minutes', async () => {
@@ -95,7 +95,7 @@ describe('date format comment type', () => {
       type: TimeFormatType.Comment,
     });
     const element = screen.getByRole('time');
-    expect(element).toHaveTextContent('2 minutes ago');
+    expect(element).toHaveTextContent('2m');
   });
 
   it('should render comment time format as hours', async () => {
@@ -104,7 +104,7 @@ describe('date format comment type', () => {
       type: TimeFormatType.Comment,
     });
     const element = screen.getByRole('time');
-    expect(element).toHaveTextContent('2 hours ago');
+    expect(element).toHaveTextContent('2h');
   });
 });
 

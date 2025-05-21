@@ -7,12 +7,14 @@ import {
   laptopL,
   laptopXL,
   mobileL,
+  mobileXL,
   tablet,
 } from '../styles/media';
 
 export enum ViewSize {
   MobileM = 'mobileM',
   MobileL = 'mobileL',
+  MobileXL = 'mobileXL',
   Tablet = 'tablet',
   Laptop = 'laptop',
   LaptopL = 'laptopL',
@@ -21,11 +23,16 @@ export enum ViewSize {
   DesktopL = 'desktopL',
 }
 
-const reversedEvaluatedSizes = [ViewSize.MobileM, ViewSize.MobileL];
+const reversedEvaluatedSizes = [
+  ViewSize.MobileM,
+  ViewSize.MobileL,
+  ViewSize.MobileXL,
+];
 
 const viewSizeToQuery = {
   [ViewSize.MobileM]: mobileL,
   [ViewSize.MobileL]: tablet,
+  [ViewSize.MobileXL]: mobileXL,
   [ViewSize.Tablet]: tablet,
   [ViewSize.Laptop]: laptop,
   [ViewSize.LaptopL]: laptopL,
