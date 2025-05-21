@@ -6,7 +6,6 @@ import { sanitize } from 'dompurify';
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
 import {
-  useConditionalFeature,
   useFeedPreviewMode,
   useTruncatedSummary,
   useViewSize,
@@ -23,7 +22,6 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { featureSocialShare } from '../../../lib/featureManagement';
 import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
@@ -59,11 +57,7 @@ export const FreeformList = forwardRef(function SharePostCard(
       post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
     [post.contentHtml],
   );
-  const { value: socialShare } = useConditionalFeature({
-    feature: featureSocialShare,
-    shouldEvaluate: interaction === 'copy' && post.type === PostType.Freeform,
-  });
-
+  const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
 
   const actionButtons = (
