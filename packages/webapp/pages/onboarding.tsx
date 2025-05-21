@@ -240,14 +240,6 @@ function Onboarding(): ReactElement {
   const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
 
-  /*
-   * Complete steps on transition
-   * OnboardingStep.InteractiveFeed -> completeStep(ActionType.EditTag)
-   * OnboardingStep.EditTag -> completeStep(ActionType.EditTag)
-   * OnboardingStep.ContentTypes -> completeStep(ActionType.ContentTypes)
-   * */
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onComplete = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
