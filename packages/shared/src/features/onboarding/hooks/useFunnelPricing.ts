@@ -34,14 +34,19 @@ export const useFunnelPricing = (
           return null;
         }
 
+        const hasBadge =
+          !!plan.badge?.text?.trim()?.length && !!plan.badge?.background;
+
         return {
           ...preview,
           metadata: {
             title: plan.label,
-            caption: {
-              copy: plan.badge?.text,
-              color: plan.badge?.background,
-            },
+            caption: hasBadge
+              ? {
+                  copy: plan.badge?.text,
+                  color: plan.badge?.background,
+                }
+              : undefined,
             idMap: {
               paddle: plan.priceId,
             },
