@@ -224,12 +224,14 @@ function AuthOptionsInner({
       return displayToast(labels.auth.error.generic);
     },
   });
-  const onProfileSuccess = async (options: { redirect?: string } = {}) => {
+  const onProfileSuccess = async (
+    options: { redirect?: string; setSignBack?: boolean } = {},
+  ) => {
     setIsRegistration(true);
-    const { redirect } = options;
+    const { redirect, setSignBack = true } = options;
     const { data } = await refetchBoot();
 
-    if (data.user) {
+    if (data.user && setSignBack) {
       const provider = chosenProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
@@ -370,7 +372,7 @@ function AuthOptionsInner({
       method: 'password',
     });
     await setChosenProvider('password');
-    await onProfileSuccess();
+    await onProfileSuccess({ setSignBack: false });
   };
 
   const onForgotPassword = (withEmail?: string) => {

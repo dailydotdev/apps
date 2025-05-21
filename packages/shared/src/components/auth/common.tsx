@@ -87,6 +87,7 @@ export enum OnboardingActions {
   Login = 'login',
   Recover = 'recover',
   Signup = 'signup',
+  VerifyEmail = 'verify',
 }
 
 export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
@@ -94,6 +95,7 @@ export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
   [OnboardingActions.Login]: AuthDisplay.Default,
   [OnboardingActions.Recover]: AuthDisplay.ForgotPassword,
   [OnboardingActions.Signup]: AuthDisplay.Default,
+  [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
 } as const;
 
 export interface AuthProps {

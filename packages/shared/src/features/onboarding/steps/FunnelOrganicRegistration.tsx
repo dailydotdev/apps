@@ -79,7 +79,7 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
             ...prev,
             isLoginFlow: false,
             isAuthenticating: true,
-            defaultDisplay: AuthDisplay.CodeVerification,
+            defaultDisplay: AuthDisplay.EmailVerification,
           }));
         }
       },
