@@ -23,6 +23,7 @@ import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { HotJarTracking } from '../../components/Pixels';
 
 type PageProps = {
   dehydratedState: DehydratedState;
@@ -35,7 +36,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id, version } = query;
+  const { id, v: version } = query;
   const allCookies = req.headers.cookie || '';
 
   // Extract forwarded headers
@@ -111,21 +112,22 @@ export default function HelloWorldPage({
   }, [setTheme, funnel?.parameters?.theme?.mode, themeMode, isAuthReady]);
 
   const onComplete = useCallback(() => {
-    router.replace('/onboarding');
-  }, [router]);
+    router.replace(funnel?.redirectOnFinish || '/onboarding');
+  }, [router, funnel?.redirectOnFinish]);
 
   if (isAuthReady && !isValidRegion) {
     router.replace('/onboarding');
     return null;
   }
 
-  if (isAuthReady && user?.isPlus) {
+  if (isAuthReady && user?.isPlus && !router?.query?.subscribed) {
     router.replace('/');
     return null;
   }
 
   return (
     <HydrationBoundary state={dehydratedState}>
+      <HotJarTracking hotjarId="6381877" />
       <JotaiProvider>
         <Head>
           <meta name="robots" content="noindex" />

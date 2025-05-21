@@ -70,6 +70,7 @@ export const ListAwardsModal = ({
           acc.push({
             ...node.user,
             award: node.award,
+            awardTransaction: node.awardTransaction,
           });
         });
 

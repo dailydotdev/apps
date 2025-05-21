@@ -1,5 +1,3 @@
-'use client';
-
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import {
@@ -50,7 +48,7 @@ export const FunnelPaymentSuccessful = ({
         <div className="grid h-12 place-items-center bg-background-default">
           <Logo isPlus />
         </div>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center p-6">
           <ChecklistAIcon
             size={IconSize.XXXLarge}
             className="mb-4 text-action-plus-default"
@@ -61,12 +59,13 @@ export const FunnelPaymentSuccessful = ({
             color={TypographyColor.Primary}
             bold
             dangerouslySetInnerHTML={{ __html: headHtml }}
+            className="text-center"
           />
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
-            className="my-6"
+            className="my-6 text-center"
             dangerouslySetInnerHTML={{ __html: descHtml }}
           />
 

@@ -12,7 +12,7 @@ import {
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { Image } from '../image/Image';
-import { getCoreCurrencyImage } from '../../lib/image';
+import { coreImage, getCoreCurrencyImage } from '../../lib/image';
 
 type CoreOptionButtonProps = {
   id: string;
@@ -64,7 +64,13 @@ export const CoreOptionButton = ({
           : undefined,
       )}
       variant={ButtonVariant.Float}
-      icon={<Image className="mr-2 size-8" src={getCoreCurrencyImage(cores)} />}
+      icon={
+        <Image
+          className="mr-2 size-8"
+          src={getCoreCurrencyImage(cores)}
+          fallbackSrc={coreImage}
+        />
+      }
       size={ButtonSize.Large}
       aria-checked={selectedProduct?.id === id}
       role="radio"

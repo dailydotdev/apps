@@ -6,6 +6,11 @@
                 "appIDs": ["C97TTQ7W57.dev.daily.app"],
                 "components": [
                     {
+                        "/": "/helloworld*",
+                        "exclude": true,
+                        "comment": "Matches any web funnels URL"
+                    },
+                    {
                         "/": "/callback*",
                         "exclude": true,
                         "comment": "Matches any OAuth callback URL"

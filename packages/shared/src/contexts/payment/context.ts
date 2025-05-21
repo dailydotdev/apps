@@ -37,3 +37,10 @@ export interface PaymentContextProviderProps<T = unknown, E = unknown> {
   disabledEvents?: E[];
   successCallback?: (event: T) => void;
 }
+
+export const FunnelPaymentPricingContext = createContext<{
+  pricing: ProductPricingPreview[] | null;
+}>({ pricing: null });
+
+export const useFunnelPaymentPricingContext = () =>
+  useContext(FunnelPaymentPricingContext);
