@@ -39,7 +39,7 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   }
 
   if (step.type === FunnelStepType.Loading) {
-    return FunnelBackgroundVariant.Hourglass;
+    return FunnelBackgroundVariant.Blank;
   }
 
   if (step.type === FunnelStepType.SocialProof) {
@@ -56,7 +56,6 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 };
 
 const alwaysDarkSteps = [
-  FunnelStepType.Loading,
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.PaymentSuccessful,
