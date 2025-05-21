@@ -182,7 +182,9 @@ export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
   const { cookieExists: acceptedMarketing } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
-  if (!acceptedMarketing) {
+  const { isGdprCovered } = useAuthContext();
+  const consent = !isGdprCovered || acceptedMarketing;
+  if (!consent) {
     return null;
   }
   return (
