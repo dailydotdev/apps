@@ -23,6 +23,7 @@ import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { HotJarTracking } from '../../components/Pixels';
 
 type PageProps = {
   dehydratedState: DehydratedState;
@@ -126,6 +127,7 @@ export default function HelloWorldPage({
 
   return (
     <HydrationBoundary state={dehydratedState}>
+      <HotJarTracking hotjarId="6381877" />
       <JotaiProvider>
         <Head>
           <meta name="robots" content="noindex" />
