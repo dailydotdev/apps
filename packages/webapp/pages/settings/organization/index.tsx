@@ -10,7 +10,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  plusOrganizationInfo,
+  plusUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonSize,
@@ -102,7 +105,7 @@ const Page = (): ReactElement => {
           company, team, or community name.
         </Typography>
 
-        <Link href="#" passHref>
+        <Link href={plusOrganizationInfo} passHref>
           <Typography
             tag={TypographyTag.Link}
             type={TypographyType.Callout}
