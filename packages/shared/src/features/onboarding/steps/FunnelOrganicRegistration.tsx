@@ -95,6 +95,10 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
       }
     }, [isAuthReady, isLoggedIn, onTransition, user]);
 
+    if (isLoggedIn || !isAuthReady) {
+      return null;
+    }
+
     return (
       <>
         <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
