@@ -207,6 +207,14 @@ export const PlusInfo = ({
                 container: 'tablet:max-w-60',
               }}
               focused
+              onChange={({ target }) => {
+                const newValue = Math.max(Number(target.value), 1);
+                if (newValue === itemQuantity) {
+                  return;
+                }
+                setItemQuantity(newValue);
+                onChange({ priceId: selectedOption, quantity: newValue });
+              }}
             />
             <Button
               size={ButtonSize.Large}
