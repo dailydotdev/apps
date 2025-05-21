@@ -148,46 +148,6 @@ describe('FunnelFact', () => {
     expect(image).toHaveAttribute('src', lightModeUrl);
   });
 
-  it('should fallback to dark mode image when light mode image is not provided', async () => {
-    // Mock light mode
-    (useIsLightTheme as jest.Mock).mockReturnValue(true);
-
-    const darkModeUrl = 'https://example.com/dark-image.png';
-
-    renderComponent({
-      parameters: {
-        ...defaultProps.parameters,
-        visualUrl: darkModeUrl,
-      },
-    });
-
-    const image = screen.getByAltText(
-      'Supportive illustration for the information',
-    );
-    expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', darkModeUrl);
-  });
-
-  it('should fallback to light mode image when dark mode image is not provided', async () => {
-    // Mock dark mode
-    (useIsLightTheme as jest.Mock).mockReturnValue(false);
-
-    const lightModeUrl = 'https://example.com/light-image.png';
-
-    renderComponent({
-      parameters: {
-        ...defaultProps.parameters,
-        visualUrlLightMode: lightModeUrl,
-      },
-    });
-
-    const image = screen.getByAltText(
-      'Supportive illustration for the information',
-    );
-    expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', lightModeUrl);
-  });
-
   it('should pass left alignment to StepHeadline when specified', async () => {
     renderComponent({
       parameters: {

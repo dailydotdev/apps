@@ -35,15 +35,16 @@ export const FunnelSocialProof = ({
         <Head>
           <link rel="preload" as="image" href={imageUrl} />
         </Head>
-        <LazyImage
-          aria-hidden
-          eager
-          imgSrc={image}
-          fallbackSrc={imageUrl}
-          imgAlt="Social proof illustration"
-          className="mx-6 object-cover"
-          ratio="64%"
-        />
+        {image && (
+          <LazyImage
+            aria-hidden
+            eager
+            imgSrc={image}
+            imgAlt="Social proof illustration"
+            className="mx-6 object-cover"
+            ratio="64%"
+          />
+        )}
         <Reviews
           rating={rating}
           reviews={reviews}

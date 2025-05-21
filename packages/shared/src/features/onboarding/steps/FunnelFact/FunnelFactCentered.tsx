@@ -16,15 +16,9 @@ export const FunnelFactCentered = ({
 }: FunnelStepFact): ReactElement => {
   const isLightMode = useIsLightTheme();
 
-  const primaryImage = isLightMode
+  const image = isLightMode
     ? parameters?.visualUrlLightMode
     : parameters?.visualUrl;
-
-  const fallbackImage = isLightMode
-    ? parameters?.visualUrl
-    : parameters?.visualUrlLightMode;
-
-  const image = primaryImage || fallbackImage;
 
   const { badge } = parameters;
 
@@ -64,7 +58,6 @@ export const FunnelFactCentered = ({
               aria-hidden
               eager
               imgSrc={image}
-              fallbackSrc={fallbackImage}
               className="max-h-[25rem] w-full flex-1"
               imgAlt="Supportive illustration for the information"
               fit="contain"
