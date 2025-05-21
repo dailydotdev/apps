@@ -16,10 +16,15 @@ export const FunnelFactCentered = ({
 }: FunnelStepFact): ReactElement => {
   const isLightMode = useIsLightTheme();
 
-  const image = isLightMode
+  const primaryImage = isLightMode
     ? parameters?.visualUrlLightMode
     : parameters?.visualUrl;
-  const fallbackImage = parameters?.visualUrl || parameters?.visualUrlLightMode;
+
+  const fallbackImage = isLightMode
+    ? parameters?.visualUrl
+    : parameters?.visualUrlLightMode;
+
+  const image = primaryImage || fallbackImage;
 
   const { badge } = parameters;
 
@@ -50,10 +55,10 @@ export const FunnelFactCentered = ({
         data-testid="step-content"
         className="flex flex-1 flex-col items-center justify-center gap-6 p-6 laptop:mb-10"
       >
-        {parameters?.visualUrl && (
+        {image && (
           <>
             <Head>
-              <link rel="preload" as="image" href={parameters.visualUrl} />
+              <link rel="preload" as="image" href={image} />
             </Head>
             <LazyImage
               aria-hidden

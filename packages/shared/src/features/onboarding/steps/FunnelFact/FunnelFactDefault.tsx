@@ -17,10 +17,15 @@ export const FunnelFactDefault = ({
 }: FunnelStepFact): ReactElement => {
   const isLightMode = useIsLightTheme();
 
-  const image = isLightMode
+  const primaryImage = isLightMode
     ? parameters?.visualUrlLightMode
     : parameters?.visualUrl;
-  const fallbackImage = parameters?.visualUrl || parameters?.visualUrlLightMode;
+
+  const fallbackImage = isLightMode
+    ? parameters?.visualUrl
+    : parameters?.visualUrlLightMode;
+
+  const image = primaryImage || fallbackImage;
 
   const isLayoutReversed =
     parameters.layout === 'reversed' || parameters.reverse;
@@ -68,10 +73,10 @@ export const FunnelFactDefault = ({
           />
           {badge?.placement === 'bottom' && badgeComponent}
         </div>
-        {parameters?.visualUrl && (
+        {image && (
           <>
             <Head>
-              <link rel="preload" as="image" href={parameters.visualUrl} />
+              <link rel="preload" as="image" href={image} />
             </Head>
             <LazyImage
               aria-hidden
