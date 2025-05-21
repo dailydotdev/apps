@@ -82,7 +82,7 @@ it('should show author name', async () => {
 
 it('should show formatted comment date', async () => {
   renderLayout();
-  await screen.findByText('7 years ago');
+  await screen.findByText('7y');
 });
 
 it('should show last updated comment date', async () => {
@@ -92,7 +92,7 @@ it('should show last updated comment date', async () => {
       lastUpdatedAt: new Date(2017, 2, 10, 0, 0).toISOString(),
     },
   });
-  await screen.findByText('Modified 7 years ago');
+  await screen.findByText('Modified 7y');
 });
 
 it('should show comment content', async () => {
