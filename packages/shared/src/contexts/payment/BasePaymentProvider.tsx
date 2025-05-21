@@ -18,7 +18,7 @@ export const BasePaymentProvider = ({
   isPaddleReady,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
-  const { pricing: funnelPricing } = useFunnelPaymentPricingContext();
+  const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: ProductPricingType.Plus,
     enabled: !funnelPricing,
