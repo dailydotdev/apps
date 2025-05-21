@@ -42,6 +42,8 @@ import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
+import { useFunnelPricing } from '../hooks/useFunnelPricing';
+import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 import { FunnelOrganicRegistration } from '../steps/FunnelOrganicRegistration';
 
 export interface FunnelStepperProps {
@@ -96,6 +98,7 @@ export const FunnelStepper = ({
   showCookieBanner,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
+  const { data: pricing } = useFunnelPricing(funnel);
   const {
     trackOnClickCapture,
     trackOnHoverCapture,
@@ -231,31 +234,33 @@ export const FunnelStepper = ({
             showSkipButton={skip.hasTarget}
             showProgressBar={skip.hasTarget}
           />
-          <PaymentContextProvider
-            disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-            successCallback={successCallback}
-          >
-            {steps?.map((funnelStep: FunnelStep) => {
-              const isActive = funnelStep?.id === step?.id;
-              return (
-                <div
-                  key={funnelStep.id}
-                  {...(!isActive && {
-                    'data-testid': `funnel-step`,
-                  })}
-                  className={classNames('flex flex-1 flex-col', {
-                    hidden: !isActive,
-                  })}
-                >
-                  <FunnelStepComponent
-                    {...funnelStep}
-                    isActive={isActive}
-                    onTransition={onTransition}
-                  />
-                </div>
-              );
-            })}
-          </PaymentContextProvider>
+          <FunnelPaymentPricingContext.Provider value={{ pricing }}>
+            <PaymentContextProvider
+              disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
+              successCallback={successCallback}
+            >
+              {steps?.map((funnelStep: FunnelStep) => {
+                const isActive = funnelStep?.id === step?.id;
+                return (
+                  <div
+                    key={funnelStep.id}
+                    {...(!isActive && {
+                      'data-testid': `funnel-step`,
+                    })}
+                    className={classNames('flex flex-1 flex-col', {
+                      hidden: !isActive,
+                    })}
+                  >
+                    <FunnelStepComponent
+                      {...funnelStep}
+                      isActive={isActive}
+                      onTransition={onTransition}
+                    />
+                  </div>
+                );
+              })}
+            </PaymentContextProvider>
+          </FunnelPaymentPricingContext.Provider>
         </div>
       </FunnelStepBackground>
     </section>

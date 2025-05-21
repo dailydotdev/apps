@@ -30,8 +30,7 @@ interface ProductPricing extends Price {
   daily?: Price;
 }
 
-export interface ProductPricingPreview {
-  metadata: ProductPricingMetadata;
+interface BaseProductPricingPreview {
   priceId: string;
   price: ProductPricing;
   currency: {
@@ -39,6 +38,10 @@ export interface ProductPricingPreview {
     symbol: string;
   };
   duration: PlusPriceType;
+}
+
+export interface ProductPricingPreview extends BaseProductPricingPreview {
+  metadata: ProductPricingMetadata;
 }
 
 export enum ProductPricingType {
@@ -105,6 +108,46 @@ export const fetchPricingPreview = async (
   );
 
   return pricingPreview;
+};
+
+const PRICING_PREVIEW_BY_IDS_QUERY = gql`
+  query PricingPreviewByIds($ids: [String]!, $locale: String) {
+    pricingPreviewByIds(ids: $ids, locale: $locale) {
+      priceId
+      price {
+        amount
+        formatted
+        monthly {
+          amount
+          formatted
+        }
+        daily {
+          amount
+          formatted
+        }
+      }
+      currency {
+        code
+        symbol
+      }
+      duration
+      trialPeriod {
+        interval
+        frequency
+      }
+    }
+  }
+`;
+
+export const fetchPricingPreviewByIds = async (
+  ids: string[],
+  locale = globalThis?.navigator?.language ?? 'en-US',
+): Promise<BaseProductPricingPreview[]> => {
+  const { pricingPreviewByIds } = await gqlClient.request<{
+    pricingPreviewByIds: ProductPricingPreview[];
+  }>(PRICING_PREVIEW_BY_IDS_QUERY, { ids, locale });
+
+  return pricingPreviewByIds;
 };
 
 const PRICING_METADATA_QUERY = gql`
