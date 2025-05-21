@@ -174,17 +174,17 @@ const useOnboardingAuth = () => {
         isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
       });
     },
+    // only run when {the action changes / on mount}
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [action, updateAuth],
   );
 
   useEffect(() => {
     if (boot?.user && 'bio' in boot.user) {
-      console.log('boot.user', boot.user);
       updateUser(boot.user);
       updateAuth({ isAuthenticating: false });
     }
-  }, [boot.user, updateUser]);
+  }, [boot.user, updateAuth, updateUser]);
 
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
@@ -250,26 +250,26 @@ function Onboarding(): ReactElement {
     return null;
   }
 
+  if (isAuthenticating) {
+    return (
+      <div
+        className={classNames(
+          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+        )}
+      >
+        <OnboardingHeader />
+        <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+          <AuthOptions {...authOptionProps} />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      {isAuthenticating ? (
-        <div
-          className={classNames(
-            'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
-          )}
-        >
-          <OnboardingHeader />
-          <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
-            <AuthOptions {...authOptionProps} />
-          </div>
-        </div>
-      ) : (
-        <div className="flex min-h-dvh min-w-full flex-col">
-          <FunnelStepper {...funnelState} onComplete={onComplete} />
-          <HotJarTracking hotjarId="3871311" />
-        </div>
-      )}
-    </>
+    <div className="flex min-h-dvh min-w-full flex-col">
+      <FunnelStepper {...funnelState} onComplete={onComplete} />
+      <HotJarTracking hotjarId="3871311" />
+    </div>
   );
 }
 
