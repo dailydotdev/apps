@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { PlusList } from './PlusList';
+import { PlusList, plusOrganizationFeatureList } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -47,6 +47,7 @@ type PlusInfoProps = {
 export enum PlusType {
   Self = 'self',
   Gift = 'gift',
+  Organization = 'organization',
 }
 
 interface PageCopy {
@@ -60,6 +61,12 @@ export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
     title: 'Fast-track your growth',
     description:
       'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+    subtitle: 'Billing cycle',
+  },
+  [PlusType.Organization]: {
+    title: 'Give your engineering team an unfair advantage',
+    description:
+      'Equip your engineers with AI tools, personalized content, and distraction-free experience so they can move faster and build better. All the benefits of daily.dev Plus, now built for teams.',
     subtitle: 'Billing cycle',
   },
   [PlusType.Gift]: {
@@ -89,9 +96,25 @@ const RadioGroupSkeleton = () => (
   </div>
 );
 
-const getCopy = ({ giftToUser, title, description, subtitle }) => {
-  const fallback =
-    defaultPlusInfoCopy[giftToUser ? PlusType.Gift : PlusType.Self];
+const getPlusType = ({
+  isGift,
+  isOrganization,
+}: {
+  isGift?: boolean;
+  isOrganization?: boolean;
+}): PlusType => {
+  if (isOrganization) {
+    return PlusType.Organization;
+  }
+  if (isGift) {
+    return PlusType.Gift;
+  }
+  return PlusType.Self;
+};
+
+const getCopy = (plusType: PlusType, { title, description, subtitle }) => {
+  const fallback = defaultPlusInfoCopy[plusType];
+
   return {
     titleCopy: title || fallback.title,
     descriptionCopy: description || fallback.description,
@@ -116,13 +139,17 @@ export const PlusInfo = ({
   isContinueLoading = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
-  const { giftOneYear } = usePaymentContext();
+  const { giftOneYear, isOrganization } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
 
-  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy({
-    giftToUser,
+  const plusType = getPlusType({
+    isGift: !!giftToUser,
+    isOrganization,
+  });
+
+  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy(plusType, {
     title,
     description,
     subtitle,
@@ -252,7 +279,11 @@ export const PlusInfo = ({
           </Button>
         </div>
       ) : undefined}
-      {showPlusList && <PlusList />}
+      {showPlusList && (
+        <PlusList
+          items={isOrganization ? plusOrganizationFeatureList : undefined}
+        />
+      )}
       {showTrustReviews && <PlusTrustReviews />}
     </>
   );

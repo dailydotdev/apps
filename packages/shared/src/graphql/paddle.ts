@@ -46,6 +46,7 @@ export interface ProductPricingPreview extends BaseProductPricingPreview {
 
 export enum ProductPricingType {
   Plus = 'plus',
+  PlusOrganization = 'plus_organization',
   Cores = 'cores',
 }
 
