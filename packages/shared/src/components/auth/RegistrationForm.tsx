@@ -3,6 +3,7 @@ import type { MutableRefObject, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { useAtomValue } from 'jotai';
 import type {
   AuthTriggersType,
   RegistrationError,
@@ -41,6 +42,7 @@ import {
 } from '../typography/Typography';
 import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
+import { authAtom } from '../../features/onboarding/store/onboarding.store';
 
 export interface RegistrationFormProps extends AuthFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -237,26 +239,29 @@ const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
+  const { isAuthenticating = false } = useAtomValue(authAtom);
 
   return (
     <>
-      <div className="flex gap-4">
-        <Button
-          className="border-border-subtlest-tertiary text-text-secondary"
-          icon={<ArrowIcon className="-rotate-90" />}
-          onClick={onBackToIntro}
-          size={ButtonSize.Medium}
-          type="button"
-          variant={ButtonVariant.Secondary}
-        />
-        <Typography
-          className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
-          tag={TypographyTag.H2}
-          type={TypographyType.Title1}
-        >
-          Join daily.dev
-        </Typography>
-      </div>
+      {!isAuthenticating && (
+        <div className="flex gap-4">
+          <Button
+            className="border-border-subtlest-tertiary text-text-secondary"
+            icon={<ArrowIcon className="-rotate-90" />}
+            onClick={onBackToIntro}
+            size={ButtonSize.Medium}
+            type="button"
+            variant={ButtonVariant.Secondary}
+          />
+          <Typography
+            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+            tag={TypographyTag.H2}
+            type={TypographyType.Title1}
+          >
+            Join daily.dev
+          </Typography>
+        </div>
+      )}
       <AuthForm
         className={classNames(
           'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',

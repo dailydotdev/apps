@@ -110,22 +110,16 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 };
 
 const getDefaultDisplay = ({
-  email,
   isLogin,
   shouldVerify,
   action,
 }: {
   isLogin?: boolean;
   shouldVerify?: boolean;
-  email?: string;
   action?: OnboardingActions;
 }): AuthDisplay => {
   if (!!action && actionToAuthDisplay[action]) {
     return actionToAuthDisplay[action];
-  }
-
-  if (email) {
-    return AuthDisplay.Registration;
   }
   if (shouldVerify) {
     return AuthDisplay.EmailVerification;
@@ -164,12 +158,7 @@ const useOnboardingAuth = () => {
       const shouldVerify = anonymous?.shouldVerify;
       const isLogin = loginState?.isLogin;
       updateAuth({
-        defaultDisplay: getDefaultDisplay({
-          email,
-          isLogin,
-          shouldVerify,
-          action,
-        }),
+        defaultDisplay: getDefaultDisplay({ isLogin, shouldVerify, action }),
         email,
         isAuthenticating:
           !!action ||
@@ -204,7 +193,6 @@ const useOnboardingAuth = () => {
       onSuccessfulRegistration: (user) => {
         // display funnel
         updateAuth({ isAuthenticating: false });
-        console.log('User:', user);
         // onTagsNext();
       },
       onAuthStateUpdate: (props: AuthProps) =>

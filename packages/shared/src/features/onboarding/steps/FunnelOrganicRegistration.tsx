@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useSetAtom } from 'jotai/react';
 import type { FunnelStepOrganicRegistration } from '../types/funnel';
@@ -16,6 +16,9 @@ import { ExperimentWinner } from '../../../lib/featureValues';
 import { wrapperMaxWidth } from '../../../components/onboarding/common';
 import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
 import { authAtom } from '../store/onboarding.store';
+import type { AnonymousUser, LoggedUser } from '../../../lib/user';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
 type FunnelOrganicRegistrationProps = FunnelStepOrganicRegistration;
 
@@ -32,104 +35,129 @@ const staticAuthProps = {
   trigger: AuthTriggers.Onboarding,
 };
 
-export const FunnelOrganicRegistration = ({
-  parameters,
-  onTransition,
-}: FunnelOrganicRegistrationProps): ReactElement => {
-  const { headline, explainer, image } = parameters;
-  const formRef = useRef<HTMLFormElement>(null);
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const setAuth = useSetAtom(authAtom);
-  const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
-    AuthDisplay.OnboardingSignup,
-  );
-  const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
-  const onAuthStateUpdate = useCallback(
-    ({ defaultDisplay, isLoginFlow }: Partial<AuthProps>) => {
-      if (defaultDisplay) {
-        setAuthDisplay(defaultDisplay);
-      }
+export const FunnelOrganicRegistration = withIsActiveGuard(
+  ({
+    parameters,
+    onTransition,
+  }: FunnelOrganicRegistrationProps): ReactElement => {
+    const { headline, explainer, image } = parameters;
+    const formRef = useRef<HTMLFormElement>(null);
+    const isMobile = useViewSize(ViewSize.MobileL);
+    const setAuth = useSetAtom(authAtom);
+    const { isLoggedIn, isAuthReady, user } = useAuthContext();
+    const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
+      AuthDisplay.OnboardingSignup,
+    );
+    const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
+    const onAuthStateUpdate = useCallback(
+      ({ defaultDisplay, isLoginFlow }: Partial<AuthProps>) => {
+        if (defaultDisplay) {
+          setAuthDisplay(defaultDisplay);
+        }
 
-      if (isLoginFlow) {
-        setAuth((prev) => ({
-          ...prev,
-          isLoginFlow: true,
-          isAuthenticating: true,
-          defaultDisplay: AuthDisplay.Default,
-        }));
-      }
-    },
-    [setAuthDisplay, setAuth],
-  );
+        if (isLoginFlow) {
+          setAuth((prev) => ({
+            ...prev,
+            isLoginFlow: true,
+            isAuthenticating: true,
+            defaultDisplay: AuthDisplay.Default,
+          }));
+        }
+      },
+      [setAuthDisplay, setAuth],
+    );
 
-  return (
-    <>
-      <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
-        <OnboardingHeader isLanding />
-        <div
-          className={classNames(
-            `flex w-full flex-1 flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,
-            wrapperMaxWidth,
-            isEmailSignupActive && 'mt-7.5',
-          )}
-        >
+    const onSuccessfulRegistration = useCallback(
+      (data: LoggedUser | AnonymousUser) => {
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { user: data },
+        });
+
+        if (data) {
+          setAuth((prev) => ({
+            ...prev,
+            isLoginFlow: false,
+            isAuthenticating: true,
+            defaultDisplay: AuthDisplay.CodeVerification,
+          }));
+        }
+      },
+      [onTransition, setAuth],
+    );
+
+    useEffect(() => {
+      if (isLoggedIn && isAuthReady) {
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { user },
+        });
+      }
+    }, [isAuthReady, isLoggedIn, onTransition, user]);
+
+    return (
+      <>
+        <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
+          <OnboardingHeader isLanding />
           <div
             className={classNames(
-              'mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow',
-              !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
+              `flex w-full flex-1 flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,
+              wrapperMaxWidth,
+              isEmailSignupActive && 'mt-7.5',
             )}
           >
-            {!isEmailSignupActive && (
-              <OnboardingHeadline
-                className={{
-                  title: 'tablet:typo-mega-1 typo-large-title',
-                  description:
-                    'mb-8 text-text-primary typo-body tablet:typo-title2',
+            <div
+              className={classNames(
+                'mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow',
+                !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
+              )}
+            >
+              {!isEmailSignupActive && (
+                <OnboardingHeadline
+                  className={{
+                    title: 'tablet:typo-mega-1 typo-large-title',
+                    description:
+                      'mb-8 text-text-primary typo-body tablet:typo-title2',
+                  }}
+                  title={headline}
+                  description={explainer}
+                />
+              )}
+              <AuthOptions
+                {...staticAuthProps}
+                defaultDisplay={authDisplay}
+                formRef={formRef}
+                onboardingSignupButton={{
+                  size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+                  variant: ButtonVariant.Primary,
                 }}
-                title={headline}
-                description={explainer}
+                onSuccessfulRegistration={onSuccessfulRegistration}
+                onAuthStateUpdate={onAuthStateUpdate}
               />
-            )}
-            <AuthOptions
-              {...staticAuthProps}
-              defaultDisplay={authDisplay}
-              formRef={formRef}
-              onboardingSignupButton={{
-                size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-                variant: ButtonVariant.Primary,
-              }}
-              onSuccessfulRegistration={(user) => {
-                onTransition?.({
-                  type: FunnelStepTransitionType.Complete,
-                  details: { user },
-                });
-                console.log('onSuccessfulRegistration', { user });
-              }}
-              onAuthStateUpdate={onAuthStateUpdate}
-            />
+            </div>
+            <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
           </div>
-          <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+          {!!image && (
+            <img
+              {...image}
+              alt="Onboarding background"
+              aria-hidden
+              className={classNames(
+                'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
+                { 'opacity-[.24]': isEmailSignupActive },
+              )}
+              fetchPriority="high"
+              loading="eager"
+              role="presentation"
+              sizes="(max-width: 655px) 450px, 1024px"
+              {...image}
+            />
+          )}
+          <FooterLinks className="mx-auto pb-6" />
         </div>
-        {!!image && (
-          <img
-            {...image}
-            alt="Onboarding background"
-            aria-hidden
-            className={classNames(
-              'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
-              { 'opacity-[.24]': isEmailSignupActive },
-            )}
-            fetchPriority="high"
-            loading="eager"
-            role="presentation"
-            sizes="(max-width: 655px) 450px, 1024px"
-            {...image}
-          />
-        )}
-        <FooterLinks className="mx-auto pb-6" />
-      </div>
-    </>
-  );
-};
+      </>
+    );
+  },
+);
 
 export default FunnelOrganicRegistration;

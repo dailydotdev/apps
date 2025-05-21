@@ -146,6 +146,7 @@ export const OnboardingRegistrationForm = ({
 
   return (
     <>
+      hello!
       <AuthForm
         className={classNames('mb-8 gap-8', className?.onboardingForm)}
         onSubmit={onEmailCheck}
