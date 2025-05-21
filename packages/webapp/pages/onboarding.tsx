@@ -81,6 +81,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     id: id ? `${id}` : undefined,
     version: version ? `${version}` : undefined,
     forwardedHeaders,
+    featureKey: 'onboarding',
   });
 
   // Handle any cookies from the response
