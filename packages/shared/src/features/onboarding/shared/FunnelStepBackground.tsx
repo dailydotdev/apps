@@ -50,7 +50,6 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 };
 
 const alwaysDarkSteps = [
-  FunnelStepType.SocialProof,
   FunnelStepType.Loading,
   FunnelStepType.Signup,
   FunnelStepType.Checkout,

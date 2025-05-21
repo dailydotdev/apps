@@ -8,11 +8,19 @@ import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
 import { ReputationLightningIcon } from '../../../../components/icons';
 import { Badge } from '../../../../components/Badge';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
 export const FunnelFactCentered = ({
   parameters,
   onTransition,
 }: FunnelStepFact): ReactElement => {
+  const isLightMode = useIsLightTheme();
+
+  const image = isLightMode
+    ? parameters?.visualUrlLightMode
+    : parameters?.visualUrl;
+  const fallbackImage = parameters?.visualUrl || parameters?.visualUrlLightMode;
+
   const { badge } = parameters;
 
   const badgeComponent = useMemo(() => {
@@ -50,7 +58,8 @@ export const FunnelFactCentered = ({
             <LazyImage
               aria-hidden
               eager
-              imgSrc={parameters?.visualUrl}
+              imgSrc={image}
+              fallbackSrc={fallbackImage}
               className="max-h-[25rem] w-full flex-1"
               imgAlt="Supportive illustration for the information"
               fit="contain"

@@ -240,6 +240,7 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
 export interface FunnelStepSocialProof
   extends FunnelStepCommon<{
     imageUrl: string;
+    imageUrlLightMode?: string;
     rating: string;
     reviews: Review[];
     reviewSubtitle: string;
