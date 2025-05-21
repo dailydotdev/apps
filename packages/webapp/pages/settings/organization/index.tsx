@@ -113,7 +113,7 @@ const Page = (): ReactElement => {
         </Link>
       </section>
 
-      <Link href={plusUrl} passHref>
+      <Link href={`${plusUrl}?type=team`} passHref>
         <Button
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
