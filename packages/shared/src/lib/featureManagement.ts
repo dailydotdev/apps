@@ -35,8 +35,6 @@ export const plusTakeoverContent = new Feature<{
   shouldShowReviews: boolean;
 }>('plus_takeover_content', null);
 
-export const featurePostTagSorting = new Feature('post_tag_sorting', false);
-
 export const visitLinkFeature = new Feature('post_visit_link', false);
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
