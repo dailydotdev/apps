@@ -154,8 +154,13 @@ export const usePaddlePayment = ({
   }, [router, disabledEvents, targetType]);
 
   const openCheckout = useCallback(
-    ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {
-      const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
+    ({
+      priceId,
+      giftToUserId,
+      discountId,
+      quantity = 1,
+    }: OpenCheckoutProps) => {
+      const items: CheckoutLineItem[] = [{ priceId, quantity }];
       const customer: CheckoutCustomer = {
         ...(user?.email
           ? {

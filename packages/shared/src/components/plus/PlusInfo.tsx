@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -19,7 +19,7 @@ import { PlusOptionRadio } from './PlusOptionRadio';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { GiftIcon } from '../icons';
+import { GiftIcon, MinusIcon, PlusIcon } from '../icons';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -27,6 +27,7 @@ import { PlusTrustReviews } from './PlusTrustReviews';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
+import { TextField } from '../fields/TextField';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -144,6 +145,8 @@ export const PlusInfo = ({
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
 
+  const [itemQuantity, setItemQuantity] = useState<number>(1);
+
   const plusType = getPlusType({
     isGift: !!giftToUser,
     isOrganization,
@@ -181,6 +184,58 @@ export const PlusInfo = ({
       >
         {descriptionCopy}
       </Typography>
+
+      {isOrganization && (
+        <div className="mb-4 flex flex-col gap-4">
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            bold
+          >
+            Team size
+          </Typography>
+
+          <div className="flex gap-1">
+            <TextField
+              label={null}
+              inputId="team-size"
+              value={itemQuantity}
+              type="number"
+              className={{
+                container: 'tablet:max-w-60',
+              }}
+              focused
+            />
+            <Button
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Secondary}
+              icon={<MinusIcon />}
+              disabled={itemQuantity <= 1}
+              onClick={() => {
+                setItemQuantity((prev: number) => {
+                  const newValue = Math.max(prev - 1, 1);
+                  onChange({ priceId: selectedOption, quantity: newValue });
+                  return newValue;
+                });
+              }}
+            />
+            <Button
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Secondary}
+              icon={<PlusIcon />}
+              onClick={() => {
+                setItemQuantity((prev: number) => {
+                  const newValue = prev + 1;
+                  onChange({ priceId: selectedOption, quantity: newValue });
+                  return newValue;
+                });
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="mb-4 flex h-6 flex-row items-center justify-between">
         <Typography
           tag={TypographyTag.P}
@@ -254,7 +309,7 @@ export const PlusInfo = ({
                 option={option}
                 checked={selectedOption === option.priceId}
                 onChange={() => {
-                  onChange({ priceId: option.priceId });
+                  onChange({ priceId: option.priceId, quantity: itemQuantity });
                   logSubscriptionEvent({
                     event_name: LogEvent.SelectBillingCycle,
                     target_id: option.metadata.title.toLowerCase(),

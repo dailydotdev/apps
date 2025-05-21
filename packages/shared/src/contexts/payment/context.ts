@@ -10,6 +10,7 @@ export interface OpenCheckoutProps {
   giftToUserId?: string;
   customData?: Record<string, unknown>;
   discountId?: string;
+  quantity?: number;
 }
 
 export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
@@ -25,6 +26,8 @@ export interface PaymentContextData {
   toggleOrganization?: () => void;
   priceType: ProductPricingType;
   setPriceType: Dispatch<SetStateAction<ProductPricingType>>;
+  itemQuantity?: number;
+  setItemQuantity?: Dispatch<SetStateAction<number>>;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);

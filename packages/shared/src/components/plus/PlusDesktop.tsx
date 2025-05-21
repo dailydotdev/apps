@@ -37,9 +37,9 @@ export const PlusDesktop = ({
   const ref = useRef();
 
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
-    ({ priceId, giftToUserId }) => {
+    ({ priceId, giftToUserId, quantity }) => {
       setSelectedOption(priceId);
-      openCheckout({ priceId, giftToUserId });
+      openCheckout({ priceId, giftToUserId, quantity });
     },
     [openCheckout],
   );
