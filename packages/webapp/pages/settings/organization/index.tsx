@@ -16,8 +16,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
-import { OrganizationIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  getRoleName,
+  HorizontalSeparator,
+} from '@dailydotdev/shared/src/components/utilities';
+import {
+  ArrowIcon,
+  OrganizationIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
@@ -26,6 +32,13 @@ import {
   useReferralCampaign,
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib';
+import { useOrganizations } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizations';
+
+import {
+  Image,
+  ImageType,
+} from '@dailydotdev/shared/src/components/image/Image';
+import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../../next-seo';
@@ -71,6 +84,8 @@ const NoOrganizations = () => {
 };
 
 const Page = (): ReactElement => {
+  const { organizations } = useOrganizations();
+
   return (
     <AccountPageContainer
       title="Organizations"
@@ -115,7 +130,41 @@ const Page = (): ReactElement => {
           Your organization
         </Typography>
 
-        <NoOrganizations />
+        {organizations && organizations.length > 0 ? (
+          <div className="flex flex-col gap-4 pt-4">
+            {organizations.map(({ role, organization }) => (
+              <Link key={organization.id} href="#" passHref>
+                <a className="flex items-center gap-2">
+                  <Image
+                    className="mr-2 size-8 rounded-full object-cover"
+                    src={organization.image}
+                    alt={`Avatar of ${organization.name}`}
+                    type={ImageType.Organization}
+                  />
+
+                  <Typography
+                    bold
+                    type={TypographyType.Callout}
+                    className="flex gap-1 self-center"
+                  >
+                    {organization.name}
+                  </Typography>
+
+                  <UserBadge role={role} className="mt-0.5">
+                    {getRoleName(role)}
+                  </UserBadge>
+
+                  <ArrowIcon
+                    size={IconSize.Small}
+                    className="ml-auto rotate-90 text-text-tertiary"
+                  />
+                </a>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <NoOrganizations />
+        )}
       </section>
     </AccountPageContainer>
   );

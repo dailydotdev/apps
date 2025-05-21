@@ -22,6 +22,7 @@ import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
+import { OrganizationMemberRole } from '../features/organizations/types';
 
 interface BaseSquadForm
   extends Pick<
@@ -556,8 +557,15 @@ export const verifyPermission = (
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);
 
-export const isPrivilegedRole = (role?: SourceMemberRole): boolean =>
-  [SourceMemberRole.Admin, SourceMemberRole.Moderator].includes(role);
+export const isPrivilegedRole = (
+  role?: SourceMemberRole | OrganizationMemberRole,
+): boolean =>
+  [
+    SourceMemberRole.Admin,
+    SourceMemberRole.Moderator,
+    OrganizationMemberRole.Owner,
+    OrganizationMemberRole.Admin,
+  ].includes(role);
 
 export const isSourcePublicSquad = (source: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
