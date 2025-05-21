@@ -17,15 +17,9 @@ export const FunnelFactDefault = ({
 }: FunnelStepFact): ReactElement => {
   const isLightMode = useIsLightTheme();
 
-  const primaryImage = isLightMode
+  const image = isLightMode
     ? parameters?.visualUrlLightMode
     : parameters?.visualUrl;
-
-  const fallbackImage = isLightMode
-    ? parameters?.visualUrl
-    : parameters?.visualUrlLightMode;
-
-  const image = primaryImage || fallbackImage;
 
   const isLayoutReversed =
     parameters.layout === 'reversed' || parameters.reverse;
@@ -82,7 +76,6 @@ export const FunnelFactDefault = ({
               aria-hidden
               eager
               imgSrc={image}
-              fallbackSrc={fallbackImage}
               className="h-auto w-full object-cover"
               ratio="64%"
               imgAlt="Supportive illustration for the information"
