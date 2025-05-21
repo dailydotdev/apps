@@ -26,7 +26,7 @@ export function FunnelStepCtaWrapper({
   return (
     <div className="relative flex flex-1 flex-col gap-4">
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
-      <div className="sticky bottom-2 m-4">
+      <div className="sticky bottom-2 mx-auto my-4 w-full max-w-md px-4">
         <Button
           className={classNames(className, 'w-full')}
           data-funnel-track={FunnelTargetId.StepCta}

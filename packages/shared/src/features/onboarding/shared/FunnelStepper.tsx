@@ -208,10 +208,10 @@ export const FunnelStepper = ({
       )}
       <FunnelStepBackground step={step}>
         <div
-          className={
-            !layout.isFullWidth &&
-            'mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg'
-          }
+          className={classNames(
+            'mx-auto flex w-full flex-1 flex-col',
+            !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
+          )}
         >
           {layout.hasBanner && (
             <FunnelBannerMessage {...funnel.parameters.banner} />

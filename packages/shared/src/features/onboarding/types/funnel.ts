@@ -351,4 +351,6 @@ export interface FunnelJSON {
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicRegistration,
+  FunnelStepType.EditTags,
+  FunnelStepType.ContentTypes,
 ];
