@@ -28,6 +28,7 @@ export interface PaymentContextData {
   setPriceType: Dispatch<SetStateAction<ProductPricingType>>;
   itemQuantity?: number;
   setItemQuantity?: Dispatch<SetStateAction<number>>;
+  checkoutItemsLoading?: boolean;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);

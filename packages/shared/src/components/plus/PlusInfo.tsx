@@ -140,7 +140,8 @@ export const PlusInfo = ({
   isContinueLoading = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
-  const { giftOneYear, isOrganization } = usePaymentContext();
+  const { giftOneYear, isOrganization, checkoutItemsLoading } =
+    usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
@@ -212,6 +213,7 @@ export const PlusInfo = ({
               variant={ButtonVariant.Secondary}
               icon={<MinusIcon />}
               disabled={itemQuantity <= 1}
+              loading={checkoutItemsLoading}
               onClick={() => {
                 setItemQuantity((prev: number) => {
                   const newValue = Math.max(prev - 1, 1);
@@ -224,6 +226,7 @@ export const PlusInfo = ({
               size={ButtonSize.Large}
               variant={ButtonVariant.Secondary}
               icon={<PlusIcon />}
+              loading={checkoutItemsLoading}
               onClick={() => {
                 setItemQuantity((prev: number) => {
                   const newValue = prev + 1;

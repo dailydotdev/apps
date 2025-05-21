@@ -10,12 +10,14 @@ import { useAuthContext } from '../AuthContext';
 interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
   isPaddleReady?: boolean;
+  checkoutItemsLoading?: boolean;
 }
 
 export const BasePaymentProvider = ({
   children,
   openCheckout,
   isPaddleReady,
+  checkoutItemsLoading,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const [priceType, setPriceType] = useState<ProductPricingType>(
     ProductPricingType.Plus,
@@ -50,6 +52,7 @@ export const BasePaymentProvider = ({
       isOrganization,
       priceType,
       setPriceType,
+      checkoutItemsLoading,
     }),
     [
       openCheckout,
@@ -60,6 +63,7 @@ export const BasePaymentProvider = ({
       isPaddleReady,
       isOrganization,
       priceType,
+      checkoutItemsLoading,
     ],
   );
 
