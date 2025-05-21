@@ -140,9 +140,12 @@ const isValidAction = (
 const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { isAuthReady, anonymous, loginState } = useAuthContext();
+  const { isAuthReady, anonymous, loginState, updateUser } = useAuthContext();
   const router = useRouter();
   const action = isValidAction(router.query.action) && router.query.action;
+  const {
+    data: { funnelState, ...boot },
+  } = useOnboardingBoot();
 
   const [auth, setAuth] = useAtom(authAtom);
   const { isAuthenticating, isLoginFlow, defaultDisplay } = auth;
@@ -174,6 +177,14 @@ const useOnboardingAuth = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [action, updateAuth],
   );
+
+  useEffect(() => {
+    if (boot?.user && 'bio' in boot.user) {
+      console.log('boot.user', boot.user);
+      updateUser(boot.user);
+      updateAuth({ isAuthenticating: false });
+    }
+  }, [boot.user, updateUser]);
 
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
@@ -220,16 +231,14 @@ const useOnboardingAuth = () => {
     auth,
     updateAuth,
     isAuthReady,
+    funnelState,
   };
 };
 
 function Onboarding(): ReactElement {
   const router = useRouter();
-  const { isAuthenticating, isAuthReady, authOptionProps } =
+  const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
-  const {
-    data: { funnelState },
-  } = useOnboardingBoot();
 
   /*
    * Complete steps on transition
