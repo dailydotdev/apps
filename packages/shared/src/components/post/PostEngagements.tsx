@@ -22,7 +22,7 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions, useConditionalFeature } from '../../hooks';
+import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -30,7 +30,6 @@ import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { TimeSortIcon } from '../icons/Sort/Time';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
-import { featureSocialShare } from '../../lib/featureManagement';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 
@@ -70,10 +69,6 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
-  const { value: socialShare } = useConditionalFeature({
-    feature: featureSocialShare,
-    shouldEvaluate: linkClicked,
-  });
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -123,7 +118,7 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
-      {socialShare && <SocialBar post={post} className="mt-6" />}
+      {linkClicked && <SocialBar post={post} className="mt-6" />}
       <span className="mt-6 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
         <Button
