@@ -17,7 +17,6 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons';
@@ -129,6 +128,8 @@ export const PlusInfo = ({
     subtitle,
   });
 
+  const showBuyAsAGiftButton = !giftToUser && showGiftButton && !!giftOneYear;
+
   return (
     <>
       {shouldShowPlusHeader && (
@@ -153,48 +154,42 @@ export const PlusInfo = ({
       >
         {descriptionCopy}
       </Typography>
-      <div className="mb-4">
-        <ConditionalWrapper
-          condition={!giftToUser && showGiftButton && !!giftOneYear}
-          wrapper={(component) => (
-            <div className="flex flex-row items-center justify-between">
-              <span>{component}</span>
-              <Button
-                icon={<GiftIcon />}
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Float}
-                onClick={() => {
-                  logSubscriptionEvent({
-                    event_name: LogEvent.GiftSubscription,
-                    target_id: TargetId.PlusPage,
-                  });
-                  openModal({
-                    type: LazyModal.GiftPlus,
-                    props: {
-                      onSelected: (user) => {
-                        onChange({
-                          priceId: giftOneYear.priceId,
-                          giftToUserId: user.id,
-                        });
-                      },
-                    },
-                  });
-                }}
-              >
-                Buy as a gift
-              </Button>
-            </div>
-          )}
+      <div className="mb-4 flex h-6 flex-row items-center justify-between">
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          bold
         >
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            bold
+          {subtitleCopy}
+        </Typography>
+
+        {showBuyAsAGiftButton && (
+          <Button
+            icon={<GiftIcon />}
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Float}
+            onClick={() => {
+              logSubscriptionEvent({
+                event_name: LogEvent.GiftSubscription,
+                target_id: TargetId.PlusPage,
+              });
+              openModal({
+                type: LazyModal.GiftPlus,
+                props: {
+                  onSelected: (user) => {
+                    onChange({
+                      priceId: giftOneYear.priceId,
+                      giftToUserId: user.id,
+                    });
+                  },
+                },
+              });
+            }}
           >
-            {subtitleCopy}
-          </Typography>
-        </ConditionalWrapper>
+            Buy as a gift
+          </Button>
+        )}
       </div>
       {!!giftToUser && (
         <GiftingSelectedUser
