@@ -9,11 +9,19 @@ import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Badge } from '../../../../components/Badge';
 import { ReputationLightningIcon } from '../../../../components/icons';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
 export const FunnelFactDefault = ({
   parameters,
   onTransition,
 }: FunnelStepFact): ReactElement => {
+  const isLightMode = useIsLightTheme();
+
+  const image = isLightMode
+    ? parameters?.visualUrlLightMode
+    : parameters?.visualUrl;
+  const fallbackImage = parameters?.visualUrl || parameters?.visualUrlLightMode;
+
   const isLayoutReversed =
     parameters.layout === 'reversed' || parameters.reverse;
 
@@ -68,7 +76,8 @@ export const FunnelFactDefault = ({
             <LazyImage
               aria-hidden
               eager
-              imgSrc={parameters?.visualUrl}
+              imgSrc={image}
+              fallbackSrc={fallbackImage}
               className="h-auto w-full object-cover"
               ratio="64%"
               imgAlt="Supportive illustration for the information"
