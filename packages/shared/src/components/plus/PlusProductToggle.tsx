@@ -10,6 +10,8 @@ import {
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { ProductPricingType } from '../../graphql/paddle';
 import type { WithClassNameProps } from '../utilities';
+import { usePlusSubscription } from '../../hooks';
+import { LogEvent } from '../../lib/log';
 
 export type ProductToggleOptions = {
   priceType: ProductPricingType;
@@ -28,6 +30,8 @@ export const PlusProductToggle = ({
   onSelect,
 }: Props): ReactElement => {
   const { priceType, setPriceType } = usePaymentContext();
+  const { logSubscriptionEvent } = usePlusSubscription();
+
   return (
     <ButtonGroup className={className}>
       {options.map((option) => {
@@ -40,6 +44,10 @@ export const PlusProductToggle = ({
             onClick={() => {
               setPriceType(option.priceType);
               onSelect?.(option);
+              logSubscriptionEvent({
+                event_name: LogEvent.SelectSubscriptionType,
+                target_id: option.label.toLowerCase(),
+              });
             }}
             className={classNames(option.className, {
               'text-text-primary': isSelected,
