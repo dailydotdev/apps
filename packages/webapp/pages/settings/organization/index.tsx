@@ -33,6 +33,7 @@ import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
+  useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib';
 import { useOrganizations } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizations';
@@ -88,6 +89,7 @@ const NoOrganizations = () => {
 
 const Page = (): ReactElement => {
   const { organizations } = useOrganizations();
+  const { displayToast } = useToastNotification();
 
   return (
     <AccountPageContainer
@@ -137,7 +139,13 @@ const Page = (): ReactElement => {
           <div className="flex flex-col gap-4 pt-4">
             {organizations.map(({ role, organization }) => (
               <Link key={organization.id} href="#" passHref>
-                <a className="flex items-center gap-2">
+                {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+                <a
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    displayToast(`Hey! Don't click me! I'm not a link yet.`);
+                  }}
+                >
                   <Image
                     className="mr-2 size-8 rounded-full object-cover"
                     src={organization.image}
