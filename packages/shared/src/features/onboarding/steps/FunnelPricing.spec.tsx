@@ -3,11 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import { FunnelPricing } from './FunnelPricing';
-import type {
-  FunnelStepPricing,
-  FunnelStepParameters,
-  FunnelStepPricingParameters,
-} from '../types/funnel';
+import type { FunnelStepPricing } from '../types/funnel';
 import {
   FunnelStepType,
   FunnelStepTransitionType,
@@ -34,60 +30,58 @@ const HydrateAtoms = ({ initialValues, children }: HydrateAtomsProps) => {
   return children;
 };
 
-const mockPricingParameters: FunnelStepParameters<FunnelStepPricingParameters> =
-  {
-    headline: 'Choose your plan',
-    cta: 'Checkout',
-    pricingType: FunnelPricingType.Monthly,
-    discount: {
-      message:
-        'Get <b>additional 20% discount</b> if you subscribe in the next 15 minutes',
-      duration: 15,
-    },
-    defaultPlan: 'annual',
-    plans: [
-      {
-        priceId: 'monthly',
-        label: 'Monthly',
-        badge: {
-          text: 'Popular',
-          background: '#CE3DF3',
-        },
+const mockPricingParameters = {
+  headline: 'Choose your plan',
+  cta: 'Checkout',
+  pricingType: FunnelPricingType.Daily,
+  discount: {
+    message:
+      'Get <b>additional 20% discount</b> if you subscribe in the next 15 minutes',
+    duration: 15,
+  },
+  defaultPlan: 'annual',
+  plans: [
+    {
+      priceId: 'monthly',
+      label: 'Monthly',
+      badge: {
+        text: 'Popular',
+        background: '#CE3DF3',
       },
-      {
-        priceId: 'annual',
-        label: 'Annual',
-        variation: PricingPlanVariation.BEST_VALUE,
-        badge: {
-          text: 'Save 50%',
-          background: '#0ABA6E',
-        },
+    },
+    {
+      priceId: 'annual',
+      label: 'Annual',
+      variation: PricingPlanVariation.BEST_VALUE,
+      badge: {
+        text: 'Save 50%',
+        background: '#0ABA6E',
       },
-    ],
-    perks: ['Unlimited Access', '24/7 Support'],
-    featuresList: {
-      title: 'Your new abilities',
-      items: ['Access to premium content', 'Advanced filtering'],
     },
-    review: {
-      reviewText:
-        "This is the only tool I've stuck with for more than a month.",
-      authorInfo: 'Dave N., Senior Data Scientist',
-      image: 'https://example.com/review.jpg',
-      authorImage: 'https://example.com/avatar.jpg',
+  ],
+  perks: ['Unlimited Access', '24/7 Support'],
+  featuresList: {
+    title: 'Your new abilities',
+    items: ['Access to premium content', 'Advanced filtering'],
+  },
+  review: {
+    reviewText: "This is the only tool I've stuck with for more than a month.",
+    authorInfo: 'Dave N., Senior Data Scientist',
+    image: 'https://example.com/review.jpg',
+    authorImage: 'https://example.com/avatar.jpg',
+  },
+  refund: {
+    title: '100% money back guarantee',
+    content: "We're confident in the quality of our plan.",
+    image: 'https://example.com/checkmark.jpg',
+  },
+  faq: [
+    {
+      question: 'How do I cancel?',
+      answer: 'You can cancel anytime from your account settings.',
     },
-    refund: {
-      title: '100% money back guarantee',
-      content: "We're confident in the quality of our plan.",
-      image: 'https://example.com/checkmark.jpg',
-    },
-    faq: [
-      {
-        question: 'How do I cancel?',
-        answer: 'You can cancel anytime from your account settings.',
-      },
-    ],
-  } as FunnelStepParameters<FunnelStepPricingParameters>;
+  ],
+};
 
 const defaultProps: FunnelStepPricing = {
   id: 'test-id',
@@ -290,6 +284,31 @@ describe('FunnelPricing', () => {
 
     // Monthly price should be displayed for the monthly plan
     const monthlyPriceElements = screen.getAllByText('$0.49');
+    expect(monthlyPriceElements.length).toBeGreaterThan(0);
+
+    // Badges should be displayed
+    expect(screen.getAllByText('Save 50%').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Popular').length).toBeGreaterThan(0);
+  });
+
+  it('should display monthly prices when pricing type is monthly', () => {
+    renderComponent({
+      parameters: {
+        ...mockPricingParameters,
+        pricingType: FunnelPricingType.Monthly,
+      },
+    });
+
+    // Annual price should be displayed for the annual plan
+    const annualPriceElements = screen.getAllByText('$12.50');
+    expect(annualPriceElements.length).toBeGreaterThan(0);
+
+    // Per month subtitle should be displayed
+    const perMonthElements = screen.getAllByText('per month');
+    expect(perMonthElements.length).toBeGreaterThan(0);
+
+    // Monthly price should be displayed for the monthly plan
+    const monthlyPriceElements = screen.getAllByText('$15');
     expect(monthlyPriceElements.length).toBeGreaterThan(0);
 
     // Badges should be displayed
