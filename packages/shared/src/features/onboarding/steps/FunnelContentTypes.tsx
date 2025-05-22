@@ -25,7 +25,7 @@ function FunnelContentTypesComponent({
       onClick={handleComplete}
       containerClassName="flex w-full flex-1 flex-col items-center justify-center overflow-hidden"
     >
-      <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-96 laptop:max-w-screen-laptop">
+      <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 laptop:max-w-screen-laptop">
         <ContentTypes headline={headline} />
       </div>
     </FunnelStepCtaWrapper>
