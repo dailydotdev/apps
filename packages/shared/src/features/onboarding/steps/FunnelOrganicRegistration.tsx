@@ -40,7 +40,12 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
     parameters,
     onTransition,
   }: FunnelOrganicRegistrationProps): ReactElement => {
-    const { headline, explainer, image } = parameters;
+    const {
+      headline,
+      explainer,
+      image: srcDesktop,
+      imageMobile: src,
+    } = parameters;
     const formRef = useRef<HTMLFormElement>(null);
     const isMobile = useViewSize(ViewSize.MobileL);
     const setAuth = useSetAtom(authAtom);
@@ -141,9 +146,8 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
             </div>
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
           </div>
-          {!!image && (
+          {!!src && (
             <img
-              {...image}
               alt="Onboarding background"
               aria-hidden
               className={classNames(
@@ -153,8 +157,9 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
               fetchPriority="high"
               loading="eager"
               role="presentation"
+              src={src}
+              srcSet={`${src} 450w, ${srcDesktop || src} 1024w`}
               sizes="(max-width: 655px) 450px, 1024px"
-              {...image}
             />
           )}
           <FooterLinks className="mx-auto pb-6" />

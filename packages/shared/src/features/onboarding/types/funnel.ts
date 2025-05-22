@@ -298,10 +298,8 @@ export interface FunnelStepOrganicRegistration
   extends FunnelStepCommon<{
     headline: string;
     explainer: string;
-    image: {
-      src: string;
-      srcSet: string;
-    };
+    image: string;
+    imageMobile: string;
     experiments?: Partial<{
       reorderRegistration: boolean;
     }>;
