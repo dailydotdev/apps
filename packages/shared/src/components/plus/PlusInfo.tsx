@@ -19,7 +19,7 @@ import { PlusOptionRadio } from './PlusOptionRadio';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { GiftIcon, MinusIcon, PlusIcon } from '../icons';
+import { GiftIcon } from '../icons';
 import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -27,7 +27,7 @@ import { PlusTrustReviews } from './PlusTrustReviews';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
-import { TextField } from '../fields/TextField';
+import { PlusAdjustQuantity } from './PlusAdjustQuantity';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -187,64 +187,14 @@ export const PlusInfo = ({
       </Typography>
 
       {isOrganization && (
-        <div className="mb-4 flex flex-col gap-4">
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            Team size
-          </Typography>
-
-          <div className="flex gap-1">
-            <TextField
-              label={null}
-              inputId="team-size"
-              value={itemQuantity}
-              type="number"
-              className={{
-                container: 'flex-1 tablet:max-w-60',
-              }}
-              focused
-              onChange={({ target }) => {
-                const newValue = Math.max(Number(target.value), 1);
-                if (newValue === itemQuantity) {
-                  return;
-                }
-                setItemQuantity(newValue);
-                onChange({ priceId: selectedOption, quantity: newValue });
-              }}
-            />
-            <Button
-              size={ButtonSize.Large}
-              variant={ButtonVariant.Secondary}
-              icon={<MinusIcon />}
-              disabled={itemQuantity <= 1}
-              loading={checkoutItemsLoading}
-              onClick={() => {
-                setItemQuantity((prev: number) => {
-                  const newValue = Math.max(prev - 1, 1);
-                  onChange({ priceId: selectedOption, quantity: newValue });
-                  return newValue;
-                });
-              }}
-            />
-            <Button
-              size={ButtonSize.Large}
-              variant={ButtonVariant.Secondary}
-              icon={<PlusIcon />}
-              loading={checkoutItemsLoading}
-              onClick={() => {
-                setItemQuantity((prev: number) => {
-                  const newValue = prev + 1;
-                  onChange({ priceId: selectedOption, quantity: newValue });
-                  return newValue;
-                });
-              }}
-            />
-          </div>
-        </div>
+        <PlusAdjustQuantity
+          className="mb-4"
+          itemQuantity={itemQuantity}
+          selectedOption={selectedOption}
+          checkoutItemsLoading={checkoutItemsLoading}
+          setItemQuantity={setItemQuantity}
+          onChange={onChange}
+        />
       )}
 
       <div className="mb-4 flex h-6 flex-row items-center justify-between">
