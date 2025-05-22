@@ -19,6 +19,10 @@ import { authAtom } from '../store/onboarding.store';
 import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import {
+  cloudinaryOnboardingFullBackgroundDesktop,
+  cloudinaryOnboardingFullBackgroundMobile,
+} from '../../../lib/image';
 
 type FunnelOrganicRegistrationProps = FunnelStepOrganicRegistration;
 
@@ -41,10 +45,10 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
     onTransition,
   }: FunnelOrganicRegistrationProps): ReactElement => {
     const {
-      headline,
       explainer,
-      image: srcDesktop,
-      imageMobile: src,
+      headline,
+      image: srcDesktop = cloudinaryOnboardingFullBackgroundDesktop,
+      imageMobile: src = cloudinaryOnboardingFullBackgroundMobile,
     } = parameters;
     const formRef = useRef<HTMLFormElement>(null);
     const isMobile = useViewSize(ViewSize.MobileL);
