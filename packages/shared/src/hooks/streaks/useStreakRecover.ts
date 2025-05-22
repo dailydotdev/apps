@@ -73,7 +73,9 @@ export const useStreakRecover = ({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>
       await gqlClient
-        .request(USER_STREAK_RECOVER_MUTATION)
+        .request(USER_STREAK_RECOVER_MUTATION, {
+          cores: true,
+        })
         .then((res) => res.recoverStreak),
     onSuccess: () => {
       logEvent({
@@ -82,6 +84,10 @@ export const useStreakRecover = ({
 
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.UserStreak, user),
+      });
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
       });
     },
     onError: async (data: ApiErrorResult) => {
