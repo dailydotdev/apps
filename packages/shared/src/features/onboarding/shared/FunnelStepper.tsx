@@ -1,20 +1,19 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
-  FunnelChapter,
   FunnelStep,
   FunnelStepTransitionCallback,
-  FunnelStepTransition,
 } from '../types/funnel';
 import {
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
   stepsWithHeader,
+  NEXT_STEP_ID,
 } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
@@ -40,9 +39,10 @@ import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
 import { CookieConsent } from './CookieConsent';
 import { useFunnelCookies } from '../hooks/useFunnelCookies';
-import classed from '../../../lib/classed';
 import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
+import { useFunnelPricing } from '../hooks/useFunnelPricing';
+import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -79,17 +79,6 @@ function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   return <Component {...props} />;
 }
 
-function getTransitionDestination(
-  step: FunnelStep,
-  transitionType: FunnelStepTransitionType,
-): FunnelStepTransition['destination'] | undefined {
-  return step.transitions.find((transition) => {
-    return transition.on === transitionType;
-  })?.destination;
-}
-
-const HiddenStep = classed('div', 'hidden');
-
 export const FunnelStepper = ({
   funnel,
   initialStepId,
@@ -97,6 +86,7 @@ export const FunnelStepper = ({
   showCookieBanner,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
+  const { data: pricing } = useFunnelPricing(funnel);
   const {
     trackOnClickCapture,
     trackOnHoverCapture,
@@ -124,12 +114,15 @@ export const FunnelStepper = ({
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
-      const targetStepId = getTransitionDestination(step, type);
+      const transition = step.transitions.find((item) => item.on === type);
+      const destination = transition?.destination;
 
-      if (!targetStepId) {
+      if (!destination) {
         return;
       }
 
+      const targetStepId =
+        destination === NEXT_STEP_ID ? skip.destination : destination;
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
       sendTransition({
@@ -151,7 +144,15 @@ export const FunnelStepper = ({
         onComplete?.();
       }
     },
-    [step, sendTransition, navigate, onComplete, trackOnComplete],
+    [
+      step.transitions,
+      step.id,
+      skip.destination,
+      sendTransition,
+      navigate,
+      trackOnComplete,
+      onComplete,
+    ],
   );
 
   const successCallback = useCallback(
@@ -185,9 +186,17 @@ export const FunnelStepper = ({
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
+  const steps = useMemo(
+    () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
+    [funnel?.chapters],
+  );
+
   if (!isReady) {
     return null;
   }
+
+  const shouldShowHeaderSkip =
+    skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
 
   return (
     <section
@@ -217,37 +226,36 @@ export const FunnelStepper = ({
               onTransition({ type: FunnelStepTransitionType.Skip });
             }}
             showBackButton={back.hasTarget}
-            showSkipButton={skip.hasTarget}
-            showProgressBar={skip.hasTarget}
+            showSkipButton={shouldShowHeaderSkip}
+            showProgressBar={shouldShowHeaderSkip}
           />
-          <PaymentContextProvider
-            disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-            successCallback={successCallback}
-          >
-            {funnel.chapters.map((chapter: FunnelChapter) => (
-              <Fragment key={chapter?.id}>
-                {chapter?.steps?.map((funnelStep: FunnelStep) => {
-                  const isActive = funnelStep?.id === step?.id;
-                  const Wrapper = isActive ? Fragment : HiddenStep;
-                  return (
-                    <Wrapper
-                      key={`${chapter?.id}-${funnelStep?.id}`}
-                      {...(!isActive && {
-                        'data-testid': `funnel-step`,
-                      })}
-                    >
-                      <FunnelStepComponent
-                        {...funnelStep}
-                        isActive={isActive}
-                        key={step.id}
-                        onTransition={onTransition}
-                      />
-                    </Wrapper>
-                  );
-                })}
-              </Fragment>
-            ))}
-          </PaymentContextProvider>
+          <FunnelPaymentPricingContext.Provider value={{ pricing }}>
+            <PaymentContextProvider
+              disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
+              successCallback={successCallback}
+            >
+              {steps?.map((funnelStep: FunnelStep) => {
+                const isActive = funnelStep?.id === step?.id;
+                return (
+                  <div
+                    key={funnelStep.id}
+                    {...(!isActive && {
+                      'data-testid': `funnel-step`,
+                    })}
+                    className={classNames('flex flex-1 flex-col', {
+                      hidden: !isActive,
+                    })}
+                  >
+                    <FunnelStepComponent
+                      {...funnelStep}
+                      isActive={isActive}
+                      onTransition={onTransition}
+                    />
+                  </div>
+                );
+              })}
+            </PaymentContextProvider>
+          </FunnelPaymentPricingContext.Provider>
         </div>
       </FunnelStepBackground>
     </section>

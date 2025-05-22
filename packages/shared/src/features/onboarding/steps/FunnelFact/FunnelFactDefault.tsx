@@ -5,43 +5,52 @@ import Head from 'next/head';
 import { StepHeadline } from '../../shared';
 import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
-import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Badge } from '../../../../components/Badge';
 import { ReputationLightningIcon } from '../../../../components/icons';
+import { FunnelFactWrapper } from './FunnelFactWrapper';
+import { Button } from '../../../../components/buttons/Button';
+import {
+  ButtonVariant,
+  ButtonIconPosition,
+} from '../../../../components/buttons/common';
+import { MoveToIcon } from '../../../../components/icons';
+import { FunnelTargetId } from '../../types/funnelEvents';
 
-export const FunnelFactDefault = ({
-  parameters,
-  onTransition,
-}: FunnelStepFact): ReactElement => {
-  const isLayoutReversed =
-    parameters.layout === 'reversed' || parameters.reverse;
+export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
+  const { parameters, transitions, onTransition } = props;
+  const { badge, headline, explainer, align, reverse, layout, visualUrl } = parameters;
+  const isLayoutReversed = layout === 'reversed' || reverse;
+  const skip = useMemo(
+    () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
+    [transitions],
+  );
+  const skipButton = (
+    <Button
+      className="w-fit"
+      data-funnel-track={FunnelTargetId.StepCta}
+      variant={ButtonVariant.Float}
+      type="button"
+      icon={<MoveToIcon />}
+      iconPosition={ButtonIconPosition.Right}
+      onClick={() => onTransition({ type: FunnelStepTransitionType.Skip })}
+    >
+      {skip?.cta ?? 'Skip'}
+    </Button>
+  );
 
-  const { badge } = parameters;
-
-  const badgeComponent = useMemo(() => {
-    if (!badge?.cta) {
-      return null;
-    }
-    return (
+  const badgeComponent =!badge?.cta
+    ? null
+    : (
       <Badge
         label={badge.cta}
         icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
         variant={badge.variant}
       />
     );
-  }, [badge?.cta, badge?.variant]);
 
   return (
-    <FunnelStepCtaWrapper
-      containerClassName="flex"
-      cta={{ label: parameters?.cta ?? 'Next' }}
-      onClick={() =>
-        onTransition({
-          type: FunnelStepTransitionType.Complete,
-        })
-      }
-    >
+    <FunnelFactWrapper {...props}>
       <div
         data-testid="step-content"
         className={classNames(
@@ -53,29 +62,31 @@ export const FunnelFactDefault = ({
       >
         <div className="flex flex-col items-center gap-4">
           {badge?.placement === 'top' && badgeComponent}
+          {skip?.placement === 'top' && !isLayoutReversed && skipButton}
           <StepHeadline
-            heading={parameters?.headline}
-            description={parameters?.explainer}
-            align={parameters?.align}
+            heading={headline}
+            description={explainer}
+            align={align}
           />
           {badge?.placement === 'bottom' && badgeComponent}
         </div>
-        {parameters?.visualUrl && (
+        {visualUrl && (
           <>
             <Head>
-              <link rel="preload" as="image" href={parameters.visualUrl} />
+              <link rel="preload" as="image" href={visualUrl} />
             </Head>
             <LazyImage
               aria-hidden
               eager
-              imgSrc={parameters?.visualUrl}
+              imgSrc={visualUrl}
               className="h-auto w-full object-cover"
               ratio="64%"
               imgAlt="Supportive illustration for the information"
             />
           </>
         )}
+        {skip?.placement === 'top' && isLayoutReversed && skipButton}
       </div>
-    </FunnelStepCtaWrapper>
+    </FunnelFactWrapper>
   );
 };
