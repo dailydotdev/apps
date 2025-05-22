@@ -140,11 +140,11 @@ const isValidAction = (
 const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { isAuthReady, anonymous, loginState, updateUser } = useAuthContext();
+  const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
   const router = useRouter();
   const action = isValidAction(router.query.action) && router.query.action;
   const {
-    data: { funnelState, ...boot },
+    data: { funnelState },
   } = useOnboardingBoot();
 
   const [auth, setAuth] = useAtom(authAtom);
@@ -161,15 +161,16 @@ const useOnboardingAuth = () => {
       const email = loginState?.formValues?.email || anonymous?.email;
       const shouldVerify = anonymous?.shouldVerify;
       const isLogin = loginState?.isLogin;
+      const isRequiredAuth = !(isLoggedIn && !shouldVerify);
+      const hasLoginState =
+        !!loginState?.formValues?.email || loginState?.isLogin;
+      const wasLoggedInBefore = !!storage.getItem(SIGNIN_METHOD_KEY);
       updateAuth({
         defaultDisplay: getDefaultDisplay({ isLogin, shouldVerify, action }),
         email,
         isAuthenticating:
-          !!action ||
-          !!storage.getItem(SIGNIN_METHOD_KEY) ||
-          shouldVerify ||
-          !!loginState?.formValues?.email ||
-          loginState?.isLogin,
+          isRequiredAuth &&
+          (!!action || shouldVerify || wasLoggedInBefore || hasLoginState),
         isLoading: !isAuthReady,
         isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
       });
@@ -178,13 +179,6 @@ const useOnboardingAuth = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [action, updateAuth],
   );
-
-  useEffect(() => {
-    if (boot?.user && 'bio' in boot.user) {
-      updateUser(boot.user);
-      updateAuth({ isAuthenticating: false });
-    }
-  }, [boot.user, updateAuth, updateUser]);
 
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
@@ -202,11 +196,7 @@ const useOnboardingAuth = () => {
       initialEmail: auth.email,
       isLoginFlow,
       targetId: ExperimentWinner.OnboardingV4,
-      onSuccessfulRegistration: (user) => {
-        // display funnel
-        updateAuth({ isAuthenticating: false });
-        // onTagsNext();
-      },
+      onSuccessfulRegistration: () => updateAuth({ isAuthenticating: false }),
       onAuthStateUpdate: (props: AuthProps) =>
         updateAuth({ isAuthenticating: true, ...props }),
       onboardingSignupButton: {
