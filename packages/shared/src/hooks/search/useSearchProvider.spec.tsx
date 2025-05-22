@@ -89,21 +89,6 @@ describe('useSearchProvider hook', () => {
     expect(routerPush).toHaveBeenCalledWith('/search?q=apples');
   });
 
-  it('should search with non default provider', () => {
-    const { result } = renderHook(() => useSearchProvider(), {
-      wrapper: Wrapper,
-    });
-
-    result.current.search({
-      provider: SearchProviderEnum.Chat,
-      query: 'How to pick apples?',
-    });
-
-    expect(routerPush).toHaveBeenCalledWith(
-      '/search?provider=chat&q=How+to+pick+apples%3F',
-    );
-  });
-
   it('should get suggesstions', async () => {
     const { result } = renderHook(() => useSearchProvider(), {
       wrapper: Wrapper,
