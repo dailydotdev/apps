@@ -153,11 +153,7 @@ const Page = (): ReactElement => {
                     type={ImageType.Organization}
                   />
 
-                  <Typography
-                    bold
-                    type={TypographyType.Callout}
-                    className="flex gap-1 self-center"
-                  >
+                  <Typography bold type={TypographyType.Callout}>
                     {organization.name}
                   </Typography>
 
