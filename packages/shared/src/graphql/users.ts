@@ -534,6 +534,7 @@ export interface UserStreakRecoverData {
   canRecover: boolean;
   cost: number;
   oldStreakLength: number;
+  regularCost?: number;
 }
 
 export const USER_STREAK_RECOVER_QUERY = gql`
@@ -542,6 +543,7 @@ export const USER_STREAK_RECOVER_QUERY = gql`
       canRecover
       cost
       oldStreakLength
+      regularCost
     }
   }
 `;

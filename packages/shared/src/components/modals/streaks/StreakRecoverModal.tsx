@@ -12,16 +12,18 @@ import {
 } from '../../typography/Typography';
 import type { ButtonProps } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { anchorDefaultRel } from '../../../lib/strings';
-import { reputation as reputationHref } from '../../../lib/constants';
-import { ReputationIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRecover';
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinaryStreakLost } from '../../../lib/image';
 import { useReadingStreak } from '../../../hooks/streaks';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { formatCoresCurrency } from '../../../lib/utils';
+import type { UserStreakRecoverData } from '../../../graphql/users';
+import { CoreIcon } from '../../icons';
+import { coresDocsLink } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -54,38 +56,41 @@ const StreakRecoverHeading = ({ days }: { days: number }) => (
 );
 
 const StreakRecoveryCopy = ({
-  reputation,
-  cost,
-}: Record<'reputation' | 'cost', number>) => {
-  const isFree = cost === 0;
-  const canRecover = reputation >= cost;
-  const reputationLink = (
+  recover,
+}: {
+  recover: UserStreakRecoverData;
+}) => {
+  const coresLink = (
     <a
       target="_blank"
       rel={anchorDefaultRel}
-      href={reputationHref}
-      title="What are reputation points?"
+      href={coresDocsLink}
+      title="What are Cores?"
       className="text-text-link hover:underline"
     >
-      reputation points
+      Cores
     </a>
   );
+  const { user } = useAuthContext();
+  const isFree = recover.cost === 0;
+  const canRecover = user.balance.amount >= recover.cost;
 
   const isFreeText = (
     <>
-      Lucky you! The first streak restore is on us 🎁. This usually costs 25{' '}
-      {reputationLink}. Be sure to come prepared next time!
+      Lucky you! The first streak restore is on us 🎁. This usually costs{' '}
+      {formatCoresCurrency(recover.regularCost ?? 100)} {coresLink}. Be sure to
+      come prepared next time!
     </>
   );
   const canRecoverText = (
     <>
       Maintain your streak!
       <br />
-      Use {cost} {reputationLink} to keep going.
+      Use {recover.cost} {coresLink} to keep going.
     </>
   );
   const noRecoverText = (
-    <>You don’t have enough {reputationLink} to restore your streaks.</>
+    <>You don&apos;t have enough {coresLink} to restore your streak.</>
   );
 
   return (
@@ -102,29 +107,25 @@ const StreakRecoveryCopy = ({
 };
 
 const StreakRecoverButton = ({
-  cost,
+  recover,
   ...props
-}: Record<'cost', number> & ButtonProps<'button'>) => (
-  <Button
-    {...props}
-    className="relative"
-    variant={ButtonVariant.Primary}
-    size={ButtonSize.Large}
-    data-testid="streak-recover-button"
-  >
-    Restore my streak
-    <span className="absolute -right-0.5 -top-0.5 flex items-center whitespace-nowrap rounded-bl-14 rounded-tr-14 bg-accent-onion-default px-1.5 py-1 text-text-primary">
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Caption1}
-        data-testid="streak-recovery-cost"
-      >
-        {cost} Rep
-      </Typography>{' '}
-      <ReputationIcon className="inline-block" size={IconSize.Size16} />
-    </span>
-  </Button>
-);
+}: { recover: UserStreakRecoverData } & ButtonProps<'button'>) => {
+  const { user } = useAuthContext();
+
+  return (
+    <Button
+      {...props}
+      className="relative gap-1"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Large}
+      data-testid="streak-recover-button"
+    >
+      {recover.cost > user.balance.amount ? 'Buy Cores' : 'Restore my streak'}
+      <CoreIcon />
+      {recover.cost === 0 ? 'Free' : formatCoresCurrency(recover.cost)}
+    </Button>
+  );
+};
 
 export const StreakRecoverOptout = ({
   hideForever,
@@ -167,18 +168,9 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  if (
-    !user ||
-    !isStreaksEnabled ||
-    !recover.canRecover ||
-    recover.isLoading ||
-    recover.isDisabled
-  ) {
+  if (!user || !isStreaksEnabled || recover.isLoading || recover.isDisabled) {
     return null;
   }
-
-  const { reputation } = user;
-  const canUserAffordTheCost = reputation >= recover.cost;
 
   return (
     <Modal
@@ -196,10 +188,12 @@ export const StreakRecoverModal = (
         <div className="flex flex-col gap-4">
           <StreakRecoverCover />
           <StreakRecoverHeading days={recover.oldStreakLength} />
-          <StreakRecoveryCopy reputation={reputation} cost={recover.cost} />
-          {canUserAffordTheCost && (
-            <StreakRecoverButton onClick={onRecover} cost={recover.cost} />
-          )}
+          <StreakRecoveryCopy recover={recover} />
+          <StreakRecoverButton
+            onClick={onRecover}
+            recover={recover}
+            loading={recover.isRecoverPending}
+          />
           <StreakRecoverOptout id={id} hideForever={hideForever} />
         </div>
       </ModalBody>

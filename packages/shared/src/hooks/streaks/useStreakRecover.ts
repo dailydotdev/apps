@@ -13,10 +13,12 @@ import { ActionType } from '../../graphql/actions';
 import { gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from './useReadingStreak';
+import { getPathnameWithQuery } from '../../lib/links';
+import { webappUrl } from '../../lib/constants';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -36,6 +38,7 @@ export interface UseStreakRecoverReturn {
     isLoading: boolean;
     isDisabled: boolean;
     oldStreakLength: number;
+    isRecoverPending: boolean;
   };
 }
 
@@ -55,9 +58,10 @@ export const useStreakRecover = ({
   const { user } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
   const client = useQueryClient();
+  const router = useRouter();
   const {
     query: { streak_restore: streakRestore },
-  } = useRouter();
+  } = router;
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
@@ -123,6 +127,16 @@ export const useStreakRecover = ({
 
   const onRecover = useCallback(async () => {
     try {
+      if (user.balance.amount < data.streakRecover.cost) {
+        const searchParams = new URLSearchParams();
+        searchParams.set('origin', Origin.StreakRecover);
+        searchParams.set('next', router.pathname);
+
+        router?.push(getPathnameWithQuery(`${webappUrl}cores`, searchParams));
+
+        return;
+      }
+
       await recoverMutation.mutateAsync();
       displayToast('Lucky you! Your streak has been restored');
     } catch (e) {
@@ -132,7 +146,14 @@ export const useStreakRecover = ({
     }
 
     await onClose?.();
-  }, [displayToast, onClose, recoverMutation]);
+  }, [
+    data?.streakRecover?.cost,
+    displayToast,
+    onClose,
+    recoverMutation,
+    router,
+    user?.balance?.amount,
+  ]);
 
   const isDisabled =
     !isActionsFetched ||
@@ -161,6 +182,7 @@ export const useStreakRecover = ({
       ...data?.streakRecover,
       isLoading,
       isDisabled,
+      isRecoverPending: recoverMutation.isPending,
     },
   };
 };
