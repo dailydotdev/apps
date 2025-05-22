@@ -60,6 +60,9 @@ const StreakRecoveryCopy = ({
 }: {
   recover: UserStreakRecoverData;
 }) => {
+  const { user } = useAuthContext();
+  const isFree = recover.cost === 0;
+  const canRecover = user.balance.amount >= recover.cost;
   const coresLink = (
     <a
       target="_blank"
@@ -71,9 +74,6 @@ const StreakRecoveryCopy = ({
       Cores
     </a>
   );
-  const { user } = useAuthContext();
-  const isFree = recover.cost === 0;
-  const canRecover = user.balance.amount >= recover.cost;
 
   const isFreeText = (
     <>
@@ -168,7 +168,13 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  if (!user || !isStreaksEnabled || recover.isLoading || recover.isDisabled) {
+  if (
+    !user ||
+    !isStreaksEnabled ||
+    !recover.canRecover ||
+    recover.isLoading ||
+    recover.isDisabled
+  ) {
     return null;
   }
 
