@@ -10,7 +10,12 @@ import {
 } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ActionType } from '../../graphql/actions';
-import { gqlClient } from '../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiUserTransactionErrorExtension,
+} from '../../graphql/common';
+import { ApiError, gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
@@ -19,6 +24,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from './useReadingStreak';
 import { getPathnameWithQuery } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
+import { UserTransactionStatus } from '../../graphql/njord';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -55,7 +61,7 @@ export const useStreakRecover = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { updateAlerts } = useAlertsContext();
-  const { user } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
   const client = useQueryClient();
   const router = useRouter();
@@ -77,6 +83,26 @@ export const useStreakRecover = ({
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.UserStreak, user),
       });
+    },
+    onError: async (data: ApiErrorResult) => {
+      if (
+        data.response.errors?.[0]?.extensions?.code ===
+        ApiError.BalanceTransactionError
+      ) {
+        const errorExtensions = data.response
+          .errors[0] as ApiResponseError<ApiUserTransactionErrorExtension>;
+
+        if (
+          errorExtensions.extensions.status ===
+            UserTransactionStatus.InsufficientFunds &&
+          errorExtensions.extensions.balance
+        ) {
+          await updateUser({
+            ...user,
+            balance: errorExtensions.extensions.balance,
+          });
+        }
+      }
     },
   });
 
