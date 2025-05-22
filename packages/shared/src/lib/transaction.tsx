@@ -72,7 +72,7 @@ export const getTransactionLabel = ({
       );
     }
 
-    if (transaction.flags.note) {
+    if (['Streak restore'].includes(transaction.flags.note)) {
       return transaction.flags.note;
     }
   }
