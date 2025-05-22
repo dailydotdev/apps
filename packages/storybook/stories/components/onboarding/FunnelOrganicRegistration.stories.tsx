@@ -37,7 +37,7 @@ const meta: Meta<typeof FunnelOrganicRegistration> = {
       <ExtensionProviders>
         <div className='flex flex-col min-h-dvh'>
           <FunnelStepBackground step={props}>
-            <FunnelOrganicRegistration {...props} formRef={ref} />
+            <FunnelOrganicRegistration {...props} />
           </FunnelStepBackground>
         </div>
       </ExtensionProviders>
