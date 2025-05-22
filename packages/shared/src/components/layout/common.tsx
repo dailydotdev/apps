@@ -26,9 +26,6 @@ import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
-import CustomFeedSlider from '../feeds/CustomFeedSlider';
-import type { ButtonProps } from '../buttons/Button';
-import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -70,7 +67,6 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { customFeedPlacement } = useCustomFeedHeader();
 
   if (isMobile) {
     return null;
@@ -90,13 +86,6 @@ export const SearchControlHeader = ({
     SharedFeedPage.Custom,
     SharedFeedPage.CustomForm,
   ];
-
-  const shieldBtnProps: ButtonProps<'button'> = customFeedPlacement
-    ? {
-        size: ButtonSize.Small,
-        variant: ButtonVariant.Tertiary,
-      }
-    : undefined;
 
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) && (
@@ -121,15 +110,10 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
-        {...(customFeedPlacement && {
-          buttonSize: ButtonSize.Small,
-          buttonVariant: ButtonVariant.Tertiary,
-        })}
       />
     ),
     feedsWithActions.includes(feedName as SharedFeedPage) && (
       <ToggleClickbaitShield
-        buttonProps={shieldBtnProps}
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
@@ -160,12 +144,7 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">
-        {customFeedPlacement && <CustomFeedSlider />}
-        <div className="flex items-center gap-2">
-          {customFeedPlacement ? actions.reverse() : actions}
-        </div>
-      </div>
+      <div className="flex w-full items-center gap-2">{actions}</div>
     </ConditionalWrapper>
   );
 };

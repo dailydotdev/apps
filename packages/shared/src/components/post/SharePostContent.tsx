@@ -4,7 +4,11 @@ import classNames from 'classnames';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/common/ReadArticleButton';
 import type { Post, SharedPost } from '../../graphql/posts';
-import { isInternalReadType, isSharedPostSquadPost } from '../../graphql/posts';
+import {
+  getReadPostButtonText,
+  isInternalReadType,
+  isSharedPostSquadPost,
+} from '../../graphql/posts';
 import SettingsContext, {
   useSettingsContext,
 } from '../../contexts/SettingsContext';
@@ -27,7 +31,6 @@ import {
 import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
-import { useVisitLink } from '../cards/common/list/hooks';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -86,7 +89,7 @@ const PrivatePost = ({
         This post is in a private squad.
       </Typography>
       <ReadArticleButton
-        content={useVisitLink({ post })}
+        content={getReadPostButtonText(post)}
         className="w-fit"
         href={post.commentsPermalink}
         variant={ButtonVariant.Secondary}
@@ -105,7 +108,6 @@ export function CommonSharePostContent({
 }: CommonSharePostContentProps): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { openNewTab } = useContext(SettingsContext);
-  const visitLinkCopy = useVisitLink({ post: sharedPost });
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onReadArticle();
@@ -166,7 +168,7 @@ export function CommonSharePostContent({
             size={ProfileImageSize.Small}
           />
           <ReadArticleButton
-            content={visitLinkCopy}
+            content={getReadPostButtonText(sharedPost)}
             className="mt-5 w-fit"
             variant={ButtonVariant.Secondary}
             href={
