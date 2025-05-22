@@ -9,6 +9,8 @@ import type { CommonPlusPageProps } from './common';
 import { useGiftUserContext } from './GiftUserContext';
 import { plusUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
+import { PlusProductToggle } from './PlusProductToggle';
+import { ProductPricingType } from '../../graphql/paddle';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -50,6 +52,19 @@ export const PlusMobile = ({
         }
       }}
     >
+      {!giftToUser && (
+        <PlusProductToggle
+          options={[
+            { priceType: ProductPricingType.Plus, label: 'Personal' },
+            {
+              priceType: ProductPricingType.PlusOrganization,
+              label: 'Team',
+            },
+          ]}
+          onSelect={() => setSelectedOption(null)}
+          className="self-start"
+        />
+      )}
       <PlusInfo
         productOptions={productOptions}
         selectedOption={selectedOption}

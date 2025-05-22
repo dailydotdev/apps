@@ -1,12 +1,16 @@
-import type { ReactNode } from 'react';
+import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext } from 'react';
-import type { ProductPricingPreview } from '../../graphql/paddle';
+import type {
+  ProductPricingPreview,
+  ProductPricingType,
+} from '../../graphql/paddle';
 
 export interface OpenCheckoutProps {
   priceId: string;
   giftToUserId?: string;
   customData?: Record<string, unknown>;
   discountId?: string;
+  quantity?: number;
 }
 
 export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
@@ -18,6 +22,13 @@ export interface PaymentContextData {
   giftOneYear?: ProductPricingPreview;
   isPricesPending: boolean;
   isPaddleReady?: boolean;
+  isOrganization?: boolean;
+  toggleOrganization?: () => void;
+  priceType: ProductPricingType;
+  setPriceType: Dispatch<SetStateAction<ProductPricingType>>;
+  itemQuantity?: number;
+  setItemQuantity?: Dispatch<SetStateAction<number>>;
+  checkoutItemsLoading?: boolean;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);
