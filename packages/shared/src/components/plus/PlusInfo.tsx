@@ -204,7 +204,7 @@ export const PlusInfo = ({
               value={itemQuantity}
               type="number"
               className={{
-                container: 'tablet:max-w-60',
+                container: 'flex-1 tablet:max-w-60',
               }}
               focused
               onChange={({ target }) => {
