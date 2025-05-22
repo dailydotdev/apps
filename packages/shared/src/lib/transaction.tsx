@@ -71,6 +71,10 @@ export const getTransactionLabel = ({
         </div>
       );
     }
+
+    if (transaction.flags.note) {
+      return transaction.flags.note;
+    }
   }
 
   return type.toUpperCase();
