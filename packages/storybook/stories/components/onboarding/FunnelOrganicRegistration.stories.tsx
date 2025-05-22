@@ -65,10 +65,8 @@ const defaultArgs: FunnelStepOrganicRegistration = {
   parameters: {
     headline: 'Where developers suffer together',
     explainer: `We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)`,
-    image: {
-      src: cloudinaryOnboardingFullBackgroundMobile,
-      srcSet: `${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`,
-    },
+    image: cloudinaryOnboardingFullBackgroundDesktop,
+    imageMobile: cloudinaryOnboardingFullBackgroundMobile,
   },
 };
 
@@ -82,10 +80,8 @@ export const CustomContent: Story = {
     parameters: {
       headline: 'Become part of our community',
       explainer: 'Join thousands of developers who use daily.dev to stay updated and grow their career.',
-      image: {
-        src: 'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration.jpg',
-        srcSet: 'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration.jpg 1x, https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration@2x.jpg 2x',
-      },
+      image: 'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration@2x.jpg',
+      imageMobile: 'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration.jpg',
     },
   },
 };
