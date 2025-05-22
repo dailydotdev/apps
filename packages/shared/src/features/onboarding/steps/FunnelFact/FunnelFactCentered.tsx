@@ -11,9 +11,11 @@ import {
   ButtonVariant,
   ButtonIconPosition,
 } from '../../../../components/buttons/common';
-import { MoveToIcon } from '../../../../components/icons';
+import {
+  MoveToIcon,
+  ReputationLightningIcon,
+} from '../../../../components/icons';
 import { FunnelTargetId } from '../../types/funnelEvents';
-import { ReputationLightningIcon } from '../../../../components/icons';
 import { Badge } from '../../../../components/Badge';
 
 export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
@@ -23,15 +25,13 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
     () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
     [transitions],
   );
-  const badgeComponent =!badge?.cta
-    ? null
-    : (
-      <Badge
-        label={badge.cta}
-        icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
-        variant={badge.variant}
-      />
-    );
+  const badgeComponent = !badge?.cta ? null : (
+    <Badge
+      label={badge.cta}
+      icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
+      variant={badge.variant}
+    />
+  );
 
   return (
     <FunnelFactWrapper {...props}>
