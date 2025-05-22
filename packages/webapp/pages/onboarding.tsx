@@ -71,7 +71,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id = 'test-funnel', version, stepId } = query;
+  const { id, version, stepId } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
