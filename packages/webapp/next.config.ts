@@ -111,16 +111,6 @@ const nextConfig: NextConfig = {
           },
           {
             source: '/search',
-            destination: '/search/:provider',
-            has: [
-              {
-                type: 'query',
-                key: 'provider',
-              },
-            ],
-          },
-          {
-            source: '/search',
             destination: '/search/posts',
           },
           {
