@@ -9,8 +9,6 @@ import { PostReminderOptions } from '../../components/post/common/PostReminderOp
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { socials } from '../../lib/socialMedia';
 import SocialIconButton from '../../components/cards/socials/SocialIconButton';
-import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
-import { featureSocialShare } from '../../lib/featureManagement';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 import useInteractiveFeed from './useInteractiveFeed';
 
@@ -41,7 +39,6 @@ export const useCardCover = ({
   className = {},
 }: UseCardCoverProps): UseCardCover => {
   const { onInteract, interaction } = usePostActions({ post });
-  const { getFeatureValue } = useFeaturesReadyContext();
   const shouldShowReminder = useBookmarkReminderCover(post);
   const { showCover, interactiveFeedExp } = useInteractiveFeed({ post });
 
@@ -50,7 +47,7 @@ export const useCardCover = ({
       return <InteractiveFeedCardCover post={post} />;
     }
 
-    if (interaction === 'copy' && getFeatureValue(featureSocialShare)) {
+    if (interaction === 'copy') {
       return (
         <CardCoverContainer title="Why not share it on social, too?">
           <div className="mt-2 flex flex-row gap-2">
@@ -107,7 +104,6 @@ export const useCardCover = ({
     onInteract,
     onShare,
     post,
-    getFeatureValue,
     shouldShowReminder,
     isHoveringCard,
     interactiveFeedExp,
