@@ -386,13 +386,7 @@ function AuthOptionsInner({
 
   const onForgotPasswordBack = () => {
     setIsForgotPasswordReturn(true);
-    const target = [
-      AuthDisplay.ForgotPassword,
-      AuthDisplay.CodeVerification,
-    ].includes(defaultDisplay)
-      ? AuthDisplay.Default
-      : defaultDisplay;
-    onSetActiveDisplay(target);
+    onSetActiveDisplay(defaultDisplay);
   };
 
   const onEmailLogin: typeof onPasswordLogin = (params) => {
