@@ -72,7 +72,6 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
         <div className="flex flex-col items-center gap-4">
           {badge?.placement === 'top' && badgeComponent}
           <StepHeadline
-            className="!gap-6"
             heading={headline}
             description={explainer}
             align={align}
