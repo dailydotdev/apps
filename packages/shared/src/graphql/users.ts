@@ -552,6 +552,9 @@ export const USER_STREAK_RECOVER_MUTATION = gql`
   mutation RecoverStreak($cores: Boolean!) {
     recoverStreak(cores: $cores) {
       ...UserStreakFragment
+      balance {
+        amount
+      }
     }
   }
   ${USER_STREAK_FRAGMENT}

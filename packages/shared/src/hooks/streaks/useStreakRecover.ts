@@ -25,6 +25,7 @@ import { useReadingStreak } from './useReadingStreak';
 import { getPathnameWithQuery } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
 import { UserTransactionStatus } from '../../graphql/njord';
+import type { LoggedUser } from '../../lib/user';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -73,11 +74,13 @@ export const useStreakRecover = ({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>
       await gqlClient
-        .request(USER_STREAK_RECOVER_MUTATION, {
+        .request<{
+          recoverStreak: Pick<LoggedUser, 'balance'>;
+        }>(USER_STREAK_RECOVER_MUTATION, {
           cores: true,
         })
         .then((res) => res.recoverStreak),
-    onSuccess: () => {
+    onSuccess: (data) => {
       logEvent({
         event_name: LogEvent.StreakRecover,
       });
@@ -89,6 +92,13 @@ export const useStreakRecover = ({
         queryKey: generateQueryKey(RequestKey.Transactions, user),
         exact: false,
       });
+
+      if (data.balance) {
+        updateUser({
+          ...user,
+          balance: data.balance,
+        });
+      }
     },
     onError: async (data: ApiErrorResult) => {
       if (
