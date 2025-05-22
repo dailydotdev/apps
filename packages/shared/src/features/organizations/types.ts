@@ -11,7 +11,7 @@ export type Organization = {
   seats?: number;
 };
 
-export type UserOrganizations = {
+export type UserOrganization = {
   role: OrganizationMemberRole;
   referralToken?: string;
   organization: Organization;

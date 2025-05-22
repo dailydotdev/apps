@@ -88,7 +88,7 @@ const NoOrganizations = () => {
 };
 
 const Page = (): ReactElement => {
-  const { organizations } = useOrganizations();
+  const { organizations, isFetching } = useOrganizations();
 
   return (
     <AccountPageContainer
@@ -167,7 +167,7 @@ const Page = (): ReactElement => {
             ))}
           </div>
         ) : (
-          <NoOrganizations />
+          <>{!isFetching && <NoOrganizations />}</>
         )}
       </section>
     </AccountPageContainer>
