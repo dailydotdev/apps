@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useAtomValue } from 'jotai';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
@@ -39,7 +38,6 @@ import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
-import { authAtom } from '../../features/onboarding/store/onboarding.store';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -126,7 +124,6 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
-  const { isAuthenticating = false } = useAtomValue(authAtom);
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
