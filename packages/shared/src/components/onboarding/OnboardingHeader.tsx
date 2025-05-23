@@ -4,6 +4,7 @@ import React, { Fragment } from 'react';
 import Logo, { LogoPosition } from '../Logo';
 import { wrapperMaxWidth } from './common';
 import classed from '../../lib/classed';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 type OnboardingHeaderProps = {
   isLanding?: boolean;
@@ -25,6 +26,7 @@ export const OnboardingHeader = ({
           'w-auto',
           !isLanding && 'px-10 py-8 laptop:w-full',
         )}
+        data-funnel-track={FunnelTargetId.Logo}
         linkDisabled
         logoClassName={isLanding ? { container: 'h-6 tablet:h-8' } : undefined}
         position={LogoPosition.Relative}
