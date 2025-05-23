@@ -37,7 +37,7 @@ export const StepHeadline = ({
   return (
     <div
       data-testid="step-headline-container"
-      className={classNames('flex flex-col gap-2', className, {
+      className={classNames('flex flex-col gap-4', className, {
         'text-left': align === StepHeadlineAlign.Left,
         'text-center': align === StepHeadlineAlign.Center,
         'text-right': align === StepHeadlineAlign.Right,
