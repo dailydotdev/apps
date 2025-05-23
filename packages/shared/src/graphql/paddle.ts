@@ -30,7 +30,7 @@ interface ProductPricing extends Price {
   daily?: Price;
 }
 
-interface BaseProductPricingPreview {
+export interface BaseProductPricingPreview {
   priceId: string;
   price: ProductPricing;
   currency: {
