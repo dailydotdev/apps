@@ -12,6 +12,7 @@ import { isIOSNative } from '../../lib/func';
 
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 interface ClassName {
   onboardingSignup?: string;
@@ -130,6 +131,7 @@ export const OnboardingRegistrationForm = ({
             <Button
               aria-label={`Continue using ${provider.label}`}
               className="w-full"
+              data-funnel-track={FunnelTargetId.SignupProvider}
               icon={provider.icon}
               loading={!isReady}
               onClick={() => onProviderClick?.(provider.value, false)}
@@ -161,6 +163,7 @@ export const OnboardingRegistrationForm = ({
         <Button
           aria-label="Signup using email"
           className="mb-8"
+          data-funnel-track={FunnelTargetId.SignupProvider}
           onClick={() => {
             trackOpenSignup();
             onContinueWithEmail?.();
