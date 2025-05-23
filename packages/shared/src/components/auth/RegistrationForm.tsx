@@ -43,6 +43,7 @@ import {
 import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 export interface RegistrationFormProps extends AuthFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -247,6 +248,7 @@ const RegistrationForm = ({
         <div className="flex gap-4">
           <Button
             className="border-border-subtlest-tertiary text-text-secondary"
+            data-funnel-track={FunnelTargetId.StepBack}
             icon={<ArrowIcon className="-rotate-90" />}
             onClick={onBackToIntro}
             size={ButtonSize.Medium}
@@ -426,6 +428,7 @@ const RegistrationForm = ({
           )}
           <Button
             className="w-full"
+            data-funnel-track={FunnelTargetId.StepCta}
             disabled={isCheckPending || !turnstileLoaded}
             form="auth-form"
             type="submit"
