@@ -20,7 +20,9 @@ export const OrganizationLayout = ({
   const { query } = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const { formRef } = useAuthForms();
-  const { organization, isFetching } = useOrganization(query.orgId as string);
+  const { organization, role, isFetching } = useOrganization(
+    query.orgId as string,
+  );
 
   if (!isAuthReady) {
     return null;
@@ -46,14 +48,14 @@ export const OrganizationLayout = ({
   // If the user is just a member of the organization, we want to show the settings layout
   // instead of the organization layout. This is because the organization layout is
   // meant for admins and owners and the settings layout is meant for members.
-  if (!isPrivilegedOrganizationRole(organization?.role)) {
+  if (!isPrivilegedOrganizationRole(role)) {
     return <SettingsLayout>{children}</SettingsLayout>;
   }
 
   return (
     <>
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
-        <OrganizationSiderbar organization={organization.organization} />
+        <OrganizationSiderbar organization={organization} />
         {children}
       </div>
     </>

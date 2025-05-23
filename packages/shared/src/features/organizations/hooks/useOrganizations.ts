@@ -34,22 +34,29 @@ export const useOrganization = (orgId: string) => {
   const { user, isAuthReady } = useAuthContext();
   const enableQuery = !!orgId && !!user && isAuthReady;
 
-  const { data: organization, isFetching } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: generateQueryKey(RequestKey.Organizations, user, orgId),
     enabled: enableQuery,
     queryFn: async () => {
-      const data = await gqlClient.request<{
+      const res = await gqlClient.request<{
         organization: UserOrganization;
       }>(ORGANIZATION_QUERY, { id: orgId });
 
-      if (!data || !data.organization) {
+      if (!res || !res.organization) {
         return null;
       }
 
-      return data.organization;
+      return res.organization;
     },
     staleTime: StaleTime.Default,
   });
 
-  return { organization, isFetching };
+  const { organization, role, referralToken } = data || {};
+
+  return {
+    organization,
+    role,
+    referralToken,
+    isFetching,
+  };
 };

@@ -35,7 +35,9 @@ const Page = (): ReactElement => {
   const { push, query } = useRouter();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
-  const { organization, isFetching } = useOrganization(query.orgId as string);
+  const { organization, role, isFetching } = useOrganization(
+    query.orgId as string,
+  );
 
   if (isFetching) {
     return null;
@@ -76,8 +78,8 @@ const Page = (): ReactElement => {
                 You
               </Typography>
 
-              <UserBadge role={organization.role} className="mt-0.5">
-                {getRoleName(organization.role)}
+              <UserBadge role={role} className="mt-0.5">
+                {getRoleName(role)}
               </UserBadge>
             </div>
 
