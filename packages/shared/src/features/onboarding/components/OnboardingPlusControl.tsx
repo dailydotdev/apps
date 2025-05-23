@@ -55,8 +55,6 @@ export const OnboardingPlusControl = ({
   onComplete,
   headline,
   explainer,
-  free,
-  plus,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { productOptions } = usePaymentContext();
