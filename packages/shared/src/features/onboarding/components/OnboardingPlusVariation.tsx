@@ -22,6 +22,7 @@ import { PlusItemStatus } from '../../../components/plus/PlusListItem';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
+import type { FunnelStepPlusCards } from '../types/funnel';
 
 type VariationCardOptionProps = {
   onClickNext: () => void;
@@ -86,7 +87,9 @@ const VariationCardOption = ({
   );
 };
 
-interface OnboardingPlusVariationProps {
+type Parameters = FunnelStepPlusCards['parameters'];
+
+interface OnboardingPlusVariationProps extends Parameters {
   onSkip?: () => void;
   onComplete?: () => void;
 }
@@ -94,6 +97,10 @@ interface OnboardingPlusVariationProps {
 export const OnboardingPlusVariation = ({
   onSkip,
   onComplete,
+  headline,
+  explainer,
+  free,
+  plus,
 }: OnboardingPlusVariationProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { openModal } = useLazyModal();
@@ -149,7 +156,7 @@ export const OnboardingPlusVariation = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Fast-track your growth
+          {headline || 'Fast-track your growth'}
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -157,9 +164,10 @@ export const OnboardingPlusVariation = ({
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
-          Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn&apos;t a
-          long-term strategy.
+          {explainer ||
+            `Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn't a
+          long-term strategy.`}
         </Typography>
       </header>
 
@@ -171,11 +179,14 @@ export const OnboardingPlusVariation = ({
             <VariationCardOption
               onClickNext={onSkip}
               button={{
-                copy: 'Join for free',
+                copy: free?.cta || 'Join for free',
                 variant: ButtonVariant.Subtle,
               }}
-              title="Free"
-              description="For casual browsing. Get the basics and stay updated with the essentials."
+              title={free.title || 'Free'}
+              description={
+                free.description ||
+                'For casual browsing. Get the basics and stay updated with the essentials.'
+              }
               price={`${item?.currency?.symbol ?? '$'}0`}
             />
           </div>
@@ -197,15 +208,20 @@ export const OnboardingPlusVariation = ({
               <VariationCardOption
                 onClickNext={onSkip}
                 button={{
-                  copy: 'Get started',
+                  copy: plus?.cta || 'Get started',
                   variant: ButtonVariant.Primary,
-                  title: 'Get started',
+                  title: plus?.cta || 'Get started',
                   onClick: onComplete,
                 }}
-                title="Plus"
-                description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
+                title={plus?.title || 'Plus'}
+                description={
+                  plus?.description ||
+                  'For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster.'
+                }
                 price={item?.price.monthly?.formatted ?? '0'}
-                note="30 day hassle-free refund. No questions asked."
+                note={
+                  plus?.note || '30 day hassle-free refund. No questions asked.'
+                }
               />
             </div>
           </div>
@@ -259,7 +275,7 @@ export const OnboardingPlusVariation = ({
 
       <Button
         variant={ButtonVariant.Primary}
-        title="Get started"
+        title={plus?.cta || 'Get started'}
         className="mx-auto"
         onClick={onComplete}
       >

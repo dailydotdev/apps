@@ -13,6 +13,7 @@ import {
 import { PlusComparingCards } from '../../../components/plus/PlusComparingCards';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
+import type { FunnelStepPlusCards } from '../types/funnel';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -42,7 +43,9 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
-interface OnboardingPlusControlProps {
+type Parameters = FunnelStepPlusCards['parameters'];
+
+interface OnboardingPlusControlProps extends Parameters {
   onSkip?: () => void;
   onComplete?: () => void;
 }
@@ -50,6 +53,10 @@ interface OnboardingPlusControlProps {
 export const OnboardingPlusControl = ({
   onSkip,
   onComplete,
+  headline,
+  explainer,
+  free,
+  plus,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { productOptions } = usePaymentContext();
@@ -70,7 +77,7 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Fast-track your growth
+          {headline || 'Fast-track your growth'}
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -78,9 +85,10 @@ export const OnboardingPlusControl = ({
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
-          Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn&apos;t a
-          long-term strategy.
+          {explainer ||
+            `Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn't a
+          long-term strategy.`}
         </Typography>
       </header>
       {item ? (

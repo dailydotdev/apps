@@ -317,10 +317,19 @@ export interface FunnelStepOrganicRegistration
   }>;
 }
 
+interface PlanCard {
+  cta: string;
+  title: string;
+  description: string;
+  note?: string;
+}
+
 export interface FunnelStepPlusCards
   extends FunnelStepCommon<{
     headline?: string;
     explainer?: string;
+    free?: Partial<PlanCard>;
+    plus?: Partial<PlanCard>;
   }> {
   type: FunnelStepType.PlusCards;
   onTransition: FunnelStepTransitionCallback<{

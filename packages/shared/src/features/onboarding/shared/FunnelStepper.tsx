@@ -45,6 +45,7 @@ import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 import { FunnelOrganicRegistration } from '../steps/FunnelOrganicRegistration';
+import { FunnelPlusCards } from '../steps/FunnelPlusCards';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -69,6 +70,7 @@ const stepComponentMap = {
   [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
   [FunnelStepType.InstallPwa]: FunnelInstallPwa,
   [FunnelStepType.OrganicRegistration]: FunnelOrganicRegistration,
+  [FunnelStepType.PlusCards]: FunnelPlusCards,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
