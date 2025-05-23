@@ -21,7 +21,7 @@ const variantToClassName: Record<FunnelBackgroundVariant, string> = {
   [FunnelBackgroundVariant.Hourglass]: 'bg-gradient-funnel-hourglass',
   [FunnelBackgroundVariant.Cheese]: 'bg-accent-cheese-default opacity-16',
   [FunnelBackgroundVariant.BlueCheese]:
-    'bg-accent-blue-cheese-default opacity-16',
+    'bg-accent-blueCheese-default opacity-16',
   [FunnelBackgroundVariant.Onion]: 'bg-accent-onion-default opacity-16',
   [FunnelBackgroundVariant.Water]: 'bg-accent-water-default opacity-16',
   [FunnelBackgroundVariant.Burger]: 'bg-accent-burger-default opacity-16',
@@ -55,11 +55,7 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   return FunnelBackgroundVariant.Default;
 };
 
-const alwaysDarkSteps = [
-  FunnelStepType.Signup,
-  FunnelStepType.Checkout,
-  FunnelStepType.PaymentSuccessful,
-];
+const alwaysDarkSteps = [FunnelStepType.Signup, FunnelStepType.Checkout];
 
 export const FunnelStepBackground = ({
   children,
