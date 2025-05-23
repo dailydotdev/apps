@@ -18,11 +18,22 @@ import {
   ButtonIconPosition,
 } from '../../../../components/buttons/common';
 import { FunnelTargetId } from '../../types/funnelEvents';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
 export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
   const { parameters, transitions, onTransition } = props;
-  const { badge, headline, explainer, align, reverse, layout, visualUrl } =
-    parameters;
+  const {
+    badge,
+    headline,
+    explainer,
+    align,
+    reverse,
+    layout,
+    visualUrl,
+    visualUrlLightMode,
+  } = parameters;
+  const isLightMode = useIsLightTheme();
+  const image = isLightMode ? visualUrlLightMode : visualUrl;
   const isLayoutReversed = layout === 'reversed' || reverse;
   const skip = useMemo(
     () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
@@ -71,15 +82,15 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
           />
           {badge?.placement === 'bottom' && badgeComponent}
         </div>
-        {visualUrl && (
+        {image && (
           <>
             <Head>
-              <link rel="preload" as="image" href={visualUrl} />
+              <link rel="preload" as="image" href={image} />
             </Head>
             <LazyImage
               aria-hidden
               eager
-              imgSrc={visualUrl}
+              imgSrc={image}
               className="h-auto w-full object-cover"
               ratio="64%"
               imgAlt="Supportive illustration for the information"

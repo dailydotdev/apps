@@ -5,6 +5,13 @@ import { FunnelStepType } from '../../types/funnel';
 import type { FunnelStepFact } from '../../types/funnel';
 import { StepHeadlineAlign } from '../../shared';
 
+import { useIsLightTheme } from '../../../../hooks/utils';
+
+// Add useIsLightTheme mock
+jest.mock('../../../../hooks/utils', () => ({
+  useIsLightTheme: jest.fn(),
+}));
+
 const mockOnTransition = jest.fn();
 
 const defaultProps: FunnelStepFact = {
@@ -95,6 +102,50 @@ describe('FunnelFact', () => {
     );
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', visualUrl);
+  });
+
+  it('should render dark mode image when in dark mode', async () => {
+    // Mock dark mode
+    (useIsLightTheme as jest.Mock).mockReturnValue(false);
+
+    const darkModeUrl = 'https://example.com/dark-image.png';
+    const lightModeUrl = 'https://example.com/light-image.png';
+
+    renderComponent({
+      parameters: {
+        ...defaultProps.parameters,
+        visualUrl: darkModeUrl,
+        visualUrlLightMode: lightModeUrl,
+      },
+    });
+
+    const image = screen.getByAltText(
+      'Supportive illustration for the information',
+    );
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('src', darkModeUrl);
+  });
+
+  it('should render light mode image when in light mode', async () => {
+    // Mock light mode
+    (useIsLightTheme as jest.Mock).mockReturnValue(true);
+
+    const darkModeUrl = 'https://example.com/dark-image.png';
+    const lightModeUrl = 'https://example.com/light-image.png';
+
+    renderComponent({
+      parameters: {
+        ...defaultProps.parameters,
+        visualUrl: darkModeUrl,
+        visualUrlLightMode: lightModeUrl,
+      },
+    });
+
+    const image = screen.getByAltText(
+      'Supportive illustration for the information',
+    );
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('src', lightModeUrl);
   });
 
   it('should pass left alignment to StepHeadline when specified', async () => {
