@@ -9,7 +9,7 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { getBootMock } from '../../../mock/boot';
 import { set } from 'date-fns';
 import { useAtom } from 'jotai';
-import { selectedPlanAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnelStore';
+import { selectedPlanAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 // Create a client
 const queryClient = new QueryClient({
   defaultOptions: {

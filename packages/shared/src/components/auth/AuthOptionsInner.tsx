@@ -36,8 +36,6 @@ import { labels } from '../../lib';
 import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 
@@ -59,12 +57,6 @@ const OnboardingRegistrationForm = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
   ).then((mod) => mod.OnboardingRegistrationForm),
-);
-
-const OnboardingRegistrationFormExperiment = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingRegistrationFormExperiment" */ './OnboardingRegistrationForm'
-  ).then((mod) => mod.OnboardingRegistrationFormExperiment),
 );
 
 const AuthSignBack = dynamic(() =>
@@ -130,8 +122,8 @@ function AuthOptionsInner({
   );
   const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
-  const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isOnboardingOrFunnel =
+    !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
@@ -206,7 +198,7 @@ function AuthOptionsInner({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
-    keepSession: isFunnel,
+    keepSession: isOnboardingOrFunnel,
   });
 
   const {
@@ -223,12 +215,14 @@ function AuthOptionsInner({
       return displayToast(labels.auth.error.generic);
     },
   });
-  const onProfileSuccess = async (options: { redirect?: string } = {}) => {
+  const onProfileSuccess = async (
+    options: { redirect?: string; setSignBack?: boolean } = {},
+  ) => {
     setIsRegistration(true);
-    const { redirect } = options;
+    const { redirect, setSignBack = true } = options;
     const { data } = await refetchBoot();
 
-    if (data.user) {
+    if (data.user && setSignBack) {
       const provider = chosenProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
@@ -363,11 +357,13 @@ function AuthOptionsInner({
     await syncSettings();
   };
 
-  const onRegister = (params: RegistrationFormValues) => {
-    validateRegistration({
+  const onRegister = async (params: RegistrationFormValues) => {
+    await validateRegistration({
       ...params,
       method: 'password',
     });
+    await setChosenProvider('password');
+    await onProfileSuccess({ setSignBack: false });
   };
 
   const onForgotPassword = (withEmail?: string) => {
@@ -388,11 +384,6 @@ function AuthOptionsInner({
     setEmail(params.identifier);
     onPasswordLogin(params);
   };
-
-  const RegistrationFormComponent =
-    isReorderExperiment && isOnboardingPage
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
 
   return (
     <div
@@ -477,7 +468,7 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>
-          <RegistrationFormComponent
+          <OnboardingRegistrationForm
             onContinueWithEmail={() => {
               onAuthStateUpdate({
                 isAuthenticating: true,

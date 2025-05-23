@@ -7,12 +7,14 @@ export async function getFunnelBootData({
   id,
   version,
   forwardedHeaders,
+  featureKey = 'funnel',
 }: {
   app: string;
   cookies: string;
   id?: string;
   version?: string;
   forwardedHeaders?: Record<string, string>;
+  featureKey?: 'funnel' | 'onboarding';
 }): Promise<FunnelBootResponse> {
   const params = new URLSearchParams();
   if (id) {
@@ -23,7 +25,9 @@ export async function getFunnelBootData({
   }
 
   const paramString = params.toString();
-  const url = `${apiUrl}/boot/funnel${paramString ? `?${paramString}` : ''}`;
+  const url = `${apiUrl}/boot/${featureKey}${
+    paramString ? `?${paramString}` : ''
+  }`;
 
   const res = await fetch(url, {
     method: 'GET',

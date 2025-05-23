@@ -9,6 +9,7 @@ import type {
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
+import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -27,6 +28,8 @@ export enum FunnelStepType {
   EditTags = 'editTags',
   ContentTypes = 'contentTypes',
   InstallPwa = 'installPwa',
+  OrganicRegistration = 'organicRegistration',
+  PlusCards = 'plusCards',
 }
 
 export enum FunnelBackgroundVariant {
@@ -179,7 +182,7 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPricingParameters {
+export interface FunnelStepPricingParameters extends FunnelStepParameters {
   headline: string;
   cta: string;
   discount: {
@@ -298,6 +301,42 @@ export interface FunnelStepInstallPwa
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepOrganicRegistration
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+    image: string;
+    imageMobile: string;
+    experiments?: Partial<{
+      reorderRegistration: boolean;
+    }>;
+  }> {
+  type: FunnelStepType.OrganicRegistration;
+  onTransition: FunnelStepTransitionCallback<{
+    user: LoggedUser | AnonymousUser;
+  }>;
+}
+
+interface PlanCard {
+  cta: string;
+  title: string;
+  description: string;
+  note?: string;
+}
+
+export interface FunnelStepPlusCards
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    free?: Partial<PlanCard>;
+    plus?: Partial<PlanCard>;
+  }> {
+  type: FunnelStepType.PlusCards;
+  onTransition: FunnelStepTransitionCallback<{
+    skip: boolean;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -313,7 +352,9 @@ export type FunnelStep =
   | FunnelStepProfileForm
   | FunnelStepEditTags
   | FunnelStepContentTypes
-  | FunnelStepInstallPwa;
+  | FunnelStepInstallPwa
+  | FunnelStepOrganicRegistration
+  | FunnelStepPlusCards;
 
 export type FunnelPosition = {
   chapter: number;
@@ -340,3 +381,8 @@ export interface FunnelJSON {
 }
 
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
+export const stepsFullWidth: Array<FunnelStepType> = [
+  FunnelStepType.OrganicRegistration,
+  FunnelStepType.EditTags,
+  FunnelStepType.ContentTypes,
+];
