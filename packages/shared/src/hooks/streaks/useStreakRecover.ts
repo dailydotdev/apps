@@ -76,9 +76,7 @@ export const useStreakRecover = ({
       await gqlClient
         .request<{
           recoverStreak: Pick<LoggedUser, 'balance'>;
-        }>(USER_STREAK_RECOVER_MUTATION, {
-          cores: true,
-        })
+        }>(USER_STREAK_RECOVER_MUTATION)
         .then((res) => res.recoverStreak),
     onSuccess: (data) => {
       logEvent({

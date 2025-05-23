@@ -67,9 +67,6 @@ const mockRecoveryMutation = (data: unknown, callback?: () => void) => {
   mockGraphQL({
     request: {
       query: USER_STREAK_RECOVER_MUTATION,
-      variables: {
-        cores: true,
-      },
     },
     result: () => {
       callback?.();
@@ -442,9 +439,6 @@ it('Should show error message on recover fail', async () => {
   mockGraphQL({
     request: {
       query: USER_STREAK_RECOVER_MUTATION,
-      variables: {
-        cores: true,
-      },
     },
     result: {
       errors: [{ message: 'error' }],
