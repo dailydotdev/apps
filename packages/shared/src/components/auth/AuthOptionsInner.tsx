@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -59,12 +59,6 @@ const OnboardingRegistrationForm = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
   ).then((mod) => mod.OnboardingRegistrationForm),
-);
-
-const OnboardingRegistrationFormExperiment = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingRegistrationFormExperiment" */ './OnboardingRegistrationForm'
-  ).then((mod) => mod.OnboardingRegistrationFormExperiment),
 );
 
 const AuthSignBack = dynamic(() =>
@@ -394,12 +388,6 @@ function AuthOptionsInner({
     onPasswordLogin(params);
   };
 
-  const RegistrationFormComponent = useMemo(() => {
-    return isOnboardingOrFunnel && !isAuthenticating
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
-  }, [isOnboardingOrFunnel, isAuthenticating]);
-
   return (
     <div
       className={classNames(
@@ -483,7 +471,7 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>
-          <RegistrationFormComponent
+          <OnboardingRegistrationForm
             onContinueWithEmail={() => {
               onAuthStateUpdate({
                 isAuthenticating: true,

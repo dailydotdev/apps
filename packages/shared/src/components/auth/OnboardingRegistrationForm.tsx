@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
-import classNames from 'classnames';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
 import OrDivider from './OrDivider';
@@ -9,14 +8,8 @@ import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import AuthForm from './AuthForm';
-import { TextField } from '../fields/TextField';
-import { MailIcon } from '../icons';
-import { IconSize } from '../Icon';
-import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { isIOSNative } from '../../lib/func';
 
-import { useCheckExistingEmail } from '../../hooks';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 
@@ -101,135 +94,6 @@ const getSignupProviders = () => {
 };
 
 export const OnboardingRegistrationForm = ({
-  onSignup,
-  onExistingEmail,
-  onProviderClick,
-  targetId,
-  isReady,
-  trigger,
-  className,
-  onboardingSignupButton,
-}: OnboardingRegistrationFormProps): ReactElement => {
-  const { logEvent } = useLogContext();
-  const { email, onEmailCheck } = useCheckExistingEmail({
-    onBeforeEmailCheck: () => {
-      logEvent({
-        event_name: 'click',
-        target_type: AuthEventNames.SignUpProvider,
-        target_id: 'email',
-        extra: JSON.stringify({ trigger }),
-      });
-    },
-    onValidEmail: onSignup,
-  });
-  const onboardingSignupButtonProps = {
-    size: ButtonSize.Large,
-    variant: ButtonVariant.Primary,
-    ...onboardingSignupButton,
-  };
-
-  const onSocialClick = (provider: string) => {
-    onProviderClick?.(provider, email.alreadyExists);
-  };
-
-  useEffect(() => {
-    logEvent({
-      event_name: email.alreadyExists
-        ? AuthEventNames.OpenLogin
-        : AuthEventNames.OpenSignup,
-      extra: JSON.stringify({ trigger }),
-      target_id: targetId,
-    });
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email.alreadyExists]);
-
-  return (
-    <>
-      <AuthForm
-        className={classNames('mb-8 gap-8', className?.onboardingForm)}
-        onSubmit={onEmailCheck}
-        aria-label={email.alreadyExists ? 'Login form' : 'Signup form'}
-      >
-        <TextField
-          leftIcon={
-            <MailIcon aria-hidden role="presentation" size={IconSize.Small} />
-          }
-          required
-          inputId="email"
-          label="Email"
-          type="email"
-          name="email"
-          focused
-          pressed
-          className={{ container: 'bg-overlay-active-salt' }}
-        />
-
-        {email.alreadyExists && (
-          <>
-            <Alert type={AlertType.Error} flexDirection="flex-row">
-              <AlertParagraph className="!mt-0 flex-1">
-                Email is taken. Existing user?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    onExistingEmail(email.value);
-                  }}
-                  className="font-bold underline"
-                >
-                  Log in.
-                </button>
-              </AlertParagraph>
-            </Alert>
-          </>
-        )}
-
-        <Button
-          className="w-full"
-          loading={!isReady || email.isCheckPending}
-          type="submit"
-          variant={ButtonVariant.Primary}
-        >
-          Sign up - Free forever ➔
-        </Button>
-      </AuthForm>
-      <OrDivider
-        className={{
-          container: classNames('mb-8', className?.onboardingDivider),
-          text: 'text-text-tertiary',
-        }}
-        label="Or sign up with"
-        aria-hidden
-      />
-      <div
-        aria-label="Social login buttons"
-        className={classNames(
-          'flex flex-col gap-8 pb-8',
-          className.onboardingSignup,
-        )}
-        role="list"
-      >
-        {getSignupProviders().map((provider) => (
-          <Button
-            aria-label={`${email.alreadyExists ? 'Login' : 'Signup'} using ${
-              provider.label
-            }`}
-            icon={provider.icon}
-            key={provider.value}
-            loading={!isReady}
-            onClick={() => onSocialClick(provider.value)}
-            type="button"
-            {...onboardingSignupButtonProps}
-          >
-            {provider.label}
-          </Button>
-        ))}
-      </div>
-    </>
-  );
-};
-
-export const OnboardingRegistrationFormExperiment = ({
   isReady,
   onContinueWithEmail,
   onExistingEmail,
