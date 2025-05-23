@@ -15,7 +15,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { sanitizeMessage } from './utils';
+import { sanitizeMessage } from '../lib/utils';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
   cta?: {
