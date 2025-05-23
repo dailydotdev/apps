@@ -9,11 +9,10 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { PlusComparingCards } from '../../plus/PlusComparingCards';
-import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
-import type { OnboardingStepProps } from './common';
+} from '../../../components/typography/Typography';
+import { PlusComparingCards } from '../../../components/plus/PlusComparingCards';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
+import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -43,10 +42,15 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
+interface OnboardingPlusControlProps {
+  onSkip?: () => void;
+  onComplete?: () => void;
+}
+
 export const OnboardingPlusControl = ({
-  onClickNext,
-  onClickPlus,
-}: OnboardingStepProps): ReactElement => {
+  onSkip,
+  onComplete,
+}: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { productOptions } = usePaymentContext();
   const item = useMemo(
@@ -82,8 +86,8 @@ export const OnboardingPlusControl = ({
       {item ? (
         <PlusComparingCards
           productOption={item}
-          onClickNext={onClickNext}
-          onClickPlus={onClickPlus}
+          onClickNext={onSkip}
+          onClickPlus={onComplete}
         />
       ) : (
         <PlusSkeleton />

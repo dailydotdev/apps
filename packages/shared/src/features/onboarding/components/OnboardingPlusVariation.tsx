@@ -10,16 +10,15 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { ButtonVariant } from '../../buttons/common';
-import { ClickableText } from '../../buttons/ClickableText';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button } from '../../buttons/Button';
-import type { OnboardingStepProps } from './common';
-import { LazyModal } from '../../modals/common/types';
-import { plusFeatureList } from '../../plus/PlusList';
-import type { PlusItem } from '../../plus/PlusListItem';
-import { PlusItemStatus } from '../../plus/PlusListItem';
+} from '../../../components/typography/Typography';
+import { ButtonVariant } from '../../../components/buttons/common';
+import { ClickableText } from '../../../components/buttons/ClickableText';
+import type { ButtonProps } from '../../../components/buttons/Button';
+import { Button } from '../../../components/buttons/Button';
+import { LazyModal } from '../../../components/modals/common/types';
+import { plusFeatureList } from '../../../components/plus/PlusList';
+import type { PlusItem } from '../../../components/plus/PlusListItem';
+import { PlusItemStatus } from '../../../components/plus/PlusListItem';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -87,10 +86,15 @@ const VariationCardOption = ({
   );
 };
 
+interface OnboardingPlusVariationProps {
+  onSkip?: () => void;
+  onComplete?: () => void;
+}
+
 export const OnboardingPlusVariation = ({
-  onClickNext,
-  onClickPlus,
-}: OnboardingStepProps): ReactElement => {
+  onSkip,
+  onComplete,
+}: OnboardingPlusVariationProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { openModal } = useLazyModal();
   const { productOptions } = usePaymentContext();
@@ -165,7 +169,7 @@ export const OnboardingPlusVariation = ({
           {/* Free Plan Card */}
           <div className="flex h-fit flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-xl tablet:max-w-xs">
             <VariationCardOption
-              onClickNext={onClickNext}
+              onClickNext={onSkip}
               button={{
                 copy: 'Join for free',
                 variant: ButtonVariant.Subtle,
@@ -191,12 +195,12 @@ export const OnboardingPlusVariation = ({
             </div>
             <div className="flex h-fit flex-col gap-4 rounded-12 bg-background-default p-4 tablet:max-w-xs">
               <VariationCardOption
-                onClickNext={onClickNext}
+                onClickNext={onSkip}
                 button={{
                   copy: 'Get started',
                   variant: ButtonVariant.Primary,
                   title: 'Get started',
-                  onClick: onClickPlus,
+                  onClick: onComplete,
                 }}
                 title="Plus"
                 description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
@@ -257,7 +261,7 @@ export const OnboardingPlusVariation = ({
         variant={ButtonVariant.Primary}
         title="Get started"
         className="mx-auto"
-        onClick={onClickPlus}
+        onClick={onComplete}
       >
         Get started
       </Button>

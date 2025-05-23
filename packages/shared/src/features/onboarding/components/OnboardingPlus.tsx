@@ -1,4 +1,4 @@
-import { withExperiment } from '../../withExperiment';
+import { withExperiment } from '../../../components/withExperiment';
 import { OnboardingPlusVariation } from './OnboardingPlusVariation';
 import { OnboardingPlusControl } from './OnboardingPlusControl';
 import { featureOnboardingPlusFeatureGrid } from '../../../lib/featureManagement';
