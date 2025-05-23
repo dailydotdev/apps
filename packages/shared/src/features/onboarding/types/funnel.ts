@@ -29,6 +29,7 @@ export enum FunnelStepType {
   ContentTypes = 'contentTypes',
   InstallPwa = 'installPwa',
   OrganicRegistration = 'organicRegistration',
+  PlusCards = 'plusCards',
 }
 
 export enum FunnelBackgroundVariant {
@@ -316,6 +317,17 @@ export interface FunnelStepOrganicRegistration
   }>;
 }
 
+export interface FunnelStepPlusCards
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+  }> {
+  type: FunnelStepType.PlusCards;
+  onTransition: FunnelStepTransitionCallback<{
+    skip: boolean;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -332,7 +344,8 @@ export type FunnelStep =
   | FunnelStepEditTags
   | FunnelStepContentTypes
   | FunnelStepInstallPwa
-  | FunnelStepOrganicRegistration;
+  | FunnelStepOrganicRegistration
+  | FunnelStepPlusCards;
 
 export type FunnelPosition = {
   chapter: number;
