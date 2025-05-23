@@ -4,51 +4,60 @@ import Head from 'next/head';
 import { StepHeadline } from '../../shared';
 import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
-import { FunnelStepCtaWrapper } from '../../shared/FunnelStepCtaWrapper';
 import { LazyImage } from '../../../../components/LazyImage';
-import { ReputationLightningIcon } from '../../../../components/icons';
+import { FunnelFactWrapper } from './FunnelFactWrapper';
+import { Button } from '../../../../components/buttons/Button';
+import {
+  ButtonVariant,
+  ButtonIconPosition,
+} from '../../../../components/buttons/common';
+import {
+  MoveToIcon,
+  ReputationLightningIcon,
+} from '../../../../components/icons';
+import { FunnelTargetId } from '../../types/funnelEvents';
 import { Badge } from '../../../../components/Badge';
 import { useIsLightTheme } from '../../../../hooks/utils';
 
-export const FunnelFactCentered = ({
-  parameters,
-  onTransition,
-}: FunnelStepFact): ReactElement => {
+export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
+  const { parameters, transitions, onTransition } = props;
+  const { badge, headline, explainer, align, visualUrl, visualUrlLightMode } =
+    parameters;
   const isLightMode = useIsLightTheme();
-
-  const image = isLightMode
-    ? parameters?.visualUrlLightMode
-    : parameters?.visualUrl;
-
-  const { badge } = parameters;
-
-  const badgeComponent = useMemo(() => {
-    if (!badge?.cta) {
-      return null;
-    }
-    return (
-      <Badge
-        label={badge.cta}
-        icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
-        variant={badge.variant}
-      />
-    );
-  }, [badge?.cta, badge?.variant]);
+  const image = isLightMode ? visualUrlLightMode : visualUrl;
+  const skip = useMemo(
+    () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
+    [transitions],
+  );
+  const badgeComponent = !badge?.cta ? null : (
+    <Badge
+      label={badge.cta}
+      icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
+      variant={badge.variant}
+    />
+  );
 
   return (
-    <FunnelStepCtaWrapper
-      containerClassName="flex max-h-screen"
-      cta={{ label: parameters?.cta ?? 'Next' }}
-      onClick={() =>
-        onTransition({
-          type: FunnelStepTransitionType.Complete,
-        })
-      }
-    >
+    <FunnelFactWrapper {...props}>
       <div
         data-testid="step-content"
         className="flex flex-1 flex-col items-center justify-center gap-6 p-6 laptop:mb-10"
       >
+        {skip?.placement === 'top' && (
+          <Button
+            className="w-fit"
+            data-funnel-track={FunnelTargetId.StepCta}
+            variant={ButtonVariant.Float}
+            type="button"
+            icon={<MoveToIcon />}
+            iconPosition={ButtonIconPosition.Right}
+            onClick={() =>
+              onTransition({ type: FunnelStepTransitionType.Skip })
+            }
+          >
+            {skip?.cta ?? 'Skip'}
+          </Button>
+        )}
         {image && (
           <>
             <Head>
@@ -67,14 +76,13 @@ export const FunnelFactCentered = ({
         <div className="flex flex-col items-center gap-4">
           {badge?.placement === 'top' && badgeComponent}
           <StepHeadline
-            className="!gap-6"
-            heading={parameters?.headline}
-            description={parameters?.explainer}
-            align={parameters?.align}
+            heading={headline}
+            description={explainer}
+            align={align}
           />
           {badge?.placement === 'bottom' && badgeComponent}
         </div>
       </div>
-    </FunnelStepCtaWrapper>
+    </FunnelFactWrapper>
   );
 };

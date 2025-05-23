@@ -1,8 +1,4 @@
 import type { JSONValue } from '@growthbook/growthbook';
-import {
-  cloudinaryOnboardingFullBackgroundDesktop,
-  cloudinaryOnboardingFullBackgroundMobile,
-} from './image';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -22,12 +18,6 @@ export class Feature<T extends JSONValue> {
 const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
-  onboardingVisual: new Feature('onboarding_visual', {
-    fullBackground: {
-      mobile: cloudinaryOnboardingFullBackgroundMobile,
-      desktop: cloudinaryOnboardingFullBackgroundDesktop,
-    },
-  }),
   feedAdSpot: new Feature('feed_ad_spot', 2),
   searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
@@ -44,19 +34,12 @@ export const plusTakeoverContent = new Feature<{
   shouldShowReviews: boolean;
 }>('plus_takeover_content', null);
 
-export const visitLinkFeature = new Feature('post_visit_link', false);
-
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Upgrade to Plus',
   short: 'Upgrade',
 });
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-
-export const featureOnboardingAndroid = new Feature(
-  'onboarding_android',
-  false,
-);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
@@ -80,13 +63,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 export const featurePlusButtonColors = new Feature<
   'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
 >('plus_button_colors', '');
-
-export const featureSocialShare = new Feature('social_share', false);
-
-export const featureCustomFeedPlacement = new Feature(
-  'custom_feed_placement',
-  false,
-);
 
 export const featureInteractiveFeed = new Feature('interactive_feed', false);
 export const featureOnboardingReorder = new Feature(

@@ -7,8 +7,8 @@ import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
-import SearchPageV1 from '../pages/search/chat';
 import { getLayout } from '../components/layouts/MainLayout';
+import SearchPostsPage from '../pages/search/posts';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -32,7 +32,7 @@ const renderComponent = (layout = getLayout): RenderResult => {
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      {layout(<SearchPageV1 />, {}, {})}
+      {layout(<SearchPostsPage />, {}, {})}
     </TestBootProvider>,
   );
 };
