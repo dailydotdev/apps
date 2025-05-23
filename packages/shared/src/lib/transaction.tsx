@@ -71,6 +71,10 @@ export const getTransactionLabel = ({
         </div>
       );
     }
+
+    if (['Streak restore'].includes(transaction.flags.note)) {
+      return transaction.flags.note;
+    }
   }
 
   return type.toUpperCase();
