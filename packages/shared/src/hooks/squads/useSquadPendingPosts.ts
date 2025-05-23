@@ -47,7 +47,7 @@ export const useSquadPendingPosts = ({
     queryKey: generateQueryKey(
       RequestKey.SquadPostRequests,
       user,
-      squadId,
+      squadId ?? 'all',
       status,
     ),
     queryFn: async ({ pageParam }) => {
