@@ -50,7 +50,7 @@ export const useSourceModerationItem = ({
     verifyPermission(squad, SourcePermissions.ModeratePost) ||
     !searchParams?.get('handle');
 
-  const { onDelete } = useSourceModerationList({ squad });
+  const { onDelete } = useSourceModerationList();
 
   return {
     context: {
