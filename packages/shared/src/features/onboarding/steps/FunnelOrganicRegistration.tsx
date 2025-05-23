@@ -109,66 +109,64 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
     }
 
     return (
-      <>
-        <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
-          <OnboardingHeader isLanding />
+      <div className="z-3 flex flex-1 flex-col items-center overflow-x-hidden">
+        <OnboardingHeader isLanding />
+        <div
+          className={classNames(
+            `flex w-full flex-1 flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,
+            wrapperMaxWidth,
+            isEmailSignupActive && 'mt-7.5',
+          )}
+        >
           <div
             className={classNames(
-              `flex w-full flex-1 flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,
-              wrapperMaxWidth,
-              isEmailSignupActive && 'mt-7.5',
+              'mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow',
+              !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
-            <div
-              className={classNames(
-                'mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow',
-                !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
-              )}
-            >
-              {!isEmailSignupActive && (
-                <OnboardingHeadline
-                  className={{
-                    title: 'tablet:typo-mega-1 typo-large-title',
-                    description:
-                      'mb-8 text-text-primary typo-body tablet:typo-title2',
-                  }}
-                  title={headline}
-                  description={explainer}
-                />
-              )}
-              <AuthOptions
-                {...staticAuthProps}
-                defaultDisplay={authDisplay}
-                formRef={formRef}
-                onboardingSignupButton={{
-                  size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-                  variant: ButtonVariant.Primary,
+            {!isEmailSignupActive && (
+              <OnboardingHeadline
+                className={{
+                  title: 'tablet:typo-mega-1 typo-large-title',
+                  description:
+                    'mb-8 text-text-primary typo-body tablet:typo-title2',
                 }}
-                onSuccessfulRegistration={onSuccessfulRegistration}
-                onAuthStateUpdate={onAuthStateUpdate}
+                title={headline}
+                description={explainer}
               />
-            </div>
-            <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
-          </div>
-          {!!src && (
-            <img
-              alt="Onboarding background"
-              aria-hidden
-              className={classNames(
-                'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
-                { 'opacity-[.24]': isEmailSignupActive },
-              )}
-              fetchPriority="high"
-              loading="eager"
-              role="presentation"
-              src={src}
-              srcSet={`${src} 450w, ${srcDesktop || src} 1024w`}
-              sizes="(max-width: 655px) 450px, 1024px"
+            )}
+            <AuthOptions
+              {...staticAuthProps}
+              defaultDisplay={authDisplay}
+              formRef={formRef}
+              onboardingSignupButton={{
+                size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+                variant: ButtonVariant.Primary,
+              }}
+              onSuccessfulRegistration={onSuccessfulRegistration}
+              onAuthStateUpdate={onAuthStateUpdate}
             />
-          )}
-          <FooterLinks className="mx-auto pb-6" />
+          </div>
+          <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
         </div>
-      </>
+        {!!src && (
+          <img
+            alt="Onboarding background"
+            aria-hidden
+            className={classNames(
+              'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
+              { 'opacity-[.24]': isEmailSignupActive },
+            )}
+            fetchPriority="high"
+            loading="eager"
+            role="presentation"
+            src={src}
+            srcSet={`${src} 450w, ${srcDesktop || src} 1024w`}
+            sizes="(max-width: 655px) 450px, 1024px"
+          />
+        )}
+        <FooterLinks className="mx-auto pb-6" />
+      </div>
     );
   },
 );
