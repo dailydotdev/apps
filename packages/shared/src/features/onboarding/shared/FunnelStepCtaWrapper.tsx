@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { ButtonProps } from '../../../components/buttons/Button';
 import {
@@ -10,10 +10,17 @@ import {
 } from '../../../components/buttons/Button';
 import { FunnelTargetId } from '../types/funnelEvents';
 import { MoveToIcon } from '../../../components/icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import { sanitizeMessage } from './utils';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
   cta?: {
     label?: string;
+    note?: string;
   };
   containerClassName?: string;
   skip?: ButtonProps<'button'> & {
@@ -29,10 +36,28 @@ export function FunnelStepCtaWrapper({
   containerClassName,
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
+  const note = useMemo(() => {
+    if (!cta?.note) {
+      return null;
+    }
+
+    const sanitized = sanitizeMessage(cta.note);
+
+    return (
+      <Typography
+        className="text-center"
+        type={TypographyType.Title3}
+        color={TypographyColor.Primary}
+        dangerouslySetInnerHTML={{ __html: sanitized }}
+      />
+    );
+  }, [cta?.note]);
+
   return (
     <div className="relative flex flex-1 flex-col gap-4">
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
       <div className="sticky bottom-2 mx-auto my-4 flex w-full max-w-md flex-col gap-4 px-4">
+        {note}
         <Button
           className={classNames(className, 'w-full')}
           data-funnel-track={FunnelTargetId.StepCta}

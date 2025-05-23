@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FunnelFact } from '.';
 import { FunnelStepType } from '../../types/funnel';
 import type { FunnelStepFact } from '../../types/funnel';
+import { StepHeadlineAlign } from '../../shared';
 
 const mockOnTransition = jest.fn();
 
@@ -13,7 +14,7 @@ const defaultProps: FunnelStepFact = {
   parameters: {
     headline: 'Test Headline',
     explainer: 'Test explanation text',
-    align: 'center',
+    align: StepHeadlineAlign.Center,
     cta: 'Continue',
   },
   onTransition: mockOnTransition,
@@ -34,6 +35,21 @@ describe('FunnelFact', () => {
     expect(
       await screen.findByText('Test explanation text'),
     ).toBeInTheDocument();
+  });
+
+  it('should render badge when provided', async () => {
+    renderComponent({
+      parameters: {
+        ...defaultProps.parameters,
+        badge: {
+          cta: 'Badge CTA',
+          variant: 'primary',
+          placement: 'top',
+        },
+      },
+    });
+
+    expect(await screen.findByText('Badge CTA')).toBeInTheDocument();
   });
 
   it('should call onTransition when button is clicked', async () => {
@@ -85,7 +101,7 @@ describe('FunnelFact', () => {
     renderComponent({
       parameters: {
         ...defaultProps.parameters,
-        align: 'left',
+        align: StepHeadlineAlign.Left,
       },
     });
 
