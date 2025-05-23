@@ -97,7 +97,7 @@ const mockAlertsMutation = () => {
 
 const renderComponent = (props: TestProps = {}) => {
   const {
-    user = { ...loggedUser, reputation: 10 },
+    user = { ...loggedUser, balance: { amount: 0 } },
     alerts = alertsWithStreakRecovery,
   } = props;
 
@@ -184,8 +184,9 @@ it('should render and fetch initial data if logged user can recover streak', asy
   mockRecoveryQuery(
     {
       canRecover: true,
-      cost: 25,
+      cost: 100,
       oldStreakLength: 10,
+      regularCost: 100,
     },
     () => {
       haveFetched = true;
@@ -209,8 +210,9 @@ it('should update alerts preferences on close', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 25,
+    cost: 100,
     oldStreakLength: 10,
+    regularCost: 100,
   });
   renderComponent({});
 
@@ -236,12 +238,15 @@ it('Should have no cost for first time recovery', async () => {
     canRecover: true,
     cost: 0,
     oldStreakLength: 10,
+    regularCost: 100,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 50,
+      balance: {
+        amount: 50,
+      },
     },
   });
 
@@ -252,21 +257,24 @@ it('Should have no cost for first time recovery', async () => {
   expect(popupHeader).toBeInTheDocument();
 
   // expect cost to be 0
-  const cost = screen.getByText('0 Rep');
+  const cost = screen.getByText('Restore my streakFree');
   expect(cost).toBeInTheDocument();
 });
 
-it('Should have cost of 25 points for 2nd+ time recovery', async () => {
+it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
   mockRecoveryQuery({
     canRecover: true,
-    cost: 25,
+    cost: 100,
     oldStreakLength: 10,
+    regularCost: 100,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 50,
+      balance: {
+        amount: 200,
+      },
     },
   });
 
@@ -276,22 +284,25 @@ it('Should have cost of 25 points for 2nd+ time recovery', async () => {
   const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
-  // expect cost to be 25
-  const cost = screen.getByText('25 Rep');
+  // expect cost to be 100
+  const cost = screen.getByText('Restore my streak100');
   expect(cost).toBeInTheDocument();
 });
 
-it('Should show not enough points message if user does not have enough points', async () => {
+it('Should show buy Cores message if user does not have enough Cores', async () => {
   mockRecoveryQuery({
     canRecover: true,
-    cost: 25,
+    cost: 100,
     oldStreakLength: 10,
+    regularCost: 100,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 10,
+      balance: {
+        amount: 50,
+      },
     },
   });
 
@@ -301,12 +312,13 @@ it('Should show not enough points message if user does not have enough points', 
   const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
-  // expect not enough points message
+  // expect not enough Cores message
   const button = screen.queryByTestId('streak-recover-button');
-  expect(button).not.toBeInTheDocument();
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveTextContent('Buy Cores100');
 
   const copy = screen.queryByTestId('streak-recovery-copy');
-  expect(copy).toHaveTextContent('You don’t have enough');
+  expect(copy).toHaveTextContent("You don't have enough");
 });
 
 it('Should show success message on recover', async () => {
@@ -314,14 +326,17 @@ it('Should show success message on recover', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 25,
+    cost: 100,
     oldStreakLength: 102,
+    regularCost: 100,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 50,
+      balance: {
+        amount: 100,
+      },
     },
   });
 
@@ -358,14 +373,17 @@ it('Should dismiss popup on close if checked option', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 25,
+    cost: 100,
     oldStreakLength: 102,
+    regularCost: 100,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 50,
+      balance: {
+        amount: 100,
+      },
     },
   });
 
@@ -399,14 +417,17 @@ it('Should show error message on recover fail', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 25,
+    cost: 100,
     oldStreakLength: 102,
+    regularCost: 100,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
-      reputation: 50,
+      balance: {
+        amount: 100,
+      },
     },
   });
 
