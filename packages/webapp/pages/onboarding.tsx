@@ -159,29 +159,33 @@ const useOnboardingAuth = () => {
     [setAuth],
   );
 
-  useEffect(
-    () => {
-      const email = loginState?.formValues?.email || anonymous?.email;
-      const shouldVerify = anonymous?.shouldVerify;
-      const isLogin = loginState?.isLogin;
-      const isRequiredAuth = !(isLoggedIn && !shouldVerify);
-      const hasLoginState =
-        !!loginState?.formValues?.email || loginState?.isLogin;
-      const wasLoggedInBefore = !!storage.getItem(SIGNIN_METHOD_KEY);
-      updateAuth({
-        defaultDisplay: getDefaultDisplay({ isLogin, shouldVerify, action }),
-        email,
-        isAuthenticating:
-          isRequiredAuth &&
-          (!!action || shouldVerify || wasLoggedInBefore || hasLoginState),
-        isLoading: !isAuthReady,
-        isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
-      });
-    },
-    // only run when {the action changes / on mount}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [action, updateAuth],
-  );
+  useEffect(() => {
+    const email = loginState?.formValues?.email || anonymous?.email;
+    const shouldVerify = anonymous?.shouldVerify;
+    const isLogin = loginState?.isLogin;
+    const isRequiredAuth = !(isLoggedIn && !shouldVerify);
+    const hasLoginState =
+      !!loginState?.formValues?.email || loginState?.isLogin;
+    const wasLoggedInBefore = !!storage.getItem(SIGNIN_METHOD_KEY);
+    updateAuth({
+      defaultDisplay: getDefaultDisplay({ isLogin, shouldVerify, action }),
+      email,
+      isAuthenticating:
+        isRequiredAuth &&
+        (!!action || shouldVerify || wasLoggedInBefore || hasLoginState),
+      isLoading: !isAuthReady,
+      isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
+    });
+  }, [
+    action,
+    anonymous?.email,
+    anonymous?.shouldVerify,
+    isAuthReady,
+    isLoggedIn,
+    loginState?.formValues?.email,
+    loginState?.isLogin,
+    updateAuth,
+  ]);
 
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
