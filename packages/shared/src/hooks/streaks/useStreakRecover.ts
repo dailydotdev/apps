@@ -26,6 +26,7 @@ import { getPathnameWithQuery } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
 import { UserTransactionStatus } from '../../graphql/njord';
 import type { LoggedUser } from '../../lib/user';
+import { isExtension } from '../../lib/func';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -170,7 +171,10 @@ export const useStreakRecover = ({
       if (user.balance.amount < data.streakRecover.cost) {
         const searchParams = new URLSearchParams();
         searchParams.set('origin', Origin.StreakRecover);
-        searchParams.set('next', router.pathname);
+
+        if (!isExtension) {
+          searchParams.set('next', router.pathname);
+        }
 
         router?.push(getPathnameWithQuery(`${webappUrl}cores`, searchParams));
 
