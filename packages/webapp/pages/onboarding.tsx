@@ -13,7 +13,10 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+import {
+  FooterLinks,
+  withFeaturesBoundary,
+} from '@dailydotdev/shared/src/components';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
@@ -71,7 +74,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id, version, stepId } = query;
+  const { id = 'onboarding', version, stepId } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
@@ -251,6 +254,7 @@ function Onboarding(): ReactElement {
         <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
+        <FooterLinks className="mx-auto pb-6" />
       </div>
     );
   }
