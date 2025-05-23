@@ -184,7 +184,7 @@ export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
   );
   const { isGdprCovered } = useAuthContext();
   const consent = !isGdprCovered || acceptedMarketing;
-  if (!consent) {
+  if (!consent || !isProduction) {
     return null;
   }
   return (
