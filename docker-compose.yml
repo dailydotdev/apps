@@ -52,6 +52,7 @@ services:
     volumes:
       - .cert:/opt/app/.cert
     environment:
+      - NODE_ENV=development
       - TYPEORM_HOST=daily-postgres
       - PORT=5000
       - TZ=UTC
@@ -71,3 +72,5 @@ services:
       - JWT_PRIVATE_KEY_PATH=/opt/app/.cert/key.pem
       - GROWTHBOOK_CLIENT_KEY='local'
       - MOCK_USER_ID=testuser
+      - NJORD_ORIGIN=http://njord-transactions-server
+      - FREYJA_ORIGIN=http://freya-server

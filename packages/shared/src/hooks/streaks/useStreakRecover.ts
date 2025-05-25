@@ -10,13 +10,23 @@ import {
 } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ActionType } from '../../graphql/actions';
-import { gqlClient } from '../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiUserTransactionErrorExtension,
+} from '../../graphql/common';
+import { ApiError, gqlClient } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from './useReadingStreak';
+import { getPathnameWithQuery } from '../../lib/links';
+import { webappUrl } from '../../lib/constants';
+import { UserTransactionStatus } from '../../graphql/njord';
+import type { LoggedUser } from '../../lib/user';
+import { isExtension } from '../../lib/func';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -36,6 +46,7 @@ export interface UseStreakRecoverReturn {
     isLoading: boolean;
     isDisabled: boolean;
     oldStreakLength: number;
+    isRecoverPending: boolean;
   };
 }
 
@@ -52,20 +63,23 @@ export const useStreakRecover = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { updateAlerts } = useAlertsContext();
-  const { user } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
   const client = useQueryClient();
+  const router = useRouter();
   const {
     query: { streak_restore: streakRestore },
-  } = useRouter();
+  } = router;
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>
       await gqlClient
-        .request(USER_STREAK_RECOVER_MUTATION)
+        .request<{
+          recoverStreak: Pick<LoggedUser, 'balance'>;
+        }>(USER_STREAK_RECOVER_MUTATION)
         .then((res) => res.recoverStreak),
-    onSuccess: () => {
+    onSuccess: (data) => {
       logEvent({
         event_name: LogEvent.StreakRecover,
       });
@@ -73,6 +87,37 @@ export const useStreakRecover = ({
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.UserStreak, user),
       });
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
+
+      if (data.balance) {
+        updateUser({
+          ...user,
+          balance: data.balance,
+        });
+      }
+    },
+    onError: async (data: ApiErrorResult) => {
+      if (
+        data.response.errors?.[0]?.extensions?.code ===
+        ApiError.BalanceTransactionError
+      ) {
+        const errorExtensions = data.response
+          .errors[0] as ApiResponseError<ApiUserTransactionErrorExtension>;
+
+        if (
+          errorExtensions.extensions.status ===
+            UserTransactionStatus.InsufficientFunds &&
+          errorExtensions.extensions.balance
+        ) {
+          await updateUser({
+            ...user,
+            balance: errorExtensions.extensions.balance,
+          });
+        }
+      }
     },
   });
 
@@ -123,6 +168,19 @@ export const useStreakRecover = ({
 
   const onRecover = useCallback(async () => {
     try {
+      if (user.balance.amount < data.streakRecover.cost) {
+        const searchParams = new URLSearchParams();
+        searchParams.set('origin', Origin.StreakRecover);
+
+        if (!isExtension) {
+          searchParams.set('next', router.pathname);
+        }
+
+        router?.push(getPathnameWithQuery(`${webappUrl}cores`, searchParams));
+
+        return;
+      }
+
       await recoverMutation.mutateAsync();
       displayToast('Lucky you! Your streak has been restored');
     } catch (e) {
@@ -132,7 +190,14 @@ export const useStreakRecover = ({
     }
 
     await onClose?.();
-  }, [displayToast, onClose, recoverMutation]);
+  }, [
+    data?.streakRecover?.cost,
+    displayToast,
+    onClose,
+    recoverMutation,
+    router,
+    user?.balance?.amount,
+  ]);
 
   const isDisabled =
     !isActionsFetched ||
@@ -161,6 +226,7 @@ export const useStreakRecover = ({
       ...data?.streakRecover,
       isLoading,
       isDisabled,
+      isRecoverPending: recoverMutation.isPending,
     },
   };
 };
