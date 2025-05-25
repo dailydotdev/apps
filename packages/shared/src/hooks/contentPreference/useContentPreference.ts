@@ -48,6 +48,7 @@ export const useContentPreference = ({
     }
     queryClient.invalidateQueries({
       queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
+      refetchType: 'none',
     });
   }, [queryClient, user, shouldInvalidateQueries]);
 

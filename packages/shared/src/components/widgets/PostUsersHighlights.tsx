@@ -238,7 +238,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           status={(user as CommentAuthor).contentPreference?.status}
           entityName={`@${handleOrUsernameOrId}`}
           origin={origin}
-          shouldInvalidateQueries={origin === Origin.ArticlePage}
+          shouldInvalidateQueries={false}
         />
       )}
     </div>
