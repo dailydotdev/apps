@@ -23,6 +23,7 @@ export type FollowButtonProps = {
   variant?: ButtonVariant;
   showSubscribe?: boolean;
   copyType?: CopyType;
+  shouldInvalidateQueries?: boolean;
 };
 
 export const FollowButton = ({
@@ -36,8 +37,11 @@ export const FollowButton = ({
   variant = ButtonVariant.Secondary,
   showSubscribe = true,
   copyType,
+  shouldInvalidateQueries = true,
 }: FollowButtonProps): ReactElement => {
-  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
+  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference({
+    shouldInvalidateQueries,
+  });
 
   const { mutate: onButtonClick, isPending: isLoadingFollow } = useMutation({
     mutationFn: async () => {

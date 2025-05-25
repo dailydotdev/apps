@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CONTENT_PREFERENCE_BLOCK_MUTATION,
   CONTENT_PREFERENCE_FOLLOW_MUTATION,
@@ -16,6 +16,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useCallback } from 'react';
+import { SharedFeedPage } from '../../types/SharedFeedPage';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -26,16 +28,28 @@ export type UseContentPreference = {
   unblock: ContentPreferenceMutation;
 };
 
-type UseContentPreferenceProps = {
+export interface UseContentPreferenceProps {
   showToastOnSuccess?: boolean;
-};
+  shouldInvalidateQueries?: boolean;
+}
 
 export const useContentPreference = ({
   showToastOnSuccess,
+  shouldInvalidateQueries = true,
 }: UseContentPreferenceProps = {}): UseContentPreference => {
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const queryClient = useQueryClient();
+
+  const invalidateQueries = useCallback(() => {
+    if (!shouldInvalidateQueries) {
+      return;
+    }
+    queryClient.invalidateQueries({
+      queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
+    });
+  }, [queryClient, user, shouldInvalidateQueries]);
 
   const { mutateAsync: follow } = useMutation({
     mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
@@ -73,6 +87,8 @@ export const useContentPreference = ({
       if (showToastOnSuccess) {
         displayToast(`✅ You are now following ${entityName}`);
       }
+
+      invalidateQueries();
     },
   });
 
