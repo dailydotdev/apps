@@ -8,7 +8,7 @@ import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
-import { LogEvent, Origin } from '../../../lib/log';
+import { LogEvent } from '../../../lib/log';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 
@@ -25,7 +25,6 @@ export interface SourceActionsProps {
   hideFollow?: boolean;
   notifyProps?: SourceActionsButton;
   hideNotify?: boolean;
-  origin?: Origin;
 }
 
 export const SourceActions = ({
@@ -36,7 +35,6 @@ export const SourceActions = ({
   hideNotify = false,
   source,
   notifyProps,
-  origin = Origin.Feed,
 }: SourceActionsProps): ReactElement => {
   const {
     isBlocked,
