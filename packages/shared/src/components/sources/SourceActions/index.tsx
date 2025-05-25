@@ -49,7 +49,7 @@ export const SourceActions = ({
     source,
   });
   const { follow, unfollow } = useContentPreference({
-    shouldInvalidateQueries: false,
+    shouldInvalidateQueries: origin !== Origin.ArticlePage,
   });
   const router = useRouter();
 
