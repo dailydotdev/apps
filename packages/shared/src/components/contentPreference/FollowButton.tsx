@@ -37,7 +37,7 @@ export const FollowButton = ({
   showSubscribe = true,
   copyType,
 }: FollowButtonProps): ReactElement => {
-  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference({});
+  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
 
   const { mutate: onButtonClick, isPending: isLoadingFollow } = useMutation({
     mutationFn: async () => {

@@ -28,9 +28,9 @@ export type UseContentPreference = {
   unblock: ContentPreferenceMutation;
 };
 
-export interface UseContentPreferenceProps {
+type UseContentPreferenceProps = {
   showToastOnSuccess?: boolean;
-}
+};
 
 export const useContentPreference = ({
   showToastOnSuccess,
@@ -62,6 +62,7 @@ export const useContentPreference = ({
           : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
+
         throw new Error('not logged in');
       }
 
@@ -213,6 +214,7 @@ export const useContentPreference = ({
           : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
+
         throw new Error('not logged in');
       }
 
