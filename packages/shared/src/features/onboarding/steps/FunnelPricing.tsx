@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import type { ReactElement } from 'react';
 import { useAtom } from 'jotai';
 import type { FunnelStepPricing } from '../types/funnel';
-import { FunnelStepTransitionType } from '../types/funnel';
+import { FunnelStepTransitionType, FunnelPricingType } from '../types/funnel';
 import type { PricingPlansProps } from '../shared';
 import {
   BoxContentImage,
@@ -32,6 +32,7 @@ import {
   discountTimerAtom,
 } from '../store/funnelStore';
 import { usePaymentContext } from '../../../contexts/payment/context';
+import type { BaseProductPricingPreview } from '../../../graphql/paddle';
 
 const PricingSection = ({
   name,
@@ -79,6 +80,26 @@ const PricingSection = ({
   );
 };
 
+const getPricing = (
+  pricing: BaseProductPricingPreview,
+  pricingType: FunnelPricingType,
+): {
+  amount: string;
+  subtitle: string;
+} => {
+  if (pricingType === FunnelPricingType.Monthly) {
+    return {
+      amount: pricing.price.monthly.formatted,
+      subtitle: 'per month',
+    };
+  }
+
+  return {
+    amount: pricing.price.daily.formatted,
+    subtitle: 'per day',
+  };
+};
+
 export const FunnelPricing = ({
   onTransition,
   isActive,
@@ -93,6 +114,7 @@ export const FunnelPricing = ({
     review,
     refund,
     faq,
+    pricingType,
   },
 }: FunnelStepPricing): ReactElement => {
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
@@ -124,10 +146,7 @@ export const FunnelPricing = ({
     return {
       ...plan,
       value: plan.priceId,
-      price: {
-        amount: pricing.price.daily?.formatted,
-        subtitle: 'per day',
-      },
+      price: getPricing(pricing, pricingType),
     };
   });
 
