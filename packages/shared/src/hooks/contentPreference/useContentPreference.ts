@@ -30,12 +30,10 @@ export type UseContentPreference = {
 
 export interface UseContentPreferenceProps {
   showToastOnSuccess?: boolean;
-  shouldInvalidateQueries?: boolean;
 }
 
 export const useContentPreference = ({
   showToastOnSuccess,
-  shouldInvalidateQueries = true,
 }: UseContentPreferenceProps = {}): UseContentPreference => {
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -43,14 +41,11 @@ export const useContentPreference = ({
   const queryClient = useQueryClient();
 
   const invalidateQueries = useCallback(() => {
-    if (!shouldInvalidateQueries) {
-      return;
-    }
     queryClient.invalidateQueries({
       queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
       refetchType: 'none',
     });
-  }, [queryClient, user, shouldInvalidateQueries]);
+  }, [queryClient, user]);
 
   const { mutateAsync: follow } = useMutation({
     mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
@@ -67,7 +62,6 @@ export const useContentPreference = ({
           : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
-
         throw new Error('not logged in');
       }
 
@@ -88,8 +82,6 @@ export const useContentPreference = ({
       if (showToastOnSuccess) {
         displayToast(`✅ You are now following ${entityName}`);
       }
-
-      invalidateQueries();
     },
   });
 
@@ -221,7 +213,6 @@ export const useContentPreference = ({
           : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
-
         throw new Error('not logged in');
       }
 
@@ -247,6 +238,8 @@ export const useContentPreference = ({
       } else {
         displayToast(`⛔️ You blocked the following ${entityName}: ${id}`);
       }
+
+      invalidateQueries();
     },
   });
 
