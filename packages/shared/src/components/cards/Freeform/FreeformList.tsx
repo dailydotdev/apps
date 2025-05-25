@@ -1,7 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
-import { sanitize } from 'dompurify';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
@@ -25,6 +24,7 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
+import { sanitizeMessage } from '../../../features/onboarding/shared';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -53,8 +53,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const content = useMemo(
-    () =>
-      post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
+    () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
     [post.contentHtml],
   );
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
