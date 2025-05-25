@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CONTENT_PREFERENCE_BLOCK_MUTATION,
@@ -16,8 +17,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useCallback } from 'react';
-import { SharedFeedPage } from '../../types/SharedFeedPage';
+import { SharedFeedPage } from '../../components/utilities/common';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;

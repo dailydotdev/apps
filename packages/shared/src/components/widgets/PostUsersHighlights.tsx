@@ -15,7 +15,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
-import type { Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import { NotificationPromptSource } from '../../lib/log';
 import { useSourceActionsNotify } from '../../hooks';
 import { SourceActions } from '../sources/SourceActions';
