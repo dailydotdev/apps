@@ -39,6 +39,8 @@ import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useRouter } from 'next/router';
+import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import Custom404Seo from '../404';
 
 const Page = ({
@@ -50,6 +52,7 @@ const Page = ({
   organization: Omit<Organization, 'members'>;
   user: Author;
 }): ReactElement => {
+  const { push } = useRouter();
   const { displayToast } = useToastNotification();
   const { showLogin, user, isAuthReady } = useAuthContext();
   const queryClient = useQueryClient();
@@ -70,6 +73,8 @@ const Page = ({
       },
       onSuccess: async (res) => {
         await queryClient.setQueryData(queryKey, () => res);
+
+        push(getOrganizationSettingsUrl(organization.id, 'members'));
       },
       onError: (error: ApiErrorResult) => {
         const result = parseOrDefault<Record<string, string>>(
