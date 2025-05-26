@@ -10,7 +10,7 @@ import { useGiftUserContext } from './GiftUserContext';
 import { plusUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 import { PlusProductToggle } from './PlusProductToggle';
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -55,9 +55,9 @@ export const PlusMobile = ({
       {!giftToUser && (
         <PlusProductToggle
           options={[
-            { priceType: ProductPricingType.Plus, label: 'Personal' },
+            { priceType: PurchaseType.Plus, label: 'Personal' },
             {
-              priceType: ProductPricingType.PlusOrganization,
+              priceType: PurchaseType.Organization,
               label: 'Team',
             },
           ]}

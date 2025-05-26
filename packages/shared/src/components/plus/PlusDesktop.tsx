@@ -11,7 +11,7 @@ import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
 import { usePlusSubscription } from '../../hooks';
 
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 import { PlusProductToggle } from './PlusProductToggle';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
@@ -87,9 +87,9 @@ export const PlusDesktop = ({
           {!giftToUser && (
             <PlusProductToggle
               options={[
-                { priceType: ProductPricingType.Plus, label: 'Personal' },
+                { priceType: PurchaseType.Plus, label: 'Personal' },
                 {
-                  priceType: ProductPricingType.PlusOrganization,
+                  priceType: PurchaseType.Organization,
                   label: 'Team',
                 },
               ]}
