@@ -15,14 +15,14 @@ export const useSlider = (slides: React.ReactNode[], startIndex?: number) => {
     }
   }, [startIndex, slides.length]);
 
-  const goToNext = () => sliderRef.current?.goToNext();
-  const goToPrevious = () => sliderRef.current?.goToPrevious();
+  const onNext = () => sliderRef.current?.goToNext();
+  const onPrevious = () => sliderRef.current?.goToPrevious();
 
   return {
     currentIndex,
     setCurrentIndex,
     sliderRef,
-    goToNext,
-    goToPrevious,
+    onNext,
+    onPrevious,
   };
 };

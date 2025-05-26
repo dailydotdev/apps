@@ -10,126 +10,19 @@ import { useGiftUserContext } from './GiftUserContext';
 import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
 import { usePlusSubscription, useSlider } from '../../hooks';
-import Slider from '../containers/Slider';
-import { VideoSlide } from '../containers/VideoSlide';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import CarouselIndicator from '../containers/CarouselIndicator';
+import { plusSlides } from './utils';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
-
-const slides = [
-  <div key={0} className="flex h-full flex-col">
-    <div className="flex min-h-0 flex-1">
-      <VideoSlide
-        src="https://media.daily.dev/video/upload/v1741698572/videos/customfeeds.webm"
-        className="pointer-events-none h-full w-full object-contain"
-      />
-    </div>
-    <div className="mx-auto  max-w-sm flex-shrink-0 text-center">
-      <Typography type={TypographyType.Title3} bold tag={TypographyTag.H3}>
-        Advanced custom feeds
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        tag={TypographyTag.P}
-      >
-        Build the perfect feed for your needs with advanced filtering options,
-        custom tags, and personalized recommendations.
-      </Typography>
-    </div>
-  </div>,
-  <div key={1} className="flex h-full flex-col">
-    <div className="flex min-h-0 flex-1">
-      <VideoSlide
-        src="https://media.daily.dev/video/upload/v1741698572/videos/shield.webm"
-        className="pointer-events-none h-full w-full object-contain"
-      />
-    </div>
-    <div className="mx-auto max-w-sm flex-shrink-0 text-center">
-      <Typography type={TypographyType.Title3} bold tag={TypographyTag.H3}>
-        AI-powered clean titles
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        tag={TypographyTag.P}
-      >
-        Get clean, readable article titles powered by AI. No more clickbait or
-        confusing headlines in your feed.
-      </Typography>
-    </div>
-  </div>,
-  <div key={2} className="flex h-full flex-col">
-    <div className="flex min-h-0 flex-1">
-      <VideoSlide
-        src="https://media.daily.dev/video/upload/v1741273644/bookmarks_xybqxe.webm"
-        className="pointer-events-none h-full w-full object-contain"
-      />
-    </div>
-    <div className="mx-auto  max-w-sm flex-shrink-0 text-center">
-      <Typography type={TypographyType.Title3} bold tag={TypographyTag.H3}>
-        Bookmark folders
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        tag={TypographyTag.P}
-      >
-        Organize your saved articles with custom folders and tags. Never lose
-        track of important content again.
-      </Typography>
-    </div>
-  </div>,
-  <div key={3} className="flex h-full flex-col">
-    <div className="flex min-h-0 flex-1">
-      <img
-        className="pointer-events-none h-full w-full object-contain"
-        src="https://media.daily.dev/image/upload/s--r2BZKWPk--/f_auto/v1741690961/public/Keyword%20filters"
-        alt="Keyword filters"
-      />
-    </div>
-    <div className="mx-auto  max-w-sm flex-shrink-0 text-center">
-      <Typography type={TypographyType.Title3} bold tag={TypographyTag.H3}>
-        Keyword filters
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        tag={TypographyTag.P}
-      >
-        Mute the buzzwords you&apos;re sick of hearing. More signal, less noise.
-      </Typography>
-    </div>
-  </div>,
-  <div key={4} className="flex h-full flex-col">
-    <div className="flex min-h-0 flex-1">
-      <img
-        className="pointer-events-none h-full w-full object-contain"
-        src="https://media.daily.dev/image/upload/s--jlfaLYq_--/f_auto/v1741690961/public/Ad-free%20experience"
-        alt="Ad-free experience"
-      />
-    </div>
-    <div className="mx-auto  max-w-sm flex-shrink-0 text-center">
-      <Typography type={TypographyType.Title3} bold tag={TypographyTag.H3}>
-        Ad-free experience
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        tag={TypographyTag.P}
-      >
-        Enjoy a clean, distraction-free reading experience. No ads, no
-        interruptions.
-      </Typography>
-    </div>
-  </div>,
-];
+const Slider = dynamic(() => import('../containers/Slider'));
+const CarouselIndicator = dynamic(
+  () => import('../containers/CarouselIndicator'),
+);
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,
@@ -149,7 +42,7 @@ export const PlusDesktop = ({
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef();
-  const { currentIndex, setCurrentIndex, sliderRef } = useSlider(slides, 2);
+  const { currentIndex, setCurrentIndex, sliderRef } = useSlider(plusSlides, 2);
 
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
     ({ priceId, giftToUserId }) => {
@@ -220,7 +113,7 @@ export const PlusDesktop = ({
           )}
         </div>
       </div>
-      <div className="flex w-full flex-col bg-shadow-shadow3 py-16">
+      <div className="mt-10 flex w-full flex-col gap-8 bg-shadow-shadow3 py-16">
         <div className="flex flex-col items-center gap-6">
           <div className="flex max-w-2xl flex-col items-center gap-2 text-center">
             <Typography
@@ -243,7 +136,7 @@ export const PlusDesktop = ({
           <div className="h-[21.875rem] w-full">
             <Slider
               ref={sliderRef}
-              slides={slides}
+              slides={plusSlides}
               currentIndex={currentIndex}
               onIndexChange={setCurrentIndex}
               enableSwipe
@@ -261,7 +154,7 @@ export const PlusDesktop = ({
             item: '!size-2',
           }}
           active={currentIndex}
-          max={slides.length}
+          max={plusSlides.length}
           onItemClick={setCurrentIndex}
         />
       </div>
