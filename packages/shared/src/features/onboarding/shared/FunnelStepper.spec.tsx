@@ -21,9 +21,6 @@ import type { FunnelSession } from '../types/funnelBoot';
 jest.mock('../hooks/useFunnelNavigation');
 jest.mock('../hooks/useFunnelTracking');
 jest.mock('../hooks/useStepTransition');
-jest.mock('../../common/hooks/useWindowScroll', () => ({
-  useWindowScroll: jest.fn(),
-}));
 
 let client: QueryClient;
 
