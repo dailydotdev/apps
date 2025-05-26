@@ -52,3 +52,16 @@ export const ORGANIZATION_QUERY = gql`
   }
   ${ORGANIZATION_FRAGMENT}
 `;
+
+export const UPDATE_ORGANIZATION_MUTATION = gql`
+  mutation UpdateOrganization($id: ID!, $name: String, $image: Upload) {
+    updateOrganization(id: $id, name: $name, image: $image) {
+      role
+      referralToken
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+  ${ORGANIZATION_FRAGMENT}
+`;
