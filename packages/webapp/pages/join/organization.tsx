@@ -48,13 +48,13 @@ const Page = ({
   organization,
   user: member,
 }: {
-  token: string;
-  organization: Omit<Organization, 'members'>;
-  user: Author;
+  token: string | null;
+  organization: Omit<Organization, 'members'> | null;
+  user: Author | null;
 }): ReactElement => {
   const { push } = useRouter();
   const { displayToast } = useToastNotification();
-  const { showLogin, user, isAuthReady } = useAuthContext();
+  const { showLogin, user } = useAuthContext();
   const queryClient = useQueryClient();
 
   const queryKey = generateOrganizationQueryKey(user, organization?.id);
