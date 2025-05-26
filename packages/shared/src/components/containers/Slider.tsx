@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useImperativeHandle,
+} from 'react';
 import classNames from 'classnames';
 
 type SliderProps = {
@@ -12,7 +18,6 @@ type SliderProps = {
   enableSwipe?: boolean;
   transitionDuration?: number;
   autoPlayInterval?: number;
-  showSingleSlide?: boolean;
 };
 
 type SliderRef = {
@@ -35,7 +40,6 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
       enableSwipe = false,
       transitionDuration = 500,
       autoPlayInterval,
-      showSingleSlide = false,
     },
     ref,
   ) => {
@@ -43,7 +47,7 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
     const slideRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     const [slideOffsets, setSlideOffsets] = useState<number[]>([]);
-    const [isHovered, setIsHovered] = useState(false);
+    const [isHovering, setIsHovering] = useState(false);
     const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const autoPlay = !!autoPlayInterval;
@@ -61,25 +65,19 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
         const containerRect = containerRef.current.getBoundingClientRect();
         const offsets: number[] = [];
 
-        if (showSingleSlide) {
-          slides.forEach((_, index) => {
-            offsets[index] = -index * containerRect.width;
-          });
-        } else {
-          const containerCenter = containerRect.width / 2;
-          let cumulativeOffset = 0;
-          slideRefs.current.forEach((slideRef, index) => {
-            if (slideRef.current) {
-              const slideRect = slideRef.current.getBoundingClientRect();
-              const slideWidth = slideRect.width;
+        const containerCenter = containerRect.width / 2;
+        let cumulativeOffset = 0;
+        slideRefs.current.forEach((slideRef, index) => {
+          if (slideRef.current) {
+            const slideRect = slideRef.current.getBoundingClientRect();
+            const slideWidth = slideRect.width;
 
-              const offsetToCenter =
-                containerCenter - (cumulativeOffset + slideWidth / 2);
-              offsets[index] = offsetToCenter;
-              cumulativeOffset += slideWidth;
-            }
-          });
-        }
+            const offsetToCenter =
+              containerCenter - (cumulativeOffset + slideWidth / 2);
+            offsets[index] = offsetToCenter;
+            cumulativeOffset += slideWidth;
+          }
+        });
 
         setSlideOffsets(offsets);
       };
@@ -91,7 +89,7 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
         clearTimeout(timer);
         window.removeEventListener('resize', calculateOffsets);
       };
-    }, [slides.length, showSingleSlide, slides]);
+    }, [slides.length]);
 
     const goToNext = useCallback(() => {
       if (currentIndex < maxIndex) {
@@ -126,13 +124,13 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
     }, []);
 
     const resumeAutoPlay = useCallback(() => {
-      if (autoPlay && !autoPlayTimerRef.current && !isHovered) {
+      if (autoPlay && !autoPlayTimerRef.current && !isHovering) {
         autoPlayTimerRef.current = setInterval(goToNext, autoPlayInterval);
       }
-    }, [autoPlay, autoPlayInterval, goToNext, isHovered]);
+    }, [autoPlay, autoPlayInterval, goToNext, isHovering]);
 
     useEffect(() => {
-      if (autoPlay && !isHovered) {
+      if (autoPlay && !isHovering) {
         autoPlayTimerRef.current = setInterval(goToNext, autoPlayInterval);
       } else {
         pauseAutoPlay();
@@ -143,12 +141,12 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
           clearInterval(autoPlayTimerRef.current);
         }
       };
-    }, [autoPlay, autoPlayInterval, goToNext, isHovered, pauseAutoPlay]);
+    }, [autoPlay, autoPlayInterval, goToNext, isHovering, pauseAutoPlay]);
 
     const canGoNext = true;
     const canGoPrevious = true;
 
-    React.useImperativeHandle(ref, () => ({
+    useImperativeHandle(ref, () => ({
       goToNext,
       goToPrevious,
       goToIndex,
@@ -193,8 +191,8 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
           'relative h-full overflow-hidden',
           className.container,
         )}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
         {...swipeHandlers}
       >
         <div
@@ -210,12 +208,12 @@ const Slider = React.forwardRef<SliderRef, SliderProps>(
               key={index}
               ref={slideRefs.current[index]}
               className={classNames(
-                'h-full flex-shrink-0',
-                showSingleSlide ? 'w-full' : 'w-80 px-1',
+                'rounded-lg h-full flex-shrink-0 cursor-pointer transition-opacity duration-300 hover:opacity-100',
+                index === currentIndex ? 'opacity-100' : 'opacity-32',
                 className.slide,
               )}
             >
-              <div className="rounded-lg h-full w-full">{slide}</div>
+              {slide}
             </div>
           ))}
         </div>
