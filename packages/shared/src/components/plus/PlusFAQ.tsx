@@ -57,7 +57,7 @@ export const PlusFAQ = (): ReactElement => {
         className="mb-10 text-center"
         id={titleId}
         tag={TypographyTag.H2}
-        type={TypographyType.Title3}
+        type={TypographyType.LargeTitle}
       >
         Frequently asked questions
       </Typography>

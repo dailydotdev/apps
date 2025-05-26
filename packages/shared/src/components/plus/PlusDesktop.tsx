@@ -144,7 +144,7 @@ export const PlusDesktop = ({
                 container: 'h-full',
                 slide: 'h-full w-80 px-4',
               }}
-              // autoPlayInterval={4000}
+              autoPlayInterval={4000}
             />
           </div>
         </div>
