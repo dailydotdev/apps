@@ -108,7 +108,7 @@ const Page = ({
     return () => {
       document.body.classList.remove('hidden-scrollbar');
     };
-  }, [user, isAuthReady]);
+  }, []);
 
   if (!token || !organization || !member) {
     return (
