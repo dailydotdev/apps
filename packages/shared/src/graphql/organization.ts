@@ -1,12 +1,30 @@
 import { gql } from 'graphql-request';
 
+export const ORGANIZATION_MEMBER_FRAGMENT = gql`
+  fragment OrganizationMemberFragment on OrganizationMember {
+    role
+    user {
+      id
+      name
+      username
+      image
+    }
+  }
+`;
+
 export const ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationFragment on Organization {
     id
     name
     image
     seats
+
+    members {
+      ...OrganizationMemberFragment
+    }
   }
+
+  ${ORGANIZATION_MEMBER_FRAGMENT}
 `;
 
 export const ORGANIZATIONS_QUERY = gql`

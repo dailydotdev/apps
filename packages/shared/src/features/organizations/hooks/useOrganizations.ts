@@ -33,9 +33,10 @@ export const useOrganizations = () => {
 export const useOrganization = (orgId: string) => {
   const { user, isAuthReady } = useAuthContext();
   const enableQuery = !!orgId && !!user && isAuthReady;
+  const queryKey = generateQueryKey(RequestKey.Organizations, user, orgId);
 
   const { data, isFetching } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Organizations, user, orgId),
+    queryKey,
     enabled: enableQuery,
     queryFn: async () => {
       const res = await gqlClient.request<{
