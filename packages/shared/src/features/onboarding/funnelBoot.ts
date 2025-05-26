@@ -7,7 +7,7 @@ export async function getFunnelBootData({
   id,
   version,
   forwardedHeaders,
-  featureKey = 'funnel',
+  featureKey = 'paid',
 }: {
   app: string;
   cookies: string;
@@ -25,7 +25,7 @@ export async function getFunnelBootData({
   }
 
   const paramString = params.toString();
-  const url = `${apiUrl}/boot/${featureKey}${
+  const url = `${apiUrl}/boot/funnels/${featureKey}${
     paramString ? `?${paramString}` : ''
   }`;
 
