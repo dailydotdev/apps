@@ -167,7 +167,7 @@ const Page = (): ReactElement => {
             ))}
           </div>
         ) : (
-          <>{!isFetching && <NoOrganizations />}</>
+          !isFetching && <NoOrganizations />
         )}
       </section>
     </AccountPageContainer>
