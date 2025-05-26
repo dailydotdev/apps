@@ -77,9 +77,6 @@ export const usePaddlePayment = ({
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
             isCheckoutOpenRef.current = true;
-            document
-              .querySelector('[name="paddle_frame"]')
-              ?.setAttribute('data-hj-allow-iframe', '');
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
