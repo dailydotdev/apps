@@ -27,7 +27,7 @@ import type {
   ProductPricingMetadata,
   ProductPricingPreview,
 } from '../../graphql/paddle';
-import { fetchPricingMetadata, ProductPricingType } from '../../graphql/paddle';
+import { fetchPricingMetadata, PurchaseType } from '../../graphql/paddle';
 
 export enum StoreKitDuration {
   Monthly = 'P1M',
@@ -136,7 +136,7 @@ export const StoreKitSubProvider = ({
 
   const { data: metadata } = useQuery<ProductPricingMetadata[]>({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, 'ios', 'plus'),
-    queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
+    queryFn: () => fetchPricingMetadata(PurchaseType.Plus),
     enabled: !!user && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
   });
@@ -235,6 +235,8 @@ export const StoreKitSubProvider = ({
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
+      priceType: PurchaseType.Plus,
+      setPriceType: () => {},
     }),
     [isPlusAvailable, openCheckout, products],
   );

@@ -1,8 +1,8 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { OpenCheckoutProps, PaymentContextData } from './context';
 import { PaymentContext, useFunnelPaymentPricingContext } from './context';
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useProductPricing } from '../../hooks/useProductPricing';
 import { useAuthContext } from '../AuthContext';
@@ -10,17 +10,20 @@ import { useAuthContext } from '../AuthContext';
 interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
   isPaddleReady?: boolean;
+  checkoutItemsLoading?: boolean;
 }
 
 export const BasePaymentProvider = ({
   children,
   openCheckout,
   isPaddleReady,
+  checkoutItemsLoading,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
+  const [priceType, setPriceType] = useState<PurchaseType>(PurchaseType.Plus);
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
-    type: ProductPricingType.Plus,
+    type: priceType,
     enabled: !funnelPricing,
   });
   const data = funnelPricing ?? plusPricing;
@@ -33,6 +36,8 @@ export const BasePaymentProvider = ({
     [data],
   );
 
+  const isOrganization = priceType === PurchaseType.Organization;
+
   const value = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
@@ -42,6 +47,10 @@ export const BasePaymentProvider = ({
       giftOneYear,
       isPricesPending,
       isPaddleReady,
+      isOrganization,
+      priceType,
+      setPriceType,
+      checkoutItemsLoading,
     }),
     [
       openCheckout,
@@ -50,6 +59,9 @@ export const BasePaymentProvider = ({
       isPlusAvailable,
       isPricesPending,
       isPaddleReady,
+      isOrganization,
+      priceType,
+      checkoutItemsLoading,
     ],
   );
 

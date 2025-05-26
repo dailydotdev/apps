@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { PlusList } from './PlusList';
+import { PlusList, plusOrganizationFeatureList } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -17,7 +17,6 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
 import { GiftingSelectedUser } from './GiftingSelectedUser';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { GiftIcon } from '../icons';
@@ -28,6 +27,7 @@ import { PlusTrustReviews } from './PlusTrustReviews';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
+import { PlusAdjustQuantity } from './PlusAdjustQuantity';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -48,6 +48,7 @@ type PlusInfoProps = {
 export enum PlusType {
   Self = 'self',
   Gift = 'gift',
+  Organization = 'organization',
 }
 
 interface PageCopy {
@@ -61,6 +62,12 @@ export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
     title: 'Fast-track your growth',
     description:
       'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+    subtitle: 'Billing cycle',
+  },
+  [PlusType.Organization]: {
+    title: 'Give your engineering team an unfair advantage',
+    description:
+      'Equip your engineers with AI tools, personalized content, and distraction-free experience so they can move faster and build better. All the benefits of daily.dev Plus, now built for teams.',
     subtitle: 'Billing cycle',
   },
   [PlusType.Gift]: {
@@ -90,9 +97,25 @@ const RadioGroupSkeleton = () => (
   </div>
 );
 
-const getCopy = ({ giftToUser, title, description, subtitle }) => {
-  const fallback =
-    defaultPlusInfoCopy[giftToUser ? PlusType.Gift : PlusType.Self];
+const getPlusType = ({
+  isGift,
+  isOrganization,
+}: {
+  isGift?: boolean;
+  isOrganization?: boolean;
+}): PlusType => {
+  if (isOrganization) {
+    return PlusType.Organization;
+  }
+  if (isGift) {
+    return PlusType.Gift;
+  }
+  return PlusType.Self;
+};
+
+const getCopy = (plusType: PlusType, { title, description, subtitle }) => {
+  const fallback = defaultPlusInfoCopy[plusType];
+
   return {
     titleCopy: title || fallback.title,
     descriptionCopy: description || fallback.description,
@@ -117,17 +140,26 @@ export const PlusInfo = ({
   isContinueLoading = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
-  const { giftOneYear } = usePaymentContext();
+  const { giftOneYear, isOrganization, checkoutItemsLoading } =
+    usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
 
-  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy({
-    giftToUser,
+  const [itemQuantity, setItemQuantity] = useState<number>(1);
+
+  const plusType = getPlusType({
+    isGift: !!giftToUser,
+    isOrganization,
+  });
+
+  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy(plusType, {
     title,
     description,
     subtitle,
   });
+
+  const showBuyAsAGiftButton = !giftToUser && showGiftButton && !!giftOneYear;
 
   return (
     <>
@@ -153,48 +185,54 @@ export const PlusInfo = ({
       >
         {descriptionCopy}
       </Typography>
-      <div className="mb-4">
-        <ConditionalWrapper
-          condition={!giftToUser && showGiftButton && !!giftOneYear}
-          wrapper={(component) => (
-            <div className="flex flex-row items-center justify-between">
-              <span>{component}</span>
-              <Button
-                icon={<GiftIcon />}
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Float}
-                onClick={() => {
-                  logSubscriptionEvent({
-                    event_name: LogEvent.GiftSubscription,
-                    target_id: TargetId.PlusPage,
-                  });
-                  openModal({
-                    type: LazyModal.GiftPlus,
-                    props: {
-                      onSelected: (user) => {
-                        onChange({
-                          priceId: giftOneYear.priceId,
-                          giftToUserId: user.id,
-                        });
-                      },
-                    },
-                  });
-                }}
-              >
-                Buy as a gift
-              </Button>
-            </div>
-          )}
+
+      {isOrganization && (
+        <PlusAdjustQuantity
+          className="mb-4"
+          itemQuantity={itemQuantity}
+          selectedOption={selectedOption}
+          checkoutItemsLoading={checkoutItemsLoading}
+          setItemQuantity={setItemQuantity}
+          onChange={onChange}
+        />
+      )}
+
+      <div className="mb-4 flex h-6 flex-row items-center justify-between">
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          bold
         >
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            bold
+          {subtitleCopy}
+        </Typography>
+
+        {showBuyAsAGiftButton && (
+          <Button
+            icon={<GiftIcon />}
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Float}
+            onClick={() => {
+              logSubscriptionEvent({
+                event_name: LogEvent.GiftSubscription,
+                target_id: TargetId.PlusPage,
+              });
+              openModal({
+                type: LazyModal.GiftPlus,
+                props: {
+                  onSelected: (user) => {
+                    onChange({
+                      priceId: giftOneYear.priceId,
+                      giftToUserId: user.id,
+                    });
+                  },
+                },
+              });
+            }}
           >
-            {subtitleCopy}
-          </Typography>
-        </ConditionalWrapper>
+            Buy as a gift
+          </Button>
+        )}
       </div>
       {!!giftToUser && (
         <GiftingSelectedUser
@@ -232,7 +270,7 @@ export const PlusInfo = ({
                 option={option}
                 checked={selectedOption === option.priceId}
                 onChange={() => {
-                  onChange({ priceId: option.priceId });
+                  onChange({ priceId: option.priceId, quantity: itemQuantity });
                   logSubscriptionEvent({
                     event_name: LogEvent.SelectBillingCycle,
                     target_id: option.metadata.title.toLowerCase(),
@@ -257,7 +295,11 @@ export const PlusInfo = ({
           </Button>
         </div>
       ) : undefined}
-      {showPlusList && <PlusList />}
+      {showPlusList && (
+        <PlusList
+          items={isOrganization ? plusOrganizationFeatureList : undefined}
+        />
+      )}
       {showTrustReviews && <PlusTrustReviews />}
     </>
   );

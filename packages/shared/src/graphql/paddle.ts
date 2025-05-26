@@ -44,8 +44,9 @@ export interface ProductPricingPreview extends BaseProductPricingPreview {
   metadata: ProductPricingMetadata;
 }
 
-export enum ProductPricingType {
+export enum PurchaseType {
   Plus = 'plus',
+  Organization = 'organization',
   Cores = 'cores',
 }
 
@@ -99,7 +100,7 @@ interface PricingPreviewResponse {
 }
 
 export const fetchPricingPreview = async (
-  type: ProductPricingType,
+  type: PurchaseType,
   locale = globalThis?.navigator?.language ?? 'en-US',
 ): Promise<ProductPricingPreview[]> => {
   const { pricingPreview } = await gqlClient.request<PricingPreviewResponse>(
@@ -160,7 +161,7 @@ const PRICING_METADATA_QUERY = gql`
 `;
 
 export const fetchPricingMetadata = async (
-  type: ProductPricingType,
+  type: PurchaseType,
 ): Promise<ProductPricingMetadata[]> => {
   const { pricingMetadata } = await gqlClient.request<{
     pricingMetadata: ProductPricingMetadata[];
