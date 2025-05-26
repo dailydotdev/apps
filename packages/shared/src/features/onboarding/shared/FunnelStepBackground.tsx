@@ -19,12 +19,11 @@ const variantToClassName: Record<FunnelBackgroundVariant, string> = {
   [FunnelBackgroundVariant.CircleBottom]:
     'bg-gradient-funnel-circle rotate-180',
   [FunnelBackgroundVariant.Hourglass]: 'bg-gradient-funnel-hourglass',
-  [FunnelBackgroundVariant.Cheese]: 'bg-accent-cheese-default opacity-16',
-  [FunnelBackgroundVariant.BlueCheese]:
-    'bg-accent-blueCheese-default opacity-16',
-  [FunnelBackgroundVariant.Onion]: 'bg-accent-onion-default opacity-16',
-  [FunnelBackgroundVariant.Water]: 'bg-accent-water-default opacity-16',
-  [FunnelBackgroundVariant.Burger]: 'bg-accent-burger-default opacity-16',
+  [FunnelBackgroundVariant.Cheese]: 'bg-accent-cheese-flat',
+  [FunnelBackgroundVariant.BlueCheese]: 'bg-accent-blueCheese-flat',
+  [FunnelBackgroundVariant.Onion]: 'bg-accent-onion-flat',
+  [FunnelBackgroundVariant.Water]: 'bg-accent-water-flat',
+  [FunnelBackgroundVariant.Burger]: 'bg-accent-burger-flat',
 };
 
 const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
@@ -80,7 +79,8 @@ export const FunnelStepBackground = ({
   return (
     <div
       className={classNames(
-        'relative flex flex-1 flex-col bg-background-default',
+        // 'relative flex flex-1 flex-col bg-background-default',
+        'bg-accent-burger-flat relative flex flex-1 flex-col',
         isForcedDarkThemeStep && isLightMode && 'invert',
       )}
     >
