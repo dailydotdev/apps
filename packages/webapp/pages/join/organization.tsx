@@ -244,13 +244,9 @@ export const getServerSideProps: GetServerSideProps<{
         organization: getOrganizationByIdAndInviteToken?.organization,
       },
     };
-  } catch (error) {
+  } catch {
     return {
-      props: {
-        token,
-        user: null,
-        organization: null,
-      },
+      notFound: true,
     };
   }
 };
