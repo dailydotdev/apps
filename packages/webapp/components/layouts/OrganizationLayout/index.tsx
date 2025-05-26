@@ -2,7 +2,7 @@ import React from 'react';
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
 import { useRouter } from 'next/router';
-import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizations';
+import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';

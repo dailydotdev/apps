@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizations';
+import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
 
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
