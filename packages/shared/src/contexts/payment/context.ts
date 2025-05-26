@@ -1,9 +1,6 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext } from 'react';
-import type {
-  ProductPricingPreview,
-  PurchaseType,
-} from '../../graphql/paddle';
+import type { ProductPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export interface OpenCheckoutProps {
   priceId: string;
