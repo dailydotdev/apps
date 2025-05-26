@@ -24,3 +24,13 @@ export type UserOrganization = {
   referralToken?: string;
   organization: Organization;
 };
+
+export type UpdateOrganizationForm = {
+  name: string;
+  image?: FileList | undefined;
+};
+
+export type UpdateOrganizationInput = {
+  name: string;
+  image?: File | undefined;
+};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
@@ -15,15 +15,21 @@ import { useRouter } from 'next/router';
 import {
   Button,
   ButtonColor,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
-import {
-  Image,
-  ImageType,
-} from '@dailydotdev/shared/src/components/image/Image';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
+import { cloudinaryOrganizationImageFallback } from '@dailydotdev/shared/src/lib/image';
+import { CameraIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import type {
+  UpdateOrganizationForm,
+  UpdateOrganizationInput,
+} from '@dailydotdev/shared/src/features/organizations/types';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -31,50 +37,107 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 
 const Page = (): ReactElement => {
   const router = useRouter();
-  const { organization, isFetching } = useOrganization(
-    router.query.orgId as string,
-  );
+  const [imageChanged, setImageChanged] = useState(false);
+  const {
+    organization,
+    isFetching,
+    onUpdateOrganization,
+    isUpdatingOrganization,
+  } = useOrganization(router.query.orgId as string);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formJson = formToJson<UpdateOrganizationForm>(e.currentTarget);
+
+    if (!formJson?.name) {
+      return null;
+    }
+
+    const data: UpdateOrganizationInput = {
+      name: formJson.name,
+    };
+
+    if (imageChanged && formJson.image) {
+      const [imageFile] = formJson.image;
+      data.image = imageFile;
+    }
+
+    await onUpdateOrganization({
+      id: organization.id,
+      form: data,
+    });
+
+    return null;
+  };
 
   if (isFetching) {
     return null;
   }
 
   return (
-    <AccountPageContainer title="General" className={{ section: 'gap-6' }}>
-      <div>
-        <Typography bold type={TypographyType.Body}>
-          Organization logo
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          Upload your logo so your team can easily recognize your workspace.
-          This will only be visible to members in your organization.
-        </Typography>
-      </div>
+    <AccountPageContainer
+      title="General"
+      className={{ section: 'gap-6' }}
+      actions={
+        <>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            form="organization"
+            loading={isUpdatingOrganization}
+          >
+            Save changes
+          </Button>
+        </>
+      }
+    >
+      <form
+        id="organization"
+        className="flex flex-col gap-6"
+        method="post"
+        onSubmit={handleSubmit}
+      >
+        <div>
+          <Typography bold type={TypographyType.Body}>
+            Organization logo
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Upload your logo so your team can easily recognize your workspace.
+            This will only be visible to members in your organization.
+          </Typography>
+        </div>
 
-      <div className="flex items-center gap-6">
-        <Image
-          className="size-24 rounded-full object-cover"
-          src={organization.image}
-          alt={`Avatar of ${organization.name}`}
-          type={ImageType.Organization}
+        <ImageInput
+          initialValue={organization.image}
+          id="image"
+          name="image"
+          fallbackImage={cloudinaryOrganizationImageFallback}
+          className={{
+            root: 'flex items-center gap-6',
+            container: '!rounded-full border-0',
+            img: 'object-cover',
+          }}
+          hoverIcon={<CameraIcon size={IconSize.Large} />}
+          alwaysShowHover={!organization.image && !imageChanged}
+          onChange={() => setImageChanged(true)}
+          size="medium"
+          uploadButton
         />
-        <Button variant={ButtonVariant.Secondary} disabled>
-          Upload image
-        </Button>
-      </div>
 
-      <Typography bold type={TypographyType.Body}>
-        Organization name
-      </Typography>
+        <Typography bold type={TypographyType.Body}>
+          Organization name
+        </Typography>
 
-      <TextField
-        label="Organization name"
-        inputId="organization-name"
-        value={organization.name}
-      />
+        <TextField
+          label="Organization name"
+          inputId="name"
+          value={organization.name}
+          name="name"
+        />
+      </form>
 
       <div className="flex flex-col gap-4">
         <Typography bold type={TypographyType.Body}>
