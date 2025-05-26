@@ -9,7 +9,7 @@ import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
-import { OrganizationSiderbar } from '@dailydotdev/shared/src/features/organizations/components/Sidebar';
+import { OrganizationSidebar } from '@dailydotdev/shared/src/features/organizations/components/Sidebar';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import SettingsLayout from '../SettingsLayout';
@@ -55,7 +55,7 @@ export const OrganizationLayout = ({
   return (
     <>
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
-        <OrganizationSiderbar organization={organization} />
+        <OrganizationSidebar organization={organization} />
         {children}
       </div>
     </>

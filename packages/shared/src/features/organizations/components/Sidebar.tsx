@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { OrganizationSiderbarHeader } from './SiderbarHeader';
+import { OrganizationSiderbaHeader } from './SidebarHeader';
 import type { ProfileSectionItemProps } from '../../../components/ProfileMenu/ProfileSectionItem';
 import {
   CreditCardIcon,
@@ -47,7 +47,7 @@ const menuItems = defineMenuItems({
   },
 });
 
-export const OrganizationSiderbar = ({
+export const OrganizationSidebar = ({
   organization,
 }: {
   organization: Organization;
@@ -61,7 +61,7 @@ export const OrganizationSiderbar = ({
 
   return (
     <aside className="ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64">
-      <OrganizationSiderbarHeader organization={organization} />
+      <OrganizationSiderbaHeader organization={organization} />
 
       <HorizontalSeparator />
 
