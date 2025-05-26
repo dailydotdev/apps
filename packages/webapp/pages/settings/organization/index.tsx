@@ -42,10 +42,7 @@ import {
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
-import {
-  getOrganizationSettingsUrl,
-  isPrivilegedOrganizationRole,
-} from '@dailydotdev/shared/src/features/organizations/utils';
+import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../../next-seo';
@@ -142,10 +139,7 @@ const Page = (): ReactElement => {
             {organizations.map(({ role, organization }) => (
               <Link
                 key={organization.id}
-                href={getOrganizationSettingsUrl(
-                  organization.id,
-                  isPrivilegedOrganizationRole(role) ? 'general' : 'members',
-                )}
+                href={getOrganizationSettingsUrl(organization.id, 'members')}
                 passHref
               >
                 <a className="flex items-center gap-2">
