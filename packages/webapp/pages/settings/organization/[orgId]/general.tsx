@@ -67,6 +67,7 @@ const Page = (): ReactElement => {
       form: data,
     });
 
+    setImageChanged(false);
     return null;
   };
 
