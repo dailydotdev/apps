@@ -58,10 +58,7 @@ const OrganizationMembersItem = ({
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
 
   return (
-    <div
-      key={`organization-member-${user.id}`}
-      className="flex items-center gap-2"
-    >
+    <div className="flex items-center gap-2">
       <ProfilePicture
         size={ProfileImageSize.Large}
         user={user}
