@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import type { ReactElement } from 'react';
+import type { ReactElement, PropsWithChildren } from 'react';
 import classNames from 'classnames';
 import type { ButtonSize } from './buttons/Button';
 import { ButtonColor, Button, ButtonVariant } from './buttons/Button';
@@ -18,13 +18,14 @@ import {
   featurePlusCtaCopy,
 } from '../lib/featureManagement';
 
-type Props = {
+type Props = PropsWithChildren<{
   iconOnly?: boolean;
   target: TargetId;
   size?: ButtonSize;
   variant?: ButtonVariant;
   color?: ButtonColor;
-} & WithClassNameProps;
+}> &
+  WithClassNameProps;
 
 const getButtonColor = (colorExperiment: string) => {
   switch (colorExperiment) {
@@ -65,6 +66,7 @@ const getButtonColor = (colorExperiment: string) => {
 };
 
 export const UpgradeToPlus = ({
+  children,
   className,
   color,
   size,
@@ -127,7 +129,7 @@ export const UpgradeToPlus = ({
         {...attrs}
         {...(colorExperiment && getButtonColor(colorExperiment))}
       >
-        {iconOnly ? null : content}
+        {children || (iconOnly ? null : content)}
       </Button>
     </Link>
   );
