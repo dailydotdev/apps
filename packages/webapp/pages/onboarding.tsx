@@ -232,7 +232,7 @@ const useOnboardingAuth = () => {
   };
 };
 
-function Onboarding(): ReactElement {
+function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
@@ -265,18 +265,23 @@ function Onboarding(): ReactElement {
 
   return (
     <div className="flex min-h-dvh min-w-full flex-col">
-      <FunnelStepper {...funnelState} onComplete={onComplete} />
+      <FunnelStepper
+        {...funnelState}
+        initialStepId={initialStepId}
+        onComplete={onComplete}
+      />
       <HotJarTracking hotjarId="3871311" />
     </div>
   );
 }
 
-function Page({ dehydratedState }: PageProps) {
+function Page(props: PageProps) {
+  const { dehydratedState } = props;
   const { autoDismissNotifications } = useSettingsContext();
   return (
     <HydrationBoundary state={dehydratedState}>
       <JotaiProvider>
-        <Onboarding />
+        <Onboarding {...props} />
         <Toast autoDismissNotifications={autoDismissNotifications} />
       </JotaiProvider>
     </HydrationBoundary>
