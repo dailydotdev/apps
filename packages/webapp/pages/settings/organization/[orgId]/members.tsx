@@ -295,7 +295,12 @@ const Page = (): ReactElement => {
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               onClick={() => {
-                displayToast('Ouch! Managing seats is not supported yet');
+                openModal({
+                  type: LazyModal.OrganizationManageSeats,
+                  props: {
+                    organizationId: organization.id,
+                  },
+                });
               }}
             >
               Manage seats

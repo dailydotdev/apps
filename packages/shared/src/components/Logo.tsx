@@ -11,6 +11,7 @@ import { useFeatureTheme } from '../hooks/utils/useFeatureTheme';
 import { useViewSize, ViewSize } from '../hooks';
 import { PlusUser } from './PlusUser';
 import { TypographyType } from './typography/Typography';
+import type { WithClassNameProps } from './utilities';
 
 const DevPlusIcon = dynamic(() =>
   import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
@@ -146,11 +147,13 @@ export default function Logo({
   );
 }
 
-export const LogoWithPlus = (): ReactElement => {
+export const LogoWithPlus = ({
+  className,
+}: WithClassNameProps): ReactElement => {
   const featureTheme = useFeatureTheme();
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
-    <div className="relative flex items-center">
+    <div className={classNames('relative flex items-center', className)}>
       <Logo position={LogoPosition.Relative} featureTheme={featureTheme} />
       <PlusUser
         iconSize={IconSize.Size16}
