@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepCheckout } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -17,6 +17,12 @@ export const FunnelCheckout = ({
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
+  const currentPriceIdRef = useRef<string | null>(null);
+  const shouldUpdate =
+    isPlusAvailable &&
+    !isPlus &&
+    priceId &&
+    priceId !== currentPriceIdRef.current;
 
   useEffect(() => {
     if (isActive) {
@@ -27,22 +33,17 @@ export const FunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    if (!isPlusAvailable || isPlus || !priceId) {
+    if (!shouldUpdate) {
       return;
     }
+
+    currentPriceIdRef.current = priceId;
 
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
     });
-  }, [
-    discountCode,
-    applyDiscount,
-    isPlus,
-    isPlusAvailable,
-    priceId,
-    openCheckout,
-  ]);
+  }, [discountCode, applyDiscount, shouldUpdate, priceId, openCheckout]);
 
   return <div className="checkout-container" />;
 };
