@@ -22,7 +22,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonSize,
@@ -45,6 +45,17 @@ import {
   SquadIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  DEFAULT_ERROR,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
+
+import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
+import { useMutation } from '@tanstack/react-query';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { LEAVE_ORGANIZATION_MUTATION } from '@dailydotdev/shared/src/features/organizations/graphql';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -135,13 +146,49 @@ export const OrganizationMembers = ({
 };
 
 const Page = (): ReactElement => {
-  const { push, query } = useRouter();
+  const { push, query, replace } = useRouter();
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
+  const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
   const { organization, role, isFetching } = useOrganization(
     query.orgId as string,
   );
+
+  const { mutateAsync: leaveOrganization, isPending: isLeavingOrganization } =
+    useMutation({
+      mutationFn: async () => {
+        await gqlClient.request(LEAVE_ORGANIZATION_MUTATION, {
+          id: organization.id,
+        });
+      },
+      onSuccess: async () => {
+        replace(webappUrl);
+      },
+      onError: (error: ApiErrorResult) => {
+        const result = parseOrDefault<Record<string, string>>(
+          error?.response?.errors?.[0]?.message,
+        );
+
+        displayToast(
+          typeof result === 'object' ? result.handle : DEFAULT_ERROR,
+        );
+      },
+    });
+
+  const onLeaveClick = async () => {
+    const options: PromptOptions = {
+      title: 'Leave organization',
+      description: 'Are you sure you want to leave this organization?',
+      okButton: {
+        title: 'Leave',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      await leaveOrganization();
+    }
+  };
 
   const isRegularMember = !isPrivilegedOrganizationRole(role);
 
@@ -162,11 +209,8 @@ const Page = (): ReactElement => {
             <Button
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
-              onClick={() => {
-                displayToast(
-                  'Ouch! Leaving an organization is not supported yet',
-                );
-              }}
+              disabled={isLeavingOrganization}
+              onClick={onLeaveClick}
             >
               Leave organization
             </Button>

@@ -101,3 +101,11 @@ export const JOIN_ORGANIZATION_MUTATION = gql`
   }
   ${ORGANIZATION_FRAGMENT}
 `;
+
+export const LEAVE_ORGANIZATION_MUTATION = gql`
+  mutation LeaveOrganization($id: ID!) {
+    leaveOrganization(id: $id) {
+      _
+    }
+  }
+`;
