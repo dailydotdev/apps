@@ -34,7 +34,6 @@ import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
-import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
@@ -46,6 +45,7 @@ import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 import { FunnelOrganicRegistration } from '../steps/FunnelOrganicRegistration';
 import { FunnelPlusCards } from '../steps/FunnelPlusCards';
+import { useEventListener } from '../../../hooks';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -113,9 +113,7 @@ export const FunnelStepper = ({
     trackFunnelEvent,
   });
 
-  useWindowScroll({
-    onScroll: trackOnScroll,
-  });
+  useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
