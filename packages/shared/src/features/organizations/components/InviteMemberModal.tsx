@@ -33,7 +33,7 @@ export const InviteMemberModal = ({
 
   const { organization, referralUrl } = useOrganization(organizationId);
 
-  // Hardcoded for demo purposes @TODO: replace with actual logic
+  // Hardcoded for demo purposes @TODO: replace with actual logic in separate PR
   const seatsAvailable = false;
 
   const isMobile = useViewSize(ViewSize.MobileL);
