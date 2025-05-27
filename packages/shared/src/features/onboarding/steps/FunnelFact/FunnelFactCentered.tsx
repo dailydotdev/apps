@@ -17,10 +17,14 @@ import {
 } from '../../../../components/icons';
 import { FunnelTargetId } from '../../types/funnelEvents';
 import { Badge } from '../../../../components/Badge';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
 export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
   const { parameters, transitions, onTransition } = props;
-  const { badge, headline, explainer, align, visualUrl } = parameters;
+  const { badge, headline, explainer, align, visualUrl, visualUrlLightMode } =
+    parameters;
+  const isLightMode = useIsLightTheme();
+  const image = isLightMode ? visualUrlLightMode : visualUrl;
   const skip = useMemo(
     () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
     [transitions],
@@ -54,15 +58,15 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
             {skip?.cta ?? 'Skip'}
           </Button>
         )}
-        {visualUrl && (
+        {image && (
           <>
             <Head>
-              <link rel="preload" as="image" href={visualUrl} />
+              <link rel="preload" as="image" href={image} />
             </Head>
             <LazyImage
               aria-hidden
               eager
-              imgSrc={visualUrl}
+              imgSrc={image}
               className="max-h-[25rem] w-full flex-1"
               imgAlt="Supportive illustration for the information"
               fit="contain"
