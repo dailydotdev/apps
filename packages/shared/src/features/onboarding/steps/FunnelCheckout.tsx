@@ -31,13 +31,11 @@ export const FunnelCheckout = ({
       return;
     }
 
-    console.log('rendering checkout for priceId:', priceId);
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
     });
   }, [
-    isActive,
     discountCode,
     applyDiscount,
     isPlus,
