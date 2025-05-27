@@ -57,8 +57,8 @@ const Page = ({
 }): ReactElement => {
   const { push } = useRouter();
   const { displayToast } = useToastNotification();
-  const { showLogin, user } = useAuthContext();
-  const { organization: currentOrganization } = useOrganization(
+  const { showLogin, user, isAuthReady } = useAuthContext();
+  const { organization: currentOrganization, isFetching } = useOrganization(
     organization.id,
   );
   const queryClient = useQueryClient();
@@ -121,6 +121,10 @@ const Page = ({
       document.body.classList.remove('hidden-scrollbar');
     };
   }, []);
+
+  if (isFetching || !isAuthReady) {
+    return null;
+  }
 
   if (!token || !organization || !member) {
     return (
