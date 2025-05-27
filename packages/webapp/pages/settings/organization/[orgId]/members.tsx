@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
@@ -43,6 +43,7 @@ import {
   InfoIcon,
   PlusUserIcon,
   SquadIcon,
+  UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -62,10 +63,43 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import ContextMenu from '@dailydotdev/shared/src/components/fields/ContextMenu';
+import OptionsButton from '@dailydotdev/shared/src/components/buttons/OptionsButton';
+import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
+
+const OrganizationOptionsMenu = () => {
+  const contextMenuId = useId();
+  const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
+  return (
+    <>
+      <OptionsButton onClick={onMenuClick} />
+      <ContextMenu
+        options={[
+          {
+            label: 'Upgrade to Plus',
+            action: () => {
+              alert('click me');
+            },
+            icon: <DevPlusIcon aria-hidden />,
+          },
+          {
+            label: 'View profile',
+            action: () => {
+              alert('click me');
+            },
+            icon: <UserIcon aria-hidden />,
+          },
+        ]}
+        id={contextMenuId}
+        isOpen={isOpen}
+      />
+    </>
+  );
+};
 
 const OrganizationMembersItem = ({
   isCurrentUser,
@@ -88,45 +122,72 @@ const OrganizationMembersItem = ({
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
 
   return (
-    <div className="flex items-center gap-2">
-      <ProfilePicture
-        size={ProfileImageSize.Large}
-        user={user}
-        nativeLazyLoading
-      />
-
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <Typography bold type={TypographyType.Callout}>
-            {isCurrentUser ? 'You' : user.name}
-          </Typography>
-
-          {isPrivilegedMember && (
-            <UserBadge role={role} className="mt-0.5">
-              {getRoleName(role)}
-            </UserBadge>
-          )}
-        </div>
-
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          {user.username}
-        </Typography>
-      </div>
-
-      {!blocked && !isCurrentUser && isRegularMember && (
-        <FollowButton
-          entityId={user.id}
-          variant={ButtonVariant.Primary}
-          type={ContentPreferenceType.User}
-          status={contentPreference?.status}
-          entityName={`@${user.username}`}
-          className="ml-auto"
+    <tr>
+      <td className="flex items-center gap-2" colSpan={isRegularMember ? 3 : 1}>
+        <ProfilePicture
+          size={ProfileImageSize.Large}
+          user={user}
+          nativeLazyLoading
         />
+
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <Typography bold type={TypographyType.Callout}>
+              {isCurrentUser ? 'You' : user.name}
+            </Typography>
+
+            {isPrivilegedMember && (
+              <UserBadge role={role} className="mt-0.5">
+                {getRoleName(role)}
+              </UserBadge>
+            )}
+          </div>
+
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            {user.username}
+          </Typography>
+        </div>
+      </td>
+      {!isRegularMember ? (
+        <>
+          <td>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Free
+            </Typography>
+          </td>
+          <td>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              1 hour
+            </Typography>
+          </td>
+          <td>
+            <OrganizationOptionsMenu />
+          </td>
+        </>
+      ) : (
+        <td className="text-right">
+          {!blocked && !isCurrentUser && (
+            <FollowButton
+              entityId={user.id}
+              variant={ButtonVariant.Primary}
+              type={ContentPreferenceType.User}
+              status={contentPreference?.status}
+              entityName={`@${user.username}`}
+              className="ml-auto"
+            />
+          )}
+        </td>
       )}
-    </div>
+    </tr>
   );
 };
 
@@ -138,15 +199,20 @@ export const OrganizationMembers = ({
   isRegularMember?: boolean;
 }) => {
   const { user: currentUser } = useAuthContext();
-  return members?.map(({ user, role }) => (
-    <OrganizationMembersItem
-      key={`organization-member-${user.id}`}
-      isCurrentUser={user.id === currentUser.id}
-      user={user}
-      role={role}
-      isRegularMember={isRegularMember}
-    />
-  ));
+
+  return (
+    <tbody>
+      {members?.map(({ user, role }) => (
+        <OrganizationMembersItem
+          key={`organization-member-${user.id}`}
+          isCurrentUser={user.id === currentUser.id}
+          user={user}
+          role={role}
+          isRegularMember={isRegularMember}
+        />
+      ))}
+    </tbody>
+  );
 };
 
 const Page = (): ReactElement => {
@@ -314,10 +380,43 @@ const Page = (): ReactElement => {
             </Button>
           </div>
         )}
-        <OrganizationMembers
-          members={[{ role, user }, ...organization.members]}
-          isRegularMember={isRegularMember}
-        />
+        <table className="border-separate border-spacing-y-4">
+          {!isRegularMember ? (
+            <thead className="">
+              <tr className="text-left">
+                <th>
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Quaternary}
+                  >
+                    Free
+                  </Typography>
+                </th>
+                <th>
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Quaternary}
+                  >
+                    Seat type
+                  </Typography>
+                </th>
+                <th>
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Quaternary}
+                  >
+                    Last activity
+                  </Typography>
+                </th>
+                <th aria-label="Actions">&nbsp;</th>
+              </tr>
+            </thead>
+          ) : null}
+          <OrganizationMembers
+            members={[{ role, user }, ...organization.members]}
+            isRegularMember={isRegularMember}
+          />
+        </table>
       </section>
     </AccountPageContainer>
   );
