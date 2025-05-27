@@ -70,7 +70,7 @@ export enum LazyModal {
   ContentModal = 'contentModal',
   CustomLinks = 'customLinks',
   ListAwards = 'listAwards',
-  InviteOrganizationMember = 'inviteOrganizationMember',
+  OrganizationInviteMember = 'organizationInviteMember',
 }
 
 export type ModalTabItem = {

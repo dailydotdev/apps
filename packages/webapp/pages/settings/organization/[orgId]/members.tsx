@@ -251,7 +251,7 @@ const Page = (): ReactElement => {
               icon={<AddUserIcon secondary />}
               onClick={() => {
                 openModal({
-                  type: LazyModal.InviteOrganizationMember,
+                  type: LazyModal.OrganizationInviteMember,
                   props: {
                     organizationId: organization.id,
                   },
