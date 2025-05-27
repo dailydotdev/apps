@@ -73,6 +73,7 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 
 const OrganizationOptionsMenu = () => {
   const contextMenuId = useId();
+  const { displayToast } = useToastNotification();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   return (
     <>
@@ -82,14 +83,14 @@ const OrganizationOptionsMenu = () => {
           {
             label: 'Upgrade to Plus',
             action: () => {
-              alert('click me');
+              displayToast('click me');
             },
             icon: <DevPlusIcon aria-hidden />,
           },
           {
             label: 'View profile',
             action: () => {
-              alert('click me');
+              displayToast('click me');
             },
             icon: <UserIcon aria-hidden />,
           },
