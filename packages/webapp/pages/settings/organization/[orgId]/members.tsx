@@ -22,7 +22,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonSize,
@@ -52,12 +52,16 @@ import {
 } from '@dailydotdev/shared/src/graphql/common';
 
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { LEAVE_ORGANIZATION_MUTATION } from '@dailydotdev/shared/src/features/organizations/graphql';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -154,6 +158,7 @@ const Page = (): ReactElement => {
   const { organization, role, isFetching } = useOrganization(
     query.orgId as string,
   );
+  const queryClient = useQueryClient();
 
   const { mutateAsync: leaveOrganization, isPending: isLeavingOrganization } =
     useMutation({
@@ -163,7 +168,10 @@ const Page = (): ReactElement => {
         });
       },
       onSuccess: async () => {
-        replace(webappUrl);
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Organizations, user),
+        });
+        replace(`${settingsUrl}/organization`);
       },
       onError: (error: ApiErrorResult) => {
         const result = parseOrDefault<Record<string, string>>(
