@@ -31,7 +31,10 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { generateOrganizationQueryKey } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
+import {
+  generateOrganizationQueryKey,
+  useOrganization,
+} from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
@@ -55,6 +58,9 @@ const Page = ({
   const { push } = useRouter();
   const { displayToast } = useToastNotification();
   const { showLogin, user } = useAuthContext();
+  const { organization: currentOrganization } = useOrganization(
+    organization.id,
+  );
   const queryClient = useQueryClient();
 
   const queryKey = generateOrganizationQueryKey(user, organization?.id);
@@ -101,6 +107,12 @@ const Page = ({
       },
     });
   };
+
+  useEffect(() => {
+    if (currentOrganization?.id === organization.id) {
+      push(getOrganizationSettingsUrl(organization.id, 'members'));
+    }
+  }, [currentOrganization?.id, organization.id, push]);
 
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');
