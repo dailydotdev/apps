@@ -13,7 +13,7 @@ export const FunnelCheckout = ({
   isActive,
 }: FunnelStepCheckout): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
-  const { openCheckout } = usePaymentContext();
+  const { openCheckout, isPaddleReady } = usePaymentContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
@@ -21,6 +21,7 @@ export const FunnelCheckout = ({
   const shouldUpdate =
     isPlusAvailable &&
     !isPlus &&
+    isPaddleReady &&
     priceId &&
     priceId !== currentPriceIdRef.current;
 
