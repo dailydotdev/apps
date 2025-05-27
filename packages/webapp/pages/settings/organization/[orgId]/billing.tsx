@@ -22,7 +22,8 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { managePlusUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -30,7 +31,7 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 
 const Page = (): ReactElement => {
   const router = useRouter();
-  const { displayToast } = useToastNotification();
+  const { openModal } = useLazyModal();
 
   const { organization, isFetching } = useOrganization(
     router.query.orgId as string,
@@ -131,7 +132,12 @@ const Page = (): ReactElement => {
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           onClick={() => {
-            displayToast('Ouch! Managing seats is not supported yet');
+            openModal({
+              type: LazyModal.OrganizationManageSeats,
+              props: {
+                organizationId: organization.id,
+              },
+            });
           }}
         >
           Manage seats
