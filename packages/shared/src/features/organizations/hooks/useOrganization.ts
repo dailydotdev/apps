@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import { ORGANIZATION_QUERY, UPDATE_ORGANIZATION_MUTATION } from '../graphql';
@@ -11,8 +12,10 @@ import type { LoggedUser } from '../../../lib/user';
 
 export const generateOrganizationQueryKey = (user: LoggedUser, orgId: string) =>
   generateQueryKey(RequestKey.Organizations, user, orgId);
-
-export const useOrganization = (orgId: string) => {
+export const useOrganization = (
+  orgId: string,
+  queryOptions?: Partial<UseQueryOptions<UserOrganization>>,
+) => {
   const { displayToast } = useToastNotification();
   const { user, isAuthReady } = useAuthContext();
   const enableQuery = !!orgId && !!user && isAuthReady;
@@ -21,7 +24,6 @@ export const useOrganization = (orgId: string) => {
 
   const { data, isFetching } = useQuery({
     queryKey,
-    enabled: enableQuery,
     queryFn: async () => {
       const res = await gqlClient.request<{
         organization: UserOrganization;
@@ -34,6 +36,11 @@ export const useOrganization = (orgId: string) => {
       return res.organization;
     },
     staleTime: StaleTime.Default,
+    ...queryOptions,
+    enabled:
+      typeof queryOptions?.enabled !== 'undefined'
+        ? queryOptions.enabled && enableQuery
+        : enableQuery,
   });
 
   const {

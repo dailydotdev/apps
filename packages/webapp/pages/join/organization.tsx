@@ -60,6 +60,9 @@ const Page = ({
   const { showLogin, user, isAuthReady } = useAuthContext();
   const { organization: currentOrganization, isFetching } = useOrganization(
     organization.id,
+    {
+      retry: false,
+    },
   );
   const queryClient = useQueryClient();
 
