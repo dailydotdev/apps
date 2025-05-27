@@ -27,6 +27,7 @@ import {
 import { SimpleTooltip } from '../../../components/tooltips';
 import { PlusPlanExtraLabel } from '../../../components/plus/PlusPlanExtraLabel';
 import { PricingCaptionColor } from '../../../graphql/paddle';
+import { IconSize } from '../../../components/Icon';
 
 type Props = ModalProps & {
   organizationId?: string;
@@ -62,7 +63,13 @@ export const ManageSeatsModal = ({
         />
       )}
       <section className="flex h-full w-full flex-1 flex-col gap-4 p-6">
-        {!isMobile && <LogoWithPlus className="mb-8" />}
+        {!isMobile && (
+          <LogoWithPlus
+            className="mb-4"
+            iconSize={IconSize.XSmall}
+            logoClassName={{ container: 'h-6' }}
+          />
+        )}
 
         <Typography bold type={TypographyType.Body}>
           Number of seats

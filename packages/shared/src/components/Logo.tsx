@@ -147,16 +147,27 @@ export default function Logo({
   );
 }
 
+type LogoWithPlusProps = WithClassNameProps & {
+  iconSize?: IconSize;
+  logoClassName?: LogoProps['logoClassName'];
+};
+
 export const LogoWithPlus = ({
   className,
-}: WithClassNameProps): ReactElement => {
+  iconSize = IconSize.Size16,
+  logoClassName,
+}: LogoWithPlusProps): ReactElement => {
   const featureTheme = useFeatureTheme();
   const isMobile = useViewSize(ViewSize.MobileL);
   return (
     <div className={classNames('relative flex items-center', className)}>
-      <Logo position={LogoPosition.Relative} featureTheme={featureTheme} />
+      <Logo
+        position={LogoPosition.Relative}
+        featureTheme={featureTheme}
+        logoClassName={logoClassName}
+      />
       <PlusUser
-        iconSize={IconSize.Size16}
+        iconSize={iconSize}
         typographyType={
           isMobile ? TypographyType.Footnote : TypographyType.Callout
         }
