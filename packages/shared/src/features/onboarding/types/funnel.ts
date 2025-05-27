@@ -38,6 +38,11 @@ export enum FunnelBackgroundVariant {
   CircleTop = 'circleTop',
   CircleBottom = 'circleBottom',
   Hourglass = 'hourglass',
+  Cheese = 'cheese',
+  BlueCheese = 'blueCheese',
+  Onion = 'onion',
+  Water = 'water',
+  Burger = 'burger',
 }
 
 export enum FunnelStepTransitionType {
@@ -120,6 +125,7 @@ export interface FunnelStepFactParameters {
   explainer: string;
   align: StepHeadlineAlign;
   visualUrl?: string;
+  visualUrlLightMode?: string;
   layout?: 'default' | 'reversed' | 'centered';
 }
 
@@ -252,6 +258,7 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
 export interface FunnelStepSocialProof
   extends FunnelStepCommon<{
     imageUrl: string;
+    imageUrlLightMode?: string;
     rating: string;
     reviews: Review[];
     reviewSubtitle: string;
