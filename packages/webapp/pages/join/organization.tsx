@@ -44,6 +44,7 @@ import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import Custom404Seo from '../404';
 
 const Page = ({
@@ -250,7 +251,7 @@ export const getServerSideProps: GetServerSideProps<{
 
     res.setHeader(
       'Cache-Control',
-      `public, max-age=0, must-revalidate, s-maxage=${24 * 60 * 60}`,
+      `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneDay}`,
     );
 
     return {

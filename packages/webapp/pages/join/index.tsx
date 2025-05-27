@@ -10,6 +10,7 @@ import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { defaultOpenGraph } from '../../next-seo';
 import type { JoinPageProps } from '../../components/invite/common';
 import { AISearchInvite } from '../../components/invite/AISearchInvite';
@@ -121,7 +122,7 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
 
   res.setHeader(
     'Cache-Control',
-    `public, max-age=0, must-revalidate, s-maxage=${24 * 60 * 60}`,
+    `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneDay}`,
   );
 
   return {
