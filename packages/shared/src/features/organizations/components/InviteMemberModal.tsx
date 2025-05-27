@@ -90,9 +90,9 @@ export const InviteMemberModal = ({
 
         <TextField
           label={null}
-          inputId="refferalUrl"
+          inputId="referralUrl"
           value={referralUrl}
-          name="refferalUrl"
+          name="referralUrl"
         />
 
         <Button
