@@ -39,7 +39,6 @@ export const FunnelCheckout = ({
     }
 
     currentPriceIdRef.current = priceId;
-    console.log('rendering checkout with priceId:', priceId);
 
     openCheckout({
       priceId,
