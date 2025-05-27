@@ -79,8 +79,7 @@ export const FunnelStepBackground = ({
   return (
     <div
       className={classNames(
-        // 'relative flex flex-1 flex-col bg-background-default',
-        'bg-accent-burger-flat relative flex flex-1 flex-col',
+        'relative flex flex-1 flex-col bg-background-default',
         isForcedDarkThemeStep && isLightMode && 'invert',
       )}
     >
