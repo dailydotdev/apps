@@ -33,7 +33,6 @@ import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
-  useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib';
 import { useOrganizations } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizations';
@@ -43,6 +42,7 @@ import {
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
+import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../../next-seo';
@@ -88,8 +88,7 @@ const NoOrganizations = () => {
 };
 
 const Page = (): ReactElement => {
-  const { organizations } = useOrganizations();
-  const { displayToast } = useToastNotification();
+  const { organizations, isFetching } = useOrganizations();
 
   return (
     <AccountPageContainer
@@ -138,14 +137,12 @@ const Page = (): ReactElement => {
         {organizations && organizations.length > 0 ? (
           <div className="flex flex-col gap-4 pt-4">
             {organizations.map(({ role, organization }) => (
-              <Link key={organization.id} href="#" passHref>
-                {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-                <a
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    displayToast(`Hey! Don't click me! I'm not a link yet.`);
-                  }}
-                >
+              <Link
+                key={organization.id}
+                href={getOrganizationSettingsUrl(organization.id, 'members')}
+                passHref
+              >
+                <a className="flex items-center gap-2">
                   <Image
                     className="mr-2 size-8 rounded-full object-cover"
                     src={organization.image}
@@ -170,7 +167,7 @@ const Page = (): ReactElement => {
             ))}
           </div>
         ) : (
-          <NoOrganizations />
+          !isFetching && <NoOrganizations />
         )}
       </section>
     </AccountPageContainer>
