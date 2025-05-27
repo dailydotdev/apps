@@ -1,5 +1,6 @@
 import type { GetServerSideProps } from 'next';
 import { getUserShortInfo } from '@dailydotdev/shared/src/graphql/users';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import type { PlusPageProps } from '../index';
 import PlusPage from '../index';
 
@@ -27,7 +28,7 @@ export const getServerSideProps: GetServerSideProps<PlusPageProps> = async ({
 
     res.setHeader(
       'Cache-Control',
-      `public, max-age=0, must-revalidate, s-maxage=${1 * 60 * 60}`,
+      `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneHour}`,
     );
 
     return { props: { giftToUser } };

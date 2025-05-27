@@ -74,6 +74,7 @@ export enum StaleTime {
   Default = FIVE_MINUTES,
   FeedSettings = ONE_MINUTE,
   Tooltip = THIRTY_MINUTES,
+  OneMinute = ONE_MINUTE,
   OneHour = ONE_HOUR,
   Base = STALE_TIME,
   OneDay = ONE_HOUR * 24,

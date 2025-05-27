@@ -10,12 +10,16 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { parseOrDefault } from '../../../lib/func';
 import { useToastNotification } from '../../../hooks';
+import type { LoggedUser } from '../../../lib/user';
+
+export const generateOrganizationQueryKey = (user: LoggedUser, orgId: string) =>
+  generateQueryKey(RequestKey.Organizations, user, orgId);
 
 export const useOrganization = (orgId: string) => {
   const { displayToast } = useToastNotification();
   const { user, isAuthReady } = useAuthContext();
   const enableQuery = !!orgId && !!user && isAuthReady;
-  const queryKey = generateQueryKey(RequestKey.Organizations, user, orgId);
+  const queryKey = generateOrganizationQueryKey(user, orgId);
   const queryClient = useQueryClient();
 
   const { data, isFetching } = useQuery({

@@ -259,6 +259,7 @@ export async function getProfileV2Extra(
 
 export enum ReferralOriginKey {
   Squad = 'squad',
+  Organization = 'organization',
 }
 
 export enum LogoutReason {
