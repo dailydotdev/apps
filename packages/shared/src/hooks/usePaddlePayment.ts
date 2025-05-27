@@ -184,6 +184,9 @@ export const usePaddlePayment = ({
         customer,
         customData,
         discountId,
+        settings: {
+          allowedPaymentMethods: ['apple_pay', 'google_pay', 'card', 'paypal'],
+        },
       });
     },
     [paddle?.Checkout, user?.email, user?.id, geo?.region],
