@@ -182,9 +182,15 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPricingParameters extends FunnelStepParameters {
+export enum FunnelPricingType {
+  Daily = 'daily',
+  Monthly = 'monthly',
+}
+
+export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
+  pricingType: FunnelPricingType;
   discount: {
     message: string;
     duration: number;

@@ -57,7 +57,7 @@ export const NetworkSection = ({
               bold
               className="rounded-6 bg-background-subtle px-1.5"
             >
-              {count}
+              {count >= 15 ? '15+' : count}
             </Typography>
           ),
         },
