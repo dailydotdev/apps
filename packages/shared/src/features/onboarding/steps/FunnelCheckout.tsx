@@ -27,7 +27,7 @@ export const FunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
-    if (!isPlusAvailable || isPlus || !isActive) {
+    if (!isPlusAvailable || isPlus || !priceId) {
       return;
     }
 
