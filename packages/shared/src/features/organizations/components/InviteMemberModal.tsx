@@ -93,6 +93,7 @@ export const InviteMemberModal = ({
           inputId="referralUrl"
           value={referralUrl}
           name="referralUrl"
+          readOnly
         />
 
         <Button
