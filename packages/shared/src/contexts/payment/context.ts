@@ -44,6 +44,7 @@ export interface PaymentContextProviderProps<T = unknown, E = unknown> {
   children?: ReactNode;
   disabledEvents?: E[];
   successCallback?: (event: T) => void;
+  initialPriceType?: PurchaseType;
 }
 
 export const FunnelPaymentPricingContext = createContext<{
