@@ -43,7 +43,7 @@ export const InviteMemberModal = ({
       <Modal.Header
         kind={isMobile ? ModalHeaderKind.Secondary : ModalHeaderKind.Primary}
         className="truncate"
-        title={`Invite members to ${organization.name} ${organization.name}`}
+        title={`Invite members to ${organization.name}`}
       />
       <Modal.Body className="flex gap-4 tablet:justify-center">
         {seatsAvailable ? (
