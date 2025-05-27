@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { USER_SHORT_INFO_FRAGMENT } from './fragments';
+import { USER_SHORT_INFO_FRAGMENT } from '../../graphql/fragments';
 
 export const ORGANIZATION_MEMBER_FRAGMENT = gql`
   fragment OrganizationMemberFragment on OrganizationMember {
@@ -33,6 +33,7 @@ export const ORGANIZATIONS_QUERY = gql`
     organizations {
       role
       referralToken
+      referralUrl
       organization {
         ...OrganizationFragment
       }
@@ -46,6 +47,7 @@ export const ORGANIZATION_QUERY = gql`
     organization(id: $id) {
       role
       referralToken
+      referralUrl
       organization {
         ...OrganizationFragment
       }
@@ -77,6 +79,7 @@ export const UPDATE_ORGANIZATION_MUTATION = gql`
     updateOrganization(id: $id, name: $name, image: $image) {
       role
       referralToken
+      referralUrl
       organization {
         ...OrganizationFragment
       }
@@ -90,6 +93,7 @@ export const JOIN_ORGANIZATION_MUTATION = gql`
     joinOrganization(id: $id, token: $token) {
       role
       referralToken
+      referralUrl
       organization {
         ...OrganizationFragment
       }

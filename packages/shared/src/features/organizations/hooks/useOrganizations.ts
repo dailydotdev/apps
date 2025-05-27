@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from '../../../graphql/common';
-import { ORGANIZATIONS_QUERY } from '../../../graphql/organization';
+import { ORGANIZATIONS_QUERY } from '../graphql';
 import type { UserOrganization } from '../types';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
