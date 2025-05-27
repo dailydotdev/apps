@@ -201,7 +201,7 @@ const Page = (): ReactElement => {
               </SimpleTooltip>
             </div>
             <div className="flex items-center gap-2">
-              <PlusUserIcon />
+              <PlusUserIcon secondary />
               <Typography type={TypographyType.Footnote}>
                 Assigned seats:
               </Typography>
