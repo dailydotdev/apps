@@ -14,7 +14,7 @@ export async function getFunnelBootData({
   id?: string;
   version?: string;
   forwardedHeaders?: Record<string, string>;
-  featureKey?: 'funnel' | 'onboarding';
+  featureKey?: 'paid' | 'onboarding';
 }): Promise<FunnelBootResponse> {
   const params = new URLSearchParams();
   if (id) {
