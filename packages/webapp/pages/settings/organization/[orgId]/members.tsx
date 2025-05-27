@@ -45,6 +45,8 @@ import {
   SquadIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -134,6 +136,7 @@ export const OrganizationMembers = ({
 
 const Page = (): ReactElement => {
   const { push, query } = useRouter();
+  const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const { organization, role, isFetching } = useOrganization(
@@ -247,7 +250,12 @@ const Page = (): ReactElement => {
               size={ButtonSize.Small}
               icon={<AddUserIcon secondary />}
               onClick={() => {
-                displayToast('Ouch! Inviting members is not supported yet');
+                openModal({
+                  type: LazyModal.InviteOrganizationMember,
+                  props: {
+                    organizationId: organization.id,
+                  },
+                });
               }}
             >
               Invite member

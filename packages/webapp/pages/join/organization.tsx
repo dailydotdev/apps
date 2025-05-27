@@ -15,7 +15,7 @@ import {
 import {
   GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY,
   JOIN_ORGANIZATION_MUTATION,
-} from '@dailydotdev/shared/src/graphql/organization';
+} from '@dailydotdev/shared/src/features/organizations/graphql';
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
 import type {
   Organization,
