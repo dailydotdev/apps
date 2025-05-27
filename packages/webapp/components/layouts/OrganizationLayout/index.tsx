@@ -12,7 +12,7 @@ import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/o
 import { OrganizationSidebar } from '@dailydotdev/shared/src/features/organizations/components/Sidebar';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
-import UserSettingsLayout from '../SettingsLayout';
+import SettingsLayout from '../SettingsLayout';
 
 export const OrganizationLayout = ({
   children,
@@ -49,7 +49,7 @@ export const OrganizationLayout = ({
   // instead of the organization layout. This is because the organization layout is
   // meant for admins and owners and the settings layout is meant for members.
   if (!isPrivilegedOrganizationRole(role)) {
-    return <UserSettingsLayout>{children}</UserSettingsLayout>;
+    return <SettingsLayout>{children}</SettingsLayout>;
   }
 
   return (
