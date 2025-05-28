@@ -6,7 +6,10 @@ import type {
   ProductPricingPreview,
 } from '../../../graphql/paddle';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { generateOrganizationQueryKey } from './useOrganization';
+import {
+  generateOrganizationQueryKey,
+  useOrganization,
+} from './useOrganization';
 import { gqlClient } from '../../../graphql/common';
 import { PREVIEW_SUBSCRIPTION_UPDATE_QUERY } from '../graphql';
 import { StaleTime } from '../../../lib/query';
@@ -31,7 +34,8 @@ export const useOrganizationSubscription = (
   >,
 ) => {
   const { user, isAuthReady } = useAuthContext();
-  const enableQuery = !!orgId && !!user && isAuthReady;
+  const { isOwner } = useOrganization(orgId);
+  const enableQuery = isOwner && !!orgId && !!user && isAuthReady;
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: generateOrganizationQueryKey(user, orgId, 'subscription'),

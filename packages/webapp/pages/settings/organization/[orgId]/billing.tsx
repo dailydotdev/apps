@@ -33,7 +33,7 @@ const Page = (): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
 
-  const { organization, seats, isFetching } = useOrganization(
+  const { organization, seats, isFetching, isOwner } = useOrganization(
     router.query.orgId as string,
   );
   const { isAuthReady } = useAuthContext();
@@ -139,6 +139,7 @@ const Page = (): ReactElement => {
               },
             });
           }}
+          disabled={!isOwner}
         >
           Manage seats
         </Button>

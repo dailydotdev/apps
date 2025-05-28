@@ -1,3 +1,4 @@
+import type { PlusPriceType } from '../../lib/featureValues';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
 
 export enum OrganizationMemberRole {
@@ -17,6 +18,11 @@ export type OrganizationMember = {
   user: PublicProfile | LoggedUser;
 };
 
+export type OrganizationSubscriptionFlags = Partial<{
+  cycle: PlusPriceType;
+  priceId: string;
+}>;
+
 export type Organization = {
   id: string;
   name: string;
@@ -24,6 +30,7 @@ export type Organization = {
   seats?: number;
   activeSeats?: number;
   members?: OrganizationMember[];
+  subscriptionFlags?: OrganizationSubscriptionFlags;
 };
 
 export type UserOrganization = {

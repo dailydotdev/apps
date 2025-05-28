@@ -3,6 +3,7 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import { ORGANIZATION_QUERY, UPDATE_ORGANIZATION_MUTATION } from '../graphql';
+import { OrganizationMemberRole } from '../types';
 import type { UpdateOrganizationInput, UserOrganization } from '../types';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -86,6 +87,8 @@ export const useOrganization = (
     available: (organization?.seats || 0) - (organization?.activeSeats || 0),
   };
 
+  const isOwner = role === OrganizationMemberRole.Owner;
+
   return {
     organization,
     seats,
@@ -96,5 +99,6 @@ export const useOrganization = (
     isFetching,
     onUpdateOrganization,
     isUpdatingOrganization,
+    isOwner,
   };
 };

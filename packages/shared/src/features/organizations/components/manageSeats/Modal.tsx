@@ -17,11 +17,16 @@ import { ArrowIcon, LoaderIcon } from '../../../../components/icons';
 import { PreviewChanges } from './PreviewChanges';
 import { CheckoutChanges } from './CheckoutChanges';
 import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription';
+import {
+  Typography,
+  TypographyType,
+} from '../../../../components/typography/Typography';
 
 export enum Display {
   Loading = 'loading',
   Preview = 'preview',
   Checkout = 'checkout',
+  NoAccess = 'no-access',
 }
 
 type Props = ModalProps & {
@@ -33,14 +38,16 @@ export const ManageSeatsModal = ({
   ...props
 }: Props): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { seats } = useOrganization(organizationId);
+  const { seats, isOwner } = useOrganization(organizationId);
   const [quantity, setQuantity] = useState(seats.total);
   const { data, refetch } = useOrganizationSubscription(
     organizationId,
     quantity,
   );
 
-  const [activeTab, setActiveTab] = useState<Display>(Display.Loading);
+  const [activeTab, setActiveTab] = useState<Display>(
+    isOwner ? Display.Loading : Display.NoAccess,
+  );
 
   const onContinue = () => {
     setActiveTab(Display.Checkout);
@@ -55,8 +62,11 @@ export const ManageSeatsModal = ({
   }, [data]);
 
   useEffect(() => {
+    if (!isOwner) {
+      return;
+    }
     refetch();
-  }, [quantity, refetch]);
+  }, [isOwner, quantity, refetch]);
 
   const isCheckout = activeTab === Display.Checkout;
 
@@ -101,6 +111,15 @@ export const ManageSeatsModal = ({
               className="flex-shrink-0 animate-spin drop-shadow-[0_0_5px_var(--theme-shadow-cabbage)]"
             />
           </div>
+        </Tab>
+        <Tab label={Display.NoAccess}>
+          <Typography
+            bold
+            type={TypographyType.Title2}
+            className="flex h-full w-full items-center justify-center"
+          >
+            You do not have access to manage seats for this organization.
+          </Typography>
         </Tab>
         <Tab label={Display.Preview}>
           <PreviewChanges

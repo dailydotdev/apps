@@ -241,7 +241,7 @@ const Page = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
-  const { organization, role, seatType, isFetching } = useOrganization(
+  const { organization, role, seatType, isFetching, isOwner } = useOrganization(
     query.orgId as string,
   );
   const queryClient = useQueryClient();
@@ -321,6 +321,7 @@ const Page = (): ReactElement => {
                   },
                 });
               }}
+              disabled={!isOwner}
             >
               Manage seats
             </Button>
