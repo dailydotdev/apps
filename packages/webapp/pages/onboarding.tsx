@@ -189,6 +189,8 @@ const useOnboardingAuth = () => {
       const params = new URLSearchParams(window.location.search);
       const afterAuth = params.get(AFTER_AUTH_PARAM);
       params.delete(AFTER_AUTH_PARAM);
+      params.delete('id');
+      params.delete('stepId');
       router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
       return;
     }
@@ -270,7 +272,10 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const onComplete = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
-    return router.replace({ pathname: afterAuth || '/' });
+    params.delete(AFTER_AUTH_PARAM);
+    params.delete('id');
+    params.delete('stepId');
+    return router.replace(getPathnameWithQuery(afterAuth || '/', params));
   }, [router]);
 
   if (!isAuthReady) {
