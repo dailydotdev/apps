@@ -231,6 +231,7 @@ export interface FunnelStepPricing
 
 export interface FunnelStepCheckoutParameters {
   discountCode?: string;
+  shouldShowHeader?: boolean;
 }
 
 export interface FunnelStepCheckout
