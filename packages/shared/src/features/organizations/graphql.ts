@@ -22,6 +22,7 @@ export const ORGANIZATION_FRAGMENT = gql`
     image
     seats
     activeSeats
+    status
 
     members {
       ...OrganizationMemberFragment
@@ -128,7 +129,6 @@ export const PREVIEW_SUBSCRIPTION_UPDATE_QUERY = gql`
       quantity: $quantity
       locale: $locale
     ) {
-      status
       pricing {
         priceId
         duration

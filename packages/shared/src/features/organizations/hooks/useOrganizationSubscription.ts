@@ -15,7 +15,6 @@ import { PREVIEW_SUBSCRIPTION_UPDATE_QUERY } from '../graphql';
 import { StaleTime } from '../../../lib/query';
 
 export type PreviewOrganizationSubscriptionUpdate = {
-  status: string;
   pricing: ProductPricingPreview[];
   nextBilling: Date | null;
   total: ProductPricing | null;

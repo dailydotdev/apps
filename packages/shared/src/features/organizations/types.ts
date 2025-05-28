@@ -1,4 +1,5 @@
 import type { PlusPriceType } from '../../lib/featureValues';
+import type { UserSubscriptionStatus } from '../../lib/plus';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
 
 export enum OrganizationMemberRole {
@@ -31,6 +32,7 @@ export type Organization = {
   activeSeats?: number;
   members?: OrganizationMember[];
   subscriptionFlags?: OrganizationSubscriptionFlags;
+  status?: UserSubscriptionStatus;
 };
 
 export type UserOrganization = {
