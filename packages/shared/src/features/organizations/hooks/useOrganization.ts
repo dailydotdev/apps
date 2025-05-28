@@ -73,13 +73,15 @@ export const useOrganization = (
     },
   });
 
-  const { organization, role, referralToken, referralUrl } = data || {};
+  const { organization, role, referralToken, referralUrl, seatType } =
+    data || {};
 
   return {
     organization,
     role,
     referralToken,
     referralUrl,
+    seatType,
     isFetching,
     onUpdateOrganization,
     isUpdatingOrganization,

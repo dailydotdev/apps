@@ -31,6 +31,7 @@ import {
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import type { OrganizationMember } from '@dailydotdev/shared/src/features/organizations/types';
+import { OrganizationMemberSeatType } from '@dailydotdev/shared/src/features/organizations/types';
 import { useContentPreferenceStatusQuery } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreferenceStatusQuery';
 import {
   ContentPreferenceStatus,
@@ -66,6 +67,7 @@ import {
 import ContextMenu from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import OptionsButton from '@dailydotdev/shared/src/components/buttons/OptionsButton';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -106,11 +108,13 @@ const OrganizationMembersItem = ({
   isCurrentUser,
   user,
   role,
+  seatType,
   isRegularMember = false,
 }: {
   isCurrentUser: boolean;
   user: OrganizationMember['user'];
   role: OrganizationMember['role'];
+  seatType: OrganizationMember['seatType'];
   isRegularMember?: boolean;
 }) => {
   const isPrivilegedMember = isPrivilegedOrganizationRole(role);
@@ -158,8 +162,20 @@ const OrganizationMembersItem = ({
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
+              className="flex items-center gap-0.5"
             >
-              Free
+              {seatType === OrganizationMemberSeatType.Plus ? (
+                <>
+                  <DevPlusIcon
+                    className={TypographyColor.Plus}
+                    secondary
+                    size={IconSize.Size16}
+                  />
+                  <span>Plus</span>
+                </>
+              ) : (
+                'Free'
+              )}
             </Typography>
           </td>
           <td>
@@ -203,12 +219,13 @@ export const OrganizationMembers = ({
 
   return (
     <tbody>
-      {members?.map(({ user, role }) => (
+      {members?.map(({ user, role, seatType }) => (
         <OrganizationMembersItem
           key={`organization-member-${user.id}`}
           isCurrentUser={user.id === currentUser.id}
           user={user}
           role={role}
+          seatType={seatType}
           isRegularMember={isRegularMember}
         />
       ))}
@@ -222,7 +239,7 @@ const Page = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
-  const { organization, role, isFetching } = useOrganization(
+  const { organization, role, seatType, isFetching } = useOrganization(
     query.orgId as string,
   );
   const queryClient = useQueryClient();
@@ -419,7 +436,7 @@ const Page = (): ReactElement => {
             </thead>
           ) : null}
           <OrganizationMembers
-            members={[{ role, user }, ...organization.members]}
+            members={[{ role, user, seatType }, ...organization.members]}
             isRegularMember={isRegularMember}
           />
         </table>

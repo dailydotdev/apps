@@ -6,8 +6,14 @@ export enum OrganizationMemberRole {
   Member = 'member',
 }
 
+export enum OrganizationMemberSeatType {
+  Free = 'free',
+  Plus = 'plus',
+}
+
 export type OrganizationMember = {
   role: OrganizationMemberRole;
+  seatType: OrganizationMemberSeatType;
   user: PublicProfile | LoggedUser;
 };
 
@@ -21,6 +27,7 @@ export type Organization = {
 
 export type UserOrganization = {
   role: OrganizationMemberRole;
+  seatType: OrganizationMemberSeatType;
   referralToken?: string | null;
   referralUrl?: string | null;
   organization: Organization;

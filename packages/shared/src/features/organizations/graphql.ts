@@ -4,6 +4,7 @@ import { USER_SHORT_INFO_FRAGMENT } from '../../graphql/fragments';
 export const ORGANIZATION_MEMBER_FRAGMENT = gql`
   fragment OrganizationMemberFragment on OrganizationMember {
     role
+    seatType
     user {
       id
       name
@@ -34,6 +35,7 @@ export const ORGANIZATIONS_QUERY = gql`
       role
       referralToken
       referralUrl
+      seatType
       organization {
         ...OrganizationFragment
       }
@@ -48,6 +50,7 @@ export const ORGANIZATION_QUERY = gql`
       role
       referralToken
       referralUrl
+      seatType
       organization {
         ...OrganizationFragment
       }
@@ -80,6 +83,7 @@ export const UPDATE_ORGANIZATION_MUTATION = gql`
       role
       referralToken
       referralUrl
+      seatType
       organization {
         ...OrganizationFragment
       }
@@ -94,6 +98,7 @@ export const JOIN_ORGANIZATION_MUTATION = gql`
       role
       referralToken
       referralUrl
+      seatType
       organization {
         ...OrganizationFragment
       }
