@@ -231,6 +231,7 @@ const RegistrationForm = ({
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     const emailCheck = await onEmailCheck(e);
+    console.log({ emailCheck });
     if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
       onSubmit(e);
     }
