@@ -73,8 +73,8 @@ const Page = (): ReactElement => {
     return null;
   };
 
-  const disableDeletetion =
-    organization.status === SubscriptionStatus.Active && seats.assigned > 0;
+  const disableDeletion =
+    organization.status === SubscriptionStatus.Active && seats.assigned >= 0;
 
   if (isFetching) {
     return null;
@@ -177,7 +177,7 @@ const Page = (): ReactElement => {
         </Typography>
 
         <Button
-          disabled={disableDeletetion}
+          disabled={disableDeletion}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Ketchup}
           className="self-start"
