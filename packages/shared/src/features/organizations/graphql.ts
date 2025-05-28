@@ -187,3 +187,17 @@ export const DELETE_ORGANIZATION_MUTATION = gql`
     }
   }
 `;
+
+export const REMOVE_ORGANIZATION_MEMBER_MUTATION = gql`
+  mutation RemoveOrganizationMember($id: ID!, $memberId: String!) {
+    removeOrganizationMember(id: $id, memberId: $memberId) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
+`;

@@ -63,6 +63,7 @@ const Page = (): ReactElement => {
     onUpdateOrganization,
     isUpdatingOrganization,
     seats,
+    isOwner,
   } = useOrganization(router.query.orgId as string);
   const queryClient = useQueryClient();
 
@@ -131,7 +132,9 @@ const Page = (): ReactElement => {
   };
 
   const disableDeletion =
-    organization.status === SubscriptionStatus.Active && seats.assigned >= 0;
+    !isOwner ||
+    organization.status === SubscriptionStatus.Active ||
+    seats.assigned > 0;
 
   if (isFetching) {
     return null;
