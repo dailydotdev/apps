@@ -53,6 +53,9 @@ import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -144,6 +147,7 @@ const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
+  const { hasCompletedEditTags, hasCompletedContentTypes } = useOnboarding();
   const router = useRouter();
   const action = isValidAction(router.query.action) && router.query.action;
   const {
@@ -159,6 +163,7 @@ const useOnboardingAuth = () => {
     [setAuth],
   );
 
+  // Update the Jotai auth state based on the login state and anonymous user
   useEffect(() => {
     const email = loginState?.formValues?.email || anonymous?.email;
     const shouldVerify = anonymous?.shouldVerify;
@@ -221,6 +226,27 @@ const useOnboardingAuth = () => {
       updateAuth,
     ],
   );
+
+  // Redirect user to app if they have completed the onboarding steps
+  useEffect(() => {
+    if (
+      hasCompletedContentTypes &&
+      hasCompletedEditTags &&
+      isAuthReady &&
+      !auth.isAuthenticating
+    ) {
+      const params = new URLSearchParams(window.location.search);
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    }
+  }, [
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+    isAuthReady,
+    auth.isAuthenticating,
+    router,
+  ]);
 
   return {
     authOptionProps,
