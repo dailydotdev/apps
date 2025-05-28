@@ -22,7 +22,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonSize,
@@ -73,8 +73,13 @@ import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
-const OrganizationOptionsMenu = () => {
+const OrganizationOptionsMenu = ({
+  member,
+}: {
+  member: Pick<OrganizationMember, 'user'>;
+}) => {
   const contextMenuId = useId();
+  const router = useRouter();
   const { displayToast } = useToastNotification();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   return (
@@ -92,7 +97,7 @@ const OrganizationOptionsMenu = () => {
           {
             label: 'View profile',
             action: () => {
-              displayToast('click me');
+              router.push(`${webappUrl}/${member.user.username}`);
             },
             icon: <UserIcon aria-hidden />,
           },
@@ -187,7 +192,7 @@ const OrganizationMembersItem = ({
             </Typography>
           </td>
           <td>
-            <OrganizationOptionsMenu />
+            <OrganizationOptionsMenu member={{ user }} />
           </td>
         </>
       ) : (
