@@ -30,6 +30,7 @@ import type {
   UpdateOrganizationForm,
   UpdateOrganizationInput,
 } from '@dailydotdev/shared/src/features/organizations/types';
+import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -43,6 +44,7 @@ const Page = (): ReactElement => {
     isFetching,
     onUpdateOrganization,
     isUpdatingOrganization,
+    seats,
   } = useOrganization(router.query.orgId as string);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -70,6 +72,9 @@ const Page = (): ReactElement => {
     setImageChanged(false);
     return null;
   };
+
+  const disableDeletetion =
+    organization.status === SubscriptionStatus.Active && seats.assigned > 0;
 
   if (isFetching) {
     return null;
@@ -172,7 +177,7 @@ const Page = (): ReactElement => {
         </Typography>
 
         <Button
-          disabled
+          disabled={disableDeletetion}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Ketchup}
           className="self-start"
