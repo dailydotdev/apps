@@ -201,3 +201,21 @@ export const REMOVE_ORGANIZATION_MEMBER_MUTATION = gql`
   ${USER_ORGANIZATION_FRAGMENT}
   ${ORGANIZATION_FRAGMENT}
 `;
+
+export const UPDATE_ORGANIZATION_MEMBER_ROLE_MUTATION = gql`
+  mutation UpdateOrganizationMemberRole(
+    $id: ID!
+    $memberId: String!
+    $role: OrganizationMemberRole!
+  ) {
+    updateOrganizationMemberRole(id: $id, memberId: $memberId, role: $role) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
+`;

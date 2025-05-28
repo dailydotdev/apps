@@ -91,9 +91,8 @@ const OrganizationOptionsMenu = ({
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
-  const { removeOrganizationMember } = useOrganization(
-    router.query.orgId as string,
-  );
+  const { removeOrganizationMember, updateOrganizationMemberRole } =
+    useOrganization(router.query.orgId as string);
 
   const { user, role, seatType } = member || {};
 
@@ -125,9 +124,14 @@ const OrganizationOptionsMenu = ({
         role === OrganizationMemberRole.Admin
           ? 'Remove admin access'
           : 'Promote to admin',
-      action: () => {
-        displayToast('click me');
-      },
+      action: () =>
+        updateOrganizationMemberRole({
+          memberId: user.id,
+          role:
+            role === OrganizationMemberRole.Admin
+              ? OrganizationMemberRole.Member
+              : OrganizationMemberRole.Admin,
+        }),
       icon: <StarIcon aria-hidden />,
     });
 

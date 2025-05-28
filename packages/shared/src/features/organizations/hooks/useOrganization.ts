@@ -5,6 +5,7 @@ import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import {
   ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_MEMBER_MUTATION,
+  UPDATE_ORGANIZATION_MEMBER_ROLE_MUTATION,
   UPDATE_ORGANIZATION_MUTATION,
 } from '../graphql';
 import { OrganizationMemberRole } from '../types';
@@ -49,6 +50,26 @@ export const removeMember = async ({
   });
 
   return res.removeOrganizationMember;
+};
+
+export const updateMemberRole = async ({
+  id,
+  memberId,
+  role,
+}: {
+  id: string;
+  memberId: string;
+  role: OrganizationMemberRole;
+}): Promise<UserOrganization> => {
+  const res = await gqlClient.request<{
+    updateOrganizationMemberRole: UserOrganization;
+  }>(UPDATE_ORGANIZATION_MEMBER_ROLE_MUTATION, {
+    id,
+    memberId,
+    role,
+  });
+
+  return res.updateOrganizationMemberRole;
 };
 
 export const useOrganization = (
@@ -111,6 +132,25 @@ export const useOrganization = (
     },
   });
 
+  const { mutate: updateOrganizationMemberRole } = useMutation({
+    mutationFn: ({
+      memberId,
+      role,
+    }: {
+      memberId: string;
+      role: OrganizationMemberRole;
+    }) => updateMemberRole({ id: organizationId, memberId, role }),
+    onSuccess: async (res) => {
+      await updateOrganizationData(res);
+      displayToast('The organization member role has been updated');
+    },
+    onError: (_err: ApiErrorResult) => {
+      const error = _err?.response?.errors?.[0];
+
+      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
+    },
+  });
+
   const { organization, role, referralToken, referralUrl, seatType } =
     data || {};
 
@@ -135,5 +175,6 @@ export const useOrganization = (
     isOwner,
 
     removeOrganizationMember,
+    updateOrganizationMemberRole,
   };
 };
