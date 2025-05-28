@@ -148,7 +148,8 @@ export const ManageSeatsModal = ({
           </div>
         </div>
 
-        <div className="flex flex-row items-center justify-between">
+        {/* TODO: see if we need this */}
+        {/* <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-0.5">
             <Typography type={TypographyType.Callout}>Discount</Typography>
             <Typography
@@ -167,9 +168,9 @@ export const ManageSeatsModal = ({
               -$120
             </Typography>
           </div>
-        </div>
+        </div> */}
 
-        <HorizontalSeparator className="my-4" />
+        <HorizontalSeparator className="my-2" />
 
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-0.5">
