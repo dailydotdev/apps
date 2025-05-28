@@ -24,7 +24,7 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
-  const { flags } = marketingCta;
+  const { flags } = marketingCta || {};
 
   const handleClick = () => {
     logEvent({
