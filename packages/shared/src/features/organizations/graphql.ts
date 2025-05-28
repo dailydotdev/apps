@@ -32,33 +32,38 @@ export const ORGANIZATION_FRAGMENT = gql`
   ${ORGANIZATION_MEMBER_FRAGMENT}
 `;
 
+export const USER_ORGANIZATION_FRAGMENT = gql`
+  fragment UserOrganizationFragment on UserOrganization {
+    role
+    referralToken
+    referralUrl
+    seatType
+  }
+`;
+
 export const ORGANIZATIONS_QUERY = gql`
   query Organizations {
     organizations {
-      role
-      referralToken
-      referralUrl
-      seatType
+      ...UserOrganizationFragment
       organization {
         ...OrganizationFragment
       }
     }
   }
+  ${USER_ORGANIZATION_FRAGMENT}
   ${ORGANIZATION_FRAGMENT}
 `;
 
 export const ORGANIZATION_QUERY = gql`
   query Organization($id: ID!) {
     organization(id: $id) {
-      role
-      referralToken
-      referralUrl
-      seatType
+      ...UserOrganizationFragment
       organization {
         ...OrganizationFragment
       }
     }
   }
+  ${USER_ORGANIZATION_FRAGMENT}
   ${ORGANIZATION_FRAGMENT}
 `;
 
@@ -83,30 +88,26 @@ export const GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY = gql`
 export const UPDATE_ORGANIZATION_MUTATION = gql`
   mutation UpdateOrganization($id: ID!, $name: String, $image: Upload) {
     updateOrganization(id: $id, name: $name, image: $image) {
-      role
-      referralToken
-      referralUrl
-      seatType
+      ...UserOrganizationFragment
       organization {
         ...OrganizationFragment
       }
     }
   }
+  ${USER_ORGANIZATION_FRAGMENT}
   ${ORGANIZATION_FRAGMENT}
 `;
 
 export const JOIN_ORGANIZATION_MUTATION = gql`
   mutation JoinOrganization($id: ID!, $token: String!) {
     joinOrganization(id: $id, token: $token) {
-      role
-      referralToken
-      referralUrl
-      seatType
+      ...UserOrganizationFragment
       organization {
         ...OrganizationFragment
       }
     }
   }
+  ${USER_ORGANIZATION_FRAGMENT}
   ${ORGANIZATION_FRAGMENT}
 `;
 
@@ -116,6 +117,19 @@ export const LEAVE_ORGANIZATION_MUTATION = gql`
       _
     }
   }
+`;
+
+export const UPDATE_ORGANIZATION_SUBSCRIPTION_MUTATION = gql`
+  mutation UpdateOrganizationSubscription($id: ID!, $quantity: Int!) {
+    updateOrganizationSubscription(id: $id, quantity: $quantity) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
 `;
 
 export const PREVIEW_SUBSCRIPTION_UPDATE_QUERY = gql`

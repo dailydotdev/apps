@@ -13,6 +13,7 @@ import { Button } from '../../../../components/buttons/Button';
 import { useOrganization } from '../../hooks/useOrganization';
 import { Modal } from '../../../../components/modals/common/Modal';
 import type { PreviewOrganizationSubscriptionUpdate } from '../../hooks/useOrganizationSubscription';
+import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription';
 
 type Props = {
   organizationId: string;
@@ -29,6 +30,8 @@ export const CheckoutChanges = ({
 }: Props): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { seats } = useOrganization(organizationId);
+  const { updateSubscription, isUpdatingSubscription } =
+    useOrganizationSubscription(organizationId);
 
   const difference = quantity - seats.total;
 
@@ -36,8 +39,20 @@ export const CheckoutChanges = ({
 
   const checkoutButtons = (
     <div className="mt-auto flex flex-col gap-3 tablet:ml-auto tablet:flex-row-reverse">
-      <Button variant={ButtonVariant.Primary}>Pay now</Button>
       <Button
+        loading={isUpdatingSubscription}
+        variant={ButtonVariant.Primary}
+        onClick={() => {
+          updateSubscription({
+            id: organizationId,
+            quantity,
+          });
+        }}
+      >
+        Pay now
+      </Button>
+      <Button
+        loading={isUpdatingSubscription}
         variant={isMobile ? ButtonVariant.Float : ButtonVariant.Secondary}
         onClick={goBack}
       >
