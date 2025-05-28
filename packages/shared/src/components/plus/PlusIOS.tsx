@@ -55,7 +55,7 @@ export const PlusIOS = ({
       return {};
     }
     const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
-    const { flags } = marketingCta;
+    const { flags } = marketingCta || {};
     return flags;
   }, [getMarketingCta, showModalSection]);
 
