@@ -210,7 +210,7 @@ export const PreviewChanges = ({
             >
               Billed{' '}
               {pricing.duration === PlusPriceType.Yearly
-                ? 'annualy'
+                ? 'annually'
                 : 'monthly'}{' '}
               starting{' '}
               {new Date(data.nextBilling).toLocaleDateString('en-US', {
