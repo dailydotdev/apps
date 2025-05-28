@@ -59,7 +59,7 @@ export const useOrganizationSubscription = (
         previewOrganizationSubscriptionUpdate: PreviewOrganizationSubscriptionUpdate;
       }>(PREVIEW_SUBSCRIPTION_UPDATE_QUERY, {
         id: organizationId,
-        quantity: quantity || seats.total,
+        quantity: quantity ?? seats.total,
         locale: navigator.language,
       });
 
