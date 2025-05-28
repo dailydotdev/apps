@@ -36,7 +36,7 @@ export const usePaddlePayment = ({
 }: UsePaddlePaymentProps) => {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, geo } = useAuthContext();
+  const { user, geo, trackingId } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
   const logRef = useRef<typeof logEvent>();
@@ -171,6 +171,7 @@ export const usePaddlePayment = ({
 
       const customData = {
         user_id: giftToUserId ?? user?.id,
+        tracking_id: trackingId,
         ...(!!giftToUserId && { gifter_id: user?.id }),
       };
 
@@ -186,7 +187,7 @@ export const usePaddlePayment = ({
         discountId,
       });
     },
-    [paddle?.Checkout, user?.email, user?.id, geo?.region],
+    [paddle?.Checkout, user?.email, user?.id, geo?.region, trackingId],
   );
 
   return {
