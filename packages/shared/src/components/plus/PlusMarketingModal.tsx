@@ -34,7 +34,7 @@ const PlusIOS = dynamic(() =>
 const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
-  const { campaignId } = marketingCta;
+  const { campaignId } = marketingCta || {};
   const { logEvent } = useLogContext();
   const { closeModal } = useLazyModal();
   const isExtension = checkIsExtension();
