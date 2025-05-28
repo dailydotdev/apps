@@ -93,7 +93,7 @@ const Page = (): ReactElement => {
   return (
     <AccountPageContainer
       title="Organizations"
-      className={{ section: 'gap-6' }}
+      className={{ container: 'overflow-hidden', section: 'gap-6' }}
     >
       <section className="flex flex-col gap-2">
         <Typography
@@ -150,7 +150,7 @@ const Page = (): ReactElement => {
                     type={ImageType.Organization}
                   />
 
-                  <Typography bold type={TypographyType.Callout}>
+                  <Typography bold truncate type={TypographyType.Callout}>
                     {organization.name}
                   </Typography>
 
