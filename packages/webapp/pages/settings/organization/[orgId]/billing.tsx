@@ -24,6 +24,8 @@ import {
 import { managePlusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useOrganizationSubscription } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizationSubscription';
+import { PlusPriceType } from '@dailydotdev/shared/src/lib/featureValues';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -32,13 +34,16 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 const Page = (): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
+  const organizationId = router.query.orgId as string;
 
-  const { organization, seats, isFetching, isOwner } = useOrganization(
-    router.query.orgId as string,
-  );
+  const { organization, seats, isFetching, isOwner } =
+    useOrganization(organizationId);
+  const { data } = useOrganizationSubscription(organizationId);
   const { isAuthReady } = useAuthContext();
 
-  if (isFetching || !isAuthReady) {
+  const pricing = data?.pricing[0];
+
+  if (isFetching || !isAuthReady || !data) {
     return null;
   }
 
@@ -61,7 +66,9 @@ const Page = (): ReactElement => {
               color={TypographyColor.Primary}
               bold
             >
-              daily.dev for teams (Annual)
+              daily.dev for teams (
+              {pricing.duration === PlusPriceType.Yearly ? 'Annual' : 'Monthly'}
+              )
             </Typography>
           </li>
           <li>
@@ -87,7 +94,11 @@ const Page = (): ReactElement => {
               color={TypographyColor.Primary}
               bold
             >
-              April 13, 2025
+              {new Date(data.nextBilling).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
             </Typography>
           </li>
         </Typography>
@@ -100,28 +111,36 @@ const Page = (): ReactElement => {
           Plan summary
         </Typography>
 
-        <div className="flex justify-between gap-6">
-          <div className="flex flex-col gap-1">
-            <Typography type={TypographyType.Body}>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex flex-row items-center justify-between">
+            <Typography type={TypographyType.Callout}>
               daily.dev for teams
             </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {organization.seats} users x 12 months
+            <Typography bold type={TypographyType.Body}>
+              {new Intl.NumberFormat(navigator.language, {
+                style: 'currency',
+                currency: pricing.currency.code,
+              }).format(data.total.amount)}
             </Typography>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <Typography bold type={TypographyType.Body}>
-              $1,500
+          <div className="flex flex-row items-center justify-between">
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {seats.total} {seats.total === 1 ? 'user' : 'users'}{' '}
+              {pricing.duration === PlusPriceType.Yearly && 'x 12 months'}
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              $25/seat
+              {new Intl.NumberFormat(navigator.language, {
+                style: 'currency',
+                currency: pricing.currency.code,
+              }).format(pricing.price?.monthly?.amount)}
+              /seat
             </Typography>
           </div>
         </div>

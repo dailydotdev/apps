@@ -34,8 +34,8 @@ export const useOrganizationSubscription = (
   >,
 ) => {
   const { user, isAuthReady } = useAuthContext();
-  const { isOwner } = useOrganization(orgId);
-  const enableQuery = isOwner && !!orgId && !!user && isAuthReady;
+  const { seats } = useOrganization(orgId);
+  const enableQuery = !!orgId && !!user && isAuthReady;
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: generateOrganizationQueryKey(user, orgId, 'subscription'),
@@ -44,7 +44,7 @@ export const useOrganizationSubscription = (
         previewOrganizationSubscriptionUpdate: PreviewOrganizationSubscriptionUpdate;
       }>(PREVIEW_SUBSCRIPTION_UPDATE_QUERY, {
         id: orgId,
-        quantity,
+        quantity: quantity || seats.total,
         locale: navigator.language,
       });
 
