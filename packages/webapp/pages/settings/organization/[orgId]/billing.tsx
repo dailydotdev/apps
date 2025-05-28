@@ -63,7 +63,10 @@ const Page = (): ReactElement => {
   return (
     <AccountPageContainer
       title="Billing"
-      className={{ container: 'min-h-[25rem]', section: 'flex-1 gap-6' }}
+      className={{
+        container: 'min-h-[30rem] tablet:min-h-[25rem]',
+        section: 'flex-1 gap-6',
+      }}
     >
       {data && (
         <>

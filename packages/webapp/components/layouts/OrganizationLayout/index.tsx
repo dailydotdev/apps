@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
 import { useRouter } from 'next/router';
@@ -10,19 +10,39 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import { OrganizationSidebar } from '@dailydotdev/shared/src/features/organizations/components/Sidebar';
+import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { NavDrawer } from '@dailydotdev/shared/src/components/drawers/NavDrawer';
+import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
-import SettingsLayout from '../SettingsLayout';
+import SettingsLayout, { navigationKey } from '../SettingsLayout';
 
 export const OrganizationLayout = ({
   children,
 }: PropsWithChildren): ReactElement => {
-  const { query } = useRouter();
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { query, events } = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const { formRef } = useAuthForms();
   const { organization, role, isFetching } = useOrganization(
     query.orgId as string,
   );
+
+  const [isOpen, setIsOpen] = useQueryState({
+    key: navigationKey,
+    defaultValue: false,
+  });
+
+  useEffect(() => {
+    const onClose = () => setIsOpen(false);
+
+    events.on('routeChangeComplete', onClose);
+
+    return () => {
+      events.off('routeChangeComplete', onClose);
+    };
+  }, [events, setIsOpen]);
 
   if (!isAuthReady) {
     return null;
@@ -53,12 +73,28 @@ export const OrganizationLayout = ({
   }
 
   return (
-    <>
-      <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+    <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+      <ConditionalWrapper
+        condition={isMobile}
+        wrapper={(child) => (
+          <NavDrawer
+            header="Organization"
+            shouldKeepOpen={false}
+            showActions={false}
+            drawerProps={{
+              isOpen,
+              onClose: () => setIsOpen(false),
+            }}
+          >
+            {child}
+          </NavDrawer>
+        )}
+      >
         <OrganizationSidebar organization={organization} />
-        {children}
-      </div>
-    </>
+      </ConditionalWrapper>
+
+      {children}
+    </div>
   );
 };
 
