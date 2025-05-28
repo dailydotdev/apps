@@ -29,7 +29,7 @@ export const SeatsOverview = ({
           {seats.total}
         </Typography>
 
-        <SimpleTooltip content="TODO: Update copy">
+        <SimpleTooltip content="The total number of seats in your organization.">
           <div>
             <InfoIcon />
           </div>
