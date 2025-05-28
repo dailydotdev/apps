@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { USER_SHORT_INFO_FRAGMENT } from '../../graphql/fragments';
+import { PRICING_METADATA_FRAGMENT } from '../../graphql/paddle';
 
 export const ORGANIZATION_MEMBER_FRAGMENT = gql`
   fragment OrganizationMemberFragment on OrganizationMember {
@@ -114,4 +115,53 @@ export const LEAVE_ORGANIZATION_MUTATION = gql`
       _
     }
   }
+`;
+
+export const PREVIEW_SUBSCRIPTION_UPDATE_QUERY = gql`
+  query PreviewOrganizationSubscriptionUpdate(
+    $id: ID!
+    $quantity: Int!
+    $locale: String
+  ) {
+    previewOrganizationSubscriptionUpdate(
+      id: $id
+      quantity: $quantity
+      locale: $locale
+    ) {
+      status
+      pricing {
+        priceId
+        duration
+        currency {
+          code
+        }
+        price {
+          amount
+          monthly {
+            amount
+          }
+        }
+        metadata {
+          ...PricingMetadataFragment
+        }
+      }
+      nextBilling
+      total {
+        amount
+      }
+      prorated {
+        total {
+          amount
+        }
+        tax {
+          amount
+        }
+        subTotal {
+          amount
+        }
+      }
+    }
+  }
+
+  ${PRICING_METADATA_FRAGMENT}
 `;

@@ -9,6 +9,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { parseOrDefault } from '../../../lib/func';
 import { useToastNotification } from '../../../hooks';
 import type { LoggedUser } from '../../../lib/user';
+
 export const generateOrganizationQueryKey = (
   user: LoggedUser,
   orgId: string,

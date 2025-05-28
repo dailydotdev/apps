@@ -283,7 +283,7 @@ const OrganizationInviteMemberModal = dynamic(() =>
 
 const OrganizationManageSeatsModal = dynamic(() =>
   import(
-    /* webpackChunkName: "manageSeatsModal" */ '../../features/organizations/components/ManageSeatsModal'
+    /* webpackChunkName: "manageSeatsModal" */ '../../features/organizations/components/manageSeats/Modal'
   ).then((mod) => mod.ManageSeatsModal),
 );
 
