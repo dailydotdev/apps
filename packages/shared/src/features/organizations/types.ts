@@ -1,4 +1,3 @@
-import type { PlusPriceType } from '../../lib/featureValues';
 import type { SubscriptionStatus } from '../../lib/plus';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
 
@@ -19,11 +18,6 @@ export type OrganizationMember = {
   user: PublicProfile | LoggedUser;
 };
 
-export type OrganizationSubscriptionFlags = Partial<{
-  cycle: PlusPriceType;
-  priceId: string;
-}>;
-
 export type Organization = {
   id: string;
   name: string;
@@ -31,7 +25,6 @@ export type Organization = {
   seats?: number;
   activeSeats?: number;
   members?: OrganizationMember[];
-  subscriptionFlags?: OrganizationSubscriptionFlags;
   status?: SubscriptionStatus;
 };
 
