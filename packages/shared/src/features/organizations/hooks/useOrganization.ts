@@ -79,8 +79,15 @@ export const useOrganization = (
   const { organization, role, referralToken, referralUrl, seatType } =
     data || {};
 
+  const seats = {
+    total: organization?.seats || 0,
+    assigned: organization?.activeSeats || 0,
+    available: (organization?.seats || 0) - (organization?.activeSeats || 0),
+  };
+
   return {
     organization,
+    seats,
     role,
     referralToken,
     referralUrl,

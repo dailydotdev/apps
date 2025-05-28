@@ -22,6 +22,7 @@ export type Organization = {
   name: string;
   image?: string;
   seats?: number;
+  activeSeats?: number;
   members?: OrganizationMember[];
 };
 

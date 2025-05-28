@@ -41,12 +41,8 @@ import { FollowButton } from '@dailydotdev/shared/src/components/contentPreferen
 import {
   AddUserIcon,
   DevPlusIcon,
-  InfoIcon,
-  PlusUserIcon,
-  SquadIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import {
   DEFAULT_ERROR,
@@ -68,6 +64,7 @@ import ContextMenu from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import OptionsButton from '@dailydotdev/shared/src/components/buttons/OptionsButton';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { SeatsOverview } from '@dailydotdev/shared/src/features/organizations/components/SeatsOverview';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -333,53 +330,7 @@ const Page = (): ReactElement => {
     >
       {!isRegularMember && (
         <>
-          <section className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <SquadIcon secondary />
-              <Typography type={TypographyType.Footnote}>
-                Total seats:
-              </Typography>
-              <Typography bold type={TypographyType.Footnote}>
-                {organization.seats}
-              </Typography>
-
-              <SimpleTooltip content="TODO: Update copy">
-                <div>
-                  <InfoIcon />
-                </div>
-              </SimpleTooltip>
-            </div>
-            <div className="flex items-center gap-2">
-              <PlusUserIcon />
-              <Typography type={TypographyType.Footnote}>
-                Assigned seats:
-              </Typography>
-              <Typography bold type={TypographyType.Footnote}>
-                {organization.seats}
-              </Typography>
-
-              <SimpleTooltip content="TODO: Implement assigned seats">
-                <div>
-                  <InfoIcon />
-                </div>
-              </SimpleTooltip>
-            </div>
-            <div className="flex items-center gap-2">
-              <DevPlusIcon secondary />
-              <Typography type={TypographyType.Footnote}>
-                Available seats:
-              </Typography>
-              <Typography bold type={TypographyType.Footnote}>
-                {organization.seats}
-              </Typography>
-
-              <SimpleTooltip content="TODO: Implement available seats">
-                <div>
-                  <InfoIcon />
-                </div>
-              </SimpleTooltip>
-            </div>
-          </section>
+          <SeatsOverview organizationId={organization.id} />
           <HorizontalSeparator />
         </>
       )}

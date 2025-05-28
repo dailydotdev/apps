@@ -20,6 +20,7 @@ export const ORGANIZATION_FRAGMENT = gql`
     name
     image
     seats
+    activeSeats
 
     members {
       ...OrganizationMemberFragment

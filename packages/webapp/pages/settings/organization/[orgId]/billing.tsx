@@ -33,7 +33,7 @@ const Page = (): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
 
-  const { organization, isFetching } = useOrganization(
+  const { organization, seats, isFetching } = useOrganization(
     router.query.orgId as string,
   );
   const { isAuthReady } = useAuthContext();
@@ -71,13 +71,13 @@ const Page = (): ReactElement => {
               color={TypographyColor.Primary}
               bold
             >
-              {organization.seats} seats
+              {seats.total} seats
             </Typography>{' '}
             <Typography
               tag={TypographyTag.Span}
               color={TypographyColor.Primary}
             >
-              (4 allocated)
+              ({seats.assigned} allocated)
             </Typography>
           </li>
           <li>

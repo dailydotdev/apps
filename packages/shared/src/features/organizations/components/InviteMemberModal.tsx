@@ -33,10 +33,7 @@ export const InviteMemberModal = ({
   const [isCopying, copyLink] = useCopyLink();
   const { openModal } = useLazyModal();
 
-  const { organization, referralUrl } = useOrganization(organizationId);
-
-  // Hardcoded for demo purposes @TODO: replace with actual logic in separate PR
-  const seatsAvailable = false;
+  const { organization, referralUrl, seats } = useOrganization(organizationId);
 
   const isMobile = useViewSize(ViewSize.MobileL);
 
@@ -48,12 +45,13 @@ export const InviteMemberModal = ({
         title={`Invite members to ${organization.name}`}
       />
       <Modal.Body className="flex gap-4 tablet:justify-center">
-        {seatsAvailable ? (
+        {seats.available ? (
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            You have {organization.seats} seats available
+            You have {seats.available} {seats.available > 1 ? 'seats' : 'seat'}{' '}
+            available
           </Typography>
         ) : (
           <>

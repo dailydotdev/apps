@@ -18,16 +18,10 @@ import {
 import { HorizontalSeparator } from '../../../components/utilities';
 import { Button } from '../../../components/buttons/Button';
 import { PlusAdjustQuantity } from '../../../components/plus/PlusAdjustQuantity';
-import {
-  DevPlusIcon,
-  InfoIcon,
-  PlusUserIcon,
-  SquadIcon,
-} from '../../../components/icons';
-import { SimpleTooltip } from '../../../components/tooltips';
 import { PlusPlanExtraLabel } from '../../../components/plus/PlusPlanExtraLabel';
 import { PricingCaptionColor } from '../../../graphql/paddle';
 import { IconSize } from '../../../components/Icon';
+import { SeatsOverview } from './SeatsOverview';
 
 type Props = ModalProps & {
   organizationId?: string;
@@ -115,51 +109,7 @@ export const ManageSeatsModal = ({
           Team overview
         </Typography>
 
-        <section className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <SquadIcon secondary />
-            <Typography type={TypographyType.Footnote}>Total seats:</Typography>
-            <Typography bold type={TypographyType.Footnote}>
-              {organization.seats}
-            </Typography>
-
-            <SimpleTooltip content="TODO: Update copy">
-              <div>
-                <InfoIcon />
-              </div>
-            </SimpleTooltip>
-          </div>
-          <div className="flex items-center gap-2">
-            <PlusUserIcon secondary />
-            <Typography type={TypographyType.Footnote}>
-              Assigned seats:
-            </Typography>
-            <Typography bold type={TypographyType.Footnote}>
-              {organization.seats}
-            </Typography>
-
-            <SimpleTooltip content="TODO: Implement assigned seats">
-              <div>
-                <InfoIcon />
-              </div>
-            </SimpleTooltip>
-          </div>
-          <div className="flex items-center gap-2">
-            <DevPlusIcon secondary />
-            <Typography type={TypographyType.Footnote}>
-              Available seats:
-            </Typography>
-            <Typography bold type={TypographyType.Footnote}>
-              {organization.seats}
-            </Typography>
-
-            <SimpleTooltip content="TODO: Implement available seats">
-              <div>
-                <InfoIcon />
-              </div>
-            </SimpleTooltip>
-          </div>
-        </section>
+        <SeatsOverview organizationId={organization.id} />
       </section>
 
       {isMobile && (
