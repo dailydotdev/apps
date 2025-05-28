@@ -131,7 +131,7 @@ const Page = (): ReactElement => {
 
       <section className="flex flex-col">
         <Typography bold type={TypographyType.Title3}>
-          Your organization
+          Your organizations
         </Typography>
 
         {organizations && organizations.length > 0 ? (
