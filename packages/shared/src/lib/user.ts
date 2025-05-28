@@ -7,7 +7,7 @@ import {
 import type { Company } from './userCompany';
 import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
-import type { SubscriptionProvider, UserSubscriptionStatus } from './plus';
+import type { SubscriptionProvider, SubscriptionStatus } from './plus';
 import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 
 export enum Roles {
@@ -127,7 +127,7 @@ export type UserFlagsPublic = Partial<{
 
 export type UserSubscriptionFlags = Partial<{
   provider: SubscriptionProvider;
-  status: UserSubscriptionStatus;
+  status: SubscriptionStatus;
 
   // StoreKit flags
   appAccountToken?: string; // StoreKit app account token (UUID)
