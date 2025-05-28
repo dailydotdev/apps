@@ -77,7 +77,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id = 'onboarding', version, stepId } = query;
+  const { id = 'organic-test', version, stepId } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
@@ -159,7 +159,7 @@ const useOnboardingAuth = () => {
   } = useOnboardingBoot();
 
   const [auth, setAuth] = useAtom(authAtom);
-  const { isAuthenticating, isLoginFlow, defaultDisplay } = auth;
+  const { isLoginFlow, defaultDisplay } = auth;
   const updateAuth = useCallback(
     (props: Partial<AuthProps>) => {
       setAuth((prev) => ({ ...prev, ...props }));
@@ -176,6 +176,23 @@ const useOnboardingAuth = () => {
     const hasLoginState =
       !!loginState?.formValues?.email || loginState?.isLogin;
     const wasLoggedInBefore = !!storage.getItem(SIGNIN_METHOD_KEY);
+    const isAuthenticating =
+      isRequiredAuth &&
+      (!!action || shouldVerify || wasLoggedInBefore || hasLoginState);
+
+    if (!isAuthReady || !isOnboardingActionsReady) {
+      return;
+    }
+
+    // If the user is logged in and has completed the onboarding steps, redirect them
+    if (hasCompletedContentTypes && hasCompletedEditTags && !isAuthenticating) {
+      const params = new URLSearchParams(window.location.search);
+      const afterAuth = params.get(AFTER_AUTH_PARAM);
+      params.delete(AFTER_AUTH_PARAM);
+      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+      return;
+    }
+
     updateAuth({
       defaultDisplay: getDefaultDisplay({ isLogin, shouldVerify, action }),
       email,
@@ -189,10 +206,14 @@ const useOnboardingAuth = () => {
     action,
     anonymous?.email,
     anonymous?.shouldVerify,
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
     isAuthReady,
     isLoggedIn,
+    isOnboardingActionsReady,
     loginState?.formValues?.email,
     loginState?.isLogin,
+    router,
     updateAuth,
   ]);
 
@@ -202,7 +223,7 @@ const useOnboardingAuth = () => {
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
-          isAuthenticating ? 'h-full' : 'max-w-full',
+          auth.isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
       },
@@ -223,7 +244,7 @@ const useOnboardingAuth = () => {
     [
       auth.email,
       defaultDisplay,
-      isAuthenticating,
+      auth.isAuthenticating,
       isLoginFlow,
       isMobile,
       loginState?.trigger,
@@ -231,36 +252,13 @@ const useOnboardingAuth = () => {
     ],
   );
 
-  // Redirect user to app if they have completed the onboarding steps
-  useEffect(() => {
-    if (
-      isAuthReady &&
-      isOnboardingActionsReady &&
-      hasCompletedContentTypes &&
-      hasCompletedEditTags &&
-      !auth.isAuthenticating
-    ) {
-      const params = new URLSearchParams(window.location.search);
-      const afterAuth = params.get(AFTER_AUTH_PARAM);
-      params.delete(AFTER_AUTH_PARAM);
-      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
-    }
-  }, [
-    auth.isAuthenticating,
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-    isAuthReady,
-    isOnboardingActionsReady,
-    router,
-  ]);
-
   return {
-    authOptionProps,
-    isAuthenticating,
     auth,
-    updateAuth,
-    isAuthReady,
+    authOptionProps,
     funnelState,
+    isAuthReady,
+    isAuthenticating: auth.isAuthenticating,
+    updateAuth,
   };
 };
 

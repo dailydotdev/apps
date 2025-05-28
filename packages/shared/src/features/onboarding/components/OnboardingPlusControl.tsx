@@ -65,7 +65,6 @@ export const OnboardingPlusControl = ({
       ),
     [productOptions],
   );
-  console.log({ productOptions });
 
   return (
     <section className="flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 tablet:px-10">

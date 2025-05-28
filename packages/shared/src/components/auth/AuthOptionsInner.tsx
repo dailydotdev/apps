@@ -262,7 +262,7 @@ function AuthOptionsInner({
     if (!isNativeAuthSupported(provider)) {
       windowPopup.current = window.open();
     }
-    setChosenProvider(provider);
+    await setChosenProvider(provider);
     await onSocialRegistration(provider);
     onAuthStateUpdate?.({ isLoading: true });
   };
@@ -339,6 +339,7 @@ function AuthOptionsInner({
       return onSuccessfulLogin?.();
     }
 
+    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
     return onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
 
@@ -362,7 +363,6 @@ function AuthOptionsInner({
       ...params,
       method: 'password',
     });
-    await setChosenProvider('password');
     await onProfileSuccess({ setSignBack: false });
   };
 

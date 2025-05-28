@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSetAtom } from 'jotai/react';
 import type { FunnelStepOrganicRegistration } from '../types/funnel';
@@ -58,6 +58,13 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
       AuthDisplay.OnboardingSignup,
     );
     const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
+    const isSocialSignupActive =
+      isAuthReady &&
+      isLoggedIn &&
+      'infoConfirmed' in user &&
+      !user.infoConfirmed &&
+      user?.providers?.some((prov) => prov !== 'password') &&
+      !isEmailSignupActive;
     const onAuthStateUpdate = useCallback(
       ({ defaultDisplay, isLoginFlow }: Partial<AuthProps>) => {
         if (defaultDisplay) {
@@ -96,7 +103,7 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
     );
 
     useEffect(() => {
-      if (isLoggedIn && isAuthReady) {
+      if (isLoggedIn && isAuthReady && !!user.infoConfirmed) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
           details: { user },
@@ -104,7 +111,7 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
       }
     }, [isAuthReady, isLoggedIn, onTransition, user]);
 
-    if (isLoggedIn || !isAuthReady) {
+    if (!isAuthReady || (isLoggedIn && user.infoConfirmed)) {
       return null;
     }
 
@@ -124,7 +131,7 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
               !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
-            {!isEmailSignupActive && (
+            {!isEmailSignupActive && !isSocialSignupActive && (
               <OnboardingHeadline
                 className={{
                   title: 'tablet:typo-mega-1 typo-large-title',
@@ -137,7 +144,11 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
             )}
             <AuthOptions
               {...staticAuthProps}
-              defaultDisplay={authDisplay}
+              defaultDisplay={
+                isSocialSignupActive
+                  ? AuthDisplay.SocialRegistration
+                  : authDisplay
+              }
               formRef={formRef}
               onboardingSignupButton={{
                 size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
