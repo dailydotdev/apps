@@ -7,7 +7,6 @@ import { OrganizationMemberRole } from '../types';
 import type { UpdateOrganizationInput, UserOrganization } from '../types';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { parseOrDefault } from '../../../lib/func';
 import { useToastNotification } from '../../../hooks';
 import type { LoggedUser } from '../../../lib/user';
 
@@ -69,12 +68,10 @@ export const useOrganization = (
       await queryClient.setQueryData(queryKey, () => res);
       displayToast('The organization has been updated');
     },
-    onError: (error: ApiErrorResult) => {
-      const result = parseOrDefault<Record<string, string>>(
-        error?.response?.errors?.[0]?.message,
-      );
+    onError: (_err: ApiErrorResult) => {
+      const error = _err?.response?.errors?.[0];
 
-      displayToast(typeof result === 'object' ? result.handle : DEFAULT_ERROR);
+      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
     },
   });
 

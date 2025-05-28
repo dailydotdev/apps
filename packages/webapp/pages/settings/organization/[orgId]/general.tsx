@@ -31,14 +31,32 @@ import type {
   UpdateOrganizationInput,
 } from '@dailydotdev/shared/src/features/organizations/types';
 import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
-import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultSeo } from '../../../../next-seo';
-import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  DEFAULT_ERROR,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { DELETE_ORGANIZATION_MUTATION } from '@dailydotdev/shared/src/features/organizations/graphql';
+import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
+import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { defaultSeo } from '../../../../next-seo';
+import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const Page = (): ReactElement => {
   const router = useRouter();
-  const [imageChanged, setImageChanged] = useState(false);
+  const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
+  const { showPrompt } = usePrompt();
   const {
     organization,
     isFetching,
@@ -46,6 +64,28 @@ const Page = (): ReactElement => {
     isUpdatingOrganization,
     seats,
   } = useOrganization(router.query.orgId as string);
+  const queryClient = useQueryClient();
+
+  const [imageChanged, setImageChanged] = useState(false);
+
+  const { mutateAsync: deleteOrganization, isPending: isDeletingOrganization } =
+    useMutation({
+      mutationFn: () =>
+        gqlClient.request(DELETE_ORGANIZATION_MUTATION, {
+          id: organization.id,
+        }),
+      onSuccess: async () => {
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Organizations, user),
+        });
+        router.replace(`${settingsUrl}/organization`);
+      },
+      onError: (_err: ApiErrorResult) => {
+        const error = _err?.response?.errors?.[0];
+
+        displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
+      },
+    });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,6 +111,23 @@ const Page = (): ReactElement => {
 
     setImageChanged(false);
     return null;
+  };
+
+  const onDeleteOrganization = async () => {
+    const options: PromptOptions = {
+      title: 'Delete organization',
+      description: 'Are you sure you want to delete this organization?',
+      okButton: {
+        title: 'Delete',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      try {
+        await deleteOrganization();
+        // eslint-disable-next-line no-empty
+      } catch {}
+    }
   };
 
   const disableDeletion =
@@ -178,9 +235,11 @@ const Page = (): ReactElement => {
 
         <Button
           disabled={disableDeletion}
+          loading={isDeletingOrganization}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Ketchup}
           className="self-start"
+          onClick={onDeleteOrganization}
         >
           Delete organization
         </Button>

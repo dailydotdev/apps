@@ -49,7 +49,6 @@ import {
   gqlClient,
 } from '@dailydotdev/shared/src/graphql/common';
 
-import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
@@ -259,14 +258,10 @@ const Page = (): ReactElement => {
         });
         replace(`${settingsUrl}/organization`);
       },
-      onError: (error: ApiErrorResult) => {
-        const result = parseOrDefault<Record<string, string>>(
-          error?.response?.errors?.[0]?.message,
-        );
+      onError: (_err: ApiErrorResult) => {
+        const error = _err?.response?.errors?.[0];
 
-        displayToast(
-          typeof result === 'object' ? result.handle : DEFAULT_ERROR,
-        );
+        displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
       },
     });
 

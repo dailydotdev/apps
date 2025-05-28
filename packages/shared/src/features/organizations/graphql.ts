@@ -179,3 +179,11 @@ export const PREVIEW_SUBSCRIPTION_UPDATE_QUERY = gql`
 
   ${PRICING_METADATA_FRAGMENT}
 `;
+
+export const DELETE_ORGANIZATION_MUTATION = gql`
+  mutation DeleteOrganization($id: ID!) {
+    deleteOrganization(id: $id) {
+      _
+    }
+  }
+`;
