@@ -54,6 +54,7 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   return FunnelBackgroundVariant.Default;
 };
 
+const hiddenBgSteps = [FunnelStepType.Checkout];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
@@ -80,6 +81,8 @@ export const FunnelStepBackground = ({
     );
   }, [step]);
 
+  const shouldShowBg = !hiddenBgSteps.some((type) => type === step.type);
+
   return (
     <div
       className={classNames(
@@ -88,14 +91,16 @@ export const FunnelStepBackground = ({
       )}
     >
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>
-      <div
-        aria-hidden
-        className={classNames(
-          bgClassName,
-          className,
-          'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
-        )}
-      />
+      {shouldShowBg && (
+        <div
+          aria-hidden
+          className={classNames(
+            bgClassName,
+            className,
+            'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
+          )}
+        />
+      )}
     </div>
   );
 };

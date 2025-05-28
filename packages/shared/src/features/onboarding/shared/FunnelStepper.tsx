@@ -173,7 +173,8 @@ export const FunnelStepper = ({
     const hasBanner = !!funnel?.parameters?.banner?.stepsToDisplay?.includes(
       step.id,
     );
-    const hasHeader = stepsWithHeader.includes(step.type);
+    const hasHeader =
+      step.parameters.shouldShowHeader || stepsWithHeader.includes(step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
     const isFullWidth = stepsFullWidth.includes(step.type);
 
@@ -188,6 +189,7 @@ export const FunnelStepper = ({
     showBanner,
     step.id,
     step.type,
+    step.parameters.shouldShowHeader,
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
