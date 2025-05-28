@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
@@ -38,115 +38,137 @@ const Page = (): ReactElement => {
 
   const { organization, seats, isFetching, isOwner } =
     useOrganization(organizationId);
-  const { data } = useOrganizationSubscription(organizationId);
+  const { data: origData } = useOrganizationSubscription(
+    organizationId,
+    seats.total,
+  );
   const { isAuthReady } = useAuthContext();
+
+  const [data, setData] = useState(origData);
 
   const pricing = data?.pricing[0];
 
-  if (isFetching || !isAuthReady || !data) {
+  useEffect(() => {
+    if (data) {
+      return;
+    }
+
+    setData(origData);
+  }, [origData, data]);
+
+  if (isFetching || !isAuthReady) {
     return null;
   }
 
   return (
-    <AccountPageContainer title="Billing" className={{ section: 'gap-6' }}>
-      <section>
-        <Typography bold type={TypographyType.Body} className="pb-4">
-          Plan details
-        </Typography>
-        <Typography
-          tag={TypographyTag.Ul}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="flex list-disc flex-col gap-1 pl-4"
-        >
-          <li>
-            Your organization is on{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-              bold
-            >
-              daily.dev for teams (
-              {pricing.duration === PlusPriceType.Yearly ? 'Annual' : 'Monthly'}
-              )
+    <AccountPageContainer
+      title="Billing"
+      className={{ container: 'min-h-[25rem]', section: 'flex-1 gap-6' }}
+    >
+      {data && (
+        <>
+          <section>
+            <Typography bold type={TypographyType.Body} className="pb-4">
+              Plan details
             </Typography>
-          </li>
-          <li>
-            You have{' '}
             <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-              bold
-            >
-              {seats.total} seats
-            </Typography>{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-            >
-              ({seats.assigned} allocated)
-            </Typography>
-          </li>
-          <li>
-            Your plan will renew on{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-              bold
-            >
-              {new Date(data.nextBilling).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </Typography>
-          </li>
-        </Typography>
-      </section>
-
-      <HorizontalSeparator />
-
-      <section>
-        <Typography bold type={TypographyType.Body} className="pb-4">
-          Plan summary
-        </Typography>
-
-        <div className="flex flex-col gap-0.5">
-          <div className="flex flex-row items-center justify-between">
-            <Typography type={TypographyType.Callout}>
-              daily.dev for teams
-            </Typography>
-            <Typography bold type={TypographyType.Body}>
-              {new Intl.NumberFormat(navigator.language, {
-                style: 'currency',
-                currency: pricing.currency.code,
-              }).format(data.total.amount)}
-            </Typography>
-          </div>
-
-          <div className="flex flex-row items-center justify-between">
-            <Typography
-              type={TypographyType.Caption1}
+              tag={TypographyTag.Ul}
+              type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
+              className="flex list-disc flex-col gap-1 pl-4"
             >
-              {seats.total} {seats.total === 1 ? 'user' : 'users'}{' '}
-              {pricing.duration === PlusPriceType.Yearly && 'x 12 months'}
+              <li>
+                Your organization is on{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  daily.dev for teams (
+                  {pricing.duration === PlusPriceType.Yearly
+                    ? 'Annual'
+                    : 'Monthly'}
+                  )
+                </Typography>
+              </li>
+              <li>
+                You have{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  {seats.total} seats
+                </Typography>{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                >
+                  ({seats.assigned} allocated)
+                </Typography>
+              </li>
+              <li>
+                Your plan will renew on{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  {new Date(data.nextBilling).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </Typography>
+              </li>
             </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {new Intl.NumberFormat(navigator.language, {
-                style: 'currency',
-                currency: pricing.currency.code,
-              }).format(pricing.price?.monthly?.amount)}
-              /seat
-            </Typography>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="flex flex-col gap-4 tablet:flex-row">
+          <HorizontalSeparator />
+
+          <section>
+            <Typography bold type={TypographyType.Body} className="pb-4">
+              Plan summary
+            </Typography>
+
+            <div className="flex flex-col gap-0.5">
+              <div className="flex flex-row items-center justify-between">
+                <Typography type={TypographyType.Callout}>
+                  daily.dev for teams
+                </Typography>
+                <Typography bold type={TypographyType.Body}>
+                  {new Intl.NumberFormat(navigator.language, {
+                    style: 'currency',
+                    currency: pricing.currency.code,
+                  }).format(data.total.amount)}
+                </Typography>
+              </div>
+
+              <div className="flex flex-row items-center justify-between">
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  {seats.total} {seats.total === 1 ? 'user' : 'users'}{' '}
+                  {pricing.duration === PlusPriceType.Yearly && 'x 12 months'}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {new Intl.NumberFormat(navigator.language, {
+                    style: 'currency',
+                    currency: pricing.currency.code,
+                  }).format(pricing.price?.monthly?.amount)}
+                  /seat
+                </Typography>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      <section className="mt-auto flex flex-col gap-4 tablet:flex-row">
         <Button
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
