@@ -147,7 +147,11 @@ const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
-  const { hasCompletedEditTags, hasCompletedContentTypes } = useOnboarding();
+  const {
+    isOnboardingActionsReady,
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+  } = useOnboarding();
   const router = useRouter();
   const action = isValidAction(router.query.action) && router.query.action;
   const {
@@ -230,9 +234,10 @@ const useOnboardingAuth = () => {
   // Redirect user to app if they have completed the onboarding steps
   useEffect(() => {
     if (
+      isAuthReady &&
+      isOnboardingActionsReady &&
       hasCompletedContentTypes &&
       hasCompletedEditTags &&
-      isAuthReady &&
       !auth.isAuthenticating
     ) {
       const params = new URLSearchParams(window.location.search);
@@ -241,10 +246,11 @@ const useOnboardingAuth = () => {
       router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
     }
   }, [
+    auth.isAuthenticating,
     hasCompletedContentTypes,
     hasCompletedEditTags,
     isAuthReady,
-    auth.isAuthenticating,
+    isOnboardingActionsReady,
     router,
   ]);
 
