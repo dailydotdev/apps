@@ -19,7 +19,12 @@ function FunnelEditTagsComponent({
   const { user, trackingId } = useAuthContext();
   const handleComplete = () => {
     completeAction(ActionType.EditTag);
-    onTransition({ type: FunnelStepTransitionType.Complete });
+    onTransition({
+      type: FunnelStepTransitionType.Complete,
+      details: {
+        tags: feedSettings?.includeTags ?? [],
+      },
+    });
   };
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isDisabled = tagsCount < minimumRequirement;

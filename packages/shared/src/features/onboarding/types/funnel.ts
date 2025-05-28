@@ -299,7 +299,9 @@ export interface FunnelStepEditTags
     minimumRequirement: number;
   }> {
   type: FunnelStepType.EditTags;
-  onTransition: FunnelStepTransitionCallback;
+  onTransition: FunnelStepTransitionCallback<{
+    tags: string[];
+  }>;
 }
 
 export interface FunnelStepContentTypes
