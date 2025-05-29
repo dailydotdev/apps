@@ -17,7 +17,11 @@ import {
   FooterLinks,
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
   AuthOptionsProps,
@@ -25,9 +29,9 @@ import type {
 } from '@dailydotdev/shared/src/components/auth/common';
 import {
   actionToAuthDisplay,
-  OnboardingActions,
   AFTER_AUTH_PARAM,
   AuthDisplay,
+  OnboardingActions,
 } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
@@ -55,6 +59,7 @@ import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding'
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -147,6 +152,7 @@ const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
+  const { isActionsFetched, checkHasCompleted } = useActions();
   const {
     isOnboardingActionsReady,
     hasCompletedEditTags,
@@ -185,7 +191,12 @@ const useOnboardingAuth = () => {
     }
 
     // If the user is logged in and has completed the onboarding steps, redirect them
-    if (hasCompletedContentTypes && hasCompletedEditTags && !isAuthenticating) {
+    const hasCompletedOnboarding =
+      isActionsFetched &&
+      hasCompletedContentTypes &&
+      hasCompletedEditTags &&
+      checkHasCompleted(ActionType.OnboardingComplete);
+    if (hasCompletedOnboarding && !isAuthenticating) {
       const params = new URLSearchParams(window.location.search);
       const afterAuth = params.get(AFTER_AUTH_PARAM);
       params.delete(AFTER_AUTH_PARAM);
@@ -268,6 +279,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
+  const { completeAction } = useActions();
 
   const onComplete = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -275,8 +287,9 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     params.delete(AFTER_AUTH_PARAM);
     params.delete('id');
     params.delete('stepId');
+    await completeAction(ActionType.OnboardingComplete);
     return router.replace(getPathnameWithQuery(afterAuth || '/', params));
-  }, [router]);
+  }, [completeAction, router]);
 
   if (!isAuthReady) {
     return null;
