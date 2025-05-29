@@ -21,7 +21,7 @@ export const BasePaymentProvider = ({
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: ProductPricingType.Plus,
-    enabled: !funnelPricing,
+    enabled: !funnelPricing?.length,
   });
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
