@@ -306,10 +306,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     );
   }
 
-  if (!isOnboardingActionsReady || !funnelState) {
-    return null;
-  }
-
   return (
     <div className="flex min-h-dvh min-w-full flex-col">
       <FunnelStepper
