@@ -7,14 +7,14 @@ export async function getFunnelBootData({
   id,
   version,
   forwardedHeaders,
-  featureKey = 'paid',
+  featureKey = 'funnel',
 }: {
   app: string;
   cookies: string;
   id?: string;
   version?: string;
   forwardedHeaders?: Record<string, string>;
-  featureKey?: 'paid' | 'onboarding';
+  featureKey?: 'funnel' | 'onboarding';
 }): Promise<FunnelBootResponse> {
   const params = new URLSearchParams();
   if (id) {
