@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import {
+  DELETE_ORGANIZATION_MUTATION,
   ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_MEMBER_MUTATION,
   TOGGLE_ORGANIZATION_MEMBER_SEAT_MUTATION,
@@ -15,6 +17,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
 import type { LoggedUser } from '../../../lib/user';
+import { settingsUrl } from '../../../lib/constants';
 
 export const generateOrganizationQueryKey = (
   user: LoggedUser,
@@ -90,10 +93,16 @@ export const updateMemberSeat = async ({
   return res.toggleOrganizationMemberSeat;
 };
 
+export const deleteOrganizationHandler = async (organizationId: string) =>
+  gqlClient.request(DELETE_ORGANIZATION_MUTATION, {
+    id: organizationId,
+  });
+
 export const useOrganization = (
   organizationId: string,
   queryOptions?: Partial<UseQueryOptions<UserOrganization>>,
 ) => {
+  const router = useRouter();
   const { displayToast } = useToastNotification();
   const { user, isAuthReady, refetchBoot } = useAuthContext();
   const enableQuery = !!organizationId && !!user && isAuthReady;
@@ -195,6 +204,18 @@ export const useOrganization = (
     onError,
   });
 
+  const { mutateAsync: deleteOrganization, isPending: isDeletingOrganization } =
+    useMutation({
+      mutationFn: () => deleteOrganizationHandler(organizationId),
+      onSuccess: async () => {
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Organizations, user),
+        });
+        router.replace(`${settingsUrl}/organization`);
+      },
+      onError,
+    });
+
   const { organization, role, referralToken, referralUrl, seatType } =
     data || {};
 
@@ -217,6 +238,9 @@ export const useOrganization = (
     updateOrganization,
     isUpdatingOrganization,
     isOwner,
+
+    deleteOrganization,
+    isDeletingOrganization,
 
     removeOrganizationMember,
     updateOrganizationMemberRole,
