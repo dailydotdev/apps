@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 
-export const OrganizationSiderbaHeader = ({
+export const OrganizationSidebarHeader = ({
   organization,
 }: {
   organization: Organization;

@@ -4,6 +4,7 @@ import React from 'react';
 import type { ModalProps } from '../../../components/modals/common/Modal';
 import { Modal } from '../../../components/modals/common/Modal';
 import {
+  LazyModal,
   ModalHeaderKind,
   ModalSize,
 } from '../../../components/modals/common/types';
@@ -17,8 +18,9 @@ import { TextField } from '../../../components/fields/TextField';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import { LinkIcon } from '../../../components/icons';
 import { useCopyLink } from '../../../hooks/useCopy';
-import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { HorizontalSeparator } from '../../../components/utilities';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 
 type Props = ModalProps & {
   organizationId?: string;
@@ -29,12 +31,9 @@ export const InviteMemberModal = ({
   ...props
 }: Props): ReactElement => {
   const [isCopying, copyLink] = useCopyLink();
-  const { displayToast } = useToastNotification();
+  const { openModal } = useLazyModal();
 
-  const { organization, referralUrl } = useOrganization(organizationId);
-
-  // Hardcoded for demo purposes @TODO: replace with actual logic in separate PR
-  const seatsAvailable = false;
+  const { organization, referralUrl, seats } = useOrganization(organizationId);
 
   const isMobile = useViewSize(ViewSize.MobileL);
 
@@ -46,12 +45,13 @@ export const InviteMemberModal = ({
         title={`Invite members to ${organization.name}`}
       />
       <Modal.Body className="flex gap-4 tablet:justify-center">
-        {seatsAvailable ? (
+        {seats.available ? (
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            You have {organization.seats} seats available
+            You have {seats.available} {seats.available > 1 ? 'seats' : 'seat'}{' '}
+            available
           </Typography>
         ) : (
           <>
@@ -69,7 +69,20 @@ export const InviteMemberModal = ({
               variant={ButtonVariant.Primary}
               className="self-start"
               onClick={() => {
-                displayToast('Ouch! This feature is not implemented yet.');
+                openModal({
+                  type: LazyModal.OrganizationManageSeats,
+                  props: {
+                    organizationId: organization.id,
+                    onAfterClose: () => {
+                      openModal({
+                        type: LazyModal.OrganizationInviteMember,
+                        props: {
+                          organizationId: organization.id,
+                        },
+                      });
+                    },
+                  },
+                });
               }}
             >
               Add more seats

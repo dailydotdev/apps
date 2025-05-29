@@ -188,6 +188,7 @@ export const PlusInfo = ({
 
       {isOrganization && (
         <PlusAdjustQuantity
+          label="Team size"
           className="mb-4"
           itemQuantity={itemQuantity}
           selectedOption={selectedOption}

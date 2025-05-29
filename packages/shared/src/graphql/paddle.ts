@@ -6,7 +6,7 @@ import type { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
 export type PaddleProductLineItem =
   PricePreviewResponse['data']['details']['lineItems'][0];
 
-interface Price {
+export interface Price {
   amount: number;
   formatted: string;
 }
@@ -25,7 +25,7 @@ export interface ProductPricingMetadata {
   coresValue?: number;
 }
 
-interface ProductPricing extends Price {
+export interface ProductPricing extends Price {
   monthly?: Price;
   daily?: Price;
 }
@@ -50,7 +50,7 @@ export enum PurchaseType {
   Cores = 'cores',
 }
 
-const PRICING_METADATA_FRAGMENT = gql`
+export const PRICING_METADATA_FRAGMENT = gql`
   fragment PricingMetadataFragment on ProductPricingMetadata {
     appsId
     title
@@ -145,7 +145,7 @@ export const fetchPricingPreviewByIds = async (
   locale = globalThis?.navigator?.language ?? 'en-US',
 ): Promise<BaseProductPricingPreview[]> => {
   const { pricingPreviewByIds } = await gqlClient.request<{
-    pricingPreviewByIds: ProductPricingPreview[];
+    pricingPreviewByIds: BaseProductPricingPreview[];
   }>(PRICING_PREVIEW_BY_IDS_QUERY, { ids, locale });
 
   return pricingPreviewByIds;

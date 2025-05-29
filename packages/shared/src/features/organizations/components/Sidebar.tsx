@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { OrganizationSiderbaHeader } from './SidebarHeader';
+import { OrganizationSidebarHeader } from './SidebarHeader';
 import type { ProfileSectionItemProps } from '../../../components/ProfileMenu/ProfileSectionItem';
 import {
   CreditCardIcon,
@@ -12,7 +12,13 @@ import { ProfileSection } from '../../../components/ProfileMenu/ProfileSection';
 import { getOrganizationSettingsUrl } from '../utils';
 import type { Organization } from '../types';
 import { HorizontalSeparator } from '../../../components/utilities';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../../../hooks';
+import {
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import { InnerProfileSettingsMenu } from '../../../components/profile/ProfileSettingsMenu';
 
 type MenuItems = Record<
   string,
@@ -55,42 +61,61 @@ export const OrganizationSidebar = ({
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  if (isMobile) {
-    return null;
-  }
-
   return (
-    <aside className="ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64">
-      <OrganizationSiderbaHeader organization={organization} />
+    <ConditionalWrapper
+      condition={!isMobile}
+      wrapper={(children) => (
+        <aside className="ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64">
+          {children}
+        </aside>
+      )}
+    >
+      <>
+        {!isMobile && <OrganizationSidebarHeader organization={organization} />}
 
-      <HorizontalSeparator />
+        <HorizontalSeparator />
 
-      <nav className="flex flex-col gap-2">
-        {Object.entries(menuItems).map(([key, menuItem], index, arr) => {
-          const lastItem = index === arr.length - 1;
+        <nav className="flex flex-col gap-2 p-4 tablet:p-0">
+          {Object.entries(menuItems).map(([key, menuItem], index, arr) => {
+            const lastItem = index === arr.length - 1;
 
-          return (
-            <ProfileSection
-              key={key}
-              withSeparator={!lastItem}
-              title={menuItem.title}
-              items={Object.entries(menuItem.items).map(
-                ([, item]: [string, ProfileSectionItemProps]) => {
-                  const href = getOrganizationSettingsUrl(
-                    organization.id,
-                    item.href,
-                  );
-                  return {
-                    ...item,
-                    isActive: asPath === href,
-                    href,
-                  };
-                },
-              )}
-            />
-          );
-        })}
-      </nav>
-    </aside>
+            return (
+              <ProfileSection
+                key={key}
+                withSeparator={!lastItem}
+                title={menuItem.title}
+                items={Object.entries(menuItem.items).map(
+                  ([, item]: [string, ProfileSectionItemProps]) => {
+                    const href = getOrganizationSettingsUrl(
+                      organization.id,
+                      item.href,
+                    );
+                    return {
+                      ...item,
+                      isActive: asPath === href,
+                      href,
+                      ...(isMobile && {
+                        typography: {
+                          type: TypographyType.Body,
+                          color: TypographyColor.Primary,
+                        },
+                      }),
+                    };
+                  },
+                )}
+              />
+            );
+          })}
+        </nav>
+
+        {isMobile && (
+          <>
+            <HorizontalSeparator />
+
+            <InnerProfileSettingsMenu className="p-4" />
+          </>
+        )}
+      </>
+    </ConditionalWrapper>
   );
 };

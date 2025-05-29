@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Dispatch, ReactElement, SetStateAction } from 'react';
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -18,6 +18,7 @@ type Props = {
   checkoutItemsLoading: boolean;
   setItemQuantity: Dispatch<SetStateAction<number>>;
   onChange?: (data: { priceId: string; quantity: number }) => void;
+  label?: ReactNode;
 } & WithClassNameProps;
 
 export const PlusAdjustQuantity = ({
@@ -27,17 +28,20 @@ export const PlusAdjustQuantity = ({
   checkoutItemsLoading,
   setItemQuantity,
   onChange,
+  label,
 }: Props): ReactElement => {
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-        bold
-      >
-        Team size
-      </Typography>
+      {label && (
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          {label}
+        </Typography>
+      )}
 
       <div className="flex gap-1">
         <TextField

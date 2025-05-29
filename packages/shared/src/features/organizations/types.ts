@@ -1,3 +1,4 @@
+import type { SubscriptionStatus } from '../../lib/plus';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
 
 export enum OrganizationMemberRole {
@@ -6,8 +7,14 @@ export enum OrganizationMemberRole {
   Member = 'member',
 }
 
+export enum OrganizationMemberSeatType {
+  Free = 'free',
+  Plus = 'plus',
+}
+
 export type OrganizationMember = {
   role: OrganizationMemberRole;
+  seatType: OrganizationMemberSeatType;
   user: PublicProfile | LoggedUser;
 };
 
@@ -16,11 +23,14 @@ export type Organization = {
   name: string;
   image?: string;
   seats?: number;
+  activeSeats?: number;
   members?: OrganizationMember[];
+  status?: SubscriptionStatus;
 };
 
 export type UserOrganization = {
   role: OrganizationMemberRole;
+  seatType: OrganizationMemberSeatType;
   referralToken?: string | null;
   referralUrl?: string | null;
   organization: Organization;

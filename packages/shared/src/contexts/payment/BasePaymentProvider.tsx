@@ -11,6 +11,7 @@ interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
   isPaddleReady?: boolean;
   checkoutItemsLoading?: boolean;
+  initialPriceType?: PurchaseType;
 }
 
 export const BasePaymentProvider = ({
@@ -18,8 +19,9 @@ export const BasePaymentProvider = ({
   openCheckout,
   isPaddleReady,
   checkoutItemsLoading,
+  initialPriceType = PurchaseType.Plus,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
-  const [priceType, setPriceType] = useState<PurchaseType>(PurchaseType.Plus);
+  const [priceType, setPriceType] = useState<PurchaseType>(initialPriceType);
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({

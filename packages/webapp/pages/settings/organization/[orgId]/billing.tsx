@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
@@ -22,7 +22,10 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { managePlusUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useOrganizationSubscription } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizationSubscription';
+import { PlusPriceType } from '@dailydotdev/shared/src/lib/featureValues';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -30,109 +33,153 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 
 const Page = (): ReactElement => {
   const router = useRouter();
-  const { displayToast } = useToastNotification();
+  const { openModal } = useLazyModal();
+  const organizationId = router.query.orgId as string;
 
-  const { organization, isFetching } = useOrganization(
-    router.query.orgId as string,
+  const { organization, seats, isFetching, isOwner } =
+    useOrganization(organizationId);
+  const { data: origData, nextBilling } = useOrganizationSubscription(
+    organizationId,
+    seats.total,
   );
   const { isAuthReady } = useAuthContext();
+
+  const [data, setData] = useState(origData);
+
+  const pricing = data?.pricing[0];
+
+  useEffect(() => {
+    if (data) {
+      return;
+    }
+
+    setData(origData);
+  }, [origData, data]);
 
   if (isFetching || !isAuthReady) {
     return null;
   }
 
   return (
-    <AccountPageContainer title="Billing" className={{ section: 'gap-6' }}>
-      <section>
-        <Typography bold type={TypographyType.Body} className="pb-4">
-          Plan details
-        </Typography>
-        <Typography
-          tag={TypographyTag.Ul}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="flex list-disc flex-col gap-1 pl-4"
-        >
-          <li>
-            Your organization is on{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-              bold
-            >
-              daily.dev for teams (Annual)
-            </Typography>
-          </li>
-          <li>
-            You have{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-              bold
-            >
-              {organization.seats} seats
-            </Typography>{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-            >
-              (4 allocated)
-            </Typography>
-          </li>
-          <li>
-            Your plan will renew on{' '}
-            <Typography
-              tag={TypographyTag.Span}
-              color={TypographyColor.Primary}
-              bold
-            >
-              April 13, 2025
-            </Typography>
-          </li>
-        </Typography>
-      </section>
-
-      <HorizontalSeparator />
-
-      <section>
-        <Typography bold type={TypographyType.Body} className="pb-4">
-          Plan summary
-        </Typography>
-
-        <div className="flex justify-between gap-6">
-          <div className="flex flex-col gap-1">
-            <Typography type={TypographyType.Body}>
-              daily.dev for teams
+    <AccountPageContainer
+      title="Billing"
+      className={{
+        container: 'min-h-[30rem] tablet:min-h-[25rem]',
+        section: 'flex-1 gap-6',
+      }}
+    >
+      {data && (
+        <>
+          <section>
+            <Typography bold type={TypographyType.Body} className="pb-4">
+              Plan details
             </Typography>
             <Typography
-              type={TypographyType.Footnote}
+              tag={TypographyTag.Ul}
+              type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
+              className="flex list-disc flex-col gap-1 pl-4"
             >
-              {organization.seats} users x 12 months
+              <li>
+                Your organization is on{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  daily.dev for teams (
+                  {pricing.duration === PlusPriceType.Yearly
+                    ? 'Annual'
+                    : 'Monthly'}
+                  )
+                </Typography>
+              </li>
+              <li>
+                You have{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  {seats.total} seats
+                </Typography>{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                >
+                  ({seats.assigned} allocated)
+                </Typography>
+              </li>
+              <li>
+                Your plan will renew on{' '}
+                <Typography
+                  tag={TypographyTag.Span}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  {nextBilling}
+                </Typography>
+              </li>
             </Typography>
-          </div>
+          </section>
 
-          <div className="flex flex-col gap-1">
-            <Typography bold type={TypographyType.Body}>
-              $1,500
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              $25/seat
-            </Typography>
-          </div>
-        </div>
-      </section>
+          <HorizontalSeparator />
 
-      <section className="flex flex-col gap-4 tablet:flex-row">
+          <section>
+            <Typography bold type={TypographyType.Body} className="pb-4">
+              Plan summary
+            </Typography>
+
+            <div className="flex flex-col gap-0.5">
+              <div className="flex flex-row items-center justify-between">
+                <Typography type={TypographyType.Callout}>
+                  daily.dev for teams
+                </Typography>
+                <Typography bold type={TypographyType.Body}>
+                  {new Intl.NumberFormat(navigator.language, {
+                    style: 'currency',
+                    currency: pricing.currency.code,
+                  }).format(data.total.amount)}
+                </Typography>
+              </div>
+
+              <div className="flex flex-row items-center justify-between">
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  {seats.total} {seats.total === 1 ? 'user' : 'users'}{' '}
+                  {pricing.duration === PlusPriceType.Yearly && 'x 12 months'}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {new Intl.NumberFormat(navigator.language, {
+                    style: 'currency',
+                    currency: pricing.currency.code,
+                  }).format(pricing.price?.monthly?.amount)}
+                  /seat
+                </Typography>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      <section className="mt-auto flex flex-col gap-4 tablet:flex-row">
         <Button
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           onClick={() => {
-            displayToast('Ouch! Managing seats is not supported yet');
+            openModal({
+              type: LazyModal.OrganizationManageSeats,
+              props: {
+                organizationId: organization.id,
+              },
+            });
           }}
+          disabled={!isOwner}
         >
           Manage seats
         </Button>
@@ -141,6 +188,7 @@ const Page = (): ReactElement => {
             size={ButtonSize.Small}
             variant={ButtonVariant.Secondary}
             tag="a"
+            disabled={!isOwner}
           >
             Manage subscription
           </Button>

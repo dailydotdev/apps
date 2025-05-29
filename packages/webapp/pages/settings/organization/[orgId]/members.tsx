@@ -22,15 +22,23 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import {
+  useToastNotification,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import type { OrganizationMember } from '@dailydotdev/shared/src/features/organizations/types';
+import {
+  OrganizationMemberRole,
+  OrganizationMemberSeatType,
+} from '@dailydotdev/shared/src/features/organizations/types';
 import { useContentPreferenceStatusQuery } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreferenceStatusQuery';
 import {
   ContentPreferenceStatus,
@@ -39,20 +47,17 @@ import {
 import { FollowButton } from '@dailydotdev/shared/src/components/contentPreference/FollowButton';
 import {
   AddUserIcon,
+  ClearIcon,
   DevPlusIcon,
-  InfoIcon,
-  PlusUserIcon,
-  SquadIcon,
+  StarIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import {
   DEFAULT_ERROR,
   gqlClient,
 } from '@dailydotdev/shared/src/graphql/common';
 
-import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
@@ -63,41 +68,90 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import type { MenuItemProps } from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import ContextMenu from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import OptionsButton from '@dailydotdev/shared/src/components/buttons/OptionsButton';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { SeatsOverview } from '@dailydotdev/shared/src/features/organizations/components/SeatsOverview';
+import type { ContextMenuDrawerItem } from '@dailydotdev/shared/src/components/drawers/ContextMenuDrawer';
+import classNames from 'classnames';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
-const OrganizationOptionsMenu = () => {
+const OrganizationOptionsMenu = ({
+  member,
+}: {
+  member: OrganizationMember;
+}) => {
+  const { user: currentUser } = useAuthContext();
   const contextMenuId = useId();
-  const { displayToast } = useToastNotification();
+  const router = useRouter();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
+  const {
+    removeOrganizationMember,
+    updateOrganizationMemberRole,
+    toggleOrganizationMemberSeat,
+  } = useOrganization(router.query.orgId as string);
+
+  const { user, role, seatType } = member || {};
+
+  const isCurrentUser = currentUser.id === user.id;
+
+  const options: Array<MenuItemProps | ContextMenuDrawerItem> = [];
+
+  if (
+    (user.isPlus && seatType === OrganizationMemberSeatType.Plus) ||
+    !user.isPlus
+  ) {
+    options.push({
+      label:
+        seatType === OrganizationMemberSeatType.Plus
+          ? 'Downgrade to Free'
+          : 'Upgrade to Plus',
+      icon: <DevPlusIcon aria-hidden />,
+      action: () => toggleOrganizationMemberSeat({ memberId: user.id }),
+    });
+  }
+
+  options.push({
+    label: 'View profile',
+    action: () => {
+      router.push(`${webappUrl}/${member.user.username}`);
+    },
+    icon: <UserIcon aria-hidden />,
+  });
+
+  if (!isCurrentUser && role !== OrganizationMemberRole.Owner) {
+    options.push({
+      label:
+        role === OrganizationMemberRole.Admin
+          ? 'Remove admin access'
+          : 'Promote to admin',
+      action: () =>
+        updateOrganizationMemberRole({
+          memberId: user.id,
+          role:
+            role === OrganizationMemberRole.Admin
+              ? OrganizationMemberRole.Member
+              : OrganizationMemberRole.Admin,
+        }),
+      icon: <StarIcon aria-hidden />,
+    });
+
+    options.push({
+      label: 'Remove from organization',
+      action: () => removeOrganizationMember({ memberId: user.id }),
+      icon: <ClearIcon aria-hidden />,
+    });
+  }
+
   return (
     <>
       <OptionsButton onClick={onMenuClick} />
-      <ContextMenu
-        options={[
-          {
-            label: 'Upgrade to Plus',
-            action: () => {
-              displayToast('click me');
-            },
-            icon: <DevPlusIcon aria-hidden />,
-          },
-          {
-            label: 'View profile',
-            action: () => {
-              displayToast('click me');
-            },
-            icon: <UserIcon aria-hidden />,
-          },
-        ]}
-        id={contextMenuId}
-        isOpen={isOpen}
-      />
+      <ContextMenu options={options} id={contextMenuId} isOpen={isOpen} />
     </>
   );
 };
@@ -106,13 +160,16 @@ const OrganizationMembersItem = ({
   isCurrentUser,
   user,
   role,
+  seatType,
   isRegularMember = false,
 }: {
   isCurrentUser: boolean;
   user: OrganizationMember['user'];
   role: OrganizationMember['role'];
+  seatType: OrganizationMember['seatType'];
   isRegularMember?: boolean;
 }) => {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const isPrivilegedMember = isPrivilegedOrganizationRole(role);
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
@@ -122,23 +179,31 @@ const OrganizationMembersItem = ({
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
 
+  /* TODO: fetch real value */
+  const lastActive = '1 hour ago';
+
   return (
     <tr>
       <td className="flex items-center gap-2" colSpan={isRegularMember ? 3 : 1}>
         <ProfilePicture
-          size={ProfileImageSize.Large}
+          size={isMobile ? ProfileImageSize.Medium : ProfileImageSize.Large}
           user={user}
           nativeLazyLoading
         />
 
-        <div className="flex flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex items-center gap-2">
-            <Typography bold type={TypographyType.Callout}>
+            <Typography
+              bold
+              truncate
+              type={TypographyType.Callout}
+              className="shrink"
+            >
               {isCurrentUser ? 'You' : user.name}
             </Typography>
 
             {isPrivilegedMember && (
-              <UserBadge role={role} className="mt-0.5">
+              <UserBadge role={role} className="mr-3 mt-0.5">
                 {getRoleName(role)}
               </UserBadge>
             )}
@@ -158,20 +223,32 @@ const OrganizationMembersItem = ({
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
+              className="flex items-center justify-end gap-0.5 tablet:justify-normal"
             >
-              Free
+              {seatType === OrganizationMemberSeatType.Plus ? (
+                <>
+                  <DevPlusIcon
+                    className={classNames(TypographyColor.Plus)}
+                    secondary
+                    size={IconSize.Size16}
+                  />
+                  <span>Plus</span>
+                </>
+              ) : (
+                <span className="pl-4">Free</span>
+              )}
             </Typography>
           </td>
-          <td>
+          <td className="hidden tablet:table-cell">
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              1 hour
+              {lastActive}
             </Typography>
           </td>
           <td>
-            <OrganizationOptionsMenu />
+            <OrganizationOptionsMenu member={{ user, role, seatType }} />
           </td>
         </>
       ) : (
@@ -203,12 +280,13 @@ export const OrganizationMembers = ({
 
   return (
     <tbody>
-      {members?.map(({ user, role }) => (
+      {members?.map(({ user, role, seatType }) => (
         <OrganizationMembersItem
           key={`organization-member-${user.id}`}
           isCurrentUser={user.id === currentUser.id}
           user={user}
           role={role}
+          seatType={seatType}
           isRegularMember={isRegularMember}
         />
       ))}
@@ -217,12 +295,13 @@ export const OrganizationMembers = ({
 };
 
 const Page = (): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { push, query, replace } = useRouter();
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
-  const { organization, role, isFetching } = useOrganization(
+  const { organization, role, seatType, isFetching, isOwner } = useOrganization(
     query.orgId as string,
   );
   const queryClient = useQueryClient();
@@ -240,14 +319,10 @@ const Page = (): ReactElement => {
         });
         replace(`${settingsUrl}/organization`);
       },
-      onError: (error: ApiErrorResult) => {
-        const result = parseOrDefault<Record<string, string>>(
-          error?.response?.errors?.[0]?.message,
-        );
+      onError: (_err: ApiErrorResult) => {
+        const error = _err?.response?.errors?.[0];
 
-        displayToast(
-          typeof result === 'object' ? result.handle : DEFAULT_ERROR,
-        );
+        displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
       },
     });
 
@@ -295,8 +370,14 @@ const Page = (): ReactElement => {
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               onClick={() => {
-                displayToast('Ouch! Managing seats is not supported yet');
+                openModal({
+                  type: LazyModal.OrganizationManageSeats,
+                  props: {
+                    organizationId: organization.id,
+                  },
+                });
               }}
+              disabled={!isOwner}
             >
               Manage seats
             </Button>
@@ -306,53 +387,7 @@ const Page = (): ReactElement => {
     >
       {!isRegularMember && (
         <>
-          <section className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <SquadIcon secondary />
-              <Typography type={TypographyType.Footnote}>
-                Total seats:
-              </Typography>
-              <Typography bold type={TypographyType.Footnote}>
-                {organization.seats}
-              </Typography>
-
-              <SimpleTooltip content="TODO: Update copy">
-                <div>
-                  <InfoIcon />
-                </div>
-              </SimpleTooltip>
-            </div>
-            <div className="flex items-center gap-2">
-              <PlusUserIcon />
-              <Typography type={TypographyType.Footnote}>
-                Assigned seats:
-              </Typography>
-              <Typography bold type={TypographyType.Footnote}>
-                {organization.seats}
-              </Typography>
-
-              <SimpleTooltip content="TODO: Implement assigned seats">
-                <div>
-                  <InfoIcon />
-                </div>
-              </SimpleTooltip>
-            </div>
-            <div className="flex items-center gap-2">
-              <DevPlusIcon secondary />
-              <Typography type={TypographyType.Footnote}>
-                Available seats:
-              </Typography>
-              <Typography bold type={TypographyType.Footnote}>
-                {organization.seats}
-              </Typography>
-
-              <SimpleTooltip content="TODO: Implement available seats">
-                <div>
-                  <InfoIcon />
-                </div>
-              </SimpleTooltip>
-            </div>
-          </section>
+          <SeatsOverview organizationId={organization.id} />
           <HorizontalSeparator />
         </>
       )}
@@ -382,7 +417,7 @@ const Page = (): ReactElement => {
           </div>
         )}
         <table className="border-separate border-spacing-y-4">
-          {!isRegularMember ? (
+          {!isRegularMember && !isMobile ? (
             <thead className="">
               <tr className="text-left">
                 <th>
@@ -401,7 +436,7 @@ const Page = (): ReactElement => {
                     Seat type
                   </Typography>
                 </th>
-                <th>
+                <th className="hidden tablet:table-cell">
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Quaternary}
@@ -414,7 +449,7 @@ const Page = (): ReactElement => {
             </thead>
           ) : null}
           <OrganizationMembers
-            members={[{ role, user }, ...organization.members]}
+            members={[{ role, user, seatType }, ...organization.members]}
             isRegularMember={isRegularMember}
           />
         </table>
