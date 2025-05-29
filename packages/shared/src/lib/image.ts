@@ -40,7 +40,7 @@ export const cloudinarySquadsImageFallback =
   'https://media.daily.dev/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj';
 
 export const cloudinaryOrganizationImageFallback =
-  'https://res.cloudinary.com/daily-now/image/upload/s--yc7EcfBs--/f_auto,q_auto/v1/public/organization_fallback';
+  'https://media.daily.dev/image/upload/s--yc7EcfBs--/f_auto,q_auto/v1/public/organization_fallback';
 
 export const cloudinarySquadsCreateSquadBiggerThanMobile =
   'https://media.daily.dev/image/upload/s--POqnH7nQ--/f_auto/v1722253758/Create_new_Squad_xe4jvz';
