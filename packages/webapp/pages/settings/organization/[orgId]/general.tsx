@@ -31,21 +31,29 @@ import type {
   UpdateOrganizationInput,
 } from '@dailydotdev/shared/src/features/organizations/types';
 import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
-import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultSeo } from '../../../../next-seo';
-import { getTemplatedTitle } from '../../../../components/layouts/utils';
+
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
+import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { defaultSeo } from '../../../../next-seo';
+import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const Page = (): ReactElement => {
   const router = useRouter();
-  const [imageChanged, setImageChanged] = useState(false);
+  const { showPrompt } = usePrompt();
   const {
     organization,
     isFetching,
-    onUpdateOrganization,
+    updateOrganization,
     isUpdatingOrganization,
     seats,
+    isOwner,
+    deleteOrganization,
+    isDeletingOrganization,
   } = useOrganization(router.query.orgId as string);
+
+  const [imageChanged, setImageChanged] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,7 +72,7 @@ const Page = (): ReactElement => {
       data.image = imageFile;
     }
 
-    await onUpdateOrganization({
+    await updateOrganization({
       id: organization.id,
       form: data,
     });
@@ -73,8 +81,27 @@ const Page = (): ReactElement => {
     return null;
   };
 
+  const onDeleteOrganization = async () => {
+    const options: PromptOptions = {
+      title: 'Delete organization',
+      description: 'Are you sure you want to delete this organization?',
+      okButton: {
+        title: 'Delete',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      try {
+        await deleteOrganization();
+        // eslint-disable-next-line no-empty
+      } catch {}
+    }
+  };
+
   const disableDeletion =
-    organization.status === SubscriptionStatus.Active && seats.assigned >= 0;
+    !isOwner ||
+    organization.status === SubscriptionStatus.Active ||
+    seats.assigned > 0;
 
   if (isFetching) {
     return null;
@@ -178,9 +205,11 @@ const Page = (): ReactElement => {
 
         <Button
           disabled={disableDeletion}
+          loading={isDeletingOrganization}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Ketchup}
           className="self-start"
+          onClick={onDeleteOrganization}
         >
           Delete organization
         </Button>
