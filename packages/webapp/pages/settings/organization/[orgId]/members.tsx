@@ -325,7 +325,7 @@ const Page = (): ReactElement => {
       }
       actions={
         <>
-          {isRegularMember && (
+          {!isOwner && (
             <Button
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
@@ -335,7 +335,7 @@ const Page = (): ReactElement => {
               Leave organization
             </Button>
           )}
-          {!isRegularMember && (
+          {isOwner && (
             <Button
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
@@ -347,7 +347,6 @@ const Page = (): ReactElement => {
                   },
                 });
               }}
-              disabled={!isOwner}
             >
               Manage seats
             </Button>
