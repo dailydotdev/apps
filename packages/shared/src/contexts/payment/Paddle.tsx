@@ -14,11 +14,13 @@ export type PaddleSubProviderProps = PaymentContextProviderProps<
 export const PaddleSubProvider = ({
   children,
   successCallback,
+  disabledEvents,
   initialPriceType,
-}: PaymentContextProviderProps): ReactElement => {
+}: PaddleSubProviderProps): ReactElement => {
   const { openCheckout, isPaddleReady, checkoutItemsLoading } =
     usePaddlePayment({
       successCallback,
+      disabledEvents,
       targetType: TargetType.Plus,
     });
 

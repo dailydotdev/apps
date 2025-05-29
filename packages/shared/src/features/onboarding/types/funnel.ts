@@ -38,6 +38,11 @@ export enum FunnelBackgroundVariant {
   CircleTop = 'circleTop',
   CircleBottom = 'circleBottom',
   Hourglass = 'hourglass',
+  Cheese = 'cheese',
+  BlueCheese = 'blueCheese',
+  Onion = 'onion',
+  Water = 'water',
+  Burger = 'burger',
 }
 
 export enum FunnelStepTransitionType {
@@ -110,10 +115,17 @@ export interface FunnelStepLoading
 export interface FunnelStepFactParameters {
   headline: string;
   cta?: string;
+  ctaNote?: string;
   reverse?: boolean;
+  badge?: {
+    placement?: 'bottom' | 'top';
+    cta?: string;
+    variant?: 'primary' | 'onion';
+  };
   explainer: string;
   align: StepHeadlineAlign;
   visualUrl?: string;
+  visualUrlLightMode?: string;
   layout?: 'default' | 'reversed' | 'centered';
 }
 
@@ -173,9 +185,15 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
+export enum FunnelPricingType {
+  Daily = 'daily',
+  Monthly = 'monthly',
+}
+
 export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
+  pricingType: FunnelPricingType;
   discount: {
     message: string;
     duration: number;
@@ -213,6 +231,7 @@ export interface FunnelStepPricing
 
 export interface FunnelStepCheckoutParameters {
   discountCode?: string;
+  shouldShowHeader?: boolean;
 }
 
 export interface FunnelStepCheckout
@@ -240,6 +259,7 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
 export interface FunnelStepSocialProof
   extends FunnelStepCommon<{
     imageUrl: string;
+    imageUrlLightMode?: string;
     rating: string;
     reviews: Review[];
     reviewSubtitle: string;

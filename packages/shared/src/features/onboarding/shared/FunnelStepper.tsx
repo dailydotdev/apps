@@ -33,7 +33,6 @@ import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
-import { useWindowScroll } from '../../common/hooks/useWindowScroll';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
@@ -43,6 +42,7 @@ import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
+import { useEventListener } from '../../../hooks';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -108,9 +108,7 @@ export const FunnelStepper = ({
     trackFunnelEvent,
   });
 
-  useWindowScroll({
-    onScroll: trackOnScroll,
-  });
+  useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
@@ -170,7 +168,8 @@ export const FunnelStepper = ({
     const hasBanner = !!funnel?.parameters?.banner?.stepsToDisplay?.includes(
       step.id,
     );
-    const hasHeader = stepsWithHeader.includes(step.type);
+    const hasHeader =
+      step.parameters.shouldShowHeader || stepsWithHeader.includes(step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
 
     return {
@@ -183,6 +182,7 @@ export const FunnelStepper = ({
     showBanner,
     step.id,
     step.type,
+    step.parameters.shouldShowHeader,
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 

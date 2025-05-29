@@ -11,14 +11,30 @@ import {
   ButtonVariant,
   ButtonIconPosition,
 } from '../../../../components/buttons/common';
-import { MoveToIcon } from '../../../../components/icons';
+import {
+  MoveToIcon,
+  ReputationLightningIcon,
+} from '../../../../components/icons';
 import { FunnelTargetId } from '../../types/funnelEvents';
+import { Badge } from '../../../../components/Badge';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
 export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
   const { parameters, transitions, onTransition } = props;
+  const { badge, headline, explainer, align, visualUrl, visualUrlLightMode } =
+    parameters;
+  const isLightMode = useIsLightTheme();
+  const image = isLightMode ? visualUrlLightMode : visualUrl;
   const skip = useMemo(
     () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
     [transitions],
+  );
+  const badgeComponent = !badge?.cta ? null : (
+    <Badge
+      label={badge.cta}
+      icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
+      variant={badge.variant}
+    />
   );
 
   return (
@@ -42,27 +58,30 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
             {skip?.cta ?? 'Skip'}
           </Button>
         )}
-        {parameters?.visualUrl && (
+        {image && (
           <>
             <Head>
-              <link rel="preload" as="image" href={parameters.visualUrl} />
+              <link rel="preload" as="image" href={image} />
             </Head>
             <LazyImage
               aria-hidden
               eager
-              imgSrc={parameters?.visualUrl}
+              imgSrc={image}
               className="max-h-[25rem] w-full flex-1"
               imgAlt="Supportive illustration for the information"
               fit="contain"
             />
           </>
         )}
-        <StepHeadline
-          className="!gap-6"
-          heading={parameters?.headline}
-          description={parameters?.explainer}
-          align={parameters?.align}
-        />
+        <div className="flex flex-col items-center gap-4">
+          {badge?.placement === 'top' && badgeComponent}
+          <StepHeadline
+            heading={headline}
+            description={explainer}
+            align={align}
+          />
+          {badge?.placement === 'bottom' && badgeComponent}
+        </div>
       </div>
     </FunnelFactWrapper>
   );

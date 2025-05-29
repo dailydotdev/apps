@@ -70,6 +70,7 @@ export enum Origin {
   AwardsList = 'awards list',
   // End Credits
   ProfileMenu = 'profile menu',
+  StreakRecover = 'streak recover',
 }
 
 export enum LogEvent {

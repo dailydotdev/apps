@@ -6,19 +6,35 @@ import { StepHeadline } from '../../shared';
 import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { LazyImage } from '../../../../components/LazyImage';
+import { Badge } from '../../../../components/Badge';
+import {
+  ReputationLightningIcon,
+  MoveToIcon,
+} from '../../../../components/icons';
 import { FunnelFactWrapper } from './FunnelFactWrapper';
 import { Button } from '../../../../components/buttons/Button';
 import {
   ButtonVariant,
   ButtonIconPosition,
 } from '../../../../components/buttons/common';
-import { MoveToIcon } from '../../../../components/icons';
 import { FunnelTargetId } from '../../types/funnelEvents';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
 export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
   const { parameters, transitions, onTransition } = props;
-  const isLayoutReversed =
-    parameters.layout === 'reversed' || parameters.reverse;
+  const {
+    badge,
+    headline,
+    explainer,
+    align,
+    reverse,
+    layout,
+    visualUrl,
+    visualUrlLightMode,
+  } = parameters;
+  const isLightMode = useIsLightTheme();
+  const image = isLightMode ? visualUrlLightMode : visualUrl;
+  const isLayoutReversed = layout === 'reversed' || reverse;
   const skip = useMemo(
     () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
     [transitions],
@@ -37,6 +53,14 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
     </Button>
   );
 
+  const badgeComponent = !badge?.cta ? null : (
+    <Badge
+      label={badge.cta}
+      icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
+      variant={badge.variant}
+    />
+  );
+
   return (
     <FunnelFactWrapper {...props}>
       <div
@@ -48,21 +72,25 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
             : 'flex-col justify-between',
         )}
       >
-        {skip?.placement === 'top' && !isLayoutReversed && skipButton}
-        <StepHeadline
-          heading={parameters?.headline}
-          description={parameters?.explainer}
-          align={parameters?.align}
-        />
-        {parameters?.visualUrl && (
+        <div className="flex flex-col items-center gap-4">
+          {badge?.placement === 'top' && badgeComponent}
+          {skip?.placement === 'top' && !isLayoutReversed && skipButton}
+          <StepHeadline
+            heading={headline}
+            description={explainer}
+            align={align}
+          />
+          {badge?.placement === 'bottom' && badgeComponent}
+        </div>
+        {image && (
           <>
             <Head>
-              <link rel="preload" as="image" href={parameters.visualUrl} />
+              <link rel="preload" as="image" href={image} />
             </Head>
             <LazyImage
               aria-hidden
               eager
-              imgSrc={parameters?.visualUrl}
+              imgSrc={image}
               className="h-auto w-full object-cover"
               ratio="64%"
               imgAlt="Supportive illustration for the information"
