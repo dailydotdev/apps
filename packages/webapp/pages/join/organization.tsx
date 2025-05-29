@@ -7,20 +7,10 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import {
-  DEFAULT_ERROR,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
-import {
-  GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY,
-  JOIN_ORGANIZATION_MUTATION,
-} from '@dailydotdev/shared/src/features/organizations/graphql';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY } from '@dailydotdev/shared/src/features/organizations/graphql';
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
-import type {
-  Organization,
-  UserOrganization,
-} from '@dailydotdev/shared/src/features/organizations/types';
+import type { Organization } from '@dailydotdev/shared/src/features/organizations/types';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
@@ -31,17 +21,11 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  generateOrganizationQueryKey,
-  useOrganization,
-} from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
+import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons';
@@ -58,49 +42,19 @@ const Page = ({
   user: Author | null;
 }): ReactElement => {
   const { push } = useRouter();
-  const { displayToast } = useToastNotification();
   const { showLogin, user, isAuthReady } = useAuthContext();
-  const { organization: currentOrganization, isFetching } = useOrganization(
-    organization.id,
-    {
-      retry: false,
-    },
-  );
-  const queryClient = useQueryClient();
-
-  const queryKey = generateOrganizationQueryKey(user, organization?.id);
-
-  const { mutateAsync: joinOrganization, isPending: isJoiningOrganization } =
-    useMutation({
-      mutationFn: async () => {
-        const res = await gqlClient.request<{
-          joinOrganization: UserOrganization;
-        }>(JOIN_ORGANIZATION_MUTATION, {
-          id: organization.id,
-          token,
-        });
-
-        return res.joinOrganization;
-      },
-      onSuccess: async (res) => {
-        await queryClient.setQueryData(queryKey, () => res);
-
-        push(getOrganizationSettingsUrl(organization.id, 'members'));
-      },
-      onError: (error: ApiErrorResult) => {
-        const result = parseOrDefault<Record<string, string>>(
-          error?.response?.errors?.[0]?.message,
-        );
-
-        displayToast(
-          typeof result === 'object' ? result.handle : DEFAULT_ERROR,
-        );
-      },
-    });
+  const {
+    organization: currentOrganization,
+    isFetching,
+    joinOrganization,
+    isJoiningOrganization,
+  } = useOrganization(organization.id, {
+    retry: false,
+  });
 
   const onJoinClick = () => {
     if (user) {
-      joinOrganization();
+      joinOrganization(token);
       return;
     }
 

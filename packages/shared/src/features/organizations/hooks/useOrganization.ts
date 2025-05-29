@@ -5,6 +5,7 @@ import type { ApiErrorResult } from '../../../graphql/common';
 import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import {
   DELETE_ORGANIZATION_MUTATION,
+  JOIN_ORGANIZATION_MUTATION,
   LEAVE_ORGANIZATION_MUTATION,
   ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_MEMBER_MUTATION,
@@ -19,6 +20,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
 import type { LoggedUser } from '../../../lib/user';
 import { settingsUrl } from '../../../lib/constants';
+import { getOrganizationSettingsUrl } from '../utils';
 
 export const generateOrganizationQueryKey = (
   user: LoggedUser,
@@ -104,6 +106,23 @@ export const leaveOrganizationHandler = async (organizationId: string) =>
     id: organizationId,
   });
 
+export const joinOrganizationHandler = async ({
+  token,
+  organizationId,
+}: {
+  token: string;
+  organizationId: string;
+}) => {
+  const res = await gqlClient.request<{
+    joinOrganization: UserOrganization;
+  }>(JOIN_ORGANIZATION_MUTATION, {
+    id: organizationId,
+    token,
+  });
+
+  return res.joinOrganization;
+};
+
 export const useOrganization = (
   organizationId: string,
   queryOptions?: Partial<UseQueryOptions<UserOrganization>>,
@@ -141,18 +160,25 @@ export const useOrganization = (
    * This function returns an async handler that updates the organization data,
    * displays a toast message, and optionally executes a callback after the update.
    *
-   * @param toastMessage - The message to display in the toast notification upon success.
-   * @param callback - An optional async callback to execute after updating the organization data.
+   * @param params          - An object containing:
+   * @param params.message  - The message to display in the toast notification upon success.
+   * @param params.callback - An optional async callback to execute after updating the organization data.
+   *
    * @returns An async function that takes the updated `UserOrganization` and any additional arguments,
    *          updates the organization data, displays the toast, and invokes the callback if provided.
    */
-  const onSuccess = (
-    toastMessage: string,
-    callback?: (...args: unknown[]) => Promise<void>,
-  ) => {
+  const onSuccess = ({
+    message,
+    callback,
+  }: {
+    message?: string;
+    callback?: (...args: unknown[]) => Promise<void>;
+  }) => {
     return async (res: UserOrganization, ...args: unknown[]) => {
       await updateOrganizationData(res);
-      displayToast(toastMessage);
+      if (message) {
+        displayToast(message);
+      }
       if (callback) {
         await callback(...args);
       }
@@ -173,14 +199,16 @@ export const useOrganization = (
     useMutation({
       mutationFn: ({ form }: { form: UpdateOrganizationInput }) =>
         updateOrganizationHandler({ id: organizationId, form }),
-      onSuccess: onSuccess('The organization has been updated'),
+      onSuccess: onSuccess({ message: 'The organization has been updated' }),
       onError,
     });
 
   const { mutate: removeOrganizationMember } = useMutation({
     mutationFn: ({ memberId }: { memberId: string }) =>
       removeMember({ id: organizationId, memberId }),
-    onSuccess: onSuccess('The organization member has been removed'),
+    onSuccess: onSuccess({
+      message: 'The organization member has been removed',
+    }),
     onError,
   });
 
@@ -192,21 +220,23 @@ export const useOrganization = (
       memberId: string;
       role: OrganizationMemberRole;
     }) => updateMemberRole({ id: organizationId, memberId, role }),
-    onSuccess: onSuccess('The organization member role has been updated'),
+    onSuccess: onSuccess({
+      message: 'The organization member role has been updated',
+    }),
     onError,
   });
 
   const { mutate: toggleOrganizationMemberSeat } = useMutation({
     mutationFn: ({ memberId }: { memberId: string }) =>
       updateMemberSeat({ id: organizationId, memberId }),
-    onSuccess: onSuccess(
-      'The organization member seat has been toggled',
-      async ({ memberId }) => {
+    onSuccess: onSuccess({
+      message: 'The organization member seat has been toggled',
+      callback: async ({ memberId }) => {
         if (memberId === user.id) {
           await refetchBoot();
         }
       },
-    ),
+    }),
     onError,
   });
 
@@ -232,6 +262,19 @@ export const useOrganization = (
         await refetchBoot();
         router.replace(`${settingsUrl}/organization`);
       },
+      onError,
+    });
+
+  const { mutateAsync: joinOrganization, isPending: isJoiningOrganization } =
+    useMutation({
+      mutationFn: (token: string) =>
+        joinOrganizationHandler({ token, organizationId }),
+      onSuccess: onSuccess({
+        callback: async () => {
+          router.push(getOrganizationSettingsUrl(organizationId, 'members'));
+          await refetchBoot();
+        },
+      }),
       onError,
     });
 
@@ -263,6 +306,9 @@ export const useOrganization = (
 
     leaveOrganization,
     isLeavingOrganization,
+
+    joinOrganization,
+    isJoiningOrganization,
 
     removeOrganizationMember,
     updateOrganizationMemberRole,
