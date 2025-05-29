@@ -180,28 +180,6 @@ export const PreviewChanges = ({
           </div>
         </div>
 
-        {/* TODO: see if we need this */}
-        {/* <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-col gap-0.5">
-            <Typography type={TypographyType.Callout}>Discount</Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Annual (-50%)
-            </Typography>
-          </div>
-
-          <div className="flex flex-col gap-0.5">
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.StatusSuccess}
-            >
-              -$120
-            </Typography>
-          </div>
-        </div> */}
-
         <HorizontalSeparator className="my-2" />
 
         <div className="flex flex-row items-center justify-between">
