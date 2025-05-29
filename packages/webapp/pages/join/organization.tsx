@@ -44,6 +44,8 @@ import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
+import { InfoIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Custom404Seo from '../404';
 
 const Page = ({
@@ -137,6 +139,10 @@ const Page = ({
     );
   }
 
+  const seats = {
+    available: (organization?.seats || 0) - (organization?.activeSeats || 0),
+  };
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center">
       <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
@@ -179,39 +185,54 @@ const Page = ({
           user management, all in one place.
         </Typography>
 
-        <div className="flex items-center gap-4 rounded-16 border border-brand-default p-4">
-          <Image
-            className="size-12 rounded-full object-cover"
-            src={organization.image}
-            alt={`Avatar of ${organization.name}`}
-            type={ImageType.Organization}
-          />
+        <div className="flex flex-col gap-4 rounded-16 border border-brand-default p-4">
+          <div className="flex items-center gap-4">
+            <Image
+              className="size-12 rounded-full object-cover"
+              src={organization.image}
+              alt={`Avatar of ${organization.name}`}
+              type={ImageType.Organization}
+            />
 
-          <div className="flex flex-col">
-            <Typography
-              bold
-              type={TypographyType.Title3}
-              color={TypographyColor.Primary}
+            <div className="flex flex-col">
+              <Typography
+                bold
+                type={TypographyType.Title3}
+                color={TypographyColor.Primary}
+              >
+                {organization.name}
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+              >
+                {seats.available} seats available
+              </Typography>
+            </div>
+
+            <Button
+              variant={ButtonVariant.Primary}
+              disabled={seats.available <= 0}
+              className="ml-auto"
+              onClick={onJoinClick}
+              loading={isJoiningOrganization}
             >
-              {organization.name}
-            </Typography>
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Tertiary}
-            >
-              {organization.seats} seats available
-            </Typography>
+              Join
+            </Button>
           </div>
 
-          <Button
-            variant={ButtonVariant.Primary}
-            disabled={organization.seats === 0}
-            className="ml-auto"
-            onClick={onJoinClick}
-            loading={isJoiningOrganization}
-          >
-            Join
-          </Button>
+          {seats.available <= 0 && (
+            <div className="flex items-center gap-2">
+              <InfoIcon
+                size={IconSize.XSmall}
+                className="relative top-[1px] !fill-status-help text-status-help"
+              />
+              <Typography type={TypographyType.Callout}>
+                No seats left. Ask your admin to add more seats to the
+                organization.
+              </Typography>
+            </div>
+          )}
         </div>
       </div>
     </main>

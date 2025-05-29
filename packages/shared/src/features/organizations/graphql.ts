@@ -79,6 +79,7 @@ export const GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY = gql`
         name
         image
         seats
+        activeSeats
       }
     }
   }
