@@ -13,7 +13,7 @@ import { ButtonSize } from '../../../../components/buttons/common';
 import { Button } from '../../../../components/buttons/Button';
 import { IconSize } from '../../../../components/Icon';
 import { Tab, TabContainer } from '../../../../components/tabs/TabContainer';
-import { ArrowIcon, LoaderIcon } from '../../../../components/icons';
+import { ArrowIcon } from '../../../../components/icons';
 import { PreviewChanges } from './PreviewChanges';
 import { CheckoutChanges } from './CheckoutChanges';
 import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription';
@@ -21,6 +21,7 @@ import {
   Typography,
   TypographyType,
 } from '../../../../components/typography/Typography';
+import { GenericLoaderSpinner } from '../../../../components/utilities/loaders';
 
 export enum Display {
   Loading = 'loading',
@@ -106,10 +107,7 @@ export const ManageSeatsModal = ({
       >
         <Tab label={Display.Loading}>
           <div className="flex h-full w-full items-center justify-center">
-            <LoaderIcon
-              size={IconSize.XXXLarge}
-              className="flex-shrink-0 animate-spin drop-shadow-[0_0_5px_var(--theme-shadow-cabbage)]"
-            />
+            <GenericLoaderSpinner size={IconSize.XXXLarge} />
           </div>
         </Tab>
         <Tab label={Display.NoAccess}>
