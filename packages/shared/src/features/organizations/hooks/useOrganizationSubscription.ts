@@ -115,6 +115,12 @@ export const useOrganizationSubscription = (
       },
     });
 
+  const nextBilling = new Date(data?.nextBilling).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return {
     data,
     isLoading,
@@ -122,5 +128,6 @@ export const useOrganizationSubscription = (
     isRefetching,
     updateSubscription,
     isUpdatingSubscription,
+    nextBilling,
   };
 };

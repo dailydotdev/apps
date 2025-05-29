@@ -23,6 +23,7 @@ import { PlusPriceType } from '../../../../lib/featureValues';
 import { SeatsOverview } from '../SeatsOverview';
 import type { PreviewOrganizationSubscriptionUpdate } from '../../hooks/useOrganizationSubscription';
 import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription';
+import { formatOrganizationSubscriptionPreviewCurrency as formatCurrency } from '../../../../lib/utils';
 
 type Props = {
   organizationId: string;
@@ -41,12 +42,13 @@ export const PreviewChanges = ({
 }: Props) => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { seats } = useOrganization(organizationId);
-  const { isLoading, isRefetching } = useOrganizationSubscription(
+  const { isLoading, isRefetching, nextBilling } = useOrganizationSubscription(
     organizationId,
     quantity,
   );
 
   const pricing = data?.pricing[0];
+  const currency = pricing.currency.code;
 
   const isQuantityLessThanSeats = quantity < seats.assigned;
 
@@ -149,10 +151,10 @@ export const PreviewChanges = ({
               daily.dev for teams
             </Typography>
             <Typography type={TypographyType.Body}>
-              {new Intl.NumberFormat(navigator.language, {
-                style: 'currency',
-                currency: pricing.currency.code,
-              }).format(data.total.amount)}
+              {formatCurrency({
+                amount: data.total.amount,
+                currency,
+              })}
             </Typography>
           </div>
 
@@ -168,10 +170,11 @@ export const PreviewChanges = ({
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {new Intl.NumberFormat(navigator.language, {
-                style: 'currency',
-                currency: pricing.currency.code,
-              }).format(pricing.price?.monthly?.amount)}
+              {formatCurrency({
+                amount: pricing.price?.monthly?.amount,
+                currency,
+              })}
+              {pricing.price?.monthly?.formatted}
               /seat
             </Typography>
           </div>
@@ -212,20 +215,15 @@ export const PreviewChanges = ({
               {pricing.duration === PlusPriceType.Yearly
                 ? 'annually'
                 : 'monthly'}{' '}
-              starting{' '}
-              {new Date(data.nextBilling).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              starting {nextBilling}
             </Typography>
           </div>
 
           <Typography bold type={TypographyType.Body}>
-            {new Intl.NumberFormat(navigator.language, {
-              style: 'currency',
-              currency: pricing.currency.code,
-            }).format(data.total.amount)}
+            {formatCurrency({
+              amount: data.total.amount,
+              currency,
+            })}
           </Typography>
         </div>
 

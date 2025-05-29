@@ -38,7 +38,7 @@ const Page = (): ReactElement => {
 
   const { organization, seats, isFetching, isOwner } =
     useOrganization(organizationId);
-  const { data: origData } = useOrganizationSubscription(
+  const { data: origData, nextBilling } = useOrganizationSubscription(
     organizationId,
     seats.total,
   );
@@ -117,11 +117,7 @@ const Page = (): ReactElement => {
                   color={TypographyColor.Primary}
                   bold
                 >
-                  {new Date(data.nextBilling).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {nextBilling}
                 </Typography>
               </li>
             </Typography>

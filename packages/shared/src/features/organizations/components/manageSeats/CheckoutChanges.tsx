@@ -14,6 +14,7 @@ import { useOrganization } from '../../hooks/useOrganization';
 import { Modal } from '../../../../components/modals/common/Modal';
 import type { PreviewOrganizationSubscriptionUpdate } from '../../hooks/useOrganizationSubscription';
 import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription';
+import { formatOrganizationSubscriptionPreviewCurrency as formatCurrency } from '../../../../lib/utils';
 
 type Props = {
   organizationId: string;
@@ -30,12 +31,13 @@ export const CheckoutChanges = ({
 }: Props): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { seats } = useOrganization(organizationId);
-  const { updateSubscription, isUpdatingSubscription } =
+  const { updateSubscription, isUpdatingSubscription, nextBilling } =
     useOrganizationSubscription(organizationId);
 
   const difference = quantity - seats.total;
 
   const pricing = data.pricing[0];
+  const currency = pricing.currency.code;
 
   const checkoutButtons = (
     <div className="mt-auto flex flex-col gap-3 tablet:ml-auto tablet:flex-row-reverse">
@@ -82,10 +84,10 @@ export const CheckoutChanges = ({
           </div>
 
           <Typography bold type={TypographyType.Body}>
-            {new Intl.NumberFormat(navigator.language, {
-              style: 'currency',
-              currency: pricing.currency.code,
-            }).format(data.prorated.total.amount)}
+            {formatCurrency({
+              amount: data.prorated.total.amount,
+              currency,
+            })}
           </Typography>
         </div>
 
@@ -94,11 +96,7 @@ export const CheckoutChanges = ({
           type={TypographyType.Callout}
         >
           You will be charged for {quantity} total seats at your next renewal on{' '}
-          {new Date(data.nextBilling).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
+          {nextBilling}
         </Typography>
 
         <div className="flex flex-row items-center justify-between">
@@ -110,10 +108,10 @@ export const CheckoutChanges = ({
           </Typography>
 
           <Typography type={TypographyType.Body}>
-            {new Intl.NumberFormat(navigator.language, {
-              style: 'currency',
-              currency: pricing.currency.code,
-            }).format(data.prorated.subTotal.amount)}
+            {formatCurrency({
+              amount: data.prorated.subTotal.amount,
+              currency,
+            })}
           </Typography>
         </div>
 
@@ -126,10 +124,10 @@ export const CheckoutChanges = ({
           </Typography>
 
           <Typography type={TypographyType.Body}>
-            {new Intl.NumberFormat(navigator.language, {
-              style: 'currency',
-              currency: pricing.currency.code,
-            }).format(data.prorated.tax.amount)}
+            {formatCurrency({
+              amount: data.prorated.tax.amount,
+              currency,
+            })}
           </Typography>
         </div>
 
@@ -143,10 +141,10 @@ export const CheckoutChanges = ({
           <span>Total due today</span>
 
           <span>
-            {new Intl.NumberFormat(navigator.language, {
-              style: 'currency',
-              currency: pricing.currency.code,
-            }).format(data.prorated.total.amount)}
+            {formatCurrency({
+              amount: data.prorated.total.amount,
+              currency,
+            })}
           </span>
         </Typography>
 
