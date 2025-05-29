@@ -401,4 +401,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicRegistration,
   FunnelStepType.EditTags,
   FunnelStepType.ContentTypes,
+  FunnelStepType.PlusCards,
 ];
