@@ -11,6 +11,7 @@ export const ORGANIZATION_MEMBER_FRAGMENT = gql`
       name
       username
       image
+      isPlus
     }
   }
 `;
@@ -78,6 +79,7 @@ export const GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY = gql`
         name
         image
         seats
+        activeSeats
       }
     }
   }
@@ -186,4 +188,50 @@ export const DELETE_ORGANIZATION_MUTATION = gql`
       _
     }
   }
+`;
+
+export const REMOVE_ORGANIZATION_MEMBER_MUTATION = gql`
+  mutation RemoveOrganizationMember($id: ID!, $memberId: String!) {
+    removeOrganizationMember(id: $id, memberId: $memberId) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
+`;
+
+export const UPDATE_ORGANIZATION_MEMBER_ROLE_MUTATION = gql`
+  mutation UpdateOrganizationMemberRole(
+    $id: ID!
+    $memberId: String!
+    $role: OrganizationMemberRole!
+  ) {
+    updateOrganizationMemberRole(id: $id, memberId: $memberId, role: $role) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
+`;
+
+export const TOGGLE_ORGANIZATION_MEMBER_SEAT_MUTATION = gql`
+  mutation ToggleOrganizationMemberSeat($id: ID!, $memberId: String!) {
+    toggleOrganizationMemberSeat(id: $id, memberId: $memberId) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
 `;

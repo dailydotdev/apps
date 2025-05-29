@@ -192,6 +192,7 @@ const Page = (): ReactElement => {
             size={ButtonSize.Small}
             variant={ButtonVariant.Secondary}
             tag="a"
+            disabled={!isOwner}
           >
             Manage subscription
           </Button>

@@ -31,20 +31,7 @@ import type {
   UpdateOrganizationInput,
 } from '@dailydotdev/shared/src/features/organizations/types';
 import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import {
-  DEFAULT_ERROR,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { DELETE_ORGANIZATION_MUTATION } from '@dailydotdev/shared/src/features/organizations/graphql';
-import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
@@ -54,38 +41,19 @@ import { AccountPageContainer } from '../../../../components/layouts/SettingsLay
 
 const Page = (): ReactElement => {
   const router = useRouter();
-  const { user } = useAuthContext();
-  const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const {
     organization,
     isFetching,
-    onUpdateOrganization,
+    updateOrganization,
     isUpdatingOrganization,
     seats,
+    isOwner,
+    deleteOrganization,
+    isDeletingOrganization,
   } = useOrganization(router.query.orgId as string);
-  const queryClient = useQueryClient();
 
   const [imageChanged, setImageChanged] = useState(false);
-
-  const { mutateAsync: deleteOrganization, isPending: isDeletingOrganization } =
-    useMutation({
-      mutationFn: () =>
-        gqlClient.request(DELETE_ORGANIZATION_MUTATION, {
-          id: organization.id,
-        }),
-      onSuccess: async () => {
-        queryClient.invalidateQueries({
-          queryKey: generateQueryKey(RequestKey.Organizations, user),
-        });
-        router.replace(`${settingsUrl}/organization`);
-      },
-      onError: (_err: ApiErrorResult) => {
-        const error = _err?.response?.errors?.[0];
-
-        displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
-      },
-    });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -104,7 +72,7 @@ const Page = (): ReactElement => {
       data.image = imageFile;
     }
 
-    await onUpdateOrganization({
+    await updateOrganization({
       id: organization.id,
       form: data,
     });
@@ -131,7 +99,9 @@ const Page = (): ReactElement => {
   };
 
   const disableDeletion =
-    organization.status === SubscriptionStatus.Active && seats.assigned >= 0;
+    !isOwner ||
+    organization.status === SubscriptionStatus.Active ||
+    seats.assigned > 0;
 
   if (isFetching) {
     return null;
