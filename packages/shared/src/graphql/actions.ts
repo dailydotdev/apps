@@ -41,7 +41,6 @@ export enum ActionType {
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
   SmartPrompt = 'smart_prompt',
   CheckedCoresRole = 'checked_cores_role',
-  OnboardingComplete = 'onboarding_complete',
 }
 
 export interface Action {

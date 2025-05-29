@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -17,11 +17,7 @@ import {
   FooterLinks,
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
-import {
-  useActions,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
   AuthOptionsProps,
@@ -29,9 +25,9 @@ import type {
 } from '@dailydotdev/shared/src/components/auth/common';
 import {
   actionToAuthDisplay,
+  OnboardingActions,
   AFTER_AUTH_PARAM,
   AuthDisplay,
-  OnboardingActions,
 } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
@@ -57,10 +53,8 @@ import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -152,12 +146,6 @@ const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
-  const { isActionsFetched, checkHasCompleted } = useActions();
-  const {
-    isOnboardingActionsReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-  } = useOnboarding();
   const router = useRouter();
   const action = isValidAction(router.query.action) && router.query.action;
   const {
@@ -182,27 +170,8 @@ const useOnboardingAuth = () => {
     const hasLoginState =
       !!loginState?.formValues?.email || loginState?.isLogin;
     const wasLoggedInBefore = !!storage.getItem(SIGNIN_METHOD_KEY);
-    const isAuthenticating =
-      isRequiredAuth &&
-      (!!action || shouldVerify || wasLoggedInBefore || hasLoginState);
 
-    if (!isAuthReady || !isOnboardingActionsReady) {
-      return;
-    }
-
-    // If the user is logged in and has completed the onboarding steps, redirect them
-    const hasCompletedOnboarding =
-      isActionsFetched &&
-      hasCompletedContentTypes &&
-      hasCompletedEditTags &&
-      checkHasCompleted(ActionType.OnboardingComplete);
-    if (hasCompletedOnboarding && !isAuthenticating) {
-      const params = new URLSearchParams(window.location.search);
-      const afterAuth = params.get(AFTER_AUTH_PARAM);
-      params.delete(AFTER_AUTH_PARAM);
-      params.delete('id');
-      params.delete('stepId');
-      router.replace(getPathnameWithQuery(afterAuth || webappUrl, params));
+    if (!isAuthReady) {
       return;
     }
 
@@ -219,14 +188,10 @@ const useOnboardingAuth = () => {
     action,
     anonymous?.email,
     anonymous?.shouldVerify,
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
     isAuthReady,
     isLoggedIn,
-    isOnboardingActionsReady,
     loginState?.formValues?.email,
     loginState?.isLogin,
-    router,
     updateAuth,
   ]);
 
@@ -279,19 +244,49 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
-  const { completeAction } = useActions();
+  const {
+    isOnboardingActionsReady,
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+  } = useOnboarding();
 
-  const onComplete = useCallback(async () => {
+  const redirectToApp = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
     const afterAuth = params.get(AFTER_AUTH_PARAM);
     params.delete(AFTER_AUTH_PARAM);
     params.delete('id');
     params.delete('stepId');
-    await completeAction(ActionType.OnboardingComplete);
     return router.replace(getPathnameWithQuery(afterAuth || '/', params));
-  }, [completeAction, router]);
+  }, [router]);
 
-  if (!isAuthReady) {
+  const onComplete = useCallback(async () => {
+    return redirectToApp();
+  }, [redirectToApp]);
+
+  useEffect(() => {
+    const {
+      query: { action, stepId },
+    } = router;
+
+    if (action || isAuthenticating || !isAuthReady) {
+      return;
+    }
+
+    // If the user is logged in and has completed the onboarding steps,
+    // AND no active stepId is there, redirect them to app.
+    if (hasCompletedContentTypes && hasCompletedEditTags && !stepId) {
+      redirectToApp();
+    }
+  }, [
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+    isAuthReady,
+    isAuthenticating,
+    redirectToApp,
+    router,
+  ]);
+
+  if (!isAuthReady || !isOnboardingActionsReady || !funnelState) {
     return null;
   }
 
