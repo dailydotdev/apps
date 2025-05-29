@@ -5,6 +5,7 @@ import type { ApiErrorResult } from '../../../graphql/common';
 import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import {
   DELETE_ORGANIZATION_MUTATION,
+  LEAVE_ORGANIZATION_MUTATION,
   ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_MEMBER_MUTATION,
   TOGGLE_ORGANIZATION_MEMBER_SEAT_MUTATION,
@@ -95,6 +96,11 @@ export const updateMemberSeat = async ({
 
 export const deleteOrganizationHandler = async (organizationId: string) =>
   gqlClient.request(DELETE_ORGANIZATION_MUTATION, {
+    id: organizationId,
+  });
+
+export const leaveOrganizationHandler = async (organizationId: string) =>
+  gqlClient.request(LEAVE_ORGANIZATION_MUTATION, {
     id: organizationId,
   });
 
@@ -216,6 +222,19 @@ export const useOrganization = (
       onError,
     });
 
+  const { mutateAsync: leaveOrganization, isPending: isLeavingOrganization } =
+    useMutation({
+      mutationFn: () => leaveOrganizationHandler(organizationId),
+      onSuccess: async () => {
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Organizations, user),
+        });
+        await refetchBoot();
+        router.replace(`${settingsUrl}/organization`);
+      },
+      onError,
+    });
+
   const { organization, role, referralToken, referralUrl, seatType } =
     data || {};
 
@@ -241,6 +260,9 @@ export const useOrganization = (
 
     deleteOrganization,
     isDeletingOrganization,
+
+    leaveOrganization,
+    isLeavingOrganization,
 
     removeOrganizationMember,
     updateOrganizationMemberRole,

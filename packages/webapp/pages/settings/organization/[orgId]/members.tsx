@@ -28,11 +28,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  useToastNotification,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import type { OrganizationMember } from '@dailydotdev/shared/src/features/organizations/types';
 import {
@@ -52,22 +48,12 @@ import {
   StarIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import {
-  DEFAULT_ERROR,
-  gqlClient,
-} from '@dailydotdev/shared/src/graphql/common';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { LEAVE_ORGANIZATION_MUTATION } from '@dailydotdev/shared/src/features/organizations/graphql';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import ContextMenu from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import OptionsButton from '@dailydotdev/shared/src/components/buttons/OptionsButton';
@@ -296,35 +282,19 @@ export const OrganizationMembers = ({
 
 const Page = (): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { push, query, replace } = useRouter();
+  const { push, query } = useRouter();
   const { openModal } = useLazyModal();
-  const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
-  const { organization, role, seatType, isFetching, isOwner } = useOrganization(
-    query.orgId as string,
-  );
-  const queryClient = useQueryClient();
-
-  const { mutateAsync: leaveOrganization, isPending: isLeavingOrganization } =
-    useMutation({
-      mutationFn: async () => {
-        await gqlClient.request(LEAVE_ORGANIZATION_MUTATION, {
-          id: organization.id,
-        });
-      },
-      onSuccess: async () => {
-        queryClient.invalidateQueries({
-          queryKey: generateQueryKey(RequestKey.Organizations, user),
-        });
-        replace(`${settingsUrl}/organization`);
-      },
-      onError: (_err: ApiErrorResult) => {
-        const error = _err?.response?.errors?.[0];
-
-        displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
-      },
-    });
+  const {
+    organization,
+    role,
+    seatType,
+    isFetching,
+    isOwner,
+    leaveOrganization,
+    isLeavingOrganization,
+  } = useOrganization(query.orgId as string);
 
   const onLeaveClick = async () => {
     const options: PromptOptions = {
