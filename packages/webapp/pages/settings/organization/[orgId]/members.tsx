@@ -91,32 +91,39 @@ const OrganizationOptionsMenu = ({
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
-  const { removeOrganizationMember, updateOrganizationMemberRole } =
-    useOrganization(router.query.orgId as string);
+  const {
+    removeOrganizationMember,
+    updateOrganizationMemberRole,
+    toggleOrganizationMemberSeat,
+  } = useOrganization(router.query.orgId as string);
 
   const { user, role, seatType } = member || {};
 
   const isCurrentUser = currentUser.id === user.id;
 
-  const options: Array<MenuItemProps | ContextMenuDrawerItem> = [
-    {
+  const options: Array<MenuItemProps | ContextMenuDrawerItem> = [];
+
+  if (
+    (user.isPlus && seatType === OrganizationMemberSeatType.Plus) ||
+    !user.isPlus
+  ) {
+    options.push({
       label:
         seatType === OrganizationMemberSeatType.Plus
           ? 'Downgrade to Free'
           : 'Upgrade to Plus',
       icon: <DevPlusIcon aria-hidden />,
-      action: () => {
-        displayToast('click me');
-      },
+      action: () => toggleOrganizationMemberSeat(user.id),
+    });
+  }
+
+  options.push({
+    label: 'View profile',
+    action: () => {
+      router.push(`${webappUrl}/${member.user.username}`);
     },
-    {
-      label: 'View profile',
-      action: () => {
-        router.push(`${webappUrl}/${member.user.username}`);
-      },
-      icon: <UserIcon aria-hidden />,
-    },
-  ];
+    icon: <UserIcon aria-hidden />,
+  });
 
   if (!isCurrentUser && role !== OrganizationMemberRole.Owner) {
     options.push({

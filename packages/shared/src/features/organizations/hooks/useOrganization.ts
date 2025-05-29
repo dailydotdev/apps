@@ -5,6 +5,7 @@ import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import {
   ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_MEMBER_MUTATION,
+  TOGGLE_ORGANIZATION_MEMBER_SEAT_MUTATION,
   UPDATE_ORGANIZATION_MEMBER_ROLE_MUTATION,
   UPDATE_ORGANIZATION_MUTATION,
 } from '../graphql';
@@ -72,12 +73,29 @@ export const updateMemberRole = async ({
   return res.updateOrganizationMemberRole;
 };
 
+export const updateMemberSeat = async ({
+  id,
+  memberId,
+}: {
+  id: string;
+  memberId: string;
+}): Promise<UserOrganization> => {
+  const res = await gqlClient.request<{
+    toggleOrganizationMemberSeat: UserOrganization;
+  }>(TOGGLE_ORGANIZATION_MEMBER_SEAT_MUTATION, {
+    id,
+    memberId,
+  });
+
+  return res.toggleOrganizationMemberSeat;
+};
+
 export const useOrganization = (
   organizationId: string,
   queryOptions?: Partial<UseQueryOptions<UserOrganization>>,
 ) => {
   const { displayToast } = useToastNotification();
-  const { user, isAuthReady } = useAuthContext();
+  const { user, isAuthReady, refetchBoot } = useAuthContext();
   const enableQuery = !!organizationId && !!user && isAuthReady;
   const queryKey = generateOrganizationQueryKey(user, organizationId);
   const queryClient = useQueryClient();
@@ -151,6 +169,23 @@ export const useOrganization = (
     },
   });
 
+  const { mutate: toggleOrganizationMemberSeat } = useMutation({
+    mutationFn: (memberId: string) =>
+      updateMemberSeat({ id: organizationId, memberId }),
+    onSuccess: async (res, memberId) => {
+      await updateOrganizationData(res);
+      if (memberId === user.id) {
+        await refetchBoot();
+      }
+      displayToast('The organization member seat has been toggled');
+    },
+    onError: (_err: ApiErrorResult) => {
+      const error = _err?.response?.errors?.[0];
+
+      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
+    },
+  });
+
   const { organization, role, referralToken, referralUrl, seatType } =
     data || {};
 
@@ -176,5 +211,6 @@ export const useOrganization = (
 
     removeOrganizationMember,
     updateOrganizationMemberRole,
+    toggleOrganizationMemberSeat,
   };
 };

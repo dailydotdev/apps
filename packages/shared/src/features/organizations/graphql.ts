@@ -11,6 +11,7 @@ export const ORGANIZATION_MEMBER_FRAGMENT = gql`
       name
       username
       image
+      isPlus
     }
   }
 `;
@@ -209,6 +210,20 @@ export const UPDATE_ORGANIZATION_MEMBER_ROLE_MUTATION = gql`
     $role: OrganizationMemberRole!
   ) {
     updateOrganizationMemberRole(id: $id, memberId: $memberId, role: $role) {
+      ...UserOrganizationFragment
+      organization {
+        ...OrganizationFragment
+      }
+    }
+  }
+
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
+`;
+
+export const TOGGLE_ORGANIZATION_MEMBER_SEAT_MUTATION = gql`
+  mutation ToggleOrganizationMemberSeat($id: ID!, $memberId: String!) {
+    toggleOrganizationMemberSeat(id: $id, memberId: $memberId) {
       ...UserOrganizationFragment
       organization {
         ...OrganizationFragment
