@@ -60,7 +60,7 @@ const Page = (): ReactElement => {
   const {
     organization,
     isFetching,
-    onUpdateOrganization,
+    updateOrganization,
     isUpdatingOrganization,
     seats,
     isOwner,
@@ -105,7 +105,7 @@ const Page = (): ReactElement => {
       data.image = imageFile;
     }
 
-    await onUpdateOrganization({
+    await updateOrganization({
       id: organization.id,
       form: data,
     });

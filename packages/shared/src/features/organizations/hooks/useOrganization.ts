@@ -22,7 +22,7 @@ export const generateOrganizationQueryKey = (
   ...additional: unknown[]
 ) => generateQueryKey(RequestKey.Organizations, user, orgId, ...additional);
 
-export const updateOrganization = async ({
+export const updateOrganizationHandler = async ({
   id,
   form,
 }: {
@@ -120,34 +120,53 @@ export const useOrganization = (
   const updateOrganizationData = async (newData: UserOrganization) =>
     queryClient.setQueryData(queryKey, () => newData);
 
-  const {
-    mutateAsync: onUpdateOrganization,
-    isPending: isUpdatingOrganization,
-  } = useMutation({
-    mutationFn: updateOrganization,
-    onSuccess: async (res) => {
+  /**
+   * Handles the successful completion of an organization-related operation.
+   *
+   * This function returns an async handler that updates the organization data,
+   * displays a toast message, and optionally executes a callback after the update.
+   *
+   * @param toastMessage - The message to display in the toast notification upon success.
+   * @param callback - An optional async callback to execute after updating the organization data.
+   * @returns An async function that takes the updated `UserOrganization` and any additional arguments,
+   *          updates the organization data, displays the toast, and invokes the callback if provided.
+   */
+  const onSuccess = (
+    toastMessage: string,
+    callback?: (...args: unknown[]) => Promise<void>,
+  ) => {
+    return async (res: UserOrganization, ...args: unknown[]) => {
       await updateOrganizationData(res);
-      displayToast('The organization has been updated');
-    },
-    onError: (_err: ApiErrorResult) => {
-      const error = _err?.response?.errors?.[0];
+      displayToast(toastMessage);
+      if (callback) {
+        await callback(...args);
+      }
+    };
+  };
 
-      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
-    },
-  });
+  /**
+   * Handles errors by displaying a toast notification with the error message.
+   * If the error message is unavailable, displays a default error message.
+   *
+   * @param _err - The API error result object containing error details.
+   */
+  const onError = (_err: ApiErrorResult) => {
+    displayToast(_err?.response?.errors?.[0]?.message || DEFAULT_ERROR);
+  };
+
+  const { mutateAsync: updateOrganization, isPending: isUpdatingOrganization } =
+    useMutation({
+      mutationFn: ({ form }: { form: UpdateOrganizationInput }) =>
+        updateOrganizationHandler({ id: organizationId, form }),
+      onSuccess: onSuccess('The organization has been updated'),
+      onError,
+    });
 
   const { mutate: removeOrganizationMember } = useMutation({
-    mutationFn: (memberId: string) =>
+    mutationFn: ({ memberId }: { memberId: string }) =>
       removeMember({ id: organizationId, memberId }),
-    onSuccess: async (res) => {
-      await updateOrganizationData(res);
-      displayToast('The organization member has been removed');
-    },
-    onError: (_err: ApiErrorResult) => {
-      const error = _err?.response?.errors?.[0];
-
-      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
-    },
+    onSuccess: onSuccess('The organization member has been removed'),
+    onError,
   });
 
   const { mutate: updateOrganizationMemberRole } = useMutation({
@@ -158,32 +177,22 @@ export const useOrganization = (
       memberId: string;
       role: OrganizationMemberRole;
     }) => updateMemberRole({ id: organizationId, memberId, role }),
-    onSuccess: async (res) => {
-      await updateOrganizationData(res);
-      displayToast('The organization member role has been updated');
-    },
-    onError: (_err: ApiErrorResult) => {
-      const error = _err?.response?.errors?.[0];
-
-      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
-    },
+    onSuccess: onSuccess('The organization member role has been updated'),
+    onError,
   });
 
   const { mutate: toggleOrganizationMemberSeat } = useMutation({
-    mutationFn: (memberId: string) =>
+    mutationFn: ({ memberId }: { memberId: string }) =>
       updateMemberSeat({ id: organizationId, memberId }),
-    onSuccess: async (res, memberId) => {
-      await updateOrganizationData(res);
-      if (memberId === user.id) {
-        await refetchBoot();
-      }
-      displayToast('The organization member seat has been toggled');
-    },
-    onError: (_err: ApiErrorResult) => {
-      const error = _err?.response?.errors?.[0];
-
-      displayToast(typeof error === 'object' ? error.message : DEFAULT_ERROR);
-    },
+    onSuccess: onSuccess(
+      'The organization member seat has been toggled',
+      async ({ memberId }) => {
+        if (memberId === user.id) {
+          await refetchBoot();
+        }
+      },
+    ),
+    onError,
   });
 
   const { organization, role, referralToken, referralUrl, seatType } =
@@ -205,7 +214,7 @@ export const useOrganization = (
     referralUrl,
     seatType,
     isFetching,
-    onUpdateOrganization,
+    updateOrganization,
     isUpdatingOrganization,
     isOwner,
 

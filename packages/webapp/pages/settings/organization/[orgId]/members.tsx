@@ -89,7 +89,6 @@ const OrganizationOptionsMenu = ({
   const { user: currentUser } = useAuthContext();
   const contextMenuId = useId();
   const router = useRouter();
-  const { displayToast } = useToastNotification();
   const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const {
     removeOrganizationMember,
@@ -113,7 +112,7 @@ const OrganizationOptionsMenu = ({
           ? 'Downgrade to Free'
           : 'Upgrade to Plus',
       icon: <DevPlusIcon aria-hidden />,
-      action: () => toggleOrganizationMemberSeat(user.id),
+      action: () => toggleOrganizationMemberSeat({ memberId: user.id }),
     });
   }
 
@@ -144,7 +143,7 @@ const OrganizationOptionsMenu = ({
 
     options.push({
       label: 'Remove from organization',
-      action: () => removeOrganizationMember(user.id),
+      action: () => removeOrganizationMember({ memberId: user.id }),
       icon: <ClearIcon aria-hidden />,
     });
   }
