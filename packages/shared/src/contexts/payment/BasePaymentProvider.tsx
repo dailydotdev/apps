@@ -23,7 +23,7 @@ export const BasePaymentProvider = ({
     type: ProductPricingType.Plus,
     enabled: !funnelPricing,
   });
-  const data = funnelPricing ?? plusPricing;
+  const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
   const giftOneYear = useMemo(
     () =>

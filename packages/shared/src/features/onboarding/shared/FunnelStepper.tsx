@@ -135,7 +135,6 @@ export const FunnelStepper = ({
         inputs: details,
       });
 
-      // not navigating to the last step
       if (!isLastStep) {
         navigate({
           to: targetStepId,
@@ -143,6 +142,7 @@ export const FunnelStepper = ({
           details: details || {},
         });
       } else {
+        // not navigating to the last step
         trackOnComplete();
         onComplete?.();
       }
