@@ -67,7 +67,7 @@ export const OnboardingPlusControl = ({
   );
 
   return (
-    <section className="flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 tablet:px-10">
+    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 tablet:px-10">
       <header className="text-center">
         <Typography
           bold
