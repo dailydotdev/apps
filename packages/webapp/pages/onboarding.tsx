@@ -286,7 +286,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     router,
   ]);
 
-  if (!isAuthReady || !isOnboardingActionsReady || !funnelState) {
+  if (!isAuthReady) {
     return null;
   }
 
@@ -304,6 +304,10 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
         <FooterLinks className="mx-auto pb-6" />
       </div>
     );
+  }
+
+  if (!isOnboardingActionsReady || !funnelState) {
+    return null;
   }
 
   return (
