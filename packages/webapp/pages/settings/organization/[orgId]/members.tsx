@@ -232,7 +232,7 @@ const OrganizationMembersItem = ({
               color={TypographyColor.Tertiary}
             >
               {lastActive ? (
-                <DateFormat date={lastActive} type={TimeFormatType.Post} />
+                <DateFormat date={lastActive} type={TimeFormatType.Comment} />
               ) : (
                 '-'
               )}
