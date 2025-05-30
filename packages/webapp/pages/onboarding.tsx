@@ -244,11 +244,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
-  const {
-    isOnboardingActionsReady,
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-  } = useOnboarding();
+  const { hasCompletedContentTypes, hasCompletedEditTags } = useOnboarding();
 
   const redirectToApp = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
