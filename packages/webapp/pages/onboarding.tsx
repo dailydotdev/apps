@@ -281,10 +281,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     router,
   ]);
 
-  if (!isAuthReady) {
-    return null;
-  }
-
   if (isAuthenticating) {
     return (
       <div
