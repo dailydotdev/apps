@@ -27,7 +27,7 @@ function FunnelContentTypesComponent({
 
   useEffect(() => {
     if (hasCompleted) {
-      onTransition({ type: FunnelStepTransitionType.Skip });
+      onTransition({ type: FunnelStepTransitionType.Complete });
     }
   }, [hasCompleted, onTransition]);
 

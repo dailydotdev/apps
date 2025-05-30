@@ -66,7 +66,8 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
       user?.providers?.some((prov) => prov !== 'password') &&
       !isEmailSignupActive;
     const onAuthStateUpdate = useCallback(
-      ({ defaultDisplay, isLoginFlow }: Partial<AuthProps>) => {
+      (data: Partial<AuthProps>) => {
+        const { defaultDisplay, isLoginFlow } = data;
         if (defaultDisplay) {
           setAuthDisplay(defaultDisplay);
         }
@@ -155,6 +156,15 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
                 variant: ButtonVariant.Primary,
               }}
               onSuccessfulRegistration={onSuccessfulRegistration}
+              onSuccessfulLogin={() => {
+                console.log('On successful login');
+              }}
+              onClose={() => {
+                console.log('Auth modal closed');
+              }}
+              onDisplayChange={(display) => {
+                console.log('Auth display changed:', display);
+              }}
               onAuthStateUpdate={onAuthStateUpdate}
             />
           </div>

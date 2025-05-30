@@ -36,7 +36,7 @@ function FunnelEditTagsComponent({
   useEffect(() => {
     if (hasCompleted && feedSettings?.includeTags.length) {
       onTransition({
-        type: FunnelStepTransitionType.Skip,
+        type: FunnelStepTransitionType.Complete,
         details: { tags: feedSettings?.includeTags },
       });
     }
