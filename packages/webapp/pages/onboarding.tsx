@@ -243,7 +243,12 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
   const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
     useOnboardingAuth();
-  const { hasCompletedContentTypes, hasCompletedEditTags } = useOnboarding();
+  const {
+    hasCompletedContentTypes,
+    hasCompletedEditTags,
+    isOnboardingActionsReady,
+  } = useOnboarding();
+  const isInitialized = useRef(false);
 
   const redirectToApp = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -260,16 +265,23 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 
   useEffect(() => {
     const {
-      query: { action, stepId },
+      query: { action },
     } = router;
 
-    if (action || isAuthenticating || !isAuthReady) {
+    if (
+      action ||
+      isAuthenticating ||
+      !isOnboardingActionsReady ||
+      isInitialized.current
+    ) {
       return;
     }
 
+    isInitialized.current = true;
+
     // If the user is logged in and has completed the onboarding steps,
     // AND no active stepId is there, redirect them to app.
-    if (hasCompletedContentTypes && hasCompletedEditTags && !stepId) {
+    if (hasCompletedContentTypes && hasCompletedEditTags) {
       redirectToApp();
     }
   }, [
@@ -277,9 +289,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     hasCompletedEditTags,
     isAuthReady,
     isAuthenticating,
+    isOnboardingActionsReady,
     redirectToApp,
     router,
   ]);
+
+  if (!isInitialized) {
+    return null;
+  }
 
   if (isAuthenticating) {
     return (
