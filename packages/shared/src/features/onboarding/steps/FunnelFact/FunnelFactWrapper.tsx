@@ -9,7 +9,7 @@ export const FunnelFactWrapper = ({
   ...props
 }: PropsWithChildren<FunnelStepFact>) => {
   const { parameters, onTransition, transitions } = props;
-  const { cta, ctaNote } = parameters;
+  const { cta, ctaNote, ctaAnimation } = parameters;
   const skip = useMemo(
     () => transitions.find((t) => t.on === FunnelStepTransitionType.Skip),
     [transitions],
@@ -26,7 +26,7 @@ export const FunnelFactWrapper = ({
   return (
     <FunnelStepCtaWrapper
       containerClassName="flex"
-      cta={{ label: cta ?? 'Next', note: ctaNote }}
+      cta={{ label: cta ?? 'Next', note: ctaNote, animation: ctaAnimation }}
       onClick={() =>
         onTransition({
           type: FunnelStepTransitionType.Complete,
