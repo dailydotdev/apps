@@ -403,3 +403,10 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.ContentTypes,
   FunnelStepType.PlusCards,
 ];
+
+export const stepGroups = {
+  contentTypes: [FunnelStepType.ContentTypes],
+  editTags: [FunnelStepType.EditTags],
+  pricing: [FunnelStepType.Pricing, FunnelStepType.PlusCards],
+  signup: [FunnelStepType.Signup, FunnelStepType.OrganicRegistration],
+} as const;
