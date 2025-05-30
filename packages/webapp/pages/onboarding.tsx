@@ -102,9 +102,8 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const hasAcceptedCookies = cookies.includes(GdprConsentKey.Marketing);
 
   // Determine the initial step ID
-  const queryStepId = stepId as string | undefined;
   const initialStepId: string | null =
-    queryStepId ?? boot.data?.funnelState?.session?.currentStep;
+    boot.data?.funnelState?.session?.currentStep;
 
   return {
     props: {
