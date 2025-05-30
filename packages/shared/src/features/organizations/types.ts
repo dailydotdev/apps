@@ -16,6 +16,7 @@ export type OrganizationMember = {
   role: OrganizationMemberRole;
   seatType: OrganizationMemberSeatType;
   user: PublicProfile | LoggedUser;
+  lastActive: Date | null;
 };
 
 export type Organization = {

@@ -15,6 +15,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
 import {
+  DateFormat,
   getRoleName,
   HorizontalSeparator,
 } from '@dailydotdev/shared/src/components/utilities';
@@ -62,6 +63,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SeatsOverview } from '@dailydotdev/shared/src/features/organizations/components/SeatsOverview';
 import type { ContextMenuDrawerItem } from '@dailydotdev/shared/src/components/drawers/ContextMenuDrawer';
 import classNames from 'classnames';
+import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -147,12 +149,14 @@ const OrganizationMembersItem = ({
   user,
   role,
   seatType,
+  lastActive,
   isRegularMember = false,
 }: {
   isCurrentUser: boolean;
   user: OrganizationMember['user'];
   role: OrganizationMember['role'];
   seatType: OrganizationMember['seatType'];
+  lastActive: OrganizationMember['lastActive'];
   isRegularMember?: boolean;
 }) => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -164,9 +168,6 @@ const OrganizationMembersItem = ({
   });
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
-
-  /* TODO: fetch real value */
-  const lastActive = '1 hour ago';
 
   return (
     <tr>
@@ -230,7 +231,11 @@ const OrganizationMembersItem = ({
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {lastActive}
+              {lastActive ? (
+                <DateFormat date={lastActive} type={TimeFormatType.Post} />
+              ) : (
+                '-'
+              )}
             </Typography>
           </td>
           <td>
@@ -266,13 +271,14 @@ export const OrganizationMembers = ({
 
   return (
     <tbody>
-      {members?.map(({ user, role, seatType }) => (
+      {members?.map(({ user, role, seatType, lastActive }) => (
         <OrganizationMembersItem
           key={`organization-member-${user.id}`}
           isCurrentUser={user.id === currentUser.id}
           user={user}
           role={role}
           seatType={seatType}
+          lastActive={lastActive}
           isRegularMember={isRegularMember}
         />
       ))}
@@ -418,7 +424,10 @@ const Page = (): ReactElement => {
             </thead>
           ) : null}
           <OrganizationMembers
-            members={[{ role, user, seatType }, ...organization.members]}
+            members={[
+              { role, user, seatType, lastActive: Date.now() },
+              ...organization.members,
+            ]}
             isRegularMember={isRegularMember}
           />
         </table>

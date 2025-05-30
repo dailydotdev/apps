@@ -6,6 +6,7 @@ export const ORGANIZATION_MEMBER_FRAGMENT = gql`
   fragment OrganizationMemberFragment on OrganizationMember {
     role
     seatType
+    lastActive
     user {
       id
       name
