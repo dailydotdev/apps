@@ -4,7 +4,6 @@ import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
 import Head from 'next/head';
 import {
-  isServer,
   dehydrate,
   HydrationBoundary,
   QueryClient,
@@ -92,11 +91,11 @@ export default function HelloWorldPage({
   const { setTheme, themeMode } = useSettingsContext();
 
   useEffect(() => {
-    const theme = funnel?.parameters?.theme?.mode;
-    if (!isServer && isAuthReady && !!theme && theme !== themeMode) {
-      setTheme(theme);
+    const funnelTheme = funnel?.parameters?.theme?.mode;
+    if (funnelTheme && funnelTheme !== themeMode) {
+      setTheme(funnelTheme);
     }
-  }, [setTheme, funnel?.parameters?.theme?.mode, themeMode, isAuthReady]);
+  }, [funnel?.parameters?.theme?.mode, setTheme, themeMode]);
 
   const onComplete = useCallback(() => {
     router.replace(funnel?.redirectOnFinish || '/onboarding');
