@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
-import { TargetType } from '../lib/log';
 import type { LogEvent, TargetId } from '../lib/log';
+import { TargetType } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { SubscriptionStatus } from '../lib/plus';
 import { SubscriptionProvider } from '../lib/plus';
@@ -11,6 +11,8 @@ import { isIOSNative } from '../lib/func';
 type LogSubscriptionEvent = {
   event_name: LogEvent | string;
   target_id?: TargetId | string;
+  plan_type?: string;
+  team_size?: number;
   extra?: Record<string, unknown>;
 };
 
@@ -27,11 +29,19 @@ export const usePlusSubscription = (): {
   const { status, provider: plusProvider } = user?.subscriptionFlags || {};
 
   const logSubscriptionEvent = useCallback(
-    ({ event_name, target_id, extra }: LogSubscriptionEvent) => {
+    ({
+      event_name,
+      target_id,
+      extra,
+      team_size,
+      plan_type,
+    }: LogSubscriptionEvent) => {
       logEvent({
         event_name,
         target_type: TargetType.Plus,
         target_id,
+        plan_type,
+        team_size,
         extra: JSON.stringify(extra) || undefined,
       });
     },
