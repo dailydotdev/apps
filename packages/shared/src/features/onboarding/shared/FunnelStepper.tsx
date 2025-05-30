@@ -9,6 +9,7 @@ import type {
   FunnelStepTransitionCallback,
 } from '../types/funnel';
 import {
+  stepsFullWidth,
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
@@ -42,6 +43,8 @@ import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
+import { FunnelOrganicRegistration } from '../steps/FunnelOrganicRegistration';
+import { FunnelPlusCards } from '../steps/FunnelPlusCards';
 import { useEventListener } from '../../../hooks';
 
 export interface FunnelStepperProps {
@@ -66,6 +69,8 @@ const stepComponentMap = {
   [FunnelStepType.ContentTypes]: FunnelContentTypes,
   [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
   [FunnelStepType.InstallPwa]: FunnelInstallPwa,
+  [FunnelStepType.OrganicRegistration]: FunnelOrganicRegistration,
+  [FunnelStepType.PlusCards]: FunnelPlusCards,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
@@ -130,7 +135,6 @@ export const FunnelStepper = ({
         inputs: details,
       });
 
-      // not navigating to the last step
       if (!isLastStep) {
         navigate({
           to: targetStepId,
@@ -138,6 +142,7 @@ export const FunnelStepper = ({
           details: details || {},
         });
       } else {
+        // not navigating to the last step
         trackOnComplete();
         onComplete?.();
       }
@@ -171,11 +176,13 @@ export const FunnelStepper = ({
     const hasHeader =
       step.parameters.shouldShowHeader || stepsWithHeader.includes(step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
+    const isFullWidth = stepsFullWidth.includes(step.type);
 
     return {
       hasHeader,
       hasBanner,
       hasCookieConsent,
+      isFullWidth,
     };
   }, [
     isCookieBannerActive,
@@ -210,7 +217,12 @@ export const FunnelStepper = ({
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
-        <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+        <div
+          className={classNames(
+            'mx-auto flex w-full flex-1 flex-col',
+            !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
+          )}
+        >
           {layout.hasBanner && (
             <FunnelBannerMessage {...funnel.parameters.banner} />
           )}

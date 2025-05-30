@@ -10,19 +10,19 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { ButtonVariant } from '../../buttons/common';
-import { ClickableText } from '../../buttons/ClickableText';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button } from '../../buttons/Button';
-import type { OnboardingStepProps } from './common';
-import { LazyModal } from '../../modals/common/types';
-import { plusFeatureList } from '../../plus/PlusList';
-import type { PlusItem } from '../../plus/PlusListItem';
-import { PlusItemStatus } from '../../plus/PlusListItem';
+} from '../../../components/typography/Typography';
+import { ButtonVariant } from '../../../components/buttons/common';
+import { ClickableText } from '../../../components/buttons/ClickableText';
+import type { ButtonProps } from '../../../components/buttons/Button';
+import { Button } from '../../../components/buttons/Button';
+import { LazyModal } from '../../../components/modals/common/types';
+import { plusFeatureList } from '../../../components/plus/PlusList';
+import type { PlusItem } from '../../../components/plus/PlusListItem';
+import { PlusItemStatus } from '../../../components/plus/PlusListItem';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
+import type { FunnelStepPlusCards } from '../types/funnel';
 
 type VariationCardOptionProps = {
   onClickNext: () => void;
@@ -87,10 +87,21 @@ const VariationCardOption = ({
   );
 };
 
+type Parameters = FunnelStepPlusCards['parameters'];
+
+interface OnboardingPlusVariationProps extends Parameters {
+  onSkip?: () => void;
+  onComplete?: () => void;
+}
+
 export const OnboardingPlusVariation = ({
-  onClickNext,
-  onClickPlus,
-}: OnboardingStepProps): ReactElement => {
+  onSkip,
+  onComplete,
+  headline,
+  explainer,
+  free,
+  plus,
+}: OnboardingPlusVariationProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { openModal } = useLazyModal();
   const { productOptions } = usePaymentContext();
@@ -145,7 +156,7 @@ export const OnboardingPlusVariation = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Fast-track your growth
+          {headline || 'Fast-track your growth'}
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -153,9 +164,10 @@ export const OnboardingPlusVariation = ({
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
-          Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn&apos;t a
-          long-term strategy.
+          {explainer ||
+            `Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn't a
+          long-term strategy.`}
         </Typography>
       </header>
 
@@ -165,13 +177,16 @@ export const OnboardingPlusVariation = ({
           {/* Free Plan Card */}
           <div className="flex h-fit flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-xl tablet:max-w-xs">
             <VariationCardOption
-              onClickNext={onClickNext}
+              onClickNext={onSkip}
               button={{
-                copy: 'Join for free',
+                copy: free?.cta || 'Join for free',
                 variant: ButtonVariant.Subtle,
               }}
-              title="Free"
-              description="For casual browsing. Get the basics and stay updated with the essentials."
+              title={free.title || 'Free'}
+              description={
+                free.description ||
+                'For casual browsing. Get the basics and stay updated with the essentials.'
+              }
               price={`${item?.currency?.symbol ?? '$'}0`}
             />
           </div>
@@ -191,17 +206,22 @@ export const OnboardingPlusVariation = ({
             </div>
             <div className="flex h-fit flex-col gap-4 rounded-12 bg-background-default p-4 tablet:max-w-xs">
               <VariationCardOption
-                onClickNext={onClickNext}
+                onClickNext={onSkip}
                 button={{
-                  copy: 'Get started',
+                  copy: plus?.cta || 'Get started',
                   variant: ButtonVariant.Primary,
-                  title: 'Get started',
-                  onClick: onClickPlus,
+                  title: plus?.cta || 'Get started',
+                  onClick: onComplete,
                 }}
-                title="Plus"
-                description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
+                title={plus?.title || 'Plus'}
+                description={
+                  plus?.description ||
+                  'For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster.'
+                }
                 price={item?.price.monthly?.formatted ?? '0'}
-                note="30 day hassle-free refund. No questions asked."
+                note={
+                  plus?.note || '30 day hassle-free refund. No questions asked.'
+                }
               />
             </div>
           </div>
@@ -255,9 +275,9 @@ export const OnboardingPlusVariation = ({
 
       <Button
         variant={ButtonVariant.Primary}
-        title="Get started"
+        title={plus?.cta || 'Get started'}
         className="mx-auto"
-        onClick={onClickPlus}
+        onClick={onComplete}
       >
         Get started
       </Button>

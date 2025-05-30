@@ -36,8 +36,6 @@ import { labels } from '../../lib';
 import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
-import { useFeature } from '../GrowthBookProvider';
-import { featureOnboardingReorder } from '../../lib/featureManagement';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 
@@ -59,12 +57,6 @@ const OnboardingRegistrationForm = dynamic(() =>
   import(
     /* webpackChunkName: "onboardingRegistrationForm" */ './OnboardingRegistrationForm'
   ).then((mod) => mod.OnboardingRegistrationForm),
-);
-
-const OnboardingRegistrationFormExperiment = dynamic(() =>
-  import(
-    /* webpackChunkName: "onboardingRegistrationFormExperiment" */ './OnboardingRegistrationForm'
-  ).then((mod) => mod.OnboardingRegistrationFormExperiment),
 );
 
 const AuthSignBack = dynamic(() =>
@@ -130,8 +122,8 @@ function AuthOptionsInner({
   );
   const { refetchBoot, user, isFunnel } = useAuthContext();
   const router = useRouter();
-  const isOnboardingPage = !!router?.pathname?.startsWith('/onboarding');
-  const isReorderExperiment = useFeature(featureOnboardingReorder);
+  const isOnboardingOrFunnel =
+    !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
@@ -206,7 +198,7 @@ function AuthOptionsInner({
     onRedirect: (redirect) => {
       windowPopup.current.location.href = redirect;
     },
-    keepSession: isFunnel,
+    keepSession: isOnboardingOrFunnel,
   });
 
   const {
@@ -223,12 +215,14 @@ function AuthOptionsInner({
       return displayToast(labels.auth.error.generic);
     },
   });
-  const onProfileSuccess = async (options: { redirect?: string } = {}) => {
+  const onProfileSuccess = async (
+    options: { redirect?: string; setSignBack?: boolean } = {},
+  ) => {
     setIsRegistration(true);
-    const { redirect } = options;
+    const { redirect, setSignBack = true } = options;
     const { data } = await refetchBoot();
 
-    if (data.user) {
+    if (data.user && setSignBack) {
       const provider = chosenProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
@@ -239,7 +233,7 @@ function AuthOptionsInner({
     const loggedUser = data?.user as LoggedUser;
     trackSignup(loggedUser);
 
-    // if redirect is set move before modal close
+    // if redirect is set, move before modal close
     if (redirect) {
       await router.push(redirect);
     }
@@ -268,7 +262,7 @@ function AuthOptionsInner({
     if (!isNativeAuthSupported(provider)) {
       windowPopup.current = window.open();
     }
-    setChosenProvider(provider);
+    await setChosenProvider(provider);
     await onSocialRegistration(provider);
     onAuthStateUpdate?.({ isLoading: true });
   };
@@ -279,7 +273,39 @@ function AuthOptionsInner({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
+  const checkIsLoginMessage = (e: MessageEvent) => {
+    return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
+  };
+
+  const handleLoginMessage = async () => {
+    const { data: boot } = await refetchBoot();
+
+    if (!boot.user || !('email' in boot.user)) {
+      logEvent({
+        event_name: AuthEventNames.SubmitSignUpFormError,
+        extra: JSON.stringify({
+          error: 'Could not find email on social registration',
+        }),
+      });
+      return displayToast(labels.auth.error.generic);
+    }
+
+    // If user is confirmed we can proceed with logging them in
+    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
+      await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
+      return onSuccessfulLogin?.();
+    }
+
+    await setChosenProvider(chosenProvider || 'password');
+    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
+    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  };
+
   const onProviderMessage = async (e: MessageEvent) => {
+    if (checkIsLoginMessage(e)) {
+      return handleLoginMessage();
+    }
+
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
@@ -323,29 +349,8 @@ function AuthOptionsInner({
 
       return displayToast(labels.auth.error.generic);
     }
-    const bootResponse = await refetchBoot();
-    if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
-      logEvent({
-        event_name: AuthEventNames.SubmitSignUpFormError,
-        extra: JSON.stringify({
-          error: 'Could not find email on social registration',
-        }),
-      });
-      return displayToast(labels.auth.error.generic);
-    }
 
-    const { data: boot } = bootResponse;
-
-    // If user is confirmed we can proceed with logging them in
-    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
-      onSignBackLogin(
-        boot.user as LoggedUser,
-        chosenProvider as SignBackProvider,
-      );
-      return onSuccessfulLogin?.();
-    }
-
-    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    return handleLoginMessage();
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);
@@ -359,15 +364,16 @@ function AuthOptionsInner({
   };
 
   const onSocialCompletion = async (params) => {
-    await updateUserProfile({ ...params });
+    updateUserProfile({ ...params });
     await syncSettings();
   };
 
-  const onRegister = (params: RegistrationFormValues) => {
-    validateRegistration({
+  const onRegister = async (params: RegistrationFormValues) => {
+    await validateRegistration({
       ...params,
       method: 'password',
     });
+    await onProfileSuccess({ setSignBack: false });
   };
 
   const onForgotPassword = (withEmail?: string) => {
@@ -388,11 +394,6 @@ function AuthOptionsInner({
     setEmail(params.identifier);
     onPasswordLogin(params);
   };
-
-  const RegistrationFormComponent =
-    isReorderExperiment && isOnboardingPage
-      ? OnboardingRegistrationFormExperiment
-      : OnboardingRegistrationForm;
 
   return (
     <div
@@ -477,7 +478,7 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.OnboardingSignup}>
-          <RegistrationFormComponent
+          <OnboardingRegistrationForm
             onContinueWithEmail={() => {
               onAuthStateUpdate({
                 isAuthenticating: true,
