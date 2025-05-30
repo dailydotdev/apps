@@ -156,15 +156,6 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
                 variant: ButtonVariant.Primary,
               }}
               onSuccessfulRegistration={onSuccessfulRegistration}
-              onSuccessfulLogin={() => {
-                console.log('On successful login');
-              }}
-              onClose={() => {
-                console.log('Auth modal closed');
-              }}
-              onDisplayChange={(display) => {
-                console.log('Auth display changed:', display);
-              }}
               onAuthStateUpdate={onAuthStateUpdate}
             />
           </div>
