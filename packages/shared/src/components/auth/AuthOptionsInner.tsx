@@ -233,7 +233,7 @@ function AuthOptionsInner({
     const loggedUser = data?.user as LoggedUser;
     trackSignup(loggedUser);
 
-    // if redirect is set move before modal close
+    // if redirect is set, move before modal close
     if (redirect) {
       await router.push(redirect);
     }
@@ -273,7 +273,39 @@ function AuthOptionsInner({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
+  const checkIsLoginMessage = (e: MessageEvent) => {
+    return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
+  };
+
+  const handleLoginMessage = async () => {
+    const { data: boot } = await refetchBoot();
+
+    if (!boot.user || !('email' in boot.user)) {
+      logEvent({
+        event_name: AuthEventNames.SubmitSignUpFormError,
+        extra: JSON.stringify({
+          error: 'Could not find email on social registration',
+        }),
+      });
+      return displayToast(labels.auth.error.generic);
+    }
+
+    // If user is confirmed we can proceed with logging them in
+    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
+      await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
+      return onSuccessfulLogin?.();
+    }
+
+    await setChosenProvider(chosenProvider || 'password');
+    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
+    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  };
+
   const onProviderMessage = async (e: MessageEvent) => {
+    if (checkIsLoginMessage(e)) {
+      return handleLoginMessage();
+    }
+
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
@@ -317,30 +349,8 @@ function AuthOptionsInner({
 
       return displayToast(labels.auth.error.generic);
     }
-    const bootResponse = await refetchBoot();
-    if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
-      logEvent({
-        event_name: AuthEventNames.SubmitSignUpFormError,
-        extra: JSON.stringify({
-          error: 'Could not find email on social registration',
-        }),
-      });
-      return displayToast(labels.auth.error.generic);
-    }
 
-    const { data: boot } = bootResponse;
-
-    // If user is confirmed we can proceed with logging them in
-    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
-      onSignBackLogin(
-        boot.user as LoggedUser,
-        chosenProvider as SignBackProvider,
-      );
-      return onSuccessfulLogin?.();
-    }
-
-    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
-    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    return handleLoginMessage();
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);
@@ -354,7 +364,7 @@ function AuthOptionsInner({
   };
 
   const onSocialCompletion = async (params) => {
-    await updateUserProfile({ ...params });
+    updateUserProfile({ ...params });
     await syncSettings();
   };
 
