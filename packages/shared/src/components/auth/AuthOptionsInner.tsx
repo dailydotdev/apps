@@ -373,7 +373,11 @@ function AuthOptionsInner({
       ...params,
       method: 'password',
     });
-    await onProfileSuccess({ setSignBack: false });
+    onAuthStateUpdate({
+      isAuthenticating: true,
+      defaultDisplay: AuthDisplay.EmailVerification,
+    });
+    // await onProfileSuccess({ setSignBack: false });
   };
 
   const onForgotPassword = (withEmail?: string) => {

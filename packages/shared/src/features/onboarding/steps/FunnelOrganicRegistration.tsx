@@ -91,6 +91,8 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
           details: { user: data },
         });
 
+        console.log('onSuccessfulRegistration', { data });
+
         if (data) {
           setAuth((prev) => ({
             ...prev,
