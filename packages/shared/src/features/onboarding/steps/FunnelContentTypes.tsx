@@ -7,17 +7,23 @@ import { FunnelStepCtaWrapper } from '../shared';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 function FunnelContentTypesComponent({
   parameters: { headline, cta },
   onTransition,
 }: FunnelStepContentTypes): ReactElement | null {
   const { completeAction } = useActions();
+  const { isLoggedIn } = useAuthContext();
 
   const handleComplete = () => {
     completeAction(ActionType.ContentTypes);
     onTransition({ type: FunnelStepTransitionType.Complete });
   };
+
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <FunnelStepCtaWrapper
