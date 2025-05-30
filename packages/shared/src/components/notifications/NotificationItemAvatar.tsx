@@ -9,6 +9,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
+import { Image, ImageType } from '../image/Image';
 
 function NotificationItemAvatar({
   type,
@@ -29,6 +30,17 @@ function NotificationItemAvatar({
           image,
           permalink: targetUrl,
         }}
+      />
+    );
+  }
+
+  if (type === NotificationAvatarType.Organization) {
+    return (
+      <Image
+        className="size-8 rounded-full object-cover"
+        src={image}
+        alt={`Avatar of ${name}`}
+        type={ImageType.Organization}
       />
     );
   }

@@ -1,3 +1,4 @@
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = (req: NextApiRequest, res: NextApiResponse): void => {
@@ -29,7 +30,7 @@ const handler = (req: NextApiRequest, res: NextApiResponse): void => {
         res
           .setHeader(
             'Cache-Control',
-            `public, max-age=0, must-revalidate, s-maxage=${60}`,
+            `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneMinute}`,
           )
           .status(200)
           .send(

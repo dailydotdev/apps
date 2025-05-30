@@ -6,6 +6,7 @@ import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { pageMainClassNames } from '../layout/PageWrapperLayout';
 import { SourceMemberRole } from '../../graphql/sources';
+import type { OrganizationMemberRole } from '../../features/organizations/types';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -211,8 +212,9 @@ export const PageInfoHeader = classed(
 );
 
 // Currently it's only Moderator that deviates from the actual SourceMemberRole name.
-export const getRoleName = (role: SourceMemberRole): string =>
-  role === SourceMemberRole.Moderator ? 'Mod' : role;
+export const getRoleName = (
+  role: SourceMemberRole | OrganizationMemberRole,
+): string => (role === SourceMemberRole.Moderator ? 'Mod' : role);
 
 export const HorizontalSeparator = classed(
   'div',

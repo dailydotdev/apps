@@ -20,6 +20,7 @@ interface NavDrawerProps extends PropsWithChildren {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
   header?: string;
   shouldKeepOpen?: boolean;
+  showActions?: boolean;
 }
 
 export function NavDrawer({
@@ -27,6 +28,7 @@ export function NavDrawer({
   drawerProps,
   header,
   shouldKeepOpen,
+  showActions = true,
 }: NavDrawerProps): ReactElement {
   const {
     position,
@@ -67,20 +69,22 @@ export function NavDrawer({
             {header}
           </Typography>
 
-          <BuyCreditsButton
-            className="ml-auto"
-            hideBuyButton={!canPurchaseCores}
-            onPlusClick={() => {
-              router.push(
-                getPathnameWithQuery(
-                  `${webappUrl}cores`,
-                  new URLSearchParams({
-                    origin: Origin.ProfileMenu,
-                  }),
-                ),
-              );
-            }}
-          />
+          {showActions && (
+            <BuyCreditsButton
+              className="ml-auto"
+              hideBuyButton={!canPurchaseCores}
+              onPlusClick={() => {
+                router.push(
+                  getPathnameWithQuery(
+                    `${webappUrl}cores`,
+                    new URLSearchParams({
+                      origin: Origin.ProfileMenu,
+                    }),
+                  ),
+                );
+              }}
+            />
+          )}
         </div>
       )}
       {children}

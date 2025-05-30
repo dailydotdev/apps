@@ -13,6 +13,7 @@ import {
   acceptedTypesList,
   ACCEPTED_TYPES,
 } from '../../graphql/posts';
+import { Button } from '../buttons/Button';
 
 type Size = 'medium' | 'large' | 'cover';
 
@@ -37,6 +38,7 @@ interface ImageInputProps {
   alwaysShowHover?: boolean;
   children?: ReactNode;
   fileSizeLimitMB?: number;
+  uploadButton?: boolean;
 }
 
 const componentSize: Record<Size, string> = {
@@ -65,6 +67,7 @@ function ImageInput({
   fallbackImage = fallbackImages.avatar,
   closeable,
   fileSizeLimitMB = 2,
+  uploadButton = false,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const toast = useToastNotification();
@@ -172,6 +175,17 @@ function ImageInput({
           </span>
         )}
       </button>
+      {uploadButton && !viewOnly && (
+        <Button
+          variant={ButtonVariant.Secondary}
+          onClick={onClick}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          type="button"
+        >
+          Upload image
+        </Button>
+      )}
       {image && closeable && (
         <CloseButton
           title="Remove image"

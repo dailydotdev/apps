@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
-import type { ProductPricingType } from '../graphql/paddle';
+import type { PurchaseType } from '../graphql/paddle';
 import {
   fetchPricingPreview,
   fetchPricingPreviewByIds,
@@ -8,7 +8,7 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export interface ProductPricingConfig {
-  type: ProductPricingType;
+  type: PurchaseType;
   locale?: string;
   enabled?: boolean;
 }

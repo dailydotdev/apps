@@ -78,7 +78,12 @@ export function ModalHeader({
       )}
       {children}
       {!!modalTitle && (
-        <ModalHeaderTitle className={headerKindToTitleClassName[kind]}>
+        <ModalHeaderTitle
+          className={classNames(
+            headerKindToTitleClassName[kind],
+            'flex-shrink truncate',
+          )}
+        >
           {modalTitle}
         </ModalHeaderTitle>
       )}

@@ -8,7 +8,7 @@ import { TargetType } from '../lib/log';
 import { getQuantityForPrice } from '../graphql/njord';
 import { useLogContext } from './LogContext';
 import { useProductPricing } from '../hooks/useProductPricing';
-import { ProductPricingType } from '../graphql/paddle';
+import { PurchaseType } from '../graphql/paddle';
 import { usePaddlePayment } from '../hooks/usePaddlePayment';
 
 const SCREENS = {
@@ -84,7 +84,7 @@ export const BuyCoresContextProvider = ({
   logRef.current = logEvent;
 
   const { data: prices } = useProductPricing({
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
   });
 
   const getQuantityForPriceFn = ({ priceId }: { priceId: string }) => {
@@ -146,7 +146,7 @@ export const useCoreProductOptionQuery = (): CoreProductOption => {
   const router = useRouter();
   const pid = router?.query?.pid;
   const { data: prices } = useProductPricing({
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
   });
 
   return useMemo(() => {

@@ -37,7 +37,6 @@ import {
   useJoinReferral,
   useSquad,
 } from '@dailydotdev/shared/src/hooks';
-import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import type { ClientError } from 'graphql-request';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';
@@ -263,7 +262,7 @@ export async function getServerSideProps({
   const setCacheHeader = () => {
     res.setHeader(
       'Cache-Control',
-      `public, max-age=0, must-revalidate, s-maxage=${oneHour}, stale-while-revalidate=${oneHour}`,
+      `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneHour}, stale-while-revalidate=${StaleTime.OneHour}`,
     );
   };
 

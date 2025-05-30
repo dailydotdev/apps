@@ -3,7 +3,7 @@ import React from 'react';
 import { DangerZone } from '../widgets/DangerZone';
 import { anchorDefaultRel } from '../../lib/strings';
 import { usePlusSubscription } from '../../hooks';
-import { SubscriptionProvider, UserSubscriptionStatus } from '../../lib/plus';
+import { SubscriptionProvider, SubscriptionStatus } from '../../lib/plus';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;
@@ -53,7 +53,7 @@ function AccountDangerZone({
 
   const disableDeletion =
     isPlus &&
-    status === UserSubscriptionStatus.Active &&
+    status === SubscriptionStatus.Active &&
     plusProvider === SubscriptionProvider.AppleStoreKit;
 
   return (

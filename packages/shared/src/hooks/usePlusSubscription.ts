@@ -3,7 +3,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { TargetType } from '../lib/log';
 import type { LogEvent, TargetId } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
-import type { UserSubscriptionStatus } from '../lib/plus';
+import type { SubscriptionStatus } from '../lib/plus';
 import { SubscriptionProvider } from '../lib/plus';
 import { managePlusUrl, plusUrl, webappUrl } from '../lib/constants';
 import { isIOSNative } from '../lib/func';
@@ -19,7 +19,7 @@ export const usePlusSubscription = (): {
   plusProvider?: SubscriptionProvider;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
   plusHref: string | undefined;
-  status?: UserSubscriptionStatus;
+  status?: SubscriptionStatus;
 } => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();

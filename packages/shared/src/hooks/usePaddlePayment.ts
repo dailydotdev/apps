@@ -39,6 +39,7 @@ export const usePaddlePayment = ({
   const { user, geo, trackingId } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
+  const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
@@ -131,6 +132,9 @@ export const usePaddlePayment = ({
           case CheckoutEventNames.CHECKOUT_CLOSED:
             isCheckoutOpenRef.current = false;
             break;
+          case CheckoutEventNames.CHECKOUT_ITEMS_UPDATED:
+            setCheckoutItemsLoading(false);
+            break;
           default:
             break;
         }
@@ -154,8 +158,13 @@ export const usePaddlePayment = ({
   }, [router, disabledEvents, targetType]);
 
   const openCheckout = useCallback(
-    ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {
-      const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
+    ({
+      priceId,
+      giftToUserId,
+      discountId,
+      quantity = 1,
+    }: OpenCheckoutProps) => {
+      const items: CheckoutLineItem[] = [{ priceId, quantity }];
       const customer: CheckoutCustomer = {
         ...(user?.email
           ? {
@@ -176,6 +185,7 @@ export const usePaddlePayment = ({
       };
 
       if (isCheckoutOpenRef.current) {
+        setCheckoutItemsLoading(true);
         paddle?.Checkout.updateItems(items);
         return;
       }
@@ -194,5 +204,6 @@ export const usePaddlePayment = ({
     paddle,
     openCheckout,
     isPaddleReady: !!paddle,
+    checkoutItemsLoading,
   };
 };

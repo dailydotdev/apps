@@ -26,6 +26,7 @@ import {
   PhoneIcon,
   ReputationLightningIcon,
   ExitIcon,
+  OrganizationIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -99,6 +100,11 @@ export const accountPageItems = defineMenuItems({
         title: 'Subscriptions',
         icon: CreditCardIcon,
         href: `${settingsUrl}/subscription`,
+      },
+      organization: {
+        title: 'Organizations',
+        icon: OrganizationIcon,
+        href: `${settingsUrl}/organization`,
       },
       coreWallet: {
         title: 'Core Wallet',

@@ -12,6 +12,7 @@ import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
@@ -89,7 +90,7 @@ export const getServerSideProps: GetServerSideProps<
 
     res.setHeader(
       'Cache-Control',
-      `public, max-age=0, must-revalidate, s-maxage=${1 * 60 * 60}`,
+      `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneHour}`,
     );
 
     return {

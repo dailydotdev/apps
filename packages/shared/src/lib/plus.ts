@@ -3,7 +3,7 @@ export enum SubscriptionProvider {
   AppleStoreKit = 'storekit',
 }
 
-export enum UserSubscriptionStatus {
+export enum SubscriptionStatus {
   Active = 'active',
   Expired = 'expired',
   Cancelled = 'cancelled',

@@ -15,17 +15,21 @@ export const PaddleSubProvider = ({
   children,
   successCallback,
   disabledEvents,
+  initialPriceType,
 }: PaddleSubProviderProps): ReactElement => {
-  const { openCheckout, isPaddleReady } = usePaddlePayment({
-    successCallback,
-    disabledEvents,
-    targetType: TargetType.Plus,
-  });
+  const { openCheckout, isPaddleReady, checkoutItemsLoading } =
+    usePaddlePayment({
+      successCallback,
+      disabledEvents,
+      targetType: TargetType.Plus,
+    });
 
   return (
     <BasePaymentProvider
       openCheckout={openCheckout}
       isPaddleReady={isPaddleReady}
+      checkoutItemsLoading={checkoutItemsLoading}
+      initialPriceType={initialPriceType}
     >
       {children}
     </BasePaymentProvider>

@@ -32,3 +32,18 @@ export const formatCoresCurrency = (value: number): string => {
     minimumFractionDigits: 0,
   });
 };
+
+export const formatOrganizationSubscriptionPreviewCurrency = ({
+  currency,
+  amount,
+}: {
+  currency: string;
+  amount: number;
+}): string => {
+  return new Intl.NumberFormat(navigator.language, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    style: 'currency',
+    currency,
+  }).format(amount);
+};

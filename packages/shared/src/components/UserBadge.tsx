@@ -3,9 +3,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { SourceMemberRole } from '../graphql/sources';
 import { isPrivilegedRole } from '../graphql/squads';
+import type { OrganizationMemberRole } from '../features/organizations/types';
 
 type UserBadgeProps = {
-  role?: SourceMemberRole;
+  role?: SourceMemberRole | OrganizationMemberRole;
   className?: string;
   children: ReactNode;
 };
@@ -15,7 +16,9 @@ const userBadgeColor = {
   gray: 'text-text-tertiary bg-surface-float',
 };
 
-const getBadgeColorByRole = (role: SourceMemberRole): string => {
+const getBadgeColorByRole = (
+  role: SourceMemberRole | OrganizationMemberRole,
+): string => {
   if (isPrivilegedRole(role)) {
     return userBadgeColor.purple;
   }

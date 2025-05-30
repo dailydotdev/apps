@@ -11,6 +11,9 @@ import type { CommonPlusPageProps } from './common';
 import { PlusTrustRefund } from './PlusTrustRefund';
 import { usePlusSubscription } from '../../hooks';
 
+import { PurchaseType } from '../../graphql/paddle';
+import { PlusProductToggle } from './PlusProductToggle';
+
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 
 export const PlusDesktop = ({
@@ -22,6 +25,7 @@ export const PlusDesktop = ({
     productOptions,
     giftOneYear,
     isPricesPending,
+    isOrganization,
   } = usePaymentContext();
   const { giftToUser } = useGiftUserContext();
   const {
@@ -33,9 +37,9 @@ export const PlusDesktop = ({
   const ref = useRef();
 
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
-    ({ priceId, giftToUserId }) => {
+    ({ priceId, giftToUserId, quantity }) => {
       setSelectedOption(priceId);
-      openCheckout({ priceId, giftToUserId });
+      openCheckout({ priceId, giftToUserId, quantity });
     },
     [openCheckout],
   );
@@ -59,7 +63,8 @@ export const PlusDesktop = ({
 
     const option = initialPaymentOption || productOptions?.[0]?.priceId;
 
-    if (option && !isPlus) {
+    // Auto-select if user is not plus or it is organization checkout
+    if (option && (!isPlus || isOrganization)) {
       setSelectedOption(option);
       openCheckout({ priceId: option });
     }
@@ -72,12 +77,26 @@ export const PlusDesktop = ({
     isPlus,
     productOptions,
     selectedOption,
+    isOrganization,
   ]);
 
   return (
     <>
-      <div className="flex flex-1 items-center justify-center gap-20 pt-10">
+      <div className="flex flex-1 justify-center gap-20 pt-10">
         <div className="flex w-[28.5rem] flex-col">
+          {!giftToUser && (
+            <PlusProductToggle
+              options={[
+                { priceType: PurchaseType.Plus, label: 'Personal' },
+                {
+                  priceType: PurchaseType.Organization,
+                  label: 'Team',
+                },
+              ]}
+              onSelect={() => setSelectedOption(null)}
+              className="self-start"
+            />
+          )}
           <PlusInfo
             productOptions={productOptions}
             selectedOption={selectedOption}
