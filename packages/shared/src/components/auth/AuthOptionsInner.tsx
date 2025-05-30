@@ -8,17 +8,17 @@ import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
 import type { RegistrationError } from '../../lib/auth';
 import {
-  isNativeAuthSupported,
   AuthEventNames,
   getNodeValue,
+  isNativeAuthSupported,
 } from '../../lib/auth';
 import useRegistration from '../../hooks/useRegistration';
 import {
   AuthEvent,
   AuthFlow,
-  KRATOS_ERROR,
   getKratosFlow,
   getKratosProviders,
+  KRATOS_ERROR,
 } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import type { AuthOptionsProps } from './common';
@@ -27,7 +27,7 @@ import useLogin from '../../hooks/useLogin';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useToastNotification, useEventListener } from '../../hooks';
+import { useEventListener, useToastNotification } from '../../hooks';
 import { broadcastChannel, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
@@ -189,6 +189,10 @@ function AuthOptionsInner({
     key: ['registration_form'],
     onInitializeVerification: () => {
       onSetActiveDisplay(AuthDisplay.EmailVerification);
+      onAuthStateUpdate?.({
+        isAuthenticating: true,
+        defaultDisplay: AuthDisplay.EmailVerification,
+      });
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
@@ -373,11 +377,6 @@ function AuthOptionsInner({
       ...params,
       method: 'password',
     });
-    onAuthStateUpdate({
-      isAuthenticating: true,
-      defaultDisplay: AuthDisplay.EmailVerification,
-    });
-    // await onProfileSuccess({ setSignBack: false });
   };
 
   const onForgotPassword = (withEmail?: string) => {
