@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { FunnelStepContentTypes } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ContentTypes } from '../../../components/onboarding';
@@ -13,15 +13,25 @@ function FunnelContentTypesComponent({
   parameters: { headline, cta },
   onTransition,
 }: FunnelStepContentTypes): ReactElement | null {
-  const { completeAction } = useActions();
-  const { isLoggedIn } = useAuthContext();
+  const { completeAction, checkHasCompleted } = useActions();
+  const { isLoggedIn, user } = useAuthContext();
+  const hasCompleted = useMemo(
+    () => user && checkHasCompleted(ActionType.ContentTypes),
+    [checkHasCompleted, user],
+  );
 
   const handleComplete = () => {
     completeAction(ActionType.ContentTypes);
     onTransition({ type: FunnelStepTransitionType.Complete });
   };
 
-  if (!isLoggedIn) {
+  useEffect(() => {
+    if (hasCompleted) {
+      onTransition({ type: FunnelStepTransitionType.Skip });
+    }
+  }, [hasCompleted, onTransition]);
+
+  if (!isLoggedIn || hasCompleted) {
     return null;
   }
 

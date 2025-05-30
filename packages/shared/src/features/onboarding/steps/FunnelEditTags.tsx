@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { FunnelStepEditTags } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { EditTag } from '../../../components/onboarding';
@@ -14,7 +14,7 @@ function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted } = useActions();
   const { feedSettings } = useFeedSettings();
   const { user, trackingId } = useAuthContext();
   const handleComplete = () => {
@@ -28,8 +28,21 @@ function FunnelEditTagsComponent({
   };
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isDisabled = tagsCount < minimumRequirement;
+  const hasCompleted = useMemo(
+    () => user && checkHasCompleted(ActionType.EditTag),
+    [checkHasCompleted, user],
+  );
 
-  if (!user) {
+  useEffect(() => {
+    if (hasCompleted && feedSettings?.includeTags.length) {
+      onTransition({
+        type: FunnelStepTransitionType.Skip,
+        details: { tags: feedSettings?.includeTags },
+      });
+    }
+  }, [feedSettings?.includeTags, hasCompleted, onTransition]);
+
+  if (!user || hasCompleted) {
     return null;
   }
 
