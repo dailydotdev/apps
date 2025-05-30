@@ -72,7 +72,7 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 const OrganizationOptionsMenu = ({
   member,
 }: {
-  member: OrganizationMember;
+  member: Omit<OrganizationMember, 'lastActive'>;
 }) => {
   const { user: currentUser } = useAuthContext();
   const contextMenuId = useId();
@@ -425,7 +425,7 @@ const Page = (): ReactElement => {
           ) : null}
           <OrganizationMembers
             members={[
-              { role, user, seatType, lastActive: Date.now() },
+              { role, user, seatType, lastActive: new Date() },
               ...organization.members,
             ]}
             isRegularMember={isRegularMember}
