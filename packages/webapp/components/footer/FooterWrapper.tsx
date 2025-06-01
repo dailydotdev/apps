@@ -11,11 +11,10 @@ const NewComment = dynamic(() =>
   ).then((mod) => mod.NewComment),
 );
 
-const ScrollToTopButton = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "scrollToTopButton" */ '@dailydotdev/shared/src/components/ScrollToTopButton'
-    ),
+const FooterPlusButton = dynamic(() =>
+  import(/* webpackChunkName: "footerPlusButton" */ './FooterPlusButton').then(
+    (mod) => mod.FooterPlusButton,
+  ),
 );
 
 const MobileFooterNavbar = dynamic(
@@ -53,7 +52,7 @@ export default function FooterWrapper({
           />
         </div>
       ) : (
-        <ScrollToTopButton />
+        <FooterPlusButton />
       )}
       {showNav && <MobileFooterNavbar isPostPage={!!post} />}
     </div>

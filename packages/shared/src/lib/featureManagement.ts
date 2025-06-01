@@ -75,6 +75,8 @@ export const featureOnboardingPlusFeatureGrid = new Feature(
   false,
 );
 
+export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);

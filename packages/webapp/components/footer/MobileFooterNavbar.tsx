@@ -5,6 +5,8 @@ import { Flipper } from 'react-flip-toolkit';
 import {
   AiIcon,
   BellIcon,
+  BookmarkIcon,
+  DevPlusIcon,
   HomeIcon,
   SourceIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -18,9 +20,17 @@ import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { featurePlusEntryMobile } from '@dailydotdev/shared/src/lib/featureManagement';
+
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { FooterTab } from './common';
 import { blurClasses } from './common';
-import { FooterPlusButton } from './FooterPlusButton';
 import { FooterNavBarTabs } from './FooterNavBarTabs';
 
 const Notifications = ({ active }: { active: boolean }): JSX.Element => {
@@ -53,17 +63,41 @@ const MobileFooterNavbar = ({
   isPostPage: boolean;
 }): ReactElement => {
   const router = useRouter();
-  const { user, squads } = useContext(AuthContext);
+  const { user, squads, isValidRegion } = useContext(AuthContext);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
+  const { value: plusEntryExp } = useConditionalFeature({
+    shouldEvaluate: isValidRegion && !user?.isPlus,
+    feature: featurePlusEntryMobile,
+  });
 
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
 
-  const tabs: (FooterTab | ReactNode)[] = useMemo(
-    () => [
+  const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
+    const centerTab = plusEntryExp ? (
+      <Link href="/plus">
+        <div className="flex flex-col items-center text-accent-avocado-default">
+          <DevPlusIcon size={IconSize.Medium} />
+          <Typography tag={TypographyTag.Span} type={TypographyType.Caption2}>
+            Upgrade
+          </Typography>
+        </div>
+      </Link>
+    ) : (
+      {
+        requiresLogin: true,
+        path: '/bookmarks',
+        title: 'Bookmarks',
+        icon: (active: boolean) => (
+          <BookmarkIcon secondary={active} size={IconSize.Medium} />
+        ),
+      }
+    );
+
+    return [
       {
         requiresLogin: true,
         path: '/',
@@ -80,7 +114,7 @@ const MobileFooterNavbar = ({
           <AiIcon secondary={active} size={IconSize.Medium} />
         ),
       },
-      <FooterPlusButton key="write-action" />,
+      centerTab,
       {
         requiresLogin: true,
         path: '/notifications',
@@ -94,9 +128,8 @@ const MobileFooterNavbar = ({
           <SourceIcon secondary={active} size={IconSize.Medium} />
         ),
       },
-    ],
-    [squadsUrl],
-  );
+    ];
+  }, [squadsUrl, plusEntryExp]);
 
   const activeTab = useMemo(() => {
     const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);
