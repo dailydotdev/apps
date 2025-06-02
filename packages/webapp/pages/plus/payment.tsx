@@ -6,14 +6,14 @@ import { useRouter } from 'next/router';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 
-import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
-
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
   Typography,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import dynamic from 'next/dynamic';
+import { useProductPricingByIds } from '@dailydotdev/shared/src/hooks/useProductPricing';
+import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusProductList = dynamic(
@@ -26,9 +26,13 @@ const PlusProductList = dynamic(
 
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { openCheckout, productOptions } = usePaymentContext();
+  const { openCheckout } = usePaymentContext();
   const router = useRouter();
   const { pid, gift } = router.query;
+  const { data: productPricing } = useProductPricingByIds({
+    ids: [pid as string],
+    loadMetadata: true,
+  });
 
   useEffect(() => {
     if (!router.isReady) {
@@ -39,13 +43,15 @@ const PlusPaymentPage = (): ReactElement => {
     }
   }, [pid, router]);
 
-  const selectedProduct = productOptions.find(({ priceId }) => priceId === pid);
+  const selectedProduct = productPricing?.find(
+    ({ priceId }) => priceId === pid,
+  );
 
   return (
     <>
       <NextSeo nofollow noindex />
       <div className="m-auto flex h-full w-full flex-col gap-6 laptop:h-fit laptop:w-[34.875rem]">
-        {isLaptop && selectedProduct && (
+        {isLaptop && productPricing && (
           <div className="flex flex-col items-center gap-4">
             <Typography type={TypographyType.Title2} bold>
               Plan details
@@ -53,7 +59,7 @@ const PlusPaymentPage = (): ReactElement => {
             <PlusProductList
               className="w-full"
               productList={[selectedProduct]}
-              selected={selectedProduct?.priceId}
+              selected={selectedProduct.priceId}
             />
           </div>
         )}
