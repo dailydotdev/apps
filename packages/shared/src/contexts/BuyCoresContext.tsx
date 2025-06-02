@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useMemo, useRef, useState } from 'react';
 import type { Paddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import { useSetAtom } from 'jotai';
@@ -72,6 +72,8 @@ export const BuyCoresContextProvider = ({
 }: BuyCoresContextProviderProps): ReactElement => {
   const { logEvent } = useLogContext();
   const setPriceType = useSetAtom(priceTypeAtom);
+  setPriceType(PurchaseType.Cores);
+
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
     providerTransactionId?: string;
@@ -134,10 +136,6 @@ export const BuyCoresContextProvider = ({
       selectedProduct,
     ],
   );
-
-  useEffect(() => {
-    setPriceType(PurchaseType.Cores);
-  }, [setPriceType]);
 
   return (
     <BuyCoresContext.Provider value={contextData}>
