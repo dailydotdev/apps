@@ -20,7 +20,6 @@ export interface PaymentContextData {
   isPricesPending: boolean;
   isPaddleReady?: boolean;
   isOrganization?: boolean;
-  toggleOrganization?: () => void;
   priceType: PurchaseType;
   setPriceType: Dispatch<SetStateAction<PurchaseType>>;
   itemQuantity?: number;
