@@ -11,6 +11,8 @@ import { TextField } from '../fields/TextField';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MinusIcon, PlusIcon } from '../icons';
 import type { WithClassNameProps } from '../utilities';
+import { usePlusSubscription } from '../../hooks';
+import { LogEvent } from '../../lib/log';
 
 type Props = {
   itemQuantity: number;
@@ -19,6 +21,7 @@ type Props = {
   setItemQuantity: Dispatch<SetStateAction<number>>;
   onChange?: (data: { priceId: string; quantity: number }) => void;
   label?: ReactNode;
+  existingSubscription?: boolean;
 } & WithClassNameProps;
 
 const minQuantity = 1;
@@ -31,7 +34,10 @@ export const PlusAdjustQuantity = ({
   setItemQuantity,
   onChange,
   label,
+  existingSubscription = false,
 }: Props): ReactElement => {
+  const { logSubscriptionEvent } = usePlusSubscription();
+
   const onQuantityChange = useCallback(
     (value: number) => {
       const newQuantity = Math.max(value, minQuantity);
@@ -40,9 +46,23 @@ export const PlusAdjustQuantity = ({
       if (newQuantity !== itemQuantity) {
         setItemQuantity(newQuantity);
         onChange?.({ priceId: selectedOption, quantity: newQuantity });
+        logSubscriptionEvent({
+          event_name: LogEvent.SetOrgSize,
+          target_id: newQuantity.toString(),
+          extra: {
+            existing: existingSubscription,
+          },
+        });
       }
     },
-    [itemQuantity, setItemQuantity, onChange, selectedOption],
+    [
+      itemQuantity,
+      setItemQuantity,
+      onChange,
+      selectedOption,
+      logSubscriptionEvent,
+      existingSubscription,
+    ],
   );
 
   return (

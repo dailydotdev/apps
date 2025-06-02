@@ -251,6 +251,7 @@ export enum LogEvent {
   HoverCheckoutWidget = 'hover checkout widget',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
+  SetOrgSize = 'set org size',
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',

@@ -87,6 +87,7 @@ export const PreviewChanges = ({
           selectedOption="organization.plan"
           checkoutItemsLoading={isLoading || isRefetching}
           setItemQuantity={setQuantity}
+          existingSubscription
         />
 
         <Typography bold type={TypographyType.Body}>
