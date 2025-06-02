@@ -51,7 +51,7 @@ const PlusPaymentPage = (): ReactElement => {
     <>
       <NextSeo nofollow noindex />
       <div className="m-auto flex h-full w-full flex-col gap-6 laptop:h-fit laptop:w-[34.875rem]">
-        {isLaptop && productPricing && (
+        {isLaptop && selectedProduct && (
           <div className="flex flex-col items-center gap-4">
             <Typography type={TypographyType.Title2} bold>
               Plan details
