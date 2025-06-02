@@ -40,7 +40,6 @@ export const usePaddlePayment = ({
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { user, geo, trackingId } = useAuthContext();
-  // const { isOrganization } = usePaymentContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
   const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
