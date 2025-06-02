@@ -57,19 +57,19 @@ export const PlusProductToggle = ({
             key={`plus-product-toggle-${option.priceType}`}
             variant={isSelected ? ButtonVariant.Float : ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            onClick={() => {
+            onClick={async () => {
               setPriceType(option.priceType);
               onSelect?.(option);
-              logSubscriptionEvent({
-                event_name: LogEvent.SelectSubscriptionType,
-                target_id: option.label.toLowerCase(),
-              });
-              replace({
+              await replace({
                 pathname: plusUrl,
                 query: {
                   ...query,
                   type: option.label.toLowerCase(),
                 },
+              });
+              logSubscriptionEvent({
+                event_name: LogEvent.SelectSubscriptionType,
+                target_id: option.label.toLowerCase(),
               });
             }}
             className={classNames(option.className, {
