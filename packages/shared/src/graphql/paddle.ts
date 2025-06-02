@@ -50,6 +50,11 @@ export enum PurchaseType {
   Cores = 'cores',
 }
 
+export enum PlusPlanType {
+  Team = 'team',
+  Personal = 'personal',
+}
+
 export const PRICING_METADATA_FRAGMENT = gql`
   fragment PricingMetadataFragment on ProductPricingMetadata {
     appsId
