@@ -275,6 +275,13 @@ const ListAwardsModal = dynamic(() =>
   ).then((mod) => mod.ListAwardsModal),
 );
 
+const AdsDashboardModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "adsDashboardModal" */ './post/boost/AdsDashboardModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -321,6 +328,7 @@ export const modals = {
   [LazyModal.ContentModal]: ContentModal,
   [LazyModal.CustomLinks]: CustomLinksModal,
   [LazyModal.ListAwards]: ListAwardsModal,
+  [LazyModal.AdsDashboard]: AdsDashboardModal,
 };
 
 type GetComponentProps<T> = T extends
