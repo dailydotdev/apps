@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react'; // Import useCallback
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import classNames from 'classnames';
 import {
@@ -11,6 +11,8 @@ import { TextField } from '../fields/TextField';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MinusIcon, PlusIcon } from '../icons';
 import type { WithClassNameProps } from '../utilities';
+import { usePlusSubscription } from '../../hooks';
+import { LogEvent } from '../../lib/log';
 
 type Props = {
   itemQuantity: number;
@@ -19,7 +21,10 @@ type Props = {
   setItemQuantity: Dispatch<SetStateAction<number>>;
   onChange?: (data: { priceId: string; quantity: number }) => void;
   label?: ReactNode;
+  existingSubscription?: boolean;
 } & WithClassNameProps;
+
+const minQuantity = 1;
 
 export const PlusAdjustQuantity = ({
   className,
@@ -29,7 +34,37 @@ export const PlusAdjustQuantity = ({
   setItemQuantity,
   onChange,
   label,
+  existingSubscription = false,
 }: Props): ReactElement => {
+  const { logSubscriptionEvent } = usePlusSubscription();
+
+  const onQuantityChange = useCallback(
+    (value: number) => {
+      const newQuantity = Math.max(value, minQuantity);
+
+      // Only update state if the quantity has actually changed
+      if (newQuantity !== itemQuantity) {
+        setItemQuantity(newQuantity);
+        onChange?.({ priceId: selectedOption, quantity: newQuantity });
+        logSubscriptionEvent({
+          event_name: LogEvent.SetOrgSize,
+          target_id: newQuantity.toString(),
+          extra: {
+            existing: existingSubscription,
+          },
+        });
+      }
+    },
+    [
+      itemQuantity,
+      setItemQuantity,
+      onChange,
+      selectedOption,
+      logSubscriptionEvent,
+      existingSubscription,
+    ],
+  );
+
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       {label && (
@@ -53,41 +88,22 @@ export const PlusAdjustQuantity = ({
             container: 'flex-1 tablet:max-w-60',
           }}
           focused
-          onChange={({ target }) => {
-            const newValue = Math.max(Number(target.value), 1);
-            if (newValue === itemQuantity) {
-              return;
-            }
-            setItemQuantity(newValue);
-            onChange?.({ priceId: selectedOption, quantity: newValue });
-          }}
+          onChange={({ target }) => onQuantityChange(Number(target.value))}
         />
         <Button
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
           icon={<MinusIcon />}
-          disabled={itemQuantity <= 1}
+          disabled={itemQuantity <= minQuantity} // Use minQuantity here
           loading={checkoutItemsLoading}
-          onClick={() => {
-            setItemQuantity((prev: number) => {
-              const newValue = Math.max(prev - 1, 1);
-              onChange?.({ priceId: selectedOption, quantity: newValue });
-              return newValue;
-            });
-          }}
+          onClick={() => onQuantityChange(itemQuantity - 1)}
         />
         <Button
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
           icon={<PlusIcon />}
           loading={checkoutItemsLoading}
-          onClick={() => {
-            setItemQuantity((prev: number) => {
-              const newValue = prev + 1;
-              onChange?.({ priceId: selectedOption, quantity: newValue });
-              return newValue;
-            });
-          }}
+          onClick={() => onQuantityChange(itemQuantity + 1)}
         />
       </div>
     </div>

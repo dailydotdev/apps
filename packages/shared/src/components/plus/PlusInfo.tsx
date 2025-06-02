@@ -25,6 +25,7 @@ import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
 import type { ProductPricingPreview } from '../../graphql/paddle';
+import { PlusPlanType } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
 import { PlusAdjustQuantity } from './PlusAdjustQuantity';
@@ -275,6 +276,12 @@ export const PlusInfo = ({
                   logSubscriptionEvent({
                     event_name: LogEvent.SelectBillingCycle,
                     target_id: option.metadata.title.toLowerCase(),
+                    extra: {
+                      plan_type: isOrganization
+                        ? PlusPlanType.Organization
+                        : PlusPlanType.Personal,
+                      team_size: isOrganization ? itemQuantity : undefined,
+                    },
                   });
                 }}
               />

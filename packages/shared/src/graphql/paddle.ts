@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 import type { PricePreviewResponse } from '@paddle/paddle-js/types/price-preview/price-preview';
 import { gqlClient } from './common';
-import type { PlusPriceType, PlusPriceTypeAppsId } from '../lib/featureValues';
+import type { PlusPriceTypeAppsId, PlusPriceType } from '../lib/featureValues';
 
 export type PaddleProductLineItem =
   PricePreviewResponse['data']['details']['lineItems'][0];
@@ -48,6 +48,11 @@ export enum PurchaseType {
   Plus = 'plus',
   Organization = 'organization',
   Cores = 'cores',
+}
+
+export enum PlusPlanType {
+  Organization = 'organization',
+  Personal = 'personal',
 }
 
 export const PRICING_METADATA_FRAGMENT = gql`
@@ -112,9 +117,20 @@ export const fetchPricingPreview = async (
 };
 
 const PRICING_PREVIEW_BY_IDS_QUERY = gql`
-  query PricingPreviewByIds($ids: [String]!, $locale: String) {
-    pricingPreviewByIds(ids: $ids, locale: $locale) {
+  query PricingPreviewByIds(
+    $ids: [String]!
+    $locale: String
+    $loadMetadata: Boolean
+  ) {
+    pricingPreviewByIds(
+      ids: $ids
+      locale: $locale
+      loadMetadata: $loadMetadata
+    ) {
       priceId
+      metadata {
+        ...PricingMetadataFragment
+      }
       price {
         amount
         formatted
@@ -138,15 +154,17 @@ const PRICING_PREVIEW_BY_IDS_QUERY = gql`
       }
     }
   }
+  ${PRICING_METADATA_FRAGMENT}
 `;
 
 export const fetchPricingPreviewByIds = async (
   ids: string[],
   locale = globalThis?.navigator?.language ?? 'en-US',
-): Promise<BaseProductPricingPreview[]> => {
+  loadMetadata = false,
+): Promise<ProductPricingPreview[]> => {
   const { pricingPreviewByIds } = await gqlClient.request<{
-    pricingPreviewByIds: BaseProductPricingPreview[];
-  }>(PRICING_PREVIEW_BY_IDS_QUERY, { ids, locale });
+    pricingPreviewByIds: ProductPricingPreview[];
+  }>(PRICING_PREVIEW_BY_IDS_QUERY, { ids, locale, loadMetadata });
 
   return pricingPreviewByIds;
 };

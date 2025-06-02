@@ -8,6 +8,7 @@ import type {
 } from '@paddle/paddle-js';
 import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
+import { useAtomValue } from 'jotai';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import type { TargetType } from '../lib/log';
@@ -18,6 +19,8 @@ import type {
   OpenCheckoutProps,
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
+import { priceTypeAtom } from '../contexts/payment/context';
+import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
 interface UsePaddlePaymentProps
   extends Pick<
@@ -47,6 +50,11 @@ export const usePaddlePayment = ({
   const getProductQuantityRef = useRef(getProductQuantity);
   getProductQuantityRef.current = getProductQuantity;
 
+  const priceType = useAtomValue(priceTypeAtom);
+
+  const isOrganization = priceType === PurchaseType.Organization;
+  const isPlusPlan = priceType === PurchaseType.Plus || isOrganization;
+
   useEffect(() => {
     if (checkIsExtension()) {
       // Payment not available on extension
@@ -68,12 +76,24 @@ export const usePaddlePayment = ({
         const customData =
           event?.data?.custom_data || ({} as Record<string, unknown>);
 
+        const plusPlanExtra = isPlusPlan
+          ? {
+              plan_type: isOrganization
+                ? PlusPlanType.Organization
+                : PlusPlanType.Personal,
+              team_size: event?.data?.items?.[0]?.quantity,
+            }
+          : undefined;
+
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.InitiatePayment,
               target_id: event?.data?.payment.method_details.type,
+              extra: JSON.stringify({
+                ...plusPlanExtra,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
@@ -82,6 +102,9 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
               target_id: event?.data?.payment.method_details.type,
+              extra: JSON.stringify({
+                ...plusPlanExtra,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
@@ -89,6 +112,9 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
+              extra: JSON.stringify({
+                ...plusPlanExtra,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
@@ -107,6 +133,7 @@ export const usePaddlePayment = ({
                 payment: event?.data.payment.method_details.type,
                 cycle:
                   event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
+                ...plusPlanExtra,
               }),
             });
 
@@ -155,7 +182,7 @@ export const usePaddlePayment = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router, disabledEvents, targetType]);
+  }, [router, disabledEvents, targetType, isOrganization, isPlusPlan]);
 
   const openCheckout = useCallback(
     ({

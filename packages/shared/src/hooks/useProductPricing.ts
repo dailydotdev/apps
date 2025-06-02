@@ -31,17 +31,19 @@ export const useProductPricing = ({
 export interface ProductPricingByIdsConfig {
   ids: string[];
   locale?: string;
+  loadMetadata?: boolean;
 }
 
 export const useProductPricingByIds = ({
   ids,
   locale,
+  loadMetadata = false,
 }: ProductPricingByIdsConfig) => {
   const { user, isValidRegion } = useAuthContext();
 
   return useQuery({
     queryKey: generateQueryKey(RequestKey.PricePreview, user, ids, locale),
-    queryFn: () => fetchPricingPreviewByIds(ids, locale),
+    queryFn: () => fetchPricingPreviewByIds(ids, locale, loadMetadata),
     enabled: isValidRegion && ids.length > 0,
     staleTime: StaleTime.Default,
   });

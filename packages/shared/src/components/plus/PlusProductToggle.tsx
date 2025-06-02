@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useAtom } from 'jotai';
 import {
   Button,
   ButtonGroup,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { usePaymentContext } from '../../contexts/payment/context';
+import { priceTypeAtom } from '../../contexts/payment/context';
 import type { PurchaseType } from '../../graphql/paddle';
 import type { WithClassNameProps } from '../utilities';
 import { usePlusSubscription } from '../../hooks';
@@ -32,7 +33,7 @@ export const PlusProductToggle = ({
   onSelect,
 }: Props): ReactElement => {
   const { query, replace } = useRouter();
-  const { priceType, setPriceType } = usePaymentContext();
+  const [priceType, setPriceType] = useAtom(priceTypeAtom);
   const { logSubscriptionEvent } = usePlusSubscription();
   const initialLoaded = useRef(false);
 
