@@ -235,8 +235,6 @@ export const StoreKitSubProvider = ({
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
-      priceType: PurchaseType.Plus,
-      setPriceType: () => {},
     }),
     [isPlusAvailable, openCheckout, products],
   );

@@ -51,7 +51,7 @@ export enum PurchaseType {
 }
 
 export enum PlusPlanType {
-  Team = 'team',
+  Organization = 'organization',
   Personal = 'personal',
 }
 

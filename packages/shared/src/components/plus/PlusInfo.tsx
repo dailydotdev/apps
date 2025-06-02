@@ -278,7 +278,7 @@ export const PlusInfo = ({
                     target_id: option.metadata.title.toLowerCase(),
                     extra: {
                       plan_type: isOrganization
-                        ? PlusPlanType.Team
+                        ? PlusPlanType.Organization
                         : PlusPlanType.Personal,
                       team_size: isOrganization ? itemQuantity : undefined,
                     },
