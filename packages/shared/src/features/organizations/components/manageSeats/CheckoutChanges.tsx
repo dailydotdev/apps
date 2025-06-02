@@ -44,6 +44,7 @@ export const CheckoutChanges = ({
       <Button
         loading={isUpdatingSubscription}
         variant={ButtonVariant.Primary}
+        disabled={!nextBilling}
         onClick={() => {
           updateSubscription({
             id: organizationId,
@@ -95,8 +96,14 @@ export const CheckoutChanges = ({
           className="rounded-10 bg-surface-float p-4"
           type={TypographyType.Callout}
         >
-          You will be charged for {quantity} total seats at your next renewal on{' '}
-          {nextBilling}
+          {nextBilling ? (
+            <>
+              (You will be charged for {quantity} total seats at your next
+              renewal on {nextBilling})
+            </>
+          ) : (
+            'Plan has been canceled and will not be renewed.'
+          )}
         </Typography>
 
         <div className="flex flex-row items-center justify-between">
@@ -142,7 +149,7 @@ export const CheckoutChanges = ({
 
           <span>
             {formatCurrency({
-              amount: data.prorated.total.amount,
+              amount: nextBilling ? data.prorated.total.amount : 0,
               currency,
             })}
           </span>

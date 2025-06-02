@@ -53,7 +53,7 @@ export const PreviewChanges = ({
   const isQuantityLessThanSeats = quantity < seats.assigned;
 
   const disableContinueButton =
-    quantity === seats.total || isQuantityLessThanSeats;
+    quantity === seats.total || isQuantityLessThanSeats || !nextBilling;
 
   const continueButton = (
     <Button
@@ -186,21 +186,23 @@ export const PreviewChanges = ({
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-0.5">
             <Typography type={TypographyType.Callout}>Plan Total</Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Billed{' '}
-              {pricing.duration === PlusPriceType.Yearly
-                ? 'annually'
-                : 'monthly'}{' '}
-              starting {nextBilling}
-            </Typography>
+            {nextBilling && (
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                Billed{' '}
+                {pricing.duration === PlusPriceType.Yearly
+                  ? 'annually'
+                  : 'monthly'}{' '}
+                starting {nextBilling}
+              </Typography>
+            )}
           </div>
 
           <Typography bold type={TypographyType.Body}>
             {formatCurrency({
-              amount: data.total.amount,
+              amount: nextBilling ? data.total.amount : 0,
               currency,
             })}
           </Typography>
@@ -220,6 +222,16 @@ export const PreviewChanges = ({
             >
               <a className="underline">Manage members</a>
             </Link>
+          </Typography>
+        )}
+
+        {!nextBilling && (
+          <Typography
+            className="rounded-10 bg-surface-float p-4"
+            type={TypographyType.Callout}
+          >
+            The plan has been canceled. To adjust your seats, please re-activate
+            your subscription.
           </Typography>
         )}
 

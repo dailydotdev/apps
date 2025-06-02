@@ -115,11 +115,13 @@ export const useOrganizationSubscription = (
       },
     });
 
-  const nextBilling = new Date(data?.nextBilling).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const nextBilling =
+    data?.nextBilling &&
+    new Date(data?.nextBilling).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
 
   return {
     data,
