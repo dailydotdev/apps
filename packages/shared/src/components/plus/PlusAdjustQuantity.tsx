@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react'; // Import useCallback
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import classNames from 'classnames';
 import {
@@ -21,6 +21,8 @@ type Props = {
   label?: ReactNode;
 } & WithClassNameProps;
 
+const minQuantity = 1;
+
 export const PlusAdjustQuantity = ({
   className,
   itemQuantity,
@@ -30,6 +32,19 @@ export const PlusAdjustQuantity = ({
   onChange,
   label,
 }: Props): ReactElement => {
+  const onQuantityChange = useCallback(
+    (value: number) => {
+      const newQuantity = Math.max(value, minQuantity);
+
+      // Only update state if the quantity has actually changed
+      if (newQuantity !== itemQuantity) {
+        setItemQuantity(newQuantity);
+        onChange?.({ priceId: selectedOption, quantity: newQuantity });
+      }
+    },
+    [itemQuantity, setItemQuantity, onChange, selectedOption],
+  );
+
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       {label && (
@@ -53,41 +68,22 @@ export const PlusAdjustQuantity = ({
             container: 'flex-1 tablet:max-w-60',
           }}
           focused
-          onChange={({ target }) => {
-            const newValue = Math.max(Number(target.value), 1);
-            if (newValue === itemQuantity) {
-              return;
-            }
-            setItemQuantity(newValue);
-            onChange?.({ priceId: selectedOption, quantity: newValue });
-          }}
+          onChange={({ target }) => onQuantityChange(Number(target.value))}
         />
         <Button
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
           icon={<MinusIcon />}
-          disabled={itemQuantity <= 1}
+          disabled={itemQuantity <= minQuantity} // Use minQuantity here
           loading={checkoutItemsLoading}
-          onClick={() => {
-            setItemQuantity((prev: number) => {
-              const newValue = Math.max(prev - 1, 1);
-              onChange?.({ priceId: selectedOption, quantity: newValue });
-              return newValue;
-            });
-          }}
+          onClick={() => onQuantityChange(itemQuantity - 1)}
         />
         <Button
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
           icon={<PlusIcon />}
           loading={checkoutItemsLoading}
-          onClick={() => {
-            setItemQuantity((prev: number) => {
-              const newValue = prev + 1;
-              onChange?.({ priceId: selectedOption, quantity: newValue });
-              return newValue;
-            });
-          }}
+          onClick={() => onQuantityChange(itemQuantity + 1)}
         />
       </div>
     </div>
