@@ -75,6 +75,7 @@ import { FeedSettingsMenu } from './feeds/FeedSettings/types';
 import { settingsUrl, webappUrl } from '../lib/constants';
 import { SharedFeedPage } from './utilities';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
+import { BoostIcon } from './icons/Boost';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -366,12 +367,30 @@ export default function PostOptionsMenu({
           ...logOpts,
         }),
     },
-    {
-      icon: <MenuIcon Icon={EyeIcon} />,
-      label: 'Hide',
-      action: onHidePost,
-    },
   ];
+
+  const onBoostPost = () => {
+    openModal({
+      type: LazyModal.BoostPost,
+      props: {
+        post,
+      },
+    });
+  };
+
+  if (post?.author?.id && post?.author?.id === user?.id) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BoostIcon} />,
+      label: 'Boost post',
+      action: onBoostPost,
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={EyeIcon} />,
+    label: 'Hide',
+    action: onHidePost,
+  });
 
   const { shouldUseListFeedLayout } = useFeedLayout();
 
