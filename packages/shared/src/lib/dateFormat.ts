@@ -100,6 +100,7 @@ export enum TimeFormatType {
   TopReaderBadge = 'topReaderBadge',
   PlusMember = 'plusMember',
   Transaction = 'transaction',
+  LastActivity = 'lastActivity',
 }
 
 export function postDateFormat(
@@ -218,6 +219,41 @@ export const getPlusMemberDateFormat = (date: string | Date): string => {
   });
 };
 
+export const getLastActivityDateFormat = (
+  value: Date | number | string,
+): string => {
+  const date = new Date(value);
+  const now = new Date();
+
+  // Calculate time delta in seconds.
+  const dt = (now.getTime() - date.getTime()) / 1000;
+
+  if (dt <= oneMinute) {
+    return 'Now';
+  }
+
+  if (dt <= oneHour) {
+    const numMinutes = Math.round(dt / oneMinute);
+    return `${numMinutes} ${numMinutes === 1 ? 'minute' : 'minutes'} ago`;
+  }
+
+  if (dt <= oneDay) {
+    const numHours = Math.round(dt / oneHour);
+    return `${numHours} ${numHours === 1 ? 'hour' : 'hours'} ago`;
+  }
+
+  if (dt <= oneWeek) {
+    const numDays = Math.round(dt / oneDay);
+    return `${numDays} ${numDays === 1 ? 'day' : 'days'} ago`;
+  }
+
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  });
+};
+
 export enum Day {
   Sunday,
   Monday,
@@ -267,6 +303,10 @@ export const formatDate = ({ value, type }: FormatDateProps): string => {
     const isCurrentYear = isSameYear(date, new Date());
 
     return format(date, `MMM dd${isCurrentYear ? ' ' : ', yyyy '}HH:mm`);
+  }
+
+  if (type === TimeFormatType.LastActivity) {
+    return getLastActivityDateFormat(date);
   }
 
   return postDateFormat(date);
