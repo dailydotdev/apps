@@ -23,6 +23,8 @@ export enum MarketingCtaVariant {
   PopoverSmall = 'popover_small',
   Plus = 'plus',
   PlusCard = 'plus_card',
+  ForYouTab = 'for_you_tab',
+  BookmarkTab = 'bookmark_tab',
 }
 
 export interface MarketingCta {

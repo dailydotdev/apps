@@ -5,7 +5,14 @@ import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useEventListener, useFeeds, useViewSize, ViewSize } from '../../hooks';
+import {
+  useBoot,
+  useConditionalFeature,
+  useEventListener,
+  useFeeds,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -29,6 +36,9 @@ import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
+import { MarketingCtaVariant } from '../marketingCta/common';
+import { featurePlusEntryMobile } from '../../lib/featureManagement';
+import { TargetType } from '../../lib/log';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -71,6 +81,14 @@ function FeedNav(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
+  const isForYouTab =
+    router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
+  const { getMarketingCta } = useBoot();
+  const forYouTabEntry = getMarketingCta(MarketingCtaVariant.ForYouTab);
+  const { value: plusEntryExp } = useConditionalFeature({
+    feature: featurePlusEntryMobile,
+    shouldEvaluate: isForYouTab && isMobile && !!forYouTabEntry,
+  });
 
   const showStickyButton =
     isMobile &&
@@ -225,12 +243,14 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </StickyNavIconWrapper>
       </div>
-      <PlusMobileEntryBanner
-        leadIn="Create feed"
-        className="-mt-4"
-        copy="with advanced filters, customization, and full control. Upgrade to Plus to unlock it."
-        cta="Upgrade to plus"
-      />
+      {plusEntryExp && (
+        <PlusMobileEntryBanner
+          targetType={TargetType.PlusEntryForYouTab}
+          className="-mt-4"
+          arrow
+          {...forYouTabEntry}
+        />
+      )}
     </div>
   );
 }
