@@ -256,7 +256,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     params.delete(AFTER_AUTH_PARAM);
     params.delete('id');
     params.delete('stepId');
-    return router.replace(getPathnameWithQuery(afterAuth || '/', params));
+    await router.replace(getPathnameWithQuery(afterAuth || '/', params));
   }, [router]);
 
   const onComplete = useCallback(async () => {
@@ -277,13 +277,13 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       return;
     }
 
-    isInitialized.current = true;
-
     // If the user is logged in and has completed the onboarding steps,
     // AND no active stepId is there, redirect them to app.
     if (hasCompletedContentTypes && hasCompletedEditTags) {
       redirectToApp();
     }
+
+    isInitialized.current = true;
   }, [
     hasCompletedContentTypes,
     hasCompletedEditTags,
