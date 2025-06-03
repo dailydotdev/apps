@@ -15,7 +15,7 @@ import type { LogStartBuyingCreditsProps } from '../../types';
 import type { Origin } from '../../lib/log';
 import { getPathnameWithQuery } from '../../lib';
 import { useProductPricing } from '../../hooks/useProductPricing';
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 
 export const FeaturedCoresWidget = ({
   className,
@@ -29,7 +29,7 @@ export const FeaturedCoresWidget = ({
   amounts: number[];
 }): ReactElement => {
   const { data: prices, isPending: isPendingPrices } = useProductPricing({
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
   });
 
   return (

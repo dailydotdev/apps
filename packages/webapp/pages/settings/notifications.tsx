@@ -36,6 +36,7 @@ import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/Togg
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 
 import type { NextSeoProps } from 'next-seo';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -386,7 +387,7 @@ const AccountNotificationsPage = (): ReactElement => {
           <ToggleWeekStart className={{ container: 'mt-3' }} />
         </div>
       </div>
-      <div className="my-4 border-t border-border-subtlest-tertiary" />
+      <HorizontalSeparator className="my-4" />
       <div className="flex flex-row gap-4">
         <AccountContentSection
           className={{
@@ -487,7 +488,7 @@ const AccountNotificationsPage = (): ReactElement => {
       </div>
       {isPushSupported && (
         <>
-          <div className="my-4 border-t border-border-subtlest-tertiary" />
+          <HorizontalSeparator className="my-4" />
           <div className="flex flex-row">
             <AccountContentSection
               className={{
