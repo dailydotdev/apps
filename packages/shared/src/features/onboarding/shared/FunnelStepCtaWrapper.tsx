@@ -21,6 +21,7 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
   cta?: {
     label?: string;
     note?: string;
+    animation?: string;
   };
   containerClassName?: string;
   skip?: ButtonProps<'button'> & {
@@ -59,7 +60,7 @@ export function FunnelStepCtaWrapper({
       <div className="sticky bottom-2 m-4 flex flex-col gap-4">
         {note}
         <Button
-          className={classNames(className, 'w-full')}
+          className={classNames(className, cta?.animation, 'w-full')}
           data-funnel-track={FunnelTargetId.StepCta}
           size={ButtonSize.XLarge}
           type="button"

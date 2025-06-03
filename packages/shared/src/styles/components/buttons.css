@@ -132,6 +132,20 @@
       --button-color: var(--button-hover-color);
       --button-box-shadow: var(--button-hover-box-shadow);
     }
+
+    &.ping {
+      position: relative;
+
+      &::before {
+        content: '';
+        z-index: -1;
+        position: absolute;
+        inset: -2px;
+        background: inherit;
+        border-radius: inherit;
+        animation: fast-ping 1s ease-in-out infinite;
+      }
+    }
   }
 
 
@@ -281,5 +295,30 @@
   &:is([aria-pressed="true"], [aria-checked="true"]) {
     @apply bg-brand-active;
     @apply border-brand-default;
+  }
+}
+
+@keyframes fast-ping {
+  0% {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  45% {
+    top: -0.125rem;
+    left: 0;
+    width: calc(100% + 0.25rem);
+    height: calc(100% + 0.25rem);
+
+    opacity: 1;
+  }
+
+  100% {
+    top: -0.75rem;
+    left: -0.75rem;
+    width: calc(100% + 1.5rem);
+    height: calc(100% + 1.5rem);
+    opacity: 0;
   }
 }
