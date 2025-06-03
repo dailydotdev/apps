@@ -248,7 +248,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     hasCompletedEditTags,
     isOnboardingActionsReady,
   } = useOnboarding();
-  const isInitialized = useRef(false);
+  const isFunnelReady = useRef(false);
 
   const redirectToApp = useCallback(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -272,7 +272,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       action ||
       isAuthenticating ||
       !isOnboardingActionsReady ||
-      isInitialized.current
+      isFunnelReady.current
     ) {
       return;
     }
@@ -282,7 +282,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     if (hasCompletedContentTypes && hasCompletedEditTags) {
       redirectToApp();
     } else {
-      isInitialized.current = true;
+      isFunnelReady.current = true;
     }
   }, [
     hasCompletedContentTypes,
@@ -293,10 +293,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     redirectToApp,
     router,
   ]);
-
-  if (!isInitialized) {
-    return null;
-  }
 
   if (isAuthenticating) {
     return (
@@ -312,6 +308,10 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
         <FooterLinks className="mx-auto pb-6" />
       </div>
     );
+  }
+
+  if (!isFunnelReady.current) {
+    return null;
   }
 
   return (
