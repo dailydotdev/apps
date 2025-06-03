@@ -64,17 +64,8 @@ const PlusGrid = ({ marketingCta }: { marketingCta: MarketingCta }) => {
     clearMarketingCta(marketingCta.campaignId);
   };
 
-  // TODO: Create variable for gradient
   return (
-    <div
-      className="relative overflow-hidden rounded-b-16 p-4 pb-6"
-      style={{
-        background: `
-        radial-gradient(circle at 50% 100%, #CE3DF3 0%, rgba(113, 71, 237, 0.72) 9.6%, rgba(113, 71, 237, 0) 100%),
-        #0E1217
-      `,
-      }}
-    >
+    <div className="plus-entry-gradient relative overflow-hidden rounded-b-16 p-4 pb-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
