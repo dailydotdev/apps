@@ -264,28 +264,26 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   }, [redirectToApp]);
 
   useEffect(() => {
-    (async () => {
-      const {
-        query: { action },
-      } = router;
+    const {
+      query: { action },
+    } = router;
 
-      if (
-        action ||
-        isAuthenticating ||
-        !isOnboardingActionsReady ||
-        isInitialized.current
-      ) {
-        return;
-      }
+    if (
+      action ||
+      isAuthenticating ||
+      !isOnboardingActionsReady ||
+      isInitialized.current
+    ) {
+      return;
+    }
 
-      // If the user is logged in and has completed the onboarding steps,
-      // AND no active stepId is there, redirect them to app.
-      if (hasCompletedContentTypes && hasCompletedEditTags) {
-        await redirectToApp();
-      }
-
+    // If the user is logged in and has completed the onboarding steps,
+    // AND no active stepId is there, redirect them to app.
+    if (hasCompletedContentTypes && hasCompletedEditTags) {
+      redirectToApp();
+    } else {
       isInitialized.current = true;
-    })();
+    }
   }, [
     hasCompletedContentTypes,
     hasCompletedEditTags,
