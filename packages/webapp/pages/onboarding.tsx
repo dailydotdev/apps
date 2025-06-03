@@ -194,7 +194,7 @@ export function OnboardPage(): ReactElement {
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Plus);
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const { shouldShowExtensionOnboarding } = useOnboardingExtension();
   const hasSelectTopics = !!feedSettings?.includeTags?.length;
   const [isInteractiveFeed, setIsInteractiveFeed] = useState(false);
