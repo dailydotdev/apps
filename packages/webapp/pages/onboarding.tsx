@@ -278,7 +278,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       redirectToApp();
     } else {
       isFunnelReady.current = true;
-      console.log('Funnel is ready, proceeding with onboarding.');
     }
   }, [
     hasCompletedContentTypes,

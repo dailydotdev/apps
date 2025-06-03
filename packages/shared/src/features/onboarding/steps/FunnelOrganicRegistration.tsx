@@ -91,7 +91,8 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
           details: { user: data },
         });
 
-        if (data) {
+        const isEmailSignup = 'infoConfirmed' in data && !data.infoConfirmed;
+        if (isEmailSignup) {
           setAuth((prev) => ({
             ...prev,
             isLoginFlow: false,
