@@ -5,30 +5,35 @@ import {
   TypographyTag,
   TypographyColor,
 } from '../../typography/Typography';
-import { DevPlusIcon, InfoIcon, VIcon } from '../../icons';
+import { DevPlusIcon } from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import type { MarketingCta } from '../../marketingCta/common';
 import CloseButton from '../../CloseButton';
 import { useBoot } from '../../../hooks';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
+import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';
 
 const bulletPoints = [
   {
-    copy: 'Advanced custom feeds',
-    tooltip: 'Advanced custom feeds',
+    label: 'Advanced custom feeds',
+    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.`,
+    status: PlusItemStatus.Ready,
   },
   {
-    copy: 'Ad-free experience',
-    tooltip: 'Ad-free experience',
+    label: 'Ad-free experience',
+    tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
+    status: PlusItemStatus.Ready,
   },
   {
-    copy: 'Run prompts on any post',
-    tooltip: 'Run prompts on any post',
+    label: 'Run prompts on any post',
+    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
+    status: PlusItemStatus.Ready,
   },
   {
-    copy: 'Bookmark folders',
-    tooltip: 'Bookmark folders',
+    label: 'Bookmark folders',
+    tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
+    status: PlusItemStatus.Ready,
   },
 ];
 
@@ -99,21 +104,13 @@ const PlusGrid = ({ marketingCta }: { marketingCta: MarketingCta }) => {
           <div className="flex flex-col items-center justify-center gap-6">
             <div className="flex w-full flex-col gap-1">
               {bulletPoints.map((bulletPoint) => (
-                <div
-                  key={bulletPoint.copy}
-                  className="rounded-md flex items-center justify-between gap-2 p-0.5"
-                >
-                  <div className="flex items-center gap-1">
-                    <VIcon />
-                    <Typography
-                      tag={TypographyTag.P}
-                      type={TypographyType.Callout}
-                    >
-                      {bulletPoint.copy}
-                    </Typography>
-                  </div>
-                  <InfoIcon className="fill-text-tertiary" />
-                </div>
+                <PlusListItem
+                  key={bulletPoint.label}
+                  typographyProps={{
+                    className: 'typo-callout',
+                  }}
+                  item={bulletPoint}
+                />
               ))}
             </div>
           </div>
