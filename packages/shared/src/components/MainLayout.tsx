@@ -14,7 +14,7 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget } from '../lib/log';
+import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -26,10 +26,19 @@ import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import {
+  useBoot,
+  useConditionalFeature,
+  useFeedLayout,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
+import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
+import { MarketingCtaVariant } from './marketingCta/common';
+import { featurePlusEntryMobile } from '../lib/featureManagement';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -84,7 +93,13 @@ function MainLayoutComponent({
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const { isCustomFeed } = useFeedName({ feedName });
-
+  const { getMarketingCta } = useBoot();
+  const plusEntryBar = getMarketingCta(MarketingCtaVariant.PlusAnnouncementBar);
+  const isMobile = useViewSize(ViewSize.MobileXL);
+  const { value: plusEntryExp } = useConditionalFeature({
+    feature: featurePlusEntryMobile,
+    shouldEvaluate: isMobile && !!plusEntryBar,
+  });
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -175,6 +190,14 @@ function MainLayoutComponent({
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
+      {plusEntryExp && (
+        <PlusMobileEntryBanner
+          className="relative"
+          {...plusEntryBar}
+          targetType={TargetType.PlusEntryAnnouncementBar}
+        />
+      )}
+
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}

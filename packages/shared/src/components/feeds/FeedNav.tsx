@@ -84,7 +84,7 @@ function FeedNav(): ReactElement {
   const isForYouTab =
     router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
   const { getMarketingCta } = useBoot();
-  const forYouTabEntry = getMarketingCta(MarketingCtaVariant.ForYouTab);
+  const forYouTabEntry = getMarketingCta(MarketingCtaVariant.PlusForYouTab);
   const { value: plusEntryExp } = useConditionalFeature({
     feature: featurePlusEntryMobile,
     shouldEvaluate: isForYouTab && isMobile && !!forYouTabEntry,

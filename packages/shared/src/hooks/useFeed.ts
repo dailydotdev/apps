@@ -301,15 +301,18 @@ export default function useFeed<T>(
             const withFirstIndex = (condition: boolean) =>
               pageIndex === 0 && adItem.index === 0 && condition;
 
-            if (withFirstIndex(!!settings.marketingCta)) {
-              acc.push({
-                type: FeedItemType.MarketingCta,
-                marketingCta: settings.marketingCta,
-              });
-            } else if (withFirstIndex(!!settings.plusEntry)) {
+            if (
+              !!settings.plusEntry &&
+              settings.plusEntry.flags.index === adItem.index
+            ) {
               acc.push({
                 type: FeedItemType.PlusEntry,
                 plusEntry: settings.plusEntry,
+              });
+            } else if (withFirstIndex(!!settings.marketingCta)) {
+              acc.push({
+                type: FeedItemType.MarketingCta,
+                marketingCta: settings.marketingCta,
               });
             } else if (withFirstIndex(settings.showAcquisitionForm)) {
               acc.push({ type: FeedItemType.UserAcquisition });

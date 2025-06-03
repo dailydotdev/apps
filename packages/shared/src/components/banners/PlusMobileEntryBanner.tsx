@@ -64,7 +64,9 @@ const PlusMobileEntryBanner = ({
       <div className="plus-entry-gradient absolute inset-0 -z-1 h-full w-full rounded-16" />
       {arrow && <PlusEntryArrow className="absolute top-1 h-[25px] w-[14px]" />}
       <div className="flex w-full flex-col gap-2">
-        <div className={classNames('relative text-center', arrow && 'px-2')}>
+        <div
+          className={classNames('relative w-full text-center', arrow && 'pl-3')}
+        >
           {leadIn && (
             <Typography
               tag={TypographyTag.Span}

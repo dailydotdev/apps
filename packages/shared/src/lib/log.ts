@@ -320,6 +320,7 @@ export enum TargetType {
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
+  PlusEntryAnnouncementBar = 'plus_entry_announcement_bar',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   Source = 'source',

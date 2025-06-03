@@ -95,7 +95,7 @@ export default function BookmarkFeedLayout({
   );
   const isMobile = useViewSize(ViewSize.MobileXL);
   const { getMarketingCta } = useBoot();
-  const bookmarkTabEntry = getMarketingCta(MarketingCtaVariant.BookmarkTab);
+  const bookmarkTabEntry = getMarketingCta(MarketingCtaVariant.PlusBookmarkTab);
   const { value: plusEntryExp } = useConditionalFeature({
     feature: featurePlusEntryMobile,
     shouldEvaluate: !!bookmarkTabEntry && isMobile,
