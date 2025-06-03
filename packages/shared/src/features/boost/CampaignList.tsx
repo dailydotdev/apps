@@ -42,8 +42,7 @@ const CampaignListItem = ({ campaign, onClick }: CampaignListItemProps) => {
       onClick={onClick}
       className="flex w-full flex-row items-center gap-4"
     >
-      Campaign Item
-      <span className="flex flex-row items-center gap-2">
+      <span className="flex flex-1 flex-row items-center gap-2">
         {campaign.image && (
           <Image
             src={campaign.image}
@@ -56,7 +55,7 @@ const CampaignListItem = ({ campaign, onClick }: CampaignListItemProps) => {
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
-          className="line-clamp-2"
+          className="line-clamp-2 flex-1 text-left"
         >
           {campaign.title}
         </Typography>
@@ -64,12 +63,14 @@ const CampaignListItem = ({ campaign, onClick }: CampaignListItemProps) => {
       <Typography
         tag={TypographyTag.Span}
         type={TypographyType.Footnote}
-        className={classNames('rounded-6 p-1', {
-          'text-actions-share-active': campaign.status === 'completed',
-          'text-actions-downvote-active': campaign.status === 'cancelled',
-          'text-actions-upvote-active': campaign.status === 'active',
+        className={classNames('rounded-6 px-1', {
+          'bg-action-share-active text-action-share-default':
+            campaign.status === 'completed',
+          'bg-action-downvote-active text-action-downvote-default':
+            campaign.status === 'cancelled',
+          'bg-action-upvote-active text-action-upvote-default':
+            campaign.status === 'active',
         })}
-        bold
       >
         {getCaption()}
       </Typography>

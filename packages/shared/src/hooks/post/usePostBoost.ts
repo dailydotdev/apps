@@ -18,7 +18,7 @@ interface UsePostBoost {
   isLoading: boolean;
 }
 
-const dummyData = [
+const dummyData: PostCampaign[] = [
   {
     id: '1',
     title: 'Boost Your Post',
@@ -27,6 +27,9 @@ const dummyData = [
     views: 5000,
     upvotes: 300,
     comments: 50,
+    boostedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Boost lasts for 7 days
+    status: 'active',
+    image: 'https://example.com/image1.jpg', // Example image URL
   },
   {
     id: '2',
@@ -36,14 +39,17 @@ const dummyData = [
     views: 10000,
     upvotes: 600,
     comments: 80,
+    status: 'completed',
+    image: 'https://example.com/image2.jpg', // Example image URL
   },
 ];
 
 export const usePostBoost = (): UsePostBoost => {
-  const { data, isPending } = useQuery<PostCampaign[]>({
+  const { data, isPending, isFetched } = useQuery<PostCampaign[]>({
     queryKey: ['postBoost'],
     // queryFn: async () => {
+    initialData: dummyData,
   });
 
-  return { data, isLoading: isPending };
+  return { data, isLoading: isPending && !isFetched };
 };
