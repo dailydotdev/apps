@@ -3,6 +3,7 @@ import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
+import { OnboardingGridVariation } from './featureValues';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -73,6 +74,11 @@ export const featureOnboardingReorder = new Feature(
 export const featureOnboardingPlusFeatureGrid = new Feature(
   'onboarding_plus_feature_grid',
   false,
+);
+
+export const featureOnboardingGridVariation = new Feature(
+  'onboarding_feature_grid_variation',
+  OnboardingGridVariation.Control,
 );
 
 export { feature };
