@@ -119,6 +119,7 @@ export interface FunnelStepFactParameters {
   headline: string;
   cta?: string;
   ctaNote?: string;
+  ctaAnimation?: string;
   reverse?: boolean;
   badge?: {
     placement?: 'bottom' | 'top';

@@ -1,4 +1,3 @@
-import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
@@ -17,6 +16,7 @@ import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/car
 import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
@@ -102,7 +102,7 @@ export async function getServerSideProps({
   const setCacheHeader = () => {
     res.setHeader(
       'Cache-Control',
-      `public, max-age=0, must-revalidate, s-maxage=${oneHour}, stale-while-revalidate=${oneHour}`,
+      `public, max-age=0, must-revalidate, s-maxage=${StaleTime.OneHour}, stale-while-revalidate=${StaleTime.OneHour}`,
     );
   };
 
