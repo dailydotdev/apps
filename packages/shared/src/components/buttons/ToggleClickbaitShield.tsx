@@ -4,7 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { ButtonProps } from './Button';
 import { Button, ButtonSize, ButtonVariant } from './Button';
-import { ShieldCheckIcon, ShieldIcon, ShieldPlusIcon } from '../icons';
+import {
+  ShieldCheckIcon,
+  ShieldIcon,
+  ShieldPlusIcon,
+  ShieldWarningIcon,
+} from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
@@ -16,6 +21,8 @@ import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
+import { useFeature } from '../GrowthBookProvider';
+import { clickbaitTriesMax } from '../../lib/featureManagement';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -32,6 +39,7 @@ export const ToggleClickbaitShield = ({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user } = useAuthContext();
+  const maxTries = useFeature(clickbaitTriesMax);
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -41,23 +49,37 @@ export const ToggleClickbaitShield = ({
   };
 
   if (!isPlus) {
+    const hasUsedFreeTrial = user?.clickbaitTries >= maxTries;
+    const triesLeft = maxTries - user?.clickbaitTries;
     return (
       <SimpleTooltip
         placement="bottom"
-        content="Enable Clickbait Shield to get clearer more informative titles"
+        content={
+          hasUsedFreeTrial
+            ? 'Enable Clickbait Shield to get clearer more informative titles'
+            : `Get clear, more informative titles with Clickbait Shield. You can try it ${triesLeft} more times for free this month.`
+        }
         container={{
           className: 'max-w-64 text-center',
         }}
       >
         <Button
           {...commonIconProps}
-          icon={<ShieldPlusIcon />}
+          icon={
+            hasUsedFreeTrial ? (
+              <ShieldWarningIcon className="text-accent-ketchup-default" />
+            ) : (
+              <ShieldPlusIcon />
+            )
+          }
           onClick={() => {
             router.push(
               `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
             );
           }}
-        />
+        >
+          {triesLeft}/{maxTries}
+        </Button>
       </SimpleTooltip>
     );
   }

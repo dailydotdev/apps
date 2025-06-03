@@ -3,34 +3,31 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import {
-  useActions,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
-import { ActionType } from '../../../graphql/actions';
 import type { Post } from '../../../graphql/posts';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
+import { useFeature } from '../../GrowthBookProvider';
+import { clickbaitTriesMax } from '../../../lib/featureManagement';
 
 export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
-  const { checkHasCompleted } = useActions();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
+  const maxTries = useFeature(clickbaitTriesMax);
 
   if (!isPlus) {
-    const hasUsedFreeTrial = checkHasCompleted(ActionType.FetchedSmartTitle);
+    const hasUsedFreeTrial = user?.clickbaitTries >= maxTries;
+    const triesLeft = maxTries - user?.clickbaitTries;
     return (
       <SimpleTooltip
         container={{
@@ -45,8 +42,8 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           ) : (
             <>
               {hasUsedFreeTrial
-                ? 'Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield'
-                : 'This title could be clearer and more informative. Try out Clickbait Shield'}
+                ? `Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield`
+                : `This title could be clearer and more informative. Try out Clickbait Shield for free (${triesLeft} uses left this month).`}
             </>
           )
         }
@@ -58,7 +55,13 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             fetchedSmartTitle ? (
               <ShieldCheckIcon className="text-status-success" />
             ) : (
-              <ShieldWarningIcon />
+              <ShieldWarningIcon
+                className={
+                  hasUsedFreeTrial
+                    ? 'text-accent-ketchup-default'
+                    : 'text-accent-cheese-default'
+                }
+              />
             )
           }
           iconSecondaryOnHover

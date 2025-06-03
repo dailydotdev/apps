@@ -4,15 +4,9 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import {
-  useActions,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
+import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { ActionType } from '../../../graphql/actions';
 import { LazyModal } from '../../modals/common/types';
 
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
@@ -22,19 +16,22 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { TargetId } from '../../../lib/log';
+import { clickbaitTriesMax } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
-  const { checkHasCompleted } = useActions();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
+  const maxTries = useFeature(clickbaitTriesMax);
 
   if (!isPlus) {
-    const hasUsedFreeTrial = checkHasCompleted(ActionType.FetchedSmartTitle);
+    const hasUsedFreeTrial = user?.clickbaitTries >= maxTries;
+    const triesLeft = maxTries - user?.clickbaitTries;
     return (
       <div
         className={classNames(
@@ -50,7 +47,13 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             fetchedSmartTitle ? (
               <ShieldCheckIcon className="text-status-success" />
             ) : (
-              <ShieldWarningIcon className="text-accent-cheese-default" />
+              <ShieldWarningIcon
+                className={
+                  hasUsedFreeTrial
+                    ? 'text-accent-ketchup-default'
+                    : 'text-accent-cheese-default'
+                }
+              />
             )
           }
         />
@@ -74,7 +77,11 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           </>
         ) : (
           <>
-            This title could be clearer and more informative.
+            This title could be clearer and more informative.{' '}
+            {triesLeft > 0
+              ? `Try out Clickbait
+            Shield for free (${triesLeft} uses left this month).`
+              : undefined}
             <Button
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Option}
