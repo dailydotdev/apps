@@ -96,6 +96,7 @@ export * from './Phone';
 export * from './Pin';
 export * from './Play';
 export * from './Plus';
+export * from './PlusEntryArrow';
 export * from './Power';
 export * from './Privacy';
 export * from './PWA';

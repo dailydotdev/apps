@@ -22,6 +22,7 @@ export enum MarketingCtaVariant {
   Popover = 'popover',
   PopoverSmall = 'popover_small',
   Plus = 'plus',
+  PlusCard = 'plus_card',
 }
 
 export interface MarketingCta {

@@ -22,11 +22,16 @@ import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
-import { featureFeedAdTemplate } from '../lib/featureManagement';
+import {
+  featureFeedAdTemplate,
+  featurePlusEntryMobile,
+} from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
+import { useConditionalFeature } from './useConditionalFeature';
+import { useViewSize, ViewSize } from './useViewSize';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -49,12 +54,17 @@ export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   index: number;
 }
 
+interface PlusEntryMobileItem extends FeedItemBase<FeedItemType.PlusEntry> {
+  plusEntry: MarketingCta;
+}
+
 export type FeedItem =
   | PostItem
   | AdItem
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
-  | FeedItemBase<FeedItemType.UserAcquisition>;
+  | FeedItemBase<FeedItemType.UserAcquisition>
+  | PlusEntryMobileItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -76,6 +86,7 @@ type UseFeedSettingParams = {
   disableAds?: boolean;
   showAcquisitionForm?: boolean;
   marketingCta?: MarketingCta;
+  plusEntry?: MarketingCta;
   feedName?: string;
 };
 
@@ -110,7 +121,7 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
-
+  const isMobile = useViewSize(ViewSize.MobileXL);
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
@@ -193,6 +204,10 @@ export default function useFeed<T>(
     isLoading,
     dataUpdatedAt: adsUpdatedAt,
   } = adsQuery;
+  const { value: plusEntryMobile } = useConditionalFeature({
+    feature: featurePlusEntryMobile,
+    shouldEvaluate: isAdsQueryEnabled && isMobile,
+  });
 
   const getAd = useCallback(
     ({ index }: { index: number }) => {
@@ -210,6 +225,13 @@ export default function useFeed<T>(
       // if adIndex is negative, it means we are not supposed to show ads yet based on adStart
       if (adIndex < 0) {
         return undefined;
+      }
+
+      if (adIndex === 0 && plusEntryMobile) {
+        return {
+          type: FeedItemType.PlusEntry,
+          index: adIndex,
+        };
       }
 
       const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
@@ -263,6 +285,7 @@ export default function useFeed<T>(
       adTemplate?.adRepeat,
       adsUpdatedAt,
       pageSize,
+      plusEntryMobile,
     ],
   );
 
@@ -282,6 +305,11 @@ export default function useFeed<T>(
               acc.push({
                 type: FeedItemType.MarketingCta,
                 marketingCta: settings.marketingCta,
+              });
+            } else if (withFirstIndex(!!settings.plusEntry)) {
+              acc.push({
+                type: FeedItemType.PlusEntry,
+                plusEntryCard: settings.plusEntry,
               });
             } else if (withFirstIndex(settings.showAcquisitionForm)) {
               acc.push({ type: FeedItemType.UserAcquisition });
@@ -316,6 +344,7 @@ export default function useFeed<T>(
     settings.showAcquisitionForm,
     placeholdersPerPage,
     getAd,
+    settings.plusEntry,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

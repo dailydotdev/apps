@@ -28,6 +28,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
+import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -224,6 +225,12 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </StickyNavIconWrapper>
       </div>
+      <PlusMobileEntryBanner
+        leadIn="Create feed"
+        className="-mt-4"
+        copy="with advanced filters, customization, and full control. Upgrade to Plus to unlock it."
+        cta="Upgrade to plus"
+      />
     </div>
   );
 }
