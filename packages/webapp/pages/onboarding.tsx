@@ -260,30 +260,32 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   }, [router]);
 
   const onComplete = useCallback(async () => {
-    return redirectToApp();
+    await redirectToApp();
   }, [redirectToApp]);
 
   useEffect(() => {
-    const {
-      query: { action },
-    } = router;
+    (async () => {
+      const {
+        query: { action },
+      } = router;
 
-    if (
-      action ||
-      isAuthenticating ||
-      !isOnboardingActionsReady ||
-      isInitialized.current
-    ) {
-      return;
-    }
+      if (
+        action ||
+        isAuthenticating ||
+        !isOnboardingActionsReady ||
+        isInitialized.current
+      ) {
+        return;
+      }
 
-    // If the user is logged in and has completed the onboarding steps,
-    // AND no active stepId is there, redirect them to app.
-    if (hasCompletedContentTypes && hasCompletedEditTags) {
-      redirectToApp();
-    }
+      // If the user is logged in and has completed the onboarding steps,
+      // AND no active stepId is there, redirect them to app.
+      if (hasCompletedContentTypes && hasCompletedEditTags) {
+        await redirectToApp();
+      }
 
-    isInitialized.current = true;
+      isInitialized.current = true;
+    })();
   }, [
     hasCompletedContentTypes,
     hasCompletedEditTags,
