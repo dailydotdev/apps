@@ -5,6 +5,7 @@ import type { ModalProps } from '../../common/Modal';
 import { Typography, TypographyType } from '../../../typography/Typography';
 import { CoreIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
+import type { PostCampaign } from '../../../../hooks/post/usePostBoost';
 import { usePostBoost } from '../../../../hooks/post/usePostBoost';
 import { DataTile } from '../../../../features/boost/DataTile';
 import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
@@ -12,6 +13,7 @@ import { CampaignList } from '../../../../features/boost/CampaignList';
 
 export function AdsDashboardModal(props: ModalProps): ReactElement {
   const { data, isLoading } = usePostBoost();
+  const [, setViewing] = React.useState<PostCampaign>(null);
 
   return (
     <Modal
@@ -19,7 +21,6 @@ export function AdsDashboardModal(props: ModalProps): ReactElement {
       isOpen
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
-      isDrawerOnMobile
     >
       <Modal.Header>
         <Typography type={TypographyType.Title3} bold>
@@ -42,7 +43,7 @@ export function AdsDashboardModal(props: ModalProps): ReactElement {
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
-          <CampaignList list={data} onClick={console.log} />
+          <CampaignList list={data} onClick={setViewing} />
         )}
       </Modal.Body>
     </Modal>
