@@ -10,6 +10,7 @@ export interface PostCampaign {
   upvotes: number;
   comments: number;
   boostedUntil?: Date; // Optional date when the boost ends
+  createdAt: Date;
   status: 'completed' | 'cancelled' | 'active';
 }
 
@@ -30,6 +31,7 @@ const dummyData: PostCampaign[] = [
     boostedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Boost lasts for 7 days
     status: 'active',
     image: 'https://example.com/image1.jpg', // Example image URL
+    createdAt: new Date(), // Current date
   },
   {
     id: '2',
@@ -39,8 +41,10 @@ const dummyData: PostCampaign[] = [
     views: 10000,
     upvotes: 600,
     comments: 80,
+    boostedUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Boost lasts for 5 days
     status: 'completed',
     image: 'https://example.com/image2.jpg', // Example image URL
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Created 3 days ago
   },
 ];
 
