@@ -5,11 +5,11 @@ import {
   CoreOptionButtonPlaceholder,
 } from './CoreOptionButton';
 import { useProductPricing } from '../../hooks/useProductPricing';
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 
 export const CoreOptionList = (): ReactElement => {
   const { data: prices, isPending: isPendingPrices } = useProductPricing({
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
   });
 
   return (

@@ -238,6 +238,7 @@ export enum LogEvent {
   WarningCheckout = 'warning checkout',
   ErrorCheckout = 'error checkout',
   InitiatePayment = 'initiate payment',
+  ErrorPayment = 'error payment',
   HoverPlusFeature = 'hover plus feature',
   ClickPlusFeature = 'click plus feature',
   ClosePlusFeature = 'close plus feature',
@@ -250,6 +251,8 @@ export enum LogEvent {
   ClickPlusFaq = 'click plus faq',
   HoverCheckoutWidget = 'hover checkout widget',
   PageScroll = 'page scroll',
+  SelectSubscriptionType = 'select subscription type',
+  SetOrgSize = 'set org size',
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',
@@ -349,6 +352,7 @@ export enum TargetId {
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
   General = 'general',
+  OrganizationsPage = 'organizations page',
   // Settings
   Cards = 'cards',
   List = 'list',

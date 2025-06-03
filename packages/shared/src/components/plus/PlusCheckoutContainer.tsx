@@ -24,7 +24,7 @@ export const PlusCheckoutContainer = ({
 }: PlusCheckoutContainerProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { giftToUser } = useGiftUserContext();
-  const { isPlusAvailable } = usePaymentContext();
+  const { isPlusAvailable, isOrganization } = usePaymentContext();
   const { isPlus } = usePlusSubscription();
   const ContainerElement = useMemo(() => {
     if (!isPlusAvailable) {
@@ -35,13 +35,17 @@ export const PlusCheckoutContainer = ({
       return null;
     }
 
+    if (isOrganization) {
+      return null;
+    }
+
     if (isPlus) {
       return PlusPlus;
     }
 
     return null;
-  }, [isPlusAvailable, giftToUser, isPlus]);
-  const shouldRenderCheckout = !ContainerElement;
+  }, [isPlusAvailable, giftToUser, isOrganization, isPlus]);
+  const shouldRenderCheckout = !ContainerElement || isOrganization;
 
   const handleHover: MouseEventHandler = () => {
     logEvent({ event_name: LogEvent.HoverCheckoutWidget });
@@ -52,7 +56,10 @@ export const PlusCheckoutContainer = ({
       <div
         onMouseEnter={handleHover}
         ref={shouldRenderCheckout ? checkoutRef : undefined}
-        className={classNames(shouldRenderCheckout && 'checkout-container')}
+        className={classNames({
+          'checkout-container': shouldRenderCheckout,
+          hidden: !shouldRenderCheckout,
+        })}
       />
       {ContainerElement && <ContainerElement className={className?.element} />}
     </div>
