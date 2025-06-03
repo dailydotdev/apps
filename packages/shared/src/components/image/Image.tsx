@@ -6,6 +6,7 @@ import type {
 } from 'react';
 import React, { forwardRef } from 'react';
 import {
+  cloudinaryOrganizationImageFallback,
   cloudinaryPostImageCoverPlaceholder,
   cloudinarySquadsImageFallback,
 } from '../../lib/image';
@@ -15,6 +16,7 @@ export enum ImageType {
   Post = 'post',
   Avatar = 'avatar',
   Squad = 'squad',
+  Organization = 'organization',
 }
 
 export interface ImageProps extends ComponentPropsWithoutRef<'img'> {
@@ -26,6 +28,7 @@ const fallbackSrcByType: Record<ImageType, string> = {
   post: cloudinaryPostImageCoverPlaceholder,
   avatar: fallbackImages.avatar,
   squad: cloudinarySquadsImageFallback,
+  organization: cloudinaryOrganizationImageFallback,
 };
 
 export const HIGH_PRIORITY_IMAGE_PROPS: Pick<
