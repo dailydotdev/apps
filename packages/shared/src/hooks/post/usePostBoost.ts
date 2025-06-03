@@ -9,10 +9,44 @@ export interface PostCampaign {
   views: number;
   upvotes: number;
   comments: number;
+  link: string;
   boostedUntil?: Date; // Optional date when the boost ends
   createdAt: Date;
   status: 'completed' | 'cancelled' | 'active';
 }
+
+// interface PostCampaign {
+//   id: string;
+//   cost: number;
+//   boostedUntil?: Date; // Optional date when the boost ends
+//   createdAt: Date;
+//   status: 'completed' | 'cancelled' | 'active';
+//   post: {
+//     permalink: string;
+//     title: string;
+//     content: string;
+//     titleHtml: string;
+//     contentHtml: string;
+//     image: string;
+//     numUpvotes: number;
+//     numComments: number;
+//     views: number;
+//     tags: string[];
+//     createdAt: Date;
+//     readTime: number;
+//     author: {
+//       id: string;
+//       name: string;
+//       image: string;
+//     };
+//     sharedPost: {
+//       id: string;
+//       title: string;
+//       content: string;
+//       image: string;
+//     };
+//   };
+// }
 
 interface UsePostBoost {
   data?: PostCampaign[];
@@ -28,6 +62,7 @@ const dummyData: PostCampaign[] = [
     views: 5000,
     upvotes: 300,
     comments: 50,
+    link: 'https://example.com/boost-your-post',
     boostedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Boost lasts for 7 days
     status: 'active',
     image: 'https://example.com/image1.jpg', // Example image URL
@@ -41,6 +76,7 @@ const dummyData: PostCampaign[] = [
     views: 10000,
     upvotes: 600,
     comments: 80,
+    link: 'https://example.com/promote-your-content',
     boostedUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Boost lasts for 5 days
     status: 'completed',
     image: 'https://example.com/image2.jpg', // Example image URL

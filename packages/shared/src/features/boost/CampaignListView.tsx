@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { startOfDay } from 'date-fns';
 import type { differenceInDays } from 'date-fns';
 import {
@@ -18,6 +18,7 @@ import { CoreIcon, LinkIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { DataTile } from './DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
+import { ProgressBar } from '../../components/fields/ProgressBar';
 
 interface CampaignListViewProps {
   campaign: PostCampaign;
@@ -40,16 +41,29 @@ export const getAbsoluteDifferenceInDays: typeof differenceInDays = (
 export function CampaignListView({
   campaign,
 }: CampaignListViewProps): ReactElement {
-  const getEndsIn = () => {
-    if (campaign.status === 'active') {
-      return getAbsoluteDifferenceInDays(campaign.boostedUntil, new Date());
-    }
+  const date = useMemo(() => {
+    const getEndsIn = () => {
+      if (campaign.status === 'active') {
+        return getAbsoluteDifferenceInDays(campaign.boostedUntil, new Date());
+      }
 
-    return getAbsoluteDifferenceInDays(
+      return getAbsoluteDifferenceInDays(
+        campaign.boostedUntil,
+        campaign.createdAt,
+      );
+    };
+
+    const totalDays = getAbsoluteDifferenceInDays(
       campaign.boostedUntil,
       campaign.createdAt,
     );
-  };
+
+    return {
+      endsIn: getEndsIn(),
+      startedIn: getAbsoluteDifferenceInDays(new Date(), campaign.createdAt),
+      totalDays,
+    };
+  }, [campaign]);
 
   return (
     <div className="flex flex-col gap-6 p-2">
@@ -66,21 +80,19 @@ export function CampaignListView({
         <Button icon={<LinkIcon />} variant={ButtonVariant.Tertiary} />
       </div>
       <div className="flex flex-col gap-1">
-        progress bar
+        <ProgressBar percentage={date.startedIn / date.totalDays} />
         <span className="flex flex-row justify-between">
           <Typography
             type={TypographyType.Subhead}
             color={TypographyColor.Secondary}
           >
-            Started{' '}
-            {getAbsoluteDifferenceInDays(new Date(), campaign.createdAt)} days
-            ago
+            Started {date.startedIn} days ago
           </Typography>
           <Typography
             type={TypographyType.Subhead}
             color={TypographyColor.Secondary}
           >
-            Ends in {getEndsIn()} days
+            Ends in {date.endsIn} days
           </Typography>
         </span>
         <div className="mt-3 grid grid-cols-2 gap-4">
@@ -98,11 +110,7 @@ export function CampaignListView({
       <div className="flex flex-col gap-2">
         <Typography type={TypographyType.Body}>Summary</Typography>
         <Typography type={TypographyType.Callout}>
-          <CoreIcon size={IconSize.Size16} /> {campaign.cost} |{' '}
-          {getAbsoluteDifferenceInDays(
-            campaign.boostedUntil,
-            campaign.createdAt,
-          )}{' '}
+          <CoreIcon size={IconSize.Size16} /> {campaign.cost} | {date.totalDays}{' '}
           days
         </Typography>
       </div>

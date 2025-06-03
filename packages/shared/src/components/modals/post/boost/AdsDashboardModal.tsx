@@ -13,7 +13,7 @@ import { CampaignList } from '../../../../features/boost/CampaignList';
 
 export function AdsDashboardModal(props: ModalProps): ReactElement {
   const { data, isLoading } = usePostBoost();
-  const [, setViewing] = React.useState<PostCampaign>(null);
+  const [campaign, setCampaign] = React.useState<PostCampaign>(null);
 
   return (
     <Modal
@@ -28,7 +28,7 @@ export function AdsDashboardModal(props: ModalProps): ReactElement {
         </Typography>
       </Modal.Header>
       <Modal.Body className="flex flex-col gap-4">
-        <Modal.Subtitle>Overview all time</Modal.Subtitle>
+        <Modal.Subtitle>Overview{!campaign && ' all time'}</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
           <DataTile
             label="Ads cost"
@@ -43,7 +43,7 @@ export function AdsDashboardModal(props: ModalProps): ReactElement {
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
-          <CampaignList list={data} onClick={setViewing} />
+          <CampaignList list={data} onClick={setCampaign} />
         )}
       </Modal.Body>
     </Modal>
