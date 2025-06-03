@@ -97,8 +97,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       (!hasCompletedEditTags || !hasCompletedContentTypes) &&
       !router.pathname.includes('/onboarding')
     ) {
-      // eslint-disable-next-line no-console
-      console.log('redirecting to onboarding');
       router.replace('/onboarding');
     }
   }, [

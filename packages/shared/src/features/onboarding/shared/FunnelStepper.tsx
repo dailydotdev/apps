@@ -198,8 +198,6 @@ export const FunnelStepper = ({
     [funnel?.chapters],
   );
 
-  console.log('FunnelStepper Rendered');
-
   if (!isReady) {
     return null;
   }

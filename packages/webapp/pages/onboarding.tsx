@@ -268,12 +268,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       query: { action },
     } = router;
 
-    if (
-      action ||
-      isAuthenticating ||
-      !isOnboardingActionsReady ||
-      isFunnelReady.current
-    ) {
+    if (action || isAuthenticating || !isAuthReady || isFunnelReady.current) {
       return;
     }
 
@@ -283,6 +278,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       redirectToApp();
     } else {
       isFunnelReady.current = true;
+      console.log('Funnel is ready, proceeding with onboarding.');
     }
   }, [
     hasCompletedContentTypes,
