@@ -13,7 +13,11 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
-import { RequestKey } from '../../../../lib/query';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { Slider } from '../../../fields/Slider';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
+import { largeNumberFormat } from '../../../../lib';
+import { IconSize } from '../../../Icon';
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
@@ -24,11 +28,23 @@ export function BoostPostModal({
   ...props
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
-  const [coresPerDay] = React.useState(5000);
-  const [totalDays] = React.useState(7);
-  const { data } = useQuery<{ min: number; max: number }>({
-    queryKey: [RequestKey.PostBoostReach, post.id, coresPerDay, totalDays],
+  const [coresPerDay, setCoresPerDay] = React.useState(5000);
+  const [totalDays, setTotalDays] = React.useState(7);
+  const [queryProps, setQueryProps] = React.useState({
+    coresPerDay,
+    totalDays,
   });
+  const { data } = useQuery<{ min: number; max: number }>({
+    queryKey: generateQueryKey(
+      RequestKey.PostBoostReach,
+      user,
+      post.id,
+      queryProps.coresPerDay,
+      queryProps.totalDays,
+    ),
+  });
+  const [debounceSet] = useDebounceFn(setQueryProps, 220);
+  const totalSpend = largeNumberFormat(coresPerDay * totalDays);
 
   return (
     <Modal
@@ -63,14 +79,19 @@ export function BoostPostModal({
         </Typography>
         <div className="rounded-16 bg-surface-float">
           <div className="flex flex-row items-center gap-5 p-2">
-            <span className="line-clamp-2 flex-1">{post.title}</span>
+            <Typography
+              type={TypographyType.Callout}
+              className="ml-2 line-clamp-2 flex-1"
+            >
+              {post.title}
+            </Typography>
             {post.image && (
               <Image className="h-12 w-18 rounded-12" src={post.image} />
             )}
           </div>
           <div className="flex flex-col items-center rounded-16 bg-surface-float p-3">
             <Typography type={TypographyType.Title3} bold>
-              {coresPerDay * totalDays} Cores over {totalDays} days
+              {totalSpend} Cores over {totalDays} days
             </Typography>
             <Typography
               type={TypographyType.Callout}
@@ -89,7 +110,68 @@ export function BoostPostModal({
             </Typography>
           </div>
         </div>
+        <div className="flex flex-col">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Budget
+          </Typography>
+          <span className="flex items-center gap-2">
+            <CoreIcon />
+            <Typography
+              type={TypographyType.Body}
+              className="flex items-center"
+              bold
+            >
+              {largeNumberFormat(coresPerDay || 0)} Cores per day
+            </Typography>
+          </span>
+          <Slider
+            className="mt-2 w-full"
+            min={1000}
+            max={100000}
+            step={1000}
+            defaultValue={[coresPerDay]}
+            onValueChange={([value]) => {
+              setCoresPerDay(value);
+              debounceSet({
+                coresPerDay: value,
+                totalDays,
+              });
+            }}
+          />
+          <Typography
+            className="mt-4"
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Duration
+          </Typography>
+          <Typography type={TypographyType.Body} bold>
+            {totalDays} days
+          </Typography>
+          <Slider
+            className="mt-2 w-full"
+            min={1}
+            max={30}
+            step={1}
+            defaultValue={[totalDays]}
+            onValueChange={([value]) => {
+              setTotalDays(value);
+              debounceSet({
+                coresPerDay,
+                totalDays: value,
+              });
+            }}
+          />
+        </div>
       </Modal.Body>
+      <Modal.Footer>
+        <Button variant={ButtonVariant.Primary} className="w-full">
+          Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }
