@@ -309,7 +309,7 @@ export default function useFeed<T>(
             } else if (withFirstIndex(!!settings.plusEntry)) {
               acc.push({
                 type: FeedItemType.PlusEntry,
-                plusEntryCard: settings.plusEntry,
+                plusEntry: settings.plusEntry,
               });
             } else if (withFirstIndex(settings.showAcquisitionForm)) {
               acc.push({ type: FeedItemType.UserAcquisition });

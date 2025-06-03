@@ -10,6 +10,8 @@ import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import type { MarketingCta } from '../../marketingCta/common';
 import CloseButton from '../../CloseButton';
 import { useBoot } from '../../../hooks';
+import { LogEvent, TargetType } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
 
 const bulletPoints = [
   {
@@ -31,13 +33,32 @@ const bulletPoints = [
 ];
 
 const PlusGrid = ({ marketingCta }: { marketingCta: MarketingCta }) => {
+  const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
 
   if (!marketingCta) {
     return null;
   }
-
   const { title, description, ctaText, ctaUrl } = marketingCta.flags;
+
+  const handleClose = () => {
+    logEvent({
+      event_name: LogEvent.MarketingCtaDismiss,
+      target_type: TargetType.PlusEntryCard,
+      target_id: marketingCta.campaignId,
+    });
+    clearMarketingCta(marketingCta.campaignId);
+  };
+
+  const handleClick = () => {
+    logEvent({
+      event_name: LogEvent.ClickPlusFeature,
+      target_type: TargetType.PlusEntryCard,
+      target_id: marketingCta.campaignId,
+    });
+    clearMarketingCta(marketingCta.campaignId);
+  };
+
   // TODO: Create variable for gradient
   return (
     <div
@@ -63,9 +84,7 @@ const PlusGrid = ({ marketingCta }: { marketingCta: MarketingCta }) => {
               {title}
             </Typography>
           </div>
-          <CloseButton
-            onClick={() => clearMarketingCta(marketingCta.campaignId)}
-          />
+          <CloseButton onClick={handleClose} />
         </div>
 
         <div className="flex flex-col gap-4">
@@ -105,6 +124,7 @@ const PlusGrid = ({ marketingCta }: { marketingCta: MarketingCta }) => {
           href={ctaUrl || '/plus'}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Avocado}
+          onClick={handleClick}
         >
           <Typography tag={TypographyTag.P} type={TypographyType.Callout} bold>
             {ctaText}
