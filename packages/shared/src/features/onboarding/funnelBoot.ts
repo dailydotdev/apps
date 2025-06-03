@@ -1,20 +1,25 @@
 import { apiUrl } from '../../lib/config';
 import type { FunnelBootResponse } from './types/funnelBoot';
 
+export enum FunnelBootFeatureKey {
+  Funnel = 'funnel',
+  Onboarding = 'onboarding',
+}
+
 export async function getFunnelBootData({
   app,
   cookies,
   id,
   version,
   forwardedHeaders,
-  featureKey = 'funnel',
+  featureKey = FunnelBootFeatureKey.Funnel,
 }: {
   app: string;
   cookies: string;
   id?: string;
   version?: string;
   forwardedHeaders?: Record<string, string>;
-  featureKey?: 'funnel' | 'onboarding';
+  featureKey?: FunnelBootFeatureKey;
 }): Promise<FunnelBootResponse> {
   const params = new URLSearchParams();
   if (id) {

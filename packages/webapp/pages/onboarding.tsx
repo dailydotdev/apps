@@ -37,7 +37,10 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
-import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
+import {
+  FunnelBootFeatureKey,
+  getFunnelBootData,
+} from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import {
@@ -76,7 +79,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id = 'organic-test', version, stepId } = query;
+  const { id = 'organic-test', version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
@@ -86,7 +89,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     id: id ? `${id}` : undefined,
     version: version ? `${version}` : undefined,
     forwardedHeaders,
-    featureKey: 'onboarding',
+    featureKey: FunnelBootFeatureKey.Onboarding,
   });
 
   // Handle any cookies from the response
@@ -272,11 +275,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       return;
     }
 
-    // If the user is logged in and has completed the onboarding steps,
-    // AND no active stepId is there, redirect them to app.
     if (hasCompletedContentTypes && hasCompletedEditTags) {
+      // If the user is logged in and has completed the onboarding steps,
+      // AND no active stepId is there, redirect them to app.
       redirectToApp();
     } else {
+      // 1. If the user is not onboarded still, we activate the funnel.
+      // 2. FunnelStepper will router.replace to the first step
+      //    to avoid conflicts, we need to keep this flow detached other redirects
       isFunnelReady.current = true;
     }
   }, [
@@ -305,19 +311,17 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     );
   }
 
-  if (!isFunnelReady.current) {
-    return null;
-  }
-
   return (
-    <div className="flex min-h-dvh min-w-full flex-col">
-      <FunnelStepper
-        {...funnelState}
-        initialStepId={initialStepId}
-        onComplete={onComplete}
-      />
-      <HotJarTracking hotjarId="3871311" />
-    </div>
+    isFunnelReady.current && (
+      <div className="flex min-h-dvh min-w-full flex-col">
+        <FunnelStepper
+          {...funnelState}
+          initialStepId={initialStepId}
+          onComplete={onComplete}
+        />
+        <HotJarTracking hotjarId="3871311" />
+      </div>
+    )
   );
 }
 
