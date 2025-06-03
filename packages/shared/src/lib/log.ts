@@ -238,6 +238,7 @@ export enum LogEvent {
   WarningCheckout = 'warning checkout',
   ErrorCheckout = 'error checkout',
   InitiatePayment = 'initiate payment',
+  ErrorPayment = 'error payment',
   HoverPlusFeature = 'hover plus feature',
   ClickPlusFeature = 'click plus feature',
   ClosePlusFeature = 'close plus feature',

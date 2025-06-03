@@ -156,6 +156,12 @@ export const usePaddlePayment = ({
               event_name: LogEvent.ErrorCheckout,
             });
             break;
+          case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
+            logRef.current({
+              target_type: targetType,
+              event_name: LogEvent.ErrorPayment,
+            });
+            break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
             isCheckoutOpenRef.current = false;
             break;
