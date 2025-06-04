@@ -140,7 +140,7 @@ const getTags = ({
     AdTag: useListCards ? AdList : AdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
-    PlusGridTag: useListCards ? PlusGrid : PlusGrid,
+    PlusGridTag: PlusGrid,
     AcquisitionFormTag: useListCards
       ? AcquisitionFormList
       : AcquisitionFormGrid,
