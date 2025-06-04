@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import {
@@ -18,16 +18,30 @@ import { Slider } from '../../../fields/Slider';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
+import { AdsDashboardModal } from './AdsDashboardModal';
+import { postBoostSuccessCover } from '../../../../lib/image';
+import { Origin } from '../../../../lib/log';
+import { BuyCoresModal } from '../../award/BuyCoresModal';
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
 }
+
+const SCREENS = {
+  FORM: 'FORM',
+  BUY_CORES: 'BUY_CORES',
+  DASHBOARD: 'DASHBOARD',
+  SUCCESS: 'SUCCESS',
+} as const;
+
+export type Screens = keyof typeof SCREENS;
 
 export function BoostPostModal({
   post,
   ...props
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
+  const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
   const [queryProps, setQueryProps] = React.useState({
@@ -44,7 +58,76 @@ export function BoostPostModal({
     ),
   });
   const [debounceSet] = useDebounceFn(setQueryProps, 220);
-  const totalSpend = largeNumberFormat(coresPerDay * totalDays);
+  const totalSpendInt = coresPerDay * totalDays;
+  const totalSpend = largeNumberFormat(totalSpendInt);
+  const { mutateAsync: onBoost } = useMutation({
+    onSuccess: () => {
+      setActiveScreen(SCREENS.SUCCESS);
+    },
+  });
+
+  const onButtonClick = () => {
+    if (user.balance.amount < totalSpendInt) {
+      return setActiveScreen(SCREENS.BUY_CORES);
+    }
+
+    return onBoost();
+  };
+
+  if (activeScreen === SCREENS.BUY_CORES) {
+    return (
+      <BuyCoresModal
+        isOpen
+        product={null}
+        onCompletion={() => setActiveScreen(SCREENS.FORM)}
+        onRequestClose={() => setActiveScreen(SCREENS.FORM)}
+        origin={Origin.BoostPost}
+      />
+    );
+  }
+
+  if (activeScreen === SCREENS.SUCCESS) {
+    return (
+      <Modal
+        {...props}
+        isOpen
+        kind={Modal.Kind.FixedCenter}
+        size={Modal.Size.Small}
+        isDrawerOnMobile
+      >
+        <Modal.Body className="flex flex-col">
+          <Image src={postBoostSuccessCover} />
+          <span className="flex flex-col gap-2">
+            <Typography type={TypographyType.Title2}>
+              Your post is now being promoted and will start reaching more
+              developers shortly. You can track its performance anytime from the
+              ads dashboard.
+            </Typography>
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Tertiary}
+            >
+              Your post is now being promoted and will start reaching more
+              developers shortly. You can track its performance anytime from the
+              ads dashboard.
+            </Typography>
+          </span>
+          <Button
+            variant={ButtonVariant.Primary}
+            className="w-full"
+            type="button"
+            onClick={() => setActiveScreen(SCREENS.DASHBOARD)}
+          >
+            Ads dashboard
+          </Button>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
+  if (activeScreen === SCREENS.DASHBOARD) {
+    return <AdsDashboardModal isOpen />;
+  }
 
   return (
     <Modal
@@ -168,7 +251,12 @@ export function BoostPostModal({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant={ButtonVariant.Primary} className="w-full">
+        <Button
+          variant={ButtonVariant.Primary}
+          className="w-full"
+          type="button"
+          onClick={onButtonClick}
+        >
           Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
         </Button>
       </Modal.Footer>

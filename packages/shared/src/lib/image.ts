@@ -338,3 +338,5 @@ export const plusShowcaseAdFreeImage =
   'https://media.daily.dev/image/upload/s--jlfaLYq_--/f_auto/v1741690961/public/Ad-free experience';
 export const plusShowcaseSquadImage =
   'https://media.daily.dev/image/upload/s--LKIr_f6r--/f_auto/v1741698925/public/Members-only Squad';
+
+export const postBoostSuccessCover = '';
