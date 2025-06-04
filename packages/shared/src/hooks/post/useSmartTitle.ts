@@ -72,7 +72,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
         if (!isPlus) {
           await updateUser({
             ...user,
-            clickbaitTries: parseInt(String(user.clickbaitTries), 10) + 1,
+            clickbaitTries: parseInt(String(user.clickbaitTries || 0), 10) + 1,
           });
           completeAction(ActionType.FetchedSmartTitle);
         }
