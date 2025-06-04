@@ -10,7 +10,7 @@ import { IconSize } from '../Icon';
 
 export interface ContextMenuItemProps
   extends MenuItemProps,
-    Omit<ItemProps, 'children'> {}
+    Omit<ItemProps, 'children' | 'disabled'> {}
 
 interface ContextMenuIconProps {
   Icon: React.ComponentType<{ className; size }>;

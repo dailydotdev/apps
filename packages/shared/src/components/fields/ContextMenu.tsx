@@ -96,7 +96,14 @@ export default function ContextMenu({
       {...props}
     >
       {options.map(
-        ({ label, icon, action, anchorProps, disabled, Wrapper }) => (
+        ({
+          label,
+          icon,
+          action,
+          anchorProps,
+          disabled,
+          Wrapper,
+        }: MenuItemProps) => (
           <ConditionalWrapper
             key={label}
             condition={!!Wrapper}
