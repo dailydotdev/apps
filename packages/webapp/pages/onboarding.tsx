@@ -153,7 +153,8 @@ export function OnboardPage(): ReactElement {
   const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
     useOnboarding();
   const router = useRouter();
-  const { setSettings, autoDismissNotifications } = useSettingsContext();
+  const { setSettings, autoDismissNotifications, applyThemeMode } =
+    useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
@@ -208,7 +209,6 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingReorder,
     shouldEvaluate: isOnboardingReady && !user && isIntro && !shouldVerify,
   });
-  const { setTheme } = useSettingsContext();
 
   const isExperimental = {
     reorder: {
@@ -232,13 +232,15 @@ export function OnboardPage(): ReactElement {
     [activeScreen],
   );
 
+  // Ensure dark mode for authentication screen, since we only have a darkmode background image
   useEffect(() => {
-    // Ensure dark mode for authentication screen, since we only have a darkmode background image
     if (!user) {
-      setTheme(ThemeMode.Dark);
+      applyThemeMode(ThemeMode.Dark);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode, user]);
 
   useEffect(() => {
     if (
