@@ -76,6 +76,7 @@ export const featureOnboardingPlusFeatureGrid = new Feature(
 );
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
+export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };
 

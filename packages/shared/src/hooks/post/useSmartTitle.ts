@@ -30,7 +30,7 @@ type UseSmartTitle = {
 export const useSmartTitle = (post: Post): UseSmartTitle => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, updateUser, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
   const { completeAction } = useActions();
@@ -70,6 +70,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
         });
 
         if (!isPlus) {
+          await updateUser({
+            ...user,
+            clickbaitTries: parseInt(String(user.clickbaitTries), 10) + 1,
+          });
           completeAction(ActionType.FetchedSmartTitle);
         }
 

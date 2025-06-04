@@ -167,6 +167,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   balance: {
     amount: number;
   };
+  clickbaitTries?: number;
 }
 
 interface BaseError {
