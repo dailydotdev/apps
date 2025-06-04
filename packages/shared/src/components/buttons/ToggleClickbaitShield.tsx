@@ -22,7 +22,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { useFeature } from '../GrowthBookProvider';
-import { clickbaitTriesMax } from '../../lib/featureManagement';
+import { useClickbaitTries } from '../../hooks';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -39,7 +39,7 @@ export const ToggleClickbaitShield = ({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user } = useAuthContext();
-  const maxTries = useFeature(clickbaitTriesMax);
+  const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -49,8 +49,6 @@ export const ToggleClickbaitShield = ({
   };
 
   if (!isPlus) {
-    const hasUsedFreeTrial = user?.clickbaitTries >= maxTries;
-    const triesLeft = maxTries - user?.clickbaitTries;
     return (
       <SimpleTooltip
         placement="bottom"

@@ -30,12 +30,9 @@ import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
-import {
-  clickbaitTriesMax,
-  featurePlusCtaCopy,
-} from '../../../../lib/featureManagement';
+import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 import Link from '../../../utilities/Link';
-import { useFeature } from '../../../GrowthBookProvider';
+import { useClickbaitTries } from '../../../../hooks';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -51,8 +48,7 @@ export const FeedSettingsAISection = (): ReactElement => {
     shouldEvaluate: !isPlus,
   });
 
-  const maxTries = useFeature(clickbaitTriesMax);
-  const triesLeft = maxTries - user?.clickbaitTries;
+  const { maxTries, triesLeft } = useClickbaitTries();
 
   const { onLanguageChange } = useLanguage();
 

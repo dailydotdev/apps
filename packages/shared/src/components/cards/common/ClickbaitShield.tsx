@@ -13,7 +13,7 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { useFeature } from '../../GrowthBookProvider';
-import { clickbaitTriesMax } from '../../../lib/featureManagement';
+import { useClickbaitTries } from '../../../hooks';
 
 export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -23,11 +23,9 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
-  const maxTries = useFeature(clickbaitTriesMax);
+  const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
 
   if (!isPlus) {
-    const hasUsedFreeTrial = user?.clickbaitTries >= maxTries;
-    const triesLeft = maxTries - user?.clickbaitTries;
     return (
       <SimpleTooltip
         container={{
