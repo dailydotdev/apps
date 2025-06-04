@@ -39,7 +39,7 @@ export default function FooterWrapper({
           'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
     >
-      {post ? (
+      {post && (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
             post={post}
@@ -51,10 +51,13 @@ export default function FooterWrapper({
             }}
           />
         </div>
-      ) : (
-        <FooterPlusButton />
       )}
-      {showNav && <MobileFooterNavbar isPostPage={!!post} />}
+      {showNav && (
+        <>
+          <FooterPlusButton />
+          <MobileFooterNavbar isPostPage={!!post} />
+        </>
+      )}
     </div>
   );
 }
