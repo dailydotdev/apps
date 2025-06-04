@@ -148,7 +148,7 @@ const Page = ({
               type={ImageType.Organization}
             />
 
-            <div className="flex flex-col">
+            <div className="flex flex-1 flex-col">
               <Typography
                 bold
                 type={TypographyType.Title3}
