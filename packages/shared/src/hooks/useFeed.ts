@@ -22,15 +22,11 @@ import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
-import {
-  featureFeedAdTemplate,
-  featurePlusEntryMobile,
-} from '../lib/featureManagement';
+import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
-import { useConditionalFeature } from './useConditionalFeature';
 import { useViewSize, ViewSize } from './useViewSize';
 
 interface FeedItemBase<T extends FeedItemType> {
@@ -204,10 +200,6 @@ export default function useFeed<T>(
     isLoading,
     dataUpdatedAt: adsUpdatedAt,
   } = adsQuery;
-  const { value: plusEntryMobile } = useConditionalFeature({
-    feature: featurePlusEntryMobile,
-    shouldEvaluate: isAdsQueryEnabled && isMobile,
-  });
 
   const getAd = useCallback(
     ({ index }: { index: number }) => {
