@@ -12,6 +12,7 @@ export interface ContextMenuDrawerItem {
   anchorProps?: React.AnchorHTMLAttributes<HTMLAnchorElement>;
   action?(params: SelectParams): void;
   Wrapper?: ComponentType<{ children: ReactNode }>;
+  disabled?: boolean;
 }
 
 interface ContextMenuDrawerProps {
@@ -27,46 +28,54 @@ export function ContextMenuDrawer({
 
   return (
     <Drawer {...drawerProps} ref={ref}>
-      {options.map(({ label, icon, action, anchorProps, Wrapper }, index) => {
-        const classes =
-          'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-tertiary typo-callout';
-        const content = (
-          <>
-            {icon && <span className="mr-1">{icon}</span>}
-            {label}
-          </>
-        );
+      {options.map(
+        ({ label, icon, action, anchorProps, Wrapper, disabled }, index) => {
+          const classes = classNames(
+            'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 typo-callout',
+            disabled ? 'text-text-disabled' : 'text-text-tertiary',
+          );
+          const content = (
+            <>
+              {icon && <span className="mr-1">{icon}</span>}
+              {label}
+            </>
+          );
 
-        return (
-          <ConditionalWrapper
-            key={label}
-            condition={!!Wrapper}
-            wrapper={(children) => <Wrapper>{children}</Wrapper>}
-          >
-            {anchorProps ? (
-              <a
-                {...anchorProps}
-                className={classNames(classes, anchorProps.className)}
-                role="menuitem"
-              >
-                {content}
-              </a>
-            ) : (
-              <button
-                type="button"
-                className={classes}
-                onClick={(event) => {
-                  action({ value: label, index, event });
-                  ref.current.onClose();
-                }}
-                role="menuitem"
-              >
-                {content}
-              </button>
-            )}
-          </ConditionalWrapper>
-        );
-      })}
+          return (
+            <ConditionalWrapper
+              key={label}
+              condition={!!Wrapper}
+              wrapper={(children) => <Wrapper>{children}</Wrapper>}
+            >
+              {anchorProps ? (
+                <a
+                  {...anchorProps}
+                  className={classNames(classes, anchorProps.className)}
+                  role="menuitem"
+                >
+                  {content}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className={classes}
+                  onClick={(event) => {
+                    if (disabled) {
+                      return;
+                    }
+                    action({ value: label, index, event });
+                    ref.current.onClose();
+                  }}
+                  role="menuitem"
+                  disabled={disabled}
+                >
+                  {content}
+                </button>
+              )}
+            </ConditionalWrapper>
+          );
+        },
+      )}
     </Drawer>
   );
 }

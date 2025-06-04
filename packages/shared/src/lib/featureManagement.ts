@@ -71,6 +71,8 @@ export const featureOnboardingPlusFeatureGrid = new Feature(
   false,
 );
 
+export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);
