@@ -37,31 +37,31 @@ const bulletPoints = [
   },
 ];
 
-const PlusGrid = ({ marketingCta }: { marketingCta: MarketingCta }) => {
+const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
 
-  if (!marketingCta) {
+  if (!flags) {
     return null;
   }
-  const { title, description, ctaText, ctaUrl } = marketingCta.flags;
+  const { title, description, ctaText, ctaUrl } = flags;
 
   const handleClose = () => {
     logEvent({
       event_name: LogEvent.MarketingCtaDismiss,
       target_type: TargetType.PlusEntryCard,
-      target_id: marketingCta.campaignId,
+      target_id: campaignId,
     });
-    clearMarketingCta(marketingCta.campaignId);
+    clearMarketingCta(campaignId);
   };
 
   const handleClick = () => {
     logEvent({
       event_name: LogEvent.ClickPlusFeature,
       target_type: TargetType.PlusEntryCard,
-      target_id: marketingCta.campaignId,
+      target_id: campaignId,
     });
-    clearMarketingCta(marketingCta.campaignId);
+    clearMarketingCta(campaignId);
   };
 
   return (

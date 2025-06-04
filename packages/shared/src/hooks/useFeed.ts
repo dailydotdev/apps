@@ -54,7 +54,7 @@ export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   index: number;
 }
 
-interface PlusEntryMobileItem extends FeedItemBase<FeedItemType.PlusEntry> {
+interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
   plusEntry: MarketingCta;
 }
 
@@ -64,7 +64,7 @@ export type FeedItem =
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
-  | PlusEntryMobileItem;
+  | PlusEntryItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 

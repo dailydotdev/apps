@@ -298,7 +298,7 @@ export default function FeedItemComponent({
         />
       );
     case FeedItemType.PlusEntry:
-      return <PlusGridTag marketingCta={item.plusEntry} />;
+      return <PlusGridTag {...item.plusEntry} />;
     default:
       return <PlaceholderTag />;
   }
