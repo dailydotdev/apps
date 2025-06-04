@@ -7,5 +7,5 @@ export const authAtom = atom<AuthProps>({
   isLoginFlow: false,
   defaultDisplay: AuthDisplay.Default,
   email: '',
-  isLoading: false,
+  isLoading: true,
 });
