@@ -226,14 +226,6 @@ export default function useFeed<T>(
       if (adIndex < 0) {
         return undefined;
       }
-
-      if (adIndex === 0 && plusEntryMobile) {
-        return {
-          type: FeedItemType.PlusEntry,
-          index: adIndex,
-        };
-      }
-
       const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
 
       if (!adMatch) {
@@ -285,7 +277,6 @@ export default function useFeed<T>(
       adTemplate?.adRepeat,
       adsUpdatedAt,
       pageSize,
-      plusEntryMobile,
     ],
   );
 
