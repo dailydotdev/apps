@@ -9,7 +9,6 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad, useSquadNavigation } from '../../hooks';
-import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import {
   SettingsIcon,
@@ -30,6 +29,8 @@ import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import type { IconProps } from '../Icon';
+import { IconSize } from '../Icon';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
@@ -37,6 +38,12 @@ const ContextMenu = dynamic(
     ssr: false,
   },
 );
+
+const IconWrapper = ({
+  Icon,
+}: {
+  Icon: (props: IconProps) => ReactElement;
+}): ReactElement => <Icon size={IconSize.Small} className="mr-2" />;
 
 interface SquadHeaderMenuProps {
   squad: Squad;
@@ -78,7 +85,7 @@ export default function SquadHeaderMenu({
 
     const list: MenuItemProps[] = [
       {
-        icon: <ContextMenuIcon Icon={HashtagIcon} />,
+        icon: <IconWrapper Icon={HashtagIcon} />,
         action: () =>
           openModal({
             type: LazyModal.AddToCustomFeed,
@@ -109,7 +116,7 @@ export default function SquadHeaderMenu({
 
     if (canEditSquad) {
       list.push({
-        icon: <ContextMenuIcon Icon={SettingsIcon} />,
+        icon: <IconWrapper Icon={SettingsIcon} />,
         action: () => editSquad({ handle: squad.handle }),
         label: 'Squad settings',
       });
@@ -117,21 +124,21 @@ export default function SquadHeaderMenu({
 
     if (!squad.currentMember && squad.public && isLoggedIn) {
       list.push({
-        icon: <ContextMenuIcon Icon={LinkIcon} />,
+        icon: <IconWrapper Icon={LinkIcon} />,
         action: () => logAndCopyLink(),
         label: 'Invitation link',
       });
     }
 
     list.push({
-      icon: <ContextMenuIcon Icon={TourIcon} />,
+      icon: <IconWrapper Icon={TourIcon} />,
       action: () => openModal({ type: LazyModal.SquadTour }),
       label: 'Learn how Squads work',
     });
 
     if (squad.currentMember) {
       list.push({
-        icon: <ContextMenuIcon Icon={FeedbackIcon} />,
+        icon: <IconWrapper Icon={FeedbackIcon} />,
         anchorProps: {
           href: `${squadFeedback}#user_id=${squad?.currentMember?.user?.id}&squad_id=${squad.id}`,
           target: '_blank',
@@ -141,7 +148,7 @@ export default function SquadHeaderMenu({
     }
 
     list.push({
-      icon: <ContextMenuIcon Icon={FlagIcon} />,
+      icon: <IconWrapper Icon={FlagIcon} />,
       action: () =>
         openModal({ type: LazyModal.ReportSource, props: { squad } }),
       label: 'Report Squad',
@@ -149,7 +156,7 @@ export default function SquadHeaderMenu({
 
     if (canDeleteSquad) {
       list.push({
-        icon: <ContextMenuIcon Icon={TrashIcon} />,
+        icon: <IconWrapper Icon={TrashIcon} />,
         action: onDeleteSquad,
         label: 'Delete Squad',
       });
@@ -160,7 +167,7 @@ export default function SquadHeaderMenu({
       squad.currentMember.role !== SourceMemberRole.Admin
     ) {
       list.push({
-        icon: <ContextMenuIcon Icon={ExitIcon} />,
+        icon: <IconWrapper Icon={ExitIcon} />,
         action: () => {
           onLeaveSquad({});
         },
