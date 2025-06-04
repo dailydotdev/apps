@@ -152,7 +152,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       {children}
       {!!showFollow && (
         <FollowButton
-          showSubscribe={showSubscribe}
+          showSubscribe={false}
           entityId={user.id}
           type={ContentPreferenceType.User}
           status={(user as LoggedUser).contentPreference?.status}

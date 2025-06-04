@@ -12,6 +12,8 @@ import {
   BlockIcon,
   FlagIcon,
   GiftIcon,
+  BellIcon,
+  BellSubscribedIcon,
 } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
@@ -25,6 +27,12 @@ import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LogEvent, TargetId } from '../../lib/log';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -134,6 +142,13 @@ export default function SquadMemberMenu({
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
+  const { subscribe, unsubscribe } = useContentPreference();
+  const { data: contentPreferenceStatus } = useContentPreferenceStatusQuery({
+    id: member?.user.id,
+    entity: ContentPreferenceType.User,
+  });
+  const isSubscribed =
+    contentPreferenceStatus?.status === ContentPreferenceStatus.Subscribed;
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { logSubscriptionEvent } = usePlusSubscription();
   const onUpdateMember = async (
@@ -189,6 +204,30 @@ export default function SquadMemberMenu({
       squad,
       SourcePermissions.MemberRoleUpdate,
     );
+
+    menu.push({
+      label: isSubscribed ? 'Unsubscribe' : 'Subscribe',
+      icon: isSubscribed ? (
+        <BellSubscribedIcon size={IconSize.Small} />
+      ) : (
+        <BellIcon size={IconSize.Small} />
+      ),
+      action: () => {
+        if (isSubscribed) {
+          unsubscribe({
+            id: member.user.id,
+            entity: ContentPreferenceType.User,
+            entityName: member.user.name,
+          });
+        } else {
+          subscribe({
+            id: member.user.id,
+            entity: ContentPreferenceType.User,
+            entityName: member.user.name,
+          });
+        }
+      },
+    });
 
     if (canUpdateRole) {
       const memberOptions = getUpdateRoleOptions(member, getUpdateRoleFn);
