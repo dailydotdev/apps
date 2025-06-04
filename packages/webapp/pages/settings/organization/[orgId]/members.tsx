@@ -66,6 +66,7 @@ import type { ContextMenuDrawerItem } from '@dailydotdev/shared/src/components/d
 import classNames from 'classnames';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -92,19 +93,34 @@ const OrganizationOptionsMenu = ({
 
   const options: Array<MenuItemProps | ContextMenuDrawerItem> = [];
 
-  if (
-    (user.isPlus && seatType === OrganizationMemberSeatType.Plus) ||
-    !user.isPlus
-  ) {
-    options.push({
-      label:
-        seatType === OrganizationMemberSeatType.Plus
-          ? 'Downgrade to Free'
-          : 'Upgrade to Plus',
-      icon: <DevPlusIcon aria-hidden />,
-      action: () => toggleOrganizationMemberSeat({ memberId: user.id }),
-    });
-  }
+  const memberHasPlusOutsideOrg =
+    user.isPlus && seatType === OrganizationMemberSeatType.Free;
+
+  options.push({
+    label:
+      seatType === OrganizationMemberSeatType.Plus
+        ? 'Downgrade to Free'
+        : 'Upgrade to Plus',
+    icon: <DevPlusIcon aria-hidden />,
+    action: () => toggleOrganizationMemberSeat({ memberId: user.id }),
+
+    ...(memberHasPlusOutsideOrg && {
+      disabled: true,
+      Wrapper: ({ children }) => (
+        <SimpleTooltip
+          content={
+            <>
+              This member already has a Plus subscription outside of your
+              organization. <br />
+              Upgrades managed by the organization are not available for them.
+            </>
+          }
+        >
+          <div>{children}</div>
+        </SimpleTooltip>
+      ),
+    }),
+  });
 
   options.push({
     label: 'View profile',
