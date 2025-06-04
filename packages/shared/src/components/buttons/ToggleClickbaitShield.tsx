@@ -11,7 +11,7 @@ import {
   ShieldWarningIcon,
 } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { usePlusSubscription } from '../../hooks';
+import { usePlusSubscription, useClickbaitTries } from '../../hooks';
 import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
@@ -21,8 +21,6 @@ import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
-import { useFeature } from '../GrowthBookProvider';
-import { useClickbaitTries } from '../../hooks';
 
 export const ToggleClickbaitShield = ({
   origin,
