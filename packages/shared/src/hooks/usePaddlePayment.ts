@@ -228,7 +228,7 @@ export const usePaddlePayment = ({
         items,
         customer,
         customData,
-        discountId: discountId || discountIdQuery,
+        discountId: discountIdQuery || discountId,
       });
     },
     [
