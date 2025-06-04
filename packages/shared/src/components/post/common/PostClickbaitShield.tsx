@@ -4,7 +4,12 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
+import {
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+  useClickbaitTries,
+} from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
@@ -16,7 +21,6 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { TargetId } from '../../../lib/log';
-import { useClickbaitTries } from '../../../hooks';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -26,7 +30,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
-  const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+  const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
 
   if (!isPlus) {
     return (

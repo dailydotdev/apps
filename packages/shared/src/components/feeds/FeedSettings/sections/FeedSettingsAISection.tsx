@@ -4,6 +4,7 @@ import {
   useConditionalFeature,
   usePlusSubscription,
   useToastNotification,
+  useClickbaitTries,
 } from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
@@ -32,7 +33,6 @@ import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 import Link from '../../../utilities/Link';
-import { useClickbaitTries } from '../../../../hooks';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
