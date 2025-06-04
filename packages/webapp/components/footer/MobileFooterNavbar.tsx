@@ -20,8 +20,6 @@ import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { featurePlusEntryMobile } from '@dailydotdev/shared/src/lib/featureManagement';
 
 import {
   Typography,
@@ -66,18 +64,14 @@ const MobileFooterNavbar = ({
   const { user, squads, isValidRegion } = useContext(AuthContext);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
-  const { value: plusEntryExp } = useConditionalFeature({
-    shouldEvaluate: isValidRegion && !user?.isPlus,
-    feature: featurePlusEntryMobile,
-  });
-
+  const showPlusButton = isValidRegion && !user?.isPlus;
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
 
   const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
-    const centerTab = plusEntryExp ? (
+    const centerTab = showPlusButton ? (
       <Link href="/plus">
         <div className="flex flex-col items-center text-accent-avocado-default">
           <DevPlusIcon size={IconSize.Medium} />
@@ -129,7 +123,7 @@ const MobileFooterNavbar = ({
         ),
       },
     ];
-  }, [squadsUrl, plusEntryExp]);
+  }, [squadsUrl, showPlusButton]);
 
   const activeTab = useMemo(() => {
     const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);
