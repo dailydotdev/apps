@@ -50,7 +50,10 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
@@ -205,6 +208,7 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingReorder,
     shouldEvaluate: isOnboardingReady && !user && isIntro && !shouldVerify,
   });
+  const { setTheme } = useSettingsContext();
 
   const isExperimental = {
     reorder: {
@@ -227,6 +231,14 @@ export function OnboardPage(): ReactElement {
     }),
     [activeScreen],
   );
+
+  useEffect(() => {
+    // Ensure dark mode for authentication screen, since we only have a darkmode background image
+    if (!user) {
+      setTheme(ThemeMode.Dark);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (
