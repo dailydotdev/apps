@@ -22,7 +22,11 @@ export function CampaignList({
   if (!list?.length) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <BoostIcon className="text-text-disabled" size={IconSize.XXLarge} />
+        <BoostIcon
+          secondary
+          className="text-text-disabled"
+          size={IconSize.XXLarge}
+        />
         <Typography type={TypographyType.Title2} bold>
           Ads dashboard
         </Typography>

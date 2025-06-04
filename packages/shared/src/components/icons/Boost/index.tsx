@@ -3,7 +3,8 @@ import React from 'react';
 import type { IconProps } from '../../Icon';
 import Icon from '../../Icon';
 import FilledIcon from './filled.svg';
+import OutlinedIcon from './outlined.svg';
 
 export const BoostIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconPrimary={FilledIcon} IconSecondary={FilledIcon} />
+  <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
