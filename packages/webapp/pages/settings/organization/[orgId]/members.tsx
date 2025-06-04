@@ -108,8 +108,8 @@ const OrganizationOptionsMenu = ({
 
   options.push({
     label: 'View profile',
-    action: () => {
-      router.push(`${webappUrl}/${member.user.username}`);
+    anchorProps: {
+      href: `${webappUrl}${member.user.username}`,
     },
     icon: <UserIcon aria-hidden />,
   });
