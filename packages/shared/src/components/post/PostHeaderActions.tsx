@@ -3,6 +3,7 @@ import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { OpenLinkIcon } from '../icons';
 import {
+  checkIsAuthor,
   getReadPostButtonText,
   isInternalReadType,
   PostType,
@@ -16,6 +17,8 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { BoostPostButton } from '../../features/boost/BoostPostButton';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -45,6 +48,7 @@ export function PostHeaderActions({
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
+  const { user } = useAuthContext();
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const readButtonText = getReadPostButtonText(post);
@@ -88,6 +92,9 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
+      {!post.flags?.boosted && checkIsAuthor(post, user?.id) && (
+        <BoostPostButton post={post} />
+      )}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
         post={post}
