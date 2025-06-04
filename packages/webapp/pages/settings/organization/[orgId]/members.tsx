@@ -46,6 +46,7 @@ import {
   AddUserIcon,
   ClearIcon,
   DevPlusIcon,
+  EyeIcon,
   StarIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -214,6 +215,24 @@ const OrganizationMembersItem = ({
           >
             {user.username}
           </Typography>
+
+          {!isRegularMember && isMobile && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="flex items-center gap-1"
+            >
+              <EyeIcon size={IconSize.Size16} />
+              {lastActive ? (
+                <DateFormat
+                  date={lastActive}
+                  type={TimeFormatType.LastActivity}
+                />
+              ) : (
+                '-'
+              )}
+            </Typography>
+          )}
         </div>
       </div>
       {!isRegularMember ? (
