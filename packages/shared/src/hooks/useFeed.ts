@@ -27,7 +27,6 @@ import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
-import { useViewSize, ViewSize } from './useViewSize';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -117,7 +116,6 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
-  const isMobile = useViewSize(ViewSize.MobileXL);
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
