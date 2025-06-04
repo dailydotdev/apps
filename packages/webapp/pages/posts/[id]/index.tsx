@@ -24,7 +24,7 @@ import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePr
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import {
   useJoinReferral,
   useViewSize,
@@ -110,7 +110,7 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
   const { isFallback } = router;
-  const { shouldShowAuthBanner } = useOnboarding();
+  const { shouldShowAuthBanner } = useOnboardingActions();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,

@@ -57,7 +57,7 @@ import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onbo
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -250,7 +250,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     hasCompletedContentTypes,
     hasCompletedEditTags,
     isOnboardingActionsReady,
-  } = useOnboarding();
+  } = useOnboardingActions();
   const isFunnelReady = useRef(false);
 
   const redirectToApp = useCallback(async () => {
@@ -270,6 +270,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     const {
       query: { action },
     } = router;
+
+    // eslint-disable-next-line no-console
+    console.log({
+      action,
+      isAuthenticating,
+      isAuthReady,
+      isFunnelReady: isFunnelReady.current,
+    });
 
     if (action || isAuthenticating || !isAuthReady || isFunnelReady.current) {
       return;

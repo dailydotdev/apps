@@ -35,7 +35,7 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
   messageHandlerExists,
@@ -74,7 +74,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     isOnboardingActionsReady,
     hasCompletedContentTypes,
     hasCompletedEditTags,
-  } = useOnboarding();
+  } = useOnboardingActions();
   const didRegisterSwRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();

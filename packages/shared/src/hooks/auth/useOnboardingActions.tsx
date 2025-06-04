@@ -11,7 +11,7 @@ interface UseOnboarding {
   completeStep: (action: ActionType) => void;
 }
 
-export const useOnboarding = (): UseOnboarding => {
+export const useOnboardingActions = (): UseOnboarding => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { isAuthReady, user } = useAuthContext();
   const shouldShowAuthBanner = isAuthReady && !user;
