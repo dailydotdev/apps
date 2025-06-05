@@ -83,10 +83,10 @@ export const FunnelOrganicSignup = withIsActiveGuard(
 
     const onSuccessfulRegistration = useCallback(
       (data: LoggedUser | AnonymousUser) => {
-        // onTransition?.({
-        //   type: FunnelStepTransitionType.Complete,
-        //   details: { user: data },
-        // });
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { user: data },
+        });
 
         const isEmailSignup = 'infoConfirmed' in data && !data.infoConfirmed;
         if (isEmailSignup) {
