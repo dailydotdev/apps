@@ -194,11 +194,7 @@ export const transactionPricesQueryOptions = ({
       if (iOSSupportsCoresPurchase()) {
         const metadata = await fetchPricingMetadata(PurchaseType.Cores);
 
-        return getApplePricing(metadata, [
-          'cores_100',
-          'cores_300',
-          'cores_600',
-        ]);
+        return getApplePricing(metadata);
       }
 
       return fetchPricingPreview(PurchaseType.Cores);
