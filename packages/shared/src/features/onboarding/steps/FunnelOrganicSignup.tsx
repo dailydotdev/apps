@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSetAtom } from 'jotai/react';
-import type { FunnelStepOrganicRegistration } from '../types/funnel';
+import type { FunnelStepOrganicSignup } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
 import { FooterLinks } from '../../../components/footer';
@@ -24,7 +24,7 @@ import {
   cloudinaryOnboardingFullBackgroundMobile,
 } from '../../../lib/image';
 
-type FunnelOrganicRegistrationProps = FunnelStepOrganicRegistration;
+type FunnelOrganicSignupProps = FunnelStepOrganicSignup;
 
 const staticAuthProps = {
   className: {
@@ -39,11 +39,8 @@ const staticAuthProps = {
   trigger: AuthTriggers.Onboarding,
 };
 
-export const FunnelOrganicRegistration = withIsActiveGuard(
-  ({
-    parameters,
-    onTransition,
-  }: FunnelOrganicRegistrationProps): ReactElement => {
+export const FunnelOrganicSignup = withIsActiveGuard(
+  ({ parameters, onTransition }: FunnelOrganicSignupProps): ReactElement => {
     const {
       explainer,
       headline,
@@ -184,4 +181,4 @@ export const FunnelOrganicRegistration = withIsActiveGuard(
   },
 );
 
-export default FunnelOrganicRegistration;
+export default FunnelOrganicSignup;

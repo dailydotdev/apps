@@ -28,8 +28,9 @@ export enum FunnelStepType {
   EditTags = 'editTags',
   ContentTypes = 'contentTypes',
   InstallPwa = 'installPwa',
-  OrganicRegistration = 'organicRegistration',
   PlusCards = 'plusCards',
+  OrganicSignup = 'organicRegistration',
+  OrganicCheckout = 'organicCheckout',
 }
 
 export enum FunnelBackgroundVariant {
@@ -318,7 +319,7 @@ export interface FunnelStepInstallPwa
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepOrganicRegistration
+export interface FunnelStepOrganicSignup
   extends FunnelStepCommon<{
     headline: string;
     explainer: string;
@@ -328,7 +329,7 @@ export interface FunnelStepOrganicRegistration
       reorderRegistration: boolean;
     }>;
   }> {
-  type: FunnelStepType.OrganicRegistration;
+  type: FunnelStepType.OrganicSignup;
   onTransition: FunnelStepTransitionCallback<{
     user: LoggedUser | AnonymousUser;
   }>;
@@ -370,7 +371,7 @@ export type FunnelStep =
   | FunnelStepEditTags
   | FunnelStepContentTypes
   | FunnelStepInstallPwa
-  | FunnelStepOrganicRegistration
+  | FunnelStepOrganicSignup
   | FunnelStepPlusCards;
 
 export type FunnelPosition = {
@@ -399,15 +400,9 @@ export interface FunnelJSON {
 
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
 export const stepsFullWidth: Array<FunnelStepType> = [
-  FunnelStepType.OrganicRegistration,
+  FunnelStepType.OrganicSignup,
   FunnelStepType.EditTags,
   FunnelStepType.ContentTypes,
   FunnelStepType.PlusCards,
+  FunnelStepType.OrganicCheckout,
 ];
-
-export const stepGroups = {
-  contentTypes: [FunnelStepType.ContentTypes],
-  editTags: [FunnelStepType.EditTags],
-  pricing: [FunnelStepType.Pricing, FunnelStepType.PlusCards],
-  signup: [FunnelStepType.Signup, FunnelStepType.OrganicRegistration],
-} as const;
