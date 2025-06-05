@@ -25,7 +25,8 @@ const usePlusEntry = (): {
     const getVariantEntry = (
       variant: MarketingCtaVariant,
     ): MarketingCta | null => {
-      return plusEntryExp && plusEntry?.variant === variant ? plusEntry : null;
+      const shouldShow = shouldEvaluate && plusEntryExp;
+      return shouldShow && plusEntry?.variant === variant ? plusEntry : null;
     };
 
     return {
@@ -36,7 +37,7 @@ const usePlusEntry = (): {
         MarketingCtaVariant.PlusAnnouncementBar,
       ),
     };
-  }, [plusEntryExp, plusEntry]);
+  }, [plusEntryExp, plusEntry, shouldEvaluate]);
 };
 
 export default usePlusEntry;
