@@ -335,6 +335,10 @@ export interface FunnelStepOrganicSignup
   }>;
 }
 
+export interface FunnelStepOrganicCheckout extends FunnelStepCommon {
+  type: FunnelStepType.OrganicCheckout;
+}
+
 interface PlanCard {
   cta: string;
   title: string;
@@ -372,6 +376,7 @@ export type FunnelStep =
   | FunnelStepContentTypes
   | FunnelStepInstallPwa
   | FunnelStepOrganicSignup
+  | FunnelStepOrganicCheckout
   | FunnelStepPlusCards;
 
 export type FunnelPosition = {
