@@ -49,6 +49,7 @@ export const usePaddlePayment = ({
   successCallbackRef.current = successCallback;
   const getProductQuantityRef = useRef(getProductQuantity);
   getProductQuantityRef.current = getProductQuantity;
+  const discountIdQuery = router.query?.d_id as string | undefined;
 
   const priceType = useAtomValue(priceTypeAtom);
 
@@ -227,10 +228,17 @@ export const usePaddlePayment = ({
         items,
         customer,
         customData,
-        discountId,
+        discountId: discountIdQuery || discountId,
       });
     },
-    [paddle?.Checkout, user?.email, user?.id, geo?.region, trackingId],
+    [
+      paddle?.Checkout,
+      user?.email,
+      user?.id,
+      geo?.region,
+      trackingId,
+      discountIdQuery,
+    ],
   );
 
   return {
