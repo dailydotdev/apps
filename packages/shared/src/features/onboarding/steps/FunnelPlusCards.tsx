@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { useSetAtom } from 'jotai';
 import { OnboardingPlus } from '../components/OnboardingPlus';
 import type { FunnelStepPlusCards } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -6,10 +7,14 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { useFunnelPlusPricing } from '../hooks/useFunnelPlusPricing';
+import { selectedPlanAtom } from '../store/funnel.store';
 
 export const FunnelPlusCards = withIsActiveGuard(
   ({ onTransition }: FunnelStepPlusCards) => {
     const { user } = useAuthContext();
+    const { item: priceItem } = useFunnelPlusPricing();
+    const setPriceItem = useSetAtom(selectedPlanAtom);
     const { isActionsFetched, completeAction, checkHasCompleted } =
       useActions();
     const hasCompleted = useMemo(
@@ -19,6 +24,7 @@ export const FunnelPlusCards = withIsActiveGuard(
     );
     const completePlusAction = useCallback(
       ({ skip }: { skip: boolean }) => {
+        setPriceItem(priceItem.priceId);
         onTransition?.({
           type: skip
             ? FunnelStepTransitionType.Skip
@@ -32,12 +38,9 @@ export const FunnelPlusCards = withIsActiveGuard(
 
     useEffect(() => {
       if (user?.isPlus || hasCompleted) {
-        onTransition?.({
-          type: FunnelStepTransitionType.Skip,
-          details: { skip: true },
-        });
+        completePlusAction({ skip: false });
       }
-    }, [hasCompleted, onTransition, user?.isPlus]);
+    }, [completePlusAction, hasCompleted, onTransition, user?.isPlus]);
 
     if (user?.isPlus) {
       return null;

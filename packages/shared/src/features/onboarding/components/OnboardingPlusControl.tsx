@@ -1,9 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
 import {
   Typography,
   TypographyColor,
@@ -14,6 +12,7 @@ import { PlusComparingCards } from '../../../components/plus/PlusComparingCards'
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
 import type { FunnelStepPlusCards } from '../types/funnel';
+import { useFunnelPlusPricing } from '../hooks/useFunnelPlusPricing';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -57,14 +56,7 @@ export const OnboardingPlusControl = ({
   explainer,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { productOptions } = usePaymentContext();
-  const item = useMemo(
-    () =>
-      productOptions?.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.Annual,
-      ),
-    [productOptions],
-  );
+  const { item } = useFunnelPlusPricing();
 
   return (
     <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 tablet:px-10">
