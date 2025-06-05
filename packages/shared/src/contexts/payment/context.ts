@@ -1,8 +1,6 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext } from 'react';
-import { atom } from 'jotai';
-import type { ProductPricingPreview } from '../../graphql/paddle';
-import { PurchaseType } from '../../graphql/paddle';
+import type { ProductPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export interface OpenCheckoutProps {
   priceId: string;
@@ -25,6 +23,8 @@ export interface PaymentContextData {
   itemQuantity?: number;
   setItemQuantity?: Dispatch<SetStateAction<number>>;
   checkoutItemsLoading?: boolean;
+  priceType?: PurchaseType;
+  setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(undefined);
@@ -52,5 +52,3 @@ export const FunnelPaymentPricingContext = createContext<{
 
 export const useFunnelPaymentPricingContext = () =>
   useContext(FunnelPaymentPricingContext);
-
-export const priceTypeAtom = atom<PurchaseType>(PurchaseType.Plus);
