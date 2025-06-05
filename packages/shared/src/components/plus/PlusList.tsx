@@ -12,6 +12,7 @@ import {
   FolderIcon,
   HashtagIcon,
   LabelIcon,
+  LanguageIcon,
   ShieldPlusIcon,
   SourceIcon,
   UserShareIcon,
@@ -30,6 +31,7 @@ import {
   plusShowcaseSquadImage,
   plusShowcaseTeamImage,
   plusShowcaseTeamVideo,
+  plusShowcaseTranslateImage,
 } from '../../lib/image';
 
 export const defaultFeatureList: Array<PlusItem> = [
@@ -145,6 +147,15 @@ export const plusFeatureList: Array<PlusItem> = [
     label: 'Auto-translate your feed',
     status: PlusItemStatus.Ready,
     tooltip: `Translate post titles and summaries into your language for a smoother learning experience.`,
+    icon: <LanguageIcon secondary />,
+    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
+    modalProps: {
+      title: 'Auto-translate your feed',
+      description:
+        'Make your feed more accessible with automatically translated post titles in your preferred language.',
+      imageUrl: plusShowcaseTranslateImage,
+      mediaType: 'image',
+    },
   },
   {
     id: 'keyword filter',
