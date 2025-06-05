@@ -334,10 +334,9 @@ function AuthOptionsInner({
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
       await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
       const isAlreadyOnboarded = await checkForOnboardedUser();
-      if (isAlreadyOnboarded) {
-        return;
+      if (!isAlreadyOnboarded) {
+        onSuccessfulLogin?.();
       }
-      onSuccessfulLogin?.();
       return;
     }
 
