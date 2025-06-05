@@ -3,11 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import { FunnelPricing } from './FunnelPricing';
-import type {
-  FunnelStepPricing,
-  FunnelStepPricingParameters,
+import type { FunnelStepPricing } from '../types/funnel';
+import {
+  FunnelStepType,
+  FunnelStepTransitionType,
+  FunnelPricingType,
 } from '../types/funnel';
-import { FunnelStepType, FunnelStepTransitionType } from '../types/funnel';
 import { PricingPlanVariation } from '../shared/PricingPlan';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
 import { applyDiscountAtom, selectedPlanAtom } from '../store/funnelStore';
@@ -16,10 +17,6 @@ import type { ProductPricingPreview } from '../../../graphql/paddle';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
 
 const mockOnTransition = jest.fn();
-
-jest.mock('jotai-history', () => ({
-  withHistory: jest.fn(),
-}));
 
 type HydrateAtomsProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,9 +30,10 @@ const HydrateAtoms = ({ initialValues, children }: HydrateAtomsProps) => {
   return children;
 };
 
-const mockPricingParameters: FunnelStepPricingParameters = {
+const mockPricingParameters = {
   headline: 'Choose your plan',
   cta: 'Checkout',
+  pricingType: FunnelPricingType.Daily,
   discount: {
     message:
       'Get <b>additional 20% discount</b> if you subscribe in the next 15 minutes',
@@ -115,6 +113,10 @@ const mockProductOptions: ProductPricingPreview[] = [
     price: {
       amount: 15,
       formatted: '$15',
+      monthly: {
+        amount: 15,
+        formatted: '$15',
+      },
       daily: {
         amount: 0.49,
         formatted: '$0.49',
@@ -125,7 +127,6 @@ const mockProductOptions: ProductPricingPreview[] = [
       symbol: '$',
     },
     duration: PlusPriceType.Monthly,
-    trialPeriod: null,
   },
   {
     metadata: {
@@ -140,6 +141,10 @@ const mockProductOptions: ProductPricingPreview[] = [
     price: {
       amount: 150,
       formatted: '$150',
+      monthly: {
+        amount: 12.5,
+        formatted: '$12.50',
+      },
       daily: {
         amount: 0.24,
         formatted: '$0.24',
@@ -150,7 +155,6 @@ const mockProductOptions: ProductPricingPreview[] = [
       symbol: '$',
     },
     duration: PlusPriceType.Yearly,
-    trialPeriod: null,
   },
 ];
 
@@ -175,7 +179,6 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
             productOptions: mockProductOptions,
             isPlusAvailable: true,
             isPricesPending: false,
-            isFreeTrialExperiment: false,
           }}
         >
           <FunnelPricing {...defaultProps} {...props} />
@@ -281,6 +284,31 @@ describe('FunnelPricing', () => {
 
     // Monthly price should be displayed for the monthly plan
     const monthlyPriceElements = screen.getAllByText('$0.49');
+    expect(monthlyPriceElements.length).toBeGreaterThan(0);
+
+    // Badges should be displayed
+    expect(screen.getAllByText('Save 50%').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Popular').length).toBeGreaterThan(0);
+  });
+
+  it('should display monthly prices when pricing type is monthly', () => {
+    renderComponent({
+      parameters: {
+        ...mockPricingParameters,
+        pricingType: FunnelPricingType.Monthly,
+      },
+    });
+
+    // Annual price should be displayed for the annual plan
+    const annualPriceElements = screen.getAllByText('$12.50');
+    expect(annualPriceElements.length).toBeGreaterThan(0);
+
+    // Per month subtitle should be displayed
+    const perMonthElements = screen.getAllByText('per month');
+    expect(perMonthElements.length).toBeGreaterThan(0);
+
+    // Monthly price should be displayed for the monthly plan
+    const monthlyPriceElements = screen.getAllByText('$15');
     expect(monthlyPriceElements.length).toBeGreaterThan(0);
 
     // Badges should be displayed

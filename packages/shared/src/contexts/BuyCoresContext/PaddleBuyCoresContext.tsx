@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useRef, useState } from 'react';
 import { getQuantityForPrice } from '../../graphql/njord';
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 import { usePaddlePayment } from '../../hooks/usePaddlePayment';
 import { useProductPricing } from '../../hooks/useProductPricing';
 import { TargetType } from '../../lib/log';
@@ -36,7 +36,7 @@ export const PaddleBuyCoresContextProvider = ({
   logRef.current = logEvent;
 
   const { data: prices } = useProductPricing({
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
   });
 
   const getQuantityForPriceFn = ({ priceId }: { priceId: string }) => {

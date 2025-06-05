@@ -5,16 +5,16 @@ import {
   CoreOptionButtonPlaceholder,
 } from './CoreOptionButton';
 import { useProductPricing } from '../../hooks/useProductPricing';
-import { ProductPricingType } from '../../graphql/paddle';
 import { promisifyEventListener } from '../../lib/func';
 import { stringToBoolean } from '../../lib/utils';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
+import { PurchaseType } from '../../graphql/paddle';
 
 export const CoreOptionList = (): ReactElement => {
   const { selectedProduct } = useBuyCoresContext();
   const [isLoadingNative, setLoadingNative] = useState(false);
   const { data: prices, isPending: isPendingPrices } = useProductPricing({
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
   });
 
   useEffect(() => {

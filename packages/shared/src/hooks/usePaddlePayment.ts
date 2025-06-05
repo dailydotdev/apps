@@ -8,6 +8,7 @@ import type {
 } from '@paddle/paddle-js';
 import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
+import { useAtomValue } from 'jotai';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import type { TargetType } from '../lib/log';
@@ -18,13 +19,15 @@ import type {
   OpenCheckoutProps,
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
+import { priceTypeAtom } from '../contexts/payment/context';
+import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
 interface UsePaddlePaymentProps
   extends Pick<
     PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
     'successCallback' | 'disabledEvents'
   > {
-  targetType?: TargetType;
+  targetType: TargetType;
   getProductQuantity?: (event: PaddleEventData) => number;
 }
 
@@ -36,15 +39,22 @@ export const usePaddlePayment = ({
 }: UsePaddlePaymentProps) => {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, geo } = useAuthContext();
+  const { user, geo, trackingId } = useAuthContext();
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
+  const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
   successCallbackRef.current = successCallback;
   const getProductQuantityRef = useRef(getProductQuantity);
   getProductQuantityRef.current = getProductQuantity;
+  const discountIdQuery = router.query?.d_id as string | undefined;
+
+  const priceType = useAtomValue(priceTypeAtom);
+
+  const isOrganization = priceType === PurchaseType.Organization;
+  const isPlusPlan = priceType === PurchaseType.Plus || isOrganization;
 
   useEffect(() => {
     if (checkIsExtension()) {
@@ -64,7 +74,17 @@ export const usePaddlePayment = ({
           return;
         }
 
-        const customData = event?.data?.custom_data as Record<string, unknown>;
+        const customData =
+          event?.data?.custom_data || ({} as Record<string, unknown>);
+
+        const plusPlanExtra = isPlusPlan
+          ? {
+              plan_type: isOrganization
+                ? PlusPlanType.Organization
+                : PlusPlanType.Personal,
+              team_size: event?.data?.items?.[0]?.quantity,
+            }
+          : undefined;
 
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
@@ -72,6 +92,9 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.InitiatePayment,
               target_id: event?.data?.payment.method_details.type,
+              extra: JSON.stringify({
+                ...plusPlanExtra,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
@@ -80,6 +103,9 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
               target_id: event?.data?.payment.method_details.type,
+              extra: JSON.stringify({
+                ...plusPlanExtra,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
@@ -87,6 +113,9 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
+              extra: JSON.stringify({
+                ...plusPlanExtra,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
@@ -105,6 +134,7 @@ export const usePaddlePayment = ({
                 payment: event?.data.payment.method_details.type,
                 cycle:
                   event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
+                ...plusPlanExtra,
               }),
             });
 
@@ -127,8 +157,17 @@ export const usePaddlePayment = ({
               event_name: LogEvent.ErrorCheckout,
             });
             break;
+          case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
+            logRef.current({
+              target_type: targetType,
+              event_name: LogEvent.ErrorPayment,
+            });
+            break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
             isCheckoutOpenRef.current = false;
+            break;
+          case CheckoutEventNames.CHECKOUT_ITEMS_UPDATED:
+            setCheckoutItemsLoading(false);
             break;
           default:
             break;
@@ -150,13 +189,24 @@ export const usePaddlePayment = ({
         setPaddle(paddleInstance);
       }
     });
-  }, [router, disabledEvents, targetType]);
+  }, [router, disabledEvents, targetType, isOrganization, isPlusPlan]);
 
   const openCheckout = useCallback(
-    ({ priceId, giftToUserId, discountId }: OpenCheckoutProps) => {
-      const items: CheckoutLineItem[] = [{ priceId, quantity: 1 }];
+    ({
+      priceId,
+      giftToUserId,
+      discountId,
+      quantity = 1,
+    }: OpenCheckoutProps) => {
+      const items: CheckoutLineItem[] = [{ priceId, quantity }];
       const customer: CheckoutCustomer = {
-        email: user?.email,
+        ...(user?.email
+          ? {
+              email: user?.email,
+            }
+          : {
+              id: 'anonymous',
+            }),
         ...(geo?.region && {
           address: { countryCode: geo?.region },
         }),
@@ -164,10 +214,12 @@ export const usePaddlePayment = ({
 
       const customData = {
         user_id: giftToUserId ?? user?.id,
+        tracking_id: trackingId,
         ...(!!giftToUserId && { gifter_id: user?.id }),
       };
 
       if (isCheckoutOpenRef.current) {
+        setCheckoutItemsLoading(true);
         paddle?.Checkout.updateItems(items);
         return;
       }
@@ -176,15 +228,23 @@ export const usePaddlePayment = ({
         items,
         customer,
         customData,
-        discountId,
+        discountId: discountIdQuery || discountId,
       });
     },
-    [paddle?.Checkout, user?.email, user?.id, geo?.region],
+    [
+      paddle?.Checkout,
+      user?.email,
+      user?.id,
+      geo?.region,
+      trackingId,
+      discountIdQuery,
+    ],
   );
 
   return {
     paddle,
     openCheckout,
     isPaddleReady: !!paddle,
+    checkoutItemsLoading,
   };
 };

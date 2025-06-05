@@ -194,6 +194,45 @@ export const plusFeatureList: Array<PlusItem> = [
   },
 ];
 
+export const plusOrganizationFeatureList: Array<PlusItem> = [
+  {
+    label: 'All premium features for every seat',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Every team member gets full access to daily.dev Plus—no limitations, no compromises.',
+  },
+  {
+    label: 'Boost engagement with shared learning',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Create a culture of growth by discovering and discussing content as a team.',
+  },
+  {
+    label: 'Centralized billing & user management',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Manage seats, billing, and team roles from a single dashboard. Simple and scalable.',
+  },
+  {
+    label: 'Get insights on team activity',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'See what your team is learning, reading, and engaging with—no micromanagement required.',
+  },
+  {
+    label: 'Onboard easily with team invites',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Invite teammates in seconds and get them set up with Plus automatically.',
+  },
+  {
+    label: 'Priority support for your team',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Get faster responses and dedicated help when your team needs it most.',
+  },
+];
+
 interface PlusListProps
   extends Omit<PlusListItemProps, 'item'>,
     WithClassNameProps {

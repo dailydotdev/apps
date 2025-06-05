@@ -28,14 +28,14 @@ import {
 import { Justify } from '../../utilities';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
-import { ModalKind } from '../common/types';
+import { LazyModal, ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
 import type { Product } from '../../../graphql/njord';
 import {
   award,
-  getProducts,
+  getProductsQueryOptions,
   UserTransactionStatus,
 } from '../../../graphql/njord';
 import { labels, largeNumberFormat } from '../../../lib';
@@ -45,13 +45,14 @@ import type {
   ApiUserTransactionErrorExtension,
 } from '../../../graphql/common';
 import { ApiError } from '../../../graphql/common';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
+import { AnimatedAward } from '../../AnimatedAward';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 
 const AwardItem = ({
   item,
@@ -92,18 +93,22 @@ const AwardItem = ({
 };
 
 const IntroScreen = () => {
+  const { openModal } = useLazyModal();
   const [showBuyCores, setShowBuyCores] = useState(false);
   const { user } = useAuthContext();
-  const { onRequestClose, entity, setActiveModal, setActiveStep, product } =
-    useGiveAwardModalContext();
+  const {
+    onRequestClose,
+    entity,
+    type,
+    setActiveModal,
+    setActiveStep,
+    product,
+    post,
+  } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
 
-  const { data: awards } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Products),
-    queryFn: () => getProducts(),
-    staleTime: StaleTime.Default,
-  });
+  const { data: awards } = useQuery(getProductsQueryOptions());
 
   const onBuyCores = () => {
     setShowBuyCores(false);
@@ -135,8 +140,8 @@ const IntroScreen = () => {
           </Button>
         ) : null}
       </Modal.Header>
-      <Modal.Body className="bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
-        <div className="flex flex-col items-center justify-center gap-2 p-4">
+      <Modal.Body className="gap-2 bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
+        <div className="flex flex-col items-center justify-center gap-2 px-4">
           <Image
             src={hasAwards ? featuredAwardImage : entity.receiver.image}
             alt="Award user"
@@ -148,12 +153,45 @@ const IntroScreen = () => {
             color={TypographyColor.Primary}
           >
             {hasAwards ? (
-              <>{largeNumberFormat(entity.numAwards)} Awards given</>
+              <>
+                {largeNumberFormat(entity.numAwards)} Award
+                {entity.numAwards === 1 ? '' : 's'} given
+              </>
             ) : (
               <>Give an Award</>
             )}
           </Typography>
         </div>
+        {hasAwards && (
+          <Button
+            className="mx-auto max-w-28"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            onClick={() => {
+              openModal({
+                type: LazyModal.ListAwards,
+                props: {
+                  onBack: () => {
+                    openModal({
+                      type: LazyModal.GiveAward,
+                      props: {
+                        type,
+                        entity,
+                        post,
+                      },
+                    });
+                  },
+                  queryProps: {
+                    id: entity.id,
+                    type,
+                  },
+                },
+              });
+            }}
+          >
+            Show all →
+          </Button>
+        )}
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
@@ -244,8 +282,6 @@ const CommentScreen = () => {
     ],
     mutationFn: award,
     onSuccess: async (result) => {
-      // TODO feat/transactions animation show award
-
       await updateUser({
         ...user,
         balance: result.balance,
@@ -448,8 +484,14 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { activeStep, activeModal, setActiveModal, product, logAwardEvent } =
-    useGiveAwardModalContext();
+  const {
+    activeStep,
+    activeModal,
+    setActiveModal,
+    product,
+    logAwardEvent,
+    onRequestClose: onRequestCloseContext,
+  } = useGiveAwardModalContext();
 
   const trackingRef = useRef(false);
 
@@ -470,6 +512,15 @@ const ModalRender = ({ ...props }: ModalProps) => {
 
   return (
     <>
+      {activeModal === 'AWARD_ANIMATION' && (
+        <AnimatedAward
+          src={product?.flags?.imageGlow || product?.image}
+          alt={product?.name}
+          onDone={() => {
+            props.onRequestClose?.(undefined);
+          }}
+        />
+      )}
       {activeModal === 'AWARD' ? (
         <Modal
           kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
@@ -482,6 +533,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
             instantOpen: true,
           }}
           {...props}
+          onRequestClose={onRequestCloseContext}
         >
           <ModalBody />
         </Modal>

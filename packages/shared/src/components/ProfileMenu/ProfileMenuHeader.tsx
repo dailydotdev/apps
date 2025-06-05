@@ -16,6 +16,7 @@ import Link from '../utilities/Link';
 import type { WithClassNameProps } from '../utilities';
 import { webappUrl } from '../../lib/constants';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { IconSize } from '../Icon';
 
 type Props = WithClassNameProps & {
   shouldOpenProfile?: boolean;
@@ -72,7 +73,12 @@ export const ProfileMenuHeader = ({
           </Typography>
         </div>
 
-        {shouldOpenProfile && <OpenLinkIcon className="text-text-quaternary" />}
+        {shouldOpenProfile && (
+          <OpenLinkIcon
+            className="text-text-quaternary"
+            size={IconSize.Size16}
+          />
+        )}
       </div>
     </ConditionalWrapper>
   );

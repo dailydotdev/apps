@@ -17,6 +17,7 @@ export enum TypographyTag {
   Label = 'label',
   Link = 'a',
   Button = 'button',
+  Ul = 'ul',
 }
 
 export enum TypographyType {
@@ -26,6 +27,7 @@ export enum TypographyType {
   Subhead = 'typo-subhead',
   Callout = 'typo-callout',
   Body = 'typo-body',
+  Title4 = 'typo-title4',
   Title3 = 'typo-title3',
   Title2 = 'typo-title2',
   Title1 = 'typo-title1',
@@ -62,6 +64,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   type?: TypographyType;
   color?: TypographyColor;
   bold?: boolean;
+  center?: boolean;
   truncate?: boolean;
 } & JSX.IntrinsicElements[Tag];
 
@@ -75,6 +78,7 @@ function BaseTypography<TagName extends AllowedTags>(
     type,
     color,
     bold = false,
+    center = false,
     children,
     className,
     truncate = false,
@@ -85,7 +89,7 @@ function BaseTypography<TagName extends AllowedTags>(
   const classes = classNames(
     className,
     type,
-    { 'font-bold': bold },
+    { 'font-bold': bold, 'text-center': center },
     color ?? tagToColor[tag],
     truncate && truncateTextClassNames,
   );

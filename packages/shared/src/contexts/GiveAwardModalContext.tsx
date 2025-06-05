@@ -11,6 +11,7 @@ import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery } from '../lib';
+import { useMedia } from '../hooks';
 
 const AWARD_TYPES = {
   USER: 'USER',
@@ -29,6 +30,7 @@ export type AwardScreens = keyof typeof AWARD_SCREENS;
 const MODALRENDERS = {
   AWARD: 'AWARD',
   BUY_CORES: 'BUY_CORES',
+  AWARD_ANIMATION: 'AWARD_ANIMATION',
 } as const;
 export type ModalRenders = keyof typeof MODALRENDERS;
 
@@ -82,6 +84,7 @@ export type GiveAwardModalContextData = {
     awardEvent: AwardEvents;
     extra?: Record<string, unknown>;
   }) => void;
+  post?: Post;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -112,6 +115,13 @@ export const GiveAwardModalContextProvider = ({
   });
   const [activeModal, setActiveModal] = useState<ModalRenders>(
     MODALRENDERS.AWARD,
+  );
+
+  const prefersReducedMotion = useMedia(
+    ['(prefers-reduced-motion)'],
+    [true],
+    false,
+    false,
   );
 
   const logAwardEvent = useCallback(
@@ -158,13 +168,24 @@ export const GiveAwardModalContextProvider = ({
 
         setActiveModal(modal);
       },
-      onRequestClose,
+      onRequestClose: (event) => {
+        if (
+          !prefersReducedMotion &&
+          activeStep.screen === 'SUCCESS' &&
+          activeStep.product
+        ) {
+          setActiveModal('AWARD_ANIMATION');
+        } else {
+          onRequestClose?.(event);
+        }
+      },
       activeStep: activeStep.screen,
       product: activeStep.product,
       setActiveStep,
       type,
       entity,
       logAwardEvent,
+      post,
     }),
     [
       activeModal,
@@ -176,6 +197,7 @@ export const GiveAwardModalContextProvider = ({
       logAwardEvent,
       router,
       post,
+      prefersReducedMotion,
     ],
   );
 

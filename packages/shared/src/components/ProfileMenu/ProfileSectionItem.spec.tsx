@@ -5,6 +5,13 @@ import { ProfileSectionItem } from './ProfileSectionItem';
 // Mock the OpenLinkIcon component
 jest.mock('../icons', () => ({
   OpenLinkIcon: () => <span data-testid="open-link-icon" />,
+  ArrowIcon: () => <span data-testid="arrow-icon" />,
+}));
+
+// Mock the useViewSize hook
+jest.mock('../../hooks', () => ({
+  useViewSize: () => false,
+  ViewSize: { MobileL: 'mobileL' },
 }));
 
 const defaultProps = {

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import FunnelFact
+import { FunnelFact }
   from '@dailydotdev/shared/src/features/onboarding/steps/FunnelFact';
 import {
   FunnelStepType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import {
   FunnelStepBackground,
+  StepHeadlineAlign,
 } from '@dailydotdev/shared/src/features/onboarding/shared';
 // @ts-ignore
 import image from '../../../public/images/onboarding/onboarding-fact-img.png';
@@ -43,8 +44,12 @@ const defaultArgs = {
   parameters: {
     headline: 'Welcome to daily.dev',
     explainer: 'The professional network for developers to learn, grow, and get inspired.',
-    align: 'center',
+    align: StepHeadlineAlign.Center,
     cta: 'Get Started',
+    ctaNote: undefined,
+    badge: undefined,
+    layout: 'default',
+    visualUrl: undefined,
   },
   onTransition: () => alert('Transition triggered'),
 };
@@ -63,13 +68,73 @@ export const WithVisual: Story = {
   } as any,
 };
 
-export const ReverseLayout: Story = {
+export const WithBadge: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      badge: {
+        cta: 'New Feature',
+        variant: 'primary',
+        placement: 'top',
+      },
+    },
+  } as any,
+};
+
+export const WithBadgeBottom: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      badge: {
+        cta: 'New Feature',
+        variant: 'onion',
+        placement: 'bottom',
+      },
+    },
+  } as any,
+};
+
+export const WithCtaNote: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      ctaNote: 'By continuing, you agree to our Terms of Service',
+    },
+  } as any,
+};
+
+export const ReversedLayout: Story = {
   args: {
     ...defaultArgs,
     parameters: {
       ...defaultArgs.parameters,
       visualUrl: image,
-      reverse: 'true',
+      layout: 'reversed',
+    },
+  } as any,
+};
+
+export const CenteredLayout: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      visualUrl: image,
+      layout: 'centered',
+    },
+  } as any,
+};
+
+export const LegacyReverseLayout: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      visualUrl: image,
+      reverse: true,
     },
   } as any,
 };
@@ -79,7 +144,24 @@ export const LeftAligned: Story = {
     ...defaultArgs,
     parameters: {
       ...defaultArgs.parameters,
-      align: 'left',
+      align: StepHeadlineAlign.Left,
+    },
+  } as any,
+};
+
+export const CompleteExample: Story = {
+  args: {
+    ...defaultArgs,
+    parameters: {
+      ...defaultArgs.parameters,
+      visualUrl: image,
+      badge: {
+        cta: 'New Feature',
+        variant: 'primary',
+        placement: 'top',
+      },
+      ctaNote: 'By continuing, you agree to our Terms of Service',
+      layout: 'reversed',
     },
   } as any,
 };

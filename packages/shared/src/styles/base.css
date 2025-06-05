@@ -57,24 +57,28 @@ body {
   --theme-accent-burger-subtle: theme('colors.raw.burger.30');
   --theme-accent-burger-default: theme('colors.raw.burger.40');
   --theme-accent-burger-bolder: theme('colors.raw.burger.50');
+  --theme-accent-burger-flat: color-mix(in srgb, var(--theme-accent-burger-default) 16%, var(--theme-background-default));
   /* Blue Cheese */
   --theme-accent-blueCheese-subtlest: theme('colors.raw.blueCheese.10');
   --theme-accent-blueCheese-subtler: theme('colors.raw.blueCheese.20');
   --theme-accent-blueCheese-subtle: theme('colors.raw.blueCheese.30');
   --theme-accent-blueCheese-default: theme('colors.raw.blueCheese.40');
   --theme-accent-blueCheese-bolder: theme('colors.raw.blueCheese.50');
+  --theme-accent-blueCheese-flat: color-mix(in srgb, var(--theme-accent-blueCheese-default) 16%, var(--theme-background-default));
   /* Avocado */
   --theme-accent-avocado-subtlest: theme('colors.raw.avocado.10');
   --theme-accent-avocado-subtler: theme('colors.raw.avocado.20');
   --theme-accent-avocado-subtle: theme('colors.raw.avocado.30');
   --theme-accent-avocado-default: theme('colors.raw.avocado.40');
   --theme-accent-avocado-bolder: theme('colors.raw.avocado.50');
+  --theme-accent-avocado-flat: color-mix(in srgb, var(--theme-accent-avocado-default) 16%, var(--theme-background-default));
   /* Cheese */
   --theme-accent-cheese-subtlest: theme('colors.raw.cheese.10');
   --theme-accent-cheese-subtler: theme('colors.raw.cheese.20');
   --theme-accent-cheese-subtle: theme('colors.raw.cheese.30');
   --theme-accent-cheese-default: theme('colors.raw.cheese.40');
   --theme-accent-cheese-bolder: theme('colors.raw.cheese.50');
+  --theme-accent-cheese-flat: color-mix(in srgb, var(--theme-accent-cheese-default) 16%, var(--theme-background-default));
   /* Salt */
   --theme-accent-salt-baseline: theme('colors.raw.salt.0');
   --theme-accent-salt-subtlest: theme('colors.raw.salt.20');
@@ -82,6 +86,7 @@ body {
   --theme-accent-salt-subtle: theme('colors.raw.salt.70');
   --theme-accent-salt-default: theme('colors.raw.salt.90');
   --theme-accent-salt-bolder: theme('colors.raw.pepper.10');
+  --theme-accent-salt-flat: color-mix(in srgb, var(--theme-accent-salt-default) 16%, var(--theme-background-default));
   /* Onion */
   --theme-accent-onion-baseline: theme('colors.raw.onion.0');
   --theme-accent-onion-subtlest: theme('colors.raw.onion.10');
@@ -89,12 +94,14 @@ body {
   --theme-accent-onion-subtle: theme('colors.raw.onion.30');
   --theme-accent-onion-default: theme('colors.raw.onion.40');
   --theme-accent-onion-bolder: theme('colors.raw.onion.50');
+  --theme-accent-onion-flat: color-mix(in srgb, var(--theme-accent-onion-default) 16%, var(--theme-background-default));
   /* Water */
   --theme-accent-water-subtlest: theme('colors.raw.water.10');
   --theme-accent-water-subtler: theme('colors.raw.water.20');
   --theme-accent-water-subtle: theme('colors.raw.water.30');
   --theme-accent-water-default: theme('colors.raw.water.40');
   --theme-accent-water-bolder: theme('colors.raw.water.50');
+  --theme-accent-water-flat: color-mix(in srgb, var(--theme-accent-water-default) 16%, var(--theme-background-default));
   /* Pepper */
   --theme-accent-pepper-baseline: theme('colors.raw.pepper.90');
   --theme-accent-pepper-subtlest: theme('colors.raw.pepper.80');
@@ -102,24 +109,28 @@ body {
   --theme-accent-pepper-subtle: theme('colors.raw.pepper.30');
   --theme-accent-pepper-default: theme('colors.raw.pepper.10');
   --theme-accent-pepper-bolder: theme('colors.raw.salt.90');
+  --theme-accent-pepper-flat: color-mix(in srgb, var(--theme-accent-pepper-default) 16%, var(--theme-background-default));
   /* Lettuce */
   --theme-accent-lettuce-subtlest: theme('colors.raw.lettuce.10');
   --theme-accent-lettuce-subtler: theme('colors.raw.lettuce.20');
   --theme-accent-lettuce-subtle: theme('colors.raw.lettuce.30');
   --theme-accent-lettuce-default: theme('colors.raw.lettuce.40');
   --theme-accent-lettuce-bolder: theme('colors.raw.lettuce.50');
+  --theme-accent-lettuce-flat: color-mix(in srgb, var(--theme-accent-lettuce-default) 16%, var(--theme-background-default));
   /* Bun */
   --theme-accent-bun-subtlest: theme('colors.raw.bun.10');
   --theme-accent-bun-subtler: theme('colors.raw.bun.20');
   --theme-accent-bun-subtle: theme('colors.raw.bun.30');
   --theme-accent-bun-default: theme('colors.raw.bun.40');
   --theme-accent-bun-bolder: theme('colors.raw.bun.50');
+  --theme-accent-bun-flat: color-mix(in srgb, var(--theme-accent-bun-default) 16%, var(--theme-background-default));
   /* Ketchup */
   --theme-accent-ketchup-subtlest: theme('colors.raw.ketchup.10');
   --theme-accent-ketchup-subtler: theme('colors.raw.ketchup.20');
   --theme-accent-ketchup-subtle: theme('colors.raw.ketchup.30');
   --theme-accent-ketchup-default: theme('colors.raw.ketchup.40');
   --theme-accent-ketchup-bolder: theme('colors.raw.ketchup.50');
+  --theme-accent-ketchup-flat: color-mix(in srgb, var(--theme-accent-ketchup-default) 16%, var(--theme-background-default));
   /* Cabbage */
   --theme-accent-cabbage-baseline: theme('colors.raw.cabbage.0');
   --theme-accent-cabbage-subtlest: theme('colors.raw.cabbage.10');
@@ -127,12 +138,14 @@ body {
   --theme-accent-cabbage-subtle: theme('colors.raw.cabbage.30');
   --theme-accent-cabbage-default: theme('colors.raw.cabbage.40');
   --theme-accent-cabbage-bolder: theme('colors.raw.cabbage.50');
+  --theme-accent-cabbage-flat: color-mix(in srgb, var(--theme-accent-cabbage-default) 16%, var(--theme-background-default));
   /* Bacon */
   --theme-accent-bacon-subtlest: theme('colors.raw.bacon.10');
   --theme-accent-bacon-subtler: theme('colors.raw.bacon.20');
   --theme-accent-bacon-subtle: theme('colors.raw.bacon.30');
   --theme-accent-bacon-default: theme('colors.raw.bacon.40');
   --theme-accent-bacon-bolder: theme('colors.raw.bacon.50');
+  --theme-accent-bacon-flat: color-mix(in srgb, var(--theme-accent-bacon-default) 16%, var(--theme-background-default));
 
   /* Brand */
   --theme-brand-subtler: var(--theme-accent-cabbage-subtler);
@@ -331,24 +344,28 @@ body {
   --theme-accent-burger-subtle: theme('colors.raw.burger.70');
   --theme-accent-burger-default: theme('colors.raw.burger.60');
   --theme-accent-burger-bolder: theme('colors.raw.burger.50');
+  --theme-accent-burger-flat: color-mix(in srgb, var(--theme-accent-burger-default) 16%, var(--theme-background-default));
   /* Blue Cheese */
   --theme-accent-blueCheese-subtlest: theme('colors.raw.blueCheese.90');
   --theme-accent-blueCheese-subtler: theme('colors.raw.blueCheese.80');
   --theme-accent-blueCheese-subtle: theme('colors.raw.blueCheese.70');
   --theme-accent-blueCheese-default: theme('colors.raw.blueCheese.60');
   --theme-accent-blueCheese-bolder: theme('colors.raw.blueCheese.50');
+  --theme-accent-blueCheese-flat: color-mix(in srgb, var(--theme-accent-blueCheese-default) 16%, var(--theme-background-default));
   /* Avocado */
   --theme-accent-avocado-subtlest: theme('colors.raw.avocado.90');
   --theme-accent-avocado-subtler: theme('colors.raw.avocado.80');
   --theme-accent-avocado-subtle: theme('colors.raw.avocado.70');
   --theme-accent-avocado-default: theme('colors.raw.avocado.60');
   --theme-accent-avocado-bolder: theme('colors.raw.avocado.50');
+  --theme-accent-avocado-flat: color-mix(in srgb, var(--theme-accent-avocado-default) 16%, var(--theme-background-default));
   /* Cheese */
   --theme-accent-cheese-subtlest: theme('colors.raw.cheese.90');
   --theme-accent-cheese-subtler: theme('colors.raw.cheese.80');
   --theme-accent-cheese-subtle: theme('colors.raw.cheese.70');
   --theme-accent-cheese-default: theme('colors.raw.cheese.60');
   --theme-accent-cheese-bolder: theme('colors.raw.cheese.50');
+  --theme-accent-cheese-flat: color-mix(in srgb, var(--theme-accent-cheese-default) 16%, var(--theme-background-default));
   /* Salt */
   --theme-accent-salt-baseline: theme('colors.raw.pepper.90');
   --theme-accent-salt-subtlest: theme('colors.raw.pepper.80');
@@ -356,18 +373,21 @@ body {
   --theme-accent-salt-subtle: theme('colors.raw.pepper.30');
   --theme-accent-salt-default: theme('colors.raw.pepper.10');
   --theme-accent-salt-bolder: theme('colors.raw.salt.90');
+  --theme-accent-salt-flat: color-mix(in srgb, var(--theme-accent-salt-default) 16%, var(--theme-background-default));
   /* Onion */
   --theme-accent-onion-subtlest: theme('colors.raw.onion.90');
   --theme-accent-onion-subtler: theme('colors.raw.onion.80');
   --theme-accent-onion-subtle: theme('colors.raw.onion.70');
   --theme-accent-onion-default: theme('colors.raw.onion.60');
   --theme-accent-onion-bolder: theme('colors.raw.onion.50');
+  --theme-accent-onion-flat: color-mix(in srgb, var(--theme-accent-onion-default) 16%, var(--theme-background-default));
   /* Water */
   --theme-accent-water-subtlest: theme('colors.raw.water.90');
   --theme-accent-water-subtler: theme('colors.raw.water.80');
   --theme-accent-water-subtle: theme('colors.raw.water.70');
   --theme-accent-water-default: theme('colors.raw.water.60');
   --theme-accent-water-bolder: theme('colors.raw.water.50');
+  --theme-accent-water-flat: color-mix(in srgb, var(--theme-accent-water-default) 16%, var(--theme-background-default));
   /* Pepper */
   --theme-accent-pepper-baseline: theme('colors.raw.salt.0');
   --theme-accent-pepper-subtlest: theme('colors.raw.salt.20');
@@ -375,36 +395,42 @@ body {
   --theme-accent-pepper-subtle: theme('colors.raw.salt.70');
   --theme-accent-pepper-default: theme('colors.raw.salt.90');
   --theme-accent-pepper-bolder: theme('colors.raw.pepper.10');
+  --theme-accent-pepper-flat: color-mix(in srgb, var(--theme-accent-pepper-default) 16%, var(--theme-background-default));
   /* Lettuce */
   --theme-accent-lettuce-subtlest: theme('colors.raw.lettuce.90');
   --theme-accent-lettuce-subtler: theme('colors.raw.lettuce.80');
   --theme-accent-lettuce-subtle: theme('colors.raw.lettuce.70');
   --theme-accent-lettuce-default: theme('colors.raw.lettuce.60');
   --theme-accent-lettuce-bolder: theme('colors.raw.lettuce.50');
+  --theme-accent-lettuce-flat: color-mix(in srgb, var(--theme-accent-lettuce-default) 16%, var(--theme-background-default));
   /* Bun */
   --theme-accent-bun-subtlest: theme('colors.raw.bun.90');
   --theme-accent-bun-subtler: theme('colors.raw.bun.80');
   --theme-accent-bun-subtle: theme('colors.raw.bun.70');
   --theme-accent-bun-default: theme('colors.raw.bun.60');
   --theme-accent-bun-bolder: theme('colors.raw.bun.50');
+  --theme-accent-bun-flat: color-mix(in srgb, var(--theme-accent-bun-default) 16%, var(--theme-background-default));
   /* Ketchup */
   --theme-accent-ketchup-subtlest: theme('colors.raw.ketchup.90');
   --theme-accent-ketchup-subtler: theme('colors.raw.ketchup.80');
   --theme-accent-ketchup-subtle: theme('colors.raw.ketchup.70');
   --theme-accent-ketchup-default: theme('colors.raw.ketchup.60');
   --theme-accent-ketchup-bolder: theme('colors.raw.ketchup.50');
+  --theme-accent-ketchup-flat: color-mix(in srgb, var(--theme-accent-ketchup-default) 16%, var(--theme-background-default));
   /* Cabbage */
   --theme-accent-cabbage-subtlest: theme('colors.raw.cabbage.90');
   --theme-accent-cabbage-subtler: theme('colors.raw.cabbage.80');
   --theme-accent-cabbage-subtle: theme('colors.raw.cabbage.70');
   --theme-accent-cabbage-default: theme('colors.raw.cabbage.60');
   --theme-accent-cabbage-bolder: theme('colors.raw.cabbage.50');
+  --theme-accent-cabbage-flat: color-mix(in srgb, var(--theme-accent-cabbage-default) 16%, var(--theme-background-default));
   /* Bacon */
   --theme-accent-bacon-subtlest: theme('colors.raw.bacon.90');
   --theme-accent-bacon-subtler: theme('colors.raw.bacon.80');
   --theme-accent-bacon-subtle: theme('colors.raw.bacon.70');
   --theme-accent-bacon-default: theme('colors.raw.bacon.60');
   --theme-accent-bacon-bolder: theme('colors.raw.bacon.50');
+  --theme-accent-bacon-flat: color-mix(in srgb, var(--theme-accent-bacon-default) 16%, var(--theme-background-default));
 
   /* Brand */
   --theme-brand-subtler: var(--theme-accent-cabbage-subtler);
@@ -840,5 +866,29 @@ meter::-webkit-meter-bar {
   &-hourglass {
     background: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 50%),
     radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);
+  }
+}
+
+@layer utilities {
+  @keyframes full-sequence {
+    0% {
+      transform: scale(0);
+    }
+    20% {
+      transform: scale(1.2);
+    }
+    40% {
+      transform: scale(1);
+    }
+    70% {
+      transform: scale(1.4);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+
+  .award-animation {
+    animation: full-sequence 1s ease-in-out forwards;
   }
 }

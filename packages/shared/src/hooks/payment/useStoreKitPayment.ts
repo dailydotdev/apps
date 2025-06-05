@@ -6,29 +6,28 @@ import { TargetType, LogEvent } from '../../lib/log';
 import { SubscriptionProvider } from '../../lib/plus';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { OpenCheckoutProps } from '../../contexts/payment/context';
-import type {
-  ProductPricingPreview,
-  ProductPricingType,
-} from '../../graphql/paddle';
+import type { ProductPricingPreview, PurchaseType } from '../../graphql/paddle';
 import { postWebKitMessage, WebKitMessageHandlers } from '../../lib/ios';
 import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { PurchaseEventName } from '../../contexts/payment/common';
 
 interface UseStoreKitPaymentProps {
-  type: ProductPricingType;
+  type: PurchaseType;
   products: ProductPricingPreview[];
   successCallback: (event: CustomEvent<PurchaseEvent>) => void;
 }
 
-const typeToHandler: Record<ProductPricingType, WebKitMessageHandlers> = {
+const typeToHandler: Record<PurchaseType, WebKitMessageHandlers> = {
   cores: WebKitMessageHandlers.IAPCoresPurchase,
   plus: WebKitMessageHandlers.IAPSubscriptionRequest,
+  organization: WebKitMessageHandlers.IAPSubscriptionRequest,
 };
 
-export const typeToTargetType: Record<ProductPricingType, TargetType> = {
+export const typeToTargetType: Record<PurchaseType, TargetType> = {
   cores: TargetType.Credits,
   plus: TargetType.Plus,
+  organization: TargetType.Plus,
 };
 
 export const useStoreKitPayment = ({

@@ -67,6 +67,7 @@ export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
 export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
+export const settingsUrl = `${webappUrl}settings`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
@@ -78,6 +79,7 @@ export const bookmarkLoops = 'https://r.daily.dev/bookmarkloops';
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 export const topReaderBadgeDocs = 'https://r.daily.dev/top-reader-badge';
 export const plusInfo = 'https://r.daily.dev/plus';
+export const plusOrganizationInfo = 'https://r.daily.dev/organizations';
 
 export const squadCategoriesPaths = {
   'My Squads': '/squads/discover/my',

@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useRef } from 'react';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
+import { StaleTime } from '../../lib/query';
+import { disabledRefetch } from '../../lib/func';
 
 interface UseGenerateUsername {
   username?: string;
@@ -28,6 +30,8 @@ export const useGenerateUsername = (
       ),
 
     enabled: !!name?.length && usernameRef.current !== true,
+    staleTime: StaleTime.Default,
+    ...disabledRefetch,
   });
 
   if (data?.generateUniqueUsername && !usernameRef.current) {

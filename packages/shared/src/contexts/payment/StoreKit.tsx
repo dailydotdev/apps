@@ -10,7 +10,7 @@ import { iOSSupportsPlusPurchase } from '../../lib/ios';
 import { useAuthContext } from '../AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ProductPricingMetadata } from '../../graphql/paddle';
-import { fetchPricingMetadata, ProductPricingType } from '../../graphql/paddle';
+import { fetchPricingMetadata, PurchaseType } from '../../graphql/paddle';
 import type { IAPProduct, PurchaseEventName } from './common';
 import { getApplePricing } from './common';
 import { useStoreKitPayment } from '../../hooks/payment/useStoreKitPayment';
@@ -37,9 +37,9 @@ export const StoreKitSubProvider = ({
     queryKey: generateQueryKey(
       RequestKey.PriceMetadata,
       user,
-      ProductPricingType.Plus,
+      PurchaseType.Plus,
     ),
-    queryFn: () => fetchPricingMetadata(ProductPricingType.Plus),
+    queryFn: () => fetchPricingMetadata(PurchaseType.Plus),
     enabled: !!user && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
   });
@@ -48,14 +48,14 @@ export const StoreKitSubProvider = ({
     queryKey: generateQueryKey(
       RequestKey.PricePreview,
       user,
-      ProductPricingType.Plus,
+      PurchaseType.Plus,
     ),
     enabled: !!metadata?.length && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
     queryFn: async () => getApplePricing(metadata),
   });
   const { openCheckout } = useStoreKitPayment({
-    type: ProductPricingType.Plus,
+    type: PurchaseType.Plus,
     products,
     successCallback,
   });
@@ -67,7 +67,6 @@ export const StoreKitSubProvider = ({
       isPlusAvailable,
       giftOneYear: undefined,
       isPricesPending: false,
-      isFreeTrialExperiment: false,
     }),
     [isPlusAvailable, openCheckout, products],
   );

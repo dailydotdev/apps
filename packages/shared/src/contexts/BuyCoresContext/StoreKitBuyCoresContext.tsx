@@ -13,7 +13,7 @@ import type {
 } from './types';
 import { BuyCoresContext, SCREENS } from './types';
 import { useStoreKitPayment } from '../../hooks/payment/useStoreKitPayment';
-import { ProductPricingType } from '../../graphql/paddle';
+import { PurchaseType } from '../../graphql/paddle';
 
 export const StoreKitBuyCoresContextProvider = ({
   onCompletion,
@@ -43,7 +43,7 @@ export const StoreKitBuyCoresContextProvider = ({
 
   const { openCheckout } = useStoreKitPayment({
     products: prices,
-    type: ProductPricingType.Cores,
+    type: PurchaseType.Cores,
     successCallback: (event) => {
       setActiveStep({
         step: SCREENS.PROCESSING,

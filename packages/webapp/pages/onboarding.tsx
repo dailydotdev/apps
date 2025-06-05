@@ -30,7 +30,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
-  useFeature,
   useFeaturesReadyContext,
   useGrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
@@ -41,7 +40,6 @@ import {
 } from '@dailydotdev/shared/src/components';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
-  feature,
   featureInteractiveFeed,
   featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -52,7 +50,10 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
@@ -74,6 +75,10 @@ import {
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
+import {
+  cloudinaryOnboardingFullBackgroundMobile,
+  cloudinaryOnboardingFullBackgroundDesktop,
+} from '@dailydotdev/shared/src/lib/image';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { HotJarTracking } from '../components/Pixels';
@@ -138,13 +143,6 @@ const PlusSuccess = dynamic(() =>
   ).then((mod) => mod.PlusSuccess),
 );
 
-type OnboardingVisual = {
-  fullBackground?: {
-    mobile?: string;
-    desktop?: string;
-  };
-};
-
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Get started'),
   openGraph: { ...defaultOpenGraph },
@@ -155,7 +153,8 @@ export function OnboardPage(): ReactElement {
   const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
     useOnboarding();
   const router = useRouter();
-  const { setSettings, autoDismissNotifications } = useSettingsContext();
+  const { setSettings, autoDismissNotifications, applyThemeMode } =
+    useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
@@ -196,9 +195,6 @@ export function OnboardPage(): ReactElement {
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onboardingVisual: OnboardingVisual = useFeature(
-    feature.onboardingVisual,
-  );
   const { isPushSupported } = usePushNotificationContext();
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
@@ -235,6 +231,16 @@ export function OnboardPage(): ReactElement {
     }),
     [activeScreen],
   );
+
+  // Ensure dark mode for authentication screen, since we only have a darkmode background image
+  useEffect(() => {
+    if (!user) {
+      applyThemeMode(ThemeMode.Dark);
+    }
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode, user]);
 
   useEffect(() => {
     if (
@@ -478,8 +484,8 @@ export function OnboardPage(): ReactElement {
             fetchPriority="high"
             loading="eager"
             role="presentation"
-            src={onboardingVisual.fullBackground.mobile}
-            srcSet={`${onboardingVisual.fullBackground.mobile} 450w, ${onboardingVisual.fullBackground.desktop} 1024w`}
+            src={cloudinaryOnboardingFullBackgroundMobile}
+            srcSet={`${cloudinaryOnboardingFullBackgroundMobile} 450w, ${cloudinaryOnboardingFullBackgroundDesktop} 1024w`}
             sizes="(max-width: 655px) 450px, 1024px"
           />
         )}
@@ -533,7 +539,7 @@ export function OnboardPage(): ReactElement {
               )}
             >
               {activeScreen === OnboardingStep.ReadingReminder && (
-                <ReadingReminder onClickNext={onClickNext} />
+                <ReadingReminder onClickNext={() => onClickNext()} />
               )}
               {activeScreen === OnboardingStep.EditTag && (
                 <EditTag

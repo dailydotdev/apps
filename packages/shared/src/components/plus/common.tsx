@@ -7,50 +7,7 @@ export interface CommonPlusPageProps {
   shouldShowPlusHeader?: boolean;
 }
 
-export const plusFAQTrialItem = {
-  question: 'Why do I need to enter a credit card to start a trial?',
-  answer: (
-    <div className="flex flex-col gap-4">
-      <p>
-        We ask for a credit card to ensure a seamless experience if you decide
-        to continue with Plus after your trial. No interruptions, no hassle.
-      </p>
-      <p>
-        It also helps prevent abuse, as some Plus features, especially those
-        powered by AI, come with additional costs on our end. This way, we can
-        keep providing high-quality tools without misuse.
-      </p>
-      <p>
-        You won’t be charged during the trial, and you can cancel anytime before
-        it ends without paying a cent.
-      </p>
-    </div>
-  ),
-};
-
 export const plusFAQItems: FAQItem[] = [
-  {
-    question: 'Why should I get the Annual Special Plan now?',
-    answer: (
-      <div className="flex flex-col gap-4">
-        <p>
-          The Annual Special Plan is a limited-time offer with the lowest price
-          we’ll ever offer for daily.dev Plus. Once it’s gone, it won’t come
-          back, and you won’t be able to lock in this discount later.
-        </p>
-        <p>
-          By subscribing now, you keep this discounted rate for as long as you
-          stay subscribed, even when new features are added at no extra cost. If
-          you cancel and resubscribe later, you may have to pay the regular
-          price.
-        </p>
-        <p>
-          If you’re considering upgrading to Plus, now is the best time to
-          secure the best deal before the price goes up.
-        </p>
-      </div>
-    ),
-  },
   {
     question: 'Can I cancel anytime?',
     answer: `Yes! You can cancel your subscription at any time, and your Plus benefits will remain active until the end of your billing cycle.`,

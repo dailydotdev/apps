@@ -19,6 +19,11 @@ const variantToClassName: Record<FunnelBackgroundVariant, string> = {
   [FunnelBackgroundVariant.CircleBottom]:
     'bg-gradient-funnel-circle rotate-180',
   [FunnelBackgroundVariant.Hourglass]: 'bg-gradient-funnel-hourglass',
+  [FunnelBackgroundVariant.Cheese]: 'bg-accent-cheese-flat',
+  [FunnelBackgroundVariant.BlueCheese]: 'bg-accent-blueCheese-flat',
+  [FunnelBackgroundVariant.Onion]: 'bg-accent-onion-flat',
+  [FunnelBackgroundVariant.Water]: 'bg-accent-water-flat',
+  [FunnelBackgroundVariant.Burger]: 'bg-accent-burger-flat',
 };
 
 const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
@@ -33,7 +38,7 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   }
 
   if (step.type === FunnelStepType.Loading) {
-    return FunnelBackgroundVariant.Hourglass;
+    return FunnelBackgroundVariant.Blank;
   }
 
   if (step.type === FunnelStepType.SocialProof) {
@@ -49,14 +54,8 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   return FunnelBackgroundVariant.Default;
 };
 
-const alwaysDarkSteps = [
-  FunnelStepType.Fact,
-  FunnelStepType.SocialProof,
-  FunnelStepType.Loading,
-  FunnelStepType.Signup,
-  FunnelStepType.Checkout,
-  FunnelStepType.PaymentSuccessful,
-];
+const hiddenBgSteps = [FunnelStepType.Checkout];
+const alwaysDarkSteps = [FunnelStepType.Signup, FunnelStepType.Checkout];
 
 export const FunnelStepBackground = ({
   children,
@@ -78,6 +77,8 @@ export const FunnelStepBackground = ({
     );
   }, [step]);
 
+  const shouldShowBg = !hiddenBgSteps.some((type) => type === step.type);
+
   return (
     <div
       className={classNames(
@@ -86,14 +87,16 @@ export const FunnelStepBackground = ({
       )}
     >
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>
-      <div
-        aria-hidden
-        className={classNames(
-          bgClassName,
-          className,
-          'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
-        )}
-      />
+      {shouldShowBg && (
+        <div
+          aria-hidden
+          className={classNames(
+            bgClassName,
+            className,
+            'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
+          )}
+        />
+      )}
     </div>
   );
 };

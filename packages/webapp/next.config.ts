@@ -111,16 +111,6 @@ const nextConfig: NextConfig = {
           },
           {
             source: '/search',
-            destination: '/search/:provider',
-            has: [
-              {
-                type: 'query',
-                key: 'provider',
-              },
-            ],
-          },
-          {
-            source: '/search',
             destination: '/search/posts',
           },
           {
@@ -206,12 +196,17 @@ const nextConfig: NextConfig = {
           // well-known redirect for change password
           {
             source: '/.well-known/change-password',
-            destination: '/account/security',
+            destination: '/settings/security',
             permanent: false,
           },
           {
             source: '/devcard',
-            destination: '/account/customization/devcard',
+            destination: '/settings/customization/devcard',
+            permanent: true,
+          },
+          {
+            source: '/account/:path*',
+            destination: '/settings/:path*',
             permanent: true,
           },
         ];

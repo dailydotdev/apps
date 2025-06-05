@@ -6,6 +6,17 @@ import ProfileButton from './ProfileButton';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
+jest.mock('next/router', () => ({
+  useRouter: () => ({
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
+    },
+    pathname: '/',
+    query: {},
+  }),
+}));
+
 const logout = jest.fn();
 
 const renderComponent = (): RenderResult => {
@@ -41,7 +52,7 @@ it('should show settings option that opens modal', async () => {
   });
 
   const settingsButton = await screen.findByRole('link', {
-    name: 'Account details',
+    name: 'Settings',
   });
   expect(settingsButton).toBeInTheDocument();
 });
@@ -54,7 +65,7 @@ it('should click the logout button and logout', async () => {
     profileBtn.click();
   });
 
-  const logoutBtn = await screen.findByText('Logout');
+  const logoutBtn = await screen.findByText('Log out');
   logoutBtn.click();
 
   await waitFor(async () => expect(logout).toBeCalled());

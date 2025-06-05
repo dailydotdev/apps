@@ -10,17 +10,19 @@ import {
 import Logo, { LogoPosition, LogoWithPlus } from '../Logo';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
-import { OnboardingStep, wrapperMaxWidth } from './common';
+import {
+  OnboardingStep,
+  REQUIRED_TAGS_THRESHOLD,
+  wrapperMaxWidth,
+} from './common';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { PlusFreeTrialAlert } from '../plus/PlusFreeTrialAlert';
 import { useInteractiveCompletion } from '../../contexts/InteractiveFeedContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { usePaymentContext } from '../../contexts/payment/context';
 import { useFeature } from '../GrowthBookProvider';
 import { featureOnboardingReorder } from '../../lib/featureManagement';
 import type { AuthProps } from '../auth/common';
@@ -42,7 +44,6 @@ export const OnboardingHeader = ({
   customActionName,
 }: OnboardingHeaderProps): ReactElement => {
   const { user } = useAuthContext();
-  const { isFreeTrialExperiment } = usePaymentContext();
   const isReorderExperiment = useFeature(featureOnboardingReorder);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -88,66 +89,64 @@ export const OnboardingHeader = ({
 
   if (activeScreen !== OnboardingStep.Intro) {
     return (
-      <>
-        {isPlusStep && isFreeTrialExperiment && <PlusFreeTrialAlert />}
-        <header
+      <header
+        className={classNames(
+          'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',
+          completion > 0 &&
+            activeScreen === OnboardingStep.InteractiveFeed &&
+            'text-status-help',
+        )}
+      >
+        <img
+          className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
+          src={getImage()}
+          alt="Gradient background"
+        />
+        <div
           className={classNames(
-            'sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm',
-            completion > 0 &&
-              activeScreen === OnboardingStep.InteractiveFeed &&
-              'text-status-help',
+            'flex w-full items-center justify-between !px-4 py-10 tablet:!px-6',
+            !fullWidth && ' max-w-4xl ',
           )}
         >
-          <img
-            className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
-            src={getImage()}
-            alt="Gradient background"
-          />
-          <div
-            className={classNames(
-              'flex w-full items-center justify-between !px-4 py-10 tablet:!px-6',
-              !fullWidth && ' max-w-4xl ',
-            )}
-          >
-            {!isPlusStep ? (
-              <Logo
-                logoClassName={{ container: 'h-6' }}
-                position={LogoPosition.Relative}
-                linkDisabled
-              />
-            ) : (
-              <LogoWithPlus />
-            )}
-            {activeScreen === OnboardingStep.InteractiveFeed && (
-              <div className="z-0 flex flex-col text-center">
-                <Typography
-                  color={TypographyColor.Primary}
-                  bold
-                  type={TypographyType.Callout}
-                >
-                  Let&apos;s make your feed work for you
-                </Typography>
-                <Typography
-                  type={TypographyType.Body}
-                  className={getCompletionColor()}
-                >
-                  {completion}% optimized
-                </Typography>
-              </div>
-            )}
-            {showCreateFeedButton.includes(activeScreen) && (
-              <CreateFeedButton
-                onClick={onClick}
-                customActionName={customActionName}
-                activeScreen={activeScreen}
-              />
-            )}
-            {activeScreen === OnboardingStep.PreviewFeed && (
-              <ProfilePicture user={user} size={ProfileImageSize.Medium} />
-            )}
-          </div>
-        </header>
-      </>
+          {!isPlusStep ? (
+            <Logo
+              logoClassName={{ container: 'h-6' }}
+              position={LogoPosition.Relative}
+              linkDisabled
+            />
+          ) : (
+            <LogoWithPlus />
+          )}
+          {activeScreen === OnboardingStep.InteractiveFeed && (
+            <div className="z-0 flex flex-col text-center">
+              <Typography
+                color={TypographyColor.Primary}
+                bold
+                type={TypographyType.Callout}
+              >
+                Let&apos;s make your feed work for you
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                className={getCompletionColor()}
+              >
+                {completion}% optimized
+              </Typography>
+            </div>
+          )}
+          {showCreateFeedButton.includes(activeScreen) && (
+            <CreateFeedButton
+              onClick={onClick}
+              customActionName={customActionName}
+              activeScreen={activeScreen}
+              requiredTags={REQUIRED_TAGS_THRESHOLD}
+            />
+          )}
+          {activeScreen === OnboardingStep.PreviewFeed && (
+            <ProfilePicture user={user} size={ProfileImageSize.Medium} />
+          )}
+        </div>
+      </header>
     );
   }
 

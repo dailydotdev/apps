@@ -9,7 +9,16 @@ export const PRODUCT_FRAGMENT = gql`
     value
     flags {
       description
+      imageGlow
     }
+  }
+`;
+
+export const FEATURED_AWARD_FRAGMENT = gql`
+  fragment FeaturedAwardFragment on Product {
+    name
+    image
+    value
   }
 `;
 
@@ -311,11 +320,17 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     translation {
       ...PostTranslateableFields
     }
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const COMMENT_FRAGMENT = gql`
@@ -339,8 +354,14 @@ export const COMMENT_FRAGMENT = gql`
       name
       image
     }
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
   }
   ${USER_AUTHOR_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const RELATED_POST_FRAGMENT = gql`
@@ -450,4 +471,10 @@ export const TRANSACTION_FRAGMENT = gql`
   }
   ${PRODUCT_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const TRANSACTION_PUBLIC_FRAGMENT = gql`
+  fragment TransactionPublicFragment on UserTransactionPublic {
+    value
+  }
 `;

@@ -4,14 +4,25 @@ import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
-import { PRODUCT_FRAGMENT, TRANSACTION_FRAGMENT } from './fragments';
+import {
+  FEATURED_AWARD_FRAGMENT,
+  PRODUCT_FRAGMENT,
+  TRANSACTION_FRAGMENT,
+  TRANSACTION_PUBLIC_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 import type { Author } from './comments';
-import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../lib/query';
 import type { ProductPricingPreview } from './paddle';
 import {
   fetchPricingMetadata,
   fetchPricingPreview,
-  ProductPricingType,
+  PurchaseType,
 } from './paddle';
 import { iOSSupportsCoresPurchase } from '../lib/ios';
 import { getApplePricing } from '../contexts/payment/common';
@@ -75,8 +86,11 @@ export type Product = {
   value: number;
   flags?: Partial<{
     description: string;
+    imageGlow: string;
   }>;
 };
+
+export type FeaturedAward = Pick<Product, 'name' | 'image' | 'value'>;
 
 export const PRODUCTS_QUERY = gql`
   query products($first: Int) {
@@ -91,7 +105,7 @@ export const PRODUCTS_QUERY = gql`
   ${PRODUCT_FRAGMENT}
 `;
 
-export const getProducts = async ({
+const getProducts = async ({
   first = 100,
 }: {
   first?: number;
@@ -101,6 +115,14 @@ export const getProducts = async ({
   }>(PRODUCTS_QUERY, { first });
 
   return result.products;
+};
+
+export const getProductsQueryOptions = () => {
+  return {
+    queryKey: generateQueryKey(RequestKey.Products),
+    queryFn: () => getProducts(),
+    staleTime: StaleTime.Default,
+  };
 };
 
 export enum UserTransactionStatus {
@@ -166,11 +188,11 @@ export const transactionPricesQueryOptions = ({
     queryKey: generateQueryKey(
       RequestKey.PricePreview,
       user,
-      ProductPricingType.Cores,
+      PurchaseType.Cores,
     ),
     queryFn: async () => {
       if (iOSSupportsCoresPurchase()) {
-        const metadata = await fetchPricingMetadata(ProductPricingType.Cores);
+        const metadata = await fetchPricingMetadata(PurchaseType.Cores);
 
         return getApplePricing(metadata, [
           'cores_100',
@@ -179,7 +201,7 @@ export const transactionPricesQueryOptions = ({
         ]);
       }
 
-      return fetchPricingPreview(ProductPricingType.Cores);
+      return fetchPricingPreview(PurchaseType.Cores);
     },
     enabled: isLoggedIn,
     staleTime: StaleTime.Default,
@@ -283,7 +305,7 @@ export const userProductSummaryQueryOptions = ({
 
       return result.userProductSummary;
     },
-    staleTIme: StaleTime.Default,
+    staleTime: StaleTime.Default,
   };
 };
 
@@ -303,4 +325,150 @@ export const getQuantityForPrice = ({
   prices?: ProductPricingPreview[];
 }): number | undefined => {
   return prices?.find((item) => item.priceId === priceId)?.metadata.coresValue;
+};
+
+const TOTAL_POST_AWARDS_QUERY_PART = gql`
+    awardsTotal: postAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+type AwardsQueryFunction = (props: { includeTotal?: boolean }) => string;
+
+export const LIST_POST_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
+  query PostAwards($id: ID!, $first: Int, $after: String) {
+    awards: postAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UserShortInfo
+          }
+          award {
+            ...FeaturedAwardFragment
+          }
+          awardTransaction {
+            ...TransactionPublicFragment
+          }
+        }
+      }
+    }
+    ${includeTotal ? TOTAL_POST_AWARDS_QUERY_PART : ''}
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+  ${TRANSACTION_PUBLIC_FRAGMENT}
+`;
+
+const TOTAL_COMMENT_AWARDS_QUERY_PART = gql`
+    awardsTotal: commentAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+export const LIST_COMMENT_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
+  query CommentAwards($id: ID!, $first: Int, $after: String) {
+    awards: commentAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UserShortInfo
+          }
+          award {
+            ...FeaturedAwardFragment
+          }
+          awardTransaction {
+            ...TransactionPublicFragment
+          }
+        }
+      }
+    }
+    ${includeTotal ? TOTAL_COMMENT_AWARDS_QUERY_PART : ''}
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+  ${TRANSACTION_PUBLIC_FRAGMENT}
+`;
+
+export const DEFAULT_AWARDS_LIMIT = 20;
+
+export type UserTransactionPublic = Pick<UserTransaction, 'value'>;
+
+export type AwardListItem = {
+  user: Author;
+  award: FeaturedAward;
+  awardTransaction?: UserTransactionPublic;
+};
+
+const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =
+  {
+    POST: LIST_POST_AWARDS_QUERY,
+    COMMENT: LIST_COMMENT_AWARDS_QUERY,
+    USER: undefined,
+  };
+
+export const listAwardsInfiniteQueryOptions = ({
+  id,
+  type,
+  limit = DEFAULT_AWARDS_LIMIT,
+}: {
+  id: string;
+  type: AwardTypes;
+  limit?: number;
+}) => {
+  return {
+    queryKey: generateQueryKey(RequestKey.Awards, null, {
+      id,
+      type,
+      first: limit,
+    }),
+    queryFn: async ({ queryKey: queryKeyArg, pageParam }) => {
+      const gqlQueryFunction = listAwardsQueryMap[type];
+
+      if (!gqlQueryFunction) {
+        throw new Error(`Unsupported award type: ${type}`);
+      }
+
+      const isInitialPage = pageParam === '';
+
+      const gqlQuery = gqlQueryFunction({
+        includeTotal: isInitialPage,
+      });
+
+      const [, , queryVariables] = queryKeyArg as [
+        unknown,
+        unknown,
+        { id: string; type: AwardTypes; first: number },
+      ];
+      const result = await gqlClient.request<{
+        awards: Connection<AwardListItem>;
+        awardsTotal?: LoggedUser['balance'];
+      }>(gqlQuery, {
+        ...queryVariables,
+        after: pageParam,
+      });
+
+      return result;
+    },
+    initialPageParam: '',
+    staleTime: StaleTime.Default,
+    getNextPageParam: ({
+      awards: { pageInfo },
+    }: {
+      awards: Connection<AwardListItem>;
+      awardsTotal?: LoggedUser['balance'];
+    }) => getNextPageParam(pageInfo),
+    enabled: !!(id && type),
+  };
 };

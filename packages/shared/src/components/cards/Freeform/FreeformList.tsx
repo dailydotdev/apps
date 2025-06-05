@@ -1,12 +1,10 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
-import { sanitize } from 'dompurify';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
 import {
-  useConditionalFeature,
   useFeedPreviewMode,
   useTruncatedSummary,
   useViewSize,
@@ -23,10 +21,10 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { featureSocialShare } from '../../../lib/featureManagement';
 import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
+import { sanitizeMessage } from '../../../features/onboarding/shared';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -55,15 +53,10 @@ export const FreeformList = forwardRef(function SharePostCard(
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const content = useMemo(
-    () =>
-      post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
+    () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
     [post.contentHtml],
   );
-  const { value: socialShare } = useConditionalFeature({
-    feature: featureSocialShare,
-    shouldEvaluate: interaction === 'copy' && post.type === PostType.Freeform,
-  });
-
+  const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
 
   const actionButtons = (

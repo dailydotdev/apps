@@ -17,6 +17,7 @@ export enum PlusPriceTypeAppsId {
   GiftOneYear = 'gift_one_year',
   EarlyAdopter = 'early_adopter',
   Cores = 'cores',
+  Annual = 'annual',
 }
 
 export interface FeatureThemeVariant {

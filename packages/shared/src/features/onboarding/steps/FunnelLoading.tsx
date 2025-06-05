@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import { StepHeadline } from '../shared/StepHeadline';
@@ -140,7 +138,8 @@ const FunnelLoading = ({
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
+    <div className="relative flex flex-1 flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
+      <div className="absolute inset-0 bg-accent-avocado-default opacity-16" />
       <div className="relative">
         <svg
           className="size-48"
@@ -153,7 +152,7 @@ const FunnelLoading = ({
             cx="98"
             cy="98"
             r="90"
-            className="stroke-overlay-primary-pepper"
+            className="stroke-shadow-shadow1"
             strokeOpacity="0.32"
             strokeWidth="14.4"
           />
@@ -161,7 +160,7 @@ const FunnelLoading = ({
           {/* Progress circle drawing using path */}
           <path
             d={getProgressArcPath(percentage)}
-            className="stroke-text-primary"
+            className="stroke-action-upvote-default"
             strokeWidth="14.4"
             strokeLinecap="round"
             fill="none"

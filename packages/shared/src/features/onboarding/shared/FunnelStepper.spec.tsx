@@ -21,12 +21,6 @@ import type { FunnelSession } from '../types/funnelBoot';
 jest.mock('../hooks/useFunnelNavigation');
 jest.mock('../hooks/useFunnelTracking');
 jest.mock('../hooks/useStepTransition');
-jest.mock('../../common/hooks/useWindowScroll', () => ({
-  useWindowScroll: jest.fn(),
-}));
-jest.mock('jotai-history', () => ({
-  withHistory: jest.fn(),
-}));
 
 let client: QueryClient;
 
@@ -136,6 +130,7 @@ describe('FunnelStepper component', () => {
     expect(mockNavigate).toHaveBeenCalledWith({
       to: 'step2',
       type: FunnelStepTransitionType.Complete,
+      details: { step1: 'Option 1' },
     });
     expect(mockSendTransition).toHaveBeenCalledWith({
       fromStep: 'step1',
@@ -172,6 +167,7 @@ describe('FunnelStepper component', () => {
     expect(mockNavigate).toHaveBeenCalledWith({
       to: 'step2',
       type: FunnelStepTransitionType.Complete,
+      details: { step1: 'Option 1' },
     });
     expect(mockSendTransition).toHaveBeenCalled();
     expect(mockOnComplete).not.toHaveBeenCalled();

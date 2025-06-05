@@ -5,14 +5,13 @@ import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
 import {
-  useActions,
   usePlusSubscription,
   useViewSize,
   ViewSize,
+  useClickbaitTries,
 } from '../../../hooks';
 import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { ActionType } from '../../../graphql/actions';
 import { LazyModal } from '../../modals/common/types';
 
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
@@ -26,15 +25,14 @@ import { TargetId } from '../../../lib/log';
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
-  const { checkHasCompleted } = useActions();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
+  const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
 
   if (!isPlus) {
-    const hasUsedFreeTrial = checkHasCompleted(ActionType.FetchedSmartTitle);
     return (
       <div
         className={classNames(
@@ -50,7 +48,13 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             fetchedSmartTitle ? (
               <ShieldCheckIcon className="text-status-success" />
             ) : (
-              <ShieldWarningIcon className="text-accent-cheese-default" />
+              <ShieldWarningIcon
+                className={
+                  hasUsedFreeTrial
+                    ? 'text-accent-ketchup-default'
+                    : 'text-accent-cheese-default'
+                }
+              />
             )
           }
         />
@@ -74,7 +78,11 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           </>
         ) : (
           <>
-            This title could be clearer and more informative.
+            This title could be clearer and more informative.{' '}
+            {triesLeft > 0
+              ? `Try out Clickbait
+            Shield for free (${triesLeft} uses left this month).`
+              : undefined}
             <Button
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Option}

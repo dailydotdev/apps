@@ -3,12 +3,6 @@ import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
-import { StraightArrowIcon } from '../../icons';
-import {
-  providerToIconMap,
-  providerToLabelTextMap,
-  SearchProviderButton,
-} from '../SearchPanel';
 import type { SearchSuggestion } from '../../../graphql/search';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
@@ -25,11 +19,6 @@ import { SearchResultsUsers } from './SearchResultsUsers';
 import { useUseSearchSuggestionsContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSearchSuggestionsContentPreferenceMutationSubscription';
 
 type SearchResultsLayoutProps = PropsWithChildren;
-
-const AICta = {
-  Icon: providerToIconMap[SearchProviderEnum.Chat],
-  Label: providerToLabelTextMap[SearchProviderEnum.Chat],
-};
 
 export const SearchResultsLayout = (
   props: SearchResultsLayoutProps,
@@ -123,25 +112,6 @@ export const SearchResultsLayout = (
           </div>
         </div>
         <PageWidgets className="py-5">
-          <SearchProviderButton
-            className="h-auto gap-2 text-left laptop:px-4 laptop:py-3.5"
-            provider={SearchProviderEnum.Chat}
-            query={`${query}`}
-            onClick={() => {
-              logEvent({
-                event_name: LogEvent.SwitchSearch,
-                extra: JSON.stringify({
-                  from: SearchProviderEnum.Posts,
-                  to: SearchProviderEnum.Chat,
-                  query: `${query}`,
-                }),
-              });
-            }}
-          >
-            <span className="inline-block flex-1">{AICta.Label}</span>
-            <StraightArrowIcon className="-rotate-90" />
-          </SearchProviderButton>
-
           <SearchResultsTags
             isLoading={isTagsLoading}
             items={tags}

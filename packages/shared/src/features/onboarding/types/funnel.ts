@@ -23,6 +23,10 @@ export enum FunnelStepType {
   AppPromotion = 'appPromotion',
   SocialProof = 'socialProof',
   Loading = 'loading',
+  ProfileForm = 'profileForm',
+  EditTags = 'editTags',
+  ContentTypes = 'contentTypes',
+  InstallPwa = 'installPwa',
 }
 
 export enum FunnelBackgroundVariant {
@@ -34,6 +38,11 @@ export enum FunnelBackgroundVariant {
   CircleTop = 'circleTop',
   CircleBottom = 'circleBottom',
   Hourglass = 'hourglass',
+  Cheese = 'cheese',
+  BlueCheese = 'blueCheese',
+  Onion = 'onion',
+  Water = 'water',
+  Burger = 'burger',
 }
 
 export enum FunnelStepTransitionType {
@@ -42,11 +51,20 @@ export enum FunnelStepTransitionType {
 }
 
 export const COMPLETED_STEP_ID = 'finish' as const;
+export const NEXT_STEP_ID = 'next' as const;
 
 export type FunnelStepTransitionCallback<Details = Record<string, unknown>> =
   (transition: { type: FunnelStepTransitionType; details?: Details }) => void;
 
-interface FunnelStepCommonParameters {
+export interface FunnelBannerMessageParameters {
+  image: {
+    src: string;
+  };
+  content: string;
+  stepsToDisplay: string[];
+}
+
+export interface FunnelStepCommonParameters {
   backgroundType?: FunnelBackgroundVariant;
   cta?: string;
   reverse?: boolean;
@@ -60,7 +78,12 @@ type FunnelStepParameters<Params = Record<string, unknown>> = {
 
 export type FunnelStepTransition = {
   on: FunnelStepTransitionType;
-  destination: FunnelStep['id'] | typeof COMPLETED_STEP_ID;
+  destination:
+    | FunnelStep['id']
+    | typeof COMPLETED_STEP_ID
+    | typeof NEXT_STEP_ID;
+  cta?: string;
+  placement?: 'default' | 'bottom' | 'top';
 };
 
 interface FunnelStepCommon<T = FunnelStepParameters> {
@@ -92,10 +115,19 @@ export interface FunnelStepLoading
 export interface FunnelStepFactParameters {
   headline: string;
   cta?: string;
+  ctaNote?: string;
+  ctaAnimation?: string;
   reverse?: boolean;
+  badge?: {
+    placement?: 'bottom' | 'top';
+    cta?: string;
+    variant?: 'primary' | 'onion';
+  };
   explainer: string;
   align: StepHeadlineAlign;
   visualUrl?: string;
+  visualUrlLightMode?: string;
+  layout?: 'default' | 'reversed' | 'centered';
 }
 
 export interface FunnelStepFact
@@ -119,6 +151,7 @@ export type FunnelQuestionCommon = {
     image?: ComponentProps<'img'>;
   }>;
   imageUrl?: string;
+  optionStyle?: 'default' | 'simplified';
 };
 
 export type FunnelQuestionCheckbox = FunnelQuestionCommon &
@@ -153,9 +186,15 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
+export enum FunnelPricingType {
+  Daily = 'daily',
+  Monthly = 'monthly',
+}
+
 export interface FunnelStepPricingParameters {
   headline: string;
   cta: string;
+  pricingType: FunnelPricingType;
   discount: {
     message: string;
     duration: number;
@@ -193,6 +232,7 @@ export interface FunnelStepPricing
 
 export interface FunnelStepCheckoutParameters {
   discountCode?: string;
+  shouldShowHeader?: boolean;
 }
 
 export interface FunnelStepCheckout
@@ -206,7 +246,8 @@ export interface FunnelStepTagSelection extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepReadingReminder extends FunnelStepCommon {
+export interface FunnelStepReadingReminder
+  extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.ReadingReminder;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -219,6 +260,7 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
 export interface FunnelStepSocialProof
   extends FunnelStepCommon<{
     imageUrl: string;
+    imageUrlLightMode?: string;
     rating: string;
     reviews: Review[];
     reviewSubtitle: string;
@@ -240,6 +282,37 @@ export interface FunnelStepPaymentSuccessful
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
+export interface FunnelStepProfileForm
+  extends FunnelStepCommon<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }> {
+  type: FunnelStepType.ProfileForm;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepEditTags
+  extends FunnelStepCommon<{
+    headline: string;
+    minimumRequirement: number;
+  }> {
+  type: FunnelStepType.EditTags;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepContentTypes
+  extends FunnelStepCommon<{ headline: string }> {
+  type: FunnelStepType.ContentTypes;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepInstallPwa
+  extends FunnelStepCommon<{ headline: string }> {
+  type: FunnelStepType.InstallPwa;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -251,28 +324,34 @@ export type FunnelStep =
   | FunnelStepReadingReminder
   | FunnelStepAppPromotion
   | FunnelStepSocialProof
-  | FunnelStepLoading;
+  | FunnelStepLoading
+  | FunnelStepProfileForm
+  | FunnelStepEditTags
+  | FunnelStepContentTypes
+  | FunnelStepInstallPwa;
 
 export type FunnelPosition = {
   chapter: number;
   step: number;
 };
 
+interface FunnelParameters {
+  cookieConsent: {
+    show: boolean;
+  };
+  theme: {
+    mode: ThemeMode;
+  };
+  banner: FunnelBannerMessageParameters;
+}
+
 export interface FunnelJSON {
   id: string;
   version: number;
-  parameters: FunnelStepParameters<
-    Partial<{
-      cookieConsent: {
-        show: boolean;
-      };
-      theme: {
-        mode: ThemeMode;
-      };
-    }>
-  >;
+  parameters: Partial<FunnelParameters>;
   entryPoint: FunnelStep['id'];
   chapters: Array<FunnelChapter>;
+  redirectOnFinish?: string;
 }
 
 export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];

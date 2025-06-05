@@ -134,6 +134,7 @@ export function FunnelQuiz({
           name={id}
           options={inputOptions}
           onValueChange={onChange}
+          optionStyle={question.optionStyle}
           {...(isCheckboxGroup && {
             ...{
               behaviour: isSingleChoice

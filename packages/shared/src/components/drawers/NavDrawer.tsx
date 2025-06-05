@@ -1,42 +1,45 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import type { DrawerRef, DrawerWrapperProps } from './Drawer';
 import { Drawer, DrawerPosition } from './Drawer';
-import type { NavItemProps } from './NavDrawerItem';
-import { NavDrawerItem } from './NavDrawerItem';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import classed from '../../lib/classed';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
+import { webappUrl } from '../../lib/constants';
+import { getPathnameWithQuery } from '../../lib';
+import { BuyCreditsButton } from '../credit/BuyCreditsButton';
+import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
+import { Origin } from '../../lib/log';
 
-interface NavDrawerProps {
+interface NavDrawerProps extends PropsWithChildren {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
-  items: NavItemProps[];
   header?: string;
   shouldKeepOpen?: boolean;
+  showActions?: boolean;
 }
 
-const NavDrawerHeader = classed(
-  'div',
-  'flex items-center gap-3 px-4 border-b border-border-subtlest-tertiary h-12',
-);
-
-const NavDrawerContent = classed('div', 'flex flex-col px-4 py-5');
-
-const NavHeading = classed('h2', 'typo-body font-bold');
-
 export function NavDrawer({
+  children,
   drawerProps,
   header,
-  items,
   shouldKeepOpen,
+  showActions = true,
 }: NavDrawerProps): ReactElement {
-  const ref = React.useRef<DrawerRef>();
   const {
     position,
     displayCloseButton,
     closeOnOutsideClick,
     ...otherDrawerProps
   } = drawerProps;
+
+  const router = useRouter();
+  const canPurchaseCores = useCanPurchaseCores();
+  const ref = useRef<DrawerRef>();
 
   return (
     <Drawer
@@ -49,26 +52,42 @@ export function NavDrawer({
       role="menu"
       className={{
         drawer: 'py-0',
+        wrapper: '!px-0 !pt-0',
       }}
     >
       {header && (
-        <NavDrawerHeader>
+        <div className="flex h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4">
           <Button
             variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
+            size={ButtonSize.XSmall}
             onClick={
               shouldKeepOpen ? drawerProps.onClose : ref.current?.onClose
             }
             icon={<ArrowIcon className="-rotate-90" />}
           />
-          <NavHeading>{header}</NavHeading>
-        </NavDrawerHeader>
+          <Typography bold tag={TypographyTag.H2} type={TypographyType.Body}>
+            {header}
+          </Typography>
+
+          {showActions && (
+            <BuyCreditsButton
+              className="ml-auto"
+              hideBuyButton={!canPurchaseCores}
+              onPlusClick={() => {
+                router.push(
+                  getPathnameWithQuery(
+                    `${webappUrl}cores`,
+                    new URLSearchParams({
+                      origin: Origin.ProfileMenu,
+                    }),
+                  ),
+                );
+              }}
+            />
+          )}
+        </div>
       )}
-      <NavDrawerContent>
-        {items.map((item) => (
-          <NavDrawerItem key={item.label} {...item} drawerRef={ref} />
-        ))}
-      </NavDrawerContent>
+      {children}
     </Drawer>
   );
 }

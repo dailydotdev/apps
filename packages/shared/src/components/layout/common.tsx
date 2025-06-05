@@ -5,7 +5,6 @@ import type {
   SetStateAction,
 } from 'react';
 import React, { useContext } from 'react';
-import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -22,17 +21,11 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
-import { webappUrl } from '../../lib/constants';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
-import { useAuthContext } from '../../contexts/AuthContext';
-import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import CustomFeedSlider from '../feeds/CustomFeedSlider';
-import type { ButtonProps } from '../buttons/Button';
-import useCustomFeedHeader from '../../hooks/feed/useCustomFeedHeader';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -69,15 +62,11 @@ export const SearchControlHeader = ({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const router = useRouter();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { user } = useAuthContext();
-  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const { customFeedPlacement } = useCustomFeedHeader();
 
   if (isMobile) {
     return null;
@@ -98,31 +87,9 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
 
-  const shieldBtnProps: ButtonProps<'button'> = customFeedPlacement
-    ? {
-        size: ButtonSize.Small,
-        variant: ButtonVariant.Tertiary,
-      }
-    : undefined;
-
   const actionButtons = [
     feedsWithActions.includes(feedName as SharedFeedPage) && (
-      <MyFeedHeading
-        key="my-feed"
-        onOpenFeedFilters={() => {
-          if (isCustomDefaultFeed && router.pathname === '/') {
-            router.push(`${webappUrl}feeds/${defaultFeedId}/edit`);
-          } else {
-            router.push(
-              `${webappUrl}feeds/${
-                feedName === SharedFeedPage.Custom
-                  ? router.query.slugOrId
-                  : user.id
-              }/edit`,
-            );
-          }
-        }}
-      />
+      <MyFeedHeading key="my-feed" />
     ),
     isUpvoted ? (
       <Dropdown
@@ -143,15 +110,10 @@ export const SearchControlHeader = ({
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
-        {...(customFeedPlacement && {
-          buttonSize: ButtonSize.Small,
-          buttonVariant: ButtonVariant.Tertiary,
-        })}
       />
     ),
     feedsWithActions.includes(feedName as SharedFeedPage) && (
       <ToggleClickbaitShield
-        buttonProps={shieldBtnProps}
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
@@ -182,12 +144,7 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">
-        {customFeedPlacement && <CustomFeedSlider />}
-        <div className="flex items-center gap-2">
-          {customFeedPlacement ? actions.reverse() : actions}
-        </div>
-      </div>
+      <div className="flex w-full items-center gap-2">{actions}</div>
     </ConditionalWrapper>
   );
 };

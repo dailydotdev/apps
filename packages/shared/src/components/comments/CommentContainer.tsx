@@ -22,7 +22,7 @@ import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
-import { Image } from '../image/Image';
+import { AnimatedAwardImage } from '../AnimatedAward';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -152,13 +152,7 @@ export default function CommentContainer({
           </FlexRow>
         </div>
         {hasAccessToCores && !!comment.award && (
-          <div className="ml-2 flex size-7 items-center justify-center rounded-10 bg-surface-float">
-            <Image
-              src={comment.award.image}
-              alt={comment.award.name}
-              className="size-5 object-contain"
-            />
-          </div>
+          <AnimatedAwardImage className="ml-2" award={comment.award} />
         )}
       </header>
       <div

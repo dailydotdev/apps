@@ -269,6 +269,24 @@ const CustomLinksModal = dynamic(
     ),
 );
 
+const ListAwardsModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "listAwardsModal" */ './award/ListAwardsModal'
+  ).then((mod) => mod.ListAwardsModal),
+);
+
+const OrganizationInviteMemberModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "inviteMemberModal" */ '../../features/organizations/components/InviteMemberModal'
+  ).then((mod) => mod.InviteMemberModal),
+);
+
+const OrganizationManageSeatsModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "manageSeatsModal" */ '../../features/organizations/components/manageSeats/Modal'
+  ).then((mod) => mod.ManageSeatsModal),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -314,6 +332,9 @@ export const modals = {
   [LazyModal.GiveAward]: GiveAwardModal,
   [LazyModal.ContentModal]: ContentModal,
   [LazyModal.CustomLinks]: CustomLinksModal,
+  [LazyModal.ListAwards]: ListAwardsModal,
+  [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
+  [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
 };
 
 type GetComponentProps<T> = T extends
