@@ -35,13 +35,13 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
   messageHandlerExists,
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
+import useOnboardingAuth from '@dailydotdev/shared/src/hooks/auth/useOnboardingAuth';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -70,11 +70,7 @@ const getRedirectUri = () =>
 const getPage = () => window.location.pathname;
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const {
-    isOnboardingActionsReady,
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-  } = useOnboardingActions();
+  const { onboardingCompleted } = useOnboardingAuth();
   const didRegisterSwRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -93,19 +89,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useEffect(() => {
     if (
       !isFunnel &&
-      isOnboardingActionsReady &&
-      (!hasCompletedEditTags || !hasCompletedContentTypes) &&
+      !onboardingCompleted &&
       !router.pathname.includes('/onboarding')
     ) {
       router.replace('/onboarding');
     }
-  }, [
-    isFunnel,
-    isOnboardingActionsReady,
-    router,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-  ]);
+  }, [isFunnel, onboardingCompleted, router]);
 
   useEffect(() => {
     if (

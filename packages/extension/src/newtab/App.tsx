@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Modal from 'react-modal';
 import 'focus-visible';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import browser from 'webextension-polyfill';
 import type { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
@@ -29,9 +28,9 @@ import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionC
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
-import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
+import useOnboardingAuth from '@dailydotdev/shared/src/hooks/auth/useOnboardingAuth';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -50,8 +49,7 @@ Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 function InternalApp(): ReactElement {
-  const { hasCompletedContentTypes, hasCompletedEditTags } =
-    useOnboardingActions();
+  const { onboardingCompleted, isAuthReady } = useOnboardingAuth();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -61,13 +59,11 @@ function InternalApp(): ReactElement {
     useHostStatus();
   const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
-  const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
   const shouldRedirectOnboarding =
-    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
+    isPageReady && !onboardingCompleted && !isTesting;
 
   useCheckCoresRole();
 

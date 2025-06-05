@@ -123,6 +123,7 @@ export interface UserShortProfile
 
 export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
+  onboardingCompleted: boolean;
 }>;
 
 export type UserSubscriptionFlags = Partial<{

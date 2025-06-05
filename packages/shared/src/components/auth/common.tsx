@@ -131,3 +131,30 @@ export interface AuthOptionsProps {
   ignoreMessages?: boolean;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
+
+export const getDefaultDisplay = ({
+  isLogin,
+  shouldVerify,
+  action,
+}: {
+  isLogin?: boolean;
+  shouldVerify?: boolean;
+  action?: OnboardingActions;
+}): AuthDisplay => {
+  if (!!action && actionToAuthDisplay[action]) {
+    return actionToAuthDisplay[action];
+  }
+  if (shouldVerify) {
+    return AuthDisplay.EmailVerification;
+  }
+  if (isLogin) {
+    return AuthDisplay.Default;
+  }
+  return AuthDisplay.OnboardingSignup;
+};
+
+export const isValidAction = (
+  action?: string | string[],
+): action is OnboardingActions => {
+  return typeof action === 'string' && action in actionToAuthDisplay;
+};

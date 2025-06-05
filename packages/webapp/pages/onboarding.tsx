@@ -24,10 +24,10 @@ import type {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/common';
 import {
-  actionToAuthDisplay,
   OnboardingActions,
   AFTER_AUTH_PARAM,
-  AuthDisplay,
+  isValidAction,
+  getDefaultDisplay,
 } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
@@ -57,7 +57,6 @@ import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onbo
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -117,43 +116,14 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   };
 };
 
-const getDefaultDisplay = ({
-  isLogin,
-  shouldVerify,
-  action,
-}: {
-  isLogin?: boolean;
-  shouldVerify?: boolean;
-  action?: OnboardingActions;
-}): AuthDisplay => {
-  if (!!action && actionToAuthDisplay[action]) {
-    return actionToAuthDisplay[action];
-  }
-  if (shouldVerify) {
-    return AuthDisplay.EmailVerification;
-  }
-  if (isLogin) {
-    return AuthDisplay.Default;
-  }
-  return AuthDisplay.OnboardingSignup;
-};
-
-const isValidAction = (
-  action?: string | string[],
-): action is OnboardingActions => {
-  return typeof action === 'string' && action in actionToAuthDisplay;
-};
-
 const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
+  const { isAuthReady, anonymous, loginState, isLoggedIn, user } =
+    useAuthContext();
   const router = useRouter();
   const action = isValidAction(router.query.action) && router.query.action;
-  const {
-    data: { funnelState },
-  } = useOnboardingBoot();
-
+  const { data } = useOnboardingBoot();
   const [auth, setAuth] = useAtom(authAtom);
   const { isLoginFlow, defaultDisplay } = auth;
   const updateAuth = useCallback(
@@ -235,22 +205,23 @@ const useOnboardingAuth = () => {
   return {
     auth,
     authOptionProps,
-    funnelState,
+    funnelState: data?.funnelState,
     isAuthReady,
     isAuthenticating: auth.isAuthenticating,
     updateAuth,
+    onboardingCompleted: user?.flags?.onboardingCompleted,
   };
 };
 
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
-  const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
-    useOnboardingAuth();
   const {
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-    isOnboardingActionsReady,
-  } = useOnboardingActions();
+    isAuthenticating,
+    isAuthReady,
+    authOptionProps,
+    funnelState,
+    onboardingCompleted,
+  } = useOnboardingAuth();
   const isFunnelReady = useRef(false);
 
   const redirectToApp = useCallback(async () => {
@@ -283,7 +254,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       return;
     }
 
-    if (hasCompletedContentTypes && hasCompletedEditTags) {
+    if (onboardingCompleted) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
       redirectToApp();
@@ -294,13 +265,11 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       isFunnelReady.current = true;
     }
   }, [
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
     isAuthReady,
     isAuthenticating,
-    isOnboardingActionsReady,
     redirectToApp,
     router,
+    onboardingCompleted,
   ]);
 
   if (isAuthenticating) {
