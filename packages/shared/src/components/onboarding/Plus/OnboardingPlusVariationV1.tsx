@@ -72,6 +72,7 @@ const VariationCardOption = ({
 export const OnboardingPlusVariationV1 = ({
   onClickNext,
   onClickPlus,
+  headline = 'Suffer less. Debugging bad decisions is harder.',
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { productOptions } = usePaymentContext();
@@ -148,7 +149,7 @@ export const OnboardingPlusVariationV1 = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Suffer less. Debugging bad decisions is harder.
+          {headline}
         </Typography>
       </header>
 
