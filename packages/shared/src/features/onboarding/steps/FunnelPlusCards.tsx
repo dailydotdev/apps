@@ -1,42 +1,54 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { OnboardingPlus } from '../components/OnboardingPlus';
 import type { FunnelStepPlusCards } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 export const FunnelPlusCards = withIsActiveGuard(
   ({ onTransition }: FunnelStepPlusCards) => {
     const { user } = useAuthContext();
-
-    const onSkip = useCallback(() => {
-      onTransition?.({
-        type: FunnelStepTransitionType.Skip,
-        details: { skip: true },
-      });
-    }, [onTransition]);
-
-    const onComplete = useCallback(() => {
-      onTransition?.({
-        type: FunnelStepTransitionType.Complete,
-        details: { skip: false },
-      });
-    }, [onTransition]);
+    const { isActionsFetched, completeAction, checkHasCompleted } =
+      useActions();
+    const hasCompleted = useMemo(
+      () =>
+        isActionsFetched && checkHasCompleted(ActionType.CheckedPlusPricing),
+      [checkHasCompleted, isActionsFetched],
+    );
+    const completePlusAction = useCallback(
+      ({ skip }: { skip: boolean }) => {
+        onTransition?.({
+          type: skip
+            ? FunnelStepTransitionType.Skip
+            : FunnelStepTransitionType.Complete,
+          details: { skip },
+        });
+        completeAction(ActionType.CheckedPlusPricing);
+      },
+      [completeAction, onTransition],
+    );
 
     useEffect(() => {
-      if (user?.isPlus) {
+      if (user?.isPlus || hasCompleted) {
         onTransition?.({
           type: FunnelStepTransitionType.Skip,
           details: { skip: true },
         });
       }
-    }, [onTransition, user?.isPlus]);
+    }, [hasCompleted, onTransition, user?.isPlus]);
 
     if (user?.isPlus) {
       return null;
     }
 
-    return <OnboardingPlus onComplete={onComplete} onSkip={onSkip} />;
+    return (
+      <OnboardingPlus
+        onComplete={() => completePlusAction({ skip: false })}
+        onSkip={() => completePlusAction({ skip: true })}
+      />
+    );
   },
 );
 
