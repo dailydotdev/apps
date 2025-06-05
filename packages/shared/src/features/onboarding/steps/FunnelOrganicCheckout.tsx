@@ -6,19 +6,21 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import type { FunnelStepOrganicCheckout } from '../types/funnel';
 
-const OrganicCheckout = (props: FunnelStepOrganicCheckout): ReactElement => {
+const OrganicCheckout = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  console.log({ isLaptop });
   return (
     <>
       {isLaptop ? (
-        <PlusDesktop shouldShowPlusHeader={false} />
+        <PlusDesktop shouldShowPlusHeader />
       ) : (
-        <PlusMobile shouldShowPlusHeader={false} />
+        <PlusMobile shouldShowPlusHeader />
       )}
     </>
   );
 };
 
-export const FunnelOrganicCheckout = withIsActiveGuard(OrganicCheckout);
+export const FunnelOrganicCheckout =
+  withIsActiveGuard<FunnelStepOrganicCheckout>(OrganicCheckout);
 
 export default FunnelOrganicCheckout;
