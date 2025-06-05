@@ -445,9 +445,6 @@ importers:
       webextension-polyfill:
         specifier: ^0.12.0
         version: 0.12.0
-      webextension-polyfill-ts:
-        specifier: ^0.26.0
-        version: 0.26.0
     devDependencies:
       '@babel/preset-env':
         specifier: ^7.25.9
@@ -8608,15 +8605,8 @@ packages:
   web-vitals@3.5.2:
     resolution: {integrity: sha512-c0rhqNcHXRkY/ogGDJQxZ9Im9D19hDihbzSQJrsioex+KnFgmMzBiy57Z1EjkhX/+OjyBpclDCzz2ITtjokFmg==}
 
-  webextension-polyfill-ts@0.26.0:
-    resolution: {integrity: sha512-XEFL+aYVEsm/d4RajVwP75g56c/w2aSHnPwgtUv8/nCzbLNSzRQIix6aj1xqFkA5yr7OIDkk3OD/QTnPp8ThYA==}
-    deprecated: This project has moved to @types/webextension-polyfill
-
   webextension-polyfill@0.12.0:
     resolution: {integrity: sha512-97TBmpoWJEE+3nFBQ4VocyCdLKfw54rFaJ6EVQYLBCXqCIpLSZkwGgASpv4oPt9gdKCJ80RJlcmNzNn008Ag6Q==}
-
-  webextension-polyfill@0.8.0:
-    resolution: {integrity: sha512-a19+DzlT6Kp9/UI+mF9XQopeZ+n2ussjhxHJ4/pmIGge9ijCDz7Gn93mNnjpZAk95T4Tae8iHZ6sSf869txqiQ==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -10209,11 +10199,7 @@ snapshots:
       jest-runner: 26.6.3
       jest-runtime: 26.6.3
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -17606,13 +17592,7 @@ snapshots:
 
   web-vitals@3.5.2: {}
 
-  webextension-polyfill-ts@0.26.0:
-    dependencies:
-      webextension-polyfill: 0.8.0
-
   webextension-polyfill@0.12.0: {}
-
-  webextension-polyfill@0.8.0: {}
 
   webidl-conversions@3.0.1: {}
 
