@@ -17,13 +17,7 @@ import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import {
-  useBoot,
-  useConditionalFeature,
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import {
@@ -33,9 +27,8 @@ import {
 } from './typography/Typography';
 import type { BookmarkFolder } from '../graphql/bookmarks';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
-import { MarketingCtaVariant } from './marketingCta/common';
-import { featurePlusEntryMobile } from '../lib/featureManagement';
 import { TargetType } from '../lib/log';
+import usePlusEntry from '../hooks/usePlusEntry';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -93,14 +86,7 @@ export default function BookmarkFeedLayout({
       }),
     [user, listId, isReminderOnly, searchQuery],
   );
-  const isMobile = useViewSize(ViewSize.MobileXL);
-  const { getMarketingCta } = useBoot();
-  const bookmarkTabEntry = getMarketingCta(MarketingCtaVariant.PlusBookmarkTab);
-  const { value: plusEntryExp } = useConditionalFeature({
-    feature: featurePlusEntryMobile,
-    shouldEvaluate: !!bookmarkTabEntry && isMobile,
-  });
-
+  const { plusEntryBookmark } = usePlusEntry();
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
@@ -193,11 +179,11 @@ export default function BookmarkFeedLayout({
           shouldShowLabel
           activePage=""
         />
-        {plusEntryExp && (
+        {plusEntryBookmark && (
           <PlusMobileEntryBanner
             arrow
             targetType={TargetType.PlusEntryBookmarkTab}
-            {...bookmarkTabEntry}
+            {...plusEntryBookmark}
           />
         )}
       </div>

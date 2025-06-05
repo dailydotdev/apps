@@ -5,14 +5,7 @@ import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import {
-  useBoot,
-  useConditionalFeature,
-  useEventListener,
-  useFeeds,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useEventListener, useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -36,9 +29,8 @@ import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
-import { MarketingCtaVariant } from '../marketingCta/common';
-import { featurePlusEntryMobile } from '../../lib/featureManagement';
 import { TargetType } from '../../lib/log';
+import usePlusEntry from '../../hooks/usePlusEntry';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -83,13 +75,7 @@ function FeedNav(): ReactElement {
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const isForYouTab =
     router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
-  const { getMarketingCta } = useBoot();
-  const forYouTabEntry = getMarketingCta(MarketingCtaVariant.PlusForYouTab);
-  const { value: plusEntryExp } = useConditionalFeature({
-    feature: featurePlusEntryMobile,
-    shouldEvaluate: isForYouTab && isMobile && !!forYouTabEntry,
-  });
-
+  const { plusEntryForYou } = usePlusEntry();
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
@@ -243,12 +229,12 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </StickyNavIconWrapper>
       </div>
-      {plusEntryExp && (
+      {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
           targetType={TargetType.PlusEntryForYouTab}
           className="-mt-4"
           arrow
-          {...forYouTabEntry}
+          {...plusEntryForYou}
         />
       )}
     </div>

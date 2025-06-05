@@ -35,14 +35,7 @@ import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
-import {
-  useBoot,
-  useConditionalFeature,
-  useFeedLayout,
-  useFeedVotePost,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
@@ -56,7 +49,7 @@ import type { PostClick } from '../lib/click';
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
-import { featurePlusEntryMobile } from '../lib/featureManagement';
+import usePlusEntry from '../hooks/usePlusEntry';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -156,12 +149,7 @@ export default function Feed<T>({
     !user?.acquisitionChannel;
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
-  const plusEntry = getMarketingCta(MarketingCtaVariant.PlusCard);
-  const isMobile = useViewSize(ViewSize.MobileXL);
-  const { value: plusEntryMobile } = useConditionalFeature({
-    feature: featurePlusEntryMobile,
-    shouldEvaluate: isMobile && !!plusEntry,
-  });
+  const { plusEntryFeed } = usePlusEntry();
   const showMarketingCta = !!marketingCta;
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -195,7 +183,7 @@ export default function Feed<T>({
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),
-        ...(plusEntry && plusEntryMobile && { plusEntry }),
+        ...(plusEntryFeed && { plusEntry: plusEntryFeed }),
         feedName,
       },
     },

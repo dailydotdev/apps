@@ -2,10 +2,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import type { Squad } from '../graphql/sources';
 import type { Boot } from '../lib/boot';
-import type {
-  MarketingCta,
-  MarketingCtaVariant,
-} from '../components/marketingCta/common';
+import { MarketingCtaVariant } from '../components/marketingCta/common';
+import type { MarketingCta } from '../components/marketingCta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
 
@@ -15,6 +13,7 @@ type UseBoot = {
   updateSquad: (squad: Squad) => void;
   getMarketingCta: (variant: MarketingCtaVariant) => MarketingCta | null;
   clearMarketingCta: (campaignId: string) => void;
+  getPlusEntryData: () => MarketingCta | null;
 };
 
 const sortByName = (squads: Squad[]): Squad[] =>
@@ -71,6 +70,24 @@ export const useBoot = (): UseBoot => {
     return bootData?.marketingCta;
   };
 
+  // This is only while its an experiment. If experiment succeeds, we can just get the variant in the usePlusEntry hook with getMarketingCta
+  const getPlusEntryData = () => {
+    const bootData = getBootData();
+
+    const plusEntryData = [
+      MarketingCtaVariant.PlusCard,
+      MarketingCtaVariant.PlusBookmarkTab,
+      MarketingCtaVariant.PlusForYouTab,
+      MarketingCtaVariant.PlusAnnouncementBar,
+    ].includes(bootData?.marketingCta?.variant);
+
+    if (plusEntryData) {
+      return bootData?.marketingCta;
+    }
+
+    return null;
+  };
+
   const clearMarketingCta = (campaignId: string) => {
     const bootData = getBootData();
     gqlClient.request(CLEAR_MARKETING_CTA_MUTATION, {
@@ -89,5 +106,6 @@ export const useBoot = (): UseBoot => {
     updateSquad,
     getMarketingCta,
     clearMarketingCta,
+    getPlusEntryData,
   };
 };

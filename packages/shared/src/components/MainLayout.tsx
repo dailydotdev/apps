@@ -26,19 +26,12 @@ import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
-import {
-  useBoot,
-  useConditionalFeature,
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
-import { MarketingCtaVariant } from './marketingCta/common';
-import { featurePlusEntryMobile } from '../lib/featureManagement';
+import usePlusEntry from '../hooks/usePlusEntry';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -93,13 +86,7 @@ function MainLayoutComponent({
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const { isCustomFeed } = useFeedName({ feedName });
-  const { getMarketingCta } = useBoot();
-  const plusEntryBar = getMarketingCta(MarketingCtaVariant.PlusAnnouncementBar);
-  const isMobile = useViewSize(ViewSize.MobileXL);
-  const { value: plusEntryExp } = useConditionalFeature({
-    feature: featurePlusEntryMobile,
-    shouldEvaluate: isMobile && !!plusEntryBar,
-  });
+  const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -190,10 +177,10 @@ function MainLayoutComponent({
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
-      {plusEntryExp && (
+      {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"
-          {...plusEntryBar}
+          {...plusEntryAnnouncementBar}
           targetType={TargetType.PlusEntryAnnouncementBar}
         />
       )}
