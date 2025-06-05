@@ -553,7 +553,6 @@ type GiveAwardModalProps = ModalProps & {
   flags?: Record<string, string>;
 };
 const GiveAwardModal = (props: GiveAwardModalProps): ReactElement => {
-  console.log('props', props);
   return (
     <GiveAwardModalContextProvider {...props}>
       <ModalRender {...props} />
