@@ -1,10 +1,10 @@
 import { withExperiment } from '../../withExperiment';
-import { OnboardingPlusVariation } from './OnboardingPlusVariation';
 import { OnboardingPlusControl } from './OnboardingPlusControl';
-import { featureOnboardingPlusFeatureGrid } from '../../../lib/featureManagement';
+import { OnboardingPlusVariationV1 } from './OnboardingPlusVariationV1';
+import { featureOnboardingGridVariationV1 } from '../../../lib/featureManagement';
 
-export const OnboardingPlus = withExperiment(OnboardingPlusVariation, {
-  feature: featureOnboardingPlusFeatureGrid,
+export const OnboardingPlus = withExperiment(OnboardingPlusVariationV1, {
+  feature: featureOnboardingGridVariationV1,
   value: true,
   fallback: OnboardingPlusControl,
 });

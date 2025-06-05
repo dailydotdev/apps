@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import type { CheckoutEventNames, PaddleEventData } from '@paddle/paddle-js';
 import { usePaddlePayment } from '../../hooks/usePaddlePayment';
 import type { PaymentContextProviderProps } from './context';
 import { BasePaymentProvider } from './BasePaymentProvider';
-import { TargetType } from '../../lib/log';
+import { PurchaseType } from '../../graphql/paddle';
 
 export type PaddleSubProviderProps = PaymentContextProviderProps<
   PaddleEventData,
@@ -15,13 +15,15 @@ export const PaddleSubProvider = ({
   children,
   successCallback,
   disabledEvents,
-  initialPriceType,
+  initialPriceType = PurchaseType.Plus,
 }: PaddleSubProviderProps): ReactElement => {
+  const [priceType, setPriceType] = useState(initialPriceType);
+
   const { openCheckout, isPaddleReady, checkoutItemsLoading } =
     usePaddlePayment({
       successCallback,
       disabledEvents,
-      targetType: TargetType.Plus,
+      priceType,
     });
 
   return (
@@ -29,7 +31,8 @@ export const PaddleSubProvider = ({
       openCheckout={openCheckout}
       isPaddleReady={isPaddleReady}
       checkoutItemsLoading={checkoutItemsLoading}
-      initialPriceType={initialPriceType}
+      priceType={priceType}
+      setPriceType={setPriceType}
     >
       {children}
     </BasePaymentProvider>
