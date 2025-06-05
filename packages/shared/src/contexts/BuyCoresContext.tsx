@@ -2,11 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo, useRef, useState } from 'react';
 import type { Paddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
-import { useSetAtom } from 'jotai';
 import type { OpenCheckoutFn } from './payment/context';
-import { priceTypeAtom } from './payment/context';
 import type { Origin } from '../lib/log';
-import { TargetType } from '../lib/log';
 import { getQuantityForPrice } from '../graphql/njord';
 import { useLogContext } from './LogContext';
 import { useProductPricing } from '../hooks/useProductPricing';
@@ -71,8 +68,6 @@ export const BuyCoresContextProvider = ({
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const setPriceType = useSetAtom(priceTypeAtom);
-  setPriceType(PurchaseType.Cores);
 
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
@@ -109,7 +104,7 @@ export const BuyCoresContextProvider = ({
       getQuantityForPriceRef.current({
         priceId: event.data.items[0]?.price_id,
       }),
-    targetType: TargetType.Credits,
+    priceType: PurchaseType.Cores,
   });
 
   const contextData = useMemo<BuyCoresContextData>(
