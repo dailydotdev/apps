@@ -3,6 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FunnelSocialProof as Step } from './FunnelSocialProof';
 import type { FunnelStepSocialProof } from '../types/funnel';
 import { FunnelStepType } from '../types/funnel';
+import { useIsLightTheme } from '../../../hooks/utils';
+
+// Add useIsLightTheme mock
+jest.mock('../../../hooks/utils', () => ({
+  useIsLightTheme: jest.fn(),
+}));
 
 const mockOnTransition = jest.fn();
 
@@ -14,6 +20,8 @@ const defaultProps: FunnelStepSocialProof = {
   parameters: {
     imageUrl:
       'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
+    imageUrlLightMode:
+      'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating-light',
     rating: '4.8/5',
     reviewSubtitle: 'based on 2,598+ reviews',
     reviews: [
@@ -53,6 +61,7 @@ const renderComponent = (props = {}) => {
 describe('FunnelSocialProof', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (useIsLightTheme as jest.Mock).mockReturnValue(false);
   });
 
   it('should call onTransition when button is clicked', async () => {
@@ -70,5 +79,45 @@ describe('FunnelSocialProof', () => {
       },
     });
     expect(await screen.findByText('Next')).toBeInTheDocument();
+  });
+
+  it('should render dark mode image when in dark mode', async () => {
+    // Mock dark mode
+    (useIsLightTheme as jest.Mock).mockReturnValue(false);
+
+    const darkModeUrl = 'https://example.com/dark-image.png';
+    const lightModeUrl = 'https://example.com/light-image.png';
+
+    renderComponent({
+      parameters: {
+        ...defaultProps.parameters,
+        imageUrl: darkModeUrl,
+        imageUrlLightMode: lightModeUrl,
+      },
+    });
+
+    const image = screen.getByAltText('Social proof illustration');
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('src', darkModeUrl);
+  });
+
+  it('should render light mode image when in light mode', async () => {
+    // Mock light mode
+    (useIsLightTheme as jest.Mock).mockReturnValue(true);
+
+    const darkModeUrl = 'https://example.com/dark-image.png';
+    const lightModeUrl = 'https://example.com/light-image.png';
+
+    renderComponent({
+      parameters: {
+        ...defaultProps.parameters,
+        imageUrl: darkModeUrl,
+        imageUrlLightMode: lightModeUrl,
+      },
+    });
+
+    const image = screen.getByAltText('Social proof illustration');
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('src', lightModeUrl);
   });
 });

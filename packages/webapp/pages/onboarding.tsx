@@ -50,7 +50,10 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import dynamic from 'next/dynamic';
@@ -150,7 +153,8 @@ export function OnboardPage(): ReactElement {
   const { hasCompletedEditTags, hasCompletedContentTypes, completeStep } =
     useOnboarding();
   const router = useRouter();
-  const { setSettings, autoDismissNotifications } = useSettingsContext();
+  const { setSettings, autoDismissNotifications, applyThemeMode } =
+    useSettingsContext();
   const isLogged = useRef(false);
   const { logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady, anonymous, loginState, isValidRegion } =
@@ -227,6 +231,16 @@ export function OnboardPage(): ReactElement {
     }),
     [activeScreen],
   );
+
+  // Ensure dark mode for authentication screen, since we only have a darkmode background image
+  useEffect(() => {
+    if (!user) {
+      applyThemeMode(ThemeMode.Dark);
+    }
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode, user]);
 
   useEffect(() => {
     if (

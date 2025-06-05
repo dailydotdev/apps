@@ -7,6 +7,7 @@ import type {
 import React, { useCallback } from 'react';
 import type { MenuProps } from '@dailydotdev/react-contexify';
 import { Item, Menu } from '@dailydotdev/react-contexify';
+import classNames from 'classnames';
 import { RootPortal } from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -48,6 +49,7 @@ export interface MenuItemProps<
   action?: (...args: TArgs) => TReturn;
   anchorProps?: TAnchorProps;
   Wrapper?: ComponentType<{ children: ReactNode }>;
+  disabled?: boolean;
 }
 
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
@@ -93,28 +95,42 @@ export default function ContextMenu({
       onHidden={onHidden}
       {...props}
     >
-      {options.map(({ label, icon, action, anchorProps, Wrapper }) => (
-        <ConditionalWrapper
-          key={label}
-          condition={!!Wrapper}
-          wrapper={(children) => <Wrapper>{children}</Wrapper>}
-        >
-          <Item className="typo-callout" onClick={action}>
-            <ConditionalWrapper
-              condition={!!anchorProps}
-              wrapper={(children) => (
-                <a className="w-full" {...anchorProps}>
-                  {children}
-                </a>
-              )}
-            >
-              <span className="flex w-full items-center gap-2 typo-callout">
-                {icon} {label}
-              </span>
-            </ConditionalWrapper>
-          </Item>
-        </ConditionalWrapper>
-      ))}
+      {options.map(
+        ({
+          label,
+          icon,
+          action,
+          anchorProps,
+          disabled,
+          Wrapper,
+        }: MenuItemProps) => (
+          <ConditionalWrapper
+            key={label}
+            condition={!!Wrapper}
+            wrapper={(children) => <Wrapper>{children}</Wrapper>}
+          >
+            <Item className="typo-callout" onClick={action} disabled={disabled}>
+              <ConditionalWrapper
+                condition={!!anchorProps}
+                wrapper={(children) => (
+                  <a className="w-full" {...anchorProps}>
+                    {children}
+                  </a>
+                )}
+              >
+                <span
+                  className={classNames(
+                    'flex w-full items-center gap-2 typo-callout',
+                    disabled && 'text-text-disabled',
+                  )}
+                >
+                  {icon} {label}
+                </span>
+              </ConditionalWrapper>
+            </Item>
+          </ConditionalWrapper>
+        ),
+      )}
     </PortalMenu>
   );
 }
