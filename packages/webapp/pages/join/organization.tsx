@@ -106,7 +106,7 @@ const Page = ({
         logoClassName={{ container: 'h-8' }}
       />
 
-      <div className="mb-auto flex max-w-[40rem] flex-col gap-6">
+      <div className="mb-auto flex max-w-[40rem] flex-col gap-6 p-6">
         <Typography bold tag={TypographyTag.H1} type={TypographyType.Title2}>
           You are invited to join {organization.name}
         </Typography>
@@ -148,7 +148,7 @@ const Page = ({
               type={ImageType.Organization}
             />
 
-            <div className="flex flex-col">
+            <div className="flex flex-1 flex-col">
               <Typography
                 bold
                 type={TypographyType.Title3}

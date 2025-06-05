@@ -81,6 +81,8 @@ export const featureOnboardingGridVariation = new Feature(
   OnboardingGridVariation.Control,
 );
 
+export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);
