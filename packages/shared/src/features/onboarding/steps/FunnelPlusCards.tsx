@@ -1,23 +1,15 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { OnboardingPlus } from '../components/OnboardingPlus';
 import type { FunnelStepPlusCards } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
 
 export const FunnelPlusCards = withIsActiveGuard(
   ({ onTransition }: FunnelStepPlusCards) => {
     const { user } = useAuthContext();
-    const { isActionsFetched, completeAction, checkHasCompleted } =
-      useActions();
-    const hasCompleted = useMemo(
-      () =>
-        isActionsFetched && checkHasCompleted(ActionType.CheckedPlusPricing),
-      [checkHasCompleted, isActionsFetched],
-    );
-    const completePlusAction = useCallback(
+
+    const transitionToNext = useCallback(
       ({ skip }: { skip: boolean }) => {
         onTransition?.({
           type: skip
@@ -25,16 +17,15 @@ export const FunnelPlusCards = withIsActiveGuard(
             : FunnelStepTransitionType.Complete,
           details: { skip },
         });
-        completeAction(ActionType.CheckedPlusPricing);
       },
-      [completeAction, onTransition],
+      [onTransition],
     );
 
     useEffect(() => {
-      if (user?.isPlus || hasCompleted) {
-        completePlusAction({ skip: false });
+      if (user?.isPlus) {
+        transitionToNext({ skip: true });
       }
-    }, [completePlusAction, hasCompleted, onTransition, user?.isPlus]);
+    }, [transitionToNext, onTransition, user?.isPlus]);
 
     if (user?.isPlus) {
       return null;
@@ -42,8 +33,8 @@ export const FunnelPlusCards = withIsActiveGuard(
 
     return (
       <OnboardingPlus
-        onComplete={() => completePlusAction({ skip: false })}
-        onSkip={() => completePlusAction({ skip: true })}
+        onComplete={() => transitionToNext({ skip: false })}
+        onSkip={() => transitionToNext({ skip: true })}
       />
     );
   },

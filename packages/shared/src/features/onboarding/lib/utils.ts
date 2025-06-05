@@ -1,6 +1,9 @@
 import createDOMPurify from 'dompurify';
 import type { GetServerSidePropsContext } from 'next/dist/types';
+import type { NextRouter } from 'next/router';
 import type { FunnelBootResponse } from '../types/funnelBoot';
+import { AFTER_AUTH_PARAM } from '../../../components/auth/common';
+import { getPathnameWithQuery } from '../../../lib';
 
 /**
  * Sanitizes HTML string and allows only bold tags
@@ -70,3 +73,12 @@ export function setResponseHeaderFromBoot(
     res.setHeader('Set-Cookie', setCookieHeader);
   }
 }
+
+export const redirectToApp = async (router: NextRouter) => {
+  const params = new URLSearchParams(window.location.search);
+  const afterAuth = params.get(AFTER_AUTH_PARAM);
+  params.delete(AFTER_AUTH_PARAM);
+  params.delete('id');
+  params.delete('stepId');
+  await router.replace(getPathnameWithQuery(afterAuth || '/', params));
+};
