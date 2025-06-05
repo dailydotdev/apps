@@ -1,9 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
 
 import {
   Typography,
@@ -23,6 +21,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { FunnelStepPlusCards } from '../types/funnel';
+import { useFunnelPlusPricing } from '../hooks/useFunnelPlusPricing';
 
 type VariationCardOptionProps = {
   onClickNext: () => void;
@@ -104,15 +103,8 @@ export const OnboardingPlusVariation = ({
 }: OnboardingPlusVariationProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { openModal } = useLazyModal();
-  const { productOptions } = usePaymentContext();
   const { logEvent } = useLogContext();
-  const item = useMemo(
-    () =>
-      productOptions.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.Annual,
-      ),
-    [productOptions],
-  );
+  const { item } = useFunnelPlusPricing();
 
   const featureCardsNew = plusFeatureList.filter(
     (plusItem) => plusItem.status === PlusItemStatus.Ready,

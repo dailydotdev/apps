@@ -58,7 +58,7 @@ const hiddenBgSteps = [FunnelStepType.Checkout];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
-  FunnelStepType.OrganicRegistration,
+  FunnelStepType.OrganicSignup,
 ];
 
 export const FunnelStepBackground = ({

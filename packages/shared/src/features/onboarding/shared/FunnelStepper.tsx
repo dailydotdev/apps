@@ -43,9 +43,10 @@ import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
-import { FunnelOrganicRegistration } from '../steps/FunnelOrganicRegistration';
+import { FunnelOrganicSignup } from '../steps/FunnelOrganicSignup';
 import { FunnelPlusCards } from '../steps/FunnelPlusCards';
 import { useEventListener } from '../../../hooks';
+import FunnelOrganicCheckout from '../steps/FunnelOrganicCheckout';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -69,7 +70,8 @@ const stepComponentMap = {
   [FunnelStepType.ContentTypes]: FunnelContentTypes,
   [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
   [FunnelStepType.InstallPwa]: FunnelInstallPwa,
-  [FunnelStepType.OrganicRegistration]: FunnelOrganicRegistration,
+  [FunnelStepType.OrganicSignup]: FunnelOrganicSignup,
+  [FunnelStepType.OrganicCheckout]: FunnelOrganicCheckout,
   [FunnelStepType.PlusCards]: FunnelPlusCards,
 } as const;
 
