@@ -41,6 +41,7 @@ import {
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   featureInteractiveFeed,
+  featureOnboardingGridVariationV1,
   featureOnboardingReorder,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
@@ -209,6 +210,12 @@ export function OnboardPage(): ReactElement {
     feature: featureOnboardingReorder,
     shouldEvaluate: isOnboardingReady && !user && isIntro && !shouldVerify,
   });
+
+  console.log(
+    'feature',
+    getFeatureValue(featureOnboardingGridVariationV1),
+    user?.id,
+  );
 
   const isExperimental = {
     reorder: {
