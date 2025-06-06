@@ -62,7 +62,7 @@ export const CorePageMobileCheckout = (): ReactElement => {
   }, [productFromQuery, setSelectedProduct]);
 
   useEffect(() => {
-    if (!paddle) {
+    if (!paddle && !iOSSupportsCoresPurchase()) {
       return;
     }
 
