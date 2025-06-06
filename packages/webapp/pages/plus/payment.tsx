@@ -79,7 +79,7 @@ const PlusPaymentPage = (): ReactElement => {
         )}
         <div className="flex w-full flex-1 justify-center bg-background-default">
           <PlusCheckoutContainer
-            ref={checkoutRef}
+            checkoutRef={checkoutRef}
             className={{
               container: 'h-full w-full bg-background-default p-5 laptop:h-fit',
               element: 'h-full',
