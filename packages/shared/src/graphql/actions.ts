@@ -74,3 +74,8 @@ export const COMPLETE_ACTION_MUTATION = gql`
 
 export const completeUserAction = async (type: ActionType): Promise<void> =>
   gqlClient.request(COMPLETE_ACTION_MUTATION, { type });
+
+export const onboardingMandatoryActions = [
+  ActionType.EditTag,
+  ActionType.ContentTypes,
+] as const;

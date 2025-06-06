@@ -38,6 +38,11 @@ import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
+import {
+  getUserActions,
+  onboardingMandatoryActions,
+} from '../../graphql/actions';
+import { redirectToApp } from '../../features/onboarding/lib/utils';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -147,11 +152,34 @@ function AuthOptionsInner({
   );
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
-  const onLoginCheck = (shouldVerify?: boolean) => {
+
+  const checkForOnboardedUser = async () => {
+    onAuthStateUpdate({ isLoading: true });
+    const isOnboardingPage = router?.pathname?.startsWith('/onboarding');
+
+    if (isOnboardingPage) {
+      const userActions = await getUserActions();
+      const isUserOnboardingComplete = onboardingMandatoryActions.every(
+        (action) =>
+          userActions.some((userAction) => userAction.type === action),
+      );
+
+      if (isUserOnboardingComplete) {
+        await redirectToApp(router);
+        return true;
+      }
+    }
+
+    onAuthStateUpdate({ isLoading: false });
+    return false;
+  };
+
+  const onLoginCheck = async (shouldVerify?: boolean) => {
     if (shouldVerify) {
       onSetActiveDisplay(AuthDisplay.EmailVerification);
       return;
     }
+
     if (isRegistration) {
       return;
     }
@@ -166,7 +194,11 @@ function AuthOptionsInner({
       logEvent({
         event_name: AuthEventNames.LoginSuccessfully,
       });
-      onSuccessfulLogin?.();
+
+      const isAlreadyOnboarded = await checkForOnboardedUser();
+      if (!isAlreadyOnboarded) {
+        onSuccessfulLogin?.();
+      }
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -287,18 +319,23 @@ function AuthOptionsInner({
           error: 'Could not find email on social registration',
         }),
       });
-      return displayToast(labels.auth.error.generic);
+      displayToast(labels.auth.error.generic);
+      return;
     }
 
     // If user is confirmed we can proceed with logging them in
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
       await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
-      return onSuccessfulLogin?.();
+      const isAlreadyOnboarded = await checkForOnboardedUser();
+      if (!isAlreadyOnboarded) {
+        onSuccessfulLogin?.();
+      }
+      return;
     }
 
     await setChosenProvider(chosenProvider || 'password');
     onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
-    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
 
   const onProviderMessage = async (e: MessageEvent) => {

@@ -1,48 +1,35 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React from 'react';
 import type { FunnelStepEditTags } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { EditTag } from '../../../components/onboarding';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { FunnelStepCtaWrapper } from '../shared';
 import useFeedSettings from '../../../hooks/useFeedSettings';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
-import { withIsActiveGuard } from '../shared/withActiveGuard';
 
 function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
-  const { completeAction, checkHasCompleted } = useActions();
   const { feedSettings } = useFeedSettings();
+  const { completeAction } = useActions();
   const { user, trackingId } = useAuthContext();
   const handleComplete = () => {
-    completeAction(ActionType.EditTag);
     onTransition({
       type: FunnelStepTransitionType.Complete,
       details: {
         tags: feedSettings?.includeTags ?? [],
       },
     });
+    completeAction(ActionType.EditTag);
   };
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isDisabled = tagsCount < minimumRequirement;
-  const hasCompleted = useMemo(
-    () => user && checkHasCompleted(ActionType.EditTag),
-    [checkHasCompleted, user],
-  );
 
-  useEffect(() => {
-    if (hasCompleted && feedSettings?.includeTags.length) {
-      onTransition({
-        type: FunnelStepTransitionType.Complete,
-        details: { tags: feedSettings?.includeTags },
-      });
-    }
-  }, [feedSettings?.includeTags, hasCompleted, onTransition]);
-
-  if (!user || hasCompleted) {
+  if (!user) {
     return null;
   }
 
