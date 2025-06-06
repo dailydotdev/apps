@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { isIOSNative } from '../../lib/func';
 import { useAuthContext } from '../AuthContext';
-import { transactionPricesQueryOptions } from '../../graphql/njord';
+import { coresPricesQueryOptions } from '../../graphql/njord';
 import { PaddleBuyCoresContextProvider } from './PaddleBuyCoresContext';
 import { StoreKitBuyCoresContextProvider } from './StoreKitBuyCoresContext';
 import type { BuyCoresContextProviderProps, CoreProductOption } from './types';
@@ -34,22 +34,22 @@ export const useCoreProductOptionQuery = (): CoreProductOption => {
   const pid = router?.query?.pid;
 
   const { data: prices } = useQuery(
-    transactionPricesQueryOptions({
+    coresPricesQueryOptions({
       user,
       isLoggedIn,
     }),
   );
 
   return useMemo(() => {
-    const price = prices?.find((item) => item.value === pid);
+    const price = prices?.find((item) => item.priceId === pid);
 
     if (!price) {
       return undefined;
     }
 
     return {
-      id: price.value,
-      value: price.coresValue,
+      id: price.priceId,
+      value: price.metadata.coresValue,
     };
   }, [prices, pid]);
 };

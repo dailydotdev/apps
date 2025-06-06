@@ -177,7 +177,7 @@ export const getTransactionByProvider = async ({
 
 export const transactionRefetchIntervalMs = 2500;
 
-export const transactionPricesQueryOptions = ({
+export const coresPricesQueryOptions = ({
   isLoggedIn,
   user,
 }: {

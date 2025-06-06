@@ -1,9 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useRef, useState } from 'react';
-import { getQuantityForPrice } from '../../graphql/njord';
+import { useQuery } from '@tanstack/react-query';
+import {
+  getQuantityForPrice,
+  coresPricesQueryOptions,
+} from '../../graphql/njord';
 import { PurchaseType } from '../../graphql/paddle';
 import { usePaddlePayment } from '../../hooks/usePaddlePayment';
-import { useProductPricing } from '../../hooks/useProductPricing';
 import { useLogContext } from '../LogContext';
 import { BuyCoresContext, SCREENS } from './types';
 import type {
@@ -12,6 +15,7 @@ import type {
   BuyCoresContextData,
   Screens,
 } from './types';
+import { useAuthContext } from '../AuthContext';
 
 export const PaddleBuyCoresContextProvider = ({
   onCompletion,
@@ -19,6 +23,7 @@ export const PaddleBuyCoresContextProvider = ({
   amountNeeded,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
+  const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const [activeStep, setActiveStep] = useState<{
     step: Screens;
@@ -34,9 +39,12 @@ export const PaddleBuyCoresContextProvider = ({
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
 
-  const { data: prices } = useProductPricing({
-    type: PurchaseType.Cores,
-  });
+  const { data: prices } = useQuery(
+    coresPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
 
   const getQuantityForPriceFn = ({ priceId }: { priceId: string }) => {
     return getQuantityForPrice({ priceId, prices });

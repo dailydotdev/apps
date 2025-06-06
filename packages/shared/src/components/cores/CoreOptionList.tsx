@@ -1,21 +1,26 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   CoreOptionButton,
   CoreOptionButtonPlaceholder,
 } from './CoreOptionButton';
-import { useProductPricing } from '../../hooks/useProductPricing';
 import { promisifyEventListener } from '../../lib/func';
 import { stringToBoolean } from '../../lib/utils';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
-import { PurchaseType } from '../../graphql/paddle';
+import { coresPricesQueryOptions } from '../../graphql/njord';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export const CoreOptionList = (): ReactElement => {
+  const { user, isLoggedIn } = useAuthContext();
   const { selectedProduct } = useBuyCoresContext();
   const [isLoadingNative, setLoadingNative] = useState(false);
-  const { data: prices, isPending: isPendingPrices } = useProductPricing({
-    type: PurchaseType.Cores,
-  });
+  const { data: prices, isPending: isPendingPrices } = useQuery(
+    coresPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
 
   useEffect(() => {
     promisifyEventListener<void, 'true' | 'false'>(

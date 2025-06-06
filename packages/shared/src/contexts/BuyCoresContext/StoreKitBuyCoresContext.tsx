@@ -1,13 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../AuthContext';
-import { transactionPricesQueryOptions } from '../../graphql/njord';
+import { coresPricesQueryOptions } from '../../graphql/njord';
 import type {
   BuyCoresContextData,
   BuyCoresContextProviderProps,
-  CoreProductOption,
   ProcessingError,
   Screens,
 } from './types';
@@ -35,7 +33,7 @@ export const StoreKitBuyCoresContextProvider = ({
   }>();
 
   const { data: prices } = useQuery(
-    transactionPricesQueryOptions({
+    coresPricesQueryOptions({
       user,
       isLoggedIn,
     }),
@@ -80,30 +78,4 @@ export const StoreKitBuyCoresContextProvider = ({
       {children}
     </BuyCoresContext.Provider>
   );
-};
-
-export const useCoreProductOptionQuery = (): CoreProductOption => {
-  const { user, isLoggedIn } = useAuthContext();
-  const router = useRouter();
-  const pid = router?.query?.pid;
-
-  const { data: prices } = useQuery(
-    transactionPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
-
-  return useMemo(() => {
-    const price = prices?.find((item) => item.value === pid);
-
-    if (!price) {
-      return undefined;
-    }
-
-    return {
-      id: price.value,
-      value: price.coresValue,
-    };
-  }, [prices, pid]);
 };

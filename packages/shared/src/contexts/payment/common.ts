@@ -94,7 +94,7 @@ export const getAppleProducts = (metadata: ProductPricingMetadata[]) =>
     },
   );
 
-export const getApplePricing = (
+export const getApplePricing = async (
   metadata: ProductPricingMetadata[],
   customIds?: string[],
 ) => {
