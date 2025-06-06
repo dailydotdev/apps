@@ -388,8 +388,8 @@ const Wallet = (): ReactElement => {
                                   user,
                                 })}
                                 extraLabel={
-                                  transaction.flags?.sourceName
-                                    ? `${transaction.flags.sourceName} Squad`
+                                  transaction?.sourceName
+                                    ? `${transaction.sourceName} Squad`
                                     : undefined
                                 }
                               />

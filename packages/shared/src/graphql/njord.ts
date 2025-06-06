@@ -146,6 +146,7 @@ export type UserTransaction = {
   }>;
   balance: LoggedUser['balance'];
   createdAt: Date;
+  sourceName?: string;
 };
 
 export const TRANSACTION_BY_PROVIDER_QUERY = gql`
