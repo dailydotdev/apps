@@ -87,7 +87,7 @@ export const useBoot = (): UseBoot => {
     }
 
     if (
-      router.pathname.includes('bookmarks') &&
+      router.pathname?.includes('bookmarks') &&
       bootData?.marketingCta?.variant === MarketingCtaVariant.PlusBookmarkTab
     ) {
       return bootData?.marketingCta;
