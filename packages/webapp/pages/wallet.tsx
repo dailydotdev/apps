@@ -387,6 +387,11 @@ const Wallet = (): ReactElement => {
                                   transaction,
                                   user,
                                 })}
+                                extraLabel={
+                                  transaction.flags?.sourceName
+                                    ? `${transaction.flags.sourceName} Squad`
+                                    : undefined
+                                }
                               />
                             );
                           });

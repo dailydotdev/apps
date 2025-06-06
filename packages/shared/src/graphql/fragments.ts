@@ -468,6 +468,8 @@ export const TRANSACTION_FRAGMENT = gql`
     flags {
       note
       error
+      sourceId
+      sourceName
     }
     createdAt
   }

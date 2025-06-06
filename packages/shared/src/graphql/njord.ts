@@ -26,7 +26,7 @@ export const AWARD_MUTATION = gql`
     $type: AwardType!
     $entityId: ID!
     $note: String
-    $flags: JSONObject
+    $flags: AwardSquadFlagsInput
   ) {
     award(
       productId: $productId

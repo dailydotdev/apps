@@ -1,5 +1,5 @@
-import React from 'react';
 import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import {
   CoreIcon,
   CreditCardIcon,
@@ -7,7 +7,11 @@ import {
   MinusIcon,
   PlusIcon,
 } from '../icons';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import type { UserImageProps } from '../ProfilePicture';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Separator } from '../cards/common/common';
@@ -23,6 +27,7 @@ export type TransactionItemProps = {
   date: Date;
   amount: number;
   label: ReactNode;
+  extraLabel?: ReactNode;
 };
 
 const TransactionTypeToIcon: Record<
@@ -57,6 +62,7 @@ export const TransactionItem = ({
   date,
   amount,
   label,
+  extraLabel,
 }: TransactionItemProps): ReactElement => {
   return (
     <li className="flex">
@@ -67,16 +73,25 @@ export const TransactionItem = ({
           <Typography type={TypographyType.Subhead} bold>
             {user.name}
           </Typography>
-          <div className="flex flex-wrap items-center gap-1 text-text-tertiary typo-footnote tablet:gap-0">
+          <div className="flex flex-col flex-wrap">
             <Typography
               className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
-              type={TypographyType.Footnote}
+              type={TypographyType.Subhead}
+              color={TypographyColor.Tertiary}
             >
-              {label}
+              {extraLabel}
             </Typography>
-            <div className="flex w-full items-end tablet:w-auto">
-              <Separator className="hidden tablet:inline" />
-              <DateFormat date={date} type={TimeFormatType.Transaction} />
+            <div className="flex flex-wrap items-center gap-1 text-text-tertiary typo-footnote tablet:gap-0">
+              <Typography
+                className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
+                type={TypographyType.Footnote}
+              >
+                {label}
+              </Typography>
+              <div className="flex w-full items-end tablet:w-auto">
+                <Separator className="hidden tablet:inline" />
+                <DateFormat date={date} type={TimeFormatType.Transaction} />
+              </div>
             </div>
           </div>
         </div>
