@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
@@ -14,8 +15,8 @@ import { BuyCore } from './BuyCore';
 import type { LogStartBuyingCreditsProps } from '../../types';
 import type { Origin } from '../../lib/log';
 import { getPathnameWithQuery } from '../../lib';
-import { useProductPricing } from '../../hooks/useProductPricing';
-import { PurchaseType } from '../../graphql/paddle';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { coresPricesQueryOptions } from '../../graphql/njord';
 
 export const FeaturedCoresWidget = ({
   className,
@@ -28,9 +29,13 @@ export const FeaturedCoresWidget = ({
   origin: Origin;
   amounts: number[];
 }): ReactElement => {
-  const { data: prices, isPending: isPendingPrices } = useProductPricing({
-    type: PurchaseType.Cores,
-  });
+  const { user, isLoggedIn } = useAuthContext();
+  const { data: prices, isPending: isPendingPrices } = useQuery(
+    coresPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
 
   return (
     <WidgetContainer
