@@ -3,9 +3,8 @@ import React, { useEffect, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import {
   BuyCoresContextProvider,
-  useBuyCoresContext,
   useCoreProductOptionQuery,
-} from '@dailydotdev/shared/src/contexts/BuyCoresContext';
+} from '@dailydotdev/shared/src/contexts/BuyCoresContext/BuyCoresContext';
 import { useRouter } from 'next/router';
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
 
@@ -34,6 +33,8 @@ import {
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { buyCoreStarField } from '@dailydotdev/shared/src/lib/image';
+import { useBuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
+import { iOSSupportsCoresPurchase } from '@dailydotdev/shared/src/lib/ios';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -61,7 +62,7 @@ export const CorePageMobileCheckout = (): ReactElement => {
   }, [productFromQuery, setSelectedProduct]);
 
   useEffect(() => {
-    if (!paddle) {
+    if (!paddle && !iOSSupportsCoresPurchase()) {
       return;
     }
 
@@ -98,11 +99,17 @@ export const PageCoreOptions = ({
 };
 
 const CorePageMobile = (): ReactElement => {
-  const { selectedProduct } = useBuyCoresContext();
+  const { selectedProduct, openCheckout } = useBuyCoresContext();
   const router = useRouter();
 
   useEffect(() => {
     if (selectedProduct) {
+      if (iOSSupportsCoresPurchase()) {
+        openCheckout({ priceId: selectedProduct.id });
+
+        return;
+      }
+
       const searchParams = new URLSearchParams(window.location.search);
       const nextParams = new URLSearchParams();
 
@@ -116,7 +123,7 @@ const CorePageMobile = (): ReactElement => {
         getPathnameWithQuery(`${webappUrl}cores/payment`, nextParams),
       );
     }
-  }, [router, selectedProduct]);
+  }, [router, selectedProduct, openCheckout]);
 
   return (
     <MobileContainer>
