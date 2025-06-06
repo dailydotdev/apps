@@ -144,6 +144,7 @@ export const PRIVILEGED_MEMBERS_FRAGMENT = gql`
         contentPreference {
           status
         }
+        coresRole
       }
       role
     }
@@ -184,6 +185,7 @@ export const SQUAD_BASE_FRAGMENT = `
       totalPosts
       totalViews
       totalUpvotes
+      totalAwards
     }
     category {
       id
@@ -467,6 +469,7 @@ export const TRANSACTION_FRAGMENT = gql`
       note
       error
     }
+    sourceName
     createdAt
   }
   ${PRODUCT_FRAGMENT}

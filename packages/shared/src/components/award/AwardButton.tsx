@@ -27,7 +27,9 @@ type AwardButtonProps = {
   type: AwardTypes;
   className?: string;
   entity: AwardEntity;
+  flags?: Record<string, string>;
   post?: Post;
+  copy?: string;
 } & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
 export const AwardButton = ({
   appendTo: appendToProps,
@@ -37,6 +39,8 @@ export const AwardButton = ({
   pressed,
   variant = ButtonVariant.Tertiary,
   post,
+  flags,
+  copy,
 }: AwardButtonProps): ReactElement => {
   const { isCompanion } = useRequestProtocol();
   const { user, showLogin } = useAuthContext();
@@ -53,6 +57,7 @@ export const AwardButton = ({
         type,
         entity,
         post,
+        flags,
       },
     });
   };
@@ -69,7 +74,7 @@ export const AwardButton = ({
       content={
         pressed
           ? `You already awarded this ${type.toLowerCase()}!`
-          : 'Award this user'
+          : `Award this ${type.toLowerCase()}`
       }
       appendTo={appendTo}
     >
@@ -82,7 +87,9 @@ export const AwardButton = ({
           variant={variant}
           color={ButtonColor.Cabbage}
           onClick={openGiveAwardModal}
-        />
+        >
+          {copy}
+        </Button>
       </div>
     </SimpleTooltip>
   );

@@ -289,6 +289,9 @@ export enum LogEvent {
   StartAwardComment = 'start award comment',
   PickAwardComment = 'pick award comment',
   AwardComment = 'award comment',
+  StartAwardSquad = 'start award Squad',
+  PickAwardSquad = 'pick award Squad',
+  AwardSquad = 'award Squad',
   // End Credits
 }
 

@@ -84,6 +84,7 @@ interface SourceFlags {
   totalPosts: number;
   totalViews: number;
   totalUpvotes: number;
+  totalAwards: number;
 }
 
 export interface Source {

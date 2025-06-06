@@ -17,6 +17,7 @@ const AWARD_TYPES = {
   USER: 'USER',
   POST: 'POST',
   COMMENT: 'COMMENT',
+  SQUAD: 'SQUAD',
 } as const;
 export type AwardTypes = keyof typeof AWARD_TYPES;
 
@@ -60,6 +61,11 @@ const AwardTypeToTrackingEvent: Record<
     PICK: LogEvent.PickAwardComment,
     AWARD: LogEvent.AwardComment,
   },
+  SQUAD: {
+    START: LogEvent.StartAwardSquad,
+    PICK: LogEvent.PickAwardSquad,
+    AWARD: LogEvent.AwardSquad,
+  },
 };
 
 export const maxNoteLength = 400;
@@ -85,6 +91,7 @@ export type GiveAwardModalContextData = {
     extra?: Record<string, unknown>;
   }) => void;
   post?: Post;
+  flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -96,6 +103,7 @@ export type GiveAwardModalContextProviderProps = {
   type: AwardTypes;
   entity: AwardEntity;
   post?: Post;
+  flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 export const GiveAwardModalContextProvider = ({
@@ -104,6 +112,7 @@ export const GiveAwardModalContextProvider = ({
   type,
   entity,
   post,
+  flags,
 }: GiveAwardModalContextProviderProps): ReactElement => {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -133,8 +142,8 @@ export const GiveAwardModalContextProvider = ({
       extra?: Record<string, unknown>;
     }): void => {
       const eventName = AwardTypeToTrackingEvent[type]?.[awardEvent];
-      if (type === 'USER') {
-        // User is a non post event
+      if (['USER', 'SQUAD'].includes(type)) {
+        // User and Squad are non post event
         logEvent({
           event_name: eventName,
           extra: JSON.stringify({ ...extra }),
@@ -186,6 +195,7 @@ export const GiveAwardModalContextProvider = ({
       entity,
       logAwardEvent,
       post,
+      flags,
     }),
     [
       activeModal,
@@ -198,6 +208,7 @@ export const GiveAwardModalContextProvider = ({
       router,
       post,
       prefersReducedMotion,
+      flags,
     ],
   );
 

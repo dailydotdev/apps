@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { gql } from 'graphql-request';
-import type { Connection } from './common';
+import type { Connection, Edge } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
@@ -33,12 +33,14 @@ export const AWARD_MUTATION = gql`
     $type: AwardType!
     $entityId: ID!
     $note: String
+    $flags: AwardSquadFlagsInput
   ) {
     award(
       productId: $productId
       type: $type
       entityId: $entityId
       note: $note
+      flags: $flags
     ) {
       transactionId
       balance {
@@ -53,6 +55,7 @@ export type AwardProps = {
   type: AwardTypes;
   entityId: string;
   note?: string;
+  flags?: Record<string, string>;
 };
 
 export type TransactionCreated = {
@@ -65,10 +68,11 @@ export const award = async ({
   type,
   entityId,
   note,
+  flags,
 }: AwardProps): Promise<TransactionCreated> => {
   const result = await gqlClient.request<{ award: TransactionCreated }>(
     AWARD_MUTATION,
-    { productId, type, entityId, note },
+    { productId, type, entityId, note, flags },
   );
 
   return result.award;
@@ -149,6 +153,7 @@ export type UserTransaction = {
   }>;
   balance: LoggedUser['balance'];
   createdAt: Date;
+  sourceName?: string;
 };
 
 export const TRANSACTION_BY_PROVIDER_QUERY = gql`
@@ -361,6 +366,39 @@ export const LIST_POST_AWARDS_QUERY: AwardsQueryFunction = ({
   ${TRANSACTION_PUBLIC_FRAGMENT}
 `;
 
+const TOTAL_SOURCE_AWARDS_QUERY_PART = gql`
+    awardsTotal: sourceAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+export const LIST_SOURCE_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
+  query SourceAwards($id: ID!, $first: Int, $after: String) {
+    awards: sourceAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          sender {
+            ...UserShortInfo
+          }
+          product {
+            ...FeaturedAwardFragment
+          }
+          value
+        }
+      }
+    }
+    ${includeTotal ? TOTAL_SOURCE_AWARDS_QUERY_PART : ''}
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+`;
+
 const TOTAL_COMMENT_AWARDS_QUERY_PART = gql`
     awardsTotal: commentAwardsTotal(id: $id) {
         amount
@@ -407,11 +445,18 @@ export type AwardListItem = {
   awardTransaction?: UserTransactionPublic;
 };
 
+export type SquadAwardListItem = {
+  sender: Author;
+  product: FeaturedAward;
+  value?: UserTransactionPublic;
+};
+
 const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =
   {
     POST: LIST_POST_AWARDS_QUERY,
     COMMENT: LIST_COMMENT_AWARDS_QUERY,
     USER: undefined,
+    SQUAD: LIST_SOURCE_AWARDS_QUERY,
   };
 
 export const listAwardsInfiniteQueryOptions = ({
@@ -454,6 +499,22 @@ export const listAwardsInfiniteQueryOptions = ({
         ...queryVariables,
         after: pageParam,
       });
+
+      // Custom mapping for source response
+      if (type === 'SQUAD') {
+        result.awards.edges = result.awards.edges.map(
+          (edge: Edge<AwardListItem>) => {
+            const newNode = edge.node as unknown as SquadAwardListItem;
+            return {
+              node: {
+                user: newNode.sender,
+                award: newNode.product,
+                awardTransaction: newNode.value,
+              },
+            };
+          },
+        );
+      }
 
       return result;
     },
