@@ -4,16 +4,18 @@ import { format } from 'date-fns';
 
 export interface JoinedDateProps extends HTMLAttributes<HTMLDivElement> {
   date: Date;
+  dateFormat?: string;
 }
 
 export default function JoinedDate({
   date,
+  dateFormat = 'MMMM y',
   ...props
 }: JoinedDateProps): ReactElement {
   return (
     <div {...props}>
       Joined&nbsp;
-      <time dateTime={date.toISOString()}>{format(date, 'MMMM y')}</time>
+      <time dateTime={date.toISOString()}>{format(date, dateFormat)}</time>
     </div>
   );
 }

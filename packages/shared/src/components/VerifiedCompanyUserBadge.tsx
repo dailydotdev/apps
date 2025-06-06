@@ -4,13 +4,24 @@ import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
 import { useUserCompaniesQuery } from '../hooks/userCompany';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from './typography/Typography';
 
 export type VerifiedCompanyUserBadgeProps = {
   user: Pick<PublicProfile, 'companies'>;
+  size?: ProfileImageSize;
+  showCompanyName?: boolean;
+  showVerified?: boolean;
 };
 
 export const VerifiedCompanyUserBadge = ({
   user,
+  size = ProfileImageSize.Size16,
+  showCompanyName = true,
+  showVerified = true,
 }: VerifiedCompanyUserBadgeProps): ReactElement => {
   const { isVerified } = useUserCompaniesQuery();
   const { companies } = user;
@@ -33,9 +44,9 @@ export const VerifiedCompanyUserBadge = ({
         className: 'text-center',
       }}
     >
-      <div className="flex items-center">
+      <div className="flex items-center justify-center gap-1">
         <ProfilePicture
-          size={ProfileImageSize.Size16}
+          size={size}
           className="border border-border-subtlest-secondary"
           user={{
             image: companies[0].image,
@@ -43,6 +54,22 @@ export const VerifiedCompanyUserBadge = ({
           }}
           rounded="full"
         />
+        {showCompanyName && (
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+          >
+            {companies[0].name}
+          </Typography>
+        )}
+        {showVerified && (
+          <Typography
+            type={TypographyType.Caption2}
+            color={TypographyColor.Quaternary}
+          >
+            Verified
+          </Typography>
+        )}
       </div>
     </SimpleTooltip>
   );

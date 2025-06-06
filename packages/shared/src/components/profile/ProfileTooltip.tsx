@@ -1,14 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Author } from '../../graphql/comments';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
 import type { LinkWithTooltipProps } from '../tooltips/LinkWithTooltip';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { DevCard, DevCardType } from './devcard';
-import { useDevCard } from '../../hooks/profile/useDevCard';
 import type { MostReadTag, UserReadingRank } from '../../graphql/users';
+import { getUserShortInfo } from '../../graphql/users';
+import UserEntityCard from '../cards/entity/UserEntityCard';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -38,8 +39,14 @@ export function ProfileTooltip({
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const handler = useRef<() => void>();
-  const [id, setId] = useState('');
-  const data = useDevCard(id);
+  const [id, setId] = useState<string | undefined>(undefined);
+  const { data, isLoading } = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserShortById, { id }),
+    queryFn: () => {
+      return getUserShortInfo(id);
+    },
+    enabled: !!id,
+  });
 
   const onShow = () => {
     if (!scrollingContainer) {
@@ -65,7 +72,8 @@ export function ProfileTooltip({
     onHide,
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
-    content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
+    // content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
+    content: !isLoading && data ? <UserEntityCard user={data} /> : null,
     ...tooltip,
     onShow: (instance) => {
       if (id !== userId) {
