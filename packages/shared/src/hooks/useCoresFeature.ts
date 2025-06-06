@@ -37,8 +37,9 @@ export const useCanAwardUser = (
   return hasAccess && !isSpecialUser && canAwardUser(props);
 };
 
-export const useCanAwardSquad = (props): typeof LoggedUser => {
+export const useGetSquadAwardAdmin = (props): typeof LoggedUser => {
   const hasAccess = useCoresFeature();
+
   if (
     props.squad.currentMember?.role === SourceMemberRole.Admin ||
     !hasAccess

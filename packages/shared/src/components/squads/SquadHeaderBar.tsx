@@ -30,7 +30,7 @@ import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceInt
 import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize } from '../ProfilePicture';
-import { useCanAwardSquad } from '../../hooks/useCoresFeature';
+import { useGetSquadAwardAdmin } from '../../hooks/useCoresFeature';
 import { AwardButton } from '../award/AwardButton';
 import type { LoggedUser } from '../../lib/user';
 
@@ -90,7 +90,7 @@ const SquadAwardButton = ({
   squad,
 }: Pick<SquadMemberShortListProps, 'squad'>) => {
   const { user } = useAuthContext();
-  const eligibleAdmin = useCanAwardSquad({
+  const eligibleAdmin = useGetSquadAwardAdmin({
     sendingUser: user,
     squad,
   });

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { gql } from 'graphql-request';
-import type { Connection } from './common';
+import type { Connection, Edge } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
@@ -410,6 +410,12 @@ export type AwardListItem = {
   awardTransaction?: UserTransactionPublic;
 };
 
+export type SquadAwardListItem = {
+  sender: Author;
+  product: FeaturedAward;
+  value?: UserTransactionPublic;
+};
+
 const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =
   {
     POST: LIST_POST_AWARDS_QUERY,
@@ -461,15 +467,18 @@ export const listAwardsInfiniteQueryOptions = ({
 
       // Custom mapping for source response
       if (type === 'SQUAD') {
-        result.awards.edges = result.awards.edges.map((edge) => {
-          return {
-            node: {
-              user: edge.node.sender,
-              award: edge.node.product,
-              awardTransaction: edge.node.value,
-            },
-          };
-        });
+        result.awards.edges = result.awards.edges.map(
+          (edge: Edge<AwardListItem>) => {
+            const newNode = edge.node as unknown as SquadAwardListItem;
+            return {
+              node: {
+                user: newNode.sender,
+                award: newNode.product,
+                awardTransaction: newNode.value,
+              },
+            };
+          },
+        );
       }
 
       return result;
