@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import type { Squad } from '../graphql/sources';
 import type { Boot } from '../lib/boot';
@@ -6,6 +7,7 @@ import { MarketingCtaVariant } from '../components/marketingCta/common';
 import type { MarketingCta } from '../components/marketingCta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
+import { webappUrl } from '../lib/constants';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
@@ -22,6 +24,7 @@ const sortByName = (squads: Squad[]): Squad[] =>
   );
 
 export const useBoot = (): UseBoot => {
+  const router = useRouter();
   const client = useQueryClient();
   const getBootData = () => client.getQueryData<Boot>(BOOT_QUERY_KEY);
 
@@ -76,12 +79,28 @@ export const useBoot = (): UseBoot => {
 
     const plusEntryData = [
       MarketingCtaVariant.PlusCard,
-      MarketingCtaVariant.PlusBookmarkTab,
-      MarketingCtaVariant.PlusForYouTab,
       MarketingCtaVariant.PlusAnnouncementBar,
     ].includes(bootData?.marketingCta?.variant);
 
     if (plusEntryData) {
+      return bootData?.marketingCta;
+    }
+
+    if (
+      router.pathname.includes('bookmarks') &&
+      bootData?.marketingCta?.variant === MarketingCtaVariant.PlusBookmarkTab
+    ) {
+      return bootData?.marketingCta;
+    }
+
+    const isForYouTab =
+      router.pathname === webappUrl ||
+      router.pathname === `${webappUrl}my-feed`;
+
+    if (
+      isForYouTab &&
+      bootData?.marketingCta?.variant === MarketingCtaVariant.PlusForYouTab
+    ) {
       return bootData?.marketingCta;
     }
 
