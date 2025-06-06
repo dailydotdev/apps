@@ -1,3 +1,5 @@
+import type { PurchaseType } from '../graphql/paddle';
+
 export enum Origin {
   ShareBar = 'share bar',
   ReadingHistoryContextMenu = 'reading history context menu',
@@ -433,3 +435,9 @@ export enum StreakTimezonePromptAction {
   Settings = 'settings',
   Ignore = 'ignore',
 }
+
+export const purchaseTypeToTargetType: Record<PurchaseType, TargetType> = {
+  cores: TargetType.Credits,
+  plus: TargetType.Plus,
+  organization: TargetType.Plus,
+};

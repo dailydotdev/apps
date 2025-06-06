@@ -52,7 +52,9 @@ function SquadItem({
     onError: () => {
       displayToast(labels.error.generic);
     },
-    onSuccess: () => router.push(squad?.permalink),
+    onSuccess: () => {
+      router.push(squad?.permalink);
+    },
   });
 
   const onJoin = async () => {
