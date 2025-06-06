@@ -71,8 +71,8 @@ export const featureOnboardingReorder = new Feature(
   false,
 );
 
-export const featureOnboardingPlusFeatureGrid = new Feature(
-  'onboarding_plus_feature_grid',
+export const featureOnboardingGridVariationV1 = new Feature(
+  'onboarding_plus_feature_grid_v1',
   false,
 );
 
