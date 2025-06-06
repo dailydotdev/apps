@@ -14,7 +14,7 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { LogEvent, NotificationTarget } from '../lib/log';
+import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -30,6 +30,8 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
+import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
+import usePlusEntry from '../hooks/usePlusEntry';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -84,7 +86,7 @@ function MainLayoutComponent({
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const { isCustomFeed } = useFeedName({ feedName });
-
+  const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -175,6 +177,14 @@ function MainLayoutComponent({
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
+      {plusEntryAnnouncementBar && (
+        <PlusMobileEntryBanner
+          className="relative"
+          {...plusEntryAnnouncementBar}
+          targetType={TargetType.PlusEntryAnnouncementBar}
+        />
+      )}
+
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}

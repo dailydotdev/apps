@@ -15,6 +15,7 @@ export type MarketingCtaFlags = {
   tagColor?: string;
   ctaUrl: string;
   ctaText: string;
+  index?: number;
 };
 
 export enum MarketingCtaVariant {
@@ -22,6 +23,10 @@ export enum MarketingCtaVariant {
   Popover = 'popover',
   PopoverSmall = 'popover_small',
   Plus = 'plus',
+  PlusCard = 'plus_card',
+  PlusForYouTab = 'plus_for_you_tab',
+  PlusBookmarkTab = 'plus_bookmark_tab',
+  PlusAnnouncementBar = 'plus_announcement_bar',
 }
 
 export interface MarketingCta {

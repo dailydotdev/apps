@@ -19,6 +19,7 @@ import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
+import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import {
   Typography,
   TypographyTag,
@@ -26,6 +27,8 @@ import {
 } from './typography/Typography';
 import type { BookmarkFolder } from '../graphql/bookmarks';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
+import { TargetType } from '../lib/log';
+import usePlusEntry from '../hooks/usePlusEntry';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -83,7 +86,7 @@ export default function BookmarkFeedLayout({
       }),
     [user, listId, isReminderOnly, searchQuery],
   );
-
+  const { plusEntryBookmark } = usePlusEntry();
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
@@ -169,13 +172,20 @@ export default function BookmarkFeedLayout({
           onRequestClose={() => setShowSharedBookmarks(false)}
         />
       )}
-      <div className="mb-4 laptop:hidden">
+      <div className="relative mb-4 laptop:hidden">
         <BookmarkSection
           isItemsButton={false}
           sidebarExpanded
           shouldShowLabel
           activePage=""
         />
+        {plusEntryBookmark && (
+          <PlusMobileEntryBanner
+            arrow
+            targetType={TargetType.PlusEntryBookmarkTab}
+            {...plusEntryBookmark}
+          />
+        )}
       </div>
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>

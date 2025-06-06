@@ -788,6 +788,10 @@ details.right-icon {
   background-repeat: no-repeat;
 }
 
+.plus-entry-gradient {
+  background: radial-gradient(circle at 50% 100%, var(--theme-accent-cabbage-default) 0%, color-mix(in srgb, var(--theme-accent-onion-default), transparent 28%) 9.6%, color-mix(in srgb, var(--theme-accent-onion-default), transparent 100%) 100%), var(--theme-background-default);
+}
+
 @keyframes pulse {
   0% {
     width: 100%;
