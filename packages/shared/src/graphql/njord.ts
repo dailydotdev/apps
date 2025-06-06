@@ -19,6 +19,13 @@ import {
   StaleTime,
 } from '../lib/query';
 import type { ProductPricingPreview } from './paddle';
+import {
+  fetchPricingMetadata,
+  fetchPricingPreview,
+  PurchaseType,
+} from './paddle';
+import { iOSSupportsCoresPurchase } from '../lib/ios';
+import { getApplePricing } from '../contexts/payment/common';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -174,6 +181,33 @@ export const getTransactionByProvider = async ({
 };
 
 export const transactionRefetchIntervalMs = 2500;
+
+export const coresPricesQueryOptions = ({
+  isLoggedIn,
+  user,
+}: {
+  isLoggedIn: boolean;
+  user: LoggedUser;
+}) => {
+  return {
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      PurchaseType.Cores,
+    ),
+    queryFn: async () => {
+      if (iOSSupportsCoresPurchase()) {
+        const metadata = await fetchPricingMetadata(PurchaseType.Cores);
+
+        return getApplePricing(metadata);
+      }
+
+      return fetchPricingPreview(PurchaseType.Cores);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  };
+};
 
 type UserTransactionSummary = {
   purchased: number;

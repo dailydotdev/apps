@@ -1,16 +1,44 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   CoreOptionButton,
   CoreOptionButtonPlaceholder,
 } from './CoreOptionButton';
-import { useProductPricing } from '../../hooks/useProductPricing';
-import { PurchaseType } from '../../graphql/paddle';
+import { promisifyEventListener } from '../../lib/func';
+import { stringToBoolean } from '../../lib/utils';
+import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
+import { coresPricesQueryOptions } from '../../graphql/njord';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export const CoreOptionList = (): ReactElement => {
-  const { data: prices, isPending: isPendingPrices } = useProductPricing({
-    type: PurchaseType.Cores,
-  });
+  const { user, isLoggedIn } = useAuthContext();
+  const { selectedProduct } = useBuyCoresContext();
+  const [isLoadingNative, setLoadingNative] = useState(false);
+  const { data: prices, isPending: isPendingPrices } = useQuery(
+    coresPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
+
+  useEffect(() => {
+    promisifyEventListener<void, 'true' | 'false'>(
+      'iap-loading',
+      ({ detail }) => {
+        setLoadingNative(stringToBoolean(detail));
+      },
+      {
+        once: false,
+      },
+    ).catch(() => {
+      setLoadingNative(false);
+    });
+
+    return () => {
+      globalThis?.eventControllers?.['iap-loading']?.abort();
+    };
+  }, []);
 
   return (
     <ul className="mt-4 flex flex-col gap-2" role="radiogroup">
@@ -28,6 +56,11 @@ export const CoreOptionList = (): ReactElement => {
               label={price.metadata.title}
               cores={price.metadata.coresValue}
               priceFormatted={price.price.formatted}
+              isLoading={
+                isLoadingNative && price.priceId === selectedProduct?.id
+              }
+              // prevent clicks while native iap is loading
+              isDisabled={isLoadingNative}
             />
           );
         })}
