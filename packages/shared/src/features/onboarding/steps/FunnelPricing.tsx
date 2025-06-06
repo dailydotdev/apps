@@ -30,7 +30,7 @@ import {
   selectedPlanAtom,
   applyDiscountAtom,
   discountTimerAtom,
-} from '../store/funnelStore';
+} from '../store/funnel.store';
 import { usePaymentContext } from '../../../contexts/payment/context';
 import type { BaseProductPricingPreview } from '../../../graphql/paddle';
 

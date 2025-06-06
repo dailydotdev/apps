@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { addMinutes } from 'date-fns';
 import useTimer from '../../../hooks/useTimer';
-import { sanitizeMessage } from './utils';
+import { sanitizeMessage } from '../lib/utils';
 
 /**
  * Formats seconds to MM:SS format

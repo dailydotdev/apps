@@ -5,13 +5,17 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import type { OnboardingOnClickNext } from '../common';
-import { ChecklistAIcon } from '../../icons';
-import { IconSize } from '../../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+} from '../../../components/typography/Typography';
+import type { OnboardingOnClickNext } from '../../../components/onboarding/common';
+import { ChecklistAIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 
-export const PlusSuccess = ({
+export const OnboardingPlusSuccess = ({
   onClickNext,
 }: {
   onClickNext: OnboardingOnClickNext;

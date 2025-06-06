@@ -41,6 +41,7 @@ export enum ActionType {
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
   SmartPrompt = 'smart_prompt',
   CheckedCoresRole = 'checked_cores_role',
+  CheckedPlusPricing = 'checked_plus_pricing',
 }
 
 export interface Action {

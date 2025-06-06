@@ -1,1 +1,1 @@
-export * from './useOnboarding';
+export * from './useOnboardingActions';
