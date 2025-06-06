@@ -20,6 +20,11 @@ export enum PlusPriceTypeAppsId {
   Annual = 'annual',
 }
 
+export enum OnboardingGridVariation {
+  Control = 'control',
+  V1 = 'v1',
+}
+
 export interface FeatureThemeVariant {
   logo?: string;
   logoText?: string;

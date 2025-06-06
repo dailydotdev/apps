@@ -1,12 +1,12 @@
-import type { PropsWithChildren, ReactElement } from 'react';
+import type {
+  Dispatch,
+  PropsWithChildren,
+  ReactElement,
+  SetStateAction,
+} from 'react';
 import React, { useMemo } from 'react';
-import { useAtomValue } from 'jotai';
 import type { OpenCheckoutProps, PaymentContextData } from './context';
-import {
-  PaymentContext,
-  priceTypeAtom,
-  useFunnelPaymentPricingContext,
-} from './context';
+import { PaymentContext, useFunnelPaymentPricingContext } from './context';
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useProductPricing } from '../../hooks/useProductPricing';
@@ -16,7 +16,8 @@ interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
   isPaddleReady?: boolean;
   checkoutItemsLoading?: boolean;
-  initialPriceType?: PurchaseType;
+  priceType: PurchaseType;
+  setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
 }
 
 export const BasePaymentProvider = ({
@@ -24,8 +25,9 @@ export const BasePaymentProvider = ({
   openCheckout,
   isPaddleReady,
   checkoutItemsLoading,
+  priceType,
+  setPriceType,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
-  const priceType = useAtomValue(priceTypeAtom);
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
@@ -55,6 +57,8 @@ export const BasePaymentProvider = ({
       isPaddleReady,
       isOrganization,
       checkoutItemsLoading,
+      priceType,
+      setPriceType,
     }),
     [
       openCheckout,
@@ -65,6 +69,8 @@ export const BasePaymentProvider = ({
       isPaddleReady,
       isOrganization,
       checkoutItemsLoading,
+      priceType,
+      setPriceType,
     ],
   );
 

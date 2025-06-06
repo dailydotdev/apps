@@ -4,7 +4,6 @@ import { getQuantityForPrice } from '../../graphql/njord';
 import { PurchaseType } from '../../graphql/paddle';
 import { usePaddlePayment } from '../../hooks/usePaddlePayment';
 import { useProductPricing } from '../../hooks/useProductPricing';
-import { TargetType } from '../../lib/log';
 import { useLogContext } from '../LogContext';
 import { BuyCoresContext, SCREENS } from './types';
 import type {
@@ -56,7 +55,7 @@ export const PaddleBuyCoresContextProvider = ({
       getQuantityForPriceRef.current({
         priceId: event.data.items[0]?.price_id,
       }),
-    targetType: TargetType.Credits,
+    priceType: PurchaseType.Cores,
   });
 
   const contextData = useMemo<BuyCoresContextData>(

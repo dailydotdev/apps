@@ -38,10 +38,10 @@ export const useCheckExistingEmail = ({
 
       if (emailExists) {
         setEmailToCheck(emailValue);
-        return null;
+        return;
       }
 
-      return onValidEmail(emailValue);
+      onValidEmail(emailValue);
     },
   });
 

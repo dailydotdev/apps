@@ -2,14 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { useAtom } from 'jotai';
 import {
   Button,
   ButtonGroup,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { priceTypeAtom } from '../../contexts/payment/context';
+import { usePaymentContext } from '../../contexts/payment/context';
 import type { PurchaseType } from '../../graphql/paddle';
 import type { WithClassNameProps } from '../utilities';
 import { usePlusSubscription } from '../../hooks';
@@ -32,8 +31,8 @@ export const PlusProductToggle = ({
   options = [],
   onSelect,
 }: Props): ReactElement => {
+  const { priceType, setPriceType } = usePaymentContext();
   const { query, replace } = useRouter();
-  const [priceType, setPriceType] = useAtom(priceTypeAtom);
   const { logSubscriptionEvent } = usePlusSubscription();
   const initialLoaded = useRef(false);
 
@@ -44,7 +43,7 @@ export const PlusProductToggle = ({
         (option) => option.label.toLowerCase() === query.type,
       );
       if (selectedOption) {
-        setPriceType(selectedOption.priceType);
+        setPriceType?.(selectedOption.priceType);
       }
     }
   }, [options, query.type, setPriceType]);
@@ -59,7 +58,7 @@ export const PlusProductToggle = ({
             variant={isSelected ? ButtonVariant.Float : ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             onClick={async () => {
-              setPriceType(option.priceType);
+              setPriceType?.(option.priceType);
               onSelect?.(option);
               await replace({
                 pathname: plusUrl,

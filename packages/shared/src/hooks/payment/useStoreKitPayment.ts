@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { PurchaseEvent } from '../../contexts/payment/StoreKit';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import { promisifyEventListener } from '../../lib/func';
-import { TargetType, LogEvent } from '../../lib/log';
+import { LogEvent, purchaseTypeToTargetType } from '../../lib/log';
 import { SubscriptionProvider } from '../../lib/plus';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { OpenCheckoutProps } from '../../contexts/payment/context';
@@ -24,18 +24,12 @@ const typeToHandler: Record<PurchaseType, WebKitMessageHandlers> = {
   organization: WebKitMessageHandlers.IAPSubscriptionRequest,
 };
 
-export const typeToTargetType: Record<PurchaseType, TargetType> = {
-  cores: TargetType.Credits,
-  plus: TargetType.Plus,
-  organization: TargetType.Plus,
-};
-
 export const useStoreKitPayment = ({
   type,
   products,
   successCallback,
 }: UseStoreKitPaymentProps) => {
-  const targetType = typeToTargetType[type];
+  const targetType = purchaseTypeToTargetType[type];
   const messageType = typeToHandler[type];
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
