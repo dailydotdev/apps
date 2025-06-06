@@ -154,29 +154,23 @@ function AuthOptionsInner({
   const windowPopup = useRef<Window>(null);
 
   const checkForOnboardedUser = async () => {
+    onAuthStateUpdate({ isLoading: true });
     const isOnboardingPage = router?.pathname?.startsWith('/onboarding');
 
-    console.log('Onboarding page:', isOnboardingPage);
     if (isOnboardingPage) {
-      console.log('Checking user actions for onboarding completion');
       const userActions = await getUserActions();
-      console.log('User actions:', userActions);
       const isUserOnboardingComplete = onboardingMandatoryActions.every(
         (action) =>
           userActions.some((userAction) => userAction.type === action),
       );
-      console.log({
-        userActions,
-        isUserOnboardingComplete,
-        onboardingMandatoryActions,
-      });
+
       if (isUserOnboardingComplete) {
-        console.log('User onboarding complete, redirecting to app');
         await redirectToApp(router);
         return true;
       }
     }
 
+    onAuthStateUpdate({ isLoading: false });
     return false;
   };
 
@@ -186,7 +180,6 @@ function AuthOptionsInner({
       return;
     }
 
-    console.log({ isRegistration, user, handleLoginCheck });
     if (isRegistration) {
       return;
     }

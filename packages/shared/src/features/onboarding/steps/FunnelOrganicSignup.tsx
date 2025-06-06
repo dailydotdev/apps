@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useSetAtom } from 'jotai/react';
+import { useAtom } from 'jotai/react';
 import type { FunnelStepOrganicSignup } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
@@ -39,17 +39,30 @@ const staticAuthProps = {
   trigger: AuthTriggers.Onboarding,
 };
 
+const isSocialSignupUser = (
+  user: LoggedUser | AnonymousUser,
+): user is LoggedUser => {
+  return (
+    'infoConfirmed' in user &&
+    !user.infoConfirmed &&
+    user?.providers?.some((prov) => prov !== 'password')
+  );
+};
+
 export const FunnelOrganicSignup = withIsActiveGuard(
-  ({ parameters, onTransition }: FunnelOrganicSignupProps): ReactElement => {
-    const {
+  ({
+    parameters: {
       explainer,
       headline,
       image: srcDesktop = cloudinaryOnboardingFullBackgroundDesktop,
       imageMobile: src = cloudinaryOnboardingFullBackgroundMobile,
-    } = parameters;
+    },
+    onTransition,
+  }: FunnelOrganicSignupProps): ReactElement => {
     const formRef = useRef<HTMLFormElement>(null);
+    const hasAlreadyCheckedUser = useRef(false);
     const isMobile = useViewSize(ViewSize.MobileL);
-    const setAuth = useSetAtom(authAtom);
+    const [auth, setAuth] = useAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
     const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
       AuthDisplay.OnboardingSignup,
@@ -58,17 +71,18 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const isSocialSignupActive =
       isAuthReady &&
       isLoggedIn &&
-      'infoConfirmed' in user &&
-      !user.infoConfirmed &&
-      user?.providers?.some((prov) => prov !== 'password') &&
-      !isEmailSignupActive;
+      !isEmailSignupActive &&
+      isSocialSignupUser(user);
+
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
         const { defaultDisplay, isLoginFlow } = data;
+        // capture the default display from the auth state
         if (defaultDisplay) {
           setAuthDisplay(defaultDisplay);
         }
 
+        // Move outside the funnel if is login flow
         if (isLoginFlow) {
           setAuth((prev) => ({
             ...prev,
@@ -76,7 +90,13 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.Default,
           }));
+          return;
         }
+
+        setAuth((prev) => ({
+          ...prev,
+          ...data,
+        }));
       },
       [setAuthDisplay, setAuth],
     );
@@ -88,6 +108,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
           details: { user: data },
         });
 
+        // Email users need to confirm their email before proceeding with funnel
         const isEmailSignup = 'infoConfirmed' in data && !data.infoConfirmed;
         if (isEmailSignup) {
           setAuth((prev) => ({
@@ -102,13 +123,30 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     );
 
     useEffect(() => {
-      if (isLoggedIn && isAuthReady && !!user.infoConfirmed) {
+      if (!isAuthReady) {
+        return;
+      }
+
+      if (
+        isLoggedIn &&
+        !!user.infoConfirmed &&
+        !hasAlreadyCheckedUser.current
+      ) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
           details: { user },
         });
       }
-    }, [isAuthReady, isLoggedIn, onTransition, user]);
+
+      hasAlreadyCheckedUser.current = true;
+    }, [
+      auth.isLoading,
+      auth.isLoginFlow,
+      isAuthReady,
+      isLoggedIn,
+      onTransition,
+      user,
+    ]);
 
     if (!isAuthReady || (isLoggedIn && user.infoConfirmed)) {
       return null;

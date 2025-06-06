@@ -261,17 +261,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       query: { action },
     } = router;
 
-    // eslint-disable-next-line no-console
-    console.log({
-      action,
-      isAuthenticating,
-      isAuthReady,
-      isFunnelReady: isFunnelReady.current,
-      hasCompletedContentTypes,
-      hasCompletedEditTags,
-      isOnboardingActionsReady,
-    });
-
     if (action || isAuthenticating || !isAuthReady || isFunnelReady.current) {
       return;
     }
