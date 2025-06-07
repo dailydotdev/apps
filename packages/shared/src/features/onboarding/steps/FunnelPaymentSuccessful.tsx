@@ -19,6 +19,7 @@ import { LazyImage } from '../../../components/LazyImage';
 import Logo from '../../../components/Logo';
 import type { FunnelStepPaymentSuccessful } from '../types/funnel';
 import { sanitizeMessage } from '../shared';
+import { useIsLightTheme } from '../../../hooks/utils';
 
 export const FunnelPaymentSuccessful = ({
   onTransition,
@@ -29,6 +30,7 @@ export const FunnelPaymentSuccessful = ({
     cta = 'Continue',
   },
 }: FunnelStepPaymentSuccessful): ReactElement => {
+  const isLightMode = useIsLightTheme();
   const { headHtml, descHtml } = useMemo(() => {
     return {
       headHtml: sanitizeMessage(headline),
@@ -38,12 +40,14 @@ export const FunnelPaymentSuccessful = ({
 
   return (
     <div className="relative left-1/2 flex w-full min-w-[100dvw] flex-1 -translate-x-1/2 justify-center overflow-hidden">
-      <LazyImage
-        className="left-0 top-0 -z-1 h-full w-full translate-y-52 scale-150 blur-3xl"
-        imgSrc={imageUrl}
-        imgAlt="Blurred purple background"
-        absolute
-      />
+      {!isLightMode && (
+        <LazyImage
+          className="left-0 top-0 -z-1 h-full w-full translate-y-52 scale-150 blur-3xl"
+          imgSrc={imageUrl}
+          imgAlt="Blurred purple background"
+          absolute
+        />
+      )}
       <div className="flex w-full flex-col gap-10">
         <div className="grid h-12 place-items-center bg-background-default">
           <Logo isPlus />
