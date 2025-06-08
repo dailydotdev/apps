@@ -9,10 +9,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalBody } from '../common/ModalBody';
-import {
-  BuyCoresContextProvider,
-  useBuyCoresContext,
-} from '../../../contexts/BuyCoresContext';
+import { useBuyCoresContext } from '../../../contexts/BuyCoresContext/types';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
@@ -46,6 +43,7 @@ import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
+import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 
 export type CoreOptionsProps = {
   className?: string;
@@ -226,8 +224,6 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
     },
     enabled: !!providerTransactionId,
     refetchInterval: (query) => {
-      const transactionStatus = query.state.data?.status;
-
       const retries = Math.max(
         query.state.dataUpdateCount,
         query.state.fetchFailureCount,
@@ -254,6 +250,15 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
 
         return false;
       }
+
+      const queryError = query.state.error;
+
+      // in case of query error keep refetching until maxRetries is reached
+      if (queryError) {
+        return transactionRefetchIntervalMs;
+      }
+
+      const transactionStatus = query.state.data?.status;
 
       if (
         [

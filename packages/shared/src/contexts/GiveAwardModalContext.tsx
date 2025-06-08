@@ -20,11 +20,12 @@ const AWARD_TYPES = {
 } as const;
 export type AwardTypes = keyof typeof AWARD_TYPES;
 
-const SCREENS = {
+export const AWARD_SCREENS = {
   INTRO: 'INTRO',
   COMMENT: 'COMMENT',
   SUCCESS: 'SUCCESS',
 } as const;
+export type AwardScreens = keyof typeof AWARD_SCREENS;
 
 const MODALRENDERS = {
   AWARD: 'AWARD',
@@ -32,8 +33,6 @@ const MODALRENDERS = {
   AWARD_ANIMATION: 'AWARD_ANIMATION',
 } as const;
 export type ModalRenders = keyof typeof MODALRENDERS;
-
-export type Screens = keyof typeof SCREENS;
 
 const AWARD_EVENTS = {
   START: 'START',
@@ -74,9 +73,9 @@ export type AwardEntity = {
 export type GiveAwardModalContextData = {
   activeModal: ModalRenders;
   setActiveModal: (modal: ModalRenders) => void;
-  activeStep: Screens;
+  activeStep: AwardScreens;
   setActiveStep: Dispatch<
-    SetStateAction<{ screen: Screens; product?: Product }>
+    SetStateAction<{ screen: AwardScreens; product?: Product }>
   >;
   type: AwardTypes;
   entity: AwardEntity;
@@ -109,10 +108,10 @@ export const GiveAwardModalContextProvider = ({
   const router = useRouter();
   const { logEvent } = useLogContext();
   const [activeStep, setActiveStep] = useState<{
-    screen: Screens;
+    screen: AwardScreens;
     product?: Product;
   }>({
-    screen: SCREENS.INTRO,
+    screen: AWARD_SCREENS.INTRO,
   });
   const [activeModal, setActiveModal] = useState<ModalRenders>(
     MODALRENDERS.AWARD,

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
 
 import { useRouter } from 'next/router';
@@ -26,13 +26,27 @@ const PlusProductList = dynamic(
 
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { openCheckout } = usePaymentContext();
+  const { isPaddleReady, openCheckout } = usePaymentContext();
   const router = useRouter();
   const { pid, gift } = router.query;
+  const checkoutRef = useRef();
   const { data: productPricing } = useProductPricingByIds({
     ids: [pid as string],
     loadMetadata: true,
   });
+
+  useEffect(() => {
+    if (!isPaddleReady) {
+      return;
+    }
+
+    if (pid) {
+      openCheckout({
+        priceId: pid as string,
+        giftToUserId: gift as string,
+      });
+    }
+  }, [gift, isPaddleReady, openCheckout, pid]);
 
   useEffect(() => {
     if (!router.isReady) {
@@ -65,15 +79,7 @@ const PlusPaymentPage = (): ReactElement => {
         )}
         <div className="flex w-full flex-1 justify-center bg-background-default">
           <PlusCheckoutContainer
-            checkoutRef={(element) => {
-              if (!element) {
-                return;
-              }
-              openCheckout({
-                priceId: pid as string,
-                giftToUserId: gift as string,
-              });
-            }}
+            checkoutRef={checkoutRef}
             className={{
               container: 'h-full w-full bg-background-default p-5 laptop:h-fit',
               element: 'h-full',
