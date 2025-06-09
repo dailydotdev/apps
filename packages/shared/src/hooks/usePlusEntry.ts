@@ -20,12 +20,12 @@ const usePlusEntry = (): {
     feature: featurePlusEntryMobile,
     shouldEvaluate,
   });
+  const shouldShow = shouldEvaluate && plusEntryExp;
 
   return useMemo(() => {
     const getVariantEntry = (
       variant: MarketingCtaVariant,
     ): MarketingCta | null => {
-      const shouldShow = shouldEvaluate && plusEntryExp;
       return shouldShow && plusEntry?.variant === variant ? plusEntry : null;
     };
 
@@ -37,7 +37,7 @@ const usePlusEntry = (): {
         MarketingCtaVariant.PlusAnnouncementBar,
       ),
     };
-  }, [plusEntryExp, plusEntry, shouldEvaluate]);
+  }, [shouldShow, plusEntry]);
 };
 
 export default usePlusEntry;
