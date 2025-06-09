@@ -261,7 +261,13 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       query: { action },
     } = router;
 
-    if (action || isAuthenticating || !isAuthReady || isFunnelReady.current) {
+    if (
+      action ||
+      isAuthenticating ||
+      !isAuthReady ||
+      isFunnelReady.current ||
+      !isOnboardingActionsReady
+    ) {
       return;
     }
 
