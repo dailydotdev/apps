@@ -415,7 +415,7 @@ const SuccessScreen = () => {
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col gap-2">
           <Image
-            src={product.image}
+            src={product?.flags?.imageGlow || product.image}
             alt={product?.flags?.description}
             className="size-20"
           />
