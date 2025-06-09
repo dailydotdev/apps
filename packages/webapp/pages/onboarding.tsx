@@ -26,7 +26,6 @@ import type {
 import {
   actionToAuthDisplay,
   OnboardingActions,
-  AFTER_AUTH_PARAM,
   AuthDisplay,
 } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
@@ -49,6 +48,7 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/hooks/useOnboardingBoot';
 import {
   getCookiesAndHeadersFromRequest,
+  redirectToApp,
   setResponseHeaderFromBoot,
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { Provider as JotaiProvider, useAtom } from 'jotai/react';
@@ -56,7 +56,6 @@ import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -253,31 +252,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   } = useOnboardingActions();
   const isFunnelReady = useRef(false);
 
-  const redirectToApp = useCallback(async () => {
-    const params = new URLSearchParams(window.location.search);
-    const afterAuth = params.get(AFTER_AUTH_PARAM);
-    params.delete(AFTER_AUTH_PARAM);
-    params.delete('id');
-    params.delete('stepId');
-    await router.replace(getPathnameWithQuery(afterAuth || '/', params));
-  }, [router]);
-
   const onComplete = useCallback(async () => {
-    await redirectToApp();
-  }, [redirectToApp]);
+    await redirectToApp(router);
+  }, [router]);
 
   useEffect(() => {
     const {
       query: { action },
     } = router;
-
-    // eslint-disable-next-line no-console
-    console.log({
-      action,
-      isAuthenticating,
-      isAuthReady,
-      isFunnelReady: isFunnelReady.current,
-    });
 
     if (action || isAuthenticating || !isAuthReady || isFunnelReady.current) {
       return;
@@ -286,7 +268,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     if (hasCompletedContentTypes && hasCompletedEditTags) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
-      redirectToApp();
+      redirectToApp(router);
     } else {
       // 1. If the user is not onboarded still, we activate the funnel.
       // 2. FunnelStepper will router.replace to the first step
@@ -299,7 +281,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isAuthReady,
     isAuthenticating,
     isOnboardingActionsReady,
-    redirectToApp,
     router,
   ]);
 

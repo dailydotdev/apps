@@ -8,7 +8,6 @@ import type { FunnelStepOrganicCheckout } from '../types/funnel';
 
 const OrganicCheckout = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  console.log({ isLaptop });
   return (
     <>
       {isLaptop ? (
