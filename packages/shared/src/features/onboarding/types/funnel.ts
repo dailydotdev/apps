@@ -10,6 +10,7 @@ import type {
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
 import type { AnonymousUser, LoggedUser } from '../../../lib/user';
+import type { BrowserName } from '../../../lib/func';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -31,6 +32,7 @@ export enum FunnelStepType {
   PlusCards = 'plusCards',
   OrganicSignup = 'organicRegistration',
   OrganicCheckout = 'organicCheckout',
+  BrowserExtension = 'browserExtension',
 }
 
 export enum FunnelBackgroundVariant {
@@ -359,6 +361,17 @@ export interface FunnelStepPlusCards
   }>;
 }
 
+export interface FunnelStepBrowserExtension
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
+  type: FunnelStepType.BrowserExtension;
+  onTransition: FunnelStepTransitionCallback<{
+    browserName: BrowserName;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -377,6 +390,7 @@ export type FunnelStep =
   | FunnelStepInstallPwa
   | FunnelStepOrganicSignup
   | FunnelStepOrganicCheckout
+  | FunnelStepBrowserExtension
   | FunnelStepPlusCards;
 
 export type FunnelPosition = {
@@ -403,7 +417,10 @@ export interface FunnelJSON {
   redirectOnFinish?: string;
 }
 
-export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
+export const stepsWithHeader: Array<FunnelStepType> = [
+  FunnelStepType.Quiz,
+  FunnelStepType.BrowserExtension,
+];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
   FunnelStepType.EditTags,

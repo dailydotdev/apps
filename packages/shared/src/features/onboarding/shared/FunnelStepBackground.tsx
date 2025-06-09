@@ -59,6 +59,7 @@ const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.OrganicSignup,
+  FunnelStepType.BrowserExtension,
 ];
 
 export const FunnelStepBackground = ({
