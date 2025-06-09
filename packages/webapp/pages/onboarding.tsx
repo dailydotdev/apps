@@ -238,13 +238,19 @@ const useOnboardingAuth = () => {
     isAuthReady,
     isAuthenticating: auth.isAuthenticating,
     updateAuth,
+    isLoggedIn,
   };
 };
 
 function Onboarding({ initialStepId }: PageProps): ReactElement {
   const router = useRouter();
-  const { isAuthenticating, isAuthReady, authOptionProps, funnelState } =
-    useOnboardingAuth();
+  const {
+    isAuthenticating,
+    isAuthReady,
+    authOptionProps,
+    funnelState,
+    isLoggedIn,
+  } = useOnboardingAuth();
   const {
     hasCompletedContentTypes,
     hasCompletedEditTags,
@@ -266,7 +272,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       isAuthenticating ||
       !isAuthReady ||
       isFunnelReady.current ||
-      !isOnboardingActionsReady
+      (isLoggedIn && !isOnboardingActionsReady)
     ) {
       return;
     }
