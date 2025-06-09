@@ -83,6 +83,15 @@ export const FunnelOrganicSignup = withIsActiveGuard(
         // capture the default display from the auth state
         if (defaultDisplay) {
           setAuthDisplay(defaultDisplay);
+
+          if (
+            defaultDisplay === AuthDisplay.Registration &&
+            !!data.isAuthenticating
+          ) {
+            // This step is on charge of the registration flow
+            // is not required to setAuth for isAuthenticating true.
+            return;
+          }
         }
 
         // Move outside the funnel if is login flow
