@@ -427,4 +427,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.ContentTypes,
   FunnelStepType.PlusCards,
   FunnelStepType.OrganicCheckout,
+  FunnelStepType.BrowserExtension,
 ];
