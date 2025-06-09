@@ -145,18 +145,27 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.WarningCheckout,
+              extra: JSON.stringify({
+                transaction_id: event?.data.transaction_id,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
+              extra: JSON.stringify({
+                transaction_id: event?.data.transaction_id,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
+              extra: JSON.stringify({
+                transaction_id: event?.data.transaction_id,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
