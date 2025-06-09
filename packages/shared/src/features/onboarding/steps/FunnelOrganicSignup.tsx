@@ -65,6 +65,9 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
         const { defaultDisplay, isLoginFlow } = data;
+        console.log('OnAuthStateUpdate', {
+          data,
+        });
         if (defaultDisplay) {
           setAuthDisplay(defaultDisplay);
         }
