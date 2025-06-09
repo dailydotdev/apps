@@ -1,37 +1,27 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import type { FunnelStepContentTypes } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ContentTypes } from '../../../components/onboarding';
 import { FunnelStepCtaWrapper } from '../shared';
-import { useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { ActionType } from '../../../graphql/actions';
+import { useActions } from '../../../hooks';
 
 function FunnelContentTypesComponent({
   parameters: { headline, cta },
   onTransition,
 }: FunnelStepContentTypes): ReactElement | null {
-  const { completeAction, checkHasCompleted } = useActions();
-  const { isLoggedIn, user } = useAuthContext();
-  const hasCompleted = useMemo(
-    () => user && checkHasCompleted(ActionType.ContentTypes),
-    [checkHasCompleted, user],
-  );
+  const { isLoggedIn } = useAuthContext();
+  const { completeAction } = useActions();
 
-  const handleComplete = () => {
-    completeAction(ActionType.ContentTypes);
+  const handleComplete = useCallback(() => {
     onTransition({ type: FunnelStepTransitionType.Complete });
-  };
+    completeAction(ActionType.ContentTypes);
+  }, [completeAction, onTransition]);
 
-  useEffect(() => {
-    if (hasCompleted) {
-      onTransition({ type: FunnelStepTransitionType.Complete });
-    }
-  }, [hasCompleted, onTransition]);
-
-  if (!isLoggedIn || hasCompleted) {
+  if (!isLoggedIn) {
     return null;
   }
 

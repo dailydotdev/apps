@@ -29,6 +29,9 @@ import {
   FunnelContentTypes,
   FunnelReadingReminder,
   FunnelInstallPwa,
+  FunnelOrganicCheckout,
+  FunnelPlusCards,
+  FunnelOrganicSignup,
 } from '../steps';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -43,10 +46,7 @@ import { FunnelBannerMessage } from './FunnelBannerMessage';
 import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
-import { FunnelOrganicSignup } from '../steps/FunnelOrganicSignup';
-import { FunnelPlusCards } from '../steps/FunnelPlusCards';
 import { useEventListener } from '../../../hooks';
-import FunnelOrganicCheckout from '../steps/FunnelOrganicCheckout';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
