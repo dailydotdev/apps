@@ -92,18 +92,16 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
             {description}
           </Typography>
 
-          <div className="flex flex-col items-center justify-center gap-6">
-            <div className="flex w-full flex-col gap-1">
-              {bulletPoints.map((bulletPoint) => (
-                <PlusListItem
-                  key={bulletPoint.label}
-                  typographyProps={{
-                    className: 'typo-callout',
-                  }}
-                  item={bulletPoint}
-                />
-              ))}
-            </div>
+          <div className="flex w-full flex-col gap-1">
+            {bulletPoints.map((bulletPoint) => (
+              <PlusListItem
+                key={bulletPoint.label}
+                typographyProps={{
+                  className: 'typo-callout',
+                }}
+                item={bulletPoint}
+              />
+            ))}
           </div>
         </div>
 
@@ -114,9 +112,7 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
           color={ButtonColor.Avocado}
           onClick={handleClick}
         >
-          <Typography tag={TypographyTag.P} type={TypographyType.Callout} bold>
-            {ctaText}
-          </Typography>
+          {ctaText}
         </Button>
       </div>
     </div>
