@@ -44,7 +44,7 @@ export const FunnelBrowserExtension = ({
   }
 
   return (
-    <div className="flex flex-1 flex-col laptop:justify-between">
+    <div className="mt-10 flex flex-1 flex-col laptop:justify-between">
       <div className="mb-14 flex flex-col items-center gap-6 justify-self-start text-center">
         <Typography
           tag={TypographyTag.H1}
