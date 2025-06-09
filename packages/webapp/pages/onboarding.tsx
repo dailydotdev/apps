@@ -292,6 +292,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     hasCompletedEditTags,
     isAuthReady,
     isAuthenticating,
+    isLoggedIn,
     isOnboardingActionsReady,
     router,
   ]);
