@@ -295,6 +295,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       isFunnelReady.current ||
       (isLoggedIn && !isOnboardingActionsReady)
     ) {
+      console.log('*** Skipping funnel ***');
       return;
     }
 
@@ -303,6 +304,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
     } else {
+      console.log('*** Activating funnel stepper ***');
       // 1. If the user is not onboarded still, we activate the funnel.
       // 2. FunnelStepper will router.replace to the first step
       //    to avoid conflicts, we need to keep this flow detached other redirects
