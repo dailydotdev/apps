@@ -157,7 +157,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
         isAuthReady,
         hasAlreadyCheckedUser: hasAlreadyCheckedUser.current,
       });
-      if (hasAlreadyCheckedUser.current) {
+      if (!hasAlreadyCheckedUser.current) {
         transitionIfUserIsConfirmed();
       }
 
