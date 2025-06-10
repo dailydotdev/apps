@@ -11,6 +11,7 @@ import {
 } from '../../components/typography/Typography';
 import type { PostCampaign } from '../../hooks/post/usePostBoost';
 import { Image } from '../../components/image/Image';
+import { getAbsoluteDifferenceInDays } from './utils';
 
 interface CampaignListItemProps {
   campaign: PostCampaign;
@@ -30,9 +31,9 @@ export function CampaignListItem({
       return 'Cancelled';
     }
 
-    const remainingDays = Math.ceil(
-      (new Date(campaign.boostedUntil).getTime() - new Date().getTime()) /
-        (1000 * 60 * 60 * 24),
+    const remainingDays = getAbsoluteDifferenceInDays(
+      new Date(campaign.boostedUntil),
+      new Date(),
     );
 
     return `${remainingDays} days left`;
