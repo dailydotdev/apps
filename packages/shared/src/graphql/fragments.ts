@@ -245,6 +245,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       type
       membersCount
       description
+      flags {
+        totalUpvotes
+      }
       currentMember {
         flags {
           collapsePinnedPosts
