@@ -203,6 +203,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               }}
               onSuccessfulRegistration={onSuccessfulRegistration}
               onAuthStateUpdate={onAuthStateUpdate}
+              onSuccessfulLogin={console.log}
             />
           </div>
           <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
