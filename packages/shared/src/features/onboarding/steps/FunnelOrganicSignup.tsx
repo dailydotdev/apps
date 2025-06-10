@@ -209,10 +209,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               }}
               onSuccessfulRegistration={onSuccessfulRegistration}
               onAuthStateUpdate={onAuthStateUpdate}
-              onSuccessfulLogin={() => {
-                hasAlreadyCheckedUser.current = false;
-                transitionIfUserIsConfirmed();
-              }}
+              onSuccessfulLogin={transitionIfUserIsConfirmed}
             />
           </div>
           <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
