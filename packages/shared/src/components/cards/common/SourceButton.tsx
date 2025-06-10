@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { TooltipPosition } from '../../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
@@ -15,17 +15,32 @@ interface SourceButtonProps {
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
+  simpleTooltip?: boolean;
   tooltipPosition?: TooltipPosition;
 }
 
 export default function SourceButton({
   source,
-  tooltipPosition = 'bottom',
+  tooltipPosition = 'top',
+  simpleTooltip = false,
   size = ProfileImageSize.Medium,
   className,
   ...props
 }: SourceButtonProps): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
+
+  const tooltipContent = useMemo(() => {
+    if (simpleTooltip) {
+      return source.name;
+    }
+
+    return source.type === 'squad' ? (
+      <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
+    ) : (
+      <SourceEntityCard source={source} origin={Origin.Feed} />
+    );
+  }, [simpleTooltip, source]);
+
   if (source && isFeedPreview) {
     return (
       <ProfilePicture
@@ -48,14 +63,9 @@ export default function SourceButton({
       href={source.permalink}
       prefetch={false}
       tooltip={{
-        interactive: true,
+        interactive: !simpleTooltip,
         container: { bgClassName: null },
-        content:
-          source.type === 'squad' ? (
-            <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
-          ) : (
-            <SourceEntityCard source={source} origin={Origin.Feed} />
-          ),
+        content: tooltipContent,
         placement: tooltipPosition,
       }}
     >
