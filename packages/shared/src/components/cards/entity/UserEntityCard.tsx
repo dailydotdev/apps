@@ -110,7 +110,7 @@ const UserEntityCard = ({ user }: Props) => {
       type="user"
       className={{
         image: 'size-16 rounded-20',
-        container: 'w-72',
+        container: 'max-w-sm',
       }}
       entityName={user.username}
       actionButtons={
@@ -187,7 +187,7 @@ const UserEntityCard = ({ user }: Props) => {
             dateFormat="MMM d. yyyy"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 truncate">
           <div className="rounded-8 border border-border-subtlest-tertiary px-2">
             <ReputationUserBadge
               iconProps={{
@@ -197,12 +197,7 @@ const UserEntityCard = ({ user }: Props) => {
               user={user}
             />
           </div>
-          <div className="flex items-center gap-1">
-            <VerifiedCompanyUserBadge
-              size={ProfileImageSize.Small}
-              user={user}
-            />
-          </div>
+          <VerifiedCompanyUserBadge size={ProfileImageSize.Small} user={user} />
         </div>
         <Typography
           type={TypographyType.Footnote}
