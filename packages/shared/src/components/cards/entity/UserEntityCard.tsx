@@ -60,25 +60,24 @@ const UserEntityCard = ({ user }: Props) => {
         },
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user],
+    [user, openModal],
   );
-
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
-      label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
+      label: `${blocked ? 'Unblock' : 'Block'} ${username}`,
       action: () =>
         blocked
           ? unblock({
-              id: user.id,
+              id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: username,
             })
           : block({
-              id: user.id,
+              id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: username,
             }),
     },
     {
@@ -88,18 +87,18 @@ const UserEntityCard = ({ user }: Props) => {
     },
   ];
 
-  if (!blocked && !user.isPlus && !isSameUser) {
+  if (!blocked && !isPlus && !isSameUser) {
     options.push({
       icon: <GiftIcon />,
       label: 'Gift daily.dev Plus',
       action: () => {
         logSubscriptionEvent({
           event_name: LogEvent.GiftSubscription,
-          target_id: TargetId.ProfilePage,
+          target_id: TargetId.Cards,
         });
         openModal({
           type: LazyModal.GiftPlus,
-          props: { preselected: user as UserShortProfile },
+          props: { preselected: user },
         });
       },
     });
@@ -107,12 +106,12 @@ const UserEntityCard = ({ user }: Props) => {
 
   return (
     <EntityCard
-      image={user.image}
+      image={image}
       type="user"
       className={{
         image: 'size-16 rounded-20',
       }}
-      entityName={user.username}
+      entityName={username}
       actionButtons={
         !isSameUser && (
           <>
@@ -123,43 +122,43 @@ const UserEntityCard = ({ user }: Props) => {
               }}
               onAdd={(feedId) =>
                 follow({
-                  id: user.id,
+                  id,
                   entity: ContentPreferenceType.User,
-                  entityName: user.username,
+                  entityName: username,
                   feedId,
                 })
               }
               onUndo={(feedId) =>
                 unfollow({
-                  id: user.id,
+                  id,
                   entity: ContentPreferenceType.User,
-                  entityName: user.username,
+                  entityName: username,
                   feedId,
                 })
               }
               onCreateNewFeed={() =>
                 router.push(
-                  `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+                  `/feeds/new?entityId=${id}&entityType=${ContentPreferenceType.User}`,
                 )
               }
               shareProps={{
-                text: `Check out ${user.name}'s profile on daily.dev`,
-                link: user.permalink,
+                text: `Check out ${name}'s profile on daily.dev`,
+                link: permalink,
                 cid: ReferralCampaignKey.ShareProfile,
                 logObject: () => ({
                   event_name: LogEvent.ShareProfile,
-                  target_id: user.id,
+                  target_id: id,
                 }),
               }}
               additionalOptions={options}
             />
             <FollowButton
               variant={ButtonVariant.Primary}
-              entityId={user.id}
+              entityId={id}
               status={contentPreference?.status}
               showSubscribe={false}
               type={ContentPreferenceType.User}
-              entityName={user.username}
+              entityName={username}
             />
           </>
         )
@@ -172,21 +171,19 @@ const UserEntityCard = ({ user }: Props) => {
           color={TypographyColor.Primary}
           bold
         >
-          {user.name ?? user.username}
-          {user.isPlus && (
-            <DevPlusIcon className="ml-1 text-action-plus-default" />
-          )}
+          {name ?? username}
+          {isPlus && <DevPlusIcon className="ml-1 text-action-plus-default" />}
         </Typography>
         <div className="flex items-center gap-1">
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            @{user.username}
+            @{username}
           </Typography>
           <JoinedDate
             className="text-text-quaternary typo-footnote"
-            date={new Date(user.createdAt)}
+            date={new Date(createdAt)}
             dateFormat="MMM d. yyyy"
           />
         </div>
@@ -211,7 +208,7 @@ const UserEntityCard = ({ user }: Props) => {
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          {user.bio}
+          {bio}
         </Typography>
       </div>
     </EntityCard>
