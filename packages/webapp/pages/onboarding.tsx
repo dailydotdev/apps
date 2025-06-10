@@ -290,7 +290,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 
     if (
       action ||
-      isAuthenticating ||
+      isAuthenticating !== false || // also cover the case when auth is still undefined at load time
       !isAuthReady ||
       isFunnelReady.current ||
       (isLoggedIn && !isOnboardingActionsReady)
