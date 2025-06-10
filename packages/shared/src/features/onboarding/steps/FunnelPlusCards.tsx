@@ -5,39 +5,39 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
-export const FunnelPlusCards = withIsActiveGuard(
-  ({ onTransition }: FunnelStepPlusCards) => {
-    const { user } = useAuthContext();
+const PlusCards = ({ onTransition }: FunnelStepPlusCards) => {
+  const { user } = useAuthContext();
 
-    const transitionToNext = useCallback(
-      ({ skip }: { skip: boolean }) => {
-        onTransition?.({
-          type: skip
-            ? FunnelStepTransitionType.Skip
-            : FunnelStepTransitionType.Complete,
-          details: { skip },
-        });
-      },
-      [onTransition],
-    );
+  const transitionToNext = useCallback(
+    ({ skip }: { skip: boolean }) => {
+      onTransition?.({
+        type: skip
+          ? FunnelStepTransitionType.Skip
+          : FunnelStepTransitionType.Complete,
+        details: { skip },
+      });
+    },
+    [onTransition],
+  );
 
-    useEffect(() => {
-      if (user?.isPlus) {
-        transitionToNext({ skip: true });
-      }
-    }, [transitionToNext, onTransition, user?.isPlus]);
-
+  useEffect(() => {
     if (user?.isPlus) {
-      return null;
+      transitionToNext({ skip: true });
     }
+  }, [transitionToNext, onTransition, user?.isPlus]);
 
-    return (
-      <OnboardingPlus
-        onComplete={() => transitionToNext({ skip: false })}
-        onSkip={() => transitionToNext({ skip: true })}
-      />
-    );
-  },
-);
+  if (user?.isPlus) {
+    return null;
+  }
+
+  return (
+    <OnboardingPlus
+      onComplete={() => transitionToNext({ skip: false })}
+      onSkip={() => transitionToNext({ skip: true })}
+    />
+  );
+};
+
+export const FunnelPlusCards = withIsActiveGuard(PlusCards);
 
 export default FunnelPlusCards;
