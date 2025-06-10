@@ -64,7 +64,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const isMobile = useViewSize(ViewSize.MobileL);
     const [auth, setAuth] = useAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
-    const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
+    const [authDisplay, setAuthDisplay] = useState(
       AuthDisplay.OnboardingSignup,
     );
     const isEmailSignupActive = authDisplay === AuthDisplay.Registration;
@@ -77,9 +77,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
         const { defaultDisplay, isLoginFlow } = data;
-        console.log('OnAuthStateUpdate', {
-          data,
-        });
+
         // capture the default display from the auth state
         if (defaultDisplay) {
           setAuthDisplay(defaultDisplay);
@@ -88,7 +86,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             defaultDisplay === AuthDisplay.Registration &&
             !!data.isAuthenticating
           ) {
-            // This step is on charge of the registration flow
+            // This step is on charge of the email registration flow,
             // is not required to setAuth for isAuthenticating true.
             return;
           }
