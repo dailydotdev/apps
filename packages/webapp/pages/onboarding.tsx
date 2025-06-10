@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useCallback, useMemo, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -267,7 +273,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     hasCompletedEditTags,
     isOnboardingActionsReady,
   } = useOnboardingActions();
-  const isFunnelReady = useRef(false);
+  const [isFunnelReady, setFunnelReady] = useState(false);
 
   const onComplete = useCallback(async () => {
     await redirectToApp(router);
@@ -278,13 +284,25 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       query: { action },
     } = router;
 
+    console.log({
+      action,
+      isAuthenticating,
+      isAuthReady,
+      isFunnelReady,
+      isLoggedIn,
+      isOnboardingActionsReady,
+      hasCompletedEditTags,
+      hasCompletedContentTypes,
+    });
+
     if (
       action ||
       isAuthenticating !== false || // also cover the case when auth is still undefined at load time
       !isAuthReady ||
-      isFunnelReady.current ||
+      isFunnelReady ||
       (isLoggedIn && !isOnboardingActionsReady)
     ) {
+      console.log('*** Skipping funnel ***');
       return;
     }
 
@@ -293,16 +311,18 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
     } else {
+      console.log('*** Activating funnel stepper ***');
       // 1. If the user is not onboarded still, we activate the funnel.
       // 2. FunnelStepper will router.replace to the first step
       //    to avoid conflicts, we need to keep this flow detached other redirects
-      isFunnelReady.current = true;
+      setFunnelReady(true);
     }
   }, [
     hasCompletedContentTypes,
     hasCompletedEditTags,
     isAuthReady,
     isAuthenticating,
+    isFunnelReady,
     isLoggedIn,
     isOnboardingActionsReady,
     router,
@@ -325,7 +345,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   }
 
   return (
-    isFunnelReady.current && (
+    isFunnelReady && (
       <div className="flex min-h-dvh min-w-full flex-col">
         <FunnelStepper
           {...funnelState}
