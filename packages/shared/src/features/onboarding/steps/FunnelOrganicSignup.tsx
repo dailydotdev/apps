@@ -133,12 +133,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     );
 
     const transitionIfUserIsConfirmed = useCallback(() => {
-      console.log({
-        isAuthReady,
-        isLoggedIn,
-        user,
-        infoConfirmed: user.infoConfirmed,
-      });
       if (isAuthReady && isLoggedIn && !!user.infoConfirmed) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
@@ -148,15 +142,10 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     }, [isAuthReady, isLoggedIn, onTransition, user]);
 
     useEffect(() => {
-      console.log('*** checking user info confirmed ***');
       if (!isAuthReady || !user) {
         return;
       }
 
-      console.log({
-        isAuthReady,
-        hasAlreadyCheckedUser: hasAlreadyCheckedUser.current,
-      });
       if (!hasAlreadyCheckedUser.current) {
         transitionIfUserIsConfirmed();
       }
