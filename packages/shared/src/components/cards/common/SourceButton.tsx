@@ -4,14 +4,14 @@ import type { TooltipPosition } from '../../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import type { Source } from '../../../graphql/sources';
+import type { SourceTooltip } from '../../../graphql/sources';
 import { useFeedPreviewMode } from '../../../hooks';
 import SourceEntityCard from '../entity/SourceEntityCard';
 import SquadEntityCard from '../entity/SquadEntityCard';
 import { Origin } from '../../../lib/log';
 
 interface SourceButtonProps {
-  source: Source;
+  source: SourceTooltip;
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;

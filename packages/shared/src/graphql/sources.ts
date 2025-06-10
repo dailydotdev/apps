@@ -105,6 +105,18 @@ export interface Source {
   contentPreference?: ContentPreference;
 }
 
+export type SourceTooltip = Pick<
+  Source,
+  | 'id'
+  | 'name'
+  | 'image'
+  | 'handle'
+  | 'permalink'
+  | 'description'
+  | 'type'
+  | 'flags'
+>;
+
 export type SourceData = { source: Source };
 
 export const SOURCE_QUERY = gql`

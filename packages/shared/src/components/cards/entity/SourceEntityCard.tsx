@@ -8,7 +8,11 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import type { Source, SourceData } from '../../../graphql/sources';
+import type {
+  Source,
+  SourceData,
+  SourceTooltip,
+} from '../../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import type { Origin } from '../../../lib/log';
@@ -26,11 +30,11 @@ const SourceEntityCard = ({
   source,
   origin,
 }: {
-  source: Source;
+  source: SourceTooltip;
   origin: Origin;
 }) => {
   const { isFollowing, toggleFollow } = useSourceActions({
-    source,
+    source: source as Source,
   });
   const router = useRouter();
   const { data, isLoading } = useQuery<SourceData>({
