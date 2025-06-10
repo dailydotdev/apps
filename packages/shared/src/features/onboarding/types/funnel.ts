@@ -327,9 +327,6 @@ export interface FunnelStepOrganicSignup
     explainer: string;
     image: string;
     imageMobile: string;
-    experiments?: Partial<{
-      reorderRegistration: boolean;
-    }>;
   }> {
   type: FunnelStepType.OrganicSignup;
   onTransition: FunnelStepTransitionCallback<{
