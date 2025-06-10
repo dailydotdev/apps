@@ -156,6 +156,8 @@ const UserEntityCard = ({ user }: Props) => {
             <FollowButton
               variant={ButtonVariant.Primary}
               entityId={user.id}
+              status={contentPreference?.status}
+              showSubscribe={false}
               type={ContentPreferenceType.User}
               entityName={user.username}
             />
