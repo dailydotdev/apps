@@ -120,16 +120,21 @@ const getDefaultDisplay = ({
   isLogin,
   shouldVerify,
   action,
+  wasLoggedInBefore,
 }: {
   isLogin?: boolean;
   shouldVerify?: boolean;
   action?: OnboardingActions;
+  wasLoggedInBefore?: boolean;
 }): AuthDisplay => {
   if (!!action && actionToAuthDisplay[action]) {
     return actionToAuthDisplay[action];
   }
   if (shouldVerify) {
     return AuthDisplay.EmailVerification;
+  }
+  if (wasLoggedInBefore) {
+    return AuthDisplay.SignBack;
   }
   if (isLogin) {
     return AuthDisplay.Default;
@@ -177,7 +182,12 @@ const useOnboardingAuth = () => {
     }
 
     updateAuth({
-      defaultDisplay: getDefaultDisplay({ isLogin, shouldVerify, action }),
+      defaultDisplay: getDefaultDisplay({
+        isLogin,
+        shouldVerify,
+        action,
+        wasLoggedInBefore,
+      }),
       email,
       isAuthenticating:
         isRequiredAuth &&
