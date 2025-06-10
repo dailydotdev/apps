@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { useRouter } from 'next/router';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
 import {
@@ -6,24 +7,160 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { DevPlusIcon } from '../../icons';
+import { BlockIcon, DevPlusIcon, FlagIcon, GiftIcon } from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { IconSize } from '../../Icon';
 import JoinedDate from '../../profile/JoinedDate';
+import { FollowButton } from '../../contentPreference/FollowButton';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../../graphql/contentPreference';
+import type { MenuItemProps } from '../../fields/ContextMenu';
+import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
+import { LazyModal } from '../../modals/common/types';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { ReferralCampaignKey } from '../../../lib/referral';
+import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
+import AuthContext from '../../../contexts/AuthContext';
 
 type Props = {
   user: UserShortProfile;
 };
 
 const UserEntityCard = ({ user }: Props) => {
+  const router = useRouter();
+  const { user: loggedUser } = useContext(AuthContext);
+  const isSameUser = loggedUser?.id === user.id;
+  const { follow, unfollow } = useContentPreference();
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: user?.id,
+    entity: ContentPreferenceType.User,
+  });
+  const { unblock, block } = useContentPreference();
+  const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
+  const { openModal } = useLazyModal();
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const onReportUser = React.useCallback(
+    (defaultBlocked = false) => {
+      openModal({
+        type: LazyModal.ReportUser,
+        props: {
+          offendingUser: {
+            id: user.id,
+            username: user.username,
+          },
+          defaultBlockUser: defaultBlocked,
+        },
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user],
+  );
+
+  const options: MenuItemProps[] = [
+    {
+      icon: <BlockIcon />,
+      label: `${blocked ? 'Unblock' : 'Block'} ${user.username}`,
+      action: () =>
+        blocked
+          ? unblock({
+              id: user.id,
+              entity: ContentPreferenceType.User,
+              entityName: user.username,
+            })
+          : block({
+              id: user.id,
+              entity: ContentPreferenceType.User,
+              entityName: user.username,
+            }),
+    },
+    {
+      icon: <FlagIcon />,
+      label: 'Report',
+      action: () => onReportUser(),
+    },
+  ];
+
+  if (!blocked && !user.isPlus && !isSameUser) {
+    options.push({
+      icon: <GiftIcon />,
+      label: 'Gift daily.dev Plus',
+      action: () => {
+        logSubscriptionEvent({
+          event_name: LogEvent.GiftSubscription,
+          target_id: TargetId.ProfilePage,
+        });
+        openModal({
+          type: LazyModal.GiftPlus,
+          props: { preselected: user as UserShortProfile },
+        });
+      },
+    });
+  }
+
   return (
     <EntityCard
       image={user.image}
       type="user"
-      entityId={user.id}
+      className={{
+        image: 'size-16 rounded-20',
+        container: 'w-72',
+      }}
       entityName={user.username}
+      actionButtons={
+        !isSameUser && (
+          <>
+            <CustomFeedOptionsMenu
+              className={{
+                button: 'bg-background-popover',
+                menu: 'z-[9999]',
+              }}
+              onAdd={(feedId) =>
+                follow({
+                  id: user.id,
+                  entity: ContentPreferenceType.User,
+                  entityName: user.username,
+                  feedId,
+                })
+              }
+              onUndo={(feedId) =>
+                unfollow({
+                  id: user.id,
+                  entity: ContentPreferenceType.User,
+                  entityName: user.username,
+                  feedId,
+                })
+              }
+              onCreateNewFeed={() =>
+                router.push(
+                  `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+                )
+              }
+              shareProps={{
+                text: `Check out ${user.name}'s profile on daily.dev`,
+                link: user.permalink,
+                cid: ReferralCampaignKey.ShareProfile,
+                logObject: () => ({
+                  event_name: LogEvent.ShareProfile,
+                  target_id: user.id,
+                }),
+              }}
+              additionalOptions={options}
+            />
+            <FollowButton
+              entityId={user.id}
+              type={ContentPreferenceType.User}
+              entityName={user.username}
+            />
+          </>
+        )
+      }
     >
       <div className="flex w-full flex-col gap-2">
         <Typography

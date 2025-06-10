@@ -6,9 +6,12 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import type { Source } from '../../../graphql/sources';
 import { useFeedPreviewMode } from '../../../hooks';
+import SourceEntityCard from '../entity/SourceEntityCard';
+import SquadEntityCard from '../entity/SquadEntityCard';
+import { Origin } from '../../../lib/log';
 
 interface SourceButtonProps {
-  source: Pick<Source, 'id' | 'name' | 'handle' | 'image' | 'permalink'>;
+  source: Source;
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
@@ -23,7 +26,6 @@ export default function SourceButton({
   ...props
 }: SourceButtonProps): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
-
   if (source && isFeedPreview) {
     return (
       <ProfilePicture
@@ -45,7 +47,17 @@ export default function SourceButton({
     <LinkWithTooltip
       href={source.permalink}
       prefetch={false}
-      tooltip={{ content: source.name, placement: tooltipPosition }}
+      tooltip={{
+        interactive: true,
+        container: { bgClassName: null },
+        content:
+          source.type === 'squad' ? (
+            <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
+          ) : (
+            <SourceEntityCard source={source} origin={Origin.Feed} />
+          ),
+        placement: tooltipPosition,
+      }}
     >
       <ProfileImageLink
         {...props}

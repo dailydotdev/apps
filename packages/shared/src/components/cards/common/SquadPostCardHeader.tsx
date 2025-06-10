@@ -46,6 +46,7 @@ export const SquadPostCardHeader = ({
         <div className="relative flex flex-row gap-2">
           <SourceButton
             source={source}
+            tooltipPosition="top"
             className={classNames(
               'z-0',
               !enableSourceHeader && 'absolute -bottom-2 -right-2',

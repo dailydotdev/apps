@@ -72,7 +72,6 @@ export function ProfileTooltip({
     onHide,
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
-    // content: data ? <DevCard data={data} type={DevCardType.Compact} /> : null,
     content: !isLoading && data ? <UserEntityCard user={data} /> : null,
     ...tooltip,
     onShow: (instance) => {

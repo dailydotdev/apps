@@ -18,7 +18,10 @@ type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
   onAdd: (feedId: string) => void;
   onUndo?: (feedId: string) => void;
-  className?: string;
+  className?: {
+    menu?: string;
+    button?: string;
+  };
   shareProps: UseShareOrCopyLinkProps;
   additionalOptions?: MenuItemProps[];
 };
@@ -70,13 +73,14 @@ const CustomFeedOptionsMenu = ({
   return (
     <>
       <Button
-        className={classNames('!px-1.5', className)}
+        className={classNames('!px-1.5', className?.button)}
         onClick={onMenuClick}
         size={ButtonSize.Small}
         variant={ButtonVariant.Float}
         icon={<DotsIcon />}
       />
       <ContextMenu
+        className={className?.menu}
         disableBoundariesCheck
         id={ContextMenuIds.CustomFeedContext}
         options={options}
