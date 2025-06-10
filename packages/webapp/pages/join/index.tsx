@@ -10,11 +10,11 @@ import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { defaultOpenGraph } from '../next-seo';
-import type { JoinPageProps } from '../components/invite/common';
-import { AISearchInvite } from '../components/invite/AISearchInvite';
-import Custom404Seo from './404';
-import { Referral } from '../components/invite/Referral';
+import { defaultOpenGraph } from '../../next-seo';
+import type { JoinPageProps } from '../../components/invite/common';
+import { AISearchInvite } from '../../components/invite/AISearchInvite';
+import Custom404Seo from '../404';
+import { Referral } from '../../components/invite/Referral';
 
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 

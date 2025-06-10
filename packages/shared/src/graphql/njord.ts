@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { gql } from 'graphql-request';
-import type { Connection } from './common';
+import type { Connection, Edge } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
 import type { LoggedUser } from '../lib/user';
@@ -19,6 +19,13 @@ import {
   StaleTime,
 } from '../lib/query';
 import type { ProductPricingPreview } from './paddle';
+import {
+  fetchPricingMetadata,
+  fetchPricingPreview,
+  PurchaseType,
+} from './paddle';
+import { iOSSupportsCoresPurchase } from '../lib/ios';
+import { getApplePricing } from '../contexts/payment/common';
 
 export const AWARD_MUTATION = gql`
   mutation award(
@@ -46,6 +53,7 @@ export type AwardProps = {
   type: AwardTypes;
   entityId: string;
   note?: string;
+  flags?: Record<string, string>;
 };
 
 export type TransactionCreated = {
@@ -142,6 +150,7 @@ export type UserTransaction = {
   }>;
   balance: LoggedUser['balance'];
   createdAt: Date;
+  sourceName?: string;
 };
 
 export const TRANSACTION_BY_PROVIDER_QUERY = gql`
@@ -169,6 +178,33 @@ export const getTransactionByProvider = async ({
 };
 
 export const transactionRefetchIntervalMs = 2500;
+
+export const coresPricesQueryOptions = ({
+  isLoggedIn,
+  user,
+}: {
+  isLoggedIn: boolean;
+  user: LoggedUser;
+}) => {
+  return {
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      PurchaseType.Cores,
+    ),
+    queryFn: async () => {
+      if (iOSSupportsCoresPurchase()) {
+        const metadata = await fetchPricingMetadata(PurchaseType.Cores);
+
+        return getApplePricing(metadata);
+      }
+
+      return fetchPricingPreview(PurchaseType.Cores);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  };
+};
 
 type UserTransactionSummary = {
   purchased: number;
@@ -327,6 +363,39 @@ export const LIST_POST_AWARDS_QUERY: AwardsQueryFunction = ({
   ${TRANSACTION_PUBLIC_FRAGMENT}
 `;
 
+const TOTAL_SOURCE_AWARDS_QUERY_PART = gql`
+    awardsTotal: sourceAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+export const LIST_SOURCE_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
+  query SourceAwards($id: ID!, $first: Int, $after: String) {
+    awards: sourceAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          sender {
+            ...UserShortInfo
+          }
+          product {
+            ...FeaturedAwardFragment
+          }
+          value
+        }
+      }
+    }
+    ${includeTotal ? TOTAL_SOURCE_AWARDS_QUERY_PART : ''}
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+`;
+
 const TOTAL_COMMENT_AWARDS_QUERY_PART = gql`
     awardsTotal: commentAwardsTotal(id: $id) {
         amount
@@ -373,11 +442,18 @@ export type AwardListItem = {
   awardTransaction?: UserTransactionPublic;
 };
 
+export type SquadAwardListItem = {
+  sender: Author;
+  product: FeaturedAward;
+  value?: UserTransactionPublic;
+};
+
 const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =
   {
     POST: LIST_POST_AWARDS_QUERY,
     COMMENT: LIST_COMMENT_AWARDS_QUERY,
     USER: undefined,
+    SQUAD: LIST_SOURCE_AWARDS_QUERY,
   };
 
 export const listAwardsInfiniteQueryOptions = ({
@@ -420,6 +496,22 @@ export const listAwardsInfiniteQueryOptions = ({
         ...queryVariables,
         after: pageParam,
       });
+
+      // Custom mapping for source response
+      if (type === 'SQUAD') {
+        result.awards.edges = result.awards.edges.map(
+          (edge: Edge<AwardListItem>) => {
+            const newNode = edge.node as unknown as SquadAwardListItem;
+            return {
+              node: {
+                user: newNode.sender,
+                award: newNode.product,
+                awardTransaction: newNode.value,
+              },
+            };
+          },
+        );
+      }
 
       return result;
     },
