@@ -110,7 +110,6 @@ const SourceEntityCard = ({
       type="source"
       className={{
         image: 'size-10 rounded-full',
-        container: 'w-72',
       }}
       entityName={source.name}
       actionButtons={actionButtons}

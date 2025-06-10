@@ -40,7 +40,6 @@ const SquadEntityCard = ({
       type="squad"
       className={{
         image: 'size-10 rounded-full',
-        container: 'w-72',
       }}
       entityName={name}
       actionButtons={

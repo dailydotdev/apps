@@ -28,6 +28,7 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { ReferralCampaignKey } from '../../../lib/referral';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
+import { ButtonVariant } from '../../buttons/Button';
 
 type Props = {
   user: UserShortProfile;
@@ -110,7 +111,6 @@ const UserEntityCard = ({ user }: Props) => {
       type="user"
       className={{
         image: 'size-16 rounded-20',
-        container: 'max-w-sm',
       }}
       entityName={user.username}
       actionButtons={
@@ -154,6 +154,7 @@ const UserEntityCard = ({ user }: Props) => {
               additionalOptions={options}
             />
             <FollowButton
+              variant={ButtonVariant.Primary}
               entityId={user.id}
               type={ContentPreferenceType.User}
               entityName={user.username}
