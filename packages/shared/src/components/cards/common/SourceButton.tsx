@@ -37,7 +37,7 @@ export default function SourceButton({
     return source.type === 'squad' ? (
       <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
     ) : (
-      <SourceEntityCard source={source} origin={Origin.Feed} />
+      <SourceEntityCard source={source} />
     );
   }, [simpleTooltip, source]);
 
@@ -64,7 +64,7 @@ export default function SourceButton({
       prefetch={false}
       tooltip={{
         interactive: !simpleTooltip,
-        container: { bgClassName: null },
+        container: !simpleTooltip ? { bgClassName: null } : undefined,
         content: tooltipContent,
         placement: tooltipPosition,
       }}

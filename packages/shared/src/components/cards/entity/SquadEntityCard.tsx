@@ -1,5 +1,4 @@
 import React from 'react';
-import { Separator } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import EntityCard from './EntityCard';
 import {
@@ -17,6 +16,7 @@ import { ContextMenuIds } from '../../../hooks/constants';
 import useContextMenu from '../../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
+import { Separator } from '../common/common';
 
 const SquadEntityCard = ({
   handle,
@@ -81,7 +81,7 @@ const SquadEntityCard = ({
             )}
           </Typography>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center text-text-tertiary">
           {flags?.featured && (
             <>
               <div className="flex items-center gap-1 text-brand-default">

@@ -8,7 +8,6 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { Source, SourceTooltip } from '../../../graphql/sources';
-import type { Origin } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { largeNumberFormat, ReferralCampaignKey } from '../../../lib';
@@ -19,19 +18,13 @@ import { ButtonVariant } from '../../buttons/Button';
 import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
 
-const SourceEntityCard = ({
-  source,
-  origin,
-}: {
-  source: SourceTooltip;
-  origin: Origin;
-}) => {
+const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
   const { isFollowing, toggleFollow } = useSourceActions({
     source: source as Source,
   });
   const router = useRouter();
   const { follow, unfollow } = useContentPreference();
-  console.log('source', source);
+
   const actionButtons = useMemo(() => {
     return (
       <>
@@ -81,7 +74,6 @@ const SourceEntityCard = ({
     );
   }, [source, router, follow, unfollow, isFollowing, toggleFollow]);
 
-  // @ts-expect-error testing if im being baited by local
   const { description, membersCount, flags } = source || {};
   return (
     <EntityCard

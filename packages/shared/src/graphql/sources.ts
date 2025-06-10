@@ -115,7 +115,9 @@ export type SourceTooltip = Pick<
   | 'description'
   | 'type'
   | 'flags'
->;
+> & {
+  membersCount?: number;
+};
 
 export type SourceData = { source: Source };
 
