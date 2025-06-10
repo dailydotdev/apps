@@ -29,7 +29,7 @@ const EntityCard = ({
         className?.container,
       )}
     >
-      <div className="flex w-full items-center gap-2">
+      <div className="flex w-full items-start gap-2">
         <div className={classNames(className?.image, 'overflow-hidden')}>
           <Image src={image} alt={entityName} />
         </div>
