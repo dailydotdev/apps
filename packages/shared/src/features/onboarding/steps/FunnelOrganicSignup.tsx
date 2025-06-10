@@ -203,7 +203,12 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               }}
               onSuccessfulRegistration={onSuccessfulRegistration}
               onAuthStateUpdate={onAuthStateUpdate}
-              onSuccessfulLogin={console.log}
+              onSuccessfulLogin={() => {
+                console.log(
+                  'Successful login, but this should not happen in the signup step',
+                );
+                hasAlreadyCheckedUser.current = false;
+              }}
             />
           </div>
           <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
