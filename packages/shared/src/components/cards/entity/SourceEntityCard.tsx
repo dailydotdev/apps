@@ -74,18 +74,26 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
     );
   }, [source, router, follow, unfollow, isFollowing, toggleFollow]);
 
-  const { description, membersCount, flags } = source || {};
+  const { description, membersCount, flags, name, image } = source || {};
   return (
     <EntityCard
-      image={source.image}
+      image={image}
       type="source"
       className={{
         image: 'size-10 rounded-full',
       }}
-      entityName={source.name}
+      entityName={name}
       actionButtons={actionButtons}
     >
       <div className="flex w-full flex-col gap-2">
+        <Typography
+          className="flex"
+          type={TypographyType.Body}
+          color={TypographyColor.Primary}
+          bold
+        >
+          {name}
+        </Typography>
         {description && (
           <Typography
             type={TypographyType.Footnote}
@@ -103,24 +111,20 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
             )}
           </Typography>
         )}
-        <div className="flex items-center gap-1">
-          {membersCount > 0 && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {largeNumberFormat(membersCount)} Members
-            </Typography>
-          )}
-          {membersCount > 0 && flags?.totalUpvotes && <Separator />}
-          {flags?.totalUpvotes && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {largeNumberFormat(flags.totalUpvotes)} Upvotes
-            </Typography>
-          )}
+        <div className="flex items-center gap-1 text-text-tertiary">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {largeNumberFormat(membersCount)} Members
+          </Typography>
+          <Separator />
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {largeNumberFormat(flags?.totalUpvotes) || 0} Upvotes
+          </Typography>
         </div>
       </div>
     </EntityCard>

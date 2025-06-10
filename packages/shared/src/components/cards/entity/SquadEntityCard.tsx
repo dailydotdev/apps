@@ -33,7 +33,7 @@ const SquadEntityCard = ({
     return null;
   }
 
-  const { description, name, id, image, membersCount, flags } = squad;
+  const { description, name, id, image, membersCount, flags } = squad || {};
   return (
     <EntityCard
       image={image}
@@ -64,6 +64,14 @@ const SquadEntityCard = ({
       }
     >
       <div className="flex w-full flex-col gap-2">
+        <Typography
+          className="flex"
+          type={TypographyType.Body}
+          color={TypographyColor.Primary}
+          bold
+        >
+          {name}
+        </Typography>
         {description && (
           <Typography
             type={TypographyType.Footnote}
