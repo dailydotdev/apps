@@ -13,6 +13,12 @@ import type { PostCampaign } from '../../hooks/post/usePostBoost';
 import { Image } from '../../components/image/Image';
 import { getAbsoluteDifferenceInDays } from './utils';
 
+const statusToColor: Record<PostCampaign['status'], string> = {
+  active: 'bg-action-upvote-active text-action-upvote-default',
+  completed: 'bg-action-share-active text-action-share-default',
+  cancelled: 'bg-action-downvote-active text-action-downvote-default',
+};
+
 interface CampaignListItemProps {
   campaign: PostCampaign;
   onClick: MouseEventHandler<HTMLButtonElement>;
@@ -66,14 +72,7 @@ export function CampaignListItem({
       <Typography
         tag={TypographyTag.Span}
         type={TypographyType.Footnote}
-        className={classNames('rounded-6 px-1', {
-          'bg-action-share-active text-action-share-default':
-            campaign.status === 'completed',
-          'bg-action-downvote-active text-action-downvote-default':
-            campaign.status === 'cancelled',
-          'bg-action-upvote-active text-action-upvote-default':
-            campaign.status === 'active',
-        })}
+        className={classNames('rounded-6 px-1', statusToColor[campaign.status])}
       >
         {getCaption()}
       </Typography>
