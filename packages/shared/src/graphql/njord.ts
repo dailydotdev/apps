@@ -33,14 +33,12 @@ export const AWARD_MUTATION = gql`
     $type: AwardType!
     $entityId: ID!
     $note: String
-    $flags: AwardSquadFlagsInput
   ) {
     award(
       productId: $productId
       type: $type
       entityId: $entityId
       note: $note
-      flags: $flags
     ) {
       transactionId
       balance {
@@ -68,11 +66,10 @@ export const award = async ({
   type,
   entityId,
   note,
-  flags,
 }: AwardProps): Promise<TransactionCreated> => {
   const result = await gqlClient.request<{ award: TransactionCreated }>(
     AWARD_MUTATION,
-    { productId, type, entityId, note, flags },
+    { productId, type, entityId, note },
   );
 
   return result.award;

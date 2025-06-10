@@ -103,7 +103,7 @@ const SquadAwardButton = ({
     <AwardButton
       type="SQUAD"
       entity={{
-        id: eligibleAdmin.id,
+        id: squad.id,
         receiver: {
           ...eligibleAdmin,
           name: squad.name,
@@ -112,9 +112,6 @@ const SquadAwardButton = ({
       }}
       variant={ButtonVariant.Float}
       copy="Award"
-      flags={{
-        sourceId: squad.id,
-      }}
     />
   );
 };
