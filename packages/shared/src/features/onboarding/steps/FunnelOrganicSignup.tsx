@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useAtom } from 'jotai/react';
+import { useSetAtom } from 'jotai/react';
 import type { FunnelStepOrganicSignup } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
@@ -62,7 +62,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const formRef = useRef<HTMLFormElement>(null);
     const hasAlreadyCheckedUser = useRef(false);
     const isMobile = useViewSize(ViewSize.MobileL);
-    const [auth, setAuth] = useAtom(authAtom);
+    const setAuth = useSetAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
     const [authDisplay, setAuthDisplay] = useState(
       AuthDisplay.OnboardingSignup,
@@ -132,30 +132,26 @@ export const FunnelOrganicSignup = withIsActiveGuard(
       [onTransition, setAuth],
     );
 
-    useEffect(() => {
-      if (!isAuthReady) {
-        return;
-      }
-
-      console.log({
-        isLoggedIn,
-        user,
-        hasAlreadyCheckedUser: hasAlreadyCheckedUser.current,
-      });
-
-      if (
-        isLoggedIn &&
-        !!user.infoConfirmed &&
-        !hasAlreadyCheckedUser.current
-      ) {
+    const transitionIfUserIsConfirmed = useCallback(() => {
+      if (isAuthReady && isLoggedIn && !!user.infoConfirmed) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
           details: { user },
         });
       }
+    }, [isAuthReady, isLoggedIn, onTransition, user]);
+
+    useEffect(() => {
+      if (!isAuthReady) {
+        return;
+      }
+
+      if (hasAlreadyCheckedUser.current) {
+        transitionIfUserIsConfirmed();
+      }
 
       hasAlreadyCheckedUser.current = true;
-    }, [isAuthReady, isLoggedIn, onTransition, user]);
+    }, [isAuthReady, transitionIfUserIsConfirmed]);
 
     if (!isAuthReady || (isLoggedIn && user.infoConfirmed)) {
       return null;
@@ -203,10 +199,8 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               onSuccessfulRegistration={onSuccessfulRegistration}
               onAuthStateUpdate={onAuthStateUpdate}
               onSuccessfulLogin={() => {
-                console.log(
-                  'Successful login, but this should not happen in the signup step',
-                );
                 hasAlreadyCheckedUser.current = false;
+                transitionIfUserIsConfirmed();
               }}
             />
           </div>
