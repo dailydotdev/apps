@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { ProfileTooltip } from '../profile/ProfileTooltip';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
@@ -71,46 +70,44 @@ function SquadPostAuthor({
         eager
         fetchPriority="high"
       />
-      <ProfileTooltip userId={author.id} link={{ href: author.permalink }}>
-        <a
-          href={author.permalink}
+      <a
+        href={author.permalink}
+        className={classNames(
+          'ml-4 flex shrink flex-col overflow-hidden',
+          className?.details,
+        )}
+      >
+        <div
           className={classNames(
-            'ml-4 flex shrink flex-col overflow-hidden',
-            className?.details,
+            'flex gap-1 text-text-tertiary',
+            className?.handle,
           )}
         >
-          <div
-            className={classNames(
-              'flex gap-1 text-text-tertiary',
-              className?.handle,
-            )}
+          <TruncateText
+            className={classNames('font-bold', className?.name)}
+            title={author.name}
           >
-            <TruncateText
-              className={classNames('font-bold', className?.name)}
-              title={author.name}
-            >
-              {author.name}
-            </TruncateText>
-            {author?.isPlus && (
-              <PlusUserBadge size={IconSize.Small} user={author} />
+            {author.name}
+          </TruncateText>
+          {author?.isPlus && (
+            <PlusUserBadge size={IconSize.Small} user={author} />
+          )}
+          <TruncateText title={`@${author.username}`}>
+            @{author.username}
+          </TruncateText>
+          {!!date && <Separator className="!mx-0" />}
+          {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
+        </div>
+        <div className="flex w-full">
+          <div className="flex gap-1">
+            <ReputationUserBadge user={author} />
+            {author?.companies?.length > 0 && (
+              <VerifiedCompanyUserBadge user={author} />
             )}
-            <TruncateText title={`@${author.username}`}>
-              @{author.username}
-            </TruncateText>
-            {!!date && <Separator className="!mx-0" />}
-            {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
+            <UserBadge role={role}>{getRoleName(role)}</UserBadge>
           </div>
-          <div className="flex w-full">
-            <div className="flex gap-1">
-              <ReputationUserBadge user={author} />
-              {author?.companies?.length > 0 && (
-                <VerifiedCompanyUserBadge user={author} />
-              )}
-              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
-            </div>
-          </div>
-        </a>
-      </ProfileTooltip>
+        </div>
+      </a>
     </span>
   );
 }
