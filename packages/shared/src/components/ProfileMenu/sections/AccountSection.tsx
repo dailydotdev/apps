@@ -1,6 +1,5 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-
 import { ProfileSection } from '../ProfileSection';
 import {
   CreditCardIcon,
@@ -8,7 +7,6 @@ import {
   SettingsIcon,
   TrendingIcon,
   OrganizationIcon,
-  SettingsIcon,
 } from '../../icons';
 import { settingsUrl } from '../../../lib/constants';
 import { useLazyModal } from '../../../hooks/useLazyModal';
