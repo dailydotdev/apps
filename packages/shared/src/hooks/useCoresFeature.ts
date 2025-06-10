@@ -59,14 +59,13 @@ export const useGetSquadAwardAdmin = (props): typeof LoggedUser => {
 
 export const useCanPurchaseCores = (): boolean => {
   const hasAccess = useHasAccessToCores();
-  const { user } = useAuthContext();
 
   if (!hasAccess) {
     return false;
   }
 
   if (isIOSNative()) {
-    return !!user?.isTeamMember && iOSSupportsCoresPurchase();
+    return iOSSupportsCoresPurchase();
   }
 
   return true;

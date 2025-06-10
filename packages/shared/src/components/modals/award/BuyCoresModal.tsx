@@ -224,8 +224,6 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
     },
     enabled: !!providerTransactionId,
     refetchInterval: (query) => {
-      const transactionStatus = query.state.data?.status;
-
       const retries = Math.max(
         query.state.dataUpdateCount,
         query.state.fetchFailureCount,
@@ -252,6 +250,15 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
 
         return false;
       }
+
+      const queryError = query.state.error;
+
+      // in case of query error keep refetching until maxRetries is reached
+      if (queryError) {
+        return transactionRefetchIntervalMs;
+      }
+
+      const transactionStatus = query.state.data?.status;
 
       if (
         [
