@@ -9,7 +9,7 @@ import { FooterLinks } from '../../../components/footer';
 import AuthOptions from '../../../components/auth/AuthOptions';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import type { AuthProps } from '../../../components/auth/common';
 import { AuthDisplay } from '../../../components/auth/common';
 import { ExperimentWinner } from '../../../lib/featureValues';
@@ -64,6 +64,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const isMobile = useViewSize(ViewSize.MobileL);
     const setAuth = useSetAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
+    const { isActionsFetched } = useActions();
     const [authDisplay, setAuthDisplay] = useState(
       AuthDisplay.OnboardingSignup,
     );
@@ -133,13 +134,18 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     );
 
     const transitionIfUserIsConfirmed = useCallback(() => {
-      if (isAuthReady && isLoggedIn && !!user.infoConfirmed) {
+      if (
+        isAuthReady &&
+        isLoggedIn &&
+        !!user.infoConfirmed &&
+        isActionsFetched
+      ) {
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
           details: { user },
         });
       }
-    }, [isAuthReady, isLoggedIn, onTransition, user]);
+    }, [isActionsFetched, isAuthReady, isLoggedIn, onTransition, user]);
 
     useEffect(() => {
       if (!isAuthReady || !user) {

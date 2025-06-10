@@ -196,6 +196,7 @@ function AuthOptionsInner({
       });
 
       const isAlreadyOnboarded = await checkForOnboardedUser();
+      console.log('on login check', isAlreadyOnboarded);
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
@@ -311,6 +312,7 @@ function AuthOptionsInner({
 
   const handleLoginMessage = async () => {
     const { data: boot } = await refetchBoot();
+    console.log('handleLoginMessage');
 
     if (!boot.user || !('email' in boot.user)) {
       logEvent({
@@ -327,6 +329,10 @@ function AuthOptionsInner({
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
       await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
       const isAlreadyOnboarded = await checkForOnboardedUser();
+      console.log(
+        'handleLoginMessage - isAlreadyOnboarded',
+        isAlreadyOnboarded,
+      );
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
