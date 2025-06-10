@@ -63,7 +63,7 @@ const SquadEntityCard = ({
         </>
       }
     >
-      <div className="flex w-full flex-col gap-2">
+      <div className="mt-3 flex w-full flex-col gap-2">
         <Typography
           className="flex"
           type={TypographyType.Body}

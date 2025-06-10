@@ -165,7 +165,7 @@ const UserEntityCard = ({ user }: Props) => {
         )
       }
     >
-      <div className="flex w-full flex-col gap-2">
+      <div className="mt-2 flex w-full flex-col gap-3">
         <Typography
           className="flex"
           type={TypographyType.Body}

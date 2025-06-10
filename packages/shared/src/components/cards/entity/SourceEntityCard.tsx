@@ -85,7 +85,7 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
       entityName={name}
       actionButtons={actionButtons}
     >
-      <div className="flex w-full flex-col gap-2">
+      <div className="mt-3 flex w-full flex-col gap-2">
         <Typography
           className="flex"
           type={TypographyType.Body}

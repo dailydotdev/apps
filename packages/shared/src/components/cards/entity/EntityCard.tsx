@@ -25,7 +25,7 @@ const EntityCard = ({
   return (
     <div
       className={classNames(
-        'flex w-80 flex-col items-center gap-3 rounded-16 bg-background-popover p-4',
+        'flex w-80 flex-col items-center rounded-16 bg-background-popover p-4',
         className?.container,
       )}
     >
