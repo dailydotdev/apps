@@ -34,6 +34,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -146,6 +147,26 @@ export function SquadPageHeader({
               <SquadStat count={squad.flags?.totalPosts} label="Posts" />
               <SquadStat count={squad.flags?.totalViews} label="Views" />
               <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+              {squad.flags?.totalAwards ? (
+                <ClickableText
+                  onClick={() => {
+                    openModal({
+                      type: LazyModal.ListAwards,
+                      props: {
+                        queryProps: {
+                          id: squad.id,
+                          type: 'SQUAD',
+                        },
+                      },
+                    });
+                  }}
+                >
+                  <SquadStat
+                    count={squad.flags?.totalAwards ?? 0}
+                    label="Awards"
+                  />
+                </ClickableText>
+              ) : undefined}
             </ConditionalWrapper>
           </div>
         </FlexCol>

@@ -1,12 +1,12 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-
 import { ProfileSection } from '../ProfileSection';
 import {
   CreditCardIcon,
   InviteIcon,
   SettingsIcon,
   TrendingIcon,
+  OrganizationIcon,
 } from '../../icons';
 import { settingsUrl } from '../../../lib/constants';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -27,6 +27,11 @@ export const AccountSection = (): ReactElement => {
           title: 'Subscriptions',
           href: `${settingsUrl}/subscription`,
           icon: CreditCardIcon,
+        },
+        {
+          title: 'Organizations',
+          href: `${settingsUrl}/organization`,
+          icon: OrganizationIcon,
         },
         {
           title: 'Invite friends',

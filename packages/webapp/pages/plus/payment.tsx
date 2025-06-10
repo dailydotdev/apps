@@ -1,12 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
 
 import { useRouter } from 'next/router';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
-
-import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
 
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
@@ -14,6 +12,8 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import dynamic from 'next/dynamic';
+import { useProductPricingByIds } from '@dailydotdev/shared/src/hooks/useProductPricing';
+import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusProductList = dynamic(
@@ -26,9 +26,27 @@ const PlusProductList = dynamic(
 
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { openCheckout, productOptions } = usePaymentContext();
+  const { isPaddleReady, openCheckout } = usePaymentContext();
   const router = useRouter();
   const { pid, gift } = router.query;
+  const checkoutRef = useRef();
+  const { data: productPricing } = useProductPricingByIds({
+    ids: [pid as string],
+    loadMetadata: true,
+  });
+
+  useEffect(() => {
+    if (!isPaddleReady) {
+      return;
+    }
+
+    if (pid) {
+      openCheckout({
+        priceId: pid as string,
+        giftToUserId: gift as string,
+      });
+    }
+  }, [gift, isPaddleReady, openCheckout, pid]);
 
   useEffect(() => {
     if (!router.isReady) {
@@ -39,7 +57,9 @@ const PlusPaymentPage = (): ReactElement => {
     }
   }, [pid, router]);
 
-  const selectedProduct = productOptions.find(({ priceId }) => priceId === pid);
+  const selectedProduct = productPricing?.find(
+    ({ priceId }) => priceId === pid,
+  );
 
   return (
     <>
@@ -53,21 +73,13 @@ const PlusPaymentPage = (): ReactElement => {
             <PlusProductList
               className="w-full"
               productList={[selectedProduct]}
-              selected={selectedProduct?.priceId}
+              selected={selectedProduct.priceId}
             />
           </div>
         )}
         <div className="flex w-full flex-1 justify-center bg-background-default">
           <PlusCheckoutContainer
-            checkoutRef={(element) => {
-              if (!element) {
-                return;
-              }
-              openCheckout({
-                priceId: pid as string,
-                giftToUserId: gift as string,
-              });
-            }}
+            checkoutRef={checkoutRef}
             className={{
               container: 'h-full w-full bg-background-default p-5 laptop:h-fit',
               element: 'h-full',

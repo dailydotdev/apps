@@ -4,6 +4,7 @@ import {
   useConditionalFeature,
   usePlusSubscription,
   useToastNotification,
+  useClickbaitTries,
 } from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
@@ -16,7 +17,7 @@ import { LogEvent, TargetId, Origin } from '../../../../lib/log';
 import { Button } from '../../../buttons/Button';
 import { ButtonVariant, ButtonSize } from '../../../buttons/common';
 import ConditionalWrapper from '../../../ConditionalWrapper';
-import { DevPlusIcon } from '../../../icons';
+import { DevPlusIcon, ShieldPlusIcon } from '../../../icons';
 import { PlusUser } from '../../../PlusUser';
 import { LanguageDropdown } from '../../../profile/LanguageDropdown';
 import { SimpleTooltip } from '../../../tooltips';
@@ -46,6 +47,8 @@ export const FeedSettingsAISection = (): ReactElement => {
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
   });
+
+  const { maxTries, triesLeft } = useClickbaitTries();
 
   const { onLanguageChange } = useLanguage();
 
@@ -160,6 +163,17 @@ export const FeedSettingsAISection = (): ReactElement => {
             );
           }}
         >
+          {!isPlus ? (
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              disabled
+              icon={<ShieldPlusIcon />}
+              className="mb-4"
+            >
+              {triesLeft}/{maxTries} uses left this month
+            </Button>
+          ) : undefined}
           <Switch
             inputId="clickbait-shield-switch"
             name="clickbait_shield"

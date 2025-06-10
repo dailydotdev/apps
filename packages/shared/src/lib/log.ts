@@ -1,3 +1,5 @@
+import type { PurchaseType } from '../graphql/paddle';
+
 export enum Origin {
   ShareBar = 'share bar',
   ReadingHistoryContextMenu = 'reading history context menu',
@@ -239,6 +241,7 @@ export enum LogEvent {
   WarningCheckout = 'warning checkout',
   ErrorCheckout = 'error checkout',
   InitiatePayment = 'initiate payment',
+  ErrorPayment = 'error payment',
   HoverPlusFeature = 'hover plus feature',
   ClickPlusFeature = 'click plus feature',
   ClosePlusFeature = 'close plus feature',
@@ -251,6 +254,8 @@ export enum LogEvent {
   ClickPlusFaq = 'click plus faq',
   HoverCheckoutWidget = 'hover checkout widget',
   PageScroll = 'page scroll',
+  SelectSubscriptionType = 'select subscription type',
+  SetOrgSize = 'set org size',
   // End Plus subscription
   // Clickbait Shield
   ToggleClickbaitShield = 'toggle clickbait shield',
@@ -285,6 +290,9 @@ export enum LogEvent {
   StartAwardComment = 'start award comment',
   PickAwardComment = 'pick award comment',
   AwardComment = 'award comment',
+  StartAwardSquad = 'start award Squad',
+  PickAwardSquad = 'pick award Squad',
+  AwardSquad = 'award Squad',
   // End Credits
 }
 
@@ -350,6 +358,7 @@ export enum TargetId {
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
   General = 'general',
+  OrganizationsPage = 'organizations page',
   // Settings
   Cards = 'cards',
   List = 'list',
@@ -427,3 +436,9 @@ export enum StreakTimezonePromptAction {
   Settings = 'settings',
   Ignore = 'ignore',
 }
+
+export const purchaseTypeToTargetType: Record<PurchaseType, TargetType> = {
+  cores: TargetType.Credits,
+  plus: TargetType.Plus,
+  organization: TargetType.Plus,
+};

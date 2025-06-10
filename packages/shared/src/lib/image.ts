@@ -39,6 +39,9 @@ export const cloudinarySquadsDirectoryCardBannerDefault =
 export const cloudinarySquadsImageFallback =
   'https://media.daily.dev/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj';
 
+export const cloudinaryOrganizationImageFallback =
+  'https://media.daily.dev/image/upload/s--yc7EcfBs--/f_auto,q_auto/v1/public/organization_fallback';
+
 export const cloudinarySquadsCreateSquadBiggerThanMobile =
   'https://media.daily.dev/image/upload/s--POqnH7nQ--/f_auto/v1722253758/Create_new_Squad_xe4jvz';
 
@@ -339,4 +342,8 @@ export const plusShowcaseAdFreeImage =
 export const plusShowcaseSquadImage =
   'https://media.daily.dev/image/upload/s--LKIr_f6r--/f_auto/v1741698925/public/Members-only Squad';
 
-export const postBoostSuccessCover = '';
+export const postBoostSuccessCover =
+  'https://media.daily.dev/image/upload/s--8gl6WZL1--/f_auto/v1749032473/public/dailydev_post_boost';
+
+export const plusShowcaseTranslateImage =
+  'https://media.daily.dev/image/upload/s--eHjHLYpQ--/f_auto/v1748954125/public/auto-translate';

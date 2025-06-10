@@ -12,6 +12,7 @@ import {
   FolderIcon,
   HashtagIcon,
   LabelIcon,
+  LanguageIcon,
   ShieldPlusIcon,
   SourceIcon,
   UserShareIcon,
@@ -30,6 +31,7 @@ import {
   plusShowcaseSquadImage,
   plusShowcaseTeamImage,
   plusShowcaseTeamVideo,
+  plusShowcaseTranslateImage,
 } from '../../lib/image';
 
 export const defaultFeatureList: Array<PlusItem> = [
@@ -145,6 +147,15 @@ export const plusFeatureList: Array<PlusItem> = [
     label: 'Auto-translate your feed',
     status: PlusItemStatus.Ready,
     tooltip: `Translate post titles and summaries into your language for a smoother learning experience.`,
+    icon: <LanguageIcon secondary />,
+    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
+    modalProps: {
+      title: 'Auto-translate your feed',
+      description:
+        'Make your feed more accessible with automatically translated post titles in your preferred language.',
+      imageUrl: plusShowcaseTranslateImage,
+      mediaType: 'image',
+    },
   },
   {
     id: 'keyword filter',
@@ -191,6 +202,45 @@ export const plusFeatureList: Array<PlusItem> = [
       imageUrl: plusShowcaseTeamImage,
       mediaType: 'video',
     },
+  },
+];
+
+export const plusOrganizationFeatureList: Array<PlusItem> = [
+  {
+    label: 'All premium features for every seat',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Every team member gets full access to daily.dev Plus—no limitations, no compromises.',
+  },
+  {
+    label: 'Boost engagement with shared learning',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Create a culture of growth by discovering and discussing content as a team.',
+  },
+  {
+    label: 'Centralized billing & user management',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Manage seats, billing, and team roles from a single dashboard. Simple and scalable.',
+  },
+  {
+    label: 'Get insights on team activity',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'See what your team is learning, reading, and engaging with—no micromanagement required.',
+  },
+  {
+    label: 'Onboard easily with team invites',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Invite teammates in seconds and get them set up with Plus automatically.',
+  },
+  {
+    label: 'Priority support for your team',
+    status: PlusItemStatus.Ready,
+    tooltip:
+      'Get faster responses and dedicated help when your team needs it most.',
   },
 ];
 

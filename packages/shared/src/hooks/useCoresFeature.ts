@@ -4,7 +4,10 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { canAwardUser, hasAccessToCores } from '../lib/cores';
 import type { PropsParameters } from '../types';
 import { useIsSpecialUser } from './auth/useIsSpecialUser';
+import { iOSSupportsCoresPurchase } from '../lib/ios';
 import { isIOSNative } from '../lib/func';
+import { SourceMemberRole } from '../graphql/sources';
+import type LoggedUser from '../../__tests__/fixture/loggedUser';
 
 const useCoresFeature = (): boolean => {
   const { user } = useAuthContext();
@@ -35,6 +38,38 @@ export const useCanAwardUser = (
   return hasAccess && !isSpecialUser && canAwardUser(props);
 };
 
+export const useGetSquadAwardAdmin = (props): typeof LoggedUser => {
+  const hasAccess = useCoresFeature();
+
+  if (
+    props.squad.currentMember?.role === SourceMemberRole.Admin ||
+    !hasAccess
+  ) {
+    return null;
+  }
+
+  // Return the first user that's eligible for cores
+  return props.squad.privilegedMembers.find((receivingUser) => {
+    if (receivingUser.role !== SourceMemberRole.Admin) {
+      return false;
+    }
+    return canAwardUser({
+      sendingUser: props.sendingUser,
+      receivingUser: receivingUser.user,
+    });
+  })?.user;
+};
+
 export const useCanPurchaseCores = (): boolean => {
-  return useHasAccessToCores() && !isIOSNative();
+  const hasAccess = useHasAccessToCores();
+
+  if (!hasAccess) {
+    return false;
+  }
+
+  if (isIOSNative()) {
+    return iOSSupportsCoresPurchase();
+  }
+
+  return true;
 };
