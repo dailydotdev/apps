@@ -50,6 +50,9 @@ export const useGetSquadAwardAdmin = (props): typeof LoggedUser => {
 
   // Return the first user that's eligible for cores
   return props.squad.privilegedMembers.find((receivingUser) => {
+    if (receivingUser.role !== SourceMemberRole.Admin) {
+      return false;
+    }
     return canAwardUser({
       sendingUser: props.sendingUser,
       receivingUser: receivingUser.user,
