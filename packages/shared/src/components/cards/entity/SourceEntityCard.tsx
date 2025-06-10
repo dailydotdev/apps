@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import EntityCard from './EntityCard';
@@ -8,23 +7,17 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import type {
-  Source,
-  SourceData,
-  SourceTooltip,
-} from '../../../graphql/sources';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { gqlClient } from '../../../graphql/common';
+import type { Source, SourceTooltip } from '../../../graphql/sources';
 import type { Origin } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { largeNumberFormat, ReferralCampaignKey } from '../../../lib';
-import { SQUAD_QUERY } from '../../../graphql/squads';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import SourceActionsFollow from '../../sources/SourceActions/SourceActionsFollow';
 import { ButtonVariant } from '../../buttons/Button';
 import { useSourceActions } from '../../../hooks';
+import { Separator } from '../common/common';
 
 const SourceEntityCard = ({
   source,
@@ -37,20 +30,9 @@ const SourceEntityCard = ({
     source: source as Source,
   });
   const router = useRouter();
-  const { data, isLoading } = useQuery<SourceData>({
-    queryKey: generateQueryKey(RequestKey.Source, { id: source.id }),
-    queryFn: () =>
-      gqlClient.request(SQUAD_QUERY, {
-        handle: source.handle,
-      }),
-  });
   const { follow, unfollow } = useContentPreference();
-
+  console.log('source', source);
   const actionButtons = useMemo(() => {
-    if (isLoading) {
-      return null;
-    }
-
     return (
       <>
         <CustomFeedOptionsMenu
@@ -97,13 +79,10 @@ const SourceEntityCard = ({
         />
       </>
     );
-  }, [source, isLoading, router, follow, unfollow, isFollowing, toggleFollow]);
+  }, [source, router, follow, unfollow, isFollowing, toggleFollow]);
 
-  if (isLoading) {
-    return null;
-  }
-
-  const { description } = data?.source || {};
+  // @ts-expect-error testing if im being baited by local
+  const { description, membersCount, flags } = source || {};
   return (
     <EntityCard
       image={source.image}
@@ -125,23 +104,31 @@ const SourceEntityCard = ({
             ) : (
               <>
                 {description.slice(0, 100)}...{' '}
-                <Link
-                  className="text-text-link"
-                  href={`/sources/${data.source.id}`}
-                >
+                <Link className="text-text-link" href={`/sources/${source.id}`}>
                   Read more
                 </Link>
               </>
             )}
           </Typography>
         )}
-        <div>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {largeNumberFormat(data.source.flags.totalUpvotes)} Upvotes
-          </Typography>
+        <div className="flex items-center gap-1">
+          {membersCount > 0 && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {largeNumberFormat(membersCount)} Members
+            </Typography>
+          )}
+          {membersCount > 0 && flags?.totalUpvotes && <Separator />}
+          {flags?.totalUpvotes && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {largeNumberFormat(flags.totalUpvotes)} Upvotes
+            </Typography>
+          )}
         </div>
       </div>
     </EntityCard>
