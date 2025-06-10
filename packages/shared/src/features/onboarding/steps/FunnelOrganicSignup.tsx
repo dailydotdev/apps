@@ -149,14 +149,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
       }
 
       hasAlreadyCheckedUser.current = true;
-    }, [
-      auth.isLoading,
-      auth.isLoginFlow,
-      isAuthReady,
-      isLoggedIn,
-      onTransition,
-      user,
-    ]);
+    }, [isAuthReady, isLoggedIn, onTransition, user]);
 
     if (!isAuthReady || (isLoggedIn && user.infoConfirmed)) {
       return null;
