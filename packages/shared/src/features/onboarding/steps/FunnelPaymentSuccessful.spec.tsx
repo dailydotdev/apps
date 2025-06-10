@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FunnelPaymentSuccessful } from './FunnelPaymentSuccessful';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import type { FunnelStepPaymentSuccessful } from '../types/funnel';
+import SettingsContext from '../../../contexts/SettingsContext';
+import { defaultTestSettings } from '../../../../__tests__/fixture/settings';
 
 describe('FunnelPaymentSuccessful component', () => {
   const mockOnTransition = jest.fn();
@@ -15,18 +17,20 @@ describe('FunnelPaymentSuccessful component', () => {
     parameters: FunnelStepPaymentSuccessful['parameters'] = {},
   ) => {
     return render(
-      <FunnelPaymentSuccessful
-        id="payment-successful"
-        onTransition={mockOnTransition}
-        parameters={parameters}
-        type={FunnelStepType.PaymentSuccessful}
-        transitions={[
-          {
-            on: FunnelStepTransitionType.Complete,
-            destination: 'completed',
-          },
-        ]}
-      />,
+      <SettingsContext.Provider value={defaultTestSettings}>
+        <FunnelPaymentSuccessful
+          id="payment-successful"
+          onTransition={mockOnTransition}
+          parameters={parameters}
+          type={FunnelStepType.PaymentSuccessful}
+          transitions={[
+            {
+              on: FunnelStepTransitionType.Complete,
+              destination: 'completed',
+            },
+          ]}
+        />
+      </SettingsContext.Provider>,
     );
   };
 

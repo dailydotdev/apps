@@ -92,14 +92,18 @@ export const usePostMenuActions = ({
 
   const { mutateAsync: onPinPost } = useMutation({
     mutationFn: () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
-    onSuccess: onPinSuccessful,
+    onSuccess: () => {
+      onPinSuccessful?.();
+    },
   });
 
   const { mutateAsync: onSwapPinnedPost } = useMutation({
     mutationFn: ({ swapWithId }: { swapWithId: Post['id'] }) =>
       swapPinnedPosts({ id: post.id, swapWithId }),
 
-    onSuccess: onSwapPostSuccessful,
+    onSuccess: () => {
+      onSwapPostSuccessful?.();
+    },
   });
 
   const { onClose, onShowPanel } = useBlockPostPanel(post);

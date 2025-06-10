@@ -20,6 +20,7 @@ import type {
   AwardTypes,
 } from '../../../contexts/GiveAwardModalContext';
 import {
+  AWARD_SCREENS,
   GiveAwardModalContextProvider,
   maxNoteLength,
   useGiveAwardModalContext,
@@ -214,14 +215,20 @@ const IntroScreen = () => {
               item={item}
               onClick={({ product: clickedProduct }) => {
                 if (clickedProduct.value > user.balance.amount) {
-                  setActiveStep({ screen: 'INTRO', product: clickedProduct });
+                  setActiveStep({
+                    screen: AWARD_SCREENS.INTRO,
+                    product: clickedProduct,
+                  });
                   setShowBuyCores(true);
 
                   return;
                 }
 
                 setShowBuyCores(false);
-                setActiveStep({ screen: 'COMMENT', product: clickedProduct });
+                setActiveStep({
+                  screen: AWARD_SCREENS.COMMENT,
+                  product: clickedProduct,
+                });
               }}
             />
           ))}
@@ -280,7 +287,7 @@ const CommentScreen = () => {
         balance: result.balance,
       });
 
-      setActiveStep({ screen: 'SUCCESS', product });
+      setActiveStep({ screen: AWARD_SCREENS.SUCCESS, product });
     },
     onError: async (data: ApiErrorResult) => {
       if (
@@ -408,7 +415,7 @@ const SuccessScreen = () => {
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col gap-2">
           <Image
-            src={product.image}
+            src={product?.flags?.imageGlow || product.image}
             alt={product?.flags?.description}
             className="size-20"
           />

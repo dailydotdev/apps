@@ -12,7 +12,7 @@ export const FUNNEL_BOOT_QUERY_KEY = ['funnelBoot'];
  * @returns React Query result with funnel boot data
  */
 export const useFunnelBoot = (): UseQueryResult<FunnelBootData> => {
-  return useQuery({
+  return useQuery<FunnelBootData>({
     queryKey: FUNNEL_BOOT_QUERY_KEY,
     // The data is pre-fetched on the server, so we don't need to define a queryFn
     // The query will use the dehydrated state from the HydrationBoundary
