@@ -269,7 +269,7 @@ const IntroScreen = () => {
 
 const CommentScreen = () => {
   const { updateUser, user } = useAuthContext();
-  const { setActiveStep, type, entity, product, logAwardEvent } =
+  const { setActiveStep, type, entity, product, flags, logAwardEvent } =
     useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { displayToast } = useToastNotification();
@@ -322,6 +322,7 @@ const CommentScreen = () => {
       type,
       entityId: entity.id,
       note,
+      flags,
     });
   }, [
     awardMutation,
@@ -331,6 +332,7 @@ const CommentScreen = () => {
     product.id,
     product.value,
     type,
+    flags,
   ]);
 
   const hasAwards = !!entity.numAwards;
@@ -415,7 +417,7 @@ const SuccessScreen = () => {
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col gap-2">
           <Image
-            src={product.image}
+            src={product?.flags?.imageGlow || product.image}
             alt={product?.flags?.description}
             className="size-20"
           />
@@ -555,6 +557,7 @@ type GiveAwardModalProps = ModalProps & {
   type: AwardTypes;
   entity: AwardEntity;
   post?: Post;
+  flags?: Record<string, string>;
 };
 const GiveAwardModal = (props: GiveAwardModalProps): ReactElement => {
   return (
