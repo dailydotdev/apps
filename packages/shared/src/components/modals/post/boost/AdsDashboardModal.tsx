@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
-import { Typography, TypographyType } from '../../../typography/Typography';
 import { CoreIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
 import type { PostCampaign } from '../../../../hooks/post/usePostBoost';
@@ -22,11 +21,7 @@ export function AdsDashboardModal(props: ModalProps): ReactElement {
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Header>
-        <Typography type={TypographyType.Title3} bold>
-          Ads dashboard
-        </Typography>
-      </Modal.Header>
+      <Modal.Header title="Ads dashboard" />
       <Modal.Body className="flex flex-col gap-4">
         <Modal.Subtitle>Overview{!campaign && ' all time'}</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
