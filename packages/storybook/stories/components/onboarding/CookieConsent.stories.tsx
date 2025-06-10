@@ -1,8 +1,8 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { CookieConsent } from '@dailydotdev/shared/src/features/onboarding/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Continent } from '@dailydotdev/shared/src/lib/geo';
 // Create a client

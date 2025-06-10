@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import ExtensionProviders from '../extension/_providers';
 import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';

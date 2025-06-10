@@ -1,6 +1,6 @@
-import type { Meta, StoryFn } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react-vite';
 import CommentContainer, { CommentContainerProps } from '@dailydotdev/shared/src/components/comments/CommentContainer';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import ExtensionProviders from '../../extension/_providers';
 

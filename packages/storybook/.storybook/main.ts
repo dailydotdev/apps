@@ -12,11 +12,9 @@ const config: StorybookConfig = {
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-links',
-    '@storybook/addon-essentials',
     '@storybook/addon-themes',
-    '@storybook/addon-interactions',
     '@storybook/addon-designs',
-    'msw-storybook-addon',
+    'msw-storybook-addon'
   ],
   framework: '@storybook/react-vite',
   typescript: {

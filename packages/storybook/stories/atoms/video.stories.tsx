@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import YoutubeVideo
   from '@dailydotdev/shared/src/components/video/YoutubeVideo';
 

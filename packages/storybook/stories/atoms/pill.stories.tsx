@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 
 

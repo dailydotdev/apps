@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import StepHeadline, {
   StepHeadlineAlign,
 } from '@dailydotdev/shared/src/features/onboarding/shared/StepHeadline';
