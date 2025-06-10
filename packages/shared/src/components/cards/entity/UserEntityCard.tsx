@@ -200,7 +200,12 @@ const UserEntityCard = ({ user }: Props) => {
               user={user}
             />
           </div>
-          <VerifiedCompanyUserBadge size={ProfileImageSize.Small} user={user} />
+          <VerifiedCompanyUserBadge
+            size={ProfileImageSize.Small}
+            user={user}
+            showCompanyName
+            showVerified
+          />
         </div>
         <Typography
           type={TypographyType.Footnote}

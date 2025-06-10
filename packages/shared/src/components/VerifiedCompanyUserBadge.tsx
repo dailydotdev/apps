@@ -20,8 +20,8 @@ export type VerifiedCompanyUserBadgeProps = {
 export const VerifiedCompanyUserBadge = ({
   user,
   size = ProfileImageSize.Size16,
-  showCompanyName = true,
-  showVerified = true,
+  showCompanyName = false,
+  showVerified = false,
 }: VerifiedCompanyUserBadgeProps): ReactElement => {
   const { isVerified } = useUserCompaniesQuery();
   const { companies } = user;
