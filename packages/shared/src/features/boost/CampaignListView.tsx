@@ -1,7 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { startOfDay } from 'date-fns';
-import type { differenceInDays } from 'date-fns';
 import {
   Typography,
   TypographyColor,
@@ -19,24 +17,11 @@ import { IconSize } from '../../components/Icon';
 import { DataTile } from './DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
+import { getAbsoluteDifferenceInDays } from './utils';
 
 interface CampaignListViewProps {
   campaign: PostCampaign;
 }
-
-export const getAbsoluteDifferenceInDays: typeof differenceInDays = (
-  date1,
-  date2,
-) => {
-  const day1 = startOfDay(date1);
-  const day2 = startOfDay(date2);
-
-  const timeDiff = Math.abs(day1.getTime() - day2.getTime());
-  const diffInDays = timeDiff / (1000 * 60 * 60 * 24);
-
-  // Round down to the nearest whole number since we want full days
-  return Math.floor(diffInDays);
-};
 
 export function CampaignListView({
   campaign,

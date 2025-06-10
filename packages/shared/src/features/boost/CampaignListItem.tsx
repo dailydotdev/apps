@@ -11,6 +11,13 @@ import {
 } from '../../components/typography/Typography';
 import type { PostCampaign } from '../../hooks/post/usePostBoost';
 import { Image } from '../../components/image/Image';
+import { getAbsoluteDifferenceInDays } from './utils';
+
+const statusToColor: Record<PostCampaign['status'], string> = {
+  active: 'bg-action-upvote-active text-action-upvote-default',
+  completed: 'bg-action-share-active text-action-share-default',
+  cancelled: 'bg-action-downvote-active text-action-downvote-default',
+};
 
 interface CampaignListItemProps {
   campaign: PostCampaign;
@@ -30,9 +37,9 @@ export function CampaignListItem({
       return 'Cancelled';
     }
 
-    const remainingDays = Math.ceil(
-      (new Date(campaign.boostedUntil).getTime() - new Date().getTime()) /
-        (1000 * 60 * 60 * 24),
+    const remainingDays = getAbsoluteDifferenceInDays(
+      new Date(campaign.boostedUntil),
+      new Date(),
     );
 
     return `${remainingDays} days left`;
@@ -65,14 +72,7 @@ export function CampaignListItem({
       <Typography
         tag={TypographyTag.Span}
         type={TypographyType.Footnote}
-        className={classNames('rounded-6 px-1', {
-          'bg-action-share-active text-action-share-default':
-            campaign.status === 'completed',
-          'bg-action-downvote-active text-action-downvote-default':
-            campaign.status === 'cancelled',
-          'bg-action-upvote-active text-action-upvote-default':
-            campaign.status === 'active',
-        })}
+        className={classNames('rounded-6 px-1', statusToColor[campaign.status])}
       >
         {getCaption()}
       </Typography>
