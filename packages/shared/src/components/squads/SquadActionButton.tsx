@@ -118,7 +118,7 @@ export const SquadActionButton = ({
     null,
     undefined,
     true,
-    squad.category.id,
+    squad.category?.id,
   );
   const fuzzyQueryMatch = queryClient.getQueriesData({
     queryKey: fuzzyQueryKey,
@@ -132,7 +132,7 @@ export const SquadActionButton = ({
   const joinSquadMutation = (data) => {
     return {
       ...data,
-      pages: data?.pages.map((edge) => {
+      pages: data?.pages?.map((edge) => {
         return {
           ...edge,
           sources: {
