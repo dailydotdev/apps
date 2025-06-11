@@ -274,6 +274,12 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
+
+    // todo: remove the completeStep for EditTag & ContentTypes
+    //       once the extension will be adopted enough after the merge.
+    completeStep(ActionType.EditTag);
+    completeStep(ActionType.ContentTypes);
+
     await redirectToApp(router);
   }, [router, completeStep]);
 

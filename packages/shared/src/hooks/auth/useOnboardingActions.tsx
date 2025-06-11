@@ -42,12 +42,6 @@ export const useOnboardingActions = (): UseOnboarding => {
     [registeredBeforeRequired, isActionsFetched, checkHasCompleted],
   );
 
-  console.log({
-    isActionsFetched,
-    isOnboardingComplete,
-    isOldUser: registeredBeforeRequired,
-  });
-
   return {
     shouldShowAuthBanner,
     isOnboardingActionsReady: isActionsFetched && isAuthReady,
