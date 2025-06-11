@@ -135,13 +135,16 @@ export const SquadActionButton = ({
       ...edge,
       sources: {
         ...edge.sources,
-        edges: edge.sources.edges.map(({ node, ...subEdge }) => ({
-          ...subEdge,
-          node: {
-            ...subEdge.node,
-            ...(node.id === squad.id && { currentMember: user }),
-          },
-        })),
+        edges: edge.sources.edges.map((subEdge) => {
+          const { node } = subEdge;
+          return {
+            ...subEdge,
+            node: {
+              ...subEdge.node,
+              ...(node.id === squad.id && { currentMember: user }),
+            },
+          };
+        }),
       },
     })),
   });
