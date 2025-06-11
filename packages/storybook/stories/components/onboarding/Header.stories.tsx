@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { Header } from '@dailydotdev/shared/src/features/onboarding/shared/Header';
 
 const meta: Meta<typeof Header> = {
