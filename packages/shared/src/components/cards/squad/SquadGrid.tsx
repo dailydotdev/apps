@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card, CardLink } from '../common/Card';
@@ -49,7 +48,6 @@ export const SquadGrid = ({
   source,
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
-  const router = useRouter();
   const {
     headerImage,
     image,
@@ -113,7 +111,6 @@ export const SquadGrid = ({
             className={{ button: 'z-0 w-full' }}
             squad={source}
             origin={Origin.SquadDirectory}
-            onSuccess={() => router.push(source.permalink)}
             data-testid="squad-action"
             buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
           />

@@ -89,13 +89,13 @@ export function SquadsDirectoryFeed({
       scrollProps={{ title, linkToSeeAll }}
     >
       {children}
-      {flatSources?.map(({ node }) =>
-        node.flags?.featured && linkToSeeAll.includes('featured') ? (
-          <SquadGrid key={node.id} source={node} className="w-80" />
+      {flatSources?.map(({ node }) => {
+        return node.flags?.featured && linkToSeeAll.includes('featured') ? (
+          <SquadGrid onSuccess key={node.id} source={node} className="w-80" />
         ) : (
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
-        ),
-      )}
+        );
+      })}
       {isLoading && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );

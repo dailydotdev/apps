@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Card, CardLink } from '../common/Card';
 import {
@@ -21,7 +20,6 @@ export const UnfeaturedSquadGrid = ({
   source,
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
-  const router = useRouter();
   const title = source.name;
 
   return (
@@ -42,7 +40,6 @@ export const UnfeaturedSquadGrid = ({
           className={{ button: 'z-0' }}
           squad={source}
           origin={Origin.SquadDirectory}
-          onSuccess={() => router.push(source?.permalink)}
           data-testid="squad-action"
           showViewSquadIfMember
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
