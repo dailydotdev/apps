@@ -145,39 +145,41 @@ export function SquadMemberModal({
           fetchNextPage: queryResult.fetchNextPage,
           onScroll: hideMenu,
         }}
-        userListProps={{
-          afterContent: (user, index) => (
-            <SquadMemberItemOptionsButton
-              key={`squad_option_${user.id}`}
-              member={members[index]}
-              onUnblock={() =>
-                onUnblock({ sourceId: squad.id, memberId: user.id })
-              }
-              onOptionsClick={(e) => {
-                e.preventDefault();
-                onOptionsClick(e, members[index]);
-              }}
-            />
-          ),
-          emptyPlaceholder:
-            roleFilter === SourceMemberRole.Blocked ? (
-              <BlockedMembersPlaceholder />
-            ) : (
-              <FlexCentered className="p-10 text-text-tertiary typo-callout">
-                No{' '}
-                {roleFilter === SourceMemberRole.Moderator
-                  ? 'moderator'
-                  : 'member'}{' '}
-                found
-              </FlexCentered>
+        userListProps={
+          hasPermission && {
+            afterContent: (user, index) => (
+              <SquadMemberItemOptionsButton
+                key={`squad_option_${user.id}`}
+                member={members[index]}
+                onUnblock={() =>
+                  onUnblock({ sourceId: squad.id, memberId: user.id })
+                }
+                onOptionsClick={(e) => {
+                  e.preventDefault();
+                  onOptionsClick(e, members[index]);
+                }}
+              />
             ),
-          isLoading: queryResult.isPending,
-          initialItem:
-            roleFilter === SourceMemberRole.Blocked ||
-            query?.length ? undefined : (
-              <InitialItem squad={squad} />
-            ),
-        }}
+            emptyPlaceholder:
+              roleFilter === SourceMemberRole.Blocked ? (
+                <BlockedMembersPlaceholder />
+              ) : (
+                <FlexCentered className="p-10 text-text-tertiary typo-callout">
+                  No{' '}
+                  {roleFilter === SourceMemberRole.Moderator
+                    ? 'moderator'
+                    : 'member'}{' '}
+                  found
+                </FlexCentered>
+              ),
+            isLoading: queryResult.isPending,
+            initialItem:
+              roleFilter === SourceMemberRole.Blocked ||
+              query?.length ? undefined : (
+                <InitialItem squad={squad} />
+              ),
+          }
+        }
         users={members?.map(({ user, role }) => {
           return {
             ...user,
