@@ -115,11 +115,9 @@ export function BoostPostModal({
       >
         <Modal.Body className="flex flex-col">
           <Image src={postBoostSuccessCover} />
-          <span className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             <Typography type={TypographyType.Title2}>
-              Your post is now being promoted and will start reaching more
-              developers shortly. You can track its performance anytime from the
-              ads dashboard.
+              Post boosted successfully!
             </Typography>
             <Typography
               type={TypographyType.Body}
@@ -129,7 +127,7 @@ export function BoostPostModal({
               developers shortly. You can track its performance anytime from the
               ads dashboard.
             </Typography>
-          </span>
+          </div>
           <Button
             variant={ButtonVariant.Primary}
             className="w-full"
