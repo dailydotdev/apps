@@ -22,6 +22,7 @@ import { AdsDashboardModal } from './AdsDashboardModal';
 import { postBoostSuccessCover } from '../../../../lib/image';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
+import { usePostImage } from '../../../../hooks/post/usePostImage';
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
@@ -65,6 +66,7 @@ export function BoostPostModal({
       setActiveScreen(SCREENS.SUCCESS);
     },
   });
+  const image = usePostImage(post);
 
   const onButtonClick = () => {
     if (user.balance.amount < totalSpendInt) {
@@ -166,11 +168,9 @@ export function BoostPostModal({
               type={TypographyType.Callout}
               className="ml-2 line-clamp-2 flex-1"
             >
-              {post.title}
+              {post.title ?? post.sharedPost?.title}
             </Typography>
-            {post.image && (
-              <Image className="h-12 w-18 rounded-12" src={post.image} />
-            )}
+            {image && <Image className="h-12 w-18 rounded-12" src={image} />}
           </div>
           <div className="flex flex-col items-center rounded-16 bg-surface-float p-3">
             <Typography type={TypographyType.Title3} bold>
