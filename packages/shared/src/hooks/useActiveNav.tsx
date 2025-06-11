@@ -16,7 +16,6 @@ export interface UseActiveNav {
 
 export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isHomeActive = useMemo(() => {
     const homePages = [
@@ -33,11 +32,8 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       OtherFeedPage.Following,
     ];
 
-    if (!isLaptop) {
-      homePages.push(OtherFeedPage.BookmarkFolder, OtherFeedPage.BookmarkLater);
-      if (!isMobile) {
-        homePages.push(OtherFeedPage.Notifications);
-      }
+    if (!isMobile) {
+      homePages.push(OtherFeedPage.Notifications);
     }
 
     if (homePages.includes(activeFeed)) {
@@ -45,7 +41,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
-  }, [activeFeed, isLaptop, isMobile, router?.route]);
+  }, [activeFeed, isMobile, router?.route]);
 
   const explorePages: AllFeedPages[] = [
     SharedFeedPage.Search,

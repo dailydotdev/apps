@@ -145,7 +145,7 @@ function FeedNav(): ReactElement {
       setIsHeaderVisible(shouldHeaderBeVisible);
     });
   });
-  const shouldRenderNav = home || bookmarks;
+  const shouldRenderNav = home || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
