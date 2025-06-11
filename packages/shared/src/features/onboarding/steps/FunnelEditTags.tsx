@@ -7,15 +7,12 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { FunnelStepCtaWrapper } from '../shared';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import { useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
 
 function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
   const { feedSettings } = useFeedSettings();
-  const { completeAction } = useActions();
   const { user, trackingId } = useAuthContext();
   const handleComplete = () => {
     onTransition({
@@ -24,7 +21,6 @@ function FunnelEditTagsComponent({
         tags: feedSettings?.includeTags ?? [],
       },
     });
-    completeAction(ActionType.EditTag);
   };
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isDisabled = tagsCount < minimumRequirement;
