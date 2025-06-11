@@ -6,36 +6,56 @@ import { ActionType } from '../../graphql/actions';
 interface UseOnboarding {
   shouldShowAuthBanner: boolean;
   isOnboardingActionsReady: boolean;
-  hasCompletedEditTags: boolean;
-  hasCompletedContentTypes: boolean;
+  isOnboardingComplete: boolean;
   completeStep: (action: ActionType) => void;
 }
+
+const DATE_SINCE_ACTIONS_REQUIRED = new Date('2025-01-20');
 
 export const useOnboardingActions = (): UseOnboarding => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { isAuthReady, user } = useAuthContext();
   const shouldShowAuthBanner = isAuthReady && !user;
 
-  const { hasCompletedEditTags, hasCompletedContentTypes } = useMemo(() => {
-    /*
-      This is the date that completing the onboarding became required.
-      Anyone who created an account before this date is exempt from the requirement.
-    */
-    const registeredBeforeRequired =
-      user?.createdAt && new Date(user.createdAt) < new Date('2025-01-20');
+  /*
+    This is the date that completing the onboarding became required.
+    Anyone who created an account before this date is exempt from the requirement.
+  */
+  const registeredBeforeRequired = useMemo(
+    () =>
+      user?.createdAt && new Date(user.createdAt) < DATE_SINCE_ACTIONS_REQUIRED,
+    [user?.createdAt],
+  );
+
+  const {
+    hasCompletedEditTags,
+    hasCompletedContentTypes,
+    hasCompletedOnboarding,
+  } = useMemo(() => {
     return {
-      hasCompletedEditTags:
-        registeredBeforeRequired || checkHasCompleted(ActionType.EditTag),
-      hasCompletedContentTypes:
-        registeredBeforeRequired || checkHasCompleted(ActionType.ContentTypes),
+      hasCompletedEditTags: checkHasCompleted(ActionType.EditTag),
+      hasCompletedContentTypes: checkHasCompleted(ActionType.ContentTypes),
+      hasCompletedOnboarding: checkHasCompleted(ActionType.CompletedOnboarding),
     };
-  }, [checkHasCompleted, user]);
+  }, [checkHasCompleted]);
+
+  const isOnboardingComplete = useMemo(
+    () =>
+      registeredBeforeRequired ||
+      (hasCompletedEditTags && hasCompletedContentTypes) ||
+      hasCompletedOnboarding,
+    [
+      registeredBeforeRequired,
+      hasCompletedEditTags,
+      hasCompletedContentTypes,
+      hasCompletedOnboarding,
+    ],
+  );
 
   return {
     shouldShowAuthBanner,
     isOnboardingActionsReady: isActionsFetched && isAuthReady,
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
+    isOnboardingComplete,
     completeStep: (action: ActionType) => completeAction(action),
   };
 };

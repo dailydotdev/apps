@@ -63,6 +63,7 @@ import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onbo
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -267,16 +268,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     funnelState,
     isLoggedIn,
   } = useOnboardingAuth();
-  const {
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
-    isOnboardingActionsReady,
-  } = useOnboardingActions();
+  const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
+    useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
 
   const onComplete = useCallback(async () => {
+    completeStep(ActionType.CompletedOnboarding);
     await redirectToApp(router);
-  }, [router]);
+  }, [router, completeStep]);
 
   useEffect(() => {
     const {
@@ -293,7 +292,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       return;
     }
 
-    if (hasCompletedContentTypes && hasCompletedEditTags) {
+    if (isOnboardingComplete) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
@@ -304,8 +303,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       setFunnelReady(true);
     }
   }, [
-    hasCompletedContentTypes,
-    hasCompletedEditTags,
+    isOnboardingComplete,
     isAuthReady,
     isAuthenticating,
     isFunnelReady,

@@ -49,9 +49,9 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
+
 function InternalApp(): ReactElement {
-  const { hasCompletedContentTypes, hasCompletedEditTags } =
-    useOnboardingActions();
+  const { isOnboardingComplete } = useOnboardingActions();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -65,7 +65,6 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
   const shouldRedirectOnboarding =
     isPageReady && (!user || !isOnboardingComplete) && !isTesting;
 
@@ -113,6 +112,7 @@ function InternalApp(): ReactElement {
     </DndContextProvider>
   );
 }
+
 const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
   fallback: null,
 });
