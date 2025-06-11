@@ -38,10 +38,7 @@ import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
-import {
-  getUserActions,
-  onboardingMandatoryActions,
-} from '../../graphql/actions';
+import { ActionType, getUserActions } from '../../graphql/actions';
 import { redirectToApp } from '../../features/onboarding/lib/utils';
 
 const AuthDefault = dynamic(
@@ -99,6 +96,11 @@ const EmailCodeVerification = dynamic(
 );
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
+
+export const onboardingCompletedActions = {
+  funnel: [ActionType.CompletedOnboarding],
+  old: [ActionType.EditTag, ActionType.ContentTypes],
+} as const;
 
 function AuthOptionsInner({
   onClose,
@@ -159,9 +161,12 @@ function AuthOptionsInner({
 
     if (isOnboardingPage) {
       const userActions = await getUserActions();
-      const isUserOnboardingComplete = onboardingMandatoryActions.every(
-        (action) =>
+      const isUserOnboardingComplete = Object.values(
+        onboardingCompletedActions,
+      ).some((actions) =>
+        actions.every((action) =>
           userActions.some((userAction) => userAction.type === action),
+        ),
       );
 
       if (isUserOnboardingComplete) {
