@@ -34,11 +34,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     ];
 
     if (!isLaptop) {
-      homePages.push(
-        OtherFeedPage.Bookmarks,
-        OtherFeedPage.BookmarkFolder,
-        OtherFeedPage.BookmarkLater,
-      );
+      homePages.push(OtherFeedPage.BookmarkFolder, OtherFeedPage.BookmarkLater);
       if (!isMobile) {
         homePages.push(OtherFeedPage.Notifications);
       }
