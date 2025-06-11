@@ -51,7 +51,7 @@ export type CoreOptionsProps = {
 };
 
 interface ModalHeaderProps {
-  onPlusButtonClick?: () => void;
+  onPlusClick?: () => void;
 }
 
 export const CoreOptions = ({
@@ -404,7 +404,7 @@ const BuyCoreDesktop = () => {
 };
 
 const BuyFlow = ({
-  onPlusButtonClick,
+  onPlusClick: onPlusButtonClick,
   ...props
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
