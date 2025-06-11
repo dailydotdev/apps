@@ -28,6 +28,9 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
+import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
+import { TargetType } from '../../lib/log';
+import usePlusEntry from '../../hooks/usePlusEntry';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -70,7 +73,9 @@ function FeedNav(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-
+  const isForYouTab =
+    router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
+  const { plusEntryForYou } = usePlusEntry();
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
@@ -224,6 +229,14 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </StickyNavIconWrapper>
       </div>
+      {isForYouTab && plusEntryForYou && (
+        <PlusMobileEntryBanner
+          targetType={TargetType.PlusEntryForYouTab}
+          className="-mt-4"
+          arrow
+          {...plusEntryForYou}
+        />
+      )}
     </div>
   );
 }

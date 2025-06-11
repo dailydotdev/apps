@@ -49,6 +49,7 @@ import type { PostClick } from '../lib/click';
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
+import usePlusEntry from '../hooks/usePlusEntry';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -148,8 +149,8 @@ export default function Feed<T>({
     !user?.acquisitionChannel;
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
+  const { plusEntryFeed } = usePlusEntry();
   const showMarketingCta = !!marketingCta;
-
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
@@ -182,6 +183,7 @@ export default function Feed<T>({
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),
+        ...(plusEntryFeed && { plusEntry: plusEntryFeed }),
         feedName,
       },
     },

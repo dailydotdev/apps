@@ -72,6 +72,7 @@ export const featureOnboardingGridVariationV1 = new Feature(
   false,
 );
 
+export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 export const featureOnboardingGridVariation = new Feature(
   'onboarding_feature_grid_variation',
   OnboardingGridVariation.Control,
