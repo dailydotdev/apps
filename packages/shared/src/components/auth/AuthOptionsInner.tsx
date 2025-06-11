@@ -38,8 +38,12 @@ import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
-import { ActionType, getUserActions } from '../../graphql/actions';
+import { getUserActions } from '../../graphql/actions';
 import { redirectToApp } from '../../features/onboarding/lib/utils';
+import {
+  DATE_SINCE_ACTIONS_REQUIRED,
+  onboardingCompletedActions,
+} from '../../hooks/auth';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -97,11 +101,6 @@ const EmailCodeVerification = dynamic(
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
 
-export const onboardingCompletedActions = {
-  funnel: [ActionType.CompletedOnboarding],
-  old: [ActionType.EditTag, ActionType.ContentTypes],
-} as const;
-
 function AuthOptionsInner({
   onClose,
   onAuthStateUpdate,
@@ -155,11 +154,19 @@ function AuthOptionsInner({
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
 
-  const checkForOnboardedUser = async () => {
+  const checkForOnboardedUser = async (data: LoggedUser) => {
     onAuthStateUpdate({ isLoading: true });
     const isOnboardingPage = router?.pathname?.startsWith('/onboarding');
 
     if (isOnboardingPage) {
+      if (
+        data?.createdAt &&
+        new Date(data.createdAt) < DATE_SINCE_ACTIONS_REQUIRED
+      ) {
+        await redirectToApp(router);
+        return true;
+      }
+
       const userActions = await getUserActions();
       const isUserOnboardingComplete = Object.values(
         onboardingCompletedActions,
@@ -200,7 +207,7 @@ function AuthOptionsInner({
         event_name: AuthEventNames.LoginSuccessfully,
       });
 
-      const isAlreadyOnboarded = await checkForOnboardedUser();
+      const isAlreadyOnboarded = await checkForOnboardedUser(user);
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
@@ -331,7 +338,7 @@ function AuthOptionsInner({
     // If user is confirmed we can proceed with logging them in
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
       await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
-      const isAlreadyOnboarded = await checkForOnboardedUser();
+      const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }

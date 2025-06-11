@@ -10,7 +10,12 @@ interface UseOnboarding {
   completeStep: (action: ActionType) => void;
 }
 
-const DATE_SINCE_ACTIONS_REQUIRED = new Date('2025-01-20');
+export const onboardingCompletedActions = {
+  funnel: [ActionType.CompletedOnboarding],
+  old: [ActionType.EditTag, ActionType.ContentTypes],
+} as const;
+
+export const DATE_SINCE_ACTIONS_REQUIRED = new Date('2025-01-20');
 
 export const useOnboardingActions = (): UseOnboarding => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
@@ -27,30 +32,21 @@ export const useOnboardingActions = (): UseOnboarding => {
     [user?.createdAt],
   );
 
-  const {
-    hasCompletedEditTags,
-    hasCompletedContentTypes,
-    hasCompletedOnboarding,
-  } = useMemo(() => {
-    return {
-      hasCompletedEditTags: checkHasCompleted(ActionType.EditTag),
-      hasCompletedContentTypes: checkHasCompleted(ActionType.ContentTypes),
-      hasCompletedOnboarding: checkHasCompleted(ActionType.CompletedOnboarding),
-    };
-  }, [checkHasCompleted]);
-
   const isOnboardingComplete = useMemo(
     () =>
       registeredBeforeRequired ||
-      (hasCompletedEditTags && hasCompletedContentTypes) ||
-      hasCompletedOnboarding,
-    [
-      registeredBeforeRequired,
-      hasCompletedEditTags,
-      hasCompletedContentTypes,
-      hasCompletedOnboarding,
-    ],
+      (isActionsFetched &&
+        Object.values(onboardingCompletedActions).some((actions) =>
+          actions.every((action) => checkHasCompleted(action)),
+        )),
+    [registeredBeforeRequired, isActionsFetched, checkHasCompleted],
   );
+
+  console.log({
+    isActionsFetched,
+    isOnboardingComplete,
+    isOldUser: registeredBeforeRequired,
+  });
 
   return {
     shouldShowAuthBanner,
