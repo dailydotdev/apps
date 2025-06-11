@@ -282,10 +282,7 @@ export default function useFeed<T>(
             const withFirstIndex = (condition: boolean) =>
               pageIndex === 0 && adItem.index === 0 && condition;
 
-            if (
-              !!settings.plusEntry &&
-              settings.plusEntry.flags.index === adItem.index
-            ) {
+            if (withFirstIndex(!!settings.plusEntry)) {
               acc.push({
                 type: FeedItemType.PlusEntry,
                 plusEntry: settings.plusEntry,

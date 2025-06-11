@@ -15,7 +15,6 @@ export type MarketingCtaFlags = {
   tagColor?: string;
   ctaUrl: string;
   ctaText: string;
-  index?: number;
 };
 
 export enum MarketingCtaVariant {
