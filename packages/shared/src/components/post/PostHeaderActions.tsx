@@ -3,10 +3,10 @@ import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { OpenLinkIcon } from '../icons';
 import {
-  checkCanBoostByUser,
   getReadPostButtonText,
   isInternalReadType,
   PostType,
+  useCanBoostPost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -17,7 +17,6 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { BoostPostButton } from '../../features/boost/BoostPostButton';
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -48,12 +47,12 @@ export function PostHeaderActions({
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
-  const { user } = useAuthContext();
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const isEnlarged = isFixedNavigation || isLaptop;
+  const { canBoost } = useCanBoostPost(post);
   const ButtonWithExperiment = useCallback(() => {
     return (
       <SimpleTooltip
@@ -92,9 +91,7 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {!post.flags?.boosted && checkCanBoostByUser(post, user?.id) && (
-        <BoostPostButton post={post} />
-      )}
+      {!post.flags?.boosted && canBoost && <BoostPostButton post={post} />}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
         post={post}

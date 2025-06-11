@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import type { Post } from '../graphql/posts';
-import { checkCanBoostByUser, isVideoPost, UserVote } from '../graphql/posts';
+import { isVideoPost, useCanBoostPost, UserVote } from '../graphql/posts';
 import {
   AddUserIcon,
   BellAddIcon,
@@ -167,7 +167,7 @@ export default function PostOptionsMenu({
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-
+  const { canBoost } = useCanBoostPost(post);
   const {
     onBlockSource,
     onBlockTags,
@@ -378,7 +378,7 @@ export default function PostOptionsMenu({
     });
   };
 
-  if (!post?.flags?.boosted && checkCanBoostByUser(post, user?.id)) {
+  if (canBoost) {
     postOptions.push({
       icon: <MenuIcon Icon={BoostIcon} />,
       label: 'Boost post',
