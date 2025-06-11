@@ -547,6 +547,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
           onRequestClose={onRequestClose}
           product={product}
           origin={Origin.Award}
+          onPlusButtonClick={() => setActiveModal('BUY_CORES')}
         />
       ) : null}
     </>
