@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { CreditCards } from '@dailydotdev/shared/src/features/onboarding/shared/CreditCards';
 
 const meta: Meta<typeof CreditCards> = {

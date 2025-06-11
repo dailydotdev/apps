@@ -1,6 +1,5 @@
-import {
-  FunnelStepper,
-} from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
+import React from 'react';
+import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import {
   FunnelStepType,
   FunnelStepTransitionType,
@@ -10,26 +9,17 @@ import {
   type FunnelStepQuiz,
   type FunnelStepSocialProof,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Provider } from 'jotai';
 import { withThemeByClassName } from '@storybook/addon-themes';
-import { ReactRenderer } from '@storybook/react';
+import { ReactRenderer } from '@storybook/react-vite';
 import { Default as FunnelPricing } from './FunnelPricing.stories';
-import {
-  FunnelStepPricing,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import {
-  CheckboxGroupVariant,
-} from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
+import { FunnelStepPricing } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { CheckboxGroupVariant } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
 import ExtensionProviders from '../../extension/_providers';
-import {
-  FunnelStepLoading,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { fn } from '@storybook/test';
-import {
-  FunnelBackgroundVariant,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-
+import { FunnelStepLoading } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { fn } from 'storybook/test';
+import { FunnelBackgroundVariant } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 
 const meta: Meta<typeof FunnelStepper> = {
   title: 'Components/Onboarding/FunnelStepper',
@@ -105,7 +95,8 @@ const sampleFunnel: FunnelJSON = {
           onTransition: () => {
             console.log('Quiz step transition');
           },
-        }, {
+        },
+        {
           id: 'step2',
           type: FunnelStepType.Quiz,
           parameters: {
@@ -163,7 +154,8 @@ const sampleFunnel: FunnelJSON = {
           type: FunnelStepType.Loading,
           parameters: {
             headline: 'Loading your personalized feed',
-            explainer: 'We\'re putting together content based on your interests. This will only take a moment.',
+            explainer:
+              "We're putting together content based on your interests. This will only take a moment.",
           },
           transitions: [
             {
@@ -178,7 +170,8 @@ const sampleFunnel: FunnelJSON = {
           type: FunnelStepType.SocialProof,
           parameters: {
             cta: 'Continue',
-            imageUrl: 'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
+            imageUrl:
+              'https://media.daily.dev/image/upload/s--44oMC43t--/f_auto/v1743947482/public/Rating',
             rating: '4.8/5',
             reviewSubtitle: 'based on 2,598+ reviews',
             reviews: [

@@ -26,7 +26,6 @@ import {
   getCookiesAndHeadersFromRequest,
   setResponseHeaderFromBoot,
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
-import { HotJarTracking } from '../../components/Pixels';
 
 type PageProps = {
   dehydratedState: DehydratedState;
@@ -113,7 +112,7 @@ export default function HelloWorldPage({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <HotJarTracking hotjarId="6381877" />
+      {/* <HotJarTracking hotjarId="6381877" /> */}
       <JotaiProvider>
         <Head>
           <meta name="robots" content="noindex" />

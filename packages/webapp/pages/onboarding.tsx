@@ -63,7 +63,6 @@ import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onbo
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
-import { HotJarTracking } from '../components/Pixels';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -339,7 +338,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
           initialStepId={initialStepId}
           onComplete={onComplete}
         />
-        <HotJarTracking hotjarId="3871311" />
+        {/* <HotJarTracking hotjarId="3871311" /> */}
       </div>
     )
   );
