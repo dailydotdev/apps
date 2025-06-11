@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { Reviews } from '@dailydotdev/shared/src/features/onboarding/shared/Reviews';
 import type { Review } from '@dailydotdev/shared/src/features/onboarding/shared/Reviews';
 

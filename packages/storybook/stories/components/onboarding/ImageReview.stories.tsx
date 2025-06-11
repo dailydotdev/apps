@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { ImageReview } from '@dailydotdev/shared/src/features/onboarding/shared/ImageReview';
 
 const meta: Meta<typeof ImageReview> = {
