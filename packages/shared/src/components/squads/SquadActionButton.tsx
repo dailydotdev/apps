@@ -129,29 +129,22 @@ export const SquadActionButton = ({
   const categoryQueryKey = fuzzyQueryMatch?.[0]?.[0];
   const featuredQueryKey = fuzzyFeaturedQueryMatch?.[0]?.[0];
 
-  const joinSquadMutation = (data) => {
-    return {
-      ...data,
-      pages: data?.pages?.map((edge) => {
-        return {
-          ...edge,
-          sources: {
-            ...edge.sources,
-            edges: edge.sources.edges.map((subEdge) => {
-              const { node } = subEdge;
-              return {
-                ...subEdge,
-                node: {
-                  ...subEdge.node,
-                  ...(node.id === squad.id && { currentMember: user }),
-                },
-              };
-            }),
+  const joinSquadMutation = (data) => ({
+    ...data,
+    pages: data?.pages?.map((edge) => ({
+      ...edge,
+      sources: {
+        ...edge.sources,
+        edges: edge.sources.edges.map(({ node, ...subEdge }) => ({
+          ...subEdge,
+          node: {
+            ...subEdge.node,
+            ...(node.id === squad.id && { currentMember: user }),
           },
-        };
-      }),
-    };
-  };
+        })),
+      },
+    })),
+  });
 
   const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
     mutationFn: useJoinSquad({ squad }),
@@ -159,14 +152,21 @@ export const SquadActionButton = ({
       displayToast(labels.error.generic);
     },
     onMutate: () => {
-      queryClient.setQueryData(
-        categoryQueryKey,
-        joinSquadMutation(queryClient.getQueryData(categoryQueryKey)),
-      );
-      queryClient.setQueryData(
-        featuredQueryKey,
-        joinSquadMutation(queryClient.getQueryData(featuredQueryKey)),
-      );
+      const currentCategoryData = queryClient.getQueryData(categoryQueryKey);
+      if (currentCategoryData) {
+        queryClient.setQueryData(
+          categoryQueryKey,
+          joinSquadMutation(currentCategoryData),
+        );
+      }
+
+      const currentFeaturedData = queryClient.getQueryData(featuredQueryKey);
+      if (currentFeaturedData) {
+        queryClient.setQueryData(
+          featuredQueryKey,
+          joinSquadMutation(currentFeaturedData),
+        );
+      }
     },
     onSuccess,
   });
