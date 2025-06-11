@@ -111,6 +111,7 @@ export function SquadMemberModal({
         {...props}
         kind={Modal.Kind.FixedCenter}
         title="Squad members"
+        showSubscribe={false}
         tabs={hasPermission ? Object.values(SquadMemberTab) : undefined}
         defaultView={hasPermission ? SquadMemberTab.AllMembers : undefined}
         header={

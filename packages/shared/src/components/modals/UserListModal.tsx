@@ -27,6 +27,7 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   origin?: Origin;
   showAward?: boolean;
   showFollow?: boolean;
+  showSubscribe?: boolean;
   children?: ReactNode;
 }
 
@@ -41,6 +42,7 @@ function UserListModal({
   onSearch,
   origin,
   showFollow = true,
+  showSubscribe = true,
   showAward,
   children,
   ...props
@@ -78,6 +80,7 @@ function UserListModal({
             origin,
             showFollow,
             showAward,
+            showSubscribe,
           }}
         />
       </Modal.Body>
