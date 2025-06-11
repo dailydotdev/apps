@@ -9,7 +9,8 @@ import { fromCDN } from '../lib';
 
 export type LottieAnimationProps = {
   className?: string;
-  path: string;
+  src: string;
+  basePath?: string;
 } & Omit<LottieComponentProps, 'animationData' | 'width' | 'height'>;
 
 const Lottie = dynamic(
@@ -18,23 +19,26 @@ const Lottie = dynamic(
 
 export const LottieAnimation = ({
   className,
-  path,
+  src,
+  basePath = '/assets/lottie',
   loop = true,
   autoplay = true,
   ...lottieProps
 }: LottieAnimationProps): ReactElement => {
   const { data: animationData } = useQuery({
-    queryKey: [RequestKey.LottieAnimations, path],
+    queryKey: [RequestKey.LottieAnimations, basePath, src],
     queryFn: async () => {
+      const animationPath = `${basePath}${src}`;
+
       const headers = new Headers();
       headers.set('Accept', 'application/json');
 
-      const response = await fetch(fromCDN(path), {
+      const response = await fetch(fromCDN(animationPath), {
         headers,
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to load animation from ${path}`);
+        throw new Error(`Failed to load animation from ${animationPath}`);
       }
 
       const result = await response.json();
