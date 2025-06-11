@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FunnelFact }
   from '@dailydotdev/shared/src/features/onboarding/steps/FunnelFact';
 import {

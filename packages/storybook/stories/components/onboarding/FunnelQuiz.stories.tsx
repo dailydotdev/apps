@@ -1,12 +1,12 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import {
   FunnelQuiz,
 } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelQuiz';
 import {
   FunnelStepQuizQuestionType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import {
   CheckboxGroupVariant,
 } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';

@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   FormInputRating,
 } from '@dailydotdev/shared/src/features/common/components/FormInputRating';
 import { useState } from 'react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import {
   Typography,
   TypographyColor,
