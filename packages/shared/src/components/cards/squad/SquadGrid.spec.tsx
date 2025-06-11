@@ -25,7 +25,6 @@ import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { PaymentContextProvider } from '../../../contexts/payment';
 
-const routerReplace = jest.fn();
 const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();

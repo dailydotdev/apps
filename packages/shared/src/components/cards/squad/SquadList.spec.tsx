@@ -18,7 +18,6 @@ import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { SquadList } from './SquadList';
 import type { Squad } from '../../../graphql/sources';
 
-const routerReplace = jest.fn();
 const squadsList = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
