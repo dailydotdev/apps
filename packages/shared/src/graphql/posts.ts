@@ -938,6 +938,6 @@ export const updateSourcePostModeration = async (
   return res.updateSourcePostModeration;
 };
 
-export const checkIsAuthor = (post: Post, userId: string) =>
+export const checkCanBoostByUser = (post: Post, userId: string) =>
   (post?.author?.id && post?.author?.id === userId) ||
   (post?.scout?.id && post?.scout?.id === userId);

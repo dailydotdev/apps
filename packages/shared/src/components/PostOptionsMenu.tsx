@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import type { Post } from '../graphql/posts';
-import { checkIsAuthor, isVideoPost, UserVote } from '../graphql/posts';
+import { checkCanBoostByUser, isVideoPost, UserVote } from '../graphql/posts';
 import {
   AddUserIcon,
   BellAddIcon,
@@ -378,7 +378,7 @@ export default function PostOptionsMenu({
     });
   };
 
-  if (!post?.flags?.boosted && checkIsAuthor(post, user?.id)) {
+  if (!post?.flags?.boosted && checkCanBoostByUser(post, user?.id)) {
     postOptions.push({
       icon: <MenuIcon Icon={BoostIcon} />,
       label: 'Boost post',

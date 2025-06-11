@@ -3,7 +3,7 @@ import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { OpenLinkIcon } from '../icons';
 import {
-  checkIsAuthor,
+  checkCanBoostByUser,
   getReadPostButtonText,
   isInternalReadType,
   PostType,
@@ -92,7 +92,7 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {!post.flags?.boosted && checkIsAuthor(post, user?.id) && (
+      {!post.flags?.boosted && checkCanBoostByUser(post, user?.id) && (
         <BoostPostButton post={post} />
       )}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
