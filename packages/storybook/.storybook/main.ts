@@ -12,11 +12,9 @@ const config: StorybookConfig = {
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-links',
-    '@storybook/addon-essentials',
     '@storybook/addon-themes',
-    '@storybook/addon-interactions',
     '@storybook/addon-designs',
-    'msw-storybook-addon',
+    'msw-storybook-addon'
   ],
   framework: '@storybook/react-vite',
   typescript: {
@@ -49,6 +47,7 @@ const config: StorybookConfig = {
           'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
           './GrowthBookProvider': GrowthBookMockPath,
           '../../GrowthBookProvider': GrowthBookMockPath,
+          '../../../../hooks/utils': path.resolve(__dirname, '../mock/hooks.ts'),
           '../../../../hooks': path.resolve(__dirname, '../mock/hooks.ts'),
           '@dailydotdev/shared/src/lib/boot': path.resolve(
             __dirname,

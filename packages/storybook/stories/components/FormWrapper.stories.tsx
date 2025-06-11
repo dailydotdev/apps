@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 
 const meta: Meta<typeof FormWrapper> = {
