@@ -133,31 +133,27 @@ export const FunnelOrganicSignup = withIsActiveGuard(
       [onTransition, setAuth],
     );
 
-    const transitionIfUserIsConfirmed = useCallback(() => {
-      if (
-        isAuthReady &&
-        isLoggedIn &&
-        !!user.infoConfirmed &&
-        isActionsFetched
-      ) {
-        onTransition?.({
-          type: FunnelStepTransitionType.Complete,
-          details: { user },
-        });
-      }
-    }, [isActionsFetched, isAuthReady, isLoggedIn, onTransition, user]);
-
     useEffect(() => {
       if (!isAuthReady || !user) {
         return;
       }
 
       if (!hasAlreadyCheckedUser.current) {
-        transitionIfUserIsConfirmed();
+        if (
+          isAuthReady &&
+          isLoggedIn &&
+          !!user.infoConfirmed &&
+          isActionsFetched
+        ) {
+          onTransition?.({
+            type: FunnelStepTransitionType.Complete,
+            details: { user },
+          });
+        }
       }
 
       hasAlreadyCheckedUser.current = true;
-    }, [isAuthReady, user, transitionIfUserIsConfirmed]);
+    }, [isActionsFetched, isAuthReady, isLoggedIn, onTransition, user]);
 
     if (!isAuthReady || (isLoggedIn && user.infoConfirmed)) {
       return null;
@@ -204,7 +200,14 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               }}
               onSuccessfulRegistration={onSuccessfulRegistration}
               onAuthStateUpdate={onAuthStateUpdate}
-              onSuccessfulLogin={transitionIfUserIsConfirmed}
+              onSuccessfulLogin={() => {
+                // user now is logged, even if the `user` object is not populated yet.
+                // this callback is fired only after a lot of auth checks
+                onTransition?.({
+                  type: FunnelStepTransitionType.Complete,
+                  details: { user },
+                });
+              }}
             />
           </div>
           <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
