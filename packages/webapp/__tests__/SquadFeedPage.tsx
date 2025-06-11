@@ -226,6 +226,12 @@ describe('squad page header', () => {
     const alt = `${defaultSquad.handle}'s logo`;
     await screen.findByAltText(alt);
   });
+
+  it('should show checklist icon', async () => {
+    renderComponent();
+    const checklist = await screen.findByTestId('squad-checklist-button');
+    expect(checklist).toBeInTheDocument();
+  });
 });
 
 Object.assign(navigator, {

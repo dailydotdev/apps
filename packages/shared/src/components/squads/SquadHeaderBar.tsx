@@ -12,11 +12,13 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
+import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
 import { SquadActionButton } from './SquadActionButton';
 import {
   AddUserIcon,
   BellIcon,
+  ChecklistBIcon,
   MenuIcon,
   SlackIcon,
   TimerIcon,
@@ -138,6 +140,43 @@ const SquadInviteButton = <T extends AllowedTags>({
   );
 };
 
+const SquadChecklistButton = ({ squad }: SquadBarButtonProps<'button'>) => {
+  const {
+    steps,
+    completedSteps,
+    isChecklistVisible,
+    setChecklistVisible,
+    isChecklistReady,
+  } = useSquadChecklist({ squad });
+
+  const completedStepsCount = completedSteps.length;
+  const totalStepsCount = steps.length;
+  const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
+
+  return (
+    <SimpleTooltip
+      forceLoad={!isTesting}
+      visible={isChecklistReady && completedStepsCount < totalStepsCount}
+      container={{
+        className: '-mb-4 !bg-accent-onion-default !text-white',
+      }}
+      placement="top"
+      content={checklistTooltipText}
+      zIndex={3}
+    >
+      <Button
+        data-testid="squad-checklist-button"
+        variant={ButtonVariant.Float}
+        icon={<ChecklistBIcon secondary />}
+        onClick={() => {
+          setChecklistVisible(!isChecklistVisible);
+        }}
+        size={ButtonSize.Small}
+      />
+    </SimpleTooltip>
+  );
+};
+
 const SquadUserNotifications = ({
   squad,
   ...props
@@ -241,6 +280,7 @@ export function SquadHeaderBar({
           });
         }}
       />
+      {isMember && <SquadChecklistButton squad={squad} />}
       {isMember && (
         <SquadUserNotifications
           icon={

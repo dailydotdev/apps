@@ -3,6 +3,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import {
@@ -17,6 +20,7 @@ import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 
+const routerReplace = jest.fn();
 const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
@@ -84,7 +88,13 @@ it('should render the component with a view squad button', async () => {
 it('should render the component with a join squad button', async () => {
   const currentMember = { ...admin.source.currentMember };
   delete admin.source.currentMember;
-
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/squads',
+        push: routerReplace,
+      } as unknown as NextRouter),
+  );
   renderComponent();
   let queryCalled = false;
   mockGraphQL({
@@ -112,6 +122,7 @@ it('should render the component with a join squad button', async () => {
   btn.click();
   await waitForNock();
   await waitFor(async () => {
+    expect(routerReplace).toBeCalledWith(admin.source.permalink);
     await waitFor(() => expect(queryCalled).toBeTruthy());
   });
 });
