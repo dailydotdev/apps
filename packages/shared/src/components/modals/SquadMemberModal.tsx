@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import type { SourceMember, Squad } from '../../graphql/sources';
@@ -24,6 +24,7 @@ import { useUsersContentPreferenceMutationSubscription } from '../../hooks/conte
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
+  Moderators = 'Moderators',
   BlockedMembers = 'Blocked members',
 }
 
@@ -105,6 +106,29 @@ export function SquadMemberModal({
     SourcePermissions.ViewBlockedMembers,
   );
 
+  const onTabClick = (tab: SquadMemberTab) => {
+    switch (tab) {
+      case SquadMemberTab.Moderators:
+        setRoleFilter(SourceMemberRole.Moderator);
+        break;
+      case SquadMemberTab.BlockedMembers:
+        setRoleFilter(SourceMemberRole.Blocked);
+        break;
+      default:
+        setRoleFilter(null);
+    }
+  };
+
+  const filteredTabs = useMemo(() => {
+    if (hasPermission) {
+      return Object.values(SquadMemberTab);
+    }
+
+    return Object.values(SquadMemberTab).filter(
+      (tab) => tab !== SquadMemberTab.BlockedMembers,
+    );
+  }, [hasPermission]);
+
   return (
     <>
       <UserListModal
@@ -112,21 +136,9 @@ export function SquadMemberModal({
         kind={Modal.Kind.FixedCenter}
         title="Squad members"
         showSubscribe={false}
-        tabs={hasPermission ? Object.values(SquadMemberTab) : undefined}
-        defaultView={hasPermission ? SquadMemberTab.AllMembers : undefined}
-        header={
-          hasPermission ? (
-            <Modal.Header.Tabs
-              onTabClick={(tab) =>
-                setRoleFilter(
-                  tab === SquadMemberTab.BlockedMembers
-                    ? SourceMemberRole.Blocked
-                    : null,
-                )
-              }
-            />
-          ) : null
-        }
+        tabs={filteredTabs}
+        defaultView={SquadMemberTab.AllMembers}
+        header={<Modal.Header.Tabs onTabClick={onTabClick} />}
         scrollingProps={{
           isFetchingNextPage: queryResult.isFetchingNextPage,
           canFetchMore: checkFetchMore(queryResult),
