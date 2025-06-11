@@ -159,13 +159,18 @@ export function SquadMemberModal({
               }}
             />
           ),
-          emptyPlaceholder: query ? (
-            <FlexCentered className="p-10 text-text-tertiary typo-callout">
-              No user found
-            </FlexCentered>
-          ) : (
-            <BlockedMembersPlaceholder />
-          ),
+          emptyPlaceholder:
+            roleFilter === SourceMemberRole.Blocked ? (
+              <BlockedMembersPlaceholder />
+            ) : (
+              <FlexCentered className="p-10 text-text-tertiary typo-callout">
+                No{' '}
+                {roleFilter === SourceMemberRole.Moderator
+                  ? 'moderator'
+                  : 'member'}{' '}
+                found
+              </FlexCentered>
+            ),
           isLoading: queryResult.isPending,
           initialItem:
             roleFilter === SourceMemberRole.Blocked ||
