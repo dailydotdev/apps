@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import {
@@ -23,6 +23,8 @@ import { postBoostSuccessCover } from '../../../../lib/image';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
 import { usePostImage } from '../../../../hooks/post/usePostImage';
+import type { TransactionCreated } from '../../../../graphql/njord';
+import { isNullOrUndefined } from '../../../../lib/func';
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
@@ -41,7 +43,7 @@ export function BoostPostModal({
   post,
   ...props
 }: BoostPostModalProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
@@ -58,12 +60,26 @@ export function BoostPostModal({
       queryProps.totalDays,
     ),
   });
+  const client = useQueryClient();
   const [debounceSet] = useDebounceFn(setQueryProps, 220);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { mutateAsync: onBoost } = useMutation({
-    onSuccess: () => {
+  const { mutateAsync: onBoost } = useMutation<{
+    startPostBoost: TransactionCreated;
+  }>({
+    onSuccess: (result) => {
       setActiveScreen(SCREENS.SUCCESS);
+      const balance = result?.startPostBoost?.balance;
+
+      if (!isNullOrUndefined(balance)) {
+        updateUser({ ...user, balance });
+      }
+
+      // invalidate wallet queries
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
     },
   });
   const image = usePostImage(post);
