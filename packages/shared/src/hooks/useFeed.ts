@@ -49,12 +49,17 @@ export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   index: number;
 }
 
+interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
+  plusEntry: MarketingCta;
+}
+
 export type FeedItem =
   | PostItem
   | AdItem
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
-  | FeedItemBase<FeedItemType.UserAcquisition>;
+  | FeedItemBase<FeedItemType.UserAcquisition>
+  | PlusEntryItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -76,6 +81,7 @@ type UseFeedSettingParams = {
   disableAds?: boolean;
   showAcquisitionForm?: boolean;
   marketingCta?: MarketingCta;
+  plusEntry?: MarketingCta;
   feedName?: string;
 };
 
@@ -110,7 +116,6 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
-
   const feedQuery = useInfiniteQuery<FeedData>({
     queryKey: feedQueryKey,
     queryFn: async ({ pageParam }) => {
@@ -211,7 +216,6 @@ export default function useFeed<T>(
       if (adIndex < 0) {
         return undefined;
       }
-
       const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
 
       if (!adMatch) {
@@ -278,7 +282,12 @@ export default function useFeed<T>(
             const withFirstIndex = (condition: boolean) =>
               pageIndex === 0 && adItem.index === 0 && condition;
 
-            if (withFirstIndex(!!settings.marketingCta)) {
+            if (withFirstIndex(!!settings.plusEntry)) {
+              acc.push({
+                type: FeedItemType.PlusEntry,
+                plusEntry: settings.plusEntry,
+              });
+            } else if (withFirstIndex(!!settings.marketingCta)) {
               acc.push({
                 type: FeedItemType.MarketingCta,
                 marketingCta: settings.marketingCta,
@@ -316,6 +325,7 @@ export default function useFeed<T>(
     settings.showAcquisitionForm,
     placeholdersPerPage,
     getAd,
+    settings.plusEntry,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
