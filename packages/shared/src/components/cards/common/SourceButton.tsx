@@ -67,6 +67,7 @@ export default function SourceButton({
         container: !simpleTooltip ? { bgClassName: null } : undefined,
         content: tooltipContent,
         placement: tooltipPosition,
+        appendTo: document.body,
       }}
     >
       <ProfileImageLink
