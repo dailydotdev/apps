@@ -24,6 +24,7 @@ import {
 } from '../typography/Typography';
 import { formatCoresCurrency } from '../../lib/utils';
 import { Image } from '../image/Image';
+import { ButtonVariant } from '../buttons/Button';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -160,6 +161,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           origin={origin}
           copyType={copyType}
           feedId={feedId}
+          variant={ButtonVariant.Primary}
         />
       )}
       {!!showAward && !!user.award && !!user.awardTransaction && (
