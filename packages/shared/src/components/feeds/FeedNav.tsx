@@ -28,6 +28,9 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
+import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
+import { TargetType } from '../../lib/log';
+import usePlusEntry from '../../hooks/usePlusEntry';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -57,7 +60,7 @@ function FeedNav(): ReactElement {
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home: shouldRenderNav } = useActiveNav(feedName);
+  const { home, bookmarks } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -70,7 +73,9 @@ function FeedNav(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-
+  const isForYouTab =
+    router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
+  const { plusEntryForYou } = usePlusEntry();
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
@@ -140,7 +145,7 @@ function FeedNav(): ReactElement {
       setIsHeaderVisible(shouldHeaderBeVisible);
     });
   });
-
+  const shouldRenderNav = home || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
@@ -224,6 +229,14 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </StickyNavIconWrapper>
       </div>
+      {isForYouTab && plusEntryForYou && (
+        <PlusMobileEntryBanner
+          targetType={TargetType.PlusEntryForYouTab}
+          className="-mt-4"
+          arrow
+          {...plusEntryForYou}
+        />
+      )}
     </div>
   );
 }

@@ -123,6 +123,9 @@ export const SOURCES_QUERY = gql`
           headerImage
           color
           membersCount
+          category {
+            id
+          }
           members {
             edges {
               node {

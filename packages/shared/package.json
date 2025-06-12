@@ -111,6 +111,7 @@
     "fetch-event-stream": "^0.1.5",
     "graphql-ws": "^5.5.5",
     "jotai": "^2.12.2",
+    "lottie-react": "^2.4.1",
     "node-fetch": "^2.6.6",
     "parsecurrency": "^1.1.1",
     "react-markdown": "^8.0.7",
