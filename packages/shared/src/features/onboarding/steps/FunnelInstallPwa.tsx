@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import type { FunnelStepInstallPwa } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingPWA } from '../../../components/onboarding';
@@ -14,15 +14,17 @@ function FunnelInstallPwaComponent({
 }: FunnelStepInstallPwa): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileXL);
   const shouldSkip = !isIOS() || isPWA() || !isMobile;
+  const haveEvaluated = useRef(false);
 
   const handleComplete = useCallback(() => {
     onTransition({ type: FunnelStepTransitionType.Complete });
   }, [onTransition]);
 
   useEffect(() => {
-    if (shouldSkip) {
+    if (shouldSkip && !haveEvaluated.current) {
       handleComplete();
     }
+    haveEvaluated.current = true;
   }, [shouldSkip, handleComplete]);
 
   if (shouldSkip) {

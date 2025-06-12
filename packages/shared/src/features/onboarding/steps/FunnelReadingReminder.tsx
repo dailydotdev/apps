@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
@@ -13,6 +13,7 @@ function FunnelReadingReminderComponent({
 }: FunnelStepReadingReminder): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileXL);
   const { isPushSupported } = usePushNotificationContext();
+  const haveEvaluated = useRef(false);
 
   const handleSubmit = useCallback(
     ({ skipped }: { skipped?: boolean } = {}) => {
@@ -26,9 +27,10 @@ function FunnelReadingReminderComponent({
   );
 
   useEffect(() => {
-    if (!isMobile || !isPushSupported) {
+    if (!haveEvaluated.current && (!isMobile || !isPushSupported)) {
       handleSubmit({ skipped: true });
     }
+    haveEvaluated.current = true;
   }, [handleSubmit, isMobile, isPushSupported]);
 
   if (!isMobile || !isPushSupported) {
