@@ -108,16 +108,10 @@ export interface Source {
 
 export type SourceTooltip = Pick<
   Source,
-  | 'id'
-  | 'name'
-  | 'image'
-  | 'handle'
-  | 'permalink'
-  | 'description'
-  | 'type'
-  | 'flags'
+  'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
 > & {
   membersCount?: number;
+  type?: 'user' | 'source' | 'squad';
 };
 
 export type SourceData = { source: Source };
