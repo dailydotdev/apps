@@ -10,7 +10,6 @@ import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
 import { Image, ImageType } from '../image/Image';
-import { SourceType } from '../../graphql/sources';
 
 function NotificationItemAvatar({
   type,
@@ -29,7 +28,6 @@ function NotificationItemAvatar({
         source={{
           id: referenceId,
           handle: referenceId,
-          type: SourceType.Machine,
           name,
           image,
           permalink: targetUrl,

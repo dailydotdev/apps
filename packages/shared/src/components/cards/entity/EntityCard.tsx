@@ -2,10 +2,11 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import classNames from 'classnames';
 import { Image } from '../../image/Image';
+import type { SourceTooltip } from '../../../graphql/sources';
 
 export type EntityCardProps = {
   image: string;
-  type: 'user' | 'source' | 'squad';
+  type?: SourceTooltip['type'];
   children?: ReactNode;
   entityName?: string;
   actionButtons?: ReactNode | ReactNode[];
@@ -20,6 +21,7 @@ const EntityCard = ({
   className,
   actionButtons,
   image,
+  type,
   entityName,
 }: EntityCardProps) => {
   return (
@@ -31,7 +33,14 @@ const EntityCard = ({
     >
       <div className="flex w-full items-start gap-2">
         <div className={classNames(className?.image, 'overflow-hidden')}>
-          <Image src={image} alt={entityName} />
+          <Image
+            src={image}
+            alt={
+              type === 'user'
+                ? `${entityName}'s user avatar`
+                : `${entityName}'s image`
+            }
+          />
         </div>
         <div className="ml-auto flex items-center gap-2">{actionButtons}</div>
         <div />
