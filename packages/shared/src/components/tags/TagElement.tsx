@@ -20,6 +20,7 @@ export const TagElement = ({
   onClick,
   isSelected = false,
   isHighlighted = false,
+  ...attrs
 }: OnboardingTagProps): ReactElement => {
   const { interactiveFeedExp } = useInteractiveFeedContext();
   const selectedColor =
@@ -38,6 +39,7 @@ export const TagElement = ({
       onClick={() => {
         onClick({ tag });
       }}
+      {...attrs}
     >
       {tag.name}
       {isHighlighted && (

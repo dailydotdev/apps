@@ -15,6 +15,7 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import type { ProductPricingPreview } from '../../graphql/paddle';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -121,6 +122,7 @@ const PlusCard = ({
           title="Continue without Plus"
           variant={ButtonVariant.Secondary}
           type="button"
+          data-funnel-track={FunnelTargetId.StepSkip}
         >
           Join for free
         </Button>
@@ -137,6 +139,7 @@ const PlusCard = ({
           type="button"
           title="Get started with Plus"
           variant={ButtonVariant.Primary}
+          data-funnel-track={FunnelTargetId.StepCta}
         >
           Get started
         </Button>

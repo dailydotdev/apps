@@ -22,6 +22,7 @@ import { ArrowIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useFunnelPlusPricing } from '../hooks/useFunnelPlusPricing';
 import type { FunnelStepPlusCards } from '../types/funnel';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 type VariationCardOptionProps = {
   selected: boolean;
@@ -164,6 +165,7 @@ export const OnboardingPlusVariationV1 = ({
               e.preventDefault();
               onComplete?.();
             }}
+            data-funnel-track={FunnelTargetId.StepCta}
           >
             {/* Best Value Badge */}
             <div className="mx-auto my-2">
@@ -194,6 +196,7 @@ export const OnboardingPlusVariationV1 = ({
               e.preventDefault();
               onSkip?.();
             }}
+            data-funnel-track={FunnelTargetId.StepSkip}
           >
             <VariationCardOption
               selected={false}
@@ -209,6 +212,7 @@ export const OnboardingPlusVariationV1 = ({
               size={ButtonSize.Medium}
               className="w-full"
               onClick={onComplete}
+              data-funnel-track={FunnelTargetId.StepCta}
             >
               Continue with Plus
             </Button>

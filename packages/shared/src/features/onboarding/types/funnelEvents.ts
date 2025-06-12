@@ -24,6 +24,9 @@ export enum FunnelTargetId {
   SignupProvider = 'signup provider',
   Logo = 'logo',
   DownloadExtension = 'download extension',
+  FeedTag = 'feed tag',
+  FeedPreview = 'feed preview',
+  FeedContentType = 'feed content type',
 }
 
 export type FunnelEvent =
