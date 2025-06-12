@@ -12,7 +12,7 @@ function FunnelReadingReminderComponent({
   onTransition,
 }: FunnelStepReadingReminder): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileXL);
-  const { isPushSupported } = usePushNotificationContext();
+  const { isPushSupported, isInitialized } = usePushNotificationContext();
   const haveEvaluated = useRef(false);
 
   const handleSubmit = useCallback(
@@ -27,13 +27,18 @@ function FunnelReadingReminderComponent({
   );
 
   useEffect(() => {
-    if (!haveEvaluated.current && (!isMobile || !isPushSupported)) {
+    if (haveEvaluated.current) {
+      return;
+    }
+
+    if (!isMobile || (isInitialized && !isPushSupported)) {
       handleSubmit({ skipped: true });
     }
-    haveEvaluated.current = true;
-  }, [handleSubmit, isMobile, isPushSupported]);
 
-  if (!isMobile || !isPushSupported) {
+    haveEvaluated.current = true;
+  }, [handleSubmit, isInitialized, isMobile, isPushSupported]);
+
+  if (!isMobile || !isInitialized || !isPushSupported) {
     return null;
   }
 
