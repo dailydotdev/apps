@@ -425,4 +425,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.PlusCards,
   FunnelStepType.OrganicCheckout,
   FunnelStepType.BrowserExtension,
+  FunnelStepType.InstallPwa,
 ];
