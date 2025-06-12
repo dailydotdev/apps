@@ -385,6 +385,7 @@ export enum TargetId {
   ContextMenu = 'context',
   SmartPrompt = 'smart prompt',
   Account = 'account',
+  Brief = 'brief',
 }
 
 export enum NotificationChannel {

@@ -4,7 +4,6 @@ import type { NextSeoProps } from 'next-seo';
 
 import {
   Typography,
-  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { BriefListItem } from '@dailydotdev/shared/src/components/brief/BriefListItem';
@@ -20,13 +19,31 @@ import {
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import Link from 'next/link';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  useConditionalFeature,
+  usePlusSubscription,
+} from '@dailydotdev/shared/src/hooks';
+import { featurePlusCtaCopy } from '@dailydotdev/shared/src/lib/featureManagement';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import {
+  briefButtonBg,
+  briefCardBg,
+} from '@dailydotdev/shared/src/styles/custom';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const Page = (): ReactElement => {
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
+
   return (
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-screen-laptop flex-col">
@@ -41,11 +58,7 @@ const Page = (): ReactElement => {
                 variant={ButtonVariant.Tertiary}
               />
             </Link>
-            <Typography
-              type={TypographyType.Title3}
-              bold
-              color={TypographyColor.Primary}
-            >
+            <Typography type={TypographyType.Title3} bold>
               Presidential briefing
             </Typography>
             <Button
@@ -57,6 +70,42 @@ const Page = (): ReactElement => {
             />
           </header>
           <div className="flex flex-col px-4">
+            {!isPlus && (
+              <div
+                style={{
+                  background: briefCardBg,
+                }}
+                className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white bg-action-plus-float px-4 py-3"
+              >
+                <Typography
+                  type={TypographyType.Callout}
+                  className="w-full tablet:w-auto"
+                >
+                  Upgrade to daily.dev Plus now to access exclusive dev
+                  insights!
+                </Typography>
+                <Link href={plusUrl} passHref>
+                  <Button
+                    style={{
+                      background: briefButtonBg,
+                    }}
+                    className="ml-auto w-fit text-black"
+                    tag="a"
+                    type="button"
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    onClick={() => {
+                      logSubscriptionEvent({
+                        event_name: LogEvent.UpgradeSubscription,
+                        target_id: TargetId.Brief,
+                      });
+                    }}
+                  >
+                    {plusCta}
+                  </Button>
+                </Link>
+              </div>
+            )}
             <BriefListSection>
               <BriefListItem
                 title="May 14"

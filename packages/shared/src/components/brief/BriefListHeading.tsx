@@ -18,7 +18,10 @@ export const BriefListHeading = ({
 }: BriefListHeadingProps): ReactElement => {
   return (
     <article
-      className={classNames('flex w-full items-center gap-4 p-4', className)}
+      className={classNames(
+        'flex w-full items-center gap-4 px-4 pb-2 pt-6',
+        className,
+      )}
     >
       <Typography
         type={TypographyType.Title3}
