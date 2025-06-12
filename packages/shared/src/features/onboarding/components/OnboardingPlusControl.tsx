@@ -59,7 +59,7 @@ export const OnboardingPlusControl = ({
   const { item } = useFunnelPlusPricing();
 
   return (
-    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 tablet:px-10">
+    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 py-10 tablet:px-10">
       <header className="text-center">
         <Typography
           bold

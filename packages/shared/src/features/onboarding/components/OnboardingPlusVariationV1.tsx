@@ -104,7 +104,7 @@ export const OnboardingPlusVariationV1 = ({
     return (
       <div
         key={plusItem.id}
-        className="w-full"
+        className="w-full py-10"
         onMouseEnter={() => handleItemHover(plusItem)}
       >
         <div className="mb-6 h-50 w-full overflow-hidden rounded-10">
