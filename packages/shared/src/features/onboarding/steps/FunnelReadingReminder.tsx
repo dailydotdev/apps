@@ -32,6 +32,10 @@ function FunnelReadingReminderComponent({
     }
 
     console.log({ isMobile, isInitialized, isPushSupported });
+    console.log(
+      'evaluate skip condition',
+      !isMobile || (isInitialized && !isPushSupported),
+    );
 
     if (!isMobile || (isInitialized && !isPushSupported)) {
       handleSubmit({ skipped: false });
@@ -46,7 +50,13 @@ function FunnelReadingReminderComponent({
 
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
-      <ReadingReminder headline={headline} onClickNext={handleSubmit} />
+      <ReadingReminder
+        headline={headline}
+        onClickNext={({ skipped }) => {
+          console.log('clicked next');
+          handleSubmit({ skipped });
+        }}
+      />
     </div>
   );
 }
