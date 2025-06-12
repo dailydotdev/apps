@@ -207,7 +207,9 @@ export const FunnelStepper = ({
   }
 
   const shouldShowHeaderSkip =
-    skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
+    skip.hasTarget &&
+    (!skip.placement || skip.placement === 'default') &&
+    step.type !== FunnelStepType.BrowserExtension; // backwards compat for empty placement
 
   return (
     <section
