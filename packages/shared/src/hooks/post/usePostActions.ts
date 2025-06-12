@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { disabledRefetch } from '../../lib/func';
 
 type Interaction = 'upvote' | 'bookmark' | 'copy' | 'none';
 
@@ -20,15 +21,20 @@ export const usePostActions = ({ post }: { post: Post }): UsePostActions => {
     return generateQueryKey(RequestKey.PostActions, { id: post?.id });
   }, [post?.id]);
 
-  const { data } = useQuery<PostActionData>({
+  const queryFn = useCallback((): PostActionData => {
+    return {
+      interaction: 'none',
+      previousInteraction: 'none',
+    };
+  }, []);
+
+  const { data } = useQuery({
     queryKey: key,
-    initialData: () => {
-      return {
-        interaction: 'none',
-        previousInteraction: 'none',
-      };
-    },
+    queryFn,
+    initialData: queryFn,
     staleTime: Infinity,
+    gcTime: Infinity,
+    ...disabledRefetch,
   });
 
   const onInteract = useCallback(
