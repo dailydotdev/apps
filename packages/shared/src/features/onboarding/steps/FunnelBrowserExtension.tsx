@@ -19,8 +19,9 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { ButtonVariant } from '../../../components/buttons/common';
 import { FunnelTargetId } from '../types/funnelEvents';
+import { withIsActiveGuard } from '../shared/withActiveGuard';
 
-export const FunnelBrowserExtension = ({
+const BrowserExtension = ({
   parameters: { headline, explainer },
   onTransition,
 }: FunnelStepBrowserExtension): ReactElement => {
@@ -105,3 +106,5 @@ export const FunnelBrowserExtension = ({
     </div>
   );
 };
+
+export const FunnelBrowserExtension = withIsActiveGuard(BrowserExtension);
