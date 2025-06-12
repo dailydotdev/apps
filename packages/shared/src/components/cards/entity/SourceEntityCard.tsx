@@ -116,7 +116,7 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(membersCount)} Members
+            {largeNumberFormat(membersCount) || 0} Followers
           </Typography>
           <Separator />
           <Typography
