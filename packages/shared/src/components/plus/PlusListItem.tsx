@@ -118,7 +118,10 @@ export const PlusListItem = ({
           <InfoIcon
             aria-hidden
             {...iconProps}
-            className={classNames('mt-px', iconProps?.className)}
+            className={classNames(
+              'mt-px text-text-secondary',
+              iconProps?.className,
+            )}
           />
         )}
       </li>
