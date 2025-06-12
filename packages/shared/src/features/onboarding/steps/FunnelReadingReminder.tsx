@@ -31,8 +31,10 @@ function FunnelReadingReminderComponent({
       return;
     }
 
+    console.log({ isMobile, isInitialized, isPushSupported });
+
     if (!isMobile || (isInitialized && !isPushSupported)) {
-      handleSubmit({ skipped: true });
+      handleSubmit({ skipped: false });
     }
 
     haveEvaluated.current = true;
