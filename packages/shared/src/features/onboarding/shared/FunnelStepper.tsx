@@ -207,9 +207,9 @@ export const FunnelStepper = ({
   }
 
   const shouldShowHeaderSkip =
-    skip.hasTarget &&
-    (!skip.placement || skip.placement === 'default') &&
-    step.type !== FunnelStepType.BrowserExtension; // backwards compat for empty placement
+    skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
+  const shouldShowProgressBar =
+    shouldShowHeaderSkip && step.type !== FunnelStepType.BrowserExtension;
 
   return (
     <section
@@ -245,7 +245,7 @@ export const FunnelStepper = ({
             }}
             showBackButton={back.hasTarget}
             showSkipButton={shouldShowHeaderSkip}
-            showProgressBar={shouldShowHeaderSkip}
+            showProgressBar={shouldShowProgressBar}
           />
           <FunnelPaymentPricingContext.Provider value={{ pricing }}>
             <PaymentContextProvider
