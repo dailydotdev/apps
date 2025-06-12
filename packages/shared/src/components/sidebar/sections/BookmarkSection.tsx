@@ -4,7 +4,7 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
-import { webappUrl } from '../../../lib/constants';
+import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -49,7 +49,7 @@ export const BookmarkSection = ({
         <ListIcon Icon={() => <BriefIcon secondary={active} />} />
       ),
       title: 'Presidential briefing',
-      path: `${webappUrl}briefing`,
+      path: briefingUrl,
       isForcedLink: true,
       requiresLogin: true,
       rightIcon,

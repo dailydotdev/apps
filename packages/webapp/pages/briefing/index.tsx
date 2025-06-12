@@ -84,7 +84,7 @@ const Page = (): ReactElement => {
                   Upgrade to daily.dev Plus now to access exclusive dev
                   insights!
                 </Typography>
-                <Link href={plusUrl} passHref>
+                <Link href={plusUrl} passHref legacyBehavior>
                   <Button
                     style={{
                       background: briefButtonBg,
@@ -108,6 +108,7 @@ const Page = (): ReactElement => {
             )}
             <BriefListSection>
               <BriefListItem
+                briefId="1"
                 title="May 14"
                 pill={{ label: 'Just in' }}
                 readTime="8m"
@@ -115,6 +116,7 @@ const Page = (): ReactElement => {
                 sourcesCount={147}
               />
               <BriefListItem
+                briefId="1"
                 title="May 2"
                 readTime="8m"
                 postsCount={783}
@@ -122,6 +124,7 @@ const Page = (): ReactElement => {
                 isRead
               />
               <BriefListItem
+                briefId="1"
                 title="April 7"
                 readTime="8m"
                 postsCount={783}
@@ -132,6 +135,7 @@ const Page = (): ReactElement => {
             <BriefListSection>
               <BriefListHeading title="2024" />
               <BriefListItem
+                briefId="1"
                 title="December 22"
                 readTime="8m"
                 postsCount={783}
@@ -139,6 +143,7 @@ const Page = (): ReactElement => {
                 isLocked
               />
               <BriefListItem
+                briefId="1"
                 title="December 1"
                 readTime="8m"
                 postsCount={783}
@@ -146,12 +151,14 @@ const Page = (): ReactElement => {
                 isRead
               />
               <BriefListItem
+                briefId="1"
                 title="November 5"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
               />
               <BriefListItem
+                briefId="1"
                 title="October 22"
                 readTime="8m"
                 postsCount={783}
