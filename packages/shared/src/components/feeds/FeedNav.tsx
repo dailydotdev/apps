@@ -60,7 +60,7 @@ function FeedNav(): ReactElement {
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home: shouldRenderNav } = useActiveNav(feedName);
+  const { home, bookmarks } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -145,7 +145,7 @@ function FeedNav(): ReactElement {
       setIsHeaderVisible(shouldHeaderBeVisible);
     });
   });
-
+  const shouldRenderNav = home || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }

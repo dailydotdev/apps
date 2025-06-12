@@ -45,10 +45,18 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
   const isExtension = checkIsExtension();
   const queryKey = useMemo(() => ['cookie', key], [key]);
   const client = useQueryClient();
+
+  const queryFn = useCallback(() => {
+    return isExtension || !!getBrowserCookie(key);
+  }, [isExtension, key]);
+
   const { data: exists } = useQuery({
     queryKey,
-    initialData: () => isExtension || !!getBrowserCookie(key),
+    queryFn,
+    initialData: queryFn,
     ...disabledRefetch,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
   const onCookieAccepted = useCallback(
