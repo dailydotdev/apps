@@ -39,6 +39,7 @@ export default function BriefPostModal({
       postType={PostType.Brief}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
+      size={Modal.Size.Large}
     >
       <BriefPostContent
         position={position}
