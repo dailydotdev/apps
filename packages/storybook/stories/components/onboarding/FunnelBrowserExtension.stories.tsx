@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FunnelBrowserExtension } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelBrowserExtension';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
 import ExtensionProviders from '../../extension/_providers';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 const meta: Meta<typeof FunnelBrowserExtension> = {
   title: 'Components/Onboarding/Steps/BrowserExtension',
