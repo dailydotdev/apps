@@ -19,12 +19,12 @@ import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
 import { AdsDashboardModal } from './AdsDashboardModal';
-import { postBoostSuccessCover } from '../../../../lib/image';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
 import { usePostImage } from '../../../../hooks/post/usePostImage';
 import type { TransactionCreated } from '../../../../graphql/njord';
 import { isNullOrUndefined } from '../../../../lib/func';
+import { BoostPostSuccessModal } from './BoostPostSuccessModal';
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
@@ -106,38 +106,10 @@ export function BoostPostModal({
 
   if (activeScreen === SCREENS.SUCCESS) {
     return (
-      <Modal
+      <BoostPostSuccessModal
         {...props}
-        isOpen
-        kind={Modal.Kind.FixedCenter}
-        size={Modal.Size.Small}
-        isDrawerOnMobile
-      >
-        <Modal.Body className="flex flex-col">
-          <Image src={postBoostSuccessCover} />
-          <div className="flex flex-col gap-2">
-            <Typography type={TypographyType.Title2}>
-              Post boosted successfully!
-            </Typography>
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Tertiary}
-            >
-              Your post is now being promoted and will start reaching more
-              developers shortly. You can track its performance anytime from the
-              ads dashboard.
-            </Typography>
-          </div>
-          <Button
-            variant={ButtonVariant.Primary}
-            className="w-full"
-            type="button"
-            onClick={() => setActiveScreen(SCREENS.DASHBOARD)}
-          >
-            Ads dashboard
-          </Button>
-        </Modal.Body>
-      </Modal>
+        onBackToDashboard={() => setActiveScreen(SCREENS.DASHBOARD)}
+      />
     );
   }
 
