@@ -1,7 +1,13 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { Fragment, useEffect } from 'react';
-import { ToastSubject, useToastNotification } from '../../../hooks';
+import Link from 'next/link';
+import {
+  ToastSubject,
+  useConditionalFeature,
+  usePlusSubscription,
+  useToastNotification,
+} from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -19,9 +25,16 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Pill } from '../../Pill';
-import { TimerIcon } from '../../icons';
+import { ChecklistAIcon, TimerIcon } from '../../icons';
 import { CollectionPillSources } from '../collection/CollectionPillSources';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { briefButtonBg, briefCardBg } from '../../../styles/custom';
+import { plusUrl } from '../../../lib/constants';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import { LottieAnimation } from '../../LottieAnimation';
+import { briefFeatureList, PlusList } from '../../plus/PlusList';
 
 const BriefPostContentRaw = ({
   post,
@@ -41,6 +54,14 @@ const BriefPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const {
+    value: { full: plusCta },
+  } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
+
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const { updatedAt, createdAt, contentHtml } = post;
@@ -195,6 +216,51 @@ const BriefPostContentRaw = ({
               </div>
             </div>
             <Markdown content={contentHtml} />
+            {!isPlus && (
+              <div
+                style={{
+                  background: briefCardBg,
+                }}
+                className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border border-white bg-action-plus-float p-6"
+              >
+                <LottieAnimation
+                  className="-m-4 h-20 w-20"
+                  src="/robot-loving.json"
+                />
+                <Typography type={TypographyType.Title2} bold>
+                  You just got a taste of what daily.dev Plus can do
+                </Typography>
+                <Typography type={TypographyType.Callout}>
+                  Fast, high-signal Briefs delivered straight to you by AI. Want
+                  unlimited access? Let&apos;s make it official.
+                </Typography>
+                <PlusList
+                  className="!p-0"
+                  items={briefFeatureList}
+                  icon={ChecklistAIcon}
+                />
+                <Link href={plusUrl} passHref legacyBehavior>
+                  <Button
+                    style={{
+                      background: briefButtonBg,
+                    }}
+                    className="w-full"
+                    tag="a"
+                    type="button"
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    onClick={() => {
+                      logSubscriptionEvent({
+                        event_name: LogEvent.UpgradeSubscription,
+                        target_id: TargetId.Brief,
+                      });
+                    }}
+                  >
+                    {plusCta}
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </BasePostContent>
       </PostContainer>
