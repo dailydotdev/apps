@@ -61,15 +61,6 @@ interface SendGenericReport extends SendReportProps {
 const sendReport = (params: SendGenericReport): Promise<EmptyResponse> =>
   gqlClient.request(SEND_REPORT_MUTATION, params);
 
-export const sendPostReport = (
-  params: SendReportProps,
-): Promise<EmptyResponse> => sendReport({ ...params, type: ReportEntity.Post });
-
-export const sendCommentReport = (
-  params: SendReportProps,
-): Promise<EmptyResponse> =>
-  sendReport({ ...params, type: ReportEntity.Comment });
-
 export const sendSourceReport = (
   params: SendReportProps,
 ): Promise<EmptyResponse> =>

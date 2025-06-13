@@ -1,5 +1,4 @@
 import type { FeatureDefinition } from '@growthbook/growthbook';
-import { queryOptions } from '@tanstack/react-query';
 import type { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import type { Alerts } from '../graphql/alerts';
@@ -10,8 +9,6 @@ import { decrypt } from '../components/crypto';
 import type { MarketingCta } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
-import { BOOT_QUERY_KEY } from '../contexts/common';
-import { STALE_TIME } from './query';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -129,9 +126,3 @@ export async function getBootData(
   const result = await res.json();
   return await enrichBootWithFeatures(result);
 }
-
-export const appBootDataQuery = queryOptions<Boot>({
-  queryKey: BOOT_QUERY_KEY,
-  queryFn: async () => await getBootData(BootApp.Webapp),
-  staleTime: STALE_TIME,
-});

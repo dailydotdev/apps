@@ -11,50 +11,7 @@ export const oneMinute = 60;
 export const oneHour = 3600;
 export const oneDay = 86400;
 const oneWeek = 7 * oneDay;
-const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
-
-export const publishTimeRelative = (
-  value: Date | number | string,
-  now = new Date(),
-): string => {
-  const date = new Date(value);
-
-  // Calculate time delta in seconds.
-  const dt = (now.getTime() - date.getTime()) / 1000;
-
-  if (dt <= oneMinute) {
-    return 'Now';
-  }
-
-  if (dt <= oneHour) {
-    const numMinutes = Math.round(dt / oneMinute);
-    return `${numMinutes} ${numMinutes === 1 ? 'minute' : 'minutes'} ago`;
-  }
-
-  if (dt <= oneDay) {
-    const numHours = Math.round(dt / oneHour);
-    return `${numHours} ${numHours === 1 ? 'hour' : 'hours'} ago`;
-  }
-
-  if (dt <= oneWeek) {
-    const numDays = Math.round(dt / oneDay);
-    return `${numDays} ${numDays === 1 ? 'day' : 'days'} ago`;
-  }
-
-  if (dt <= oneMonth) {
-    const numWeeks = Math.round(dt / oneWeek);
-    return `${numWeeks} ${numWeeks === 1 ? 'week' : 'weeks'} ago`;
-  }
-
-  if (dt <= oneYear) {
-    const numMonths = Math.round(dt / oneMonth);
-    return `${numMonths} ${numMonths === 1 ? 'month' : 'months'} ago`;
-  }
-
-  const numYears = Math.round(dt / oneYear);
-  return `${numYears} ${numYears === 1 ? 'year' : 'years'} ago`;
-};
 
 export const publishTimeRelativeShort = (
   value: Date | number | string,
@@ -253,18 +210,6 @@ export const getLastActivityDateFormat = (
     year: 'numeric',
   });
 };
-
-export enum Day {
-  Sunday,
-  Monday,
-  Tuesday,
-  Wednesday,
-  Thursday,
-  Friday,
-  Saturday,
-}
-
-export const Weekends = [Day.Saturday, Day.Sunday];
 
 export const getTodayTz = (timeZone: string, now = new Date()): Date => {
   const timeZonedToday = now.toLocaleString('en', { timeZone });

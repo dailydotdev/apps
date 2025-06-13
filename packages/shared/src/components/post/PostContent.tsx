@@ -28,7 +28,6 @@ import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import { PostTagList } from './tags/PostTagList';
 
 export const SCROLL_OFFSET = 80;
-export const ONBOARDING_OFFSET = 120;
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ './PostCodeSnippets').then(

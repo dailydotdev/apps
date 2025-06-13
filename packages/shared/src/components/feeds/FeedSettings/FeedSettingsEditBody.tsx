@@ -5,8 +5,6 @@ import { Modal } from '../../modals/common/Modal';
 import type { ModalBodyProps } from '../../modals/common/ModalBody';
 import { Typography, TypographyType } from '../../typography/Typography';
 
-export type FeedSettingsEditBodyProps = ModalBodyProps;
-
 export const FeedSettingsEditBody = ({
   children,
   className,

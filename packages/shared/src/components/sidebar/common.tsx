@@ -10,25 +10,6 @@ import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
 
-export interface SidebarProps {
-  promotionalBannerActive?: boolean;
-  isNavButtons?: boolean;
-  sidebarRendered?: boolean;
-  openMobileSidebar?: boolean;
-  activePage?: string;
-  showDnd?: boolean;
-  dndActive?: boolean;
-  onNavTabClick?: (tab: string) => void;
-  setOpenMobileSidebar?: () => unknown;
-  enableSearch?: () => void;
-  onShowDndClick?: () => void;
-  onLogoClick?: (e: React.MouseEvent) => unknown;
-}
-
-export interface SidebarUserButtonProps {
-  sidebarRendered?: boolean;
-}
-
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
@@ -70,10 +51,6 @@ interface NavItemProps {
 
 export const navBtnClass =
   'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-8';
-export const SidebarBackdrop = classed(
-  'div',
-  'fixed w-full h-full bg-overlay-quaternary-onion z-3 cursor-pointer inset-0',
-);
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0  h-full ',

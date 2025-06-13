@@ -41,10 +41,6 @@ export const AccountPageHeading = classed(
 
 export const CommonTextField = classed(TextField, { container: 'max-w-sm' });
 export const AccountTextField = classed(CommonTextField, { container: 'mt-6' });
-export const AccountSidebarPagesSection = classed(
-  'div',
-  'flex flex-col py-4 px-5 gap-3 mt-10 w-full rounded-16 border border-border-subtlest-tertiary',
-);
 
 type SettingsSwitchProps = {
   name?: string;
