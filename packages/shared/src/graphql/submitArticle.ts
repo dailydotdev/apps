@@ -1,21 +1,4 @@
 import { gql } from 'graphql-request';
-import type { Post } from './posts';
-
-interface Submission {
-  id: string;
-  url: string;
-  userId: string;
-  createdAt: Date;
-  status: string;
-  reason: string;
-}
-
-export interface SubmitArticleResponse {
-  result: 'succeed' | 'exists' | 'rejected';
-  reason?: string;
-  post?: Post;
-  submission?: Submission;
-}
 
 export interface SubmissionAvailability {
   hasAccess: boolean;
