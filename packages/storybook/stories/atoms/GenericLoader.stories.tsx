@@ -1,7 +1,7 @@
 import React, { ComponentProps } from 'react';
-import type { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { StoryObj } from '@storybook/react';
+import { StoryObj } from '@storybook/react-vite';
 
 type CustomProps = ComponentProps<typeof GenericLoader> & { label?: string };
 

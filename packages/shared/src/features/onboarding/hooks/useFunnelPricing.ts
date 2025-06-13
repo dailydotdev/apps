@@ -24,7 +24,7 @@ export const useFunnelPricing = (
       return [];
     }
 
-    const plans = step.parameters.plans
+    return step.parameters.plans
       .map((plan) => {
         const preview = data?.find(
           (pricing) => pricing.priceId === plan.priceId,
@@ -54,8 +54,6 @@ export const useFunnelPricing = (
         } as ProductPricingPreview;
       })
       .filter(Boolean);
-
-    return plans;
   }, [data, step]);
 
   return { data: pricingPreview ?? [] };

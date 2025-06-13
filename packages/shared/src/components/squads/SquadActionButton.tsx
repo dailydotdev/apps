@@ -1,4 +1,4 @@
-import type { ReactElement, MouseEvent } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -113,11 +113,63 @@ export const SquadActionButton = ({
     squad.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
 
+  const fuzzyQueryKey = generateQueryKey(
+    RequestKey.Sources,
+    null,
+    undefined,
+    true,
+    squad.category?.id,
+  );
+  const fuzzyQueryMatch = queryClient.getQueriesData({
+    queryKey: fuzzyQueryKey,
+  });
+  const fuzzyFeaturedQueryMatch = queryClient.getQueriesData({
+    queryKey: generateQueryKey(RequestKey.Sources, null, true, true),
+  });
+  const categoryQueryKey = fuzzyQueryMatch?.[0]?.[0];
+  const featuredQueryKey = fuzzyFeaturedQueryMatch?.[0]?.[0];
+
+  const joinSquadMutation = (data) => ({
+    ...data,
+    pages: data?.pages?.map((edge) => ({
+      ...edge,
+      sources: {
+        ...edge.sources,
+        edges: edge.sources.edges.map((subEdge) => {
+          const { node } = subEdge;
+          return {
+            ...subEdge,
+            node: {
+              ...subEdge.node,
+              ...(node.id === squad.id && { currentMember: user }),
+            },
+          };
+        }),
+      },
+    })),
+  });
+
   const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
     mutationFn: useJoinSquad({ squad }),
-
     onError: () => {
       displayToast(labels.error.generic);
+    },
+    onMutate: () => {
+      const currentCategoryData = queryClient.getQueryData(categoryQueryKey);
+      if (currentCategoryData) {
+        queryClient.setQueryData(
+          categoryQueryKey,
+          joinSquadMutation(currentCategoryData),
+        );
+      }
+
+      const currentFeaturedData = queryClient.getQueryData(featuredQueryKey);
+      if (currentFeaturedData) {
+        queryClient.setQueryData(
+          featuredQueryKey,
+          joinSquadMutation(currentFeaturedData),
+        );
+      }
     },
     onSuccess,
   });

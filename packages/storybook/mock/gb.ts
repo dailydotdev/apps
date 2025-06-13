@@ -1,4 +1,4 @@
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 // GrowthBook enables feature flagging and experimentation.
 export class GrowthBook {

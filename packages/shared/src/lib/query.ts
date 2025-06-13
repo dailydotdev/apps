@@ -206,6 +206,7 @@ export enum RequestKey {
   Awards = 'awards',
   PostBoostReach = 'postBoostReach',
   Organizations = 'organizations',
+  LottieAnimations = 'lottie_animations',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

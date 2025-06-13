@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import { FunnelPricing } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing';
@@ -8,9 +8,8 @@ import {
   FunnelStepPricing,
   FunnelPricingType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
-import { QueryClient } from '@tanstack/react-query';
 import ExtensionProviders from '../../extension/_providers';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
 import { PaymentContext, FunnelPaymentPricingContext } from '@dailydotdev/shared/src/contexts/payment/context';
@@ -23,7 +22,7 @@ import {
   selectedPlanAtom,
   applyDiscountAtom,
   discountTimerAtom,
-} from '@dailydotdev/shared/src/features/onboarding/store/funnelStore';
+} from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 
 // Mock pricing data
 const mockPricing: ProductPricingPreview[] = [

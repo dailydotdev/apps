@@ -1,5 +1,5 @@
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import ExtensionProviders from '../extension/_providers';
 
 const meta: Meta<typeof ProfilePicture> = {

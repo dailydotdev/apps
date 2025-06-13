@@ -16,7 +16,7 @@ import type { TrackOnNavigate } from './useFunnelTracking';
 import {
   funnelPositionAtom,
   getFunnelStepByPosition,
-} from '../store/funnelStore';
+} from '../store/funnel.store';
 import { useToggle } from '../../../hooks/useToggle';
 
 interface UseFunnelNavigationProps {

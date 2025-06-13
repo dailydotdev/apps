@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import FunnelLoading from '@dailydotdev/shared/src/features/onboarding/steps/FunnelLoading';
 import { FunnelStepTransitionType, FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 
 const meta: Meta<typeof FunnelLoading> = {
   title: 'Components/Onboarding/Steps/FunnelLoading',

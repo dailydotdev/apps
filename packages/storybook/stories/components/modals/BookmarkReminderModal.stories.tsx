@@ -1,10 +1,10 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { BookmarkReminderModal } from '@dailydotdev/shared/src/components/modals/post/BookmarkReminderModal';
 import ExtensionProviders from '../../extension/_providers';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useToggle } from '@dailydotdev/shared/src/hooks/useToggle';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 
 const meta: Meta<typeof BookmarkReminderModal> = {

@@ -8,6 +8,7 @@ interface UseOnboardingExtension {
   hasCheckedExtension: boolean;
   shouldShowExtensionOnboarding: boolean;
   browserName: BrowserName;
+  isReady: boolean;
 }
 
 export const useOnboardingExtension = (): UseOnboardingExtension => {
@@ -49,5 +50,6 @@ export const useOnboardingExtension = (): UseOnboardingExtension => {
     hasCheckedExtension: isCheckedExtension,
     shouldShowExtensionOnboarding,
     browserName,
+    isReady: isActionsFetched,
   };
 };

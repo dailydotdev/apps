@@ -15,7 +15,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { sanitizeMessage } from './utils';
+import { sanitizeMessage } from '../lib/utils';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
   cta?: {
@@ -57,7 +57,7 @@ export function FunnelStepCtaWrapper({
   return (
     <div className="relative flex flex-1 flex-col gap-4">
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
-      <div className="sticky bottom-2 m-4 flex flex-col gap-4">
+      <div className="sticky bottom-2 mx-auto my-4 flex w-full max-w-md flex-col gap-4 px-4">
         {note}
         <Button
           className={classNames(className, cta?.animation, 'w-full')}

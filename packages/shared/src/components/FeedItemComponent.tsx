@@ -31,6 +31,7 @@ import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
+import PlusGrid from './cards/plus/PlusGrid';
 
 const CommentPopup = dynamic(
   () =>
@@ -139,6 +140,7 @@ const getTags = ({
     AdTag: useListCards ? AdList : AdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
+    PlusGridTag: PlusGrid,
     AcquisitionFormTag: useListCards
       ? AcquisitionFormList
       : AcquisitionFormGrid,
@@ -187,6 +189,7 @@ export default function FeedItemComponent({
     AdTag,
     PlaceholderTag,
     MarketingCtaTag,
+    PlusGridTag,
     AcquisitionFormTag,
   } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
@@ -294,6 +297,8 @@ export default function FeedItemComponent({
           marketingCta={item.marketingCta}
         />
       );
+    case FeedItemType.PlusEntry:
+      return <PlusGridTag {...item.plusEntry} />;
     default:
       return <PlaceholderTag />;
   }

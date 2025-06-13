@@ -55,8 +55,8 @@ export function FooterPlusButton(): ReactElement {
       <Button
         {...props}
         icon={<PlusIcon />}
-        variant={ButtonVariant.Float}
-        className="z-1 justify-self-center border border-border-subtlest-tertiary"
+        variant={ButtonVariant.Primary}
+        className="absolute bottom-24 right-4 z-1 ml-auto justify-self-center border border-border-subtlest-tertiary"
       />
       <RootPortal>
         <Drawer
