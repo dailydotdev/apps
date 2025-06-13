@@ -1,7 +1,6 @@
 import * as actual from '@dailydotdev/shared/src/lib/boot';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
-import { ChecklistViewState } from '@dailydotdev/shared/src/lib/checklist';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 
 export enum BootApp {
@@ -52,5 +51,9 @@ export const getBootMock = (
   visit: { sessionId: '1', visitId: '1' },
   feeds: [],
 });
+
+export async function getBootData() {
+  return getBootMock();
+}
 
 export * from '@dailydotdev/shared/src/lib/boot';
