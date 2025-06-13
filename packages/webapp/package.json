@@ -45,7 +45,7 @@
     "react-swipeable": "^7.0.1"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.25.9",
+    "@babel/preset-typescript": "^7.27.1",
     "@dailydotdev/eslint-config": "workspace:*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "workspace:*",
     "@dailydotdev/prettier-config": "workspace:*",
