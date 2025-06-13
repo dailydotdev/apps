@@ -204,6 +204,7 @@ export enum RequestKey {
   Transactions = 'transactions',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
+  PostBoostReach = 'postBoostReach',
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
 }

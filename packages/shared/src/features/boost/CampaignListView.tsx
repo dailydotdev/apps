@@ -105,7 +105,7 @@ export function CampaignListView({
         color={campaign.status === 'active' && ButtonColor.Ketchup}
         icon={campaign.status !== 'active' && <BeforeIcon />}
       >
-        {campaign.status === 'active' ? 'Stop campaign' : 'Restart'}
+        {campaign.status === 'active' ? 'Stop campaign' : 'Boost again'}
       </Button>
     </div>
   );

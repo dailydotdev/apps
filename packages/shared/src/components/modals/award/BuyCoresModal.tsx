@@ -18,7 +18,6 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { CoreIcon } from '../../icons';
-import { useGiveAwardModalContext } from '../../../contexts/GiveAwardModalContext';
 import { IconSize } from '../../Icon';
 import { CoreOptionList } from '../../cores/CoreOptionList';
 import { CoreAmountNeeded } from '../../cores/CoreAmountNeeded';
@@ -50,6 +49,11 @@ export type CoreOptionsProps = {
   title?: ReactNode;
   showCoresAtCheckout?: boolean;
 };
+
+interface ModalHeaderProps {
+  onPlusClick?: () => void;
+}
+
 export const CoreOptions = ({
   className,
   title,
@@ -399,8 +403,10 @@ const BuyCoreDesktop = () => {
   );
 };
 
-const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
-  const { setActiveModal } = useGiveAwardModalContext();
+const BuyFlow = ({
+  onPlusClick: onPlusButtonClick,
+  ...props
+}: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
 
@@ -418,7 +424,7 @@ const BuyFlow = ({ ...props }: ModalProps): ReactElement => {
       >
         <BuyCreditsButton
           hideBuyButton={!canPurchaseCores}
-          onPlusClick={() => setActiveModal('BUY_CORES')}
+          onPlusClick={onPlusButtonClick}
         />
         {isMobile && (
           <Button
@@ -457,11 +463,12 @@ const ModalRender = ({ ...props }: ModalProps) => {
   );
 };
 
-type BuyCoresModalProps = ModalProps & {
-  origin: Origin;
-  onCompletion?: () => void;
-  product: Product;
-};
+type BuyCoresModalProps = ModalProps &
+  ModalHeaderProps & {
+    origin: Origin;
+    onCompletion?: () => void;
+    product: Product;
+  };
 export const BuyCoresModal = ({
   origin,
   onCompletion,
