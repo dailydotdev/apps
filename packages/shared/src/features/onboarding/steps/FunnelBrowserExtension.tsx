@@ -26,21 +26,21 @@ const BrowserExtension = ({
   onTransition,
 }: FunnelStepBrowserExtension): ReactElement => {
   const { logEvent } = useLogContext();
-  const { browserName, shouldShowExtensionOnboarding } =
+  const { browserName, shouldShowExtensionOnboarding, isReady } =
     useOnboardingExtension();
   const isEdge = browserName === BrowserName.Edge;
   const imageUrls = cloudinaryOnboardingExtension[browserName];
 
   useEffect(() => {
-    if (!shouldShowExtensionOnboarding) {
+    if (!shouldShowExtensionOnboarding && isReady) {
       onTransition({
         type: FunnelStepTransitionType.Skip,
         details: { browserName },
       });
     }
-  }, [browserName, onTransition, shouldShowExtensionOnboarding]);
+  }, [browserName, isReady, onTransition, shouldShowExtensionOnboarding]);
 
-  if (!shouldShowExtensionOnboarding) {
+  if (!shouldShowExtensionOnboarding || !isReady) {
     return null;
   }
 
