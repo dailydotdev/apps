@@ -103,7 +103,7 @@ const calculateRow = (index: number, numCards: number): number =>
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
 
-const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
+export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,

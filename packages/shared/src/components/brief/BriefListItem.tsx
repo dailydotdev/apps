@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEvent, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { BriefGradientIcon } from '../icons/BriefGradient';
 import {
   Typography,
@@ -14,7 +13,7 @@ import type { PillProps } from '../Pill';
 import { Pill } from '../Pill';
 import { IconSize } from '../Icon';
 import { LockIcon } from '../icons';
-import { briefingUrl } from '../../lib/constants';
+import { webappUrl } from '../../lib/constants';
 
 export type BriefListItemProps = {
   briefId: string;
@@ -26,6 +25,7 @@ export type BriefListItemProps = {
   sourcesCount?: number;
   isRead?: boolean;
   isLocked?: boolean;
+  onClick?: (briefId: string, event: MouseEvent<HTMLAnchorElement>) => void;
 };
 
 export const BriefListItem = ({
@@ -38,21 +38,14 @@ export const BriefListItem = ({
   sourcesCount,
   isRead,
   isLocked,
+  onClick,
 }: BriefListItemProps): ReactElement => {
-  const router = useRouter();
-
   return (
     <Link
-      href={`${briefingUrl}/${briefId}`}
+      href={`${webappUrl}posts/${briefId}`}
       onClick={(event) => {
-        if (router?.pathname === briefingUrl) {
-          event.preventDefault();
-
-          // mask and open modal if on briefing page
-          router?.push(
-            `${briefingUrl}?id=${briefId}`,
-            `${briefingUrl}/${briefId}`,
-          );
+        if (typeof onClick === 'function') {
+          onClick(briefId, event);
         }
       }}
     >

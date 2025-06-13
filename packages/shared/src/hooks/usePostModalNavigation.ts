@@ -15,7 +15,8 @@ import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/log';
 import { checkIsExtension } from '../lib/func';
-import { isTesting } from '../lib/constants';
+import { isTesting, webappUrl } from '../lib/constants';
+import { getPathnameWithQuery } from '../lib';
 
 export enum PostPosition {
   First = 'first',
@@ -262,4 +263,194 @@ export const usePostModalNavigation = (
   }, [items, openedPostIndex, isFetchingNextPage]);
 
   return ret;
+};
+
+export const useNewPostModalNavigation = (
+  items: FeedItem[],
+  fetchPage: () => Promise<unknown>,
+  updatePost: UpdateFeedPost,
+  canFetchMore: boolean,
+  baseUrl = `${webappUrl}posts`, // Default base URL for post navigation for backwards compatibility
+): UsePostModalNavigation => {
+  const router = useRouter();
+  const { logEvent } = useContext(LogContext);
+  const pmid = router.query.pmid as string;
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const scrollPositionOnFeed = useRef(0);
+
+  const openedPostIndex = useMemo(() => {
+    if (!items) {
+      return undefined;
+    }
+
+    if (!pmid) {
+      return undefined;
+    }
+
+    const foundIndex = items.findIndex((item) => {
+      if (item.type === 'post') {
+        return item.post.slug === pmid || item.post.id === pmid;
+      }
+
+      return false;
+    });
+
+    if (foundIndex === -1) {
+      return undefined;
+    }
+
+    return foundIndex;
+  }, [items, pmid]);
+
+  const getPostItem = useCallback(
+    (index: number) =>
+      index !== null && items[index]?.type === 'post'
+        ? (items[index] as PostItem)
+        : null,
+    [items],
+  );
+
+  const getPost = useCallback(
+    (index: number) => getPostItem(index)?.post || null,
+    [getPostItem],
+  );
+
+  const onChangeSelected = useCallback(
+    async (index: number) => {
+      const post = getPost(index);
+
+      if (post) {
+        await router.push(
+          {
+            pathname: baseUrl,
+            query: {
+              ...router.query,
+              pmid: post.slug,
+            },
+          },
+          `${webappUrl}posts/${post.slug}`,
+        );
+      }
+      if (post?.type === PostType.Share) {
+        const item = getPostItem(index);
+        updatePost(item.page, item.index, { ...post, read: true });
+      }
+    },
+    [baseUrl, getPost, getPostItem, router, updatePost],
+  );
+
+  const onOpenModal = (index: number) => {
+    if (!pmid) {
+      scrollPositionOnFeed.current = window.scrollY;
+    }
+
+    onChangeSelected(index);
+  };
+
+  const getPostPosition = () => {
+    const isPost = (item: FeedItem) => item.type === 'post';
+    const firstPost = items.findIndex(isPost);
+    const isLast = items.length - 1 === openedPostIndex;
+    if (firstPost === openedPostIndex) {
+      return items.length - 1 === openedPostIndex
+        ? PostPosition.Only
+        : PostPosition.First;
+    }
+    return (!canFetchMore || isFetchingNextPage) && isLast
+      ? PostPosition.Last
+      : PostPosition.Middle;
+  };
+
+  useEffect(() => {
+    if (!items) {
+      return;
+    }
+
+    if (!pmid) {
+      return;
+    }
+
+    if (typeof openedPostIndex !== 'undefined') {
+      return;
+    }
+
+    const indexFromQuery = items.findIndex((item) => {
+      if (item.type === 'post') {
+        return item.post.slug === pmid || item.post.id === pmid;
+      }
+
+      return false;
+    });
+
+    if (indexFromQuery !== -1) {
+      onChangeSelected(indexFromQuery);
+    }
+  }, [openedPostIndex, pmid, items, onChangeSelected]);
+
+  return {
+    postPosition: getPostPosition(),
+    isFetchingNextPage: false,
+    onCloseModal: async () => {
+      const searchParams = new URLSearchParams(window.location.search);
+
+      await router.push(getPathnameWithQuery(router.pathname, searchParams));
+
+      window.scrollTo(0, scrollPositionOnFeed.current);
+
+      scrollPositionOnFeed.current = 0;
+    },
+    onOpenModal,
+    onPrevious: () => {
+      let index = openedPostIndex - 1;
+      // eslint-disable-next-line no-empty
+      for (; index > 0 && items[index].type !== 'post'; index -= 1) {}
+      const item = items[index];
+      if (!item || item.type !== 'post') {
+        return;
+      }
+      const current = items[openedPostIndex] as PostItem;
+      logEvent(
+        postLogEvent('navigate previous', current.post, {
+          extra: { origin: Origin.ArticleModal },
+        }),
+      );
+      onChangeSelected(index);
+    },
+    onNext: async () => {
+      let index = openedPostIndex + 1;
+      for (
+        ;
+        index < items.length && items[index].type !== 'post';
+        index += 1 // eslint-disable-next-line no-empty
+      ) {}
+      const item = items[index];
+      if (index === items.length && canFetchMore) {
+        if (isFetchingNextPage) {
+          return;
+        }
+        await fetchPage();
+        setIsFetchingNextPage(true);
+        return;
+      }
+      if (!item) {
+        return;
+      }
+      if (item.type !== 'post') {
+        return;
+      }
+      const current = items[openedPostIndex] as PostItem;
+      if (!current) {
+        return;
+      }
+      setIsFetchingNextPage(false);
+      logEvent(
+        postLogEvent('navigate next', current.post, {
+          extra: { origin: Origin.ArticleModal },
+        }),
+      );
+      onChangeSelected(index);
+    },
+    selectedPost: getPost(openedPostIndex),
+    selectedPostIndex: 0,
+  };
 };

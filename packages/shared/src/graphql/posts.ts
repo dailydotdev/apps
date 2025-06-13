@@ -178,6 +178,7 @@ export interface Ad {
 export type ReadHistoryPost = Pick<
   Post,
   | 'id'
+  | 'slug'
   | 'title'
   | 'commentsPermalink'
   | 'image'

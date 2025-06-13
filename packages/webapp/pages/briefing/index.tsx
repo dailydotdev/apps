@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { MouseEvent, ReactElement } from 'react';
+import React, { useContext } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -19,7 +19,11 @@ import {
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import Link from 'next/link';
-import { plusUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  briefingUrl,
+  plusUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import {
   useConditionalFeature,
   usePlusSubscription,
@@ -30,12 +34,28 @@ import {
   briefButtonBg,
   briefCardBg,
 } from '@dailydotdev/shared/src/styles/custom';
+import { useNewPostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
+import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
+import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
+import type { PostItem } from '@dailydotdev/shared/src/graphql/posts';
+import { FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import { noop } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const Page = (): ReactElement => {
+  const router = useRouter();
+  const { user } = useAuthContext();
+  const currentSettings = useContext(FeedContext);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const {
     value: { full: plusCta },
@@ -44,9 +64,61 @@ const Page = (): ReactElement => {
     shouldEvaluate: !isPlus,
   });
 
+  const selectedBriefId = router?.query?.pmid as string;
+
+  // just simulate some briefs with existing posts
+  const { items, updatePost, fetchPage, canFetchMore } = useFeed(
+    generateQueryKey(RequestKey.Feeds, user, 'briefing'),
+    10,
+    currentSettings.adTemplate,
+    10,
+    {
+      query: FEED_QUERY,
+      settings: {},
+      variables: {
+        ranking: 'POPULARITY',
+        version: 1,
+      },
+    },
+  );
+
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    postPosition,
+    selectedPost,
+  } = useNewPostModalNavigation(
+    items,
+    fetchPage,
+    updatePost,
+    canFetchMore,
+    briefingUrl,
+  );
+
+  const PostModal = PostModalMap[selectedPost?.type];
+
+  const briefs: PostItem[] = items?.filter((item) => item.type === 'post');
+
+  const onBriefClick = (
+    briefId: string,
+    event: MouseEvent<HTMLAnchorElement>,
+  ) => {
+    const briefIndex = briefs.findIndex((item) => item.post.slug === briefId);
+
+    if (briefIndex === -1) {
+      return;
+    }
+
+    event.preventDefault();
+
+    onOpenModal(briefIndex);
+  };
+
   return (
     <ProtectedPage>
-      <div className="m-auto flex w-full max-w-screen-laptop flex-col">
+      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-4">
         <main className="relative flex flex-1 flex-col gap-6">
           <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
             <Link legacyBehavior passHref href={`${webappUrl}bookmarks`}>
@@ -108,67 +180,88 @@ const Page = (): ReactElement => {
             )}
             <BriefListSection>
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[0]?.post.slug}
                 title="May 14"
                 pill={{ label: 'Just in' }}
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
+                onClick={onBriefClick}
               />
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[1]?.post.slug}
                 title="May 2"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
                 isRead
+                onClick={onBriefClick}
               />
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[2]?.post.slug}
                 title="April 7"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
                 isRead
+                onClick={onBriefClick}
               />
             </BriefListSection>
             <BriefListSection>
               <BriefListHeading title="2024" />
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[3]?.post.slug}
                 title="December 22"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
                 isLocked
+                onClick={onBriefClick}
               />
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[4]?.post.slug}
                 title="December 1"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
                 isRead
+                onClick={onBriefClick}
               />
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[5]?.post.slug}
                 title="November 5"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
+                onClick={onBriefClick}
               />
               <BriefListItem
-                briefId="1"
+                briefId={briefs?.[6]?.post.slug}
                 title="October 22"
                 readTime="8m"
                 postsCount={783}
                 sourcesCount={147}
                 isRead
+                onClick={onBriefClick}
               />
             </BriefListSection>
           </div>
         </main>
       </div>
+      {!!selectedBriefId && !!selectedPost && (
+        <PostModal
+          isOpen
+          id={selectedPost.id}
+          onRequestClose={() => {
+            onCloseModal();
+          }}
+          onPreviousPost={onPrevious}
+          onNextPost={onNext}
+          postPosition={postPosition}
+          post={selectedPost}
+          onRemovePost={noop}
+        />
+      )}
     </ProtectedPage>
   );
 };
