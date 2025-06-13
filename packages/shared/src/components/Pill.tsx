@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -13,7 +13,7 @@ const pillSizeToClassName: Record<PillSize, string> = {
 };
 
 export type PillProps = {
-  label: string;
+  label: ReactNode;
   tag?: keyof Pick<JSX.IntrinsicElements, 'a' | 'div'>;
   size?: PillSize;
   className?: string;

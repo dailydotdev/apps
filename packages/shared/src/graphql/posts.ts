@@ -36,6 +36,7 @@ export enum PostType {
   Freeform = 'freeform',
   VideoYouTube = 'video:youtube',
   Collection = 'collection',
+  Brief = 'brief',
 }
 
 export const internalReadTypes: PostType[] = [

@@ -73,6 +73,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  BriefModal = 'brief modal',
 }
 
 export enum LogEvent {

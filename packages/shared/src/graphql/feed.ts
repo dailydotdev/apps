@@ -16,6 +16,7 @@ export const baseFeedSupportedTypes = [
   PostType.Freeform,
   PostType.VideoYouTube,
   PostType.Collection,
+  PostType.Brief,
 ];
 
 export const supportedTypesForPrivateSources = [
