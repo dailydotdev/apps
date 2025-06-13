@@ -147,7 +147,7 @@ const Page = (): ReactElement => {
                 style={{
                   background: briefCardBg,
                 }}
-                className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white bg-action-plus-float px-4 py-3"
+                className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white px-4 py-3"
               >
                 <Typography
                   type={TypographyType.Callout}

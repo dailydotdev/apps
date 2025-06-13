@@ -35,6 +35,9 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { LottieAnimation } from '../../LottieAnimation';
 import { briefFeatureList, PlusList } from '../../plus/PlusList';
+import { HourDropdown } from '../../fields/HourDropdown';
+import { RadioItem } from '../../fields/RadioItem';
+import { Checkbox } from '../../fields/Checkbox';
 
 const BriefPostContentRaw = ({
   post,
@@ -217,48 +220,156 @@ const BriefPostContentRaw = ({
             </div>
             <Markdown content={contentHtml} />
             {!isPlus && (
-              <div
-                style={{
-                  background: briefCardBg,
-                }}
-                className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border border-white bg-action-plus-float p-6"
-              >
-                <LottieAnimation
-                  className="-m-4 h-20 w-20"
-                  src="/robot-loving.json"
-                />
-                <Typography type={TypographyType.Title2} bold>
-                  You just got a taste of what daily.dev Plus can do
-                </Typography>
-                <Typography type={TypographyType.Callout}>
-                  Fast, high-signal Briefs delivered straight to you by AI. Want
-                  unlimited access? Let&apos;s make it official.
-                </Typography>
-                <PlusList
-                  className="!p-0"
-                  items={briefFeatureList}
-                  icon={ChecklistAIcon}
-                />
-                <Link href={plusUrl} passHref legacyBehavior>
-                  <Button
-                    style={{
-                      background: briefButtonBg,
+              <div className="flex w-full rounded-12 border border-white bg-transparent">
+                <div
+                  style={{
+                    background: briefCardBg,
+                  }}
+                  className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border-4 border-black p-6"
+                >
+                  <LottieAnimation
+                    className="-m-4 h-20 w-20"
+                    src="/robot-loving.json"
+                  />
+                  <Typography type={TypographyType.Title2} bold>
+                    You just got a taste of what daily.dev Plus can do
+                  </Typography>
+                  <Typography type={TypographyType.Callout}>
+                    Fast, high-signal Briefs delivered straight to you by AI.
+                    Want unlimited access? Let&apos;s make it official.
+                  </Typography>
+                  <PlusList
+                    className="!p-0"
+                    items={briefFeatureList}
+                    icon={ChecklistAIcon}
+                  />
+                  <Link href={plusUrl} passHref legacyBehavior>
+                    <Button
+                      style={{
+                        background: briefButtonBg,
+                      }}
+                      className="w-full"
+                      tag="a"
+                      type="button"
+                      variant={ButtonVariant.Primary}
+                      size={ButtonSize.Small}
+                      onClick={() => {
+                        logSubscriptionEvent({
+                          event_name: LogEvent.UpgradeSubscription,
+                          target_id: TargetId.Brief,
+                        });
+                      }}
+                    >
+                      {plusCta}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+            {isPlus && (
+              <div className="flex w-full rounded-12 border border-white bg-transparent">
+                <div
+                  style={{
+                    background: briefCardBg,
+                  }}
+                  className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border-4 border-black p-6"
+                >
+                  <Typography type={TypographyType.Title2} bold>
+                    Set up your briefing
+                  </Typography>
+                  <Typography type={TypographyType.Callout}>
+                    Setting up your briefing will update your current daily.dev
+                    digest preferences. Your new configuration will determine
+                    how, when, and where you receive updates going forward.
+                  </Typography>
+                  <HourDropdown
+                    className={{
+                      button: '!max-w-40',
                     }}
-                    className="w-full"
-                    tag="a"
-                    type="button"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Small}
-                    onClick={() => {
-                      logSubscriptionEvent({
-                        event_name: LogEvent.UpgradeSubscription,
-                        target_id: TargetId.Brief,
-                      });
+                    hourIndex={0}
+                    setHourIndex={() => {
+                      // TODO feat-brief save settings
+                    }}
+                  />
+                  <RadioItem
+                    className={{
+                      wrapper: 'w-full',
+                      content: 'flex-row-reverse justify-between !px-0',
+                    }}
+                    disabled={false}
+                    name="vertical"
+                    checked
+                    onChange={() => {
+                      // TODO feat-brief save settings
                     }}
                   >
-                    {plusCta}
-                  </Button>
-                </Link>
+                    Daily
+                  </RadioItem>
+                  <RadioItem
+                    className={{
+                      wrapper: 'w-full',
+                      content: 'flex-row-reverse justify-between !px-0',
+                    }}
+                    disabled={false}
+                    name="vertical"
+                    checked={false}
+                    onChange={() => {
+                      // TODO feat-brief save settings
+                    }}
+                  >
+                    Weekly
+                  </RadioItem>
+                  <Typography bold type={TypographyType.Callout}>
+                    Receive via
+                  </Typography>
+                  <Checkbox
+                    className="flex-row-reverse !px-0"
+                    name="email"
+                    checked={false}
+                    onToggleCallback={() => {
+                      // TODO feat-brief save settings
+                    }}
+                  >
+                    Email
+                  </Checkbox>
+                  <Checkbox
+                    className="flex-row-reverse !px-0"
+                    name="in-app"
+                    checked
+                    onToggleCallback={() => {
+                      // TODO feat-brief save settings
+                    }}
+                  >
+                    In app
+                  </Checkbox>
+                  <Checkbox
+                    className="flex-row-reverse !px-0"
+                    name="slack"
+                    checked
+                    onToggleCallback={() => {
+                      // TODO feat-brief save settings
+                    }}
+                  >
+                    Slack
+                  </Checkbox>
+                  <Link href={plusUrl} passHref legacyBehavior>
+                    <Button
+                      style={{
+                        background: briefButtonBg,
+                      }}
+                      className="w-full"
+                      tag="a"
+                      type="button"
+                      variant={ButtonVariant.Primary}
+                      size={ButtonSize.Small}
+                      onClick={() => {
+                        // TODO feat-brief save settings
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
           </div>
