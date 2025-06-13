@@ -53,8 +53,4 @@ export const getBootMock = (
   feeds: [],
 });
 
-export async function getBootData() {
-  return getBootMock();
-}
-
 export * from '@dailydotdev/shared/src/lib/boot';

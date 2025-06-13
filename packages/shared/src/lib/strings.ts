@@ -13,6 +13,3 @@ export const checkLowercaseEquality = (
   value1: string,
   value2: string,
 ): boolean => value1?.toLowerCase() === value2?.toLowerCase();
-
-export const getFirstWord = (value: string): string =>
-  value?.split(' ')[0] || '';
