@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
@@ -14,7 +15,6 @@ import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
-import { Slider } from '../../../fields/Slider';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
@@ -25,6 +25,11 @@ import { usePostImage } from '../../../../hooks/post/usePostImage';
 import type { TransactionCreated } from '../../../../graphql/njord';
 import { isNullOrUndefined } from '../../../../lib/func';
 import { BoostPostSuccessModal } from './BoostPostSuccessModal';
+
+const Slider = dynamic(
+  () => import('../../../fields/Slider').then((mod) => mod.Slider),
+  { ssr: false },
+);
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
