@@ -10,12 +10,12 @@ import {
   mockRegistrationFlow,
 } from '../../../__tests__/fixture/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
-import type { AuthOptionsProps } from './AuthOptions';
 import AuthOptions from './AuthOptions';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 import { AuthTriggers } from '../../lib/auth';
+import type { AuthOptionsProps } from './common';
 
 const user = null;
 
@@ -92,11 +92,11 @@ const renderRegistration = async (
     },
   });
   await screen.findByTestId('registration_form');
-  const nameInput = screen.getByLabelText('Name');
+  const nameInput = screen.getByPlaceholderText('Name');
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: username },
   });
-  fireEvent.input(screen.getByLabelText('Name'), {
+  fireEvent.input(screen.getByPlaceholderText('Name'), {
     target: { value: name },
   });
   simulateTextboxInput(nameInput as HTMLTextAreaElement, name);

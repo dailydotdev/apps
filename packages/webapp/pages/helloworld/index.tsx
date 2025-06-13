@@ -22,6 +22,10 @@ import { Provider as JotaiProvider } from 'jotai/react';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import {
+  getCookiesAndHeadersFromRequest,
+  setResponseHeaderFromBoot,
+} from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 
 type PageProps = {
   dehydratedState: DehydratedState;
@@ -35,36 +39,19 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   res,
 }) => {
   const { id, v: version } = query;
-  const allCookies = req.headers.cookie || '';
-
-  // Extract forwarded headers
-  const forwardedHeaders: Record<string, string> = {};
-  ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'].forEach(
-    (header) => {
-      const value = req.headers[header] as string;
-      if (value) {
-        forwardedHeaders[header] = value;
-      }
-    },
-  );
-  if (!forwardedHeaders['x-forwarded-for']) {
-    forwardedHeaders['x-forwarded-for'] = req.socket.remoteAddress;
-  }
+  const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
   const boot = await getFunnelBootData({
     app: BootApp.Webapp,
-    cookies: allCookies,
+    cookies,
     id: id as string,
     version: version as string,
     forwardedHeaders,
   });
 
   // Handle any cookies from the response
-  const setCookieHeader = boot.response.headers.get('set-cookie');
-  if (setCookieHeader) {
-    res.setHeader('Set-Cookie', setCookieHeader);
-  }
+  setResponseHeaderFromBoot(boot, res);
 
   // Prefetch the boot data
   const queryClient = new QueryClient();
@@ -74,7 +61,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   });
 
   // Check if the user already accepted cookies
-  const hasAcceptedCookies = allCookies.includes(GdprConsentKey.Marketing);
+  const hasAcceptedCookies = cookies.includes(GdprConsentKey.Marketing);
 
   // Determine the initial step ID
   const queryStepId = query?.stepId as string | undefined;
