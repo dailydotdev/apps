@@ -51,7 +51,7 @@ const SearchFilterPostTypeButton = () => {
           className="flex flex-col gap-2 px-2 py-2"
           tabIndex={-1}
           role="menuitem"
-          onMouseDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
           {contentList.map(({ name, type }) => (
