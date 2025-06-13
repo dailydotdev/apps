@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { LottieComponentProps } from 'lottie-react';
 import type { ReactElement } from 'react';
-import dynamic from 'next/dynamic';
 import { RequestKey } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
 import { fromCDN } from '../lib';
@@ -11,9 +10,9 @@ export type LottieAnimationProps = {
   className?: string;
   src: string;
   basePath?: string;
-} & Omit<LottieComponentProps, 'animationData' | 'width' | 'height'>;
+} & Omit<LottieComponentProps, 'animationData' | 'width' | 'height' | 'ref'>;
 
-const Lottie = dynamic(
+const Lottie = lazy(
   () => import(/* webpackChunkName: "lottieReact" */ 'lottie-react'),
 );
 
@@ -51,12 +50,14 @@ export const LottieAnimation = ({
   });
 
   return (
-    <Lottie
-      {...lottieProps}
-      className={className}
-      loop={loop}
-      autoplay={autoplay}
-      animationData={animationData}
-    />
+    <Suspense fallback={<div className={className} />}>
+      <Lottie
+        {...lottieProps}
+        className={className}
+        loop={loop}
+        autoplay={autoplay}
+        animationData={animationData}
+      />
+    </Suspense>
   );
 };
