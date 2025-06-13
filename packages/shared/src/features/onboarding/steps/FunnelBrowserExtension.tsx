@@ -20,6 +20,7 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { ButtonVariant } from '../../../components/buttons/common';
 import { FunnelTargetId } from '../types/funnelEvents';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import { sanitizeMessage } from '../lib/utils';
 
 const BrowserExtension = ({
   parameters: { headline, explainer },
@@ -52,18 +53,24 @@ const BrowserExtension = ({
           type={TypographyType.LargeTitle}
           bold
           className="!px-0"
-        >
-          {headline || 'Transform every new tab into a learning powerhouse'}
-        </Typography>
+          dangerouslySetInnerHTML={{
+            __html: sanitizeMessage(
+              headline || 'Transform every new tab into a learning powerhouse',
+            ),
+          }}
+        />
         <Typography
           className="w-2/3 text-balance text-text-tertiary typo-body"
           color={TypographyColor.Secondary}
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
-        >
-          {explainer ||
-            'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!'}
-        </Typography>
+          dangerouslySetInnerHTML={{
+            __html: sanitizeMessage(
+              explainer ||
+                'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
+            ),
+          }}
+        />
         <Button
           href={downloadBrowserExtension}
           icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
