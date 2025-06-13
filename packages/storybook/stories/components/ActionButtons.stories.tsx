@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
 import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 import ExtensionProviders from '../extension/_providers';

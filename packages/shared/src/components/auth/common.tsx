@@ -82,6 +82,22 @@ export enum AuthDisplay {
   EmailVerification = 'email_verification',
 }
 
+export enum OnboardingActions {
+  ChangePassword = 'changePassword',
+  Login = 'login',
+  Recover = 'recover',
+  Signup = 'signup',
+  VerifyEmail = 'verify',
+}
+
+export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
+  [OnboardingActions.ChangePassword]: AuthDisplay.ChangePassword,
+  [OnboardingActions.Login]: AuthDisplay.Default,
+  [OnboardingActions.Recover]: AuthDisplay.ForgotPassword,
+  [OnboardingActions.Signup]: AuthDisplay.Default,
+  [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
+} as const;
+
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;

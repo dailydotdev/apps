@@ -1,6 +1,5 @@
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import type { Squad } from '../../../graphql/sources';
 import {
@@ -26,7 +25,6 @@ export const SquadList = ({
   shouldShowCount = true,
   ...attrs
 }: SquadListProps): ReactElement => {
-  const router = useRouter();
   const { image, name, permalink } = squad;
 
   return (
@@ -62,7 +60,6 @@ export const SquadList = ({
         className={{ button: 'z-0' }}
         squad={squad}
         origin={Origin.SquadDirectory}
-        onSuccess={() => router.push(permalink)}
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
         showViewSquadIfMember

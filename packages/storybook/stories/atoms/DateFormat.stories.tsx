@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { DateFormat } from '@dailydotdev/shared/src/components/utilities';
 

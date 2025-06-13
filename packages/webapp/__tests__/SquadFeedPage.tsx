@@ -226,12 +226,6 @@ describe('squad page header', () => {
     const alt = `${defaultSquad.handle}'s logo`;
     await screen.findByAltText(alt);
   });
-
-  it('should show checklist icon', async () => {
-    renderComponent();
-    const checklist = await screen.findByTestId('squad-checklist-button');
-    expect(checklist).toBeInTheDocument();
-  });
 });
 
 Object.assign(navigator, {
@@ -455,11 +449,5 @@ describe('squad members modal', () => {
     blocked.click();
     const unblocks = await screen.findAllByLabelText('Unblock');
     expect(unblocks.length).toEqual(members.length);
-  });
-
-  it('should show options button to all members', async () => {
-    await openedMembersModal();
-    const options = await screen.findAllByLabelText('Member options');
-    expect(options.length).toEqual(defaultSquad.membersCount + COPY_ITEM);
   });
 });

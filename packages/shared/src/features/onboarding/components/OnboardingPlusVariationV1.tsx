@@ -1,26 +1,28 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
-import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
-
+import React from 'react';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
-import type { OnboardingStepProps } from './common';
-import { plusFeatureList } from '../../plus/PlusList';
-import type { PlusItem } from '../../plus/PlusListItem';
-import { PlusItemStatus } from '../../plus/PlusListItem';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
+} from '../../../components/typography/Typography';
+import { RadioItem } from '../../../components/fields/RadioItem';
 import { useViewSize, ViewSize } from '../../../hooks';
-import Carousel from '../../containers/Carousel';
-import { ArrowIcon } from '../../icons';
-import { RadioItem } from '../../fields/RadioItem';
+import { plusFeatureList } from '../../../components/plus/PlusList';
+import { LogEvent, TargetType } from '../../../lib/log';
+import type { PlusItem } from '../../../components/plus/PlusListItem';
+import { PlusItemStatus } from '../../../components/plus/PlusListItem';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import Carousel from '../../../components/containers/Carousel';
+import { ArrowIcon } from '../../../components/icons';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useFunnelAnnualPricing } from '../hooks/useFunnelAnnualPricing';
+import type { FunnelStepPlusCards } from '../types/funnel';
+import { FunnelTargetId } from '../types/funnelEvents';
 
 type VariationCardOptionProps = {
   selected: boolean;
@@ -69,22 +71,22 @@ const VariationCardOption = ({
   );
 };
 
+type Parameters = FunnelStepPlusCards['parameters'];
+
+interface OnboardingStepProps extends Parameters {
+  onSkip?: () => void;
+  onComplete?: () => void;
+}
+
 export const OnboardingPlusVariationV1 = ({
-  onClickNext,
-  onClickPlus,
+  onSkip,
+  onComplete,
   headline = 'Suffer less. Debugging bad decisions is harder.',
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { productOptions } = usePaymentContext();
 
   const { logEvent } = useLogContext();
-  const item = useMemo(
-    () =>
-      productOptions.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.Annual,
-      ),
-    [productOptions],
-  );
+  const { item } = useFunnelAnnualPricing();
 
   const featureCardsNew = plusFeatureList.filter(
     (plusItem) => plusItem.status === PlusItemStatus.Ready,
@@ -102,7 +104,7 @@ export const OnboardingPlusVariationV1 = ({
     return (
       <div
         key={plusItem.id}
-        className="w-full"
+        className="w-full py-10"
         onMouseEnter={() => handleItemHover(plusItem)}
       >
         <div className="mb-6 h-50 w-full overflow-hidden rounded-10">
@@ -161,8 +163,9 @@ export const OnboardingPlusVariationV1 = ({
             className="flex flex-col rounded-16 bg-accent-bacon-default p-1 pt-0"
             onClick={(e) => {
               e.preventDefault();
-              onClickPlus();
+              onComplete?.();
             }}
+            data-funnel-track={FunnelTargetId.StepCta}
           >
             {/* Best Value Badge */}
             <div className="mx-auto my-2">
@@ -191,8 +194,9 @@ export const OnboardingPlusVariationV1 = ({
             className="flex h-fit flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-xl"
             onClick={(e) => {
               e.preventDefault();
-              onClickNext();
+              onSkip?.();
             }}
+            data-funnel-track={FunnelTargetId.StepSkip}
           >
             <VariationCardOption
               selected={false}
@@ -207,7 +211,8 @@ export const OnboardingPlusVariationV1 = ({
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               className="w-full"
-              onClick={onClickPlus}
+              onClick={onComplete}
+              data-funnel-track={FunnelTargetId.StepCta}
             >
               Continue with Plus
             </Button>

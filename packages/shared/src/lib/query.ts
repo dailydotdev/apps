@@ -205,6 +205,7 @@ export enum RequestKey {
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
   Organizations = 'organizations',
+  LottieAnimations = 'lottie_animations',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

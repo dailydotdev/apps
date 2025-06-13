@@ -1,6 +1,6 @@
 import React from 'react';
-import type { Meta } from '@storybook/react';
-import { StoryObj } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite';
+import { StoryObj } from '@storybook/react-vite';
 
 import config from '../../tailwind.config';
 

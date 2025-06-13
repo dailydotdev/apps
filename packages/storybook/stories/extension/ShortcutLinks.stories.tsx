@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import ExtensionProviders from './_providers';
 import ShortcutLinks from 'extension/src/newtab/ShortcutLinks/ShortcutLinks';
 import { useState } from 'react';

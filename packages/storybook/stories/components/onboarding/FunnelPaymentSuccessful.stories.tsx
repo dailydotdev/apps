@@ -1,8 +1,8 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import {
   FunnelPaymentSuccessful,
 } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPaymentSuccessful';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 const meta: Meta<typeof FunnelPaymentSuccessful> = {
   title: 'Components/Onboarding/Steps/PaymentSuccessful',

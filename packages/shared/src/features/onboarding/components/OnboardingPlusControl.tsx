@@ -1,19 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { usePaymentContext } from '../../../contexts/payment/context';
-import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { PlusComparingCards } from '../../plus/PlusComparingCards';
-import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
-import type { OnboardingStepProps } from './common';
+} from '../../../components/typography/Typography';
+import { PlusComparingCards } from '../../../components/plus/PlusComparingCards';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
+import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
+import type { FunnelStepPlusCards } from '../types/funnel';
+import { useFunnelAnnualPricing } from '../hooks/useFunnelAnnualPricing';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -43,22 +42,24 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
+type Parameters = FunnelStepPlusCards['parameters'];
+
+interface OnboardingPlusControlProps extends Parameters {
+  onSkip?: () => void;
+  onComplete?: () => void;
+}
+
 export const OnboardingPlusControl = ({
-  onClickNext,
-  onClickPlus,
-}: OnboardingStepProps): ReactElement => {
+  onSkip,
+  onComplete,
+  headline,
+  explainer,
+}: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { productOptions } = usePaymentContext();
-  const item = useMemo(
-    () =>
-      productOptions?.find(
-        ({ metadata }) => metadata.appsId === PlusPriceTypeAppsId.Annual,
-      ),
-    [productOptions],
-  );
+  const { item } = useFunnelAnnualPricing();
 
   return (
-    <section className="flex w-full max-w-screen-laptop flex-col gap-10 tablet:px-10">
+    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 py-10 tablet:px-10">
       <header className="text-center">
         <Typography
           bold
@@ -66,7 +67,7 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          Fast-track your growth
+          {headline || 'Fast-track your growth'}
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -74,16 +75,17 @@ export const OnboardingPlusControl = ({
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
-          Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn&apos;t a
-          long-term strategy.
+          {explainer ||
+            `Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn't a
+          long-term strategy.`}
         </Typography>
       </header>
       {item ? (
         <PlusComparingCards
           productOption={item}
-          onClickNext={onClickNext}
-          onClickPlus={onClickPlus}
+          onClickNext={onSkip}
+          onClickPlus={onComplete}
         />
       ) : (
         <PlusSkeleton />

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import {
   FunnelSocialProof,
 } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelSocialProof';
 import {
   FunnelStepType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import {
   FunnelStepSocialProof,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';

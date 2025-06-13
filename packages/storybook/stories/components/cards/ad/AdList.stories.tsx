@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AdList } from '@dailydotdev/shared/src/components/cards/ad/AdList';
 import ExtensionProviders from '../../../extension/_providers';
 

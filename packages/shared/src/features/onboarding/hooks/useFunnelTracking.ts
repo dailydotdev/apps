@@ -12,7 +12,7 @@ import type { FunnelEvent, FunnelTargetId } from '../types/funnelEvents';
 import {
   getFunnelStepByPosition,
   funnelPositionAtom,
-} from '../store/funnelStore';
+} from '../store/funnel.store';
 import type { FunnelSession } from '../types/funnelBoot';
 import type { LogEvent } from '../../../hooks/log/useLogQueue';
 
