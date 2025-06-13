@@ -347,7 +347,15 @@ export const SEARCH_POSTS_QUERY = gql`
     $time: String
     $version: Int
   ) {
-    page: searchPosts(first: $first, after: $after, query: $query, supportedTypes: $supportedTypes, contentCuration: $contentCuration, time: $time, version: $version) {
+    page: searchPosts(
+      first: $first,
+      after: $after,
+      query: $query,
+      supportedTypes: $supportedTypes,
+      contentCuration: $contentCuration,
+      time: $time,
+      version: $version
+    ) {
       ...FeedPostConnection
     }
   }
