@@ -12,7 +12,7 @@ import { PlusComparingCards } from '../../../components/plus/PlusComparingCards'
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
 import type { FunnelStepPlusCards } from '../types/funnel';
-import { useFunnelPlusPricing } from '../hooks/useFunnelPlusPricing';
+import { useFunnelAnnualPricing } from '../hooks/useFunnelAnnualPricing';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -56,7 +56,7 @@ export const OnboardingPlusControl = ({
   explainer,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { item } = useFunnelPlusPricing();
+  const { item } = useFunnelAnnualPricing();
 
   return (
     <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 py-10 tablet:px-10">

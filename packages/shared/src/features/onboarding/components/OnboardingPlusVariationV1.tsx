@@ -20,7 +20,7 @@ import {
 import Carousel from '../../../components/containers/Carousel';
 import { ArrowIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useFunnelPlusPricing } from '../hooks/useFunnelPlusPricing';
+import { useFunnelAnnualPricing } from '../hooks/useFunnelAnnualPricing';
 import type { FunnelStepPlusCards } from '../types/funnel';
 import { FunnelTargetId } from '../types/funnelEvents';
 
@@ -86,7 +86,7 @@ export const OnboardingPlusVariationV1 = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const { logEvent } = useLogContext();
-  const { item } = useFunnelPlusPricing();
+  const { item } = useFunnelAnnualPricing();
 
   const featureCardsNew = plusFeatureList.filter(
     (plusItem) => plusItem.status === PlusItemStatus.Ready,

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { usePaymentContext } from '../../../contexts/payment/context';
 import { PlusPriceTypeAppsId } from '../../../lib/featureValues';
 
-export const useFunnelPlusPricing = () => {
+export const useFunnelAnnualPricing = () => {
   const { productOptions } = usePaymentContext();
   const item = useMemo(
     () =>
