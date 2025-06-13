@@ -84,7 +84,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
-  const { id = 'organic-test', version } = query;
+  const { id, version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
   // Get the boot data
