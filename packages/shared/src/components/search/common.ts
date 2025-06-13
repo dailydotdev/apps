@@ -1,18 +1,6 @@
 import classed from '../../lib/classed';
 
 export const SearchHistoryContainer = classed('div', 'flex flex-col gap-3 p-6');
-
-export const POST_TYPE_OPTIONS = [
-  'Article',
-  'Video',
-  'Discussion',
-  'Poll',
-  'Question',
-  'Link',
-  'Image',
-  'Event',
-] as const;
-
 export const TIME_OPTIONS = [
   'All time',
   'Today',

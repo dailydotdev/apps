@@ -25,7 +25,6 @@ export function getSearchLayout(
 }
 
 SearchPostsPage.getLayout = getSearchLayout;
-// SearchPostsPage.getLayout = SearchControlPage.getLayout;
 SearchPostsPage.layoutProps = SearchControlPage.layoutProps;
 
 export default withFeaturesBoundary<

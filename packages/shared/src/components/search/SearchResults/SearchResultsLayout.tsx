@@ -19,11 +19,8 @@ import { SearchResultsUsers } from './SearchResultsUsers';
 import { useUseSearchSuggestionsContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSearchSuggestionsContentPreferenceMutationSubscription';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
-import type { POST_TYPE_OPTIONS } from '../common';
 import { feature } from '../../../lib/featureManagement';
 import { useFeaturesReadyContext } from '../../GrowthBookProvider';
-
-type PostTypeOption = (typeof POST_TYPE_OPTIONS)[number];
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
