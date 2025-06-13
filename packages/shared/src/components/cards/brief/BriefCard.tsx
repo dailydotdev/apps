@@ -41,7 +41,7 @@ export const BriefCard = ({
         className,
       )}
     >
-      <LottieAnimation className="-mb-6 w-20" src={animationSrc} />
+      <LottieAnimation className="-mb-6 h-20 w-20" src={animationSrc} />
       <div className="w-20">
         <ProgressBar
           shouldShowBg
