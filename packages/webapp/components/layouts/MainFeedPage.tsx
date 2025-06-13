@@ -8,6 +8,7 @@ import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities'
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
+import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -102,7 +103,9 @@ export function getMainFeedLayout(
   layoutProps: MainLayoutProps & MainFeedPageProps,
 ): ReactNode {
   return getLayout(
-    <MainFeedPage {...layoutProps}>{page}</MainFeedPage>,
+    <SearchProvider>
+      <MainFeedPage {...layoutProps}>{page}</MainFeedPage>
+    </SearchProvider>,
     pageProps,
     layoutProps,
   );
