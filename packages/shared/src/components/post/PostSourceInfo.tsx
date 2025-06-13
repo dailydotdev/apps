@@ -30,7 +30,7 @@ function PostSourceInfo({
     >
       {!isUnknown && (
         <>
-          <SourceButton source={source} size={size} />
+          <SourceButton source={source} size={size} simpleTooltip />
           <Link href={source.permalink} className="ml-2 typo-callout">
             {source.handle}
           </Link>

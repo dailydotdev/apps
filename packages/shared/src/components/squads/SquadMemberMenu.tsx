@@ -30,6 +30,7 @@ interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
   member: SourceMember;
   isOpen?: boolean;
+  className?: string;
 }
 
 enum MenuItemTitle {
@@ -129,6 +130,7 @@ export default function SquadMemberMenu({
   member,
   onUpdateRole,
   isOpen,
+  className,
 }: SquadMemberMenuProps): ReactElement {
   const { openModal } = useLazyModal();
   const { user } = useContext(AuthContext);
@@ -246,6 +248,7 @@ export default function SquadMemberMenu({
 
   return (
     <ContextMenu
+      className={className}
       options={options}
       isOpen={isOpen}
       id={ContextMenuIds.SquadMemberContext}

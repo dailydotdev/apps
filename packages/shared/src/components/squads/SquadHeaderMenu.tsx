@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions, SourceMemberRole } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -47,10 +48,12 @@ const IconWrapper = ({
 
 interface SquadHeaderMenuProps {
   squad: Squad;
+  className?: string;
 }
 
 export default function SquadHeaderMenu({
   squad,
+  className,
 }: SquadHeaderMenuProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logAndCopyLink } = useSquadInvitation({
@@ -193,7 +196,7 @@ export default function SquadHeaderMenu({
     <ContextMenu
       disableBoundariesCheck
       id={ContextMenuIds.SquadMenuContext}
-      className="menu-primary"
+      className={classNames('menu-primary', className)}
       animation="fade"
       options={items}
       isOpen={isOpen}
