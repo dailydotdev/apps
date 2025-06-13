@@ -49,6 +49,7 @@ export interface TabContainerProps<T extends string = string> {
   style?: CSSProperties;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   tabTag?: AllowedTabTags;
+  headerRender?: ReactNode;
 }
 
 export function TabContainer<T extends string = string>({
@@ -64,6 +65,7 @@ export function TabContainer<T extends string = string>({
   style,
   tabListProps = {},
   tabTag,
+  headerRender,
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -166,6 +168,7 @@ export function TabContainer<T extends string = string>({
           autoScrollActive={tabListProps?.autoScrollActive}
           tag={tabTag}
         />
+        {headerRender}
       </header>
       {render}
     </div>

@@ -17,6 +17,13 @@ import { gapClass } from '../../feeds/FeedContainer';
 import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import { useUseSearchSuggestionsContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSearchSuggestionsContentPreferenceMutationSubscription';
+import SearchFilterTimeButton from '../SearchFilterTimeButton';
+import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
+import type { POST_TYPE_OPTIONS } from '../common';
+import { feature } from '../../../lib/featureManagement';
+import { useFeaturesReadyContext } from '../../GrowthBookProvider';
+
+type PostTypeOption = (typeof POST_TYPE_OPTIONS)[number];
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -27,6 +34,7 @@ export const SearchResultsLayout = (
   const { isListMode } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
+
   const {
     query: { q: query },
     push,
@@ -59,7 +67,8 @@ export const SearchResultsLayout = (
     limit: 10,
     includeContentPreference: true,
   });
-
+  const { getFeatureValue } = useFeaturesReadyContext();
+  const searchVersion = getFeatureValue(feature.searchVersion);
   useUseSearchSuggestionsContentPreferenceMutationSubscription({
     queryKey: usersQueryKey,
   });
@@ -91,9 +100,18 @@ export const SearchResultsLayout = (
     <section className="mx-auto w-full laptopL:max-w-screen-laptop">
       <div className="flex flex-row border-border-subtlest-tertiary laptop:-mx-8 laptop:pb-0 laptopL:mx-auto laptopL:border-x">
         <div className="flex-1 border-r border-border-subtlest-tertiary">
-          <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
-            Related posts
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
+              Related posts
+            </h2>
+            {searchVersion >= 3 ? (
+              <div className="mx-4 flex gap-2">
+                <SearchFilterTimeButton />
+                <SearchFilterPostTypeButton />
+              </div>
+            ) : undefined}
+          </div>
+
           <div
             role="list"
             className={classNames(

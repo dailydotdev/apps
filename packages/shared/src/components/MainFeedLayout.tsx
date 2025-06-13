@@ -55,6 +55,7 @@ import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
+import { useSearchContextProvider } from '../contexts/search/SearchContext';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -203,6 +204,7 @@ export default function MainFeedLayout({
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
+  const { time, contentCurationFilter } = useSearchContextProvider();
   const {
     isUpvoted,
     isPopular,
@@ -338,9 +340,16 @@ export default function MainFeedLayout({
           SharedFeedPage.Search,
           user,
           searchQuery,
+          contentCurationFilter,
+          time,
         ),
         query: SEARCH_POSTS_QUERY,
-        variables: { query: searchQuery, version: searchVersion },
+        variables: {
+          query: searchQuery,
+          version: searchVersion,
+          contentCuration: contentCurationFilter,
+          time,
+        },
         emptyScreen: <SearchEmptyScreen />,
       };
     }
