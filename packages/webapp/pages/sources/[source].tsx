@@ -48,7 +48,7 @@ import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
@@ -123,7 +123,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { shouldShowAuthBanner } = useOnboarding();
+  const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(

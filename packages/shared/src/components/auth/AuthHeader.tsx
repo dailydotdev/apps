@@ -26,7 +26,10 @@ function AuthHeader({
 }: AuthHeaderProps): ReactElement {
   if (simplified) {
     return (
-      <h2 {...attrs} className="text-center font-bold typo-title2">
+      <h2
+        {...attrs}
+        className="text-center font-bold text-text-primary typo-title2"
+      >
         {title}
       </h2>
     );

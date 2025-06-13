@@ -9,6 +9,8 @@ import type {
 } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
+import type { AnonymousUser, LoggedUser } from '../../../lib/user';
+import type { BrowserName } from '../../../lib/func';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -27,6 +29,10 @@ export enum FunnelStepType {
   EditTags = 'editTags',
   ContentTypes = 'contentTypes',
   InstallPwa = 'installPwa',
+  PlusCards = 'plusCards',
+  OrganicSignup = 'organicRegistration',
+  OrganicCheckout = 'organicCheckout',
+  BrowserExtension = 'browserExtension',
 }
 
 export enum FunnelBackgroundVariant {
@@ -298,7 +304,9 @@ export interface FunnelStepEditTags
     minimumRequirement: number;
   }> {
   type: FunnelStepType.EditTags;
-  onTransition: FunnelStepTransitionCallback;
+  onTransition: FunnelStepTransitionCallback<{
+    tags: string[];
+  }>;
 }
 
 export interface FunnelStepContentTypes
@@ -311,6 +319,54 @@ export interface FunnelStepInstallPwa
   extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.InstallPwa;
   onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepOrganicSignup
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+    image: string;
+    imageMobile: string;
+  }> {
+  type: FunnelStepType.OrganicSignup;
+  onTransition: FunnelStepTransitionCallback<{
+    user: LoggedUser | AnonymousUser;
+  }>;
+}
+
+export interface FunnelStepOrganicCheckout extends FunnelStepCommon {
+  type: FunnelStepType.OrganicCheckout;
+}
+
+interface PlanCard {
+  cta: string;
+  title: string;
+  description: string;
+  note?: string;
+}
+
+export interface FunnelStepPlusCards
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    free?: Partial<PlanCard>;
+    plus?: Partial<PlanCard>;
+  }> {
+  type: FunnelStepType.PlusCards;
+  onTransition: FunnelStepTransitionCallback<{
+    skip: boolean;
+  }>;
+}
+
+export interface FunnelStepBrowserExtension
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
+  type: FunnelStepType.BrowserExtension;
+  onTransition: FunnelStepTransitionCallback<{
+    browserName: BrowserName;
+  }>;
 }
 
 export type FunnelStep =
@@ -328,7 +384,11 @@ export type FunnelStep =
   | FunnelStepProfileForm
   | FunnelStepEditTags
   | FunnelStepContentTypes
-  | FunnelStepInstallPwa;
+  | FunnelStepInstallPwa
+  | FunnelStepOrganicSignup
+  | FunnelStepOrganicCheckout
+  | FunnelStepBrowserExtension
+  | FunnelStepPlusCards;
 
 export type FunnelPosition = {
   chapter: number;
@@ -354,4 +414,16 @@ export interface FunnelJSON {
   redirectOnFinish?: string;
 }
 
-export const stepsWithHeader: Array<FunnelStepType> = [FunnelStepType.Quiz];
+export const stepsWithHeader: Array<FunnelStepType> = [
+  FunnelStepType.Quiz,
+  FunnelStepType.BrowserExtension,
+];
+export const stepsFullWidth: Array<FunnelStepType> = [
+  FunnelStepType.OrganicSignup,
+  FunnelStepType.EditTags,
+  FunnelStepType.ContentTypes,
+  FunnelStepType.PlusCards,
+  FunnelStepType.OrganicCheckout,
+  FunnelStepType.BrowserExtension,
+  FunnelStepType.InstallPwa,
+];

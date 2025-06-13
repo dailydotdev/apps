@@ -12,6 +12,7 @@
   "dependencies": {
     "@dailydotdev/shared": "workspace:*",
     "@tanstack/react-query": "^5.80.5",
+    "dompurify": "^2.5.4",
     "extension": "workspace:*",
     "jotai": "^2.12.2",
     "next": "15.0.1",
