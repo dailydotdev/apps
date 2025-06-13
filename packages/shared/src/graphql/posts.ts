@@ -36,6 +36,7 @@ export enum PostType {
   Freeform = 'freeform',
   VideoYouTube = 'video:youtube',
   Collection = 'collection',
+  Brief = 'brief',
 }
 
 export const internalReadTypes: PostType[] = [
@@ -178,6 +179,7 @@ export interface Ad {
 export type ReadHistoryPost = Pick<
   Post,
   | 'id'
+  | 'slug'
   | 'title'
   | 'commentsPermalink'
   | 'image'

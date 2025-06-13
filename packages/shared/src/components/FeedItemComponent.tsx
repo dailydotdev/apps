@@ -32,6 +32,7 @@ import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
+import { BriefCard } from './cards/brief/BriefCard';
 
 const CommentPopup = dynamic(
   () =>
@@ -110,6 +111,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformGrid,
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
+  [PostType.Brief]: BriefCard,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -119,6 +121,8 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
+  // TODO feat-brief update if needed for list view
+  [PostType.Brief]: BriefCard,
 };
 
 type GetTagsProps = {
@@ -196,6 +200,22 @@ export default function FeedItemComponent({
     shouldUseListMode,
     postType: (item as PostItem).post?.type,
   });
+
+  // TODO feat-brief remove this
+  if (index === 0) {
+    return (
+      <BriefCard
+        animationSrc="/robot-loading.json"
+        progressPercentage={40}
+        headnote="12s"
+        title="Generating Your Presidential Brief"
+      >
+        <>Reducing a 32-minute read to a 4-minute summary.</>
+        <>Cross-checking trends across 23,000 words of content.</>
+        <>Compressing today&apos;s dev noise.</>
+      </BriefCard>
+    );
+  }
 
   switch (item.type) {
     case FeedItemType.Post: {
