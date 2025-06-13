@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   FunnelStepOrganicSignup,
   FunnelStepType,
 } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import ExtensionProviders from '../../extension/_providers';
 import { FunnelOrganicSignup } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelOrganicSignup';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepBackground';
@@ -13,7 +13,7 @@ import {
   cloudinaryOnboardingFullBackgroundMobile,
 } from '@dailydotdev/shared/src/lib/image';
 import { useRouter } from '../../../mock/next-router';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 const meta: Meta<typeof FunnelOrganicSignup> = {
   title: 'Components/Onboarding/Steps/FunnelOrganicRegistration',
