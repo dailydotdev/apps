@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { LazyImage } from '../../../components/LazyImage';
-import { sanitizeMessage } from './utils';
+import { sanitizeMessage } from '../lib/utils';
 import type { FunnelBannerMessageParameters } from '../types/funnel';
 
 type FunnelBannerMessageProps = FunnelBannerMessageParameters &

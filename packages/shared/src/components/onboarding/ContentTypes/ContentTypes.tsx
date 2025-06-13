@@ -45,7 +45,7 @@ export const ContentTypes = ({ headline }: ContentTypesProps): ReactElement => {
   const classes = '!h-[8.25rem] max-w-80';
 
   return (
-    <div className="flex max-w-screen-laptop flex-col tablet:px-10">
+    <div className="flex flex-col">
       <h2 className="typo-bold mb-10 text-center typo-large-title">
         {headline || 'What kind of posts would you like to see on your feed?'}
       </h2>

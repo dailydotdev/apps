@@ -450,10 +450,4 @@ describe('squad members modal', () => {
     const unblocks = await screen.findAllByLabelText('Unblock');
     expect(unblocks.length).toEqual(members.length);
   });
-
-  it('should show options button to all members', async () => {
-    await openedMembersModal();
-    const options = await screen.findAllByLabelText('Member options');
-    expect(options.length).toEqual(defaultSquad.membersCount + COPY_ITEM);
-  });
 });

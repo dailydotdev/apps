@@ -8,3 +8,8 @@ export const devcardBorder = `color-mix(in srgb, ${colors.salt[90]}, transparent
 
 export const bookmarkProviderListBg =
   'linear-gradient(180deg, var(--theme-actions-bookmark-float) 0%, color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 100%) 100%)';
+
+export const briefCardBorder = '1px solid #EFD5C8';
+
+export const briefCardBg =
+  'linear-gradient(180deg, rgba(239, 213, 200, 0.16) 0%, rgba(210, 233, 227, 0.16) 25.96%, rgba(198, 222, 250, 0.16) 53.37%, rgba(196, 199, 251, 0.16) 79.33%, rgba(199, 182, 250, 0.16) 100%)';

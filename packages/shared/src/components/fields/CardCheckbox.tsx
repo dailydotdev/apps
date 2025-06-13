@@ -7,6 +7,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ChecklistAIcon } from '../icons';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 interface CustomCheckboxProps {
   checked: boolean;
@@ -65,6 +66,7 @@ export const CardCheckbox = ({
           className,
         )}
         onClick={onCheckboxToggle}
+        data-funnel-track={FunnelTargetId.FeedContentType}
       >
         <input {...inputProps} type="checkbox" hidden />
         {checked && (
