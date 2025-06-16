@@ -60,7 +60,10 @@ function PostSourceInfo({
     >
       {!isUnknown && (
         <>
-          <Link href={source.permalink} className="typo-callout">
+          <Link
+            href={source.permalink}
+            className="text-text-secondary typo-callout"
+          >
             {source.handle}
           </Link>
           {showActionBtn && <Separator />}
