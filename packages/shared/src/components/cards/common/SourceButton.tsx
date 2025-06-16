@@ -15,14 +15,14 @@ interface SourceButtonProps {
   className?: string;
   style?: CSSProperties;
   size?: ProfileImageSize;
-  simpleTooltip?: boolean;
+  pureTextTooltip?: boolean;
   tooltipPosition?: TooltipPosition;
 }
 
 export default function SourceButton({
   source,
   tooltipPosition = 'top',
-  simpleTooltip = false,
+  pureTextTooltip = false,
   size = ProfileImageSize.Medium,
   className,
   ...props
@@ -30,7 +30,7 @@ export default function SourceButton({
   const isFeedPreview = useFeedPreviewMode();
 
   const tooltipContent = useMemo(() => {
-    if (simpleTooltip) {
+    if (pureTextTooltip) {
       return source.name;
     }
 
@@ -39,7 +39,7 @@ export default function SourceButton({
     ) : (
       <SourceEntityCard source={source} />
     );
-  }, [simpleTooltip, source]);
+  }, [pureTextTooltip, source]);
 
   if (source && isFeedPreview) {
     return (
@@ -63,11 +63,11 @@ export default function SourceButton({
       href={source.permalink}
       prefetch={false}
       tooltip={{
-        interactive: !simpleTooltip,
-        container: !simpleTooltip ? { bgClassName: null } : undefined,
+        interactive: !pureTextTooltip,
+        container: !pureTextTooltip ? { bgClassName: null } : undefined,
         content: tooltipContent,
         placement: tooltipPosition,
-        appendTo: document.body,
+        appendTo: globalThis?.document.body,
       }}
     >
       <ProfileImageLink
