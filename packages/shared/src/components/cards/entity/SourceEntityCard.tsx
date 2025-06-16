@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import EntityCard from './EntityCard';
 import {
@@ -17,6 +16,7 @@ import SourceActionsFollow from '../../sources/SourceActions/SourceActionsFollow
 import { ButtonVariant } from '../../buttons/Button';
 import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
+import EntityDescription from './EntityDescription';
 
 type SourceEntityCardProps = {
   source: SourceTooltip;
@@ -102,23 +102,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
         >
           {name}
         </Typography>
-        {description && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {description.length <= 100 ? (
-              description
-            ) : (
-              <>
-                {description.slice(0, 100)}...{' '}
-                <Link className="text-text-link" href={`/sources/${source.id}`}>
-                  Read more
-                </Link>
-              </>
-            )}
-          </Typography>
-        )}
+        {description && <EntityDescription copy={description} length={100} />}
         <div className="flex items-center gap-1 text-text-tertiary">
           <Typography
             type={TypographyType.Footnote}

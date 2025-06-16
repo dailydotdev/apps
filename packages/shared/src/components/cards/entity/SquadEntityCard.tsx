@@ -1,6 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
-import EntityCard from './EntityCard';
 import {
   Typography,
   TypographyColor,
@@ -17,6 +15,8 @@ import useContextMenu from '../../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
+import EntityDescription from './EntityDescription';
+import EntityCard from './EntityCard';
 
 type SquadEntityCardProps = {
   handle: string;
@@ -39,7 +39,7 @@ const SquadEntityCard = ({
     return null;
   }
 
-  const { description, name, id, image, membersCount, flags } = squad || {};
+  const { description, name, image, membersCount, flags } = squad || {};
   return (
     <EntityCard
       image={image}
@@ -79,23 +79,7 @@ const SquadEntityCard = ({
         >
           {name}
         </Typography>
-        {description && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {description?.length <= 100 ? (
-              description
-            ) : (
-              <>
-                {description.slice(0, 100)}...{' '}
-                <Link className="text-text-link" href={`/squads/${id}`}>
-                  Read more
-                </Link>
-              </>
-            )}
-          </Typography>
-        )}
+        {description && <EntityDescription copy={description} length={100} />}
         <div className="flex items-center text-text-tertiary">
           {flags?.featured && (
             <>

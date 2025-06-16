@@ -37,7 +37,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
     <div className="rounded-16 border border-border-subtlest-tertiary p-4">
       <div className="flex flex-row justify-between">
         <SourceButton
-          simpleTooltip
+          pureTextTooltip
           source={squad}
           size={ProfileImageSize.XXXLarge}
         />
