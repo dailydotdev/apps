@@ -143,7 +143,7 @@ export const OnboardingPlusVariationV1 = ({
   });
 
   return (
-    <section className="flex w-full max-w-screen-laptop flex-col gap-6 tablet:gap-10 tablet:px-10">
+    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col items-center justify-center gap-6 px-2 py-10 tablet:gap-10 tablet:px-10">
       <header className="text-center">
         <Typography
           bold
