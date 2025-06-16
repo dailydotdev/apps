@@ -1,13 +1,5 @@
 import classed from '../../lib/classed';
 
-export type OnboardingOnClickNext = (
-  options?: Partial<{
-    plusPayment: boolean;
-    plusSuccess: boolean;
-    clickExtension: boolean;
-  }>,
-) => void;
-
 export enum OnboardingStep {
   Intro = 'intro',
   Signup = 'signup',
@@ -24,16 +16,6 @@ export enum OnboardingStep {
   InteractiveFeed = 'interactive_feed',
   PreviewFeed = 'preview_feed',
 }
-
-export const onboardingStepsWithFooter: Array<OnboardingStep> = [
-  OnboardingStep.Intro,
-];
-
-export const onboardingStepsWithCTA: Array<OnboardingStep> = [
-  OnboardingStep.PWA,
-  OnboardingStep.Extension,
-  OnboardingStep.PlusPayment,
-];
 
 export const OnboardingTitle = classed(
   'h3',

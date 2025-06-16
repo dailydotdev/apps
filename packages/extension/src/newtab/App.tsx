@@ -29,7 +29,7 @@ import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionC
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
-import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
@@ -49,8 +49,9 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
+
 function InternalApp(): ReactElement {
-  const { hasCompletedContentTypes, hasCompletedEditTags } = useOnboarding();
+  const { isOnboardingComplete } = useOnboardingActions();
   useError();
   useWebVitals();
   const { setCurrentPage, currentPage } = useExtensionContext();
@@ -64,7 +65,6 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isOnboardingComplete = hasCompletedEditTags && hasCompletedContentTypes;
   const shouldRedirectOnboarding =
     isPageReady && (!user || !isOnboardingComplete) && !isTesting;
 
@@ -112,6 +112,7 @@ function InternalApp(): ReactElement {
     </DndContextProvider>
   );
 }
+
 const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
   fallback: null,
 });

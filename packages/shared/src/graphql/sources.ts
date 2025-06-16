@@ -4,7 +4,6 @@ import type { Connection } from './common';
 import {
   SOURCE_CATEGORY_FRAGMENT,
   SOURCE_DIRECTORY_INFO_FRAGMENT,
-  SOURCE_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import type { ContentPreference } from './contentPreference';
 
@@ -111,7 +110,7 @@ export type SourceTooltip = Pick<
   'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
 > & {
   membersCount?: number;
-  type?: 'user' | 'source' | 'squad';
+  type?: SourceType;
 };
 
 export type SourceData = { source: Source };
@@ -124,15 +123,6 @@ export const SOURCE_QUERY = gql`
     }
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
-`;
-
-export const SEARCH_SOURCES_QUERY = gql`
-  query SearchSources($query: String!, $limit: Int) {
-    searchSources(query: $query, limit: $limit) {
-      ...SourceShortInfo
-    }
-  }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const SOURCE_DIRECTORY_QUERY = gql`
@@ -188,21 +178,6 @@ export const SIMILAR_SOURCES_QUERY = gql`
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
-
-export enum PublicSquadRequestStatus {
-  Pending = 'pending',
-  Approved = 'approved',
-  Rejected = 'rejected',
-}
-
-export interface PublicSquadRequest {
-  id?: string;
-  requestorId?: string;
-  sourceId?: string;
-  status?: PublicSquadRequestStatus;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
 
 export interface SourceCategory {
   id: string;

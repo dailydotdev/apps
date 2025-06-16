@@ -9,6 +9,8 @@ import type {
   FunnelStepTransitionCallback,
 } from '../types/funnel';
 import {
+  stepsWithOnlySkipHeader,
+  stepsFullWidth,
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
@@ -28,6 +30,10 @@ import {
   FunnelContentTypes,
   FunnelReadingReminder,
   FunnelInstallPwa,
+  FunnelOrganicCheckout,
+  FunnelPlusCards,
+  FunnelOrganicSignup,
+  FunnelBrowserExtension,
 } from '../steps';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -66,6 +72,10 @@ const stepComponentMap = {
   [FunnelStepType.ContentTypes]: FunnelContentTypes,
   [FunnelStepType.ReadingReminder]: FunnelReadingReminder,
   [FunnelStepType.InstallPwa]: FunnelInstallPwa,
+  [FunnelStepType.OrganicSignup]: FunnelOrganicSignup,
+  [FunnelStepType.OrganicCheckout]: FunnelOrganicCheckout,
+  [FunnelStepType.PlusCards]: FunnelPlusCards,
+  [FunnelStepType.BrowserExtension]: FunnelBrowserExtension,
 } as const;
 
 function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
@@ -130,7 +140,6 @@ export const FunnelStepper = ({
         inputs: details,
       });
 
-      // not navigating to the last step
       if (!isLastStep) {
         navigate({
           to: targetStepId,
@@ -138,6 +147,7 @@ export const FunnelStepper = ({
           details: details || {},
         });
       } else {
+        // not navigating to the last step
         trackOnComplete();
         onComplete?.();
       }
@@ -169,13 +179,16 @@ export const FunnelStepper = ({
       step.id,
     );
     const hasHeader =
-      step.parameters.shouldShowHeader || stepsWithHeader.includes(step.type);
+      step.parameters.shouldShowHeader ||
+      stepsWithHeader.some((type) => type === step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
+    const isFullWidth = stepsFullWidth.includes(step.type);
 
     return {
       hasHeader,
       hasBanner,
       hasCookieConsent,
+      isFullWidth,
     };
   }, [
     isCookieBannerActive,
@@ -197,6 +210,9 @@ export const FunnelStepper = ({
 
   const shouldShowHeaderSkip =
     skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
+  const hasOnlySkipButton =
+    shouldShowHeaderSkip &&
+    stepsWithOnlySkipHeader.some((type) => type === step.type);
 
   return (
     <section
@@ -210,7 +226,12 @@ export const FunnelStepper = ({
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
       <FunnelStepBackground step={step}>
-        <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+        <div
+          className={classNames(
+            'mx-auto flex w-full flex-1 flex-col',
+            !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
+          )}
+        >
           {layout.hasBanner && (
             <FunnelBannerMessage {...funnel.parameters.banner} />
           )}
@@ -225,9 +246,9 @@ export const FunnelStepper = ({
             onSkip={() => {
               onTransition({ type: FunnelStepTransitionType.Skip });
             }}
-            showBackButton={back.hasTarget}
+            showBackButton={back.hasTarget && !hasOnlySkipButton}
             showSkipButton={shouldShowHeaderSkip}
-            showProgressBar={shouldShowHeaderSkip}
+            showProgressBar={!hasOnlySkipButton}
           />
           <FunnelPaymentPricingContext.Provider value={{ pricing }}>
             <PaymentContextProvider

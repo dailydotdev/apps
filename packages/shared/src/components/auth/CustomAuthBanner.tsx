@@ -1,14 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { useOnboarding } from '../../hooks/auth';
+import { useOnboardingActions } from '../../hooks/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import LoginButton from '../LoginButton';
 import { authGradientBg } from '../banners';
 
 const CustomAuthBanner = (): ReactElement => {
-  const { shouldShowAuthBanner } = useOnboarding();
+  const { shouldShowAuthBanner } = useOnboardingActions();
   const { shouldShowLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);

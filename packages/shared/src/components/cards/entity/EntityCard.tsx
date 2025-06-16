@@ -2,11 +2,10 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import classNames from 'classnames';
 import { Image } from '../../image/Image';
-import type { SourceTooltip } from '../../../graphql/sources';
 
 export type EntityCardProps = {
   image: string;
-  type?: SourceTooltip['type'];
+  type?: 'user' | 'source' | 'squad';
   children?: ReactNode;
   entityName?: string;
   actionButtons?: ReactNode | ReactNode[];

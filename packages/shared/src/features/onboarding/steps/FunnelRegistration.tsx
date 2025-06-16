@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { SocialRegistration } from '../shared/SocialRegistration';
@@ -208,6 +209,7 @@ function InnerFunnelRegistration({
         />
 
         <Typography
+          color={TypographyColor.Primary}
           type={TypographyType.Title2}
           className="text-center"
           dangerouslySetInnerHTML={{ __html: sanitizedHeading }}

@@ -11,7 +11,7 @@ import {
 } from '../types/funnel';
 import { PricingPlanVariation } from '../shared/PricingPlan';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
-import { applyDiscountAtom, selectedPlanAtom } from '../store/funnelStore';
+import { applyDiscountAtom, selectedPlanAtom } from '../store/funnel.store';
 import { PaymentContext } from '../../../contexts/payment/context';
 import type { ProductPricingPreview } from '../../../graphql/paddle';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';

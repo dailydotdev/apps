@@ -1,5 +1,5 @@
 import type { QueryKey } from '@tanstack/react-query';
-import type { Search, SearchChunkSource } from '../../graphql/search';
+import type { Search } from '../../graphql/search';
 
 export interface UseChatProps {
   id?: string;
@@ -14,10 +14,6 @@ export enum UseChatMessageType {
   Completed = 'completed',
   Error = 'error',
   SessionFound = 'session_found',
-}
-
-export interface SourcesMessage {
-  sources: SearchChunkSource[];
 }
 
 export interface UseChatMessage<Payload = unknown> {
@@ -43,11 +39,3 @@ export interface CreatePayload {
 export interface TokenPayload {
   token: string;
 }
-
-export type UseChatSessionProps = Pick<UseChatProps, 'id'> & {
-  streamId?: string;
-};
-
-export type UseChatSession = Pick<UseChat, 'queryKey' | 'isLoading' | 'data'>;
-
-export type UseChatStream = Pick<UseChat, 'handleSubmit'> & { id?: string };

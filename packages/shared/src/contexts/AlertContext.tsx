@@ -34,8 +34,6 @@ export interface AlertContextData {
   updateLastBootPopup?: UseMutateAsyncFunction;
 }
 
-export const MAX_DATE = new Date(3021, 0, 1);
-
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
   loadedAlerts: false,
