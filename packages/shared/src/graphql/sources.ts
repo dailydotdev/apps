@@ -111,7 +111,7 @@ export type SourceTooltip = Pick<
   'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
 > & {
   membersCount?: number;
-  type?: 'user' | 'source' | 'squad';
+  type?: SourceType;
 };
 
 export type SourceData = { source: Source };
