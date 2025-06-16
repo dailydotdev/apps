@@ -12,13 +12,11 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
 import { SquadActionButton } from './SquadActionButton';
 import {
-  BellIcon,
-  ChecklistBIcon,
   AddUserIcon,
+  BellIcon,
   MenuIcon,
   SlackIcon,
   TimerIcon,
@@ -30,6 +28,9 @@ import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceInt
 import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize } from '../ProfilePicture';
+import { useGetSquadAwardAdmin } from '../../hooks/useCoresFeature';
+import { AwardButton } from '../award/AwardButton';
+import type { LoggedUser } from '../../lib/user';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
   Partial<ButtonProps<T>>,
@@ -83,6 +84,36 @@ const SquadSlackButton = <T extends AllowedTags>({
   );
 };
 
+const SquadAwardButton = ({
+  squad,
+}: Pick<SquadMemberShortListProps, 'squad'>) => {
+  const { user } = useAuthContext();
+  const eligibleAdmin = useGetSquadAwardAdmin({
+    sendingUser: user,
+    squad,
+  });
+  const canAwardSquad = !!eligibleAdmin;
+
+  if (!canAwardSquad) {
+    return null;
+  }
+  return (
+    <AwardButton
+      type="SQUAD"
+      entity={{
+        id: squad.id,
+        receiver: {
+          ...eligibleAdmin,
+          name: squad.name,
+          image: squad.image,
+        } as LoggedUser,
+      }}
+      variant={ButtonVariant.Float}
+      copy="Award"
+    />
+  );
+};
+
 const SquadInviteButton = <T extends AllowedTags>({
   squad,
   ...props
@@ -104,43 +135,6 @@ const SquadInviteButton = <T extends AllowedTags>({
     >
       Invitation link
     </Button>
-  );
-};
-
-const SquadChecklistButton = ({ squad }: SquadBarButtonProps<'button'>) => {
-  const {
-    steps,
-    completedSteps,
-    isChecklistVisible,
-    setChecklistVisible,
-    isChecklistReady,
-  } = useSquadChecklist({ squad });
-
-  const completedStepsCount = completedSteps.length;
-  const totalStepsCount = steps.length;
-  const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
-
-  return (
-    <SimpleTooltip
-      forceLoad={!isTesting}
-      visible={isChecklistReady && completedStepsCount < totalStepsCount}
-      container={{
-        className: '-mb-4 !bg-accent-onion-default !text-white',
-      }}
-      placement="top"
-      content={checklistTooltipText}
-      zIndex={3}
-    >
-      <Button
-        data-testid="squad-checklist-button"
-        variant={ButtonVariant.Float}
-        icon={<ChecklistBIcon secondary />}
-        onClick={() => {
-          setChecklistVisible(!isChecklistVisible);
-        }}
-        size={ButtonSize.Small}
-      />
-    </SimpleTooltip>
   );
 };
 
@@ -232,6 +226,7 @@ export function SquadHeaderBar({
           disabled={copying}
         />
       )}
+      <SquadAwardButton squad={squad} />
       {showPendingCount && <SquadModerationButton squad={squad} />}
       <SquadSlackButton
         squad={squad}
@@ -246,7 +241,6 @@ export function SquadHeaderBar({
           });
         }}
       />
-      {isMember && <SquadChecklistButton squad={squad} />}
       {isMember && (
         <SquadUserNotifications
           icon={

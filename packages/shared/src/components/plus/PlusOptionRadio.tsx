@@ -17,6 +17,7 @@ interface PlusOptionRadioProps {
   onChange?: (value: string) => void;
   shouldShowMonthlyPrice?: boolean;
   shouldShowDuration?: boolean;
+  isOrganization?: boolean;
 }
 
 export function PlusOptionRadio({
@@ -25,6 +26,7 @@ export function PlusOptionRadio({
   onChange,
   shouldShowMonthlyPrice,
   shouldShowDuration,
+  isOrganization,
 }: PlusOptionRadioProps): ReactElement {
   if (!option) {
     return null;
@@ -93,7 +95,8 @@ export function PlusOptionRadio({
             color={TypographyColor.Quaternary}
             type={TypographyType.Footnote}
           >
-            /{shouldShowMonthlyPrice ? 'month' : 'yearly'}
+            /{isOrganization ? 'user/' : ''}
+            {shouldShowMonthlyPrice ? 'month' : 'yearly'}
           </Typography>
         )}
       </div>

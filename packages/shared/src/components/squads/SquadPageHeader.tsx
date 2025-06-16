@@ -10,12 +10,10 @@ import { FlexCentered, FlexCol } from '../utilities';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/log';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
-import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common/common';
 import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
@@ -34,6 +32,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -50,7 +49,6 @@ export function SquadPageHeader({
   shouldUseListMode,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { isChecklistVisible } = useSquadChecklist({ squad });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const { category } = squad;
   const isSquadMember = !!squad.currentMember;
@@ -71,7 +69,6 @@ export function SquadPageHeader({
         !shouldUseListMode && 'laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
-      {isChecklistVisible && <SquadChecklistCard squad={squad} />}
       <div
         className={classNames(
           !shouldUseListMode && 'laptopL:flex-row',
@@ -146,6 +143,26 @@ export function SquadPageHeader({
               <SquadStat count={squad.flags?.totalPosts} label="Posts" />
               <SquadStat count={squad.flags?.totalViews} label="Views" />
               <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+              {squad.flags?.totalAwards ? (
+                <ClickableText
+                  onClick={() => {
+                    openModal({
+                      type: LazyModal.ListAwards,
+                      props: {
+                        queryProps: {
+                          id: squad.id,
+                          type: 'SQUAD',
+                        },
+                      },
+                    });
+                  }}
+                >
+                  <SquadStat
+                    count={squad.flags?.totalAwards ?? 0}
+                    label="Awards"
+                  />
+                </ClickableText>
+              ) : undefined}
             </ConditionalWrapper>
           </div>
         </FlexCol>

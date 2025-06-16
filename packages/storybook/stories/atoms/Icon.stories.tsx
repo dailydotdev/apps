@@ -1,10 +1,10 @@
 import React, { ComponentProps } from 'react';
-import type { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite';
 import * as icons from '@dailydotdev/shared/src/components/icons';
 import Icon, {
   IconSize,
 } from '@dailydotdev/shared/src/components/Icon';
-import { StoryObj } from '@storybook/react';
+import { StoryObj } from '@storybook/react-vite';
 
 const iconMap = {...icons};
 type CustomProps = ComponentProps<typeof Icon> & { renderIcon: React.ReactElement };

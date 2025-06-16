@@ -55,12 +55,14 @@ export const useReadingStreak = (): UserReadingStreak => {
       mutationKey: generateQueryKey(RequestKey.UserStreak, user, 'config'),
       mutationFn: (params) =>
         gqlClient
-          .request<{
-            updateStreakConfig: UserStreak;
-          }>(UPDATE_STREAK_COUNT_MUTATION, params)
-          .then((res) =>
-            queryClient.setQueryData(queryKey, res.updateStreakConfig),
-          ),
+          .request<{ updateStreakConfig: UserStreak }>(
+            UPDATE_STREAK_COUNT_MUTATION,
+            params,
+          )
+          .then((res) => {
+            queryClient.setQueryData(queryKey, res.updateStreakConfig);
+            return res.updateStreakConfig;
+          }),
     });
 
   const [clearQueries] = useDebounceFn(async () => {

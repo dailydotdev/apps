@@ -269,6 +269,7 @@ export const PlusInfo = ({
                   (isIOSNative() && option.duration === PlusPriceType.Monthly)
                 }
                 shouldShowDuration
+                isOrganization={isOrganization}
                 option={option}
                 checked={selectedOption === option.priceId}
                 onChange={() => {

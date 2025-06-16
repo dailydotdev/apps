@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import type { SourceMember, Squad } from '../../graphql/sources';
@@ -24,6 +24,7 @@ import { useUsersContentPreferenceMutationSubscription } from '../../hooks/conte
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
+  Moderators = 'Moderators',
   BlockedMembers = 'Blocked members',
 }
 
@@ -105,61 +106,80 @@ export function SquadMemberModal({
     SourcePermissions.ViewBlockedMembers,
   );
 
+  const onTabClick = (tab: SquadMemberTab) => {
+    switch (tab) {
+      case SquadMemberTab.Moderators:
+        setRoleFilter(SourceMemberRole.Moderator);
+        break;
+      case SquadMemberTab.BlockedMembers:
+        setRoleFilter(SourceMemberRole.Blocked);
+        break;
+      default:
+        setRoleFilter(null);
+    }
+  };
+
+  const filteredTabs = useMemo(() => {
+    if (hasPermission) {
+      return Object.values(SquadMemberTab);
+    }
+
+    return Object.values(SquadMemberTab).filter(
+      (tab) => tab !== SquadMemberTab.BlockedMembers,
+    );
+  }, [hasPermission]);
+
   return (
     <>
       <UserListModal
         {...props}
         kind={Modal.Kind.FixedCenter}
         title="Squad members"
-        tabs={hasPermission ? Object.values(SquadMemberTab) : undefined}
-        defaultView={hasPermission ? SquadMemberTab.AllMembers : undefined}
-        header={
-          hasPermission ? (
-            <Modal.Header.Tabs
-              onTabClick={(tab) =>
-                setRoleFilter(
-                  tab === SquadMemberTab.BlockedMembers
-                    ? SourceMemberRole.Blocked
-                    : null,
-                )
-              }
-            />
-          ) : null
-        }
+        showSubscribe={false}
+        tabs={filteredTabs}
+        defaultView={SquadMemberTab.AllMembers}
+        header={<Modal.Header.Tabs onTabClick={onTabClick} />}
         scrollingProps={{
           isFetchingNextPage: queryResult.isFetchingNextPage,
           canFetchMore: checkFetchMore(queryResult),
           fetchNextPage: queryResult.fetchNextPage,
           onScroll: hideMenu,
         }}
-        userListProps={{
-          afterContent: (user, index) => (
-            <SquadMemberItemOptionsButton
-              key={`squad_option_${user.id}`}
-              member={members[index]}
-              onUnblock={() =>
-                onUnblock({ sourceId: squad.id, memberId: user.id })
-              }
-              onOptionsClick={(e) => {
-                e.preventDefault();
-                onOptionsClick(e, members[index]);
-              }}
-            />
-          ),
-          emptyPlaceholder: query ? (
-            <FlexCentered className="p-10 text-text-tertiary typo-callout">
-              No user found
-            </FlexCentered>
-          ) : (
-            <BlockedMembersPlaceholder />
-          ),
-          isLoading: queryResult.isPending,
-          initialItem:
-            roleFilter === SourceMemberRole.Blocked ||
-            query?.length ? undefined : (
-              <InitialItem squad={squad} />
+        userListProps={
+          hasPermission && {
+            afterContent: (user, index) => (
+              <SquadMemberItemOptionsButton
+                key={`squad_option_${user.id}`}
+                member={members[index]}
+                onUnblock={() =>
+                  onUnblock({ sourceId: squad.id, memberId: user.id })
+                }
+                onOptionsClick={(e) => {
+                  e.preventDefault();
+                  onOptionsClick(e, members[index]);
+                }}
+              />
             ),
-        }}
+            emptyPlaceholder:
+              roleFilter === SourceMemberRole.Blocked ? (
+                <BlockedMembersPlaceholder />
+              ) : (
+                <FlexCentered className="p-10 text-text-tertiary typo-callout">
+                  No{' '}
+                  {roleFilter === SourceMemberRole.Moderator
+                    ? 'moderator'
+                    : 'member'}{' '}
+                  found
+                </FlexCentered>
+              ),
+            isLoading: queryResult.isPending,
+            initialItem:
+              roleFilter === SourceMemberRole.Blocked ||
+              query?.length ? undefined : (
+                <InitialItem squad={squad} />
+              ),
+          }
+        }
         users={members?.map(({ user, role }) => {
           return {
             ...user,

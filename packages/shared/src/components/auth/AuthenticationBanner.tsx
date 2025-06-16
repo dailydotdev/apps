@@ -5,7 +5,6 @@ import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
-import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { authGradientBg, BottomBannerContainer } from '../banners';
 import { ButtonVariant } from '../buttons/common';
@@ -67,18 +66,6 @@ export function AuthenticationBanner({
             }}
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,
-            }}
-          />
-          <MemberAlready
-            onLogin={() =>
-              showLogin({
-                trigger: AuthTriggers.Onboarding,
-                options: { isLogin: true },
-              })
-            }
-            className={{
-              container: 'justify-center text-text-secondary typo-callout',
-              login: 'font-bold',
             }}
           />
         </Section>

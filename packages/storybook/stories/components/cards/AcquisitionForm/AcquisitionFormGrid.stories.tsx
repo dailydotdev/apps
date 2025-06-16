@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AcquisitionFormGrid } from '@dailydotdev/shared/src/components/cards/AcquisitionForm/AcquisitionFormGrid';
 import ExtensionProviders from '../../../extension/_providers';
 

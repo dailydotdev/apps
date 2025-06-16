@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { BasePaymentProvider } from './BasePaymentProvider';
 import type { OpenCheckoutProps } from './context';
 import { webappUrl } from '../../lib/constants';
+import { PurchaseType } from '../../graphql/paddle';
 
 export const ChromeExtensionProvider = ({
   children,
@@ -29,7 +30,10 @@ export const ChromeExtensionProvider = ({
   };
 
   return (
-    <BasePaymentProvider openCheckout={openCheckout}>
+    <BasePaymentProvider
+      openCheckout={openCheckout}
+      priceType={PurchaseType.Plus}
+    >
       {children}
     </BasePaymentProvider>
   );

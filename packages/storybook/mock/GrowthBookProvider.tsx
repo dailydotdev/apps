@@ -1,4 +1,4 @@
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import * as actual from '@dailydotdev/shared/src/components/GrowthBookProvider';
 
 export const useFeature = fn(actual.useFeature)

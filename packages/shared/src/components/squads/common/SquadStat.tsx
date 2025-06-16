@@ -24,5 +24,8 @@ export const SquadStats = ({ flags }: Pick<Squad, 'flags'>): ReactElement => (
     <SquadStat count={flags?.totalPosts ?? 0} label="Posts" />
     <SquadStat count={flags?.totalViews ?? 0} label="Views" />
     <SquadStat count={flags?.totalUpvotes ?? 0} label="Upvotes" />
+    {flags?.totalAwards ? (
+      <SquadStat count={flags?.totalAwards ?? 0} label="Awards" />
+    ) : undefined}
   </div>
 );

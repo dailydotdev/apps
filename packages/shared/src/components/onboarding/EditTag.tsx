@@ -15,6 +15,7 @@ import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks/useTagSearch';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { SearchField } from '../fields/SearchField';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 interface EditTagProps {
   feedSettings: FeedSettings;
@@ -74,6 +75,7 @@ export const EditTag = ({
         textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}
         origin={Origin.EditTag}
         onClick={setPreviewVisible}
+        data-funnel-track={FunnelTargetId.FeedPreview}
       />
       {isPreviewEnabled && isPreviewVisible && (
         <FeedLayoutProvider>
@@ -82,7 +84,7 @@ export const EditTag = ({
             preview.
           </p>
           <Feed
-            className="px-6 pt-14 laptop:pt-10"
+            className="relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10"
             feedName={OtherFeedPage.Preview}
             feedQueryKey={[RequestKey.FeedPreview, userId]}
             query={PREVIEW_FEED_QUERY}

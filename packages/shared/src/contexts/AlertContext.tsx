@@ -34,8 +34,6 @@ export interface AlertContextData {
   updateLastBootPopup?: UseMutateAsyncFunction;
 }
 
-export const MAX_DATE = new Date(3021, 0, 1);
-
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
   loadedAlerts: false,
@@ -80,19 +78,6 @@ export const AlertContextProvider = ({
 
   const { mutateAsync: updateLastReferralReminder } = useMutation({
     mutationFn: () => gqlClient.request(UPDATE_LAST_REFERRAL_REMINDER),
-
-    onMutate: () =>
-      updateAlerts({
-        ...alerts,
-        showGenericReferral: false,
-      }),
-
-    onError: () => {
-      updateAlerts({
-        ...alerts,
-        showGenericReferral: true,
-      });
-    },
   });
 
   const { mutateAsync: updateLastBootPopup } = useMutation({

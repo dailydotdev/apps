@@ -199,11 +199,13 @@ export enum RequestKey {
   Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
+  PriceMetadata = 'price_metadata',
   Products = 'products',
   Transactions = 'transactions',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
   Organizations = 'organizations',
+  LottieAnimations = 'lottie_animations',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

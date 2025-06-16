@@ -25,6 +25,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -236,6 +237,7 @@ export function TagSelection({
                 onClick={handleClickTag}
                 isSelected={isSelected}
                 isHighlighted={!searchQuery && !!recommendedTags?.has(tag.name)}
+                data-funnel-track={FunnelTargetId.FeedTag}
               />
             );
           })}

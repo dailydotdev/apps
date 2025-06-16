@@ -1,3 +1,5 @@
+import type { PurchaseType } from '../graphql/paddle';
+
 export enum Origin {
   ShareBar = 'share bar',
   ReadingHistoryContextMenu = 'reading history context menu',
@@ -287,6 +289,9 @@ export enum LogEvent {
   StartAwardComment = 'start award comment',
   PickAwardComment = 'pick award comment',
   AwardComment = 'award comment',
+  StartAwardSquad = 'start award Squad',
+  PickAwardSquad = 'pick award Squad',
+  AwardSquad = 'award Squad',
   // End Credits
 }
 
@@ -320,6 +325,10 @@ export enum TargetType {
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
+  PlusEntryCard = 'plus_entry_card',
+  PlusEntryForYouTab = 'plus_entry_for_you_tab',
+  PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
+  PlusEntryAnnouncementBar = 'plus_entry_announcement_bar',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   Source = 'source',
@@ -430,3 +439,9 @@ export enum StreakTimezonePromptAction {
   Settings = 'settings',
   Ignore = 'ignore',
 }
+
+export const purchaseTypeToTargetType: Record<PurchaseType, TargetType> = {
+  cores: TargetType.Credits,
+  plus: TargetType.Plus,
+  organization: TargetType.Plus,
+};

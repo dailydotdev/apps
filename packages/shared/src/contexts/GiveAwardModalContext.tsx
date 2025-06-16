@@ -17,14 +17,16 @@ const AWARD_TYPES = {
   USER: 'USER',
   POST: 'POST',
   COMMENT: 'COMMENT',
+  SQUAD: 'SQUAD',
 } as const;
 export type AwardTypes = keyof typeof AWARD_TYPES;
 
-const SCREENS = {
+export const AWARD_SCREENS = {
   INTRO: 'INTRO',
   COMMENT: 'COMMENT',
   SUCCESS: 'SUCCESS',
 } as const;
+export type AwardScreens = keyof typeof AWARD_SCREENS;
 
 const MODALRENDERS = {
   AWARD: 'AWARD',
@@ -32,8 +34,6 @@ const MODALRENDERS = {
   AWARD_ANIMATION: 'AWARD_ANIMATION',
 } as const;
 export type ModalRenders = keyof typeof MODALRENDERS;
-
-export type Screens = keyof typeof SCREENS;
 
 const AWARD_EVENTS = {
   START: 'START',
@@ -61,6 +61,11 @@ const AwardTypeToTrackingEvent: Record<
     PICK: LogEvent.PickAwardComment,
     AWARD: LogEvent.AwardComment,
   },
+  SQUAD: {
+    START: LogEvent.StartAwardSquad,
+    PICK: LogEvent.PickAwardSquad,
+    AWARD: LogEvent.AwardSquad,
+  },
 };
 
 export const maxNoteLength = 400;
@@ -74,9 +79,9 @@ export type AwardEntity = {
 export type GiveAwardModalContextData = {
   activeModal: ModalRenders;
   setActiveModal: (modal: ModalRenders) => void;
-  activeStep: Screens;
+  activeStep: AwardScreens;
   setActiveStep: Dispatch<
-    SetStateAction<{ screen: Screens; product?: Product }>
+    SetStateAction<{ screen: AwardScreens; product?: Product }>
   >;
   type: AwardTypes;
   entity: AwardEntity;
@@ -86,6 +91,7 @@ export type GiveAwardModalContextData = {
     extra?: Record<string, unknown>;
   }) => void;
   post?: Post;
+  flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 const GiveAwardModalContext =
@@ -97,6 +103,7 @@ export type GiveAwardModalContextProviderProps = {
   type: AwardTypes;
   entity: AwardEntity;
   post?: Post;
+  flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
 
 export const GiveAwardModalContextProvider = ({
@@ -105,14 +112,15 @@ export const GiveAwardModalContextProvider = ({
   type,
   entity,
   post,
+  flags,
 }: GiveAwardModalContextProviderProps): ReactElement => {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const [activeStep, setActiveStep] = useState<{
-    screen: Screens;
+    screen: AwardScreens;
     product?: Product;
   }>({
-    screen: SCREENS.INTRO,
+    screen: AWARD_SCREENS.INTRO,
   });
   const [activeModal, setActiveModal] = useState<ModalRenders>(
     MODALRENDERS.AWARD,
@@ -134,8 +142,8 @@ export const GiveAwardModalContextProvider = ({
       extra?: Record<string, unknown>;
     }): void => {
       const eventName = AwardTypeToTrackingEvent[type]?.[awardEvent];
-      if (type === 'USER') {
-        // User is a non post event
+      if (['USER', 'SQUAD'].includes(type)) {
+        // User and Squad are non post event
         logEvent({
           event_name: eventName,
           extra: JSON.stringify({ ...extra }),
@@ -187,6 +195,7 @@ export const GiveAwardModalContextProvider = ({
       entity,
       logAwardEvent,
       post,
+      flags,
     }),
     [
       activeModal,
@@ -199,6 +208,7 @@ export const GiveAwardModalContextProvider = ({
       router,
       post,
       prefersReducedMotion,
+      flags,
     ],
   );
 

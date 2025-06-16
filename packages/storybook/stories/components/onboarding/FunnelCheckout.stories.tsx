@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { FunnelCheckout } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelCheckout';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { getBootMock } from '../../../mock/boot';
 import { set } from 'date-fns';
 import { useAtom } from 'jotai';
-import { selectedPlanAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnelStore';
+import { selectedPlanAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 // Create a client
 const queryClient = new QueryClient({
   defaultOptions: {

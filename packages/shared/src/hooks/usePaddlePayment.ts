@@ -8,18 +8,15 @@ import type {
 } from '@paddle/paddle-js';
 import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
-import { useAtomValue } from 'jotai';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
-import type { TargetType } from '../lib/log';
-import { LogEvent } from '../lib/log';
+import { LogEvent, purchaseTypeToTargetType } from '../lib/log';
 import { plusSuccessUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import type {
   OpenCheckoutProps,
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
-import { priceTypeAtom } from '../contexts/payment/context';
 import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
 interface UsePaddlePaymentProps
@@ -27,16 +24,17 @@ interface UsePaddlePaymentProps
     PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
     'successCallback' | 'disabledEvents'
   > {
-  targetType: TargetType;
+  priceType: PurchaseType;
   getProductQuantity?: (event: PaddleEventData) => number;
 }
 
 export const usePaddlePayment = ({
   successCallback,
   disabledEvents,
-  targetType,
+  priceType,
   getProductQuantity,
 }: UsePaddlePaymentProps) => {
+  const targetType = purchaseTypeToTargetType[priceType];
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { user, geo, trackingId } = useAuthContext();
@@ -50,8 +48,6 @@ export const usePaddlePayment = ({
   const getProductQuantityRef = useRef(getProductQuantity);
   getProductQuantityRef.current = getProductQuantity;
   const discountIdQuery = router.query?.d_id as string | undefined;
-
-  const priceType = useAtomValue(priceTypeAtom);
 
   const isOrganization = priceType === PurchaseType.Organization;
   const isPlusPlan = priceType === PurchaseType.Plus || isOrganization;
@@ -149,18 +145,27 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.WarningCheckout,
+              extra: JSON.stringify({
+                transaction_id: event?.data.transaction_id,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
+              extra: JSON.stringify({
+                transaction_id: event?.data.transaction_id,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
+              extra: JSON.stringify({
+                transaction_id: event?.data.transaction_id,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:

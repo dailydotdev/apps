@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { PricingPlan, PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
 
 const meta: Meta<typeof PricingPlan> = {

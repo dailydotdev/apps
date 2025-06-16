@@ -118,10 +118,14 @@ export const SOURCES_QUERY = gql`
             totalPosts
             totalViews
             totalUpvotes
+            totalAwards
           }
           headerImage
           color
           membersCount
+          category {
+            id
+          }
           members {
             edges {
               node {
