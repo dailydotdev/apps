@@ -32,9 +32,9 @@ export const BasePaymentProvider = ({
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: priceType,
-    enabled: !funnelPricing,
+    enabled: !funnelPricing?.length,
   });
-  const data = funnelPricing ?? plusPricing;
+  const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
   const giftOneYear = useMemo(
     () =>

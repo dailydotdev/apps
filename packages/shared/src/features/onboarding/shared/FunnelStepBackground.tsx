@@ -55,7 +55,12 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 };
 
 const hiddenBgSteps = [FunnelStepType.Checkout];
-const alwaysDarkSteps = [FunnelStepType.Signup, FunnelStepType.Checkout];
+const alwaysDarkSteps = [
+  FunnelStepType.Signup,
+  FunnelStepType.Checkout,
+  FunnelStepType.OrganicSignup,
+  FunnelStepType.BrowserExtension,
+];
 
 export const FunnelStepBackground = ({
   children,

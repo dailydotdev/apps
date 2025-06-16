@@ -1,18 +1,25 @@
 import { apiUrl } from '../../lib/config';
 import type { FunnelBootResponse } from './types/funnelBoot';
 
+export enum FunnelBootFeatureKey {
+  Funnel = 'funnel',
+  Onboarding = 'onboarding',
+}
+
 export async function getFunnelBootData({
   app,
   cookies,
   id,
   version,
   forwardedHeaders,
+  featureKey = FunnelBootFeatureKey.Funnel,
 }: {
   app: string;
   cookies: string;
   id?: string;
   version?: string;
   forwardedHeaders?: Record<string, string>;
+  featureKey?: FunnelBootFeatureKey;
 }): Promise<FunnelBootResponse> {
   const params = new URLSearchParams();
   if (id) {
@@ -23,7 +30,9 @@ export async function getFunnelBootData({
   }
 
   const paramString = params.toString();
-  const url = `${apiUrl}/boot/funnel${paramString ? `?${paramString}` : ''}`;
+  const url = `${apiUrl}/boot/funnels/${featureKey}${
+    paramString ? `?${paramString}` : ''
+  }`;
 
   const res = await fetch(url, {
     method: 'GET',

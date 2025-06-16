@@ -170,19 +170,6 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   clickbaitTries?: number;
 }
 
-interface BaseError {
-  error: true;
-  message: string;
-}
-
-interface BadRequestError extends BaseError {
-  code: 1;
-  field: string;
-  reason: string;
-}
-
-export type APIError = BaseError | BadRequestError;
-
 export async function logout(reason: string): Promise<void> {
   const urlParams = reason ? `?${new URLSearchParams({ reason })}` : '';
   await fetch(`${apiUrl}/v1/users/logout${urlParams}`, {
