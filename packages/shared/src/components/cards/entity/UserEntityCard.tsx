@@ -29,6 +29,7 @@ import { ReferralCampaignKey } from '../../../lib/referral';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
+import EntityDescription from './EntityDescription';
 
 type Props = {
   user: UserShortProfile;
@@ -204,12 +205,7 @@ const UserEntityCard = ({ user }: Props) => {
             showVerified
           />
         </div>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {bio}
-        </Typography>
+        {bio && <EntityDescription copy={bio} length={100} />}
       </div>
     </EntityCard>
   );
