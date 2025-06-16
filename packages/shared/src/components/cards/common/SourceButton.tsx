@@ -21,7 +21,7 @@ interface SourceButtonProps {
 
 export default function SourceButton({
   source,
-  tooltipPosition = 'top',
+  tooltipPosition = 'bottom',
   pureTextTooltip = false,
   size = ProfileImageSize.Medium,
   className,
