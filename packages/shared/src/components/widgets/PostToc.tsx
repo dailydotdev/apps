@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import type { Post, TocItem } from '../../graphql/posts';
 import { UnreadIcon as TocIcon } from '../icons';
-import { Summary, SummaryArrow } from '../utilities';
+import { Summary, SummaryArrow, TruncateText } from '../utilities';
 import LogContext from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import styles from './PostToc.module.css';
@@ -45,9 +45,9 @@ export default function PostToc({
           rel="noopener"
           title={item.text}
           onClick={onLinkClick}
-          className="flex-1 truncate px-4 py-2 typo-callout hover:bg-surface-hover"
+          className="flex flex-1 truncate px-4 py-2 typo-callout hover:bg-surface-hover"
         >
-          {item.text}
+          <TruncateText>{item.text}</TruncateText>
         </a>
       ))}
     </>
