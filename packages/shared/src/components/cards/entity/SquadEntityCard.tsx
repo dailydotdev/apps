@@ -18,13 +18,19 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
 
+type SquadEntityCardProps = {
+  handle: string;
+  origin: Origin;
+  className?: {
+    container?: string;
+  };
+};
+
 const SquadEntityCard = ({
   handle,
   origin,
-}: {
-  handle: string;
-  origin: Origin;
-}) => {
+  className,
+}: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
   const { onMenuClick } = useContextMenu({
     id: ContextMenuIds.SquadMenuContext,
@@ -39,6 +45,7 @@ const SquadEntityCard = ({
       image={image}
       type="squad"
       className={{
+        container: className?.container,
         image: 'size-10 rounded-full',
       }}
       entityName={name}

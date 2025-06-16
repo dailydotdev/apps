@@ -21,6 +21,7 @@ export type FollowButtonProps = {
   feedId?: string;
   origin?: Origin;
   variant?: ButtonVariant;
+  buttonClassName?: string;
   showSubscribe?: boolean;
   copyType?: CopyType;
 };
@@ -34,6 +35,7 @@ export const FollowButton = ({
   feedId,
   origin,
   variant = ButtonVariant.Secondary,
+  buttonClassName,
   showSubscribe = true,
   copyType,
 }: FollowButtonProps): ReactElement => {
@@ -103,6 +105,7 @@ export const FollowButton = ({
   return (
     <div className={classNames('relative z-1 inline-flex gap-2', className)}>
       <SourceActionsFollow
+        className={buttonClassName}
         isSubscribed={isFollowing}
         isFetching={isLoading}
         variant={variant}

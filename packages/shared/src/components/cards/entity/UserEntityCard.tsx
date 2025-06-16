@@ -32,9 +32,12 @@ import { ButtonVariant } from '../../buttons/Button';
 
 type Props = {
   user: UserShortProfile;
+  className?: {
+    container?: string;
+  };
 };
 
-const UserEntityCard = ({ user }: Props) => {
+const UserEntityCard = ({ user, className }: Props) => {
   const router = useRouter();
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
@@ -110,6 +113,7 @@ const UserEntityCard = ({ user }: Props) => {
       type="user"
       className={{
         image: 'size-16 rounded-20',
+        container: className?.container,
       }}
       entityName={username}
       actionButtons={

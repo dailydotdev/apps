@@ -18,7 +18,14 @@ import { ButtonVariant } from '../../buttons/Button';
 import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
 
-const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
+type SourceEntityCardProps = {
+  source: SourceTooltip;
+  className?: {
+    container?: string;
+  };
+};
+
+const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   const { isFollowing, toggleFollow } = useSourceActions({
     source: source as Source,
   });
@@ -30,7 +37,7 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
       <>
         <CustomFeedOptionsMenu
           className={{
-            button: 'bg-background-popover',
+            button: 'bg-inherit',
             menu: 'z-[9999]',
           }}
           onCreateNewFeed={() =>
@@ -80,6 +87,7 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
       image={image}
       type="source"
       className={{
+        container: className?.container,
         image: 'size-10 rounded-full',
       }}
       entityName={name}
