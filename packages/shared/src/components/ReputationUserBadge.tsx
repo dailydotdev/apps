@@ -3,10 +3,10 @@ import React from 'react';
 import classNames from 'classnames';
 import { ReputationIcon } from './icons';
 import type { LoggedUser } from '../lib/user';
-import { SimpleTooltip } from './tooltips';
 import type { IconProps } from './Icon';
 import { IconSize } from './Icon';
 import { largeNumberFormat } from '../lib';
+import { Tooltip } from './tooltip/Tooltip';
 
 export type ReputationUserBadgeProps = {
   className?: string;
@@ -26,10 +26,10 @@ export const ReputationUserBadge = ({
   }
 
   return (
-    <SimpleTooltip
+    <Tooltip
       visible={disableTooltip ? false : undefined}
       content="Reputation"
-      placement="bottom"
+      side="bottom"
     >
       <div
         className={classNames(
@@ -44,6 +44,6 @@ export const ReputationUserBadge = ({
         />
         {largeNumberFormat(user.reputation)}
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 };

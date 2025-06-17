@@ -5,13 +5,13 @@ import ContextMenu from '../fields/ContextMenu';
 import type { QuaternaryButtonProps } from './QuaternaryButton';
 import { QuaternaryButton } from './QuaternaryButton';
 import { BookmarkIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import useContextMenu from '../../hooks/useContextMenu';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
 import { ButtonColor, ButtonVariant } from './Button';
+import { Tooltip } from '../tooltip/Tooltip';
 
 interface BookmarkButtonProps {
   buttonProps?: QuaternaryButtonProps<'button'>;
@@ -42,7 +42,7 @@ export function BookmarkButton({
 
   return (
     <>
-      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+      <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <QuaternaryButton
           color={ButtonColor.Bun}
           variant={ButtonVariant.Tertiary}
@@ -54,7 +54,7 @@ export function BookmarkButton({
         >
           {children}
         </QuaternaryButton>
-      </SimpleTooltip>
+      </Tooltip>
       <ContextMenu
         id={finalId}
         options={[

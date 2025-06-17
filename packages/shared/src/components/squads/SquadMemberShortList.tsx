@@ -9,7 +9,6 @@ import {
   ProfilePicture,
   roundClasses,
 } from '../ProfilePicture';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { largeNumberFormat } from '../../lib';
 
@@ -38,7 +37,7 @@ function SquadMemberShortList({
     });
 
   return (
-    <SimpleTooltip placement="top" content="Members list">
+    <Tooltip side="top" content="Members list">
       <button
         type="button"
         className={classNames(
@@ -62,7 +61,7 @@ function SquadMemberShortList({
           />
         ))}
       </button>
-    </SimpleTooltip>
+    </Tooltip>
   );
 }
 

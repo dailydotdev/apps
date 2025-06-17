@@ -9,7 +9,6 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -21,6 +20,7 @@ import type {
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 import type { Post } from '../../graphql/posts';
+import { Tooltip } from '../tooltip/Tooltip';
 
 type AwardButtonProps = {
   appendTo?: 'parent' | Element | ((ref: Element) => Element);
@@ -70,7 +70,7 @@ export const AwardButton = ({
   const appendTo = appendToProps || defaultAppendTo;
 
   return (
-    <SimpleTooltip
+    <Tooltip
       content={
         pressed
           ? `You already awarded this ${type.toLowerCase()}!`
@@ -91,6 +91,6 @@ export const AwardButton = ({
           {copy}
         </Button>
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 };

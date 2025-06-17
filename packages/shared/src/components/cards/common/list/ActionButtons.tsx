@@ -25,6 +25,7 @@ import { LinkWithTooltip } from '../../../tooltips/LinkWithTooltip';
 import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
+import { Tooltip } from '../../../tooltip/Tooltip';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -103,7 +104,7 @@ export default function ActionButtons({
     >
       <div className={classNames('flex flex-row items-center', className)}>
         <div className="flex flex-row items-center rounded-12 bg-surface-float">
-          <SimpleTooltip
+          <Tooltip
             content={
               post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
             }
@@ -128,7 +129,7 @@ export default function ActionButtons({
                 value={post?.numUpvotes}
               />
             </Button>
-          </SimpleTooltip>
+          </Tooltip>
           <SimpleTooltip
             content={
               post?.userState?.vote === UserVote.Down
@@ -187,7 +188,7 @@ export default function ActionButtons({
             className: 'pointer-events-auto ml-2',
           }}
         />
-        <SimpleTooltip content="Copy link">
+        <Tooltip content="Copy link">
           <Button
             className="pointer-events-auto ml-2"
             icon={<LinkIcon />}
@@ -195,7 +196,7 @@ export default function ActionButtons({
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
           />
-        </SimpleTooltip>
+        </Tooltip>
       </div>
     </ConditionalWrapper>
   );

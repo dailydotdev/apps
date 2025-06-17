@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { RadioItemProps } from './RadioItem';
 import { RadioItem } from './RadioItem';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export interface ClassName {
   container?: string;
@@ -66,12 +66,9 @@ export function Radio<T extends string = string>({
           afterElement={option.afterElement}
           reverse={reverse}
         >
-          <SimpleTooltip
-            content={tooltip?.content}
-            placement={tooltip?.placement}
-          >
+          <Tooltip content={tooltip?.content} side={tooltip?.placement}>
             <span className={className.label}>{option.label}</span>
-          </SimpleTooltip>
+          </Tooltip>
         </RadioItem>
       ))}
     </div>
