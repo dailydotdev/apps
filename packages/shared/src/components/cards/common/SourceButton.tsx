@@ -1,14 +1,29 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import type { TooltipPosition } from '../../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { useFeedPreviewMode } from '../../../hooks';
-import SourceEntityCard from '../entity/SourceEntityCard';
-import SquadEntityCard from '../entity/SquadEntityCard';
 import { Origin } from '../../../lib/log';
+
+const SquadEntityCard = dynamic(
+  /* webpackChunkName: "SquadEntityCard" */ () =>
+    import('../entity/SquadEntityCard'),
+  {
+    ssr: false,
+  },
+);
+
+const SourceEntityCard = dynamic(
+  /* webpackChunkName: "SourceEntityCard" */ () =>
+    import('../entity/SourceEntityCard'),
+  {
+    ssr: false,
+  },
+);
 
 interface SourceButtonProps {
   source: SourceTooltip;

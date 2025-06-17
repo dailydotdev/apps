@@ -57,16 +57,20 @@ const SquadEntityCard = ({
             onClick={onMenuClick}
             size={ButtonSize.Small}
           />
-          <SquadHeaderMenu squad={squad} className="z-[9999]" />
-          <SquadActionButton
-            size={ButtonSize.Small}
-            copy={{
-              join: 'Join',
-              leave: 'Leave',
-            }}
-            squad={squad}
-            origin={origin}
-          />
+          {squad && (
+            <>
+              <SquadHeaderMenu squad={squad} className="z-[9999]" />
+              <SquadActionButton
+                size={ButtonSize.Small}
+                copy={{
+                  join: 'Join',
+                  leave: 'Leave',
+                }}
+                squad={squad}
+                origin={origin}
+              />
+            </>
+          )}
         </>
       }
     >
