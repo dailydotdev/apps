@@ -46,7 +46,6 @@ export const SquadPostCardHeader = ({
         <div className="relative flex flex-row gap-2">
           <SourceButton
             source={source}
-            tooltipPosition="top"
             className={classNames(
               'z-0',
               !enableSourceHeader && 'absolute -bottom-2 -right-2',
@@ -58,7 +57,10 @@ export const SquadPostCardHeader = ({
             }
           />
           {author && (
-            <ProfileTooltip userId={author.id}>
+            <ProfileTooltip
+              userId={author.id}
+              tooltip={{ placement: 'bottom' }}
+            >
               <ProfileImageLink
                 picture={{ size: ProfileImageSize.Medium }}
                 user={author}
