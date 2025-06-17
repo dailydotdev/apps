@@ -57,9 +57,9 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
       event_name: LogEvent.Impression,
       target_type: TargetType.SquadJoinButton,
       extra: JSON.stringify({
-        squad: squad.id,
+        squad: squad?.id,
         origin,
-        squad_type: squad.public ? 'public' : 'private',
+        squad_type: squad?.public ? 'public' : 'private',
       }),
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -76,7 +76,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
             event_name: LogEvent.ClickJoinSquad,
             extra: JSON.stringify({
               inviter: inviterMember?.id,
-              squad: squad.id,
+              squad: squad?.id,
             }),
           });
         }
@@ -118,7 +118,7 @@ export const SquadActionButton = ({
     null,
     undefined,
     true,
-    squad.category?.id,
+    squad?.category?.id,
   );
   const fuzzyQueryMatch = queryClient.getQueriesData({
     queryKey: fuzzyQueryKey,
@@ -141,7 +141,7 @@ export const SquadActionButton = ({
             ...subEdge,
             node: {
               ...subEdge.node,
-              ...(node.id === squad.id && { currentMember: user }),
+              ...(node.id === squad?.id && { currentMember: user }),
             },
           };
         }),
@@ -183,7 +183,7 @@ export const SquadActionButton = ({
 
       displayToast('👋 You have left the Squad.');
 
-      const queryKey = generateQueryKey(RequestKey.Squad, user, squad.handle);
+      const queryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
       const currenSquad = queryClient.getQueryData<Squad>(queryKey);
 
       if (currenSquad) {
@@ -194,7 +194,7 @@ export const SquadActionButton = ({
         });
       }
       queryClient.invalidateQueries({
-        queryKey: ['squadMembersInitial', squad.handle],
+        queryKey: ['squadMembersInitial', squad?.handle],
       });
     },
     onError: () => {
@@ -227,12 +227,12 @@ export const SquadActionButton = ({
 
   if (isCurrentMember && showViewSquadIfMember) {
     return (
-      <Link href={squad.permalink}>
+      <Link href={squad?.permalink}>
         <Button
           {...rest}
           className={className?.button}
           tag="a"
-          href={squad.permalink}
+          href={squad?.permalink}
           variant={memberVariant}
         >
           {view}
