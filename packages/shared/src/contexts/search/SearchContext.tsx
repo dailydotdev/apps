@@ -1,6 +1,6 @@
 import { createContextProvider } from '@kickass-coderz/react';
 import { useMemo, useState } from 'react';
-import type { TIME_OPTIONS } from '../../components';
+import type { TIME_OPTIONS } from '../../components/search/common';
 
 type TimeOption = (typeof TIME_OPTIONS)[number];
 const [SearchProvider, useSearchContextProvider] = createContextProvider(() => {
