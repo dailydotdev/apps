@@ -9,6 +9,7 @@ import type {
   FunnelStepTransitionCallback,
 } from '../types/funnel';
 import {
+  stepsWithOnlySkipHeader,
   stepsFullWidth,
   FunnelStepType,
   COMPLETED_STEP_ID,
@@ -178,7 +179,8 @@ export const FunnelStepper = ({
       step.id,
     );
     const hasHeader =
-      step.parameters.shouldShowHeader || stepsWithHeader.includes(step.type);
+      step.parameters.shouldShowHeader ||
+      stepsWithHeader.some((type) => type === step.type);
     const hasCookieConsent = isCookieBannerActive && showBanner;
     const isFullWidth = stepsFullWidth.includes(step.type);
 
@@ -208,8 +210,9 @@ export const FunnelStepper = ({
 
   const shouldShowHeaderSkip =
     skip.hasTarget && (!skip.placement || skip.placement === 'default'); // backwards compat for empty placement
-  const shouldShowProgressBar =
-    shouldShowHeaderSkip && step.type !== FunnelStepType.BrowserExtension;
+  const hasOnlySkipButton =
+    shouldShowHeaderSkip &&
+    stepsWithOnlySkipHeader.some((type) => type === step.type);
 
   return (
     <section
@@ -243,9 +246,9 @@ export const FunnelStepper = ({
             onSkip={() => {
               onTransition({ type: FunnelStepTransitionType.Skip });
             }}
-            showBackButton={back.hasTarget}
+            showBackButton={back.hasTarget && !hasOnlySkipButton}
             showSkipButton={shouldShowHeaderSkip}
-            showProgressBar={shouldShowProgressBar}
+            showProgressBar={!hasOnlySkipButton}
           />
           <FunnelPaymentPricingContext.Provider value={{ pricing }}>
             <PaymentContextProvider

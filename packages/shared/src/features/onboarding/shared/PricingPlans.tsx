@@ -4,25 +4,6 @@ import classNames from 'classnames';
 import { PricingPlan } from './PricingPlan';
 import type { PricingPlanProps } from './PricingPlan';
 
-export interface PricingPlanPerk {
-  id: string;
-  text: string;
-}
-
-export interface PricingPlanOption {
-  value: string;
-  label: string;
-  price: string;
-  priceSubtitle: string;
-  badge?: {
-    text: string;
-    color?: string;
-  };
-  perks?: PricingPlanPerk[];
-  isHighlighted?: boolean;
-  isBestValue?: boolean;
-}
-
 export interface PricingPlansProps<T extends string = string> {
   name: string;
   value?: T;
