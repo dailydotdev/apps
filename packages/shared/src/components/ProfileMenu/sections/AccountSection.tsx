@@ -1,16 +1,20 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-
 import { ProfileSection } from '../ProfileSection';
 import {
   CreditCardIcon,
   InviteIcon,
-  OrganizationIcon,
   SettingsIcon,
+  TrendingIcon,
+  OrganizationIcon,
 } from '../../icons';
 import { settingsUrl } from '../../../lib/constants';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
 
 export const AccountSection = (): ReactElement => {
+  const { openModal } = useLazyModal();
+
   return (
     <ProfileSection
       items={[
@@ -33,6 +37,13 @@ export const AccountSection = (): ReactElement => {
           title: 'Invite friends',
           href: `${settingsUrl}/invite`,
           icon: InviteIcon,
+        },
+        {
+          title: 'Ads dashboard',
+          icon: TrendingIcon,
+          onClick() {
+            openModal({ type: LazyModal.AdsDashboard });
+          },
         },
       ]}
     />

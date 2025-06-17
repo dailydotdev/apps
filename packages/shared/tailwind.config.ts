@@ -142,6 +142,7 @@ export default {
     borderRadius: {
       none: '0',
       full: '100%',
+      max: '9999px',
       '1/2': '50%',
       2: '0.125rem',
       3: '0.1875rem',
