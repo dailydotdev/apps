@@ -15,17 +15,17 @@ import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 
 const UserEntityCard = dynamic(
-  /* webpackChunkName: "UserEntityCard" */ () =>
+  /* webpackChunkName: "userEntityCard" */ () =>
     import('../cards/entity/UserEntityCard'),
 );
 
 const SourceEntityCard = dynamic(
-  /* webpackChunkName: "SourceEntityCard" */ () =>
+  /* webpackChunkName: "sourceEntityCard" */ () =>
     import('../cards/entity/SourceEntityCard'),
 );
 
 const SquadEntityCard = dynamic(
-  /* webpackChunkName: "SquadEntityCard" */ () =>
+  /* webpackChunkName: "squadEntityCard" */ () =>
     import('../cards/entity/SquadEntityCard'),
 );
 

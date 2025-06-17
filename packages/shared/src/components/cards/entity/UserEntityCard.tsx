@@ -122,7 +122,7 @@ const UserEntityCard = ({ user, className }: Props) => {
           <>
             <CustomFeedOptionsMenu
               className={{
-                button: 'bg-background-popover',
+                button: 'bg-inherit',
                 menu: 'z-[9999]',
               }}
               onAdd={(feedId) =>
