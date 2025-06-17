@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import PostSourceInfo from './PostSourceInfo';
 import { BasePostContent } from './BasePostContent';
 import { PostType, isVideoPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
@@ -16,6 +16,13 @@ import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
+
+const PostSourceInfo = dynamic(
+  /* webpackChunkName: "postSourceInfo" */ () => import('./PostSourceInfo'),
+  {
+    ssr: false,
+  },
+);
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
