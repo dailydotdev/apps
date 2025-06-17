@@ -1,6 +1,4 @@
 import { gql } from 'graphql-request';
-import type { EmptyResponse } from './emptyResponse';
-import { gqlClient } from './common';
 
 export type Alerts = {
   filter?: boolean;
@@ -54,14 +52,3 @@ export const UPDATE_LAST_BOOT_POPUP = gql`
     }
   }
 `;
-
-const UPDATE_FEED_FEEDBACK_REMINDER = `
-  mutation UpdateFeedFeedbackReminder {
-    updateFeedFeedbackReminder {
-      _
-    }
-  }
-`;
-
-export const updateFeedFeedbackReminder = (): Promise<EmptyResponse> =>
-  gqlClient.request(UPDATE_FEED_FEEDBACK_REMINDER);

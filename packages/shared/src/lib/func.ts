@@ -3,7 +3,6 @@ import type ReactModal from 'react-modal';
 import type { EmptyObjectLiteral } from './kratos';
 import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 
-export type EmptyFunction = () => void;
 export type EmptyPromise = () => Promise<void>;
 
 export const nextTick = (): Promise<unknown> =>

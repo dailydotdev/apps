@@ -84,7 +84,7 @@ export const EditTag = ({
             preview.
           </p>
           <Feed
-            className="px-6 pt-14 laptop:pt-10"
+            className="relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10"
             feedName={OtherFeedPage.Preview}
             feedQueryKey={[RequestKey.FeedPreview, userId]}
             query={PREVIEW_FEED_QUERY}

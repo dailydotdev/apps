@@ -112,8 +112,6 @@ export interface ResetPasswordParameters extends AuthPostParams {
   method: KratosMethod;
 }
 
-export type VerificationParams = KratosFormParams<AccountRecoveryParameters>;
-
 export interface SocialRegistrationParameters {
   name?: string;
   username?: string;

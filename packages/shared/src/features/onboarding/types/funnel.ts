@@ -414,10 +414,13 @@ export interface FunnelJSON {
   redirectOnFinish?: string;
 }
 
-export const stepsWithHeader: Array<FunnelStepType> = [
+export const stepsWithHeader = [
   FunnelStepType.Quiz,
   FunnelStepType.BrowserExtension,
-];
+  FunnelStepType.PlusCards,
+] as const satisfies Array<FunnelStepType>;
+export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
+  [FunnelStepType.BrowserExtension, FunnelStepType.PlusCards];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
   FunnelStepType.EditTags,

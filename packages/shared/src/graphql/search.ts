@@ -1,8 +1,6 @@
 import { gql } from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { isNullOrUndefined } from '../lib/func';
-import type { Connection, RequestQueryParams } from './common';
-import { gqlClient } from './common';
 import { webappUrl } from '../lib/constants';
 import type { Post } from './posts';
 import { labels } from '../lib';
@@ -67,16 +65,6 @@ export interface Search {
   chunks: SearchChunk[];
 }
 
-export interface SearchSession {
-  sessionId: string;
-  prompt: string;
-  createdAt: Date;
-}
-
-export interface SearchHistoryData {
-  history: Connection<SearchSession>;
-}
-
 // Search control version suggestions
 export const SEARCH_POST_SUGGESTIONS = gql`
   query SearchPostSuggestions($query: String!, $version: Int) {
@@ -85,70 +73,6 @@ export const SEARCH_POST_SUGGESTIONS = gql`
         id
         title
       }
-    }
-  }
-`;
-
-// AI question recommendations
-export const SEARCH_POST_RECOMMENDATION = gql`
-  query SearchQuestionRecommendations {
-    searchQuestionRecommendations {
-      id
-      question
-    }
-  }
-`;
-
-export const SEARCH_SESSION_QUERY = gql`
-  query SearchSession($id: String!) {
-    searchSession(id: $id) {
-      id
-      createdAt
-      chunks {
-        id
-        prompt
-        response
-        error {
-          message
-          code
-        }
-        createdAt
-        completedAt
-        feedback
-        sources {
-          id
-          name
-          snippet
-          url
-        }
-      }
-    }
-  }
-`;
-
-export const SEARCH_HISTORY_QUERY = gql`
-  query SearchSessionHistory($after: String, $first: Int) {
-    history: searchSessionHistory(after: $after, first: $first) {
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          sessionId: id
-          prompt
-          createdAt
-        }
-      }
-    }
-  }
-`;
-
-export const SEARCH_FEEDBACK_MUTATION = gql`
-  mutation SearchResultFeedback($chunkId: String!, $value: Int!) {
-    searchResultFeedback(chunkId: $chunkId, value: $value) {
-      _
     }
   }
 `;
@@ -219,38 +143,6 @@ export const SEARCH_USER_SUGGESTIONS = gql`
     }
   }
 `;
-
-export interface SearchQuestion {
-  id: string;
-  question: string;
-  post: Post;
-}
-
-interface SearchFeedbackProps {
-  chunkId: string;
-  value: number;
-}
-
-export const sendSearchFeedback = (
-  params: SearchFeedbackProps,
-): Promise<void> => gqlClient.request(SEARCH_FEEDBACK_MUTATION, params);
-
-export const getSearchSession = async (id: string): Promise<Search> => {
-  const res = await gqlClient.request(SEARCH_SESSION_QUERY, { id });
-
-  return res.searchSession;
-};
-
-export const getSearchHistory = async (
-  params: RequestQueryParams,
-): Promise<SearchHistoryData> =>
-  gqlClient.request(SEARCH_HISTORY_QUERY, params);
-
-export const getSearchSuggestions = async (): Promise<SearchQuestion[]> => {
-  const res = await gqlClient.request(SEARCH_POST_RECOMMENDATION);
-
-  return res.searchQuestionRecommendations;
-};
 
 type DeepPartial<T> = T extends unknown
   ? {
@@ -370,18 +262,6 @@ export const sendPrompt = async (
   url?: string,
 ): Promise<EventSource> => {
   return new EventSource(`${url || searchQueryUrl}?${params}`);
-};
-
-export const sendSearchQuery = async (
-  query: string,
-  token: string,
-): Promise<EventSource> => {
-  const params = new URLSearchParams({
-    prompt: query,
-    token,
-  });
-
-  return sendPrompt(params);
 };
 
 export const sendSmartPromptQuery = async ({

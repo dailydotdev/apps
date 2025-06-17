@@ -79,47 +79,6 @@ export const getBookmarkFolders = async (): Promise<BookmarkFolder[]> => {
     .then((data) => data.bookmarkLists);
 };
 
-export const QUERY_BOOKMARK_FOLDER = gql`
-  query BookmarkList($id: ID!) {
-    bookmarkList(id: $id) {
-      id
-      name
-      icon
-    }
-  }
-`;
-
-export const QUERY_BOOKMARK_FOLDER_ITEMS = gql`
-  query BookmarkList($id: ID!) {
-    bookmarkList(id: $id) {
-      id
-      bookmarks {
-        postId
-      }
-    }
-  }
-`;
-
-export const getBookmarkFolderItems = async (
-  id: string,
-): Promise<Bookmark[]> => {
-  const res = await gqlClient.request<{
-    bookmarkList: BookmarkFolder;
-  }>(QUERY_BOOKMARK_FOLDER_ITEMS, { id });
-
-  return res.bookmarkList.bookmarks || [];
-};
-
-export const getBookmarkFolder = async (
-  id: string,
-): Promise<BookmarkFolder> => {
-  const res = await gqlClient.request<{
-    bookmarkList: BookmarkFolder;
-  }>(QUERY_BOOKMARK_FOLDER, { id });
-
-  return res.bookmarkList;
-};
-
 export const CREATE_BOOKMARK_FOLDER = gql`
   mutation CreateBookmarkFolder($name: String!, $icon: String) {
     createBookmarkList(name: $name, icon: $icon) {
