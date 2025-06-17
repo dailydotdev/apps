@@ -141,7 +141,7 @@ function SquadPostAuthor({
       </a>
       {showFollow && (
         <FollowButton
-          className="my-auto mb-auto pl-2"
+          className="my-auto pl-4"
           entityId={author.id}
           showSubscribe={false}
           type={ContentPreferenceType.User}

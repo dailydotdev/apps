@@ -51,6 +51,11 @@ function PostSourceInfo({
     }
   }, [status, data?.status, showActionBtn, isMobile]);
 
+  const isFollowing = [
+    ContentPreferenceStatus.Follow,
+    ContentPreferenceStatus.Subscribed,
+  ].includes(data?.status);
+
   return (
     <span
       className={classNames(
@@ -69,7 +74,10 @@ function PostSourceInfo({
           {showActionBtn && <Separator />}
           {showActionBtn && source?.type !== SourceType.Squad && (
             <FollowButton
-              buttonClassName="!px-0 text-text-link btn-option min-w-min"
+              buttonClassName={classNames(
+                'btn-option min-w-min !px-0 ',
+                !isFollowing && 'text-text-link',
+              )}
               entityId={source.id}
               status={data?.status}
               type={ContentPreferenceType.Source}
@@ -83,7 +91,10 @@ function PostSourceInfo({
               <SquadActionButton
                 size={ButtonSize.XSmall}
                 className={{
-                  button: 'btn-option min-w-min !px-0 text-text-link',
+                  button: classNames(
+                    'btn-option min-w-min !px-0',
+                    !squad.currentMember && 'text-text-link',
+                  ),
                 }}
                 squad={squad}
                 copy={{
