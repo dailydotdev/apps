@@ -1,5 +1,6 @@
 import React from 'react';
 import { Item } from '@dailydotdev/react-contexify';
+import classNames from 'classnames';
 import ContextMenu from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -20,9 +21,10 @@ const SearchFilterTimeButton = () => {
     Wrapper: () => (
       <Item
         onClick={() => setTime(label)}
-        className={`flex cursor-pointer items-center justify-between px-3 py-2 ${
-          time === label ? 'font-bold text-text-primary' : 'text-text-tertiary'
-        }`}
+        className={classNames(
+          'flex cursor-pointer items-center justify-between px-3 py-2',
+          time === label ? 'font-bold text-text-primary' : 'text-text-tertiary',
+        )}
       >
         <span>{label}</span>
         {time === label && <VIcon className="ml-2" />}

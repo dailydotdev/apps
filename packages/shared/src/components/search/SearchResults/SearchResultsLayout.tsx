@@ -23,6 +23,7 @@ import { feature } from '../../../lib/featureManagement';
 import { useFeaturesReadyContext } from '../../GrowthBookProvider';
 
 type SearchResultsLayoutProps = PropsWithChildren;
+const SEARCH_VERSION_THRESHOLD = 3;
 
 export const SearchResultsLayout = (
   props: SearchResultsLayoutProps,
@@ -101,7 +102,7 @@ export const SearchResultsLayout = (
             <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
               Related posts
             </h2>
-            {searchVersion >= 3 ? (
+            {searchVersion >= SEARCH_VERSION_THRESHOLD ? (
               <div className="mx-4 flex gap-2">
                 <SearchFilterTimeButton />
                 <SearchFilterPostTypeButton />
