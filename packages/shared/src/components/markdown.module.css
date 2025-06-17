@@ -6,29 +6,47 @@
     @apply overflow-hidden;
   }
 
+  :is(h1, h2, h3, h4, h5, h6) {
+    @apply font-sans;
+  }
+  :is(p, blockquote, pre, ul, ol, li, a, hr, img){
+    @apply font-serif;
+  }
+
   & :where(h1) {
-    @apply font-bold typo-title2 mt-10 mb-7;
+    @apply font-bold typo-large-title mt-10 mb-7;
+    line-height: 1.3;
   }
   & :where(h2) {
-    @apply font-bold typo-title3 mt-8 mb-6;
+    @apply font-medium typo-title1 mt-8 mb-6;
+    line-height: 1.4;
   }
   & :where(h3) {
-    @apply font-bold typo-body mt-7 mb-5;
+    @apply font-medium typo-title2 mt-8 mb-6;
+    line-height: 1.5;
   }
   & :where(h4) {
-    @apply typo-body font-bold mt-6 mb-4;
+    @apply typo-body font-bold my-6;
   }
   & :where(h5) {
-    @apply text-text-tertiary font-bold typo-markdown mt-5 mb-4;
+    @apply text-text-tertiary font-bold typo-markdown my-6;
   }
   & :where(h6) {
-    @apply text-text-tertiary font-bold mt-4 mb-3;
+    @apply text-text-tertiary font-bold my-6;
   }
   & :where(p) {
-    @apply typo-markdown my-5 relative;
+    @apply typo-markdown my-6 relative;
   }
   & :where(blockquote) {
-    @apply typo-markdown italic pl-7 my-5 border-l border-border-subtlest-secondary;
+    @apply text-xl leading-relaxed italic pl-7 my-8 py-8 border-l-4 border-border-subtlest-secondary;
+
+    > p:is(:first-child, :last-child) {
+      @apply my-0;
+    }
+
+    > p {
+      font-size: inherit;
+    }
   }
   & :where(pre) {
     @apply typo-markdown relative bg-surface-float my-5 rounded-12;
@@ -39,16 +57,16 @@
     color: var(--theme-highlight-label);
   }
   & :not(pre) > code {
-    @apply bg-surface-float typo-footnote px-1 rounded-6 box-decoration-clone;
+    @apply text-accent-bun-default bg-surface-float border border-border-subtlest-tertiary typo-footnote py-1 px-1 rounded-6;
   }
   & :where(ul) {
-    @apply list-disc my-5 pl-7;
+    @apply list-disc my-5 pl-5;
   }
   & :where(ol) {
-    @apply list-decimal my-5 pl-7;
+    @apply list-decimal my-5 pl-5;
   }
   & :where(li) {
-    @apply typo-markdown my-2 pl-2;
+    @apply typo-markdown my-3 pl-1;
   }
   & ::marker {
     @apply text-text-secondary;

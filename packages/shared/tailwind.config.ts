@@ -125,6 +125,14 @@ export default {
         'Segoe UI Emoji',
         'Segoe UI Symbol',
       ],
+      serif: [
+        'Source Serif Pro',
+        'Georgia',
+        'Cambria',
+        'Times New Roman',
+        'Times',
+        'serif',
+      ],
     },
     screens: {
       mobileL: '420px',
