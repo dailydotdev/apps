@@ -1,37 +1,31 @@
 import React, { Children } from 'react';
 import classNames from 'classnames';
-import type { ReactElement, ReactNode } from 'react';
-import { LottieAnimation } from '../../LottieAnimation';
+import type { ReactElement } from 'react';
+import { LottieAnimation } from '../../../LottieAnimation';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../typography/Typography';
-import { ProgressBar } from '../../fields/ProgressBar';
-import { briefCardBg, briefCardBorder } from '../../../styles/custom';
+} from '../../../typography/Typography';
+import { ProgressBar } from '../../../fields/ProgressBar';
+import { briefCardBg, briefCardBorder } from '../../../../styles/custom';
+import type { BriefCardProps } from './BriefCard';
 
-export type BriefCardProps = {
-  className?: string;
-  animationSrc: string;
-  progressPercentage?: number;
-  headnote: ReactNode;
-  title: ReactNode;
-  children?: ReactNode;
-};
+export type BriefCardLoadingProps = BriefCardProps;
 
 const rootStyle = {
   border: briefCardBorder,
   background: briefCardBg,
 };
 
-export const BriefCard = ({
+export const BriefCardLoading = ({
   className,
   animationSrc,
   progressPercentage,
   headnote,
   title,
   children,
-}: BriefCardProps): ReactElement => {
+}: BriefCardLoadingProps): ReactElement => {
   return (
     <div
       style={rootStyle}

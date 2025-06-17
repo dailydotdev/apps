@@ -32,7 +32,7 @@ import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
-import { BriefCard } from './cards/brief/BriefCard';
+import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 
 const CommentPopup = dynamic(
   () =>
@@ -202,19 +202,8 @@ export default function FeedItemComponent({
   });
 
   // TODO feat-brief remove this
-  if (index === 0) {
-    return (
-      <BriefCard
-        animationSrc="/robot-loading.json"
-        progressPercentage={40}
-        headnote="12s"
-        title="Generating Your Presidential Brief"
-      >
-        <>Reducing a 32-minute read to a 4-minute summary.</>
-        <>Cross-checking trends across 23,000 words of content.</>
-        <>Compressing today&apos;s dev noise.</>
-      </BriefCard>
-    );
+  if (index === 0 && item.type === FeedItemType.Post) {
+    return <BriefCard state="loading" post={item.post} />;
   }
 
   switch (item.type) {
