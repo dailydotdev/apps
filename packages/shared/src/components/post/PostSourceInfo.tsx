@@ -32,7 +32,7 @@ function PostSourceInfo({
   const isMobile = useViewSize(ViewSize.MobileXL);
   const [showActionBtn, setShowActionBtn] = useState(false);
   const isUnknown = source.id === 'unknown';
-  const { squad } = useSquad({
+  const { squad, isLoading: isLoadingSquad } = useSquad({
     handle: source.handle,
   });
   const { data, status } = useContentPreferenceStatusQuery({
@@ -77,21 +77,23 @@ function PostSourceInfo({
               showSubscribe={false}
             />
           )}
-          {showActionBtn && source?.type === SourceType.Squad && (
-            <SquadActionButton
-              size={ButtonSize.XSmall}
-              className={{
-                button: 'btn-option min-w-min !px-0 text-text-link',
-              }}
-              squad={squad}
-              copy={{
-                join: 'Join',
-                leave: 'Leave',
-              }}
-              origin={Origin.PostContent}
-              showViewSquadIfMember={false}
-            />
-          )}
+          {showActionBtn &&
+            source?.type === SourceType.Squad &&
+            !isLoadingSquad && (
+              <SquadActionButton
+                size={ButtonSize.XSmall}
+                className={{
+                  button: 'btn-option min-w-min !px-0 text-text-link',
+                }}
+                squad={squad}
+                copy={{
+                  join: 'Join',
+                  leave: 'Leave',
+                }}
+                origin={Origin.PostContent}
+                showViewSquadIfMember={false}
+              />
+            )}
         </>
       )}
       {!!date && (
