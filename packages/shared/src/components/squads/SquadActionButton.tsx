@@ -71,7 +71,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
       {...buttonProps}
       className={classNames(className)}
       onClick={(event) => {
-        if (!squad.currentMember) {
+        if (!squad?.currentMember) {
           logEvent({
             event_name: LogEvent.ClickJoinSquad,
             extra: JSON.stringify({
@@ -110,8 +110,8 @@ export const SquadActionButton = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
   const isMemberBlocked =
-    squad.currentMember?.role === SourceMemberRole.Blocked;
-  const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
+    squad?.currentMember?.role === SourceMemberRole.Blocked;
+  const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
 
   const fuzzyQueryKey = generateQueryKey(
     RequestKey.Sources,
