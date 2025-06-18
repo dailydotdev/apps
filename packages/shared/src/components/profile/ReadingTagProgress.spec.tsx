@@ -1,8 +1,10 @@
 import React from 'react';
 import nock from 'nock';
 import { render, screen } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 import type { MostReadTag } from '../../graphql/users';
 import { ReadingTagProgress } from './ReadingTagProgress';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -17,7 +19,12 @@ const defaultTopTag: MostReadTag = {
 };
 
 const renderComponent = (tag: MostReadTag = defaultTopTag) => {
-  return render(<ReadingTagProgress tag={tag} />);
+  const client = new QueryClient();
+  return render(
+    <TestBootProvider client={client}>
+      <ReadingTagProgress tag={tag} />
+    </TestBootProvider>,
+  );
 };
 
 describe('ProfileTooltipContent component', () => {

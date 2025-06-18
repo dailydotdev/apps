@@ -266,6 +266,11 @@ function AuthOptionsInner({
     const { redirect, setSignBack = true } = options;
     const { data } = await refetchBoot();
 
+    const isLoggedUser = 'infoConfirmed' in data.user;
+    if (!isLoggedUser) {
+      return;
+    }
+
     if (data.user && setSignBack) {
       const provider = chosenProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);

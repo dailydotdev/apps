@@ -4,7 +4,7 @@ import { FilterItem } from './common';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import TagButton from './TagButton';
 import type { TagActionArguments } from '../../hooks/useTagAndSource';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Tooltip } from '../tooltip/Tooltip';
 
 type TagItemRowProps = {
   tooltip: string;
@@ -42,14 +42,14 @@ export default function TagItemRow({
         onUnfollowTags={onUnfollowTags}
         onUnblockTags={onUnblockTags}
       />
-      <SimpleTooltip placement="left" content={tooltip}>
+      <Tooltip side="left" content={tooltip}>
         <Button
           className="absolute right-4 my-auto"
           variant={ButtonVariant.Tertiary}
           onClick={(event) => onClick?.(event, tag)}
           icon={rowIcon}
         />
-      </SimpleTooltip>
+      </Tooltip>
     </FilterItem>
   );
 }

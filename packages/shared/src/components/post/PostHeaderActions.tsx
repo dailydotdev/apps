@@ -8,7 +8,6 @@ import {
   PostType,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
@@ -16,6 +15,7 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
+import { Tooltip } from '../tooltip/Tooltip';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -52,11 +52,7 @@ export function PostHeaderActions({
   const isEnlarged = isFixedNavigation || isLaptop;
   const ButtonWithExperiment = useCallback(() => {
     return (
-      <SimpleTooltip
-        placement="bottom"
-        content={readButtonText}
-        disabled={!inlineActions}
-      >
+      <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
         <Button
           variant={
             isEnlarged
@@ -73,7 +69,7 @@ export function PostHeaderActions({
         >
           {!inlineActions ? readButtonText : null}
         </Button>
-      </SimpleTooltip>
+      </Tooltip>
     );
   }, [
     inlineActions,

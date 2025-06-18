@@ -22,8 +22,12 @@ export function CodeField({
   onSubmit,
   length = DEFAULT_LENGTH,
 }: CodeFieldProps): ReactElement {
-  const elementsRef = useRef<HTMLInputElement[]>(Array(length).fill(null));
-  const [code, setCode] = useState<string[]>(Array(length).fill(''));
+  const elementsRef = useRef<HTMLInputElement[]>(
+    Array(Math.max(0, length)).fill(null),
+  );
+  const [code, setCode] = useState<string[]>(
+    Array(Math.max(0, length)).fill(''),
+  );
 
   const updateCode = (value: string, index: number) => {
     const newCode = [...code];

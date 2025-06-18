@@ -18,6 +18,7 @@ import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import PromptButton from './PromptButton';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 type PromptButtonsProps = {
   activePrompt: string;
@@ -134,7 +135,7 @@ export const PromptButtons = ({
       ))}
 
       {!showAll && !isMobile && promptList?.length > 0 && remainingTags > 0 && (
-        <SimpleTooltip content="See more prompts">
+        <Tooltip content="See more prompts">
           <Button
             variant={ButtonVariant.Subtle}
             size={ButtonSize.XSmall}
@@ -144,7 +145,7 @@ export const PromptButtons = ({
           >
             {remainingTags}+ More
           </Button>
-        </SimpleTooltip>
+        </Tooltip>
       )}
     </div>
   );

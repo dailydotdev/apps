@@ -86,7 +86,7 @@ export default forwardRef(function RadialProgress(
     if (steps > 0) {
       const stepAngle = maxDegrees / steps;
       const gapDegrees = (stepsGap / defaultRadius) * RAD_TO_DEGREES;
-      return [...new Array(steps)].map((_, i) => {
+      return [...new Array(Math.max(0, steps))].map((_, i) => {
         const startAngle = 180 + stepAngle * i + gapDegrees / 2;
         const endAngle = startAngle + stepAngle - gapDegrees;
         return describeArc(startAngle, endAngle);
