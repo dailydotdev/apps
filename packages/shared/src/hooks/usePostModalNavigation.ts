@@ -90,15 +90,17 @@ export const usePostModalNavigation = (
       const post = getPost(index);
 
       if (post) {
+        const postId = post.slug || post.id;
+
         await router.push(
           {
             pathname: baseUrl,
             query: {
               ...router.query,
-              pmid: post.slug,
+              pmid: postId,
             },
           },
-          `${webappUrl}posts/${post.slug}`,
+          `${webappUrl}posts/${postId}`,
         );
       }
       if (post?.type === PostType.Share) {
