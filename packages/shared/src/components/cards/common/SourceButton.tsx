@@ -10,7 +10,7 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { Origin } from '../../../lib/log';
 
 const SquadEntityCard = dynamic(
-  /* webpackChunkName: "SquadEntityCard" */ () =>
+  /* webpackChunkName: "squadEntityCard" */ () =>
     import('../entity/SquadEntityCard'),
   {
     ssr: false,
@@ -18,7 +18,7 @@ const SquadEntityCard = dynamic(
 );
 
 const SourceEntityCard = dynamic(
-  /* webpackChunkName: "SourceEntityCard" */ () =>
+  /* webpackChunkName: "sourceEntityCard" */ () =>
     import('../entity/SourceEntityCard'),
   {
     ssr: false,
