@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -23,6 +24,7 @@ type SquadEntityCardProps = {
   origin: Origin;
   className?: {
     container?: string;
+    menuButton?: string;
   };
 };
 
@@ -59,7 +61,10 @@ const SquadEntityCard = ({
           />
           {squad && (
             <>
-              <SquadHeaderMenu squad={squad} className="z-[9999]" />
+              <SquadHeaderMenu
+                squad={squad}
+                className={classNames('z-[9999]', className?.menuButton)}
+              />
               <SquadActionButton
                 size={ButtonSize.Small}
                 copy={{

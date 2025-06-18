@@ -22,6 +22,7 @@ type SourceEntityCardProps = {
   source: SourceTooltip;
   className?: {
     container?: string;
+    menuButton?: string;
   };
 };
 
@@ -37,7 +38,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
       <>
         <CustomFeedOptionsMenu
           className={{
-            button: 'bg-inherit',
+            button: className?.menuButton,
             menu: 'z-[9999]',
           }}
           onCreateNewFeed={() =>
@@ -79,7 +80,15 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
         />
       </>
     );
-  }, [source, router, follow, unfollow, isFollowing, toggleFollow]);
+  }, [
+    source,
+    router,
+    follow,
+    unfollow,
+    isFollowing,
+    toggleFollow,
+    className?.menuButton,
+  ]);
 
   const { description, membersCount, flags, name, image } = source || {};
   return (
