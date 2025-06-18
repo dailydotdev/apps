@@ -27,7 +27,9 @@ export function Tooltip({
   return (
     <RadixPrimitive.Provider delayDuration={200}>
       <RadixPrimitive.Root>
-        <RadixPrimitive.Trigger>{children}</RadixPrimitive.Trigger>
+        <RadixPrimitive.Trigger aria-label={content.toString()}>
+          {children}
+        </RadixPrimitive.Trigger>
         <RadixPrimitive.Portal
           container={container || globalThis?.document?.body}
         >
