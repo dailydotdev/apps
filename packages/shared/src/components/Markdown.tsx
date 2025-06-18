@@ -72,6 +72,8 @@ export default function Markdown({
   return (
     <ProfileTooltip
       userId={userId}
+      onTooltipMouseEnter={cancelUserClearing}
+      onTooltipMouseLeave={clearUser}
       tooltip={{
         placement: 'top-start',
         offset,

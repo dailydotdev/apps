@@ -17,6 +17,8 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   tooltip?: TooltipProps;
   nativeLazyLoading?: boolean;
   scrollingContainer?: HTMLElement;
+  onTooltipMouseEnter?: () => void;
+  onTooltipMouseLeave?: () => void;
 }
 
 export type UserTooltipContentData = {
@@ -36,6 +38,8 @@ export function ProfileTooltip({
   link,
   scrollingContainer,
   tooltip = {},
+  onTooltipMouseEnter,
+  onTooltipMouseLeave,
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
   const handler = useRef<() => void>();
@@ -66,6 +70,49 @@ export function ProfileTooltip({
     scrollingContainer.removeEventListener('scroll', handler.current);
   };
 
+  // This is a workaround to fix the issue of the tooltip getting cleared
+  // when the user moves their mouse from a markdown @ to the tooltip
+  const hoverPlugin = {
+    fn: () => ({
+      onShow(instance) {
+        if (onTooltipMouseEnter || onTooltipMouseLeave) {
+          if (instance.popper) {
+            if (onTooltipMouseEnter) {
+              instance.popper.addEventListener(
+                'mouseenter',
+                onTooltipMouseEnter,
+              );
+            }
+            if (onTooltipMouseLeave) {
+              instance.popper.addEventListener(
+                'mouseleave',
+                onTooltipMouseLeave,
+              );
+            }
+          }
+        }
+      },
+      onHide(instance) {
+        if (onTooltipMouseEnter || onTooltipMouseLeave) {
+          if (instance.popper) {
+            if (onTooltipMouseEnter) {
+              instance.popper.removeEventListener(
+                'mouseenter',
+                onTooltipMouseEnter,
+              );
+            }
+            if (onTooltipMouseLeave) {
+              instance.popper.removeEventListener(
+                'mouseleave',
+                onTooltipMouseLeave,
+              );
+            }
+          }
+        }
+      },
+    }),
+  };
+
   const props: TooltipProps = {
     showArrow: false,
     interactive: true,
@@ -73,6 +120,8 @@ export function ProfileTooltip({
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
     container: { bgClassName: null },
     content: !isLoading && data ? <UserEntityCard user={data} /> : null,
+    plugins:
+      onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
     ...tooltip,
     onShow: (instance) => {
       if (id !== userId) {
