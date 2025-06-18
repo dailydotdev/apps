@@ -212,7 +212,7 @@ export function ReadingStreakPopup({
               Total reading days: {streak.total}
             </div>
             <Tooltip
-              placement="bottom"
+              side="bottom"
               content={
                 <div className="flex text-center">
                   {isTimezoneOk ? (
