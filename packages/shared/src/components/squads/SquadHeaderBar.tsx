@@ -31,6 +31,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useGetSquadAwardAdmin } from '../../hooks/useCoresFeature';
 import { AwardButton } from '../award/AwardButton';
 import type { LoggedUser } from '../../lib/user';
+import { Tooltip } from '../tooltip/Tooltip';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
   Partial<ButtonProps<T>>,
@@ -257,7 +258,7 @@ export function SquadHeaderBar({
           squad={squad}
         />
       )}
-      <SimpleTooltip placement="top" content="Squad options">
+      <Tooltip side="top" content="Squad options">
         <Button
           className="order-4 tablet:order-5"
           variant={ButtonVariant.Float}
@@ -265,7 +266,7 @@ export function SquadHeaderBar({
           onClick={onMenuClick}
           size={ButtonSize.Small}
         />
-      </SimpleTooltip>
+      </Tooltip>
       <SquadHeaderMenu squad={squad} />
     </div>
   );

@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { MostReadTag } from '../../graphql/users';
 import Link from '../utilities/Link';
 import { getTagPageLink } from '../../lib';
+import { Tooltip } from '../tooltip/Tooltip';
 
 interface ReadingTagProgressProps {
   tag: MostReadTag;
@@ -15,7 +15,7 @@ export function ReadingTagProgress({
   const value = `${(percentage * 100).toFixed(0)}%`;
 
   return (
-    <SimpleTooltip content={`${count}/${total} reading days`} placement="top">
+    <Tooltip content={`${count}/${total} reading days`} side="top">
       <div
         key={tag}
         className="relative flex flex-row overflow-hidden rounded-10 border border-background-subtle p-1 px-3 pb-2 font-bold text-text-tertiary typo-callout"
@@ -30,6 +30,6 @@ export function ReadingTagProgress({
           data-testid="tagProgress"
         />
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 }

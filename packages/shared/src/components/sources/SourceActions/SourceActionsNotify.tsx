@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { Button } from '../../buttons/Button';
 import { BellAddIcon, BellSubscribedIcon } from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
@@ -21,7 +21,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
     : ButtonVariant.Secondary;
 
   return (
-    <SimpleTooltip content={label}>
+    <Tooltip content={label}>
       <Button
         aria-label={label}
         icon={icon}
@@ -31,7 +31,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
         variant={variant}
         disabled={disabled}
       />
-    </SimpleTooltip>
+    </Tooltip>
   );
 };
 

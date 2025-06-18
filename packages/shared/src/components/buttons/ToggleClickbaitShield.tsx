@@ -21,6 +21,7 @@ import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -81,8 +82,8 @@ export const ToggleClickbaitShield = ({
   }
 
   return (
-    <SimpleTooltip
-      placement="bottom"
+    <Tooltip
+      side="bottom"
       content={`Toggle Clickbait Shield ${
         flags.clickbaitShieldEnabled ? 'off' : 'on'
       }`}
@@ -121,6 +122,6 @@ export const ToggleClickbaitShield = ({
           });
         }}
       />
-    </SimpleTooltip>
+    </Tooltip>
   );
 };

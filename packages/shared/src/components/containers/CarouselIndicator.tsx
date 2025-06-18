@@ -20,7 +20,7 @@ function CarouselIndicator({
   className = {},
   onItemClick,
 }: CarouselIndicatorProps): ReactElement {
-  const items = useMemo(() => Array(max).fill(null), [max]);
+  const items = useMemo(() => Array(Math.max(0, max)).fill(null), [max]);
 
   return (
     <span

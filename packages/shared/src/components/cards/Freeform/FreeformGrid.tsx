@@ -62,7 +62,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
-        tooltipPlacement="top"
+        side="top"
       />
       <SquadPostCardHeader
         author={post.author}

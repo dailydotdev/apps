@@ -48,17 +48,20 @@ const binsAttributes: React.SVGProps<SVGRectElement>[] = [
 ];
 
 function getRange(count: number): number[] {
-  return Array.from(new Array(count), (_, i) => i);
+  return Array.from(new Array(Math.max(0, count)), (_, i) => i);
 }
 
 function getBins(values: number[]): number[] {
   const uniques = Array.from(new Set(values)).sort((a, b) => a - b);
   if (uniques.length <= BINS) {
-    return [...new Array(BINS - uniques.length).fill(0), ...uniques];
+    return [
+      ...new Array(Math.max(0, BINS - uniques.length)).fill(0),
+      ...uniques,
+    ];
   }
   const binSize = Math.floor(uniques.length / BINS);
   return Array.from(
-    new Array(BINS),
+    new Array(Math.max(0, BINS)),
     (_, i) => uniques[Math.min(binSize * (i + 1), uniques.length - 1)],
   );
 }
