@@ -106,6 +106,7 @@
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "^1.1.0",
     "@paddle/paddle-js": "1.4.0",
+    "@radix-ui/react-tooltip": "^1.2.7",
     "@tippyjs/react": "^4.2.6",
     "check-password-strength": "^2.0.10",
     "fetch-event-stream": "^0.1.5",
