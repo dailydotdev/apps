@@ -84,7 +84,6 @@ export default function CompanionContent({
           />
         </SimpleTooltip>
       </div>
-      <p>Abov ehere</p>
       <p className="my-4 flex-1 break-words typo-callout">
         <TLDRText>TLDR -</TLDRText>
         <span>

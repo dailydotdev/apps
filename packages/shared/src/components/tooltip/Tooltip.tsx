@@ -19,7 +19,7 @@ export function Tooltip({
 }) {
   const { isCompanion } = useRequestProtocol();
   const container = isCompanion ? getCompanionWrapper() : appendTo;
-
+  const showAriaLabel = typeof content === 'string';
   if (!visible) {
     return children;
   }
@@ -27,7 +27,10 @@ export function Tooltip({
   return (
     <RadixPrimitive.Provider delayDuration={200}>
       <RadixPrimitive.Root>
-        <RadixPrimitive.Trigger aria-label={content.toString()}>
+        <RadixPrimitive.Trigger
+          aria-label={showAriaLabel && content.toString()}
+          asChild
+        >
           {children}
         </RadixPrimitive.Trigger>
         <RadixPrimitive.Portal
