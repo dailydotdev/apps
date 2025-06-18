@@ -37,7 +37,6 @@ import {
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import classNames from 'classnames';
@@ -49,6 +48,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { GENERATE_DEVCARD_MUTATION } from '../../../../../graphql/devcard';
 import type { GenerateDevCardParams } from '../../../../../graphql/devcard';
 
@@ -379,7 +379,7 @@ export const DevCardStep2 = ({
                   {Object.keys(themeToLinearGradient).map((value) => {
                     const isLocked = user?.reputation < requiredPoints[value];
                     return (
-                      <SimpleTooltip
+                      <Tooltip
                         key={value}
                         content={
                           isLocked ? (
@@ -410,7 +410,7 @@ export const DevCardStep2 = ({
                             }
                           />
                         </span>
-                      </SimpleTooltip>
+                      </Tooltip>
                     );
                   })}
                 </div>

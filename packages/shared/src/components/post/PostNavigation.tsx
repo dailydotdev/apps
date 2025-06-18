@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ArrowIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
+import { Tooltip } from '../tooltip/Tooltip';
 
 function PostNavigation({
   postPosition,
@@ -25,7 +25,7 @@ function PostNavigation({
       role="navigation"
     >
       {onPreviousPost && (
-        <SimpleTooltip content="Previous">
+        <Tooltip content="Previous">
           <Button
             className="-rotate-90"
             icon={<ArrowIcon />}
@@ -35,10 +35,10 @@ function PostNavigation({
               postPosition,
             )}
           />
-        </SimpleTooltip>
+        </Tooltip>
       )}
       {onNextPost && (
-        <SimpleTooltip content="Next">
+        <Tooltip content="Next">
           <Button
             className="rotate-90"
             icon={<ArrowIcon />}
@@ -48,7 +48,7 @@ function PostNavigation({
               postPosition,
             )}
           />
-        </SimpleTooltip>
+        </Tooltip>
       )}
       <PostHeaderActions
         {...props}

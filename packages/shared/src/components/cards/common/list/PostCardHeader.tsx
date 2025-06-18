@@ -100,7 +100,7 @@ export const PostCardHeader = ({
               <OptionsButton
                 icon={<MenuIcon className="rotate-90" />}
                 onClick={onMenuClick}
-                tooltipPlacement="top"
+                side="top"
               />
             </>
           )}

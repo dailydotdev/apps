@@ -47,7 +47,7 @@ export const CollectionCardHeader = ({
       <OptionsButton
         className="absolute right-3 top-3 group-hover:flex laptop:hidden"
         onClick={onMenuClick}
-        tooltipPlacement="top"
+        side="top"
       />
     </>
   );

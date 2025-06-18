@@ -14,7 +14,6 @@ import {
   demotePost,
   promotePost,
 } from '../../graphql/posts';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { PostOptionsMenuProps } from '../PostOptionsMenu';
 import PostOptionsMenu from '../PostOptionsMenu';
 import type { PromptOptions } from '../../hooks/usePrompt';
@@ -22,6 +21,7 @@ import { usePrompt } from '../../hooks/usePrompt';
 import type { Origin } from '../../lib/log';
 import useContextMenu from '../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export interface PostMenuOptionsProps {
   post: Post;
@@ -102,7 +102,7 @@ export function PostMenuOptions({
 
   return (
     <>
-      <SimpleTooltip placement="bottom" content="Options">
+      <Tooltip side="bottom" content="Options">
         <Button
           className={!inlineActions && 'ml-auto'}
           icon={<MenuIcon />}
@@ -110,15 +110,15 @@ export function PostMenuOptions({
           size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
           variant={isEnlarged ? ButtonVariant.Tertiary : ButtonVariant.Float}
         />
-      </SimpleTooltip>
+      </Tooltip>
       {onClose && (
-        <SimpleTooltip placement="bottom" content="Close">
+        <Tooltip side="bottom" content="Close">
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<CloseIcon />}
             onClick={(e) => onClose(e)}
           />
-        </SimpleTooltip>
+        </Tooltip>
       )}
       <PostOptionsMenu
         post={post}

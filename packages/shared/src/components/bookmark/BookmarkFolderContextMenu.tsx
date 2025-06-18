@@ -44,7 +44,7 @@ export const BookmarkFolderContextMenu = ({
       <OptionsButton
         onClick={onMenuClick}
         className="ml-3"
-        tooltipPlacement="top"
+        side="top"
         size={ButtonSize.Medium}
         variant={ButtonVariant.Secondary}
       />
