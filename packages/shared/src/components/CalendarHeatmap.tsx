@@ -223,7 +223,6 @@ export function CalendarHeatmap<T extends { date: string }>({
             />
           )}
         </g>
-        {/* </SimpleTooltip> */}
       </Tooltip>
     );
   };
