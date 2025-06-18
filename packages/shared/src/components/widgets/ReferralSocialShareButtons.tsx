@@ -10,10 +10,10 @@ import {
 import { TwitterIcon, FacebookIcon, WhatsappIcon } from '../icons';
 import { link } from '../../lib/links';
 import { labels } from '../../lib';
-import { SimpleTooltip } from '../tooltips';
 import type { TargetType } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
+import { Tooltip } from '../tooltip/Tooltip';
 
 interface ReferralSocialShareButtonsProps {
   url: string;
@@ -50,7 +50,7 @@ const ReferralSocialShareButtons = ({
     <>
       {Object.values(socialShareButtonsDefaultConfig).map(
         ({ tooltip, icon, href, shareProvider }) => (
-          <SimpleTooltip content={tooltip} key={tooltip}>
+          <Tooltip content={tooltip} key={tooltip}>
             <Button
               icon={icon}
               href={href}
@@ -66,7 +66,7 @@ const ReferralSocialShareButtons = ({
                 });
               }}
             />
-          </SimpleTooltip>
+          </Tooltip>
         ),
       )}
     </>

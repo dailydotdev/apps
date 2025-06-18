@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { CoreIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
@@ -17,6 +16,7 @@ import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
+import { Tooltip } from '../tooltip/Tooltip';
 
 const ProfileMenu = dynamic(
   () =>
@@ -60,7 +60,7 @@ export default function ProfileButton({
             />
           )}
           {hasCoresAccess && (
-            <SimpleTooltip
+            <Tooltip
               content={
                 <>
                   Wallet
@@ -81,9 +81,9 @@ export default function ProfileButton({
                   </Button>
                 </Link>
               </div>
-            </SimpleTooltip>
+            </Tooltip>
           )}
-          <SimpleTooltip placement="bottom" content="Profile settings">
+          <Tooltip side="bottom" content="Profile settings">
             <button
               type="button"
               className={classNames(
@@ -106,7 +106,7 @@ export default function ProfileButton({
                 nativeLazyLoading
               />
             </button>
-          </SimpleTooltip>
+          </Tooltip>
         </div>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}
