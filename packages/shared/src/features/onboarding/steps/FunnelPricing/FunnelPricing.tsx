@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
 import type { ReactElement } from 'react';
 import { useAtom } from 'jotai';
-import type { FunnelStepPricing } from '../types/funnel';
-import { FunnelStepTransitionType, FunnelPricingType } from '../types/funnel';
-import type { PricingPlansProps } from '../shared';
+import type { FunnelStepPricing } from '../../types/funnel';
+import {
+  FunnelStepTransitionType,
+  FunnelPricingType,
+} from '../../types/funnel';
+import type { PricingPlansProps } from '../../shared';
 import {
   BoxContentImage,
   BoxFaq,
@@ -12,27 +15,26 @@ import {
   DiscountTimer,
   ImageReview,
   PricingPlans,
-} from '../shared';
+} from '../../shared';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../../components/typography/Typography';
+} from '../../../../components/typography/Typography';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
-import { anchorDefaultRel } from '../../../lib/strings';
+} from '../../../../components/buttons/Button';
 import {
   selectedPlanAtom,
   applyDiscountAtom,
   discountTimerAtom,
-} from '../store/funnel.store';
-import { usePaymentContext } from '../../../contexts/payment/context';
-import type { BaseProductPricingPreview } from '../../../graphql/paddle';
+} from '../../store/funnel.store';
+import { usePaymentContext } from '../../../../contexts/payment/context';
+import type { BaseProductPricingPreview } from '../../../../graphql/paddle';
+import { PricingEmailSupport } from './common';
 
 const PricingSection = ({
   name,
@@ -192,22 +194,7 @@ export const FunnelPricing = ({
           image={{ src: refund.image, alt: 'Checkmark' }}
         />
         <BoxFaq items={faq} />
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="text-center"
-        >
-          For technical or product related questions click here or email us at{' '}
-          <a
-            href="mailto:support@daily.dev"
-            className="text-text-link underline"
-            target="_blank"
-            rel={anchorDefaultRel}
-          >
-            support@daily.dev
-          </a>
-        </Typography>
+        <PricingEmailSupport />
       </div>
     </>
   );
