@@ -13,20 +13,30 @@ import { FooterLinks } from '../footer';
 import type { UserShortProfile } from '../../lib/user';
 import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
+import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
     import('../cards/entity/UserEntityCard'),
+  {
+    loading: () => <EntityCardSkeleton />,
+  },
 );
 
 const SourceEntityCard = dynamic(
   /* webpackChunkName: "sourceEntityCard" */ () =>
     import('../cards/entity/SourceEntityCard'),
+  {
+    loading: () => <EntityCardSkeleton />,
+  },
 );
 
 const SquadEntityCard = dynamic(
   /* webpackChunkName: "squadEntityCard" */ () =>
     import('../cards/entity/SquadEntityCard'),
+  {
+    loading: () => <EntityCardSkeleton />,
+  },
 );
 
 export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
