@@ -44,6 +44,8 @@ export function PostWidgets({
 
   const cardClasses = 'w-full bg-inherit';
 
+  const creator = post.author || post.scout;
+
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
@@ -69,12 +71,12 @@ export function PostWidgets({
           source={post.source as SourceTooltip}
         />
       )}
-      {post.author && (
+      {creator && (
         <UserEntityCard
           className={{
             container: cardClasses,
           }}
-          user={post.author as UserShortProfile}
+          user={creator as UserShortProfile}
         />
       )}
       <ShareBar post={post} />
