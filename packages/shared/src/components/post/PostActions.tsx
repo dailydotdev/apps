@@ -26,13 +26,13 @@ import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { SimpleTooltip } from '../tooltips';
 import type { AwardProps } from '../../graphql/njord';
 import { getProductsQueryOptions } from '../../graphql/njord';
 import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
+import { Tooltip } from '../tooltip/Tooltip';
 
 interface PostActionsProps {
   post: Post;
@@ -252,9 +252,9 @@ export function PostActions({
               condition={post?.userState?.awarded}
               wrapper={(children) => {
                 return (
-                  <SimpleTooltip content="You already awarded this post!">
+                  <Tooltip content="You already awarded this post!">
                     <div>{children}</div>
-                  </SimpleTooltip>
+                  </Tooltip>
                 );
               }}
             >

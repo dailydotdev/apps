@@ -66,7 +66,7 @@ import type { ContextMenuDrawerItem } from '@dailydotdev/shared/src/components/d
 import classNames from 'classnames';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -107,7 +107,7 @@ const OrganizationOptionsMenu = ({
     ...(memberHasPlusOutsideOrg && {
       disabled: true,
       Wrapper: ({ children }) => (
-        <SimpleTooltip
+        <Tooltip
           content={
             <>
               This member already has a Plus subscription outside of your
@@ -117,7 +117,7 @@ const OrganizationOptionsMenu = ({
           }
         >
           <div>{children}</div>
-        </SimpleTooltip>
+        </Tooltip>
       ),
     }),
   });

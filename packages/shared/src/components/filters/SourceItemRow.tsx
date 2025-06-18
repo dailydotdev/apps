@@ -5,7 +5,7 @@ import type { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { BlockIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export default function SourceItemRow({
   source,
@@ -28,8 +28,8 @@ export default function SourceItemRow({
           {source.name}
         </span>
       </a>
-      <SimpleTooltip
-        placement="left"
+      <Tooltip
+        side="left"
         content={blocked ? 'Unblock source' : 'Block source'}
       >
         <Button
@@ -38,7 +38,7 @@ export default function SourceItemRow({
           onClick={() => onSourceClick?.(source)}
           icon={<BlockIcon />}
         />
-      </SimpleTooltip>
+      </Tooltip>
     </FilterItem>
   );
 }

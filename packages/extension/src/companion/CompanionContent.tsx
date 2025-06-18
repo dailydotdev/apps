@@ -20,6 +20,7 @@ import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';

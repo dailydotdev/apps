@@ -25,7 +25,6 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
@@ -49,7 +48,6 @@ import {
 } from '../../hooks';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { getCompanionWrapper } from '../../lib/extension';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
@@ -57,6 +55,7 @@ import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { truncateTextClassNames } from '../utilities';
 import { CommentAwardActions } from './CommentAwardActions';
 import { MenuIcon } from '../MenuIcon';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -104,7 +103,6 @@ export default function CommentActionButtons({
     };
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
-  const appendTo = isCompanion ? getCompanionWrapper : 'parent';
 
   useEffect(() => {
     setVoteState({
@@ -308,7 +306,7 @@ export default function CommentActionButtons({
 
   return (
     <div className={classNames('flex flex-row items-center', className)}>
-      <SimpleTooltip content="Upvote" appendTo={appendTo}>
+      <Tooltip content="Upvote">
         <Button
           id={`comment-${comment.id}-upvote-btn`}
           size={ButtonSize.Small}
@@ -328,8 +326,8 @@ export default function CommentActionButtons({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Avocado}
         />
-      </SimpleTooltip>
-      <SimpleTooltip content="Downvote" appendTo={appendTo}>
+      </Tooltip>
+      <Tooltip content="Downvote">
         <Button
           id={`comment-${comment.id}-downvote-btn`}
           size={ButtonSize.Small}
@@ -352,8 +350,8 @@ export default function CommentActionButtons({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Ketchup}
         />
-      </SimpleTooltip>
-      <SimpleTooltip content="Reply" appendTo={appendTo}>
+      </Tooltip>
+      <Tooltip content="Reply">
         <Button
           size={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
@@ -362,9 +360,9 @@ export default function CommentActionButtons({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.BlueCheese}
         />
-      </SimpleTooltip>
+      </Tooltip>
       <CommentAwardActions comment={comment} post={post} />
-      <SimpleTooltip content="Share comment" appendTo={appendTo}>
+      <Tooltip content="Share comment">
         <Button
           size={ButtonSize.Small}
           onClick={() => onShare(comment)}
@@ -373,12 +371,10 @@ export default function CommentActionButtons({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />
-      </SimpleTooltip>
-      {!!commentOptions && (
-        <OptionsButton tooltipPlacement="top" onClick={onMenuClick} />
-      )}
+      </Tooltip>
+      {!!commentOptions && <OptionsButton side="top" onClick={onMenuClick} />}
       {voteState.numUpvotes > 0 && (
-        <SimpleTooltip content="See who upvoted" appendTo={appendTo}>
+        <Tooltip content="See who upvoted">
           <ClickableText
             className={classNames('ml-auto !block', truncateTextClassNames)}
             onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
@@ -386,7 +382,7 @@ export default function CommentActionButtons({
             {largeNumberFormat(voteState.numUpvotes)} upvote
             {voteState.numUpvotes === 1 ? '' : 's'}
           </ClickableText>
-        </SimpleTooltip>
+        </Tooltip>
       )}
       <ContextMenu
         disableBoundariesCheck

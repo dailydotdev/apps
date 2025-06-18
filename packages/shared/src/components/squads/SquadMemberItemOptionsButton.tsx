@@ -4,12 +4,12 @@ import type { SourceMember } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BlockIcon, MenuIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { useToastNotification } from '../../hooks';
+import { Tooltip } from '../tooltip/Tooltip';
 
 interface SquadMemberActionsProps {
   member: SourceMember;
@@ -58,19 +58,19 @@ function SquadMemberItemOptionsButton({
 
   if (role === SourceMemberRole.Blocked) {
     return (
-      <SimpleTooltip content="Unblock">
+      <Tooltip content="Unblock">
         <Button
           className="my-auto ml-2"
           variant={ButtonVariant.Tertiary}
           icon={<BlockIcon />}
           onClick={onConfirmUnblock}
         />
-      </SimpleTooltip>
+      </Tooltip>
     );
   }
 
   const option = (
-    <SimpleTooltip content="Member options">
+    <Tooltip content="Member options">
       <Button
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
@@ -78,7 +78,7 @@ function SquadMemberItemOptionsButton({
         onClick={onOptionsClick}
         icon={<MenuIcon />}
       />
-    </SimpleTooltip>
+    </Tooltip>
   );
 
   const sameUser = loggedUser && loggedUser.id === user.id;
