@@ -12,6 +12,7 @@ import {
   ShareIcon,
   BookmarkIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -36,7 +37,6 @@ import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
