@@ -28,7 +28,7 @@ export default function PostTags({
     tags,
     width,
     offset: isListMode ? 0 : 8,
-    base: 16,
+    baseTagWidth: 16,
   });
   const tagsCount = tags?.length || 0;
   const remainingTags = tagsCount - list.length;
