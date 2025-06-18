@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import Classed from '../../../lib/classed';
@@ -20,10 +20,10 @@ export default function PostTags({
   post,
   className,
 }: PostTagsProps): ReactElement {
+  const [width, setWidth] = useState(0);
   const { isListMode } = useFeedLayout();
   const tags = post?.tags || [];
   const elementRef = useRef<HTMLDivElement>(null);
-  const width = elementRef?.current?.getBoundingClientRect()?.width || 0;
   const list = useFeedTags({
     tags,
     width,
@@ -32,6 +32,20 @@ export default function PostTags({
   });
   const tagsCount = tags?.length || 0;
   const remainingTags = tagsCount - list.length;
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      setWidth(entries[0].contentRect.width || 0);
+    });
+
+    if (elementRef.current && globalThis) {
+      resizeObserver.observe(elementRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
     <div
