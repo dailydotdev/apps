@@ -11,7 +11,6 @@ import {
   LinkIcon,
 } from '../../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
-import { SimpleTooltip } from '../../../tooltips/SimpleTooltip';
 import {
   useFeedPreviewMode,
   usePostActions,
@@ -130,7 +129,7 @@ export default function ActionButtons({
               />
             </Button>
           </Tooltip>
-          <SimpleTooltip
+          <Tooltip
             content={
               post?.userState?.vote === UserVote.Down
                 ? 'Remove downvote'
@@ -150,7 +149,7 @@ export default function ActionButtons({
               onClick={onToggleDownvote}
               variant={ButtonVariant.Tertiary}
             />
-          </SimpleTooltip>
+          </Tooltip>
         </div>
         <LinkWithTooltip
           tooltip={{ content: 'Comment' }}
