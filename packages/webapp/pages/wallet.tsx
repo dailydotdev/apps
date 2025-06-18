@@ -32,7 +32,6 @@ import {
 import { ListCardDivider } from '@dailydotdev/shared/src/components/cards/common/Card';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -73,6 +72,7 @@ import {
   useHasAccessToCores,
 } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -99,12 +99,12 @@ const BalanceBlock = ({
       )}
     >
       {Icon}
-      <SimpleTooltip content={description} appendTo="parent">
+      <Tooltip content={description}>
         <div className="mt-4 flex gap-1">
           <Typography type={TypographyType.Callout}>{title}</Typography>
           <InfoIcon />
         </div>
-      </SimpleTooltip>
+      </Tooltip>
       <Typography type={TypographyType.Title2} bold>
         {formatCoresCurrency(balance)}
       </Typography>

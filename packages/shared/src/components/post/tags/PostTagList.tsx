@@ -15,7 +15,7 @@ import Link from '../../utilities/Link';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { SimpleTooltip } from '../../tooltips';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface PostTagListProps {
   post: Post;
@@ -78,13 +78,13 @@ const PostTagItem = ({
         className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
         role="separator"
       />
-      <SimpleTooltip content={`Follow #${tag}`}>
+      <Tooltip content={`Follow #${tag}`}>
         <Button
           icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
           onClick={() => onFollow(tag)}
           size={ButtonSize.XSmall}
         />
-      </SimpleTooltip>
+      </Tooltip>
     </Chip>
   );
 };

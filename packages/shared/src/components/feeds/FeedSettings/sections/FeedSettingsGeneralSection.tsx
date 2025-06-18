@@ -26,8 +26,8 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
-import { SimpleTooltip } from '../../../tooltips';
 import { usePlusSubscription } from '../../../../hooks';
+import { Tooltip } from '../../../tooltip/Tooltip';
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
@@ -171,10 +171,10 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           </Button>
         )}
         {isMainFeed && (
-          <SimpleTooltip
-            disabled={!isDefaultFeed}
+          <Tooltip
+            visible={isDefaultFeed}
             content="Your main feed is already your default feed"
-            placement="bottom"
+            side="bottom"
           >
             <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
               <Button
@@ -200,7 +200,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
                 {isDefaultFeed ? 'Default feed set' : 'Make default'}
               </Button>
             </div>
-          </SimpleTooltip>
+          </Tooltip>
         )}
       </div>
       {isCustomFeed && (

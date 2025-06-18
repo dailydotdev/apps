@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import classed from '../../../lib/classed';
 import styles from './Card.module.css';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -44,7 +44,7 @@ export function RaisedLabel({
         className,
       )}
     >
-      <SimpleTooltip content={description}>
+      <Tooltip content={description}>
         <div
           className={classNames(
             'flex items-center px-1',
@@ -59,7 +59,7 @@ export function RaisedLabel({
             {type}
           </span>
         </div>
-      </SimpleTooltip>
+      </Tooltip>
       {!listMode && description && (
         <span className="ml-2 text-text-tertiary typo-footnote mouse:hidden">
           {description}

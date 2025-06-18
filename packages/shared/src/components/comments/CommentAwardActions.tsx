@@ -6,8 +6,6 @@ import {
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
 import type { LoggedUser } from '../../lib/user';
-import { getCompanionWrapper } from '../../lib/extension';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { AwardButton } from '../award/AwardButton';
 import type { Comment } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
@@ -34,8 +32,6 @@ export const CommentAwardActions = ({
   post,
 }: CommentAwardActionsProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const { isCompanion } = useRequestProtocol();
-  const appendTo = isCompanion ? getCompanionWrapper : 'parent';
   const { user } = useAuthContext();
   const canAward = useCanAwardUser({
     sendingUser: user,
@@ -58,7 +54,6 @@ export const CommentAwardActions = ({
     if (canAward) {
       return (
         <AwardButton
-          appendTo={appendTo}
           type="COMMENT"
           entity={awardEntity}
           pressed={!!comment.userState?.awarded}

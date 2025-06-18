@@ -206,7 +206,6 @@ export function Header({
         )}
         {canAward && (
           <AwardButton
-            appendTo="parent"
             type="USER"
             entity={{
               id: user.id,
