@@ -22,7 +22,6 @@ import {
 } from '@dailydotdev/shared/src/lib/kratos';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
@@ -33,6 +32,7 @@ import {
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { ManageSocialProvidersProps } from '../common';
@@ -200,9 +200,9 @@ function AccountSecurityDefault({
         title="Account email"
         description="The email address associated with your daily.dev account"
       >
-        <SimpleTooltip
-          placement="bottom"
-          disabled={hasPassword}
+        <Tooltip
+          side="bottom"
+          visible={!hasPassword}
           content={
             <div className="w-60 py-2 typo-subhead">
               You must set a password for the account before you can change your
@@ -220,7 +220,7 @@ function AccountSecurityDefault({
             rightIcon={<LockIcon className="text-text-secondary" />}
             isLocked
           />
-        </SimpleTooltip>
+        </Tooltip>
         {hasPassword && email && verifiable && !verifiable.verified && (
           <EmailSentSection email={email} className="max-w-sm" />
         )}

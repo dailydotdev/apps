@@ -17,13 +17,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -100,7 +100,7 @@ const ActionButtons = ({
       )}
     >
       <div className="flex flex-row items-center rounded-12 bg-surface-float">
-        <SimpleTooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
           <Button
             className="pointer-events-auto !pl-1 !pr-3"
             id={`post-${post.id}-upvote-btn`}
@@ -122,10 +122,8 @@ const ActionButtons = ({
               value={post.numUpvotes}
             />
           </Button>
-        </SimpleTooltip>
-        <SimpleTooltip
-          content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
-        >
+        </Tooltip>
+        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
           <Button
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
@@ -136,9 +134,9 @@ const ActionButtons = ({
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           />
-        </SimpleTooltip>
+        </Tooltip>
       </div>
-      <SimpleTooltip content="Comments">
+      <Tooltip content="Comments">
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
           icon={<CommentIcon secondary={post.commented} />}
@@ -151,7 +149,7 @@ const ActionButtons = ({
             <InteractionCounter value={post.numComments} />
           ) : null}
         </QuaternaryButton>
-      </SimpleTooltip>
+      </Tooltip>
       <BookmarkButton
         post={post}
         buttonProps={{
@@ -161,7 +159,7 @@ const ActionButtons = ({
           size: ButtonSize.Small,
         }}
       />
-      <SimpleTooltip content="Copy link">
+      <Tooltip content="Copy link">
         <Button
           size={ButtonSize.Small}
           icon={<LinkIcon />}
@@ -169,7 +167,7 @@ const ActionButtons = ({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />
-      </SimpleTooltip>
+      </Tooltip>
     </div>
   );
 };

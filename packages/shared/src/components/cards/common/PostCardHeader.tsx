@@ -118,7 +118,7 @@ export const PostCardHeader = ({
                   openNewTab={openNewTab}
                 />
               )}
-              <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
+              <OptionsButton onClick={onMenuClick} side="top" />
             </>
           )}
         </Container>

@@ -14,7 +14,7 @@ import type {
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { SimpleTooltip } from '../../tooltips';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
   extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
@@ -76,9 +76,9 @@ export function CreatePostButton<Tag extends AllowedTags>({
     <ConditionalWrapper
       condition={shouldShowAsCompact}
       wrapper={(component: ReactElement) => (
-        <SimpleTooltip placement="bottom" content="New Post">
+        <Tooltip side="bottom" content="New Post">
           {component}
-        </SimpleTooltip>
+        </Tooltip>
       )}
     >
       <Button
