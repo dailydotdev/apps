@@ -67,7 +67,6 @@ export function PostHeaderActions({
           data-testid="postActionsRead"
           size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
         >
-          HELLO
           {!inlineActions ? readButtonText : null}
         </Button>
       </Tooltip>
