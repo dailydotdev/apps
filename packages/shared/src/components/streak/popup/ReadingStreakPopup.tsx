@@ -20,8 +20,7 @@ import {
   getTimezoneOffsetLabel,
   isSameDayInTimezone,
 } from '../../../lib/timezones';
-import { SimpleTooltip } from '../../tooltips';
-import { isTesting, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -47,6 +46,7 @@ import {
 import { cloudinaryNotificationsBrowser } from '../../../lib/image';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { IconSize } from '../../Icon';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 const getStreak = ({
   value,
@@ -211,9 +211,8 @@ export function ReadingStreakPopup({
             <div className="m-auto tablet:m-0">
               Total reading days: {streak.total}
             </div>
-            <SimpleTooltip
+            <Tooltip
               placement="bottom"
-              forceLoad={!isTesting}
               content={
                 <div className="flex text-center">
                   {isTimezoneOk ? (
@@ -300,7 +299,7 @@ export function ReadingStreakPopup({
                   </Link>
                 </div>
               </div>
-            </SimpleTooltip>
+            </Tooltip>
           </div>
           <Link href={`${webappUrl}account/customization/streaks`} passHref>
             <Button

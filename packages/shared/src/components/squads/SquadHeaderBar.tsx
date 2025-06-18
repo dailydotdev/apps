@@ -3,7 +3,6 @@ import type { HTMLAttributes, ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { AllowedTags, ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import type { SquadMemberShortListProps } from './SquadMemberShortList';
@@ -12,7 +11,6 @@ import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
-import { isTesting } from '../../lib/constants';
 import { SquadActionButton } from './SquadActionButton';
 import {
   AddUserIcon,
@@ -144,11 +142,7 @@ const SquadUserNotifications = ({
   ...props
 }: SquadBarButtonProps<'button'>) => {
   return (
-    <SimpleTooltip
-      forceLoad={!isTesting}
-      placement="bottom"
-      content="Squad notifications settings"
-    >
+    <Tooltip side="bottom" content="Squad notifications settings">
       <Button
         data-testid="squad-notification-button"
         className="order-3 tablet:order-4"
@@ -156,7 +150,7 @@ const SquadUserNotifications = ({
         size={ButtonSize.Small}
         {...props}
       />
-    </SimpleTooltip>
+    </Tooltip>
   );
 };
 

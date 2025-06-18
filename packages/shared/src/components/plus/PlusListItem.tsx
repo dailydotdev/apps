@@ -2,7 +2,6 @@ import type { FC, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { SimpleTooltip } from '../tooltips';
 import { InfoIcon, VIcon } from '../icons';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
@@ -13,6 +12,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -57,16 +57,14 @@ export const PlusListItem = ({
     <ConditionalWrapper
       condition={!!item.tooltip}
       wrapper={(component: ReactElement) => (
-        <SimpleTooltip
-          container={{
-            className: 'tablet:max-w-72 text-center',
-          }}
+        <Tooltip
+          className="!tablet:max-w-72 !max-w-full text-center"
           content={item.tooltip}
           delay={0}
-          forceLoad
+          enableMobileClick
         >
           {component}
-        </SimpleTooltip>
+        </Tooltip>
       )}
     >
       <li
