@@ -11,6 +11,7 @@ import {
 } from '../ProfilePicture';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { largeNumberFormat } from '../../lib';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export interface SquadMemberShortListProps {
   squad: Squad;

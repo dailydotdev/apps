@@ -17,13 +17,10 @@ import type {
   AwardEntity,
   AwardTypes,
 } from '../../contexts/GiveAwardModalContext';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { getCompanionWrapper } from '../../lib/extension';
 import type { Post } from '../../graphql/posts';
 import { Tooltip } from '../tooltip/Tooltip';
 
 type AwardButtonProps = {
-  appendTo?: 'parent' | Element | ((ref: Element) => Element);
   type: AwardTypes;
   className?: string;
   entity: AwardEntity;
@@ -32,7 +29,6 @@ type AwardButtonProps = {
   copy?: string;
 } & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
 export const AwardButton = ({
-  appendTo: appendToProps,
   type,
   className,
   entity,
@@ -42,7 +38,6 @@ export const AwardButton = ({
   flags,
   copy,
 }: AwardButtonProps): ReactElement => {
-  const { isCompanion } = useRequestProtocol();
   const { user, showLogin } = useAuthContext();
   const { openModal } = useLazyModal();
 
@@ -66,9 +61,6 @@ export const AwardButton = ({
     return null;
   }
 
-  const defaultAppendTo = isCompanion ? getCompanionWrapper : 'parent';
-  const appendTo = appendToProps || defaultAppendTo;
-
   return (
     <Tooltip
       content={
@@ -76,7 +68,6 @@ export const AwardButton = ({
           ? `You already awarded this ${type.toLowerCase()}!`
           : `Award this ${type.toLowerCase()}`
       }
-      appendTo={appendTo}
     >
       <div>
         <Button

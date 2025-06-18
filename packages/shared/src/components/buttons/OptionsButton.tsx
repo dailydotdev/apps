@@ -1,24 +1,23 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import type { TooltipContentProps } from '@radix-ui/react-tooltip';
 import type { AllowedTags, ButtonProps } from './Button';
 import { Button, ButtonSize, ButtonVariant } from './Button';
 import { MenuIcon } from '../icons';
-import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { Tooltip } from '../tooltip/Tooltip';
 
-type OptionsButtonProps = ButtonProps<AllowedTags> & {
-  tooltipPlacement?: TooltipPosition;
-};
+type OptionsButtonProps = ButtonProps<AllowedTags> &
+  Pick<TooltipContentProps, 'side'>;
 
 const OptionsButton = ({
   className,
-  tooltipPlacement = 'left',
+  side = 'left',
   size = ButtonSize.Small,
   icon = <MenuIcon />,
   ...props
 }: OptionsButtonProps): ReactElement => (
-  <Tooltip side={tooltipPlacement} content="Options">
+  <Tooltip side={side} content="Options">
     <Button
       variant={ButtonVariant.Tertiary}
       {...props}

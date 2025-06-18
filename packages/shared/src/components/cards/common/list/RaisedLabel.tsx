@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Tooltip } from '@radix-ui/react-tooltip';
+import { Tooltip } from '../../../tooltip/Tooltip';
 
 export enum RaisedLabelType {
   Hot = 'Hot',

@@ -48,7 +48,6 @@ import {
 } from '../../hooks';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { getCompanionWrapper } from '../../lib/extension';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
@@ -104,7 +103,6 @@ export default function CommentActionButtons({
     };
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
-  const appendTo = isCompanion ? getCompanionWrapper : 'parent';
 
   useEffect(() => {
     setVoteState({
@@ -308,7 +306,7 @@ export default function CommentActionButtons({
 
   return (
     <div className={classNames('flex flex-row items-center', className)}>
-      <Tooltip content="Upvote" appendTo={appendTo}>
+      <Tooltip content="Upvote">
         <Button
           id={`comment-${comment.id}-upvote-btn`}
           size={ButtonSize.Small}
@@ -329,7 +327,7 @@ export default function CommentActionButtons({
           color={ButtonColor.Avocado}
         />
       </Tooltip>
-      <Tooltip content="Downvote" appendTo={appendTo}>
+      <Tooltip content="Downvote">
         <Button
           id={`comment-${comment.id}-downvote-btn`}
           size={ButtonSize.Small}
@@ -353,7 +351,7 @@ export default function CommentActionButtons({
           color={ButtonColor.Ketchup}
         />
       </Tooltip>
-      <Tooltip content="Reply" appendTo={appendTo}>
+      <Tooltip content="Reply">
         <Button
           size={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
@@ -364,7 +362,7 @@ export default function CommentActionButtons({
         />
       </Tooltip>
       <CommentAwardActions comment={comment} post={post} />
-      <Tooltip content="Share comment" appendTo={appendTo}>
+      <Tooltip content="Share comment">
         <Button
           size={ButtonSize.Small}
           onClick={() => onShare(comment)}
@@ -374,11 +372,9 @@ export default function CommentActionButtons({
           color={ButtonColor.Cabbage}
         />
       </Tooltip>
-      {!!commentOptions && (
-        <OptionsButton tooltipPlacement="top" onClick={onMenuClick} />
-      )}
+      {!!commentOptions && <OptionsButton side="top" onClick={onMenuClick} />}
       {voteState.numUpvotes > 0 && (
-        <Tooltip content="See who upvoted" appendTo={appendTo}>
+        <Tooltip content="See who upvoted">
           <ClickableText
             className={classNames('ml-auto !block', truncateTextClassNames)}
             onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}

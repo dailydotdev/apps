@@ -3,8 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import type { RadioItemProps } from './RadioItem';
 import { RadioItem } from './RadioItem';
-import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
-import { Tooltip } from '../tooltip/Tooltip';
 
 export interface ClassName {
   container?: string;
@@ -20,10 +18,6 @@ export interface RadioProps<T extends string = string> {
   value?: T;
   onChange: (value: T) => unknown;
   className?: ClassName;
-  tooltip?: {
-    placement?: TooltipPosition;
-    content?: string;
-  };
   disabled?: boolean;
   reverse?: boolean;
 }
@@ -34,7 +28,6 @@ export function Radio<T extends string = string>({
   value,
   onChange,
   className = {},
-  tooltip,
   disabled,
   reverse,
 }: RadioProps<T>): ReactElement {
@@ -66,9 +59,7 @@ export function Radio<T extends string = string>({
           afterElement={option.afterElement}
           reverse={reverse}
         >
-          <Tooltip content={tooltip?.content} side={tooltip?.placement}>
-            <span className={className.label}>{option.label}</span>
-          </Tooltip>
+          <span className={className.label}>{option.label}</span>
         </RadioItem>
       ))}
     </div>

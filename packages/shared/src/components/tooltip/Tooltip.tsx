@@ -1,18 +1,21 @@
 import * as React from 'react';
 import * as RadixPrimitive from '@radix-ui/react-tooltip';
 import './styles.css';
+import type { ReactNode } from 'react';
+import type { TooltipContentProps } from '@radix-ui/react-tooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 
 export function Tooltip({
   children,
   content,
-  open,
-  defaultOpen,
-  onOpenChange,
   appendTo,
   visible = true,
   ...props
+}: Omit<TooltipContentProps, 'content'> & {
+  appendTo?: Element | DocumentFragment;
+  content: ReactNode;
+  visible?: boolean;
 }) {
   const { isCompanion } = useRequestProtocol();
   const container = isCompanion ? getCompanionWrapper() : appendTo;
