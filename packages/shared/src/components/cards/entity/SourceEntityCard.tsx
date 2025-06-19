@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import EntityCard from './EntityCard';
 import {
   Typography,
@@ -7,73 +6,20 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { Source, SourceTooltip } from '../../../graphql/sources';
-import { LogEvent } from '../../../lib/log';
-import { ContentPreferenceType } from '../../../graphql/contentPreference';
-import { largeNumberFormat, ReferralCampaignKey } from '../../../lib';
+import { largeNumberFormat } from '../../../lib';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
-import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import SourceActionsFollow from '../../sources/SourceActions/SourceActionsFollow';
 import { ButtonVariant } from '../../buttons/Button';
 import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
-import { webappUrl } from '../../../lib/constants';
+import useSourceMenuProps from '../../../hooks/useSourceMenuProps';
 
 const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
   const { isFollowing, toggleFollow } = useSourceActions({
     source: source as Source,
   });
-  const router = useRouter();
-  const { follow, unfollow } = useContentPreference();
-
-  const actionButtons = useMemo(() => {
-    return (
-      <>
-        <CustomFeedOptionsMenu
-          className={{
-            button: 'bg-background-popover',
-            menu: 'z-[9999]',
-          }}
-          onCreateNewFeed={() =>
-            router.push(
-              `${webappUrl}feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
-            )
-          }
-          onAdd={(feedId) =>
-            follow({
-              id: source.id,
-              entity: ContentPreferenceType.Source,
-              entityName: source.handle,
-              feedId,
-            })
-          }
-          onUndo={(feedId) =>
-            unfollow({
-              id: source.id,
-              entity: ContentPreferenceType.Source,
-              entityName: source.handle,
-              feedId,
-            })
-          }
-          shareProps={{
-            text: `Check out ${source.handle} on daily.dev`,
-            link: source.permalink,
-            cid: ReferralCampaignKey.ShareSource,
-            logObject: () => ({
-              event_name: LogEvent.ShareSource,
-              target_id: source.id,
-            }),
-          }}
-        />
-        <SourceActionsFollow
-          isFetching={false}
-          isSubscribed={isFollowing}
-          onClick={toggleFollow}
-          variant={ButtonVariant.Primary}
-        />
-      </>
-    );
-  }, [source, router, follow, unfollow, isFollowing, toggleFollow]);
+  const menuProps = useSourceMenuProps({ source });
 
   const { description, membersCount, flags, name, image } = source || {};
   return (
@@ -84,7 +30,23 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
         image: 'size-10 rounded-full',
       }}
       entityName={name}
-      actionButtons={actionButtons}
+      actionButtons={
+        <>
+          <CustomFeedOptionsMenu
+            className={{
+              button: 'bg-background-popover',
+              menu: 'z-[9999]',
+            }}
+            {...menuProps}
+          />
+          <SourceActionsFollow
+            isFetching={false}
+            isSubscribed={isFollowing}
+            onClick={toggleFollow}
+            variant={ButtonVariant.Primary}
+          />
+        </>
+      }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
         <Typography
