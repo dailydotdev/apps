@@ -59,10 +59,7 @@ const SquadEntityCard = ({
           />
           {squad && (
             <>
-              <SquadHeaderMenu
-                squad={squad}
-                className="z-[9999] justify-center"
-              />
+              <SquadHeaderMenu squad={squad} className="z-[9999]" />
               <SquadActionButton
                 size={ButtonSize.Small}
                 copy={{

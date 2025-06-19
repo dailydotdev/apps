@@ -121,7 +121,7 @@ const UserEntityCard = ({ user, className }: Props) => {
             <CustomFeedOptionsMenu
               buttonVariant={ButtonVariant.Option}
               className={{
-                menu: 'z-[9999] justify-center',
+                menu: 'z-[9999]',
               }}
               {...menuProps}
               additionalOptions={options}
