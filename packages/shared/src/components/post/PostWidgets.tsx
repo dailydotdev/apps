@@ -52,7 +52,7 @@ export function PostWidgets({
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const cardClasses = 'w-full bg-surface-invert';
+  const cardClasses = 'w-full !bg-background-default';
 
   const creator = post.author || post.scout;
 
