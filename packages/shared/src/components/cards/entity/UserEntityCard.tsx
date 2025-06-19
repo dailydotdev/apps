@@ -30,6 +30,7 @@ import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
+import { webappUrl } from '../../../lib/constants';
 
 type Props = {
   user: UserShortProfile;
@@ -139,7 +140,7 @@ const UserEntityCard = ({ user }: Props) => {
               }
               onCreateNewFeed={() =>
                 router.push(
-                  `/feeds/new?entityId=${id}&entityType=${ContentPreferenceType.User}`,
+                  `${webappUrl}feeds/new?entityId=${id}&entityType=${ContentPreferenceType.User}`,
                 )
               }
               shareProps={{
