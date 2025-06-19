@@ -1,11 +1,21 @@
 import type { MouseEventHandler, ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import styles from './markdown.module.css';
-import { ProfileTooltip } from './profile/ProfileTooltip';
 import type { CaretOffset } from '../lib/element';
 import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
+import { getUserShortInfo } from '../graphql/users';
+import { generateQueryKey, RequestKey } from '../lib/query';
+
+const UserEntityCard = dynamic(() => import('./cards/entity/UserEntityCard'), {
+  ssr: false,
+});
+const HoverCard = dynamic(() => import('./cards/common/HoverCard'), {
+  ssr: false,
+});
 
 interface MarkdownProps {
   className?: string;
@@ -34,7 +44,6 @@ function getTooltipOffset(element: HTMLAnchorElement): CaretOffset {
 export default function Markdown({
   className,
   content,
-  appendTooltipTo,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
   const [userId, setUserId] = useState('');
@@ -43,6 +52,13 @@ export default function Markdown({
     () => setUserId(''),
     200,
   );
+  const { data } = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserShortById, { id: userId }),
+    queryFn: () => {
+      return getUserShortInfo(userId);
+    },
+    enabled: !!userId,
+  });
 
   const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(
     (e) => {
@@ -66,31 +82,32 @@ export default function Markdown({
       setOffset(getTooltipOffset(element));
       setUserId(mentionId);
     },
-    [cancelUserClearing, clearUser, userId],
+    [cancelUserClearing, userId, clearUser],
   );
 
   return (
-    <ProfileTooltip
-      userId={userId}
-      onTooltipMouseEnter={cancelUserClearing}
-      onTooltipMouseLeave={clearUser}
-      tooltip={{
-        placement: 'top-start',
-        offset,
-        visible: !!userId,
-        onShow: cancelUserClearing,
-        onHide: clearUser,
-        appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
-      }}
-    >
-      <div
-        className={classNames(styles.markdown, className)}
-        dangerouslySetInnerHTML={{
-          __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
-        }}
-        onMouseOverCapture={onHoverHandler}
+    <>
+      <HoverCard
+        open={!!userId}
         onMouseLeave={clearUser}
-      />
-    </ProfileTooltip>
+        onMouseEnter={cancelUserClearing}
+        alignOffset={offset[0]}
+        sideOffset={offset[1]}
+        align="start"
+        side="top"
+        trigger={
+          <div
+            className={classNames(styles.markdown, className)}
+            dangerouslySetInnerHTML={{
+              __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
+            }}
+            onMouseOverCapture={onHoverHandler}
+            onMouseLeave={clearUser}
+          />
+        }
+      >
+        {data && <UserEntityCard user={data} />}
+      </HoverCard>
+    </>
   );
 }
