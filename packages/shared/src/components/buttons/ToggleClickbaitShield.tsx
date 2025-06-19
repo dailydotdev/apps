@@ -16,7 +16,6 @@ import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetId } from '../../lib/log';
-import { SimpleTooltip } from '../tooltips';
 import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
@@ -49,16 +48,14 @@ export const ToggleClickbaitShield = ({
 
   if (!isPlus) {
     return (
-      <SimpleTooltip
-        placement="bottom"
+      <Tooltip
+        side="bottom"
         content={
           hasUsedFreeTrial
             ? 'Enable Clickbait Shield to get clearer more informative titles'
             : `Get clear, more informative titles with Clickbait Shield. You can try it ${triesLeft} more times for free this month.`
         }
-        container={{
-          className: 'max-w-64 text-center',
-        }}
+        className="max-w-64 text-center"
       >
         <Button
           {...commonIconProps}
@@ -77,7 +74,7 @@ export const ToggleClickbaitShield = ({
         >
           {triesLeft}/{maxTries}
         </Button>
-      </SimpleTooltip>
+      </Tooltip>
     );
   }
 

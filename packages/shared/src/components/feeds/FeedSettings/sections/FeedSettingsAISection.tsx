@@ -20,7 +20,6 @@ import ConditionalWrapper from '../../../ConditionalWrapper';
 import { DevPlusIcon, ShieldPlusIcon } from '../../../icons';
 import { PlusUser } from '../../../PlusUser';
 import { LanguageDropdown } from '../../../profile/LanguageDropdown';
-import { SimpleTooltip } from '../../../tooltips';
 import {
   Typography,
   TypographyTag,
@@ -33,6 +32,7 @@ import { labels } from '../../../../lib';
 import { SmartPrompts } from '../components/SmartPrompts';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 import Link from '../../../utilities/Link';
+import { Tooltip } from '../../../tooltip/Tooltip';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
@@ -152,14 +152,12 @@ export const FeedSettingsAISection = (): ReactElement => {
           condition={!isPlus}
           wrapper={(child) => {
             return (
-              <SimpleTooltip
-                container={{
-                  className: 'max-w-70 text-center typo-subhead',
-                }}
+              <Tooltip
+                className="max-w-70 text-center !typo-subhead"
                 content="Upgrade to Plus to unlock Clickbait Shield and enhance titles automatically."
               >
                 <div className="w-fit">{child as ReactElement}</div>
-              </SimpleTooltip>
+              </Tooltip>
             );
           }}
         >
