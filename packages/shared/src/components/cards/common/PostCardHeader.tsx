@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import OptionsButton from '../../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
@@ -25,6 +24,7 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
+import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 
 interface CardHeaderProps {
   post: Post;
@@ -118,7 +118,7 @@ export const PostCardHeader = ({
                   openNewTab={openNewTab}
                 />
               )}
-              <OptionsButton onClick={onMenuClick} side="top" />
+              <PostOptionButton post={post} />
             </>
           )}
         </Container>
