@@ -15,27 +15,13 @@ const HoverCard = ({
   appendTo,
   open,
   trigger,
-  onMouseLeave,
-  onMouseEnter,
-  alignOffset,
-  sideOffset,
-  align,
-  side,
+  ...props
 }: HoverCardProps) => {
   return (
     <Root open={open}>
       <Trigger asChild>{trigger}</Trigger>
-      <Portal container={appendTo}>
-        <Content
-          onMouseLeave={onMouseLeave}
-          onMouseEnter={onMouseEnter}
-          sideOffset={sideOffset}
-          alignOffset={alignOffset}
-          align={align}
-          side={side}
-          className="z-tooltip"
-          collisionPadding={{ top: 75 }}
-        >
+      <Portal container={appendTo || globalThis?.document?.body}>
+        <Content {...props} className="z-modal" collisionPadding={{ top: 75 }}>
           {children}
         </Content>
       </Portal>

@@ -44,6 +44,7 @@ function getTooltipOffset(element: HTMLAnchorElement): CaretOffset {
 export default function Markdown({
   className,
   content,
+  appendTooltipTo,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
   const [userId, setUserId] = useState('');
@@ -72,11 +73,6 @@ export default function Markdown({
       }
 
       const { mentionId } = element.dataset;
-      const isSameUser = mentionId === userId;
-
-      if (isSameUser) {
-        return;
-      }
 
       cancelUserClearing();
       setOffset(getTooltipOffset(element));
@@ -95,6 +91,7 @@ export default function Markdown({
         sideOffset={offset[1]}
         align="start"
         side="top"
+        appendTo={appendTooltipTo?.()}
         trigger={
           <div
             className={classNames(styles.markdown, className)}
