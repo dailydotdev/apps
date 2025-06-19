@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import EntityCard from './EntityCard';
 import {
   Typography,
@@ -28,9 +29,11 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   });
   const menuProps = useSourceMenuProps({ source });
 
-  const { description, membersCount, flags, name, image } = source || {};
+  const { description, membersCount, flags, name, image, permalink } =
+    source || {};
   return (
     <EntityCard
+      permalink={permalink}
       image={image}
       type="source"
       className={{
@@ -57,14 +60,16 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
-        <Typography
-          className="flex"
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {name}
-        </Typography>
+        <Link href={permalink}>
+          <Typography
+            className="flex"
+            type={TypographyType.Body}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {name}
+          </Typography>
+        </Link>
         {description && <EntityDescription copy={description} length={100} />}
         <div className="flex items-center gap-1 text-text-tertiary">
           <Typography

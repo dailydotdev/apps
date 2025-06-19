@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import Link from 'next/link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
 import {
@@ -64,7 +65,7 @@ const UserEntityCard = ({ user, className }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id } = user;
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -108,6 +109,7 @@ const UserEntityCard = ({ user, className }: Props) => {
 
   return (
     <EntityCard
+      permalink={permalink}
       image={image}
       type="user"
       className={{
@@ -139,15 +141,19 @@ const UserEntityCard = ({ user, className }: Props) => {
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">
-        <Typography
-          className="flex"
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {name ?? username}
-          {isPlus && <DevPlusIcon className="ml-1 text-action-plus-default" />}
-        </Typography>
+        <Link shallow href={permalink}>
+          <Typography
+            className="flex"
+            type={TypographyType.Body}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {name ?? username}
+            {isPlus && (
+              <DevPlusIcon className="ml-1 text-action-plus-default" />
+            )}
+          </Typography>
+        </Link>
         <div className="flex items-center gap-1">
           <Typography
             type={TypographyType.Callout}
