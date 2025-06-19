@@ -15,7 +15,7 @@ import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/u
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
 import { useSquad, useViewSize, ViewSize } from '../../hooks';
-import { ButtonSize } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 
 interface SourceInfoProps {
   source: Source;
@@ -74,8 +74,10 @@ function PostSourceInfo({
           {showActionBtn && <Separator />}
           {showActionBtn && source?.type !== SourceType.Squad && (
             <FollowButton
+              variant={ButtonVariant.Tertiary}
+              followedVariant={ButtonVariant.Tertiary}
               buttonClassName={classNames(
-                'btn-option min-w-min !px-0 ',
+                'min-w-min !px-0 ',
                 !isFollowing && 'text-text-link',
               )}
               entityId={source.id}
@@ -89,10 +91,11 @@ function PostSourceInfo({
             source?.type === SourceType.Squad &&
             !isLoadingSquad && (
               <SquadActionButton
+                buttonVariants={[ButtonVariant.Tertiary]}
                 size={ButtonSize.XSmall}
                 className={{
                   button: classNames(
-                    'btn-option min-w-min !px-0',
+                    'min-w-min !px-0',
                     !squad.currentMember && 'text-text-link',
                   ),
                 }}

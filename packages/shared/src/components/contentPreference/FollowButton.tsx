@@ -21,6 +21,7 @@ export type FollowButtonProps = {
   feedId?: string;
   origin?: Origin;
   variant?: ButtonVariant;
+  followedVariant?: ButtonVariant;
   buttonClassName?: string;
   showSubscribe?: boolean;
   copyType?: CopyType;
@@ -35,6 +36,7 @@ export const FollowButton = ({
   feedId,
   origin,
   variant = ButtonVariant.Secondary,
+  followedVariant = ButtonVariant.Subtle,
   buttonClassName,
   showSubscribe = true,
   copyType,
@@ -109,6 +111,7 @@ export const FollowButton = ({
         isSubscribed={isFollowing}
         isFetching={isLoading}
         variant={variant}
+        followedVariant={followedVariant}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
