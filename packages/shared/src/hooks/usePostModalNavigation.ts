@@ -15,6 +15,7 @@ import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { Origin } from '../lib/log';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery } from '../lib';
+import { useKeyboardNavigation } from './useKeyboardNavigation';
 
 export enum PostPosition {
   First = 'first',
@@ -162,7 +163,7 @@ export const usePostModalNavigation = (
     }
   }, [openedPostIndex, pmid, items, onChangeSelected]);
 
-  return {
+  const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
     onCloseModal: async () => {
@@ -234,4 +235,19 @@ export const usePostModalNavigation = (
     selectedPost: getPost(openedPostIndex),
     selectedPostIndex: openedPostIndex,
   };
+
+  const parent = typeof window !== 'undefined' ? window : null;
+
+  useKeyboardNavigation(
+    parent,
+    [
+      ['ArrowLeft', result.onPrevious],
+      ['ArrowRight', result.onNext],
+      ['j', result.onPrevious],
+      ['k', result.onNext],
+    ],
+    { disableOnTags: ['textarea', 'select', 'input'] },
+  );
+
+  return result;
 };
