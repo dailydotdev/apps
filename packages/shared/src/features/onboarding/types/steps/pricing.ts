@@ -14,7 +14,7 @@ export interface FunnelStepPricingPlan {
   priceId: string;
   label: string;
   variation?: PricingPlanVariation;
-  badge: {
+  badge?: {
     text: string;
     background: string;
   };

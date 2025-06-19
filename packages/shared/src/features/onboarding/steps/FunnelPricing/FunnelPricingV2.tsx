@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
 import { useAtom } from 'jotai/react';
+import Head from 'next/head';
 import type { FunnelStepPricingV2 } from '../../types/funnel';
 import { withIsActiveGuard } from '../../shared/withActiveGuard';
 import {
@@ -16,6 +17,7 @@ import {
   StepHeadlineAlign,
 } from '../../shared';
 import { PricingEmailSupport } from './common';
+import { LazyImage } from '../../../../components/LazyImage';
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters']['plansBlock'];
 
@@ -63,22 +65,42 @@ const Pricing = ({
           isActive
         />
       )}
-      {/* Image */}
-      <StepHeadline
-        heading={hero.headline}
-        description={hero.explainer}
-        align={StepHeadlineAlign.Center}
-      />
-      {/* Add bg style */}
-      <BoxList items={features.items} title={features.heading} />
+      <div className="flex flex-col gap-6 px-4 py-6">
+        {/* Hero */}
+        {hero.image && (
+          <>
+            <Head>
+              <link rel="preload" as="image" href={hero.image} />
+            </Head>
+            <LazyImage
+              aria-hidden
+              eager
+              imgSrc={hero.image}
+              className="h-auto w-full object-center"
+              fit="contain"
+              ratio="64%"
+              imgAlt="Supportive illustration for the information"
+            />
+          </>
+        )}
+        <StepHeadline
+          heading={hero.headline}
+          description={hero.explainer}
+          align={StepHeadlineAlign.Center}
+          className="!gap-3"
+        />
 
-      <PricingSelection {...plansBlock} />
-      {/* Reviews */}
-      {/*  reviews image */}
-      <PricingSelection {...plansBlock} />
-      {/* Text Box - FAQ version */}
-      <BoxFaq items={faq.items} />
-      <PricingEmailSupport />
+        {/* Add bg style */}
+        <BoxList items={features.items} title={features.heading} />
+
+        <PricingSelection {...plansBlock} />
+        {/* Reviews */}
+        {/*  reviews image */}
+        <PricingSelection {...plansBlock} />
+        {/* Text Box - FAQ version */}
+        <BoxFaq items={faq.items} />
+        <PricingEmailSupport />
+      </div>
     </>
   );
 };
