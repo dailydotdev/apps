@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { useRouter } from 'next/router';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
 import {
@@ -25,22 +24,19 @@ import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { ReferralCampaignKey } from '../../../lib/referral';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
-import { webappUrl } from '../../../lib/constants';
+import useUserMenuProps from '../../../hooks/useUserMenuProps';
 
 type Props = {
   user: UserShortProfile;
 };
 
 const UserEntityCard = ({ user }: Props) => {
-  const router = useRouter();
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
-  const { follow, unfollow } = useContentPreference();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -49,6 +45,7 @@ const UserEntityCard = ({ user }: Props) => {
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const menuProps = useUserMenuProps({ user });
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
       openModal({
@@ -64,7 +61,7 @@ const UserEntityCard = ({ user }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
+  const { username, bio, name, image, isPlus, createdAt, id } = user;
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -122,36 +119,7 @@ const UserEntityCard = ({ user }: Props) => {
                 button: 'bg-background-popover',
                 menu: 'z-[9999]',
               }}
-              onAdd={(feedId) =>
-                follow({
-                  id,
-                  entity: ContentPreferenceType.User,
-                  entityName: username,
-                  feedId,
-                })
-              }
-              onUndo={(feedId) =>
-                unfollow({
-                  id,
-                  entity: ContentPreferenceType.User,
-                  entityName: username,
-                  feedId,
-                })
-              }
-              onCreateNewFeed={() =>
-                router.push(
-                  `${webappUrl}feeds/new?entityId=${id}&entityType=${ContentPreferenceType.User}`,
-                )
-              }
-              shareProps={{
-                text: `Check out ${name}'s profile on daily.dev`,
-                link: permalink,
-                cid: ReferralCampaignKey.ShareProfile,
-                logObject: () => ({
-                  event_name: LogEvent.ShareProfile,
-                  target_id: id,
-                }),
-              }}
+              {...menuProps}
               additionalOptions={options}
             />
             <FollowButton
