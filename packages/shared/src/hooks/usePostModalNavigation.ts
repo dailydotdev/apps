@@ -184,6 +184,7 @@ export const usePostModalNavigation = (
     onOpenModal,
     onPrevious: () => {
       let index = openedPostIndex - 1;
+      // look for the first post before the current one
       // eslint-disable-next-line no-empty
       for (; index > 0 && items[index].type !== 'post'; index -= 1) {}
       const item = items[index];
