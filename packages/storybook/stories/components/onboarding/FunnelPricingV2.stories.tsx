@@ -33,7 +33,9 @@ const meta: Meta<typeof FunnelPricingV2> = {
     <ExtensionProviders>
       <div className="flex flex-col min-h-dvh">
         <FunnelStepBackground step={props}>
-          <FunnelPricingV2 {...props} />
+          <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+            <FunnelPricingV2 {...props} />
+          </div>
         </FunnelStepBackground>
       </div>
     </ExtensionProviders>
