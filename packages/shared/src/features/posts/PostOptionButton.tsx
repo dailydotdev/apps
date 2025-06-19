@@ -636,9 +636,7 @@ const PostOptionButtonContent = ({
       icon: <MenuIcon Icon={EditIcon} />,
       label: 'Edit post',
       action: () => {
-        router.push(`${post.commentsPermalink}/edit`).then(() => {
-          closePostOptions();
-        });
+        router.push(`${post.commentsPermalink}/edit`);
       },
     });
   }

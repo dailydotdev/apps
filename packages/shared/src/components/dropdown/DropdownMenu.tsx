@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import './style.css';
 import {
   DropdownMenu as DropdownMenuRoot,
@@ -6,6 +8,7 @@ import {
   DropdownMenuPortal,
   DropdownMenuTrigger as DropdownMenuTriggerRoot,
   DropdownMenuItem as DropdownMenuItemRoot,
+  type DropdownMenuContentProps as RadixDropdownMenuContentProps,
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
 
@@ -16,19 +19,30 @@ export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
   'DropdownMenuItem',
 );
-export const DropdownMenuContent = React.forwardRef(
-  ({ children, ...props }, forwardedRef) => {
-    return (
-      <DropdownMenuPortal>
-        <DropdownMenuContentRoot
-          {...props}
-          ref={forwardedRef}
-          className="DropdownMenuContent"
-          align="end"
-        >
-          {children}
-        </DropdownMenuContentRoot>
-      </DropdownMenuPortal>
-    );
-  },
-);
+
+interface DropdownMenuContentProps
+  extends Omit<RadixDropdownMenuContentProps, 'className'> {
+  children: ReactNode;
+  className?: string;
+  align?: 'start' | 'center' | 'end';
+}
+
+export const DropdownMenuContent = React.forwardRef<
+  HTMLDivElement,
+  DropdownMenuContentProps
+>(({ children, className, align = 'end', ...props }, forwardedRef) => {
+  return (
+    <DropdownMenuPortal>
+      <DropdownMenuContentRoot
+        {...props}
+        ref={forwardedRef}
+        className={classNames('DropdownMenuContent', className)}
+        align={align}
+      >
+        {children}
+      </DropdownMenuContentRoot>
+    </DropdownMenuPortal>
+  );
+});
+
+DropdownMenuContent.displayName = 'DropdownMenuContent';
