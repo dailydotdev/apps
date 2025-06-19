@@ -84,7 +84,6 @@ export default function Markdown({
   return (
     <>
       <HoverCard
-        open={!!userId}
         onMouseLeave={clearUser}
         onMouseEnter={cancelUserClearing}
         alignOffset={offset[0]}
