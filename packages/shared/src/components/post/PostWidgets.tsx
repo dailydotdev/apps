@@ -52,7 +52,7 @@ export function PostWidgets({
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const cardClasses = 'w-full !bg-background-default';
+  const cardClasses = 'w-full bg-transparent';
 
   const creator = post.author || post.scout;
 
