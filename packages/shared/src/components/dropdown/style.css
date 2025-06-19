@@ -1,0 +1,94 @@
+/* reset */
+button {
+  all: unset;
+}
+
+[data-radix-popper-content-wrapper] { z-index: 1000!important; }
+
+.DropdownMenuContent,
+.DropdownMenuSubContent {
+  user-select: none;
+  z-index: 1000;
+  @apply py-1 px-0 m-0 bg-background-subtle rounded-12 border border-border-subtlest-secondary shadow-2;
+}
+.DropdownMenuContent[data-side="top"],
+.DropdownMenuSubContent[data-side="top"] {
+  animation-name: slideDownAndFade;
+}
+.DropdownMenuContent[data-side="right"],
+.DropdownMenuSubContent[data-side="right"] {
+  animation-name: slideLeftAndFade;
+}
+.DropdownMenuContent[data-side="bottom"],
+.DropdownMenuSubContent[data-side="bottom"] {
+  animation-name: slideUpAndFade;
+}
+.DropdownMenuContent[data-side="left"],
+.DropdownMenuSubContent[data-side="left"] {
+  animation-name: slideRightAndFade;
+}
+
+.DropdownMenuItem,
+.DropdownMenuCheckboxItem,
+.DropdownMenuRadioItem,
+.DropdownMenuSubTrigger {
+  border-radius: 0.625rem;
+  @apply text-text-tertiary;
+  @apply flex items-center typo-footnote h-8 px-3 py-0 truncate;
+}
+.DropdownMenuItem[data-disabled],
+.DropdownMenuCheckboxItem[data-disabled],
+.DropdownMenuRadioItem[data-disabled],
+.DropdownMenuSubTrigger[data-disabled] {
+  pointer-events: none;
+}
+.DropdownMenuItem[data-highlighted],
+.DropdownMenuCheckboxItem[data-highlighted],
+.DropdownMenuRadioItem[data-highlighted],
+.DropdownMenuSubTrigger[data-highlighted] {
+  @apply bg-surface-hover;
+}
+
+@keyframes slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideRightAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeftAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
