@@ -38,7 +38,7 @@
     @apply typo-markdown my-6 relative;
   }
   & :where(blockquote) {
-    @apply text-xl leading-relaxed italic pl-7 my-8 py-8 border-l-4 border-border-subtlest-secondary;
+    @apply text-xl leading-relaxed italic pl-8 my-8 border-l-4 border-border-subtlest-secondary;
 
     > p:is(:first-child, :last-child) {
       @apply my-0;
@@ -49,15 +49,15 @@
     }
   }
   & :where(pre) {
-    @apply typo-markdown relative bg-surface-float my-5 rounded-12;
+    @apply typo-markdown relative bg-surface-float my-5 rounded-12 p-4;
   }
 
   & :where(pre) > code {
-    @apply whitespace-pre-wrap font-mono p-4;
+    @apply whitespace-pre-wrap font-mono typo-subhead;
     color: var(--theme-highlight-label);
   }
   & :not(pre) > code {
-    @apply text-accent-bun-default bg-surface-float border border-border-subtlest-tertiary typo-footnote py-1 px-1 rounded-6;
+    @apply font-mono text-accent-bun-default bg-surface-float border border-border-subtlest-tertiary typo-footnote py-1 px-1 rounded-6;
   }
   & :where(ul) {
     @apply list-disc my-5 pl-5;
