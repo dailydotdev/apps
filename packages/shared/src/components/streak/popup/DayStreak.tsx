@@ -5,10 +5,10 @@ import { useRouter } from 'next/router';
 import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
-import { SimpleTooltip } from '../../tooltips';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { dateFormatInTimezone } from '../../../lib/timezones';
 import { webappUrl } from '../../../lib/constants';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 export enum Streak {
   Completed = 'completed',
@@ -73,14 +73,11 @@ export function DayStreak({
   };
 
   return (
-    <SimpleTooltip
-      show={streak === Streak.Freeze}
+    <Tooltip
+      visible={streak === Streak.Freeze}
       content="We auto-freeze streaks during the weekend, but you can still keep going if you want to"
-      placement="bottom"
-      container={{
-        className: 'max-w-44 text-center',
-        paddingClassName: 'p-2',
-      }}
+      side="bottom"
+      className="max-w-44 !p-2 text-center"
     >
       <div className="relative flex flex-col items-center gap-1">
         {shouldShowArrow && (
@@ -92,6 +89,6 @@ export function DayStreak({
         {renderIcon()}
         {dateFormatInTimezone(date, 'iiiii', user.timezone)}
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 }

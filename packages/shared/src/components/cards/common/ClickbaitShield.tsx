@@ -9,7 +9,6 @@ import {
   ViewSize,
   useClickbaitTries,
 } from '../../../hooks';
-import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import type { Post } from '../../../graphql/posts';
@@ -17,6 +16,7 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -30,10 +30,8 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
 
   if (!isPlus) {
     return (
-      <SimpleTooltip
-        container={{
-          className: 'max-w-70 text-center typo-subhead',
-        }}
+      <Tooltip
+        className="max-w-70 text-center !typo-subhead"
         content={
           fetchedSmartTitle ? (
             <>
@@ -90,15 +88,13 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             }
           }}
         />
-      </SimpleTooltip>
+      </Tooltip>
     );
   }
 
   return (
-    <SimpleTooltip
-      container={{
-        className: 'max-w-70 text-center typo-subhead',
-      }}
+    <Tooltip
+      className="max-w-70 text-center !typo-subhead"
       content={
         shieldActive
           ? 'Click to see the original title'
@@ -118,6 +114,6 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         iconSecondaryOnHover
         onClick={fetchSmartTitle}
       />
-    </SimpleTooltip>
+    </Tooltip>
   );
 };

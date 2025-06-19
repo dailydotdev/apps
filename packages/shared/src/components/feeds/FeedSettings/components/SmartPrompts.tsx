@@ -15,8 +15,8 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { labels } from '../../../../lib';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
-import { SimpleTooltip } from '../../../tooltips';
 import ConditionalWrapper from '../../../ConditionalWrapper';
+import { Tooltip } from '../../../tooltip/Tooltip';
 
 export const SmartPrompts = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
@@ -59,14 +59,12 @@ export const SmartPrompts = (): ReactElement => {
             key={`w-${id}`}
             wrapper={(child) => {
               return (
-                <SimpleTooltip
-                  container={{
-                    className: 'max-w-70 text-center typo-subhead',
-                  }}
+                <Tooltip
+                  className="max-w-70 text-center !typo-subhead"
                   content="Upgrade to Plus to unlock Smart Prompts."
                 >
                   <div className="w-fit">{child as ReactElement}</div>
-                </SimpleTooltip>
+                </Tooltip>
               );
             }}
           >
