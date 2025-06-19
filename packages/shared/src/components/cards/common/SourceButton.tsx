@@ -1,14 +1,14 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import type { TooltipPosition } from '../../tooltips/BaseTooltipContainer';
-import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import type { HoverCardContentProps } from '@radix-ui/react-hover-card';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Origin } from '../../../lib/log';
 import EntityCardSkeleton from '../entity/EntityCardSkeleton';
+import HoverCard from './HoverCard';
 
 const SquadEntityCard = dynamic(
   /* webpackChunkName: "squadEntityCard" */ () =>
@@ -34,7 +34,7 @@ interface SourceButtonProps {
   style?: CSSProperties;
   size?: ProfileImageSize;
   pureTextTooltip?: boolean;
-  tooltipPosition?: TooltipPosition;
+  tooltipPosition?: HoverCardContentProps['side'];
 }
 
 export default function SourceButton({
@@ -76,29 +76,27 @@ export default function SourceButton({
     );
   }
 
-  return source ? (
-    <LinkWithTooltip
-      href={source.permalink}
-      prefetch={false}
-      tooltip={{
-        interactive: !pureTextTooltip,
-        container: !pureTextTooltip ? { bgClassName: null } : undefined,
-        content: tooltipContent,
-        placement: tooltipPosition,
-        appendTo: globalThis?.document?.body,
-      }}
+  return (
+    <HoverCard
+      appendTo={globalThis?.document?.body}
+      side={tooltipPosition}
+      align="start"
+      sideOffset={10}
+      trigger={
+        <ProfileImageLink
+          {...props}
+          className={className}
+          picture={{ size, rounded: 'full' }}
+          user={{
+            id: source.id,
+            image: source.image,
+            permalink: source.permalink,
+            username: source.handle,
+          }}
+        />
+      }
     >
-      <ProfileImageLink
-        {...props}
-        className={className}
-        picture={{ size, rounded: 'full' }}
-        user={{
-          id: source.id,
-          image: source.image,
-          permalink: source.permalink,
-          username: source.handle,
-        }}
-      />
-    </LinkWithTooltip>
-  ) : null;
+      {tooltipContent}
+    </HoverCard>
+  );
 }

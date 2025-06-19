@@ -141,7 +141,7 @@ const UserEntityCard = ({ user, className }: Props) => {
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">
-        <Link shallow href={permalink}>
+        <Link href={permalink}>
           <Typography
             className="flex"
             type={TypographyType.Body}

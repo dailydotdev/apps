@@ -35,7 +35,6 @@ const EntityCard = ({
     >
       <div className="flex w-full items-start gap-2">
         <Link
-          shallow
           href={permalink}
           className={classNames(className?.image, 'overflow-hidden')}
         >
