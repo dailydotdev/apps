@@ -24,7 +24,6 @@ type SquadEntityCardProps = {
   origin: Origin;
   className?: {
     container?: string;
-    menuButton?: string;
   };
 };
 
@@ -63,7 +62,7 @@ const SquadEntityCard = ({
             <>
               <SquadHeaderMenu
                 squad={squad}
-                className={classNames('z-[9999]', className?.menuButton)}
+                className={classNames('z-[9999]')}
               />
               <SquadActionButton
                 size={ButtonSize.Small}

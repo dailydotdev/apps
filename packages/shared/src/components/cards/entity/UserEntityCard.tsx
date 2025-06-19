@@ -35,7 +35,6 @@ type Props = {
   user: UserShortProfile;
   className?: {
     container?: string;
-    menuButton?: string;
   };
 };
 
@@ -122,8 +121,8 @@ const UserEntityCard = ({ user, className }: Props) => {
         !isSameUser && (
           <>
             <CustomFeedOptionsMenu
+              buttonVariant={ButtonVariant.Option}
               className={{
-                button: className?.menuButton,
                 menu: 'z-[9999]',
               }}
               onAdd={(feedId) =>

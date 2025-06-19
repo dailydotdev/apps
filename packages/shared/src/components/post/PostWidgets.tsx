@@ -52,8 +52,7 @@ export function PostWidgets({
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const cardClasses = 'w-full bg-inherit';
-  const menuButtonClasses = 'bg-overlay-tertiary-pepper';
+  const cardClasses = 'w-full bg-surface-invert';
 
   const creator = post.author || post.scout;
 
@@ -70,7 +69,6 @@ export function PostWidgets({
         <SquadEntityCard
           className={{
             container: cardClasses,
-            menuButton: menuButtonClasses,
           }}
           handle={post.source.handle}
           origin={origin}
@@ -79,7 +77,6 @@ export function PostWidgets({
         <SourceEntityCard
           className={{
             container: cardClasses,
-            menuButton: menuButtonClasses,
           }}
           source={post.source as SourceTooltip}
         />
@@ -88,7 +85,6 @@ export function PostWidgets({
         <UserEntityCard
           className={{
             container: cardClasses,
-            menuButton: menuButtonClasses,
           }}
           user={creator as UserShortProfile}
         />

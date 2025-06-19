@@ -23,8 +23,7 @@ export function SquadPostWidgets({
   const squad = post.source as Squad;
   const isPublicSquad = isSourcePublicSquad(squad);
 
-  const cardClasses = 'w-full bg-overlay-tertiary-pepper';
-  const menuButtonClasses = 'bg-overlay-tertiary-pepper';
+  const cardClasses = 'w-full  bg-surface-invert';
 
   return (
     <PageWidgets className={className}>
@@ -32,7 +31,6 @@ export function SquadPostWidgets({
         <SquadEntityCard
           className={{
             container: cardClasses,
-            menuButton: menuButtonClasses,
           }}
           handle={post.source.handle}
           origin={origin}
@@ -41,7 +39,6 @@ export function SquadPostWidgets({
       <UserEntityCard
         className={{
           container: cardClasses,
-          menuButton: menuButtonClasses,
         }}
         user={post.author as UserShortProfile}
       />
