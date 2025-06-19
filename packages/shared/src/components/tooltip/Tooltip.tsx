@@ -11,6 +11,13 @@ import { useState } from 'react';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 
+type TooltipProps = TooltipProviderProps &
+  Omit<TooltipContentProps, 'content'> & {
+    appendTo?: Element | DocumentFragment;
+    content: ReactNode;
+    visible?: boolean;
+    enableMobileClick?: boolean;
+  };
 export function Tooltip({
   children,
   content,
@@ -20,13 +27,7 @@ export function Tooltip({
   className,
   enableMobileClick,
   ...props
-}: TooltipProviderProps &
-  Omit<TooltipContentProps, 'content'> & {
-    appendTo?: Element | DocumentFragment;
-    content: ReactNode;
-    visible?: boolean;
-    enableMobileClick?: boolean;
-  }) {
+}: TooltipProps) {
   const [open, setOpen] = useState(false);
   const { isCompanion } = useRequestProtocol();
   const container = isCompanion ? getCompanionWrapper() : appendTo;
