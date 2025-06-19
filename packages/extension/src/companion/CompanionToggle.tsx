@@ -5,29 +5,25 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';
-import type { BaseTooltipContainerProps } from '@dailydotdev/shared/src/components/tooltips/BaseTooltipContainer';
 import AlertPointer, {
   AlertPlacement,
 } from '@dailydotdev/shared/src/components/alert/AlertPointer';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { companionAlertMessage } from './common';
 
 interface CompanionToggleProps {
   companionState: boolean;
   isAlertDisabled: boolean;
   onToggleCompanion: () => void;
-  tooltipContainerProps?: Omit<
-    BaseTooltipContainerProps,
-    'placement' | 'children'
-  >;
+  tooltipContainerClassName?: string;
 }
 
 function CompanionToggle({
   companionState,
   isAlertDisabled,
-  tooltipContainerProps,
+  tooltipContainerClassName,
   onToggleCompanion,
 }: CompanionToggleProps): ReactElement {
   return (
@@ -38,11 +34,10 @@ function CompanionToggle({
       placement={AlertPlacement.Left}
       message={companionAlertMessage}
     >
-      <SimpleTooltip
-        placement="left"
+      <Tooltip
+        side="left"
         content={companionState ? 'Close summary' : 'Open summary'}
-        appendTo="parent"
-        container={tooltipContainerProps}
+        className={tooltipContainerClassName}
       >
         <Button
           variant={
@@ -73,7 +68,7 @@ function CompanionToggle({
           }
           onClick={onToggleCompanion}
         />
-      </SimpleTooltip>
+      </Tooltip>
     </AlertPointer>
   );
 }

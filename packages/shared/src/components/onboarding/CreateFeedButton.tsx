@@ -3,12 +3,11 @@ import React from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import type { ButtonElementType } from '../buttons/Button';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips';
-import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { OnboardingStep } from './common';
 import { useAdvancedSettings, useViewSize, ViewSize } from '../../hooks';
 import { getContentTypeNotEmpty } from './ContentTypes/helpers';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export type CreateFeedButtonProps = {
   className?: string;
@@ -82,11 +81,7 @@ export const CreateFeedButton = ({
   };
 
   return (
-    <SimpleTooltip
-      content={tooltipName()}
-      forceLoad={!isTesting}
-      {...tooltipProps}
-    >
+    <Tooltip content={tooltipName()} {...tooltipProps}>
       <div className="relative">
         <Button
           className={className}
@@ -97,6 +92,6 @@ export const CreateFeedButton = ({
           {buttonName}
         </Button>
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 };

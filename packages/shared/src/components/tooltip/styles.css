@@ -1,3 +1,4 @@
+[data-radix-popper-content-wrapper] { min-width: auto!important; }
 .TooltipContent {
   user-select: none;
   animation-duration: 400ms;

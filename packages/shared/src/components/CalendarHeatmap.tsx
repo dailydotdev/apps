@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { Tooltip } from './tooltip/Tooltip';
 
 const BINS = 3;
 const DAYS_IN_WEEK = 7;
@@ -193,18 +193,14 @@ export function CalendarHeatmap<T extends { date: string }>({
     const bin = value?.bin || 0;
     const attrs = binsAttributes[bin];
     return (
-      <SimpleTooltip
+      <Tooltip
+        delayDuration={0}
         key={index}
         content={valueToTooltip(
           value?.originalValue,
           addDays(startDateWithEmptyDays, index),
         )}
-        duration={0}
-        delay={[0, 70]}
-        container={{
-          paddingClassName: 'py-3 px-4',
-          roundedClassName: 'rounded-3',
-        }}
+        className="!rounded-3 !px-4 !py-3"
       >
         <g>
           <rect
@@ -227,7 +223,7 @@ export function CalendarHeatmap<T extends { date: string }>({
             />
           )}
         </g>
-      </SimpleTooltip>
+      </Tooltip>
     );
   };
 

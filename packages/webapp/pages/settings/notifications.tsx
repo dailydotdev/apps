@@ -27,7 +27,6 @@ import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -37,6 +36,7 @@ import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 
 import type { NextSeoProps } from 'next-seo';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -547,8 +547,8 @@ const AccountNotificationsPage = (): ReactElement => {
               onToggleCallback={onToggleStreakReminder}
               disabled={!isStreaksEnabled}
             >
-              <SimpleTooltip
-                placement="top"
+              <Tooltip
+                side="top"
                 content={
                   <div className="w-64 typo-subhead">
                     {isStreaksEnabled ? (
@@ -566,7 +566,7 @@ const AccountNotificationsPage = (): ReactElement => {
                 }
               >
                 <span>Notify me before my streak expires</span>
-              </SimpleTooltip>
+              </Tooltip>
             </Checkbox>
             <Checkbox
               name="readingReminder"
