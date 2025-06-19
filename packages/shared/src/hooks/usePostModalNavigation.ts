@@ -101,6 +101,9 @@ export const usePostModalNavigation = (
             },
           },
           `${webappUrl}posts/${postId}`,
+          {
+            scroll: false,
+          },
         );
       }
       if (post?.type === PostType.Share) {
@@ -165,7 +168,13 @@ export const usePostModalNavigation = (
     onCloseModal: async () => {
       const searchParams = new URLSearchParams(window.location.search);
 
-      await router.push(getPathnameWithQuery(router.pathname, searchParams));
+      await router.push(
+        getPathnameWithQuery(router.pathname, searchParams),
+        undefined,
+        {
+          scroll: false,
+        },
+      );
 
       window.scrollTo(0, scrollPositionOnFeed.current);
 
