@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { PublicProfile } from '../lib/user';
-import { SimpleTooltip } from './tooltips';
 import { ProfileImageSize, ProfilePicture } from './ProfilePicture';
 import { useUserCompaniesQuery } from '../hooks/userCompany';
 import {
@@ -9,6 +8,7 @@ import {
   TypographyColor,
   TypographyType,
 } from './typography/Typography';
+import { Tooltip } from './tooltip/Tooltip';
 
 export type VerifiedCompanyUserBadgeProps = {
   user: Pick<PublicProfile, 'companies'>;
@@ -31,7 +31,7 @@ export const VerifiedCompanyUserBadge = ({
   }
 
   return (
-    <SimpleTooltip
+    <Tooltip
       content={[
         `Verified as a ${companies[0].name} employee.`,
         ...(isVerified
@@ -39,10 +39,8 @@ export const VerifiedCompanyUserBadge = ({
           : // eslint-disable-next-line react/jsx-key
             [<br />, 'Get your company badge via account settings.']),
       ]}
-      placement="bottom"
-      container={{
-        className: 'text-center',
-      }}
+      side="bottom"
+      className="text-center"
     >
       <div className="flex items-center justify-center gap-1">
         <ProfilePicture
@@ -71,6 +69,6 @@ export const VerifiedCompanyUserBadge = ({
           </Typography>
         )}
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 };
