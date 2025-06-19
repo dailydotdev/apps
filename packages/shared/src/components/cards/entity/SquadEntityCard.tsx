@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -60,10 +59,7 @@ const SquadEntityCard = ({
           />
           {squad && (
             <>
-              <SquadHeaderMenu
-                squad={squad}
-                className={classNames('z-[9999]')}
-              />
+              <SquadHeaderMenu squad={squad} className="z-[9999]" />
               <SquadActionButton
                 size={ButtonSize.Small}
                 copy={{
