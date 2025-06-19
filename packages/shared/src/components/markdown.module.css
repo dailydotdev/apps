@@ -53,7 +53,7 @@
   }
 
   & :where(pre) > code {
-    @apply whitespace-pre-wrap font-mono;
+    @apply whitespace-pre-wrap font-mono p-4;
     color: var(--theme-highlight-label);
   }
   & :not(pre) > code {
