@@ -17,6 +17,7 @@ import { ButtonVariant } from '../../buttons/Button';
 import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
+import { webappUrl } from '../../../lib/constants';
 
 const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
   const { isFollowing, toggleFollow } = useSourceActions({
@@ -35,7 +36,7 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
           }}
           onCreateNewFeed={() =>
             router.push(
-              `/feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
+              `${webappUrl}feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
             )
           }
           onAdd={(feedId) =>
