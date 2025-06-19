@@ -37,7 +37,7 @@ type Props = {
   };
 };
 
-const UserEntityCard = ({ user }: Props) => {
+const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
