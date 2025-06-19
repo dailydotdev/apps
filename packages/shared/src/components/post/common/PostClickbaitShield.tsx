@@ -10,7 +10,6 @@ import {
   ViewSize,
   useClickbaitTries,
 } from '../../../hooks';
-import { SimpleTooltip } from '../../tooltips';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 
@@ -21,6 +20,7 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { TargetId } from '../../../lib/log';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -116,10 +116,8 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   }
 
   return (
-    <SimpleTooltip
-      container={{
-        className: 'max-w-70 text-center typo-subhead',
-      }}
+    <Tooltip
+      className="max-w-70 text-center !typo-subhead"
       content={
         shieldActive
           ? 'Click to see the original title'
@@ -141,6 +139,6 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
       >
         {shieldActive ? 'Optimized title' : 'Clickbait Shield disabled'}
       </Button>
-    </SimpleTooltip>
+    </Tooltip>
   );
 };
