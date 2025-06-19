@@ -23,7 +23,7 @@ export function SquadPostWidgets({
   const squad = post.source as Squad;
   const isPublicSquad = isSourcePublicSquad(squad);
 
-  const cardClasses = 'w-full  bg-background-default';
+  const cardClasses = 'w-full !bg-background-default';
 
   return (
     <PageWidgets className={className}>
