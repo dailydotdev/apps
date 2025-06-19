@@ -40,12 +40,13 @@ export const usePostModalNavigation = (
   fetchPage: () => Promise<unknown>,
   updatePost: UpdateFeedPost,
   canFetchMore: boolean,
-  baseUrlArg: string | undefined = undefined,
 ): UsePostModalNavigation => {
   const router = useRouter();
-  const baseUrl = baseUrlArg ?? router.pathname; // Default base URL for post navigation for backwards compatibility
+  // special query to track base pathname for the modal
+  const basePathname = (router.query?.pmp as string) || router.pathname;
+  const baseAsPath = (router.query?.pmap as string) || router.asPath;
   const { logEvent } = useContext(LogContext);
-  const pmid = router.query.pmid as string; // special query we use to track id of the post in the masked url
+  const pmid = router.query?.pmid as string; // special query we use to track id of the post in the masked url
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const scrollPositionOnFeed = useRef(0);
 
@@ -95,10 +96,12 @@ export const usePostModalNavigation = (
 
         await router.push(
           {
-            pathname: baseUrl,
+            pathname: basePathname,
             query: {
               ...router.query,
               pmid: postId,
+              pmp: basePathname,
+              pmap: baseAsPath,
             },
           },
           `${webappUrl}posts/${postId}`,
@@ -112,7 +115,7 @@ export const usePostModalNavigation = (
         updatePost(item.page, item.index, { ...post, read: true });
       }
     },
-    [baseUrl, getPost, getPostItem, router, updatePost],
+    [basePathname, baseAsPath, getPost, getPostItem, router, updatePost],
   );
 
   const onOpenModal = (index: number) => {
@@ -170,8 +173,8 @@ export const usePostModalNavigation = (
       const searchParams = new URLSearchParams(window.location.search);
 
       await router.push(
-        getPathnameWithQuery(router.pathname, searchParams),
-        undefined,
+        getPathnameWithQuery(basePathname, searchParams),
+        baseAsPath,
         {
           scroll: false,
         },
