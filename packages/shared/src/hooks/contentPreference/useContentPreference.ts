@@ -1,4 +1,5 @@
-import { useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CONTENT_PREFERENCE_BLOCK_MUTATION,
   CONTENT_PREFERENCE_FOLLOW_MUTATION,
@@ -16,6 +17,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { SharedFeedPage } from '../../components/utilities/common';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -36,6 +38,14 @@ export const useContentPreference = ({
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const queryClient = useQueryClient();
+
+  const invalidateQueries = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
+      refetchType: 'none',
+    });
+  }, [queryClient, user]);
 
   const { mutateAsync: follow } = useMutation({
     mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
@@ -230,6 +240,8 @@ export const useContentPreference = ({
       } else {
         displayToast(`⛔️ You blocked the following ${entityName}: ${id}`);
       }
+
+      invalidateQueries();
     },
   });
 
