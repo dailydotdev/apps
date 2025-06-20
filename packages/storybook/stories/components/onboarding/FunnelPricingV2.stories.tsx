@@ -80,7 +80,7 @@ const baseProps: FunnelStepPricingV2 = {
     plansBlock: {
       heading: 'Your personalized plan is ready!',
       timer: {
-        message: 'This offer ends in:',
+        message: 'This offer ends in',
       },
       pricingType: FunnelPricingType.Monthly,
       plans: [

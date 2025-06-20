@@ -18,22 +18,29 @@ import {
   DiscountTimerReminder,
   StepHeadline,
   StepHeadlineAlign,
+  CreditCards,
 } from '../../shared';
 import { PricingEmailSupport } from './common';
 import { LazyImage } from '../../../../components/LazyImage';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { ChecklistAIcon } from '../../../../components/icons';
+import { ChecklistAIcon, ShieldCheckIcon } from '../../../../components/icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../../components/typography/Typography';
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
   discountStartDate: Date | null;
 };
 
 const PricingSelection = ({
-  plansBlock: { heading, plans, pricingType },
+  plansBlock: { cta, ctaMessage, heading, plans, pricingType, timer },
   discount,
 }: PricingSelectionProps) => {
   const applyDiscount = useAtomValue(applyDiscountAtom);
@@ -55,13 +62,39 @@ const PricingSelection = ({
       {/* Small discount timer  */}
       {discountStartDate && applyDiscount && (
         <DiscountTimerReminder
-          discountMessage={discount.message}
+          discountMessage={timer.message}
           durationInMinutes={discount.duration}
           startDate={discountStartDate}
           isActive
         />
       )}
       {/* pricing plans */}
+
+      <Typography
+        className="text-center"
+        color={TypographyColor.Primary}
+        type={TypographyType.Callout}
+      >
+        {ctaMessage}
+      </Typography>
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        color={ButtonColor.Cabbage}
+        className="w-full"
+        onClick={console.log}
+      >
+        {cta || 'Get my plan'}
+      </Button>
+      <CreditCards>
+        <Typography
+          className="mb-4 flex gap-1 rounded-8 bg-surface-float px-2 py-0.5"
+          type={TypographyType.Callout}
+        >
+          <ShieldCheckIcon aria-hidden />
+          Pay safe & secure
+        </Typography>
+      </CreditCards>
     </section>
   );
 };
