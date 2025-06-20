@@ -9,6 +9,7 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { Origin } from '../../../lib/log';
 import EntityCardSkeleton from '../entity/EntityCardSkeleton';
 import HoverCard from './HoverCard';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 const SquadEntityCard = dynamic(
   /* webpackChunkName: "squadEntityCard" */ () =>
@@ -73,6 +74,24 @@ export default function SourceButton({
         }}
         nativeLazyLoading
       />
+    );
+  }
+
+  if (pureTextTooltip) {
+    return (
+      <Tooltip content={tooltipContent} side="bottom">
+        <ProfileImageLink
+          {...props}
+          className={className}
+          picture={{ size, rounded: 'full' }}
+          user={{
+            id: source.id,
+            image: source.image,
+            permalink: source.permalink,
+            username: source.handle,
+          }}
+        />
+      </Tooltip>
     );
   }
 
