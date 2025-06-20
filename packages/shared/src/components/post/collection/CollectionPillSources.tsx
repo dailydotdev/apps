@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Pill } from '../../Pill';
@@ -15,12 +15,14 @@ interface CollectionPillSourcesProps {
   sources: SourceAvatarProps['source'][];
   alwaysShowSources?: boolean;
   totalSources: number;
+  children?: ReactNode;
 }
 export const CollectionPillSources = ({
   className,
   sources,
   totalSources,
   alwaysShowSources = false,
+  children,
 }: CollectionPillSourcesProps): ReactElement => {
   const hasSources = !!sources?.length;
 
@@ -61,6 +63,7 @@ export const CollectionPillSources = ({
           )}
         />
       )}
+      {children}
     </div>
   );
 };

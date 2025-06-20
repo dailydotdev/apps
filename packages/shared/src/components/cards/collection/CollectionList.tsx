@@ -27,7 +27,6 @@ export const CollectionList = forwardRef(function CollectionCard(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
-    onMenuClick,
     onCopyLinkClick,
     onPostClick,
     onBookmarkClick,
@@ -69,10 +68,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader
-          post={post}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-        >
+        <PostCardHeader post={post}>
           <CollectionPillSources
             className={{
               main: classNames(!!post.collectionSources?.length && '-my-0.5'),

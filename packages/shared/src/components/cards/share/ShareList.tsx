@@ -30,7 +30,6 @@ export const ShareList = forwardRef(function ShareList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
-    onMenuClick,
     onCopyLinkClick,
     onShare,
     onBookmarkClick,
@@ -90,7 +89,6 @@ export const ShareList = forwardRef(function ShareList(
         }}
         openNewTab={openNewTab}
         onReadArticleClick={onReadArticleClick}
-        onMenuClick={(event) => onMenuClick?.(event, post)}
         metadata={{
           topLabel: enableSourceHeader ? (
             <Link href={post.source.permalink}>

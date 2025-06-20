@@ -476,8 +476,11 @@ describe('Feed logged in', () => {
       },
     ]);
 
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    const menuBtn = await screen.findByLabelText('Options');
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
+
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
     const brokenLinkBtn = await screen.findByText('Broken link');
@@ -518,7 +521,9 @@ describe('Feed logged in', () => {
     ]);
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
     const brokenLinkBtn = await screen.findByText('Broken link');
@@ -561,7 +566,9 @@ describe('Feed logged in', () => {
     ]);
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
     const brokenLinkBtn = await screen.findByText(
@@ -603,7 +610,9 @@ describe('Feed logged in', () => {
       },
     ]);
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     const contextBtn = await screen.findByText('Hide');
     contextBtn.click();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -634,7 +643,9 @@ describe('Feed logged in', () => {
     ]);
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     mockGraphQL(createTagsSettingsMock());
     await waitFor(async () => {
       const data = await queryClient.getQueryData(
@@ -667,7 +678,9 @@ describe('Feed logged in', () => {
       },
     ]);
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     mockGraphQL(
       createTagsSettingsMock({
         includeTags: [],
@@ -725,7 +738,9 @@ describe('Feed logged in', () => {
     ]);
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     mockGraphQL(createTagsSettingsMock());
     await waitFor(async () => {
       const data = await queryClient.getQueryData(
@@ -845,7 +860,9 @@ describe('Feed logged in', () => {
     ]);
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
     const contextBtn = await screen.findByText('Report');
     fireEvent.click(contextBtn);
 

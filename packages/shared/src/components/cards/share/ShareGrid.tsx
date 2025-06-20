@@ -37,7 +37,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
     onPostAuxClick,
     onUpvoteClick,
     onCommentClick,
-    onMenuClick,
     onCopyLinkClick,
     onBookmarkClick,
     openNewTab,
@@ -127,7 +126,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
             openNewTab={openNewTab}
             source={post.source}
             postLink={post.sharedPost.permalink}
-            onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
           />
           <CardTitle>{title}</CardTitle>

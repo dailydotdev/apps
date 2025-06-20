@@ -49,7 +49,6 @@ export function PostContentRaw({
   postPosition,
   isFallback,
   customNavigation,
-  onRemovePost,
   backToSquad,
   isBannerVisible,
   isPostPage,
@@ -79,7 +78,6 @@ export function PostContentRaw({
     onReadArticle,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   // Only send view post if the post is a video type

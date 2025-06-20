@@ -124,7 +124,7 @@ it('should show options button on hover when in laptop size', async () => {
   const header = await screen.findByLabelText('Options');
   expect(header).toHaveClass('inline-flex');
   // eslint-disable-next-line testing-library/no-node-access
-  expect(header.parentElement).toHaveClass(
+  expect(header.closest('span')).toHaveClass(
     'laptop:mouse:invisible laptop:mouse:group-hover:visible',
   );
 });

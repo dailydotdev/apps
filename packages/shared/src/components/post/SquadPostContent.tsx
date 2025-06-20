@@ -37,7 +37,6 @@ function SquadPostContentRaw({
   onPreviousPost,
   onNextPost,
   onClose,
-  onRemovePost,
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
@@ -57,7 +56,6 @@ function SquadPostContentRaw({
     postPosition,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   useEffect(() => {

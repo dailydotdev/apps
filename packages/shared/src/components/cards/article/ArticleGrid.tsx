@@ -37,7 +37,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
-    onMenuClick,
     onBookmarkClick,
     onShare,
     onCopyLinkClick,
@@ -143,7 +142,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             openNewTab={openNewTab}
             source={post.source}
             postLink={post.permalink}
-            onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
             showFeedback={showFeedback}
           />

@@ -33,7 +33,6 @@ export const FreeformList = forwardRef(function SharePostCard(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
-    onMenuClick,
     onCopyLinkClick,
     onBookmarkClick,
     onShare,
@@ -96,7 +95,6 @@ export const FreeformList = forwardRef(function SharePostCard(
       <CardContainer>
         <PostCardHeader
           post={post}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
           metadata={{
             topLabel: enableSourceHeader ? post.source.name : post.author.name,
             bottomLabel: enableSourceHeader

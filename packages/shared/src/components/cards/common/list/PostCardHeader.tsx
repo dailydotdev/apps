@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import OptionsButton from '../../../buttons/OptionsButton';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
 import { getGroupedHoverContainer } from '../common';
@@ -12,12 +11,13 @@ import { PostType } from '../../../../graphql/posts';
 import { ButtonVariant } from '../../../buttons/common';
 import type { PostMetadataProps } from './PostMetadata';
 import PostMetadata from './PostMetadata';
-import { MenuIcon, OpenLinkIcon } from '../../../icons';
+import { OpenLinkIcon } from '../../../icons';
 import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { ProfileImageSize } from '../../../ProfilePicture';
 import { ProfileImageLink } from '../../../profile/ProfileImageLink';
 import type { UserShortProfile } from '../../../../lib/user';
+import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 
 const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('../HoverCard'),
@@ -32,7 +32,6 @@ interface CardHeaderProps {
   post: Post;
   className?: string;
   children?: ReactNode;
-  onMenuClick?: (e: React.MouseEvent) => void;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink?: string;
   openNewTab?: boolean;
@@ -47,7 +46,6 @@ const Container = getGroupedHoverContainer('span');
 export const PostCardHeader = ({
   post,
   className,
-  onMenuClick,
   onReadArticleClick,
   children,
   postLink,
@@ -114,11 +112,7 @@ export const PostCardHeader = ({
                   openNewTab={openNewTab}
                 />
               )}
-              <OptionsButton
-                icon={<MenuIcon className="rotate-90" />}
-                onClick={onMenuClick}
-                side="top"
-              />
+              <PostOptionButton post={post} />
             </>
           )}
         </Container>
