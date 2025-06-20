@@ -125,7 +125,7 @@ export function DiscountTimer({
         />
         <div
           className={classNames(
-            'font-bold',
+            'font-bold tabular-nums',
             isWithSlot
               ? 'typo-title1'
               : 'inline-flex h-8 w-[4.75rem] items-center justify-center rounded-8 border border-status-success typo-title3',
@@ -147,17 +147,18 @@ export function DiscountTimerReminder({
   return (
     <div
       className={classNames(
-        'flex items-center gap-2 rounded-12 bg-action-plus-float px-4 py-2 text-center text-action-plus-default typo-callout',
+        'flex items-center justify-center gap-2 rounded-12 bg-action-plus-float px-4 py-2 text-center text-action-plus-default typo-callout',
         className,
       )}
       data-testid="mini-discount-timer-container"
     >
       <TimerIcon aria-hidden />
       <span
-        className={classNames('typo-footnote', className)}
+        className="font-bold typo-callout"
         data-testid="mini-discount-timer"
       >
-        {sanitizedMessage} {formatTime(timeLeft)} min
+        {sanitizedMessage}{' '}
+        <span className="tabular-nums">{formatTime(timeLeft)}</span> min
       </span>
     </div>
   );
