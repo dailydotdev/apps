@@ -26,6 +26,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import { PostTagList } from './tags/PostTagList';
+import PostSourceInfo from './PostSourceInfo';
 
 export const SCROLL_OFFSET = 80;
 
@@ -144,6 +145,7 @@ export function PostContentRaw({
           post={post}
         >
           <div className="my-6">
+            <PostSourceInfo className="mb-3" source={post.source} />
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"

@@ -61,7 +61,10 @@ export const PostCardHeader = ({
       <CardHeader className={className}>
         {children}
         {!!post?.author && (
-          <ProfileTooltip userId={post.author.id}>
+          <ProfileTooltip
+            userId={post.author.id}
+            tooltip={{ placement: 'bottom' }}
+          >
             <ProfileImageLink
               className="z-1 ml-2"
               picture={{ size: ProfileImageSize.Large }}
