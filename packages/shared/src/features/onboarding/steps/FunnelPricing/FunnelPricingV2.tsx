@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import Head from 'next/head';
+import { useAtomValue } from 'jotai';
 import type { FunnelStepPricingV2 } from '../../types/funnel';
 import { withIsActiveGuard } from '../../shared/withActiveGuard';
 import {
@@ -14,6 +15,7 @@ import {
   BoxList,
   DiscountTimer,
   DiscountTimerVariant,
+  DiscountTimerReminder,
   StepHeadline,
   StepHeadlineAlign,
 } from '../../shared';
@@ -26,13 +28,16 @@ import {
 } from '../../../../components/buttons/Button';
 import { ChecklistAIcon } from '../../../../components/icons';
 
-type PricingSelectionProps = FunnelStepPricingV2['parameters']['plansBlock'];
+type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
+  discountStartDate: Date | null;
+};
 
 const PricingSelection = ({
-  heading,
-  plans,
-  pricingType,
+  plansBlock: { heading, plans, pricingType },
+  discount,
 }: PricingSelectionProps) => {
+  const applyDiscount = useAtomValue(applyDiscountAtom);
+  const discountStartDate = useAtomValue(discountTimerAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
   const id = useId();
   /*
@@ -45,9 +50,17 @@ const PricingSelection = ({
     - Money back - text box
   */
   return (
-    <section>
+    <section className="flex flex-col gap-4">
       <StepHeadline heading={heading} align={StepHeadlineAlign.Center} />
       {/* Small discount timer  */}
+      {discountStartDate && applyDiscount && (
+        <DiscountTimerReminder
+          discountMessage={discount.message}
+          durationInMinutes={discount.duration}
+          startDate={discountStartDate}
+          isActive
+        />
+      )}
       {/* pricing plans */}
     </section>
   );
@@ -56,9 +69,10 @@ const PricingSelection = ({
 const Pricing = ({
   onTransition,
   isActive,
-  parameters: { discount, hero, features, plansBlock, faq },
+  parameters,
 }: FunnelStepPricingV2): ReactElement => {
   const id = useId();
+  const { hero, features, plansBlock, discount, faq } = parameters;
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
 
@@ -116,8 +130,7 @@ const Pricing = ({
           align={StepHeadlineAlign.Center}
           className="!gap-3"
         />
-
-        {/* Add bg style */}
+        {/* Feature list */}
         <BoxList
           className="!bg-brand-float px-6 py-8"
           items={features.items}
@@ -128,11 +141,19 @@ const Pricing = ({
             listItem: 'typo-body',
           }}
         />
-        <div id={`${id}-plans`} />
-        <PricingSelection {...plansBlock} />
+        {/* Plans */}
+        <div id={`${id}-plans`}>
+          <PricingSelection
+            discountStartDate={discountStartDate}
+            {...parameters}
+          />
+        </div>
         {/* Reviews */}
         {/*  reviews image */}
-        <PricingSelection {...plansBlock} />
+        <PricingSelection
+          discountStartDate={discountStartDate}
+          {...parameters}
+        />
         {/* Text Box - FAQ version */}
         <BoxFaq items={faq.items} />
         <PricingEmailSupport />

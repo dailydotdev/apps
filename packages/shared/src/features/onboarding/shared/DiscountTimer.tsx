@@ -5,6 +5,7 @@ import { addMinutes } from 'date-fns';
 import useTimer from '../../../hooks/useTimer';
 import { sanitizeMessage } from '../lib/utils';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import { TimerIcon } from '../../../components/icons';
 
 /**
  * Formats seconds to MM:SS format
@@ -134,6 +135,30 @@ export function DiscountTimer({
           {formatTime(timeLeft)}
         </div>
       </ConditionalWrapper>
+    </div>
+  );
+}
+
+export function DiscountTimerReminder({
+  className,
+  ...props
+}: Omit<DiscountTimerProps, 'variant'>): ReactElement {
+  const { timeLeft, sanitizedMessage } = useDiscountTimer(props);
+  return (
+    <div
+      className={classNames(
+        'flex items-center gap-2 rounded-12 bg-action-plus-float px-4 py-2 text-center text-action-plus-default typo-callout',
+        className,
+      )}
+      data-testid="mini-discount-timer-container"
+    >
+      <TimerIcon aria-hidden />
+      <span
+        className={classNames('typo-footnote', className)}
+        data-testid="mini-discount-timer"
+      >
+        {sanitizedMessage} {formatTime(timeLeft)} min
+      </span>
     </div>
   );
 }
