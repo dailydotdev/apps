@@ -164,7 +164,6 @@ export const FunnelPricing = ({
     cta,
   };
 
-  // todo: in order to resume funnel implement persist on timer initial date
   useEffect(() => {
     if (isActive && !discountStartDate) {
       setTimer(new Date());
