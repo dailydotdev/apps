@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
 import type { HoverCardContentProps } from '@radix-ui/react-hover-card';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
@@ -15,7 +15,6 @@ const SquadEntityCard = dynamic(
   /* webpackChunkName: "squadEntityCard" */ () =>
     import('../entity/SquadEntityCard'),
   {
-    ssr: false,
     loading: () => <EntityCardSkeleton />,
   },
 );
@@ -24,7 +23,6 @@ const SourceEntityCard = dynamic(
   /* webpackChunkName: "sourceEntityCard" */ () =>
     import('../entity/SourceEntityCard'),
   {
-    ssr: false,
     loading: () => <EntityCardSkeleton />,
   },
 );
@@ -48,18 +46,6 @@ export default function SourceButton({
 }: SourceButtonProps): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
 
-  const tooltipContent = useMemo(() => {
-    if (pureTextTooltip) {
-      return source.name;
-    }
-
-    return source.type === 'squad' ? (
-      <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
-    ) : (
-      <SourceEntityCard source={source} />
-    );
-  }, [pureTextTooltip, source]);
-
   if (source && isFeedPreview) {
     return (
       <ProfilePicture
@@ -79,7 +65,7 @@ export default function SourceButton({
 
   if (pureTextTooltip) {
     return (
-      <Tooltip content={tooltipContent} side="bottom">
+      <Tooltip content={source.name} side="bottom">
         <ProfileImageLink
           {...props}
           className={className}
@@ -115,7 +101,11 @@ export default function SourceButton({
         />
       }
     >
-      {tooltipContent}
+      {source.type === 'squad' ? (
+        <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
+      ) : (
+        <SourceEntityCard source={source} />
+      )}
     </HoverCard>
   );
 }
