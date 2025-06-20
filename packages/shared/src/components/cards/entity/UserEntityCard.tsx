@@ -168,15 +168,17 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         <div className="flex gap-2 truncate">
-          <div className="rounded-8 border border-border-subtlest-tertiary px-2">
-            <ReputationUserBadge
-              iconProps={{
-                size: IconSize.Small,
-                className: 'text-accent-onion-default',
-              }}
-              user={user}
-            />
-          </div>
+          {!!user.reputation && (
+            <div className="rounded-8 border border-border-subtlest-tertiary px-2">
+              <ReputationUserBadge
+                iconProps={{
+                  size: IconSize.Small,
+                  className: 'text-accent-onion-default',
+                }}
+                user={user}
+              />
+            </div>
+          )}
           <VerifiedCompanyUserBadge
             size={ProfileImageSize.Small}
             user={user}
