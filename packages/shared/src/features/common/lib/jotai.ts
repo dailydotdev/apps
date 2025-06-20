@@ -10,7 +10,7 @@ export const atomWithLocalStorage = <T>({
   parseFunction?: (value: string) => T;
 }) => {
   const getInitialValue = () => {
-    const item = globalThis?.localStorage?.getItem?.(key);
+    const item = globalThis?.localStorage?.getItem?.(key) ?? null;
     if (item !== null) {
       const value = JSON.parse(item);
       return parseFunction?.(value) ?? (value as T);
