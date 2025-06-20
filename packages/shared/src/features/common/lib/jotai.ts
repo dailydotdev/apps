@@ -10,7 +10,7 @@ export const atomWithLocalStorage = <T>({
   parseFunction?: (value: string) => T;
 }) => {
   const getInitialValue = () => {
-    const item = localStorage.getItem(key);
+    const item = globalThis?.localStorage?.getItem?.(key);
     if (item !== null) {
       const value = JSON.parse(item);
       return parseFunction?.(value) ?? (value as T);
@@ -24,7 +24,7 @@ export const atomWithLocalStorage = <T>({
       const nextValue =
         typeof update === 'function' ? update(get(baseAtom)) : update;
       set(baseAtom, nextValue);
-      localStorage.setItem(key, JSON.stringify(nextValue));
+      localStorage?.setItem?.(key, JSON.stringify(nextValue));
     },
   );
 };
