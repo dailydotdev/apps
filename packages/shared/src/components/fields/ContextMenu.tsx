@@ -55,11 +55,13 @@ export interface MenuItemProps<
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
   options: MenuItemProps[] | ContextMenuDrawerItem[];
   isOpen?: boolean;
+  className?: string;
 }
 
 export default function ContextMenu({
   options,
   onHidden,
+  className,
   isOpen: isOpenProps,
   ...props
 }: ContextMenuProps): ReactElement {
@@ -91,7 +93,7 @@ export default function ContextMenu({
   return (
     <PortalMenu
       disableBoundariesCheck
-      className="menu-primary"
+      className={classNames('menu-primary', className)}
       onHidden={onHidden}
       {...props}
     >

@@ -15,6 +15,7 @@ interface SourceActionsFollowProps {
   isSubscribed: boolean;
   onClick: (e) => void;
   variant: ButtonVariant;
+  followedVariant?: ButtonVariant;
   copyType?: CopyType;
 }
 
@@ -41,6 +42,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
     isFetching,
     onClick,
     variant,
+    followedVariant = ButtonVariant.Subtle,
     copyType = CopyType.Main,
   } = props;
 
@@ -59,7 +61,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
-      variant={isSubscribed ? ButtonVariant.Subtle : variant}
+      variant={isSubscribed ? followedVariant : variant}
     >
       <span className="group-hover:hidden">
         {isSubscribed ? copy.following : copy.follow}
