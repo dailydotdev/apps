@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
@@ -19,12 +20,21 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
-import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
+import type { UserShortProfile } from '../../../lib/user';
+
+const HoverCard = dynamic(
+  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
+);
+
+const UserEntityCard = dynamic(
+  /* webpackChunkName: "userEntityCard" */ () =>
+    import('../entity/UserEntityCard'),
+);
 
 interface CardHeaderProps {
   post: Post;
@@ -92,12 +102,19 @@ export const PostCardHeader = ({
           source={source}
         />
         {!!post?.author && (
-          <ProfileTooltip userId={post.author.id}>
-            <ProfileImageLink
-              picture={{ size: ProfileImageSize.Medium }}
-              user={post.author}
-            />
-          </ProfileTooltip>
+          <HoverCard
+            align="start"
+            side="bottom"
+            sideOffset={10}
+            trigger={
+              <ProfileImageLink
+                picture={{ size: ProfileImageSize.Medium }}
+                user={post.author}
+              />
+            }
+          >
+            <UserEntityCard user={post.author as UserShortProfile} />
+          </HoverCard>
         )}
         {children}
         <Container

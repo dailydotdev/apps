@@ -44,8 +44,8 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
       actionButtons={
         <>
           <CustomFeedOptionsMenu
+            buttonVariant={ButtonVariant.Option}
             className={{
-              button: 'bg-background-popover',
               menu: 'z-[9999]',
             }}
             {...menuProps}
