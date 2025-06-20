@@ -75,7 +75,7 @@ const CustomFeedOptionsMenu = ({
   return (
     <>
       <Button
-        className={classNames('justify-center !px-1.5', className?.button)}
+        className={classNames('justify-center', className?.button)}
         onClick={onMenuClick}
         size={ButtonSize.Small}
         variant={buttonVariant}

@@ -55,6 +55,7 @@ const SquadEntityCard = ({
       actionButtons={
         <>
           <Button
+            className="justify-center"
             variant={ButtonVariant.Option}
             icon={<MenuIcon />}
             onClick={onMenuClick}

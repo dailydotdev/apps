@@ -82,28 +82,26 @@ export default function Markdown({
   );
 
   return (
-    <>
-      <HoverCard
-        onMouseLeave={clearUser}
-        onMouseEnter={cancelUserClearing}
-        alignOffset={offset[0]}
-        sideOffset={offset[1]}
-        align="start"
-        side="top"
-        appendTo={appendTooltipTo?.()}
-        trigger={
-          <div
-            className={classNames(styles.markdown, className)}
-            dangerouslySetInnerHTML={{
-              __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
-            }}
-            onMouseOverCapture={onHoverHandler}
-            onMouseLeave={clearUser}
-          />
-        }
-      >
-        {data && <UserEntityCard user={data} />}
-      </HoverCard>
-    </>
+    <HoverCard
+      onMouseLeave={clearUser}
+      onMouseEnter={cancelUserClearing}
+      alignOffset={offset[0]}
+      sideOffset={offset[1]}
+      align="start"
+      side="top"
+      appendTo={appendTooltipTo?.()}
+      trigger={
+        <div
+          className={classNames(styles.markdown, className)}
+          dangerouslySetInnerHTML={{
+            __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
+          }}
+          onMouseOverCapture={onHoverHandler}
+          onMouseLeave={clearUser}
+        />
+      }
+    >
+      {data && <UserEntityCard user={data} />}
+    </HoverCard>
   );
 }
