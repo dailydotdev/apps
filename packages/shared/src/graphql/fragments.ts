@@ -232,6 +232,12 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       image
       username
       permalink
+      reputation
+      bio
+      companies {
+        name
+        image
+      }
       contentPreference {
         status
       }
