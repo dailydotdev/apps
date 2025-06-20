@@ -73,6 +73,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  BriefModal = 'brief modal',
 }
 
 export enum LogEvent {
@@ -385,6 +386,7 @@ export enum TargetId {
   ContextMenu = 'context',
   SmartPrompt = 'smart prompt',
   Account = 'account',
+  Brief = 'brief',
 }
 
 export enum NotificationChannel {

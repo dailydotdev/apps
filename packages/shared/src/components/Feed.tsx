@@ -98,18 +98,24 @@ const CollectionPostModal = dynamic(
     ),
 );
 
+const BriefPostModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
+);
+
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
 
-const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
+export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
   [PostType.VideoYouTube]: ArticlePostModal,
   [PostType.Collection]: CollectionPostModal,
+  [PostType.Brief]: BriefPostModal,
 };
 
 export default function Feed<T>({

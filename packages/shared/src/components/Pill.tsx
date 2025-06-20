@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -12,13 +12,13 @@ const pillSizeToClassName: Record<PillSize, string> = {
   [PillSize.Medium]: 'font-bold typo-caption1 rounded-10 p-2',
 };
 
-interface Props {
-  label: string;
+export type PillProps = {
+  label: ReactNode;
   tag?: keyof Pick<JSX.IntrinsicElements, 'a' | 'div'>;
   size?: PillSize;
   className?: string;
   alignment?: string;
-}
+};
 
 export const Pill = ({
   label,
@@ -27,7 +27,7 @@ export const Pill = ({
   alignment = 'self-start',
   className,
   ...props
-}: Props): ReactElement => {
+}: PillProps): ReactElement => {
   return (
     <Tag
       {...props}

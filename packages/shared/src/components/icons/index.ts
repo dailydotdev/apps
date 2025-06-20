@@ -10,6 +10,8 @@ export * from './Bell';
 export * from './Block';
 export * from './Bluesky';
 export * from './Bookmark';
+export * from './Brief';
+export * from './BriefGradient';
 export * from './BringForward';
 export * from './Browser/Chrome';
 export * from './Browser/Edge';
