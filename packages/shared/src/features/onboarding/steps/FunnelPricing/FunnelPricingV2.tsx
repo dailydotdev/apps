@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useId } from 'react';
+import React, { useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import Head from 'next/head';
 import type { FunnelStepPricingV2 } from '../../types/funnel';
@@ -13,11 +13,17 @@ import {
   BoxFaq,
   BoxList,
   DiscountTimer,
+  DiscountTimerVariant,
   StepHeadline,
   StepHeadlineAlign,
 } from '../../shared';
 import { PricingEmailSupport } from './common';
 import { LazyImage } from '../../../../components/LazyImage';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters']['plansBlock'];
 
@@ -48,22 +54,42 @@ const PricingSelection = ({
 
 const Pricing = ({
   onTransition,
+  isActive,
   parameters: { discount, hero, features, plansBlock, faq },
 }: FunnelStepPricingV2): ReactElement => {
+  const id = useId();
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
+
+  useEffect(() => {
+    if (isActive && !discountStartDate) {
+      setTimer(new Date());
+    }
+  }, [isActive, discountStartDate, setTimer]);
 
   return (
     <>
       {/* Add a new style variant with CTA  */}
-      {!!discountStartDate && (
+      {!!discountStartDate && applyDiscount && (
         <DiscountTimer
+          className="bg-brand-default text-white"
           discountMessage={discount.message}
           durationInMinutes={discount.duration}
-          startDate={discountStartDate}
-          onTimerEnd={() => setApplyDiscount(false)}
           isActive
-        />
+          onTimerEnd={() => setApplyDiscount(false)}
+          startDate={discountStartDate}
+          variant={DiscountTimerVariant.WithSlot}
+        >
+          <Button
+            className=" bg-white text-black"
+            href={`#${id}-plans`}
+            size={ButtonSize.Medium}
+            tag="a"
+            variant={ButtonVariant.Float}
+          >
+            {plansBlock.cta}
+          </Button>
+        </DiscountTimer>
       )}
       <div className="flex flex-col gap-6 px-4 py-6">
         {/* Hero */}
@@ -92,7 +118,7 @@ const Pricing = ({
 
         {/* Add bg style */}
         <BoxList items={features.items} title={features.heading} />
-
+        <div id={`${id}-plans`} />
         <PricingSelection {...plansBlock} />
         {/* Reviews */}
         {/*  reviews image */}

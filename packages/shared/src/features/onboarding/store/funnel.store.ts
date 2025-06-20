@@ -16,8 +16,10 @@ export function getFunnelStepByPosition(
 
 export const selectedPlanAtom = atom<string | undefined>();
 export const applyDiscountAtom = atom<boolean>(true);
+
+export const DISCOUNT_LOCAL_STORAGE_KEY = 'funnel-discount-timer';
 export const discountTimerAtom = atomWithLocalStorage<Date | undefined>({
-  key: 'funnel-discount-timer',
+  key: DISCOUNT_LOCAL_STORAGE_KEY,
   initialValue: undefined,
   parseFunction: (value) => (value ? new Date(value) : undefined),
 });

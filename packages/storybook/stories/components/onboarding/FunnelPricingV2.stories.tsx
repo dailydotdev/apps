@@ -12,13 +12,7 @@ import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboardin
 import ExtensionProviders from '../../extension/_providers';
 import {
   FunnelStepBackground,
-  Header,
 } from '@dailydotdev/shared/src/features/onboarding/shared';
-import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
-import {
-  PlusPriceType,
-  PlusPriceTypeAppsId,
-} from '@dailydotdev/shared/src/lib/featureValues';
 
 const meta: Meta<typeof FunnelPricingV2> = {
   title: 'Components/Onboarding/Steps/FunnelPricingV2',
@@ -64,7 +58,7 @@ const baseProps: FunnelStepPricingV2 = {
   ],
   parameters: {
     discount: {
-      message: 'Limited time offer: 50% off',
+      message: 'Your special offer is live for the next:',
       duration: 15,
     },
     hero: {
@@ -170,6 +164,7 @@ const baseProps: FunnelStepPricingV2 = {
 export const Default: Story = {
   args: {
     ...baseProps,
+    discountStartDate: new Date()
   },
 };
 
