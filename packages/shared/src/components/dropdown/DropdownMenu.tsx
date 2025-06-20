@@ -2,13 +2,13 @@ import type { ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import './style.css';
+import type { DropdownMenuContentProps as RadixDropdownMenuContentProps } from '@radix-ui/react-dropdown-menu';
 import {
   DropdownMenu as DropdownMenuRoot,
   DropdownMenuContent as DropdownMenuContentRoot,
   DropdownMenuPortal,
   DropdownMenuTrigger as DropdownMenuTriggerRoot,
   DropdownMenuItem as DropdownMenuItemRoot,
-  type DropdownMenuContentProps as RadixDropdownMenuContentProps,
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
 

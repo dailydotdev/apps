@@ -31,7 +31,6 @@ interface CardHeaderProps {
   className?: string;
   children?: ReactNode;
   source: Source;
-  onMenuClick?: (e: React.MouseEvent) => void;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
   openNewTab?: boolean;
@@ -44,7 +43,6 @@ const Container = getGroupedHoverContainer('span');
 export const PostCardHeader = ({
   post,
   className,
-  onMenuClick,
   onReadArticleClick,
   children,
   source,

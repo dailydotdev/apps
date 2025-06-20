@@ -11,18 +11,15 @@ import {
 import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { useBookmarkProvider } from '../../../hooks';
+import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 
-type SquadPostCardHeaderProps = Pick<
-  Post,
-  'author' | 'source' | 'permalink' | 'bookmarked'
-> & { enableSourceHeader?: boolean };
+type SquadPostCardHeaderProps = { post: Post; enableSourceHeader?: boolean };
 
 export const SquadPostCardHeader = ({
-  author,
-  source,
+  post,
   enableSourceHeader = false,
-  bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const { author, source, bookmarked } = post;
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
@@ -43,7 +40,7 @@ export const SquadPostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <div className="relative flex flex-row gap-2">
+        <div className="relative flex w-full flex-row gap-2">
           <SourceButton
             source={source}
             className={classNames(
@@ -64,6 +61,11 @@ export const SquadPostCardHeader = ({
               />
             </ProfileTooltip>
           )}
+          <div className="flex flex-1" />
+          <PostOptionButton
+            post={post}
+            triggerClassName="group-hover:flex laptop:hidden"
+          />
         </div>
       </div>
     </>

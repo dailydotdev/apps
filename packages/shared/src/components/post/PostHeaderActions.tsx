@@ -40,8 +40,6 @@ export function PostHeaderActions({
   inlineActions,
   className,
   notificationClassName,
-  contextMenuId,
-  onRemovePost,
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
@@ -89,8 +87,6 @@ export function PostHeaderActions({
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}
-        contextMenuId={contextMenuId}
-        onRemovePost={onRemovePost}
         origin={Origin.ArticleModal}
         isEnlarged={isEnlarged}
       />
