@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import Link from 'next/link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
 import {
@@ -32,9 +33,12 @@ import useUserMenuProps from '../../../hooks/useUserMenuProps';
 
 type Props = {
   user: UserShortProfile;
+  className?: {
+    container?: string;
+  };
 };
 
-const UserEntityCard = ({ user }: Props) => {
+const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -61,7 +65,7 @@ const UserEntityCard = ({ user }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id } = user;
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -105,18 +109,20 @@ const UserEntityCard = ({ user }: Props) => {
 
   return (
     <EntityCard
+      permalink={permalink}
       image={image}
       type="user"
       className={{
         image: 'size-16 rounded-20',
+        container: className?.container,
       }}
       entityName={username}
       actionButtons={
         !isSameUser && (
           <>
             <CustomFeedOptionsMenu
+              buttonVariant={ButtonVariant.Option}
               className={{
-                button: 'bg-background-popover',
                 menu: 'z-[9999]',
               }}
               {...menuProps}
@@ -135,15 +141,19 @@ const UserEntityCard = ({ user }: Props) => {
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">
-        <Typography
-          className="flex"
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {name ?? username}
-          {isPlus && <DevPlusIcon className="ml-1 text-action-plus-default" />}
-        </Typography>
+        <Link href={permalink}>
+          <Typography
+            className="flex"
+            type={TypographyType.Body}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {name ?? username}
+            {isPlus && (
+              <DevPlusIcon className="ml-1 text-action-plus-default" />
+            )}
+          </Typography>
+        </Link>
         <div className="flex items-center gap-1">
           <Typography
             type={TypographyType.Callout}

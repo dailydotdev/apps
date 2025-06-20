@@ -22,6 +22,7 @@ type CustomFeedOptionsMenuProps = {
     menu?: string;
     button?: string;
   };
+  buttonVariant?: ButtonVariant;
   shareProps: UseShareOrCopyLinkProps;
   additionalOptions?: MenuItemProps[];
 };
@@ -33,6 +34,7 @@ const CustomFeedOptionsMenu = ({
   onUndo,
   onCreateNewFeed,
   additionalOptions = [],
+  buttonVariant = ButtonVariant.Float,
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
@@ -73,10 +75,10 @@ const CustomFeedOptionsMenu = ({
   return (
     <>
       <Button
-        className={classNames('!px-1.5', className?.button)}
+        className={classNames('justify-center', className?.button)}
         onClick={onMenuClick}
         size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
+        variant={buttonVariant}
         icon={<DotsIcon />}
       />
       <ContextMenu

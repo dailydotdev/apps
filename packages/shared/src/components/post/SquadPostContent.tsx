@@ -132,7 +132,7 @@ function SquadPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary laptop:mb-0"
+        className="mb-6 mt-4 border-l border-border-subtlest-tertiary laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import EntityCard from './EntityCard';
 import {
   Typography,
@@ -15,18 +16,28 @@ import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import useSourceMenuProps from '../../../hooks/useSourceMenuProps';
 
-const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
+type SourceEntityCardProps = {
+  source: SourceTooltip;
+  className?: {
+    container?: string;
+  };
+};
+
+const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   const { isFollowing, toggleFollow } = useSourceActions({
     source: source as Source,
   });
   const menuProps = useSourceMenuProps({ source });
 
-  const { description, membersCount, flags, name, image } = source || {};
+  const { description, membersCount, flags, name, image, permalink } =
+    source || {};
   return (
     <EntityCard
+      permalink={permalink}
       image={image}
       type="source"
       className={{
+        container: className?.container,
         image: 'size-10 rounded-full',
       }}
       entityName={name}
@@ -49,14 +60,16 @@ const SourceEntityCard = ({ source }: { source: SourceTooltip }) => {
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
-        <Typography
-          className="flex"
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {name}
-        </Typography>
+        <Link href={permalink}>
+          <Typography
+            className="flex"
+            type={TypographyType.Body}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {name}
+          </Typography>
+        </Link>
         {description && <EntityDescription copy={description} length={100} />}
         <div className="flex items-center gap-1 text-text-tertiary">
           <Typography

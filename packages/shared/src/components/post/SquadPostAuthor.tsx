@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import {
   getProfilePictureClasses,
@@ -17,6 +17,14 @@ import UserBadge from '../UserBadge';
 import { IconSize } from '../Icon';
 import { Separator } from '../cards/common/common';
 import { TimeFormatType } from '../../lib/dateFormat';
+import { FollowButton } from '../contentPreference/FollowButton';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { ButtonVariant } from '../buttons/Button';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -55,9 +63,32 @@ function SquadPostAuthor({
   size = ProfileImageSize.XXXLarge,
   date,
 }: SquadPostAuthorProps): ReactElement {
+  const isMobile = useViewSize(ViewSize.MobileXL);
+  const { data, status } = useContentPreferenceStatusQuery({
+    id: author.id,
+    entity: ContentPreferenceType.User,
+    queryOptions: {
+      enabled: !!author && isMobile,
+    },
+  });
+  const [showFollowButton, setShowFollowButton] = useState(false);
+
+  useEffect(() => {
+    if (isMobile && status === 'success' && !showFollowButton) {
+      setShowFollowButton(
+        ![
+          ContentPreferenceStatus.Follow,
+          ContentPreferenceStatus.Subscribed,
+        ].includes(data?.status),
+      );
+    }
+  }, [status, data?.status, showFollowButton, isMobile]);
+
   if (!author) {
     return <SquadPostAuthorSkeleton className={className} size={size} />;
   }
+
+  const showFollow = author && isMobile && showFollowButton;
 
   return (
     <span
@@ -108,6 +139,17 @@ function SquadPostAuthor({
           </div>
         </div>
       </a>
+      {showFollow && (
+        <FollowButton
+          className="my-auto pl-4"
+          entityId={author.id}
+          showSubscribe={false}
+          type={ContentPreferenceType.User}
+          entityName={author.name}
+          status={data?.status}
+          variant={ButtonVariant.Primary}
+        />
+      )}
     </span>
   );
 }

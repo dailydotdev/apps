@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactElement } from 'react';
 import React from 'react';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 export interface JoinedDateProps extends HTMLAttributes<HTMLDivElement> {
   date: Date;
@@ -12,6 +12,10 @@ export default function JoinedDate({
   dateFormat = 'MMMM y',
   ...props
 }: JoinedDateProps): ReactElement {
+  if (!isValid(date)) {
+    return null;
+  }
+
   return (
     <div {...props}>
       Joined&nbsp;

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import { Image } from '../../image/Image';
 
 export type EntityCardProps = {
@@ -13,6 +14,7 @@ export type EntityCardProps = {
     container?: string;
     image?: string;
   };
+  permalink?: string;
 };
 
 const EntityCard = ({
@@ -22,6 +24,7 @@ const EntityCard = ({
   image,
   type,
   entityName,
+  permalink,
 }: EntityCardProps) => {
   return (
     <div
@@ -31,7 +34,10 @@ const EntityCard = ({
       )}
     >
       <div className="flex w-full items-start gap-2">
-        <div className={classNames(className?.image, 'overflow-hidden')}>
+        <Link
+          href={permalink}
+          className={classNames(className?.image, 'overflow-hidden')}
+        >
           <Image
             src={image}
             alt={
@@ -40,7 +46,7 @@ const EntityCard = ({
                 : `${entityName}'s image`
             }
           />
-        </div>
+        </Link>
         <div className="ml-auto flex items-center gap-2">{actionButtons}</div>
         <div />
       </div>
