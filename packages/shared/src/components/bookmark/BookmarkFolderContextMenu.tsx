@@ -1,15 +1,21 @@
 import type { ReactElement } from 'react';
-import React, { useId } from 'react';
+import React from 'react';
 import type { BookmarkFolder } from '../../graphql/bookmarks';
-import useContextMenu from '../../hooks/useContextMenu';
 import { usePrompt } from '../../hooks/usePrompt';
-import OptionsButton from '../buttons/OptionsButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import ContextMenu from '../fields/ContextMenu';
-import { EditIcon, TrashIcon } from '../icons';
+import type { MenuItemProps } from '../fields/ContextMenu';
+import { EditIcon, MenuIcon, TrashIcon } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkFolder } from '../../hooks/bookmark/useBookmarkFolder';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import { Tooltip } from '../tooltip/Tooltip';
+import { Button } from '../buttons/Button';
 
 interface BookmarkFolderContextMenuProps {
   folder: BookmarkFolder;
@@ -18,9 +24,7 @@ interface BookmarkFolderContextMenuProps {
 export const BookmarkFolderContextMenu = ({
   folder,
 }: BookmarkFolderContextMenuProps): ReactElement => {
-  const contextMenuId = useId();
   const { openModal, closeModal } = useLazyModal();
-  const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const { showPrompt } = usePrompt();
   const { update: updateFolder, delete: deleteFolder } = useBookmarkFolder({
     id: folder?.id,
@@ -39,40 +43,46 @@ export const BookmarkFolderContextMenu = ({
     }
   };
 
+  const options: MenuItemProps[] = [
+    {
+      label: 'Rename Folder',
+      action: () => {
+        openModal({
+          type: LazyModal.BookmarkFolder,
+          props: {
+            folder,
+            onSubmit: (f) => updateFolder.mutate(f).then(() => closeModal()),
+          },
+        });
+      },
+      icon: <EditIcon aria-hidden />,
+    },
+    {
+      label: 'Delete Folder',
+      action: handleDelete,
+      icon: <TrashIcon aria-hidden />,
+    },
+  ];
+
   return (
-    <>
-      <OptionsButton
-        onClick={onMenuClick}
-        className="ml-3"
-        side="top"
-        size={ButtonSize.Medium}
-        variant={ButtonVariant.Secondary}
-      />
-      <ContextMenu
-        options={[
-          {
-            label: 'Rename Folder',
-            action: () => {
-              openModal({
-                type: LazyModal.BookmarkFolder,
-                props: {
-                  folder,
-                  onSubmit: (f) =>
-                    updateFolder.mutate(f).then(() => closeModal()),
-                },
-              });
-            },
-            icon: <EditIcon aria-hidden />,
-          },
-          {
-            label: 'Delete Folder',
-            action: handleDelete,
-            icon: <TrashIcon aria-hidden />,
-          },
-        ]}
-        id={contextMenuId}
-        isOpen={isOpen}
-      />
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Tooltip content="Options">
+          <Button
+            className="ml-3"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Secondary}
+            icon={<MenuIcon />}
+          />
+        </Tooltip>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {options.map(({ label, icon, action }: MenuItemProps) => (
+          <DropdownMenuItem key={label} onClick={action}>
+            {icon} {label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
