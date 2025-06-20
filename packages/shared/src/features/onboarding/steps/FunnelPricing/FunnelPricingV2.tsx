@@ -24,6 +24,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
+import { ChecklistAIcon } from '../../../../components/icons';
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters']['plansBlock'];
 
@@ -117,7 +118,16 @@ const Pricing = ({
         />
 
         {/* Add bg style */}
-        <BoxList items={features.items} title={features.heading} />
+        <BoxList
+          className="!bg-brand-float px-6 py-8"
+          items={features.items}
+          title={features.heading}
+          icon={{ Component: ChecklistAIcon, className: 'text-brand-default' }}
+          typographyClasses={{
+            title: 'font-bold typo-title2 text-center',
+            listItem: 'typo-body',
+          }}
+        />
         <div id={`${id}-plans`} />
         <PricingSelection {...plansBlock} />
         {/* Reviews */}
