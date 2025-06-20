@@ -7,24 +7,17 @@ import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Origin } from '../../../lib/log';
-import EntityCardSkeleton from '../entity/EntityCardSkeleton';
 import HoverCard from './HoverCard';
 import { Tooltip } from '../../tooltip/Tooltip';
 
 const SquadEntityCard = dynamic(
   /* webpackChunkName: "squadEntityCard" */ () =>
     import('../entity/SquadEntityCard'),
-  {
-    loading: () => <EntityCardSkeleton />,
-  },
 );
 
 const SourceEntityCard = dynamic(
   /* webpackChunkName: "sourceEntityCard" */ () =>
     import('../entity/SourceEntityCard'),
-  {
-    loading: () => <EntityCardSkeleton />,
-  },
 );
 
 interface SourceButtonProps {
