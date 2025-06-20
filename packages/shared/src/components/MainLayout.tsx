@@ -32,6 +32,7 @@ import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { SearchProvider } from '../contexts/search/SearchContext';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -219,7 +220,9 @@ function MainLayoutComponent({
 
 const MainLayout = (props: MainLayoutProps): ReactElement => (
   <ActiveFeedNameContextProvider>
-    <MainLayoutComponent {...props} />
+    <SearchProvider>
+      <MainLayoutComponent {...props} />
+    </SearchProvider>
   </ActiveFeedNameContextProvider>
 );
 
