@@ -1,9 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useId } from 'react';
+import React, { useCallback, useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import Head from 'next/head';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepPricingV2 } from '../../types/funnel';
+import { FunnelStepTransitionType } from '../../types/funnel';
 import { withIsActiveGuard } from '../../shared/withActiveGuard';
 import {
   applyDiscountAtom,
@@ -37,16 +38,17 @@ import {
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
   discountStartDate: Date | null;
+  onProceedToCheckout?: (plan: string) => void;
 };
 
 const PricingSelection = ({
-  plansBlock: { cta, ctaMessage, heading, plans, pricingType, timer },
   discount,
+  onProceedToCheckout,
+  plansBlock: { cta, ctaMessage, heading, plans, pricingType, timer },
 }: PricingSelectionProps) => {
   const applyDiscount = useAtomValue(applyDiscountAtom);
   const discountStartDate = useAtomValue(discountTimerAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
-  const id = useId();
   /*
   Pricing selection section with
     - Title
@@ -82,7 +84,7 @@ const PricingSelection = ({
         size={ButtonSize.Large}
         color={ButtonColor.Cabbage}
         className="w-full"
-        onClick={console.log}
+        onClick={() => onProceedToCheckout?.(selectedPlan)}
       >
         {cta || 'Get my plan'}
       </Button>
@@ -114,6 +116,16 @@ const Pricing = ({
       setTimer(new Date());
     }
   }, [isActive, discountStartDate, setTimer]);
+
+  const onProceedToCheckout = useCallback(
+    (plan) => {
+      onTransition({
+        type: FunnelStepTransitionType.Complete,
+        details: { plan, applyDiscount },
+      });
+    },
+    [onTransition, applyDiscount],
+  );
 
   return (
     <>
@@ -178,6 +190,7 @@ const Pricing = ({
         <div id={`${id}-plans`}>
           <PricingSelection
             discountStartDate={discountStartDate}
+            onProceedToCheckout={onProceedToCheckout}
             {...parameters}
           />
         </div>
@@ -185,10 +198,11 @@ const Pricing = ({
         {/*  reviews image */}
         <PricingSelection
           discountStartDate={discountStartDate}
+          onProceedToCheckout={onProceedToCheckout}
           {...parameters}
         />
         {/* Text Box - FAQ version */}
-        <BoxFaq items={faq.items} />
+        <BoxFaq className="border-0" items={faq.items} />
         <PricingEmailSupport />
       </div>
     </>
