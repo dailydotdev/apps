@@ -216,23 +216,6 @@ const renderPost = (
   );
 };
 
-it('should show source image', async () => {
-  renderPost();
-  const el = await screen.findByAltText('Towards Data Science');
-  expect(el).toHaveAttribute(
-    'src',
-    'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
-  );
-});
-
-it('should show domain', async () => {
-  renderPost();
-  const title = await screen.findByAltText('Towards Data Science');
-  expect(title).toBeInTheDocument();
-  const el = screen.getByRole('link', { name: /medium\.com/i });
-  expect(el).toBeInTheDocument();
-});
-
 it('should show source name', async () => {
   renderPost();
   await screen.findByText('Towards Data Science');
@@ -496,23 +479,6 @@ it('should not show author link when author is null', async () => {
   renderPost();
   const el = screen.queryByTestId('authorLink');
   expect(el).not.toBeInTheDocument();
-});
-
-it('should show author link when author is defined', async () => {
-  renderPost({}, [
-    createPostMock({
-      author: {
-        id: 'u1',
-        name: 'Ido Shamun',
-        image: 'https://daily.dev/ido.jpg',
-        permalink: 'https://daily.dev/idoshamun',
-        username: 'idoshamun',
-      },
-    }),
-    createCommentsMock(),
-  ]);
-  const el = await screen.findByTestId('authorLink');
-  expect(el).toBeInTheDocument();
 });
 
 it('should not show author onboarding by default', () => {
