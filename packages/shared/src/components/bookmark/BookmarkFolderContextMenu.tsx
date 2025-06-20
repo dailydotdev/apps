@@ -51,7 +51,8 @@ export const BookmarkFolderContextMenu = ({
           type: LazyModal.BookmarkFolder,
           props: {
             folder,
-            onSubmit: (f) => updateFolder.mutate(f).then(() => closeModal()),
+            onSubmit: (bookmarkFolder: BookmarkFolder) =>
+              updateFolder.mutate(bookmarkFolder).then(() => closeModal()),
           },
         });
       },
