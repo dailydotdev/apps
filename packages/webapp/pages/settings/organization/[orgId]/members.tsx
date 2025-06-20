@@ -1,18 +1,14 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
-
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-
 import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
-
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
 import {
   DateFormat,
@@ -51,12 +47,10 @@ import {
   StarIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
-
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SeatsOverview } from '@dailydotdev/shared/src/features/organizations/components/SeatsOverview';
@@ -169,15 +163,22 @@ const OrganizationOptionsMenu = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {options.map(
-          ({ label, icon, action, anchorProps, disabled, Wrapper }) => (
+          ({
+            label,
+            icon,
+            action,
+            anchorProps,
+            disabled,
+            Wrapper,
+          }: MenuItemProps) => (
             <ConditionalWrapper
               key={label}
               condition={!!Wrapper}
               wrapper={(children) => <Wrapper>{children}</Wrapper>}
             >
               <DropdownMenuItem
-                key={label}
                 onClick={action}
+                key={label}
                 disabled={disabled}
               >
                 {anchorProps ? (
