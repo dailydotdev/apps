@@ -1,16 +1,13 @@
 import type { ComponentProps } from 'react';
-import type {
-  BoxFaqProps,
-  BoxListProps,
-  ImageReviewProps,
-  PricingPlanVariation,
-  Review,
-  StepHeadlineAlign,
-} from '../shared';
+import type { Review, StepHeadlineAlign } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
 import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 import type { BrowserName } from '../../../lib/func';
+import type {
+  FunnelStepPricingParameters,
+  FunnelStepPricingV2Parameters,
+} from './steps/pricing';
 
 export enum FunnelStepType {
   LandingPage = 'landingPage',
@@ -18,6 +15,7 @@ export enum FunnelStepType {
   Quiz = 'quiz',
   Signup = 'registration',
   Pricing = 'pricing',
+  PricingV2 = 'pricingV2',
   Checkout = 'checkout',
   PaymentSuccessful = 'paymentSuccessful',
   TagSelection = 'tagsSelection',
@@ -192,43 +190,21 @@ export interface FunnelStepSignup
   onTransition: FunnelStepTransitionCallback;
 }
 
-export enum FunnelPricingType {
-  Daily = 'daily',
-  Monthly = 'monthly',
-}
-
-export interface FunnelStepPricingParameters {
-  headline: string;
-  cta: string;
-  pricingType: FunnelPricingType;
-  discount: {
-    message: string;
-    duration: number;
-  };
-  defaultPlan: string;
-  plans: {
-    priceId: string;
-    label: string;
-    variation?: PricingPlanVariation;
-    badge: {
-      text: string;
-      background: string;
-    };
-  }[];
-  perks: string[];
-  featuresList: Omit<BoxListProps, 'className'>;
-  review: Omit<ImageReviewProps, 'className'>;
-  refund: {
-    title: string;
-    content: string;
-    image: string;
-  };
-  faq: BoxFaqProps['items'];
-}
+export * from './steps/pricing';
 
 export interface FunnelStepPricing
   extends FunnelStepCommon<FunnelStepPricingParameters> {
   type: FunnelStepType.Pricing;
+  onTransition: FunnelStepTransitionCallback<{
+    plan: string;
+    applyDiscount: boolean;
+  }>;
+  discountStartDate: Date;
+}
+
+export interface FunnelStepPricingV2
+  extends FunnelStepCommon<FunnelStepPricingV2Parameters> {
+  type: FunnelStepType.PricingV2;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
     applyDiscount: boolean;
@@ -375,6 +351,7 @@ export type FunnelStep =
   | FunnelStepQuiz
   | FunnelStepSignup
   | FunnelStepPricing
+  | FunnelStepPricingV2
   | FunnelStepCheckout
   | FunnelStepTagSelection
   | FunnelStepReadingReminder

@@ -1,7 +1,8 @@
 import React from 'react';
-import type { ReactElement, ComponentProps } from 'react';
+import type { ReactElement, ComponentProps, FC } from 'react';
 import classNames from 'classnames';
 import { VIcon } from '../../../components/icons/V';
+import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
 import classed from '../../../lib/classed';
 import { LazyImage } from '../../../components/LazyImage';
@@ -18,21 +19,37 @@ export interface BoxBaseProps {
 export interface BoxListProps extends BoxBaseProps {
   title: string;
   items: string[];
+  icon?: {
+    Component: FC<IconProps>;
+    className?: string;
+  };
+  typographyClasses?: Record<'title' | 'listItem', string>;
 }
 
 export const BoxList = ({
   title,
   items,
   className,
+  icon = { Component: VIcon },
+  typographyClasses = {
+    title: 'font-bold typo-body',
+    listItem: 'typo-callout',
+  },
 }: BoxListProps): ReactElement => {
   return (
     <Box className={className}>
-      <h3 className="font-bold typo-body">{title}</h3>
+      <h3 className={typographyClasses.title}>{title}</h3>
       <ul className="flex flex-col gap-1">
         {items.map((item) => (
           <li key={item} className="flex flex-row items-start gap-1">
-            <VIcon size={IconSize.XSmall} />
-            <span className="flex-1 typo-callout">{item}</span>
+            <icon.Component
+              aria-hidden
+              className={icon.className}
+              size={IconSize.XSmall}
+            />
+            <span className={classNames('flex-1', typographyClasses.listItem)}>
+              {item}
+            </span>
           </li>
         ))}
       </ul>
