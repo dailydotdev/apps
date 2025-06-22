@@ -1,8 +1,11 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type {
+  KeyboardEventHandler,
+  MouseEventHandler,
+  ReactElement,
+} from 'react';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
 import type { ProfileImageSize } from '../ProfilePicture';
@@ -16,19 +19,24 @@ import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
 import { useSquad, useViewSize, ViewSize } from '../../hooks';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
+import type { Post } from '../../graphql/posts';
+import { PostHeaderActions } from './PostHeaderActions';
 
 interface SourceInfoProps {
-  source: Source;
+  post: Post;
   date?: string;
   size?: ProfileImageSize;
   className?: string;
+  onClose?: MouseEventHandler | KeyboardEventHandler;
 }
 
 function PostSourceInfo({
   date,
-  source,
+  post,
   className,
+  onClose,
 }: SourceInfoProps): ReactElement {
+  const { source } = post;
   const isMobile = useViewSize(ViewSize.MobileXL);
   const [showActionBtn, setShowActionBtn] = useState(false);
   const isUnknown = source.id === 'unknown';
@@ -65,49 +73,57 @@ function PostSourceInfo({
     >
       {!isUnknown && (
         <>
-          <Link
-            href={source.permalink}
-            className="text-text-secondary typo-callout"
-          >
-            {source.handle}
-          </Link>
-          {showActionBtn && <Separator />}
-          {showActionBtn && source?.type !== SourceType.Squad && (
-            <FollowButton
-              variant={ButtonVariant.Tertiary}
-              followedVariant={ButtonVariant.Tertiary}
-              buttonClassName={classNames(
-                'min-w-min !px-0 ',
-                !isFollowing && 'text-text-link',
-              )}
-              entityId={source.id}
-              status={data?.status}
-              type={ContentPreferenceType.Source}
-              entityName={source.name}
-              showSubscribe={false}
-            />
-          )}
-          {showActionBtn &&
-            source?.type === SourceType.Squad &&
-            !isLoadingSquad && (
-              <SquadActionButton
-                buttonVariants={[ButtonVariant.Tertiary]}
-                size={ButtonSize.XSmall}
-                className={{
-                  button: classNames(
-                    'min-w-min !px-0',
-                    !squad.currentMember && 'text-text-link',
-                  ),
-                }}
-                squad={squad}
-                copy={{
-                  join: 'Join',
-                  leave: 'Leave',
-                }}
-                origin={Origin.PostContent}
-                showViewSquadIfMember={false}
+          <div className="flex flex-row items-center">
+            <Link
+              href={source.permalink}
+              className="text-text-secondary typo-callout"
+            >
+              {source.handle}
+            </Link>
+            {showActionBtn && <Separator />}
+            {showActionBtn && source?.type !== SourceType.Squad && (
+              <FollowButton
+                variant={ButtonVariant.Tertiary}
+                followedVariant={ButtonVariant.Tertiary}
+                buttonClassName={classNames(
+                  'min-w-min !px-0 ',
+                  !isFollowing && 'text-text-link',
+                )}
+                entityId={source.id}
+                status={data?.status}
+                type={ContentPreferenceType.Source}
+                entityName={source.name}
+                showSubscribe={false}
               />
             )}
+            {showActionBtn &&
+              source?.type === SourceType.Squad &&
+              !isLoadingSquad && (
+                <SquadActionButton
+                  buttonVariants={[ButtonVariant.Tertiary]}
+                  size={ButtonSize.XSmall}
+                  className={{
+                    button: classNames(
+                      'min-w-min !px-0',
+                      !squad.currentMember && 'text-text-link',
+                    ),
+                  }}
+                  squad={squad}
+                  copy={{
+                    join: 'Join',
+                    leave: 'Leave',
+                  }}
+                  origin={Origin.PostContent}
+                  showViewSquadIfMember={false}
+                />
+              )}
+          </div>
+          <PostHeaderActions
+            post={post}
+            onClose={onClose}
+            className="ml-auto hidden tablet:flex"
+            contextMenuId="post-widgets-context"
+          />
         </>
       )}
       {!!date && (

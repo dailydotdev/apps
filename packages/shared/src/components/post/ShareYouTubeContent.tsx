@@ -62,7 +62,7 @@ function ShareYouTubeContent({
                   ? `${formatReadTime(post.sharedPost.readTime)} watch time`
                   : undefined
               }
-              source={post.sharedPost.source}
+              post={post.sharedPost}
               className="mx-4 mb-4"
               size={ProfileImageSize.Small}
             />

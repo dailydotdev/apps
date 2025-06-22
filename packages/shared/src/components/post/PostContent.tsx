@@ -147,7 +147,7 @@ export function PostContentRaw({
           post={post}
         >
           <div className="my-6">
-            <PostSourceInfo className="mb-3" source={post.source} />
+            <PostSourceInfo className="mb-3" post={post} onClose={onClose} />
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"

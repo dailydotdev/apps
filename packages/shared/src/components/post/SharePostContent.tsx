@@ -164,7 +164,7 @@ export function CommonSharePostContent({
                 ? `${sharedPost.readTime}m read time`
                 : undefined
             }
-            source={sharedPost.source}
+            post={sharedPost}
             size={ProfileImageSize.Small}
           />
           <ReadArticleButton
