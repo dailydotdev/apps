@@ -220,7 +220,7 @@ export function PostContentRaw({
       <PostWidgets
         onReadArticle={onReadArticle}
         post={post}
-        className="pb-8 pt-6"
+        className="pb-8 pt-4"
         onClose={onClose}
         origin={origin}
         onCopyPostLink={onCopyPostLink}

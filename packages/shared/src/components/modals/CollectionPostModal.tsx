@@ -9,6 +9,8 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
+import PostNavigation from '../post/PostNavigation';
+import { useReadArticle } from '../../hooks/usePostContent';
 
 interface CollectionPostModalProps
   extends ModalProps,
@@ -32,6 +34,10 @@ export default function CollectionPostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+  const onReadArticle = useReadArticle({
+    post,
+    origin: Origin.CollectionModal,
+  });
 
   return (
     <BasePostModal
@@ -42,6 +48,15 @@ export default function CollectionPostModal({
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
     >
+      <PostNavigation
+        className={{
+          container: 'pl-4',
+        }}
+        postPosition={postPosition}
+        onPreviousPost={onPreviousPost}
+        onNextPost={onNextPost}
+        onReadArticle={onReadArticle}
+      />
       <CollectionPostContent
         position={position}
         post={post}

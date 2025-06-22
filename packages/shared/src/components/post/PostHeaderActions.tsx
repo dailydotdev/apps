@@ -41,9 +41,7 @@ export function PostHeaderActions({
       <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
         <Button
           variant={
-            !isFixedNavigation
-              ? ButtonVariant.Secondary
-              : ButtonVariant.Tertiary
+            isFixedNavigation ? ButtonVariant.Tertiary : ButtonVariant.Secondary
           }
           tag="a"
           href={post.sharedPost?.permalink ?? post.permalink}
@@ -70,7 +68,7 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
+      {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}
         onClose={onClose}
