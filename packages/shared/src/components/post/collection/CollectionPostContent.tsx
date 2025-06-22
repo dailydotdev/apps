@@ -119,7 +119,7 @@ const CollectionPostContentRaw = ({
           post={post}
         >
           <div className="mb-6 flex flex-col gap-6">
-            <CollectionsIntro className="laptop:hidden" />
+            <CollectionsIntro className="mt-6 laptop:hidden" />
             <div className="flex flex-row items-center pt-6">
               <Link href={`${webappUrl}sources/collections`} passHref>
                 <Pill
