@@ -101,7 +101,7 @@ function PostModerationModal({
             right="0"
           />
         </div>
-        <PostSourceInfo source={squad} size={ProfileImageSize.Small} />
+        <PostSourceInfo post={editPost} size={ProfileImageSize.Small} />
         <SquadPostAuthor author={createdBy} date={createdAt} />
         <SharePostTitle
           title={title || editPost?.title}
