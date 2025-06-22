@@ -12,12 +12,14 @@ import { FooterLinks } from '../footer';
 import SquadEntityCard from '../cards/entity/SquadEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
+import { PostHeaderActions } from './PostHeaderActions';
 
 export function SquadPostWidgets({
   onCopyPostLink,
   post,
   origin,
   className,
+  onClose,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const squad = post.source as Squad;
@@ -27,7 +29,13 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {!!squad && !squad.currentMember && (
+      <PostHeaderActions
+        post={post}
+        onClose={onClose}
+        className="hidden pt-6 tablet:flex"
+        contextMenuId="post-widgets-context"
+      />
+      {!!squad && (
         <SquadEntityCard
           className={{
             container: cardClasses,
