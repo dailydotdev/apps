@@ -118,6 +118,7 @@ function SquadPostContentRaw({
           <PostSourceInfo
             post={post}
             onClose={onClose}
+            onReadArticle={onReadArticle}
             className={classNames('!typo-body', customNavigation && 'mt-6')}
           />
           <SquadPostAuthor

@@ -65,6 +65,7 @@ function ShareYouTubeContent({
               post={post.sharedPost}
               className="mx-4 mb-4"
               size={ProfileImageSize.Small}
+              onReadArticle={onReadArticle}
             />
             {children}
           </ConditionalWrapper>

@@ -165,6 +165,7 @@ export function CommonSharePostContent({
                 : undefined
             }
             post={sharedPost}
+            onReadArticle={onReadArticle}
             size={ProfileImageSize.Small}
           />
           <ReadArticleButton

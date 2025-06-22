@@ -146,8 +146,13 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <div className="my-6">
-            <PostSourceInfo className="mb-3" post={post} onClose={onClose} />
+          <div className="mb-6 mt-5 tablet:mt-0">
+            <PostSourceInfo
+              className="mb-3"
+              post={post}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+            />
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
@@ -215,7 +220,7 @@ export function PostContentRaw({
       <PostWidgets
         onReadArticle={onReadArticle}
         post={post}
-        className="pb-8"
+        className="pb-8 pt-6"
         onClose={onClose}
         origin={origin}
         onCopyPostLink={onCopyPostLink}

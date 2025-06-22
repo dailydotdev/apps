@@ -19,20 +19,6 @@ import { Tooltip } from '../tooltip/Tooltip';
 
 const Container = classed('div', 'flex flex-row items-center');
 
-interface GetButtonVariantProps {
-  inlineActions: boolean;
-}
-
-const getButtonVariant = ({
-  inlineActions,
-}: GetButtonVariantProps): ButtonVariant => {
-  if (inlineActions) {
-    return ButtonVariant.Tertiary;
-  }
-
-  return ButtonVariant.Primary;
-};
-
 export function PostHeaderActions({
   onReadArticle,
   post,
@@ -47,25 +33,21 @@ export function PostHeaderActions({
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
+  const isSecondary = isFixedNavigation || isLaptop;
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
-  const isEnlarged = isFixedNavigation || isLaptop;
   const ButtonWithExperiment = useCallback(() => {
     return (
       <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
         <Button
-          variant={
-            isEnlarged
-              ? getButtonVariant({ inlineActions })
-              : ButtonVariant.Float
-          }
+          variant={isSecondary ? ButtonVariant.Secondary : ButtonVariant.Float}
           tag="a"
           href={post.sharedPost?.permalink ?? post.permalink}
           target={openNewTab ? '_blank' : '_self'}
           icon={<OpenLinkIcon />}
           onClick={onReadArticle}
           data-testid="postActionsRead"
-          size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
+          size={ButtonSize.Small}
         >
           {!inlineActions ? readButtonText : null}
         </Button>
@@ -73,12 +55,12 @@ export function PostHeaderActions({
     );
   }, [
     inlineActions,
-    isEnlarged,
     onReadArticle,
     openNewTab,
     post.permalink,
     post.sharedPost?.permalink,
     readButtonText,
+    isSecondary,
   ]);
 
   return (
@@ -92,7 +74,7 @@ export function PostHeaderActions({
         contextMenuId={contextMenuId}
         onRemovePost={onRemovePost}
         origin={Origin.ArticleModal}
-        isEnlarged={isEnlarged}
+        isEnlarged={isSecondary}
       />
     </Container>
   );

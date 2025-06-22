@@ -7,7 +7,6 @@ import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
-import { PostHeaderActions } from './PostHeaderActions';
 import type { PostHeaderActionsProps } from './common';
 import { FooterLinks } from '../footer';
 import type { UserShortProfile } from '../../lib/user';
@@ -44,10 +43,8 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
 
 export function PostWidgets({
   onCopyPostLink,
-  onReadArticle,
   post,
   className,
-  onClose,
   origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
@@ -58,13 +55,6 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostHeaderActions
-        onReadArticle={onReadArticle}
-        post={post}
-        onClose={onClose}
-        className="hidden pt-6 laptop:flex"
-        contextMenuId="post-widgets-context"
-      />
       {post.source.type === SourceType.Squad ? (
         <SquadEntityCard
           className={{

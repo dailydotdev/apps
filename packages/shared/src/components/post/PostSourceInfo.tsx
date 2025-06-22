@@ -28,6 +28,7 @@ interface SourceInfoProps {
   size?: ProfileImageSize;
   className?: string;
   onClose?: MouseEventHandler | KeyboardEventHandler;
+  onReadArticle?: () => void;
 }
 
 function PostSourceInfo({
@@ -35,6 +36,7 @@ function PostSourceInfo({
   post,
   className,
   onClose,
+  onReadArticle,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
   const isMobile = useViewSize(ViewSize.MobileXL);
@@ -121,6 +123,7 @@ function PostSourceInfo({
           <PostHeaderActions
             post={post}
             onClose={onClose}
+            onReadArticle={onReadArticle}
             className="ml-auto hidden tablet:flex"
             contextMenuId="post-widgets-context"
           />
