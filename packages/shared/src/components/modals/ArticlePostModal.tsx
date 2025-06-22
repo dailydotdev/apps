@@ -9,6 +9,8 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { Origin } from '../../lib/log';
+import PostNavigation from '../post/PostNavigation';
+import { useReadArticle } from '../../hooks/usePostContent';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -30,7 +32,7 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
-
+  const onReadArticle = useReadArticle({ post, origin: Origin.ArticleModal });
   return (
     <BasePostModal
       {...props}
@@ -40,6 +42,15 @@ export default function ArticlePostModal({
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
     >
+      <PostNavigation
+        className={{
+          container: 'pl-4',
+        }}
+        postPosition={postPosition}
+        onPreviousPost={onPreviousPost}
+        onNextPost={onNextPost}
+        onReadArticle={onReadArticle}
+      />
       <PostContent
         position={position}
         post={post}

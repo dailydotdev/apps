@@ -33,14 +33,18 @@ export function PostHeaderActions({
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
-  const isSecondary = isFixedNavigation || isLaptop;
+  const isEnlarged = isFixedNavigation || isLaptop;
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const ButtonWithExperiment = useCallback(() => {
     return (
       <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
         <Button
-          variant={isSecondary ? ButtonVariant.Secondary : ButtonVariant.Float}
+          variant={
+            !isFixedNavigation
+              ? ButtonVariant.Secondary
+              : ButtonVariant.Tertiary
+          }
           tag="a"
           href={post.sharedPost?.permalink ?? post.permalink}
           target={openNewTab ? '_blank' : '_self'}
@@ -60,7 +64,7 @@ export function PostHeaderActions({
     post.permalink,
     post.sharedPost?.permalink,
     readButtonText,
-    isSecondary,
+    isFixedNavigation,
   ]);
 
   return (
@@ -74,7 +78,7 @@ export function PostHeaderActions({
         contextMenuId={contextMenuId}
         onRemovePost={onRemovePost}
         origin={Origin.ArticleModal}
-        isEnlarged={isSecondary}
+        isEnlarged={isEnlarged}
       />
     </Container>
   );

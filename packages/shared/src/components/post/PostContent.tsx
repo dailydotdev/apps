@@ -146,7 +146,7 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <div className="mb-6 mt-5 tablet:mt-0">
+          <div className="my-6">
             <PostSourceInfo
               className="mb-3"
               post={post}
