@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import {
@@ -14,7 +13,6 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
-import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
@@ -22,9 +20,8 @@ import { AdsDashboardModal } from './AdsDashboardModal';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
 import { usePostImage } from '../../../../hooks/post/usePostImage';
-import type { TransactionCreated } from '../../../../graphql/njord';
-import { isNullOrUndefined } from '../../../../lib/func';
 import { BoostPostSuccessModal } from './BoostPostSuccessModal';
+import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -48,7 +45,7 @@ export function BoostPostModal({
   post,
   ...props
 }: BoostPostModalProps): ReactElement {
-  const { user, updateUser } = useAuthContext();
+  const { user } = useAuthContext();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
@@ -56,36 +53,16 @@ export function BoostPostModal({
     coresPerDay,
     totalDays,
   });
-  const { data } = useQuery<{ min: number; max: number }>({
-    queryKey: generateQueryKey(
-      RequestKey.PostBoostReach,
-      user,
-      post.id,
-      queryProps.coresPerDay,
-      queryProps.totalDays,
-    ),
-  });
-  const client = useQueryClient();
   const [debounceSet] = useDebounceFn(setQueryProps, 220);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { mutateAsync: onBoost } = useMutation<{
-    startPostBoost: TransactionCreated;
-  }>({
-    onSuccess: (result) => {
-      setActiveScreen(SCREENS.SUCCESS);
-      const balance = result?.startPostBoost?.balance;
-
-      if (!isNullOrUndefined(balance)) {
-        updateUser({ ...user, balance });
-      }
-
-      // invalidate wallet queries
-      client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Transactions, user),
-        exact: false,
-      });
+  const { estimatedReach, onBoostPost } = usePostBoostMutation({
+    toEstimate: {
+      duration: queryProps.totalDays,
+      budget: queryProps.coresPerDay,
+      id: post.id,
     },
+    onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
   });
   const image = usePostImage(post);
 
@@ -94,7 +71,11 @@ export function BoostPostModal({
       return setActiveScreen(SCREENS.BUY_CORES);
     }
 
-    return onBoost();
+    return onBoostPost({
+      duration: totalDays,
+      budget: coresPerDay,
+      id: post.id,
+    });
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
@@ -174,7 +155,7 @@ export function BoostPostModal({
               Total spend
             </Typography>
             <Typography className="mt-2" type={TypographyType.Body}>
-              {data?.min ?? 0} - {data?.max ?? 0}
+              {estimatedReach?.min ?? 0} - {estimatedReach?.max ?? 0}
             </Typography>
             <Typography
               type={TypographyType.Callout}

@@ -122,3 +122,85 @@ export const getBoostedPostByCampaignId = async (id: string) => {
 
   return result.postCampaignById;
 };
+
+export const BOOST_ESTIMATED_REACH = gql`
+  query BoostEstimatedReach($postId: ID!, $duration: Int!, $budget: Int!) {
+    boostEstimatedReach(postId: $postId, duration: $duration, budget: $budget) {
+      estimatedReach {
+        min
+        max
+      }
+    }
+  }
+`;
+
+export interface BoostPostProps {
+  id: string;
+  budget: number;
+  duration: number;
+}
+
+export interface BoostEstimatedReach {
+  min: number;
+  max: number;
+}
+
+export const getBoostEstimatedReach = async ({
+  id,
+  budget,
+  duration,
+}: BoostPostProps): Promise<BoostEstimatedReach> => {
+  const result = await gqlClient.request(BOOST_ESTIMATED_REACH, {
+    postId: id,
+    budget,
+    duration,
+  });
+
+  return result.estimatedReach;
+};
+
+export const START_POST_BOOST = gql`
+  mutation StartPostBoost($postId: ID!, $duration: Int!, $budget: Int!) {
+    startPostBoost(postId: $postId, duration: $duration, budget: $budget) {
+      transactionId
+      balance {
+        amount
+      }
+    }
+  }
+`;
+
+export const startPostBoost = async ({
+  id,
+  budget,
+  duration,
+}: BoostPostProps): Promise<{
+  transactionId: string;
+  balance: { amount: number };
+}> => {
+  const result = await gqlClient.request(START_POST_BOOST, {
+    postId: id,
+    budget,
+    duration,
+  });
+
+  return result.startPostBoost;
+};
+
+export const CANCEL_POST_BOOST = gql`
+  mutation CancelPostBoost($postId: ID!) {
+    cancelPostBoost(postId: $postId) {
+      _
+    }
+  }
+`;
+
+export const cancelPostBoost = async (
+  id: string,
+): Promise<BoostEstimatedReach> => {
+  const result = await gqlClient.request(CANCEL_POST_BOOST, {
+    postId: id,
+  });
+
+  return result.cancelPostBoost;
+};
