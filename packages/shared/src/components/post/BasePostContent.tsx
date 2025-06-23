@@ -42,7 +42,9 @@ export function BasePostContent({
   return (
     <>
       {isPostPage && (
-        <GoBackHeaderMobile className={classNames(className.header, '-mx-4')}>
+        <GoBackHeaderMobile
+          className={classNames(className.header, '-mx-4 bg-background-subtle')}
+        >
           <PostHeaderActions
             post={post}
             className="ml-auto"
