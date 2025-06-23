@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import OptionsButton from '../../../buttons/OptionsButton';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
@@ -16,7 +17,16 @@ import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { ProfileImageSize } from '../../../ProfilePicture';
 import { ProfileImageLink } from '../../../profile/ProfileImageLink';
-import { ProfileTooltip } from '../../../profile/ProfileTooltip';
+import type { UserShortProfile } from '../../../../lib/user';
+
+const HoverCard = dynamic(
+  /* webpackChunkName: "hoverCard" */ () => import('../HoverCard'),
+);
+
+const UserEntityCard = dynamic(
+  /* webpackChunkName: "userEntityCard" */ () =>
+    import('../../entity/UserEntityCard'),
+);
 
 interface CardHeaderProps {
   post: Post;
@@ -63,13 +73,20 @@ export const PostCardHeader = ({
       <CardHeader className={className}>
         {children}
         {!!post?.author && (
-          <ProfileTooltip userId={post.author.id}>
-            <ProfileImageLink
-              className="z-1 ml-2"
-              picture={{ size: ProfileImageSize.Large }}
-              user={post.author}
-            />
-          </ProfileTooltip>
+          <HoverCard
+            align="start"
+            side="bottom"
+            sideOffset={10}
+            trigger={
+              <ProfileImageLink
+                className="z-1 ml-2"
+                picture={{ size: ProfileImageSize.Medium }}
+                user={post.author}
+              />
+            }
+          >
+            <UserEntityCard user={post.author as UserShortProfile} />
+          </HoverCard>
         )}
         <PostMetadata
           className={classNames(
@@ -100,7 +117,7 @@ export const PostCardHeader = ({
               <OptionsButton
                 icon={<MenuIcon className="rotate-90" />}
                 onClick={onMenuClick}
-                tooltipPlacement="top"
+                side="top"
               />
             </>
           )}

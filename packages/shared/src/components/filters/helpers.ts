@@ -1,15 +1,6 @@
 import type { AdvancedSettings } from '../../graphql/feedSettings';
 import { AdvancedSettingsGroup } from '../../graphql/feedSettings';
 
-export enum FilterMenuTitle {
-  MyFeed = 'My feed',
-  Tags = 'Manage tags',
-  ManageCategories = 'Manage categories',
-  ContentTypes = 'Content & Language',
-  Blocked = 'Blocking',
-  Following = 'Following',
-}
-
 export const getContentFromGroup = (
   advancedSettings: AdvancedSettings[],
   groupProp: AdvancedSettingsGroup[],

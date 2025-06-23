@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { Tooltip } from './tooltip/Tooltip';
 
 const BINS = 3;
 const DAYS_IN_WEEK = 7;
@@ -48,17 +48,20 @@ const binsAttributes: React.SVGProps<SVGRectElement>[] = [
 ];
 
 function getRange(count: number): number[] {
-  return Array.from(new Array(count), (_, i) => i);
+  return Array.from(new Array(Math.max(0, count)), (_, i) => i);
 }
 
 function getBins(values: number[]): number[] {
   const uniques = Array.from(new Set(values)).sort((a, b) => a - b);
   if (uniques.length <= BINS) {
-    return [...new Array(BINS - uniques.length).fill(0), ...uniques];
+    return [
+      ...new Array(Math.max(0, BINS - uniques.length)).fill(0),
+      ...uniques,
+    ];
   }
   const binSize = Math.floor(uniques.length / BINS);
   return Array.from(
-    new Array(BINS),
+    new Array(Math.max(0, BINS)),
     (_, i) => uniques[Math.min(binSize * (i + 1), uniques.length - 1)],
   );
 }
@@ -190,18 +193,14 @@ export function CalendarHeatmap<T extends { date: string }>({
     const bin = value?.bin || 0;
     const attrs = binsAttributes[bin];
     return (
-      <SimpleTooltip
+      <Tooltip
+        delayDuration={0}
         key={index}
         content={valueToTooltip(
           value?.originalValue,
           addDays(startDateWithEmptyDays, index),
         )}
-        duration={0}
-        delay={[0, 70]}
-        container={{
-          paddingClassName: 'py-3 px-4',
-          roundedClassName: 'rounded-3',
-        }}
+        className="!rounded-3 !px-4 !py-3"
       >
         <g>
           <rect
@@ -224,7 +223,7 @@ export function CalendarHeatmap<T extends { date: string }>({
             />
           )}
         </g>
-      </SimpleTooltip>
+      </Tooltip>
     );
   };
 

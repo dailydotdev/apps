@@ -3,16 +3,16 @@ import { useMemo } from 'react';
 interface UseFeedTags {
   tags: string[];
   width: number;
-  base?: number;
+  baseTagWidth?: number;
   offset?: number;
 }
 
-const basePadding = 25;
-const char = 8;
-const gap = 8;
+const DEFAULT_TAG_BASE_WIDTH = 25;
+const APPROX_CHAR_WIDTH = 8;
+const TAG_HORIZONTAL_GAP = 8;
 
 export const useFeedTags = ({
-  base = basePadding,
+  baseTagWidth = DEFAULT_TAG_BASE_WIDTH,
   tags,
   width,
   offset = 0,
@@ -22,34 +22,37 @@ export const useFeedTags = ({
       return [];
     }
 
-    let totalLength = offset;
+    let currentTotalWidth = offset;
 
-    return tags.reduce((items, tag, index) => {
-      const baseWidth = base + gap;
-      const minWidth = index === 0 ? base : baseWidth;
-      const addition = tag.length * char + minWidth;
-      const remaining = tags.length - (items.length + 1); // the value 1 is for the tag we are about to add here
+    return tags.reduce((visibleTags: string[], tag, index) => {
+      const tagWidthIncludingGap = baseTagWidth + TAG_HORIZONTAL_GAP;
+      const effectiveTagBaseWidth =
+        index === 0 ? baseTagWidth : tagWidthIncludingGap;
+      const currentTagCalculatedWidth =
+        tag.length * APPROX_CHAR_WIDTH + effectiveTagBaseWidth;
+      const remainingTagsCount = tags.length - (visibleTags.length + 1); // the value 1 is for the tag we are about to add here
 
-      totalLength += addition;
+      currentTotalWidth += currentTagCalculatedWidth;
 
-      if (remaining === 0) {
-        if (totalLength <= width) {
-          items.push(tag);
+      if (remainingTagsCount === 0) {
+        if (currentTotalWidth <= width) {
+          visibleTags.push(tag);
         }
 
-        return items;
+        return visibleTags;
       }
 
-      const remainingChars = remaining.toString().length * char;
-      const remainingWidth = baseWidth + remainingChars;
+      const remainingChars =
+        remainingTagsCount.toString().length * APPROX_CHAR_WIDTH;
+      const remainingWidth = tagWidthIncludingGap + remainingChars;
 
-      if (totalLength + remainingWidth > width) {
-        return items;
+      if (currentTotalWidth + remainingWidth > width) {
+        return visibleTags;
       }
 
-      items.push(tag);
+      visibleTags.push(tag);
 
-      return items;
+      return visibleTags;
     }, []);
-  }, [base, tags, width, offset]);
+  }, [baseTagWidth, tags, width, offset]);
 };

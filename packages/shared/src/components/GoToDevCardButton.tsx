@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { Tooltip } from './tooltip/Tooltip';
 
 export type GoToDevCardButtonProps = {
   children?: ReactNode;
@@ -15,7 +15,7 @@ export default function GoToDevCardButton({
   isLocked,
 }: GoToDevCardButtonProps): ReactElement {
   return (
-    <SimpleTooltip content={isLocked && 'Sign up to Unlock'}>
+    <Tooltip content={isLocked && 'Sign up to Unlock'}>
       <div className={className}>
         <Button
           variant={ButtonVariant.Primary}
@@ -27,6 +27,6 @@ export default function GoToDevCardButton({
           {children}
         </Button>
       </div>
-    </SimpleTooltip>
+    </Tooltip>
   );
 }

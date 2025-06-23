@@ -13,11 +13,11 @@ import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { PromptDisplay } from '../../../graphql/prompt';
 import { usePromptButtons } from '../../../hooks/prompt/usePromptButtons';
 import { usePlusSubscription, useViewSize, ViewSize } from '../../../hooks';
-import { SimpleTooltip } from '../../tooltips';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import PromptButton from './PromptButton';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 type PromptButtonsProps = {
   activePrompt: string;
@@ -117,11 +117,11 @@ export const PromptButtons = ({
       </PromptButton>
 
       {promptList?.map(({ id, label, flags, description }) => (
-        <SimpleTooltip
+        <Tooltip
           key={id}
           content={description}
-          container={{ className: 'max-w-70 text-center' }}
-          show={!isMobile}
+          className="max-w-70 text-center"
+          visible={!isMobile}
         >
           <PromptButton
             active={activePrompt === id}
@@ -130,11 +130,11 @@ export const PromptButtons = ({
           >
             {label}
           </PromptButton>
-        </SimpleTooltip>
+        </Tooltip>
       ))}
 
       {!showAll && !isMobile && promptList?.length > 0 && remainingTags > 0 && (
-        <SimpleTooltip content="See more prompts">
+        <Tooltip content="See more prompts">
           <Button
             variant={ButtonVariant.Subtle}
             size={ButtonSize.XSmall}
@@ -144,7 +144,7 @@ export const PromptButtons = ({
           >
             {remainingTags}+ More
           </Button>
-        </SimpleTooltip>
+        </Tooltip>
       )}
     </div>
   );

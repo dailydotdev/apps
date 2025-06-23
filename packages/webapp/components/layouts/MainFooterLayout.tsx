@@ -19,7 +19,3 @@ export const getLayout = (
     </MainLayout>,
   );
 };
-
-export const mainFooterLayoutProps: MainLayoutProps = {
-  mainPage: true,
-};

@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import PostSourceInfo from './PostSourceInfo';
 import { BasePostContent } from './BasePostContent';
 import { PostType, isVideoPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
@@ -16,6 +15,7 @@ import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
+import PostSourceInfo from './PostSourceInfo';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -132,7 +132,7 @@ function SquadPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary laptop:mb-0"
+        className="mb-6 mt-4 border-l border-border-subtlest-tertiary laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

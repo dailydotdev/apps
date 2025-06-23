@@ -14,7 +14,7 @@ function ReadingHistoryPlaceholder({
 }: ReadingHistoryPlaceholderProps): ReactElement {
   return (
     <div className="flex flex-col">
-      {Array(amount)
+      {Array(Math.max(0, amount))
         .fill(0)
         .map((_, i) => (
           // eslint-disable-next-line react/no-array-index-key

@@ -35,7 +35,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
       tooltip={{ placement: 'bottom', content: 'Notifications' }}
       href={`${webappUrl}notifications`}
     >
-      <div className="relative laptop:flex">
+      <a className="relative laptop:flex">
         <Button
           variant={isLaptop ? ButtonVariant.Float : mobileVariant}
           className="justify-center"
@@ -52,7 +52,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
             {getUnreadText(unreadCount)}
           </Bubble>
         )}
-      </div>
+      </a>
     </LinkWithTooltip>
   );
 }

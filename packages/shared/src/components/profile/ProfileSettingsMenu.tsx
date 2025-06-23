@@ -221,8 +221,6 @@ export const accountPageItems = defineMenuItems({
   },
 });
 
-export type AccountPageItemsType = typeof accountPageItems;
-
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   onClose?: () => void;

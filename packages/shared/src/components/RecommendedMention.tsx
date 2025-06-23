@@ -4,7 +4,7 @@ import React from 'react';
 import { UserShortInfo } from './profile/UserShortInfo';
 import type { UserShortProfile } from '../lib/user';
 import ConditionalWrapper from './ConditionalWrapper';
-import { SimpleTooltip } from './tooltips';
+import { Tooltip } from './tooltip/Tooltip';
 
 interface RecommendedMentionProps {
   className?: string;
@@ -40,9 +40,9 @@ export function RecommendedMention({
           key={user.username}
           condition={checkIsDisabled?.(user) && !!disabledTooltip}
           wrapper={(component) => (
-            <SimpleTooltip content={disabledTooltip}>
+            <Tooltip content={disabledTooltip}>
               <div>{component}</div>
-            </SimpleTooltip>
+            </Tooltip>
           )}
         >
           <UserShortInfo

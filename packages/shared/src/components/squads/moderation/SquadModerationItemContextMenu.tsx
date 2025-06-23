@@ -39,7 +39,7 @@ export const SquadModerationItemContextMenu = ({
       <OptionsButton
         onClick={onMenuClick}
         className="z-1 !my-0"
-        tooltipPlacement="right"
+        side="right"
         size={ButtonSize.Medium}
       />
       <ContextMenu

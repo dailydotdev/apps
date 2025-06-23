@@ -1,14 +1,5 @@
 import { BrowserName } from './func';
 
-export const cloudinaryFeedBgLaptop =
-  'https://media.daily.dev/image/upload/s--O8GDhJO8--/f_auto/v1692271285/public/Desktop-ask-bg';
-
-export const cloudinaryFeedBgTablet =
-  'https://media.daily.dev/image/upload/s--1kZ8h30a--/f_auto/v1692271284/public/Tablet-ask-bg';
-
-export const cloudinaryFeedBgMobile =
-  'https://media.daily.dev/image/upload/s--TiBUzfrQ--/f_auto/v1692271284/public/Mobile-ask-bg';
-
 export const cloudinaryPostImageCoverPlaceholder =
   'https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001';
 
@@ -114,9 +105,6 @@ export const cloudinaryReferralCampaignGenericReferralPlayButton =
 export const cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet =
   'https://media.daily.dev/image/upload/v1698922944/glow_mobile_tablet_lsou4j.svg';
 
-export const cloudinarySearchOg =
-  'https://media.daily.dev/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search';
-
 export const cloudinaryOnboardingGlow =
   'https://media.daily.dev/image/upload/v1694596741/Glow_o9ehvn.svg';
 
@@ -176,12 +164,6 @@ export const cloudinaryShortcutsIconsStackoverflow =
 
 export const cloudinarySourceRoadmap =
   'https://media.daily.dev/image/upload/s--91LSaHRW--/f_auto,q_auto/v1717766368/roadmap_iambav';
-
-export const cloudinaryConfettiChecklist =
-  'https://media.daily.dev/image/upload/s--C5UKgEE8--/f_auto,q_auto/v1716231116/conffeti-web_ztmag9';
-
-export const cloudinaryConfettiChecklistBar =
-  'https://media.daily.dev/image/upload/s--BNjSTWER--/f_auto,q_auto/v1716231116/conffeti-tablet-mobile_yvq4lg';
 
 export const cloudinaryWelcomePageHeaderMainImage =
   'https://media.daily.dev/image/upload/s--jn7-qwCj--/f_auto,q_auto/v1721136180/public/daily-to-dev-suffer-together';
