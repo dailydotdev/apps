@@ -162,15 +162,23 @@ export const FeedSettingsAISection = (): ReactElement => {
           }}
         >
           {!isPlus ? (
-            <Button
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              disabled
-              icon={<ShieldPlusIcon />}
-              className="mb-4"
-            >
-              {triesLeft}/{maxTries} uses left this month
-            </Button>
+            <Link href={plusUrl} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<ShieldPlusIcon />}
+                className="mb-4"
+                onClick={() => {
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.ClickbaitShield,
+                  });
+                }}
+              >
+                {triesLeft}/{maxTries} uses left this month
+              </Button>
+            </Link>
           ) : undefined}
           <Switch
             inputId="clickbait-shield-switch"
