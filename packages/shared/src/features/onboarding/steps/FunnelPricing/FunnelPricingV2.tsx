@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useId } from 'react';
+import React, { useMemo, useCallback, useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import Head from 'next/head';
 import { useAtomValue } from 'jotai';
@@ -20,6 +20,7 @@ import {
   StepHeadline,
   StepHeadlineAlign,
   CreditCards,
+  PricingPlans,
 } from '../../shared';
 import { PricingEmailSupport } from './common';
 import { LazyImage } from '../../../../components/LazyImage';
@@ -35,6 +36,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
+import { usePaymentContext } from '../../../../contexts/payment/context';
+import { getPricing } from './FunnelPricing';
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
   discountStartDate: Date | null;
@@ -49,15 +52,31 @@ const PricingSelection = ({
   const applyDiscount = useAtomValue(applyDiscountAtom);
   const discountStartDate = useAtomValue(discountTimerAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
-  /*
-  Pricing selection section with
-    - Title
-    - Small discount timer
-    - Pricing section with new design
-    - CTA button
-    - Pay safe and secure
-    - Money back - text box
-  */
+  const id = useId();
+
+  const { productOptions } = usePaymentContext();
+  const organizedPlans = useMemo(
+    () =>
+      plans
+        ?.map((plan) => {
+          const pricing = productOptions?.find(
+            (option) => option?.priceId === plan.priceId,
+          );
+
+          if (!pricing) {
+            return null;
+          }
+
+          return {
+            ...plan,
+            value: plan.priceId,
+            price: getPricing(pricing, pricingType),
+          };
+        })
+        .filter(Boolean),
+    [plans, productOptions, pricingType],
+  );
+
   return (
     <section className="flex flex-col gap-4">
       <StepHeadline heading={heading} align={StepHeadlineAlign.Center} />
@@ -70,8 +89,11 @@ const PricingSelection = ({
           isActive
         />
       )}
-      {/* pricing plans */}
-
+      <PricingPlans
+        name={id}
+        onChange={setSelectedPlan}
+        plans={organizedPlans}
+      />
       <Typography
         className="text-center"
         color={TypographyColor.Primary}

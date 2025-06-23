@@ -10,9 +10,9 @@ import {
 import { fn } from 'storybook/test';
 import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
 import ExtensionProviders from '../../extension/_providers';
-import {
-  FunnelStepBackground,
-} from '@dailydotdev/shared/src/features/onboarding/shared';
+import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
+import { FunnelPaymentPricingContext } from '@dailydotdev/shared/src/contexts/payment/context';
+import { MockPaymentProvider, mockPricing } from './FunnelPricing.stories';
 
 const meta: Meta<typeof FunnelPricingV2> = {
   title: 'Components/Onboarding/Steps/FunnelPricingV2',
@@ -25,13 +25,17 @@ const meta: Meta<typeof FunnelPricingV2> = {
   },
   render: (props) => (
     <ExtensionProviders>
-      <div className="flex flex-col min-h-dvh">
-        <FunnelStepBackground step={props}>
-          <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
-            <FunnelPricingV2 {...props} />
+      <FunnelPaymentPricingContext.Provider value={{ pricing: mockPricing }}>
+        <MockPaymentProvider>
+          <div className="flex flex-col min-h-dvh">
+            <FunnelStepBackground step={props}>
+              <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
+                <FunnelPricingV2 {...props} />
+              </div>
+            </FunnelStepBackground>
           </div>
-        </FunnelStepBackground>
-      </div>
+        </MockPaymentProvider>
+      </FunnelPaymentPricingContext.Provider>
     </ExtensionProviders>
   ),
 };
@@ -164,7 +168,7 @@ const baseProps: FunnelStepPricingV2 = {
 export const Default: Story = {
   args: {
     ...baseProps,
-    discountStartDate: new Date()
+    discountStartDate: new Date(),
   },
 };
 

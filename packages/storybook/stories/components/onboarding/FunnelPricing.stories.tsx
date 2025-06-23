@@ -25,7 +25,7 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 
 // Mock pricing data
-const mockPricing: ProductPricingPreview[] = [
+export const mockPricing: ProductPricingPreview[] = [
   {
     priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
     price: {
@@ -85,7 +85,7 @@ const mockPricing: ProductPricingPreview[] = [
 ];
 
 // Mock PaymentContext provider
-const MockPaymentProvider = ({ children }: { children: React.ReactNode }) => {
+export const MockPaymentProvider = ({ children }: { children: React.ReactNode }) => {
   const mockContextValue = {
     openCheckout: fn(),
     productOptions: mockPricing,

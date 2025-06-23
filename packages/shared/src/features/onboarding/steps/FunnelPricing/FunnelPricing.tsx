@@ -82,7 +82,7 @@ const PricingSection = ({
   );
 };
 
-const getPricing = (
+export const getPricing = (
   pricing: BaseProductPricingPreview,
   pricingType: FunnelPricingType,
 ): {
