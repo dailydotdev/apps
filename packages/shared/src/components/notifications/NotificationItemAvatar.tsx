@@ -23,6 +23,8 @@ function NotificationItemAvatar({
     return (
       <SourceButton
         className={className}
+        pureTextTooltip
+        tooltipPosition="bottom"
         source={{
           id: referenceId,
           handle: referenceId,
