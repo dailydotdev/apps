@@ -1,18 +1,29 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import { CoreIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
-import type { PostCampaign } from '../../../../hooks/post/usePostBoost';
 import { usePostBoost } from '../../../../hooks/post/usePostBoost';
 import { DataTile } from '../../../../features/boost/DataTile';
 import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
 import { CampaignList } from '../../../../features/boost/CampaignList';
+import type { BoostedPostData } from '../../../../graphql/post/boost';
 
-export function AdsDashboardModal(props: ModalProps): ReactElement {
-  const { data, isLoading } = usePostBoost();
-  const [campaign, setCampaign] = React.useState<PostCampaign>(null);
+interface AdsDashboardModalProps extends ModalProps {
+  initialBoostedPost?: BoostedPostData;
+}
+
+export function AdsDashboardModal({
+  initialBoostedPost,
+  ...props
+}: AdsDashboardModalProps): ReactElement {
+  const { data, isLoading, stats } = usePostBoost();
+  const [boosted, setBoosted] =
+    React.useState<BoostedPostData>(initialBoostedPost);
+  const list = useMemo(() => {
+    return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
+  }, [data]);
 
   return (
     <Modal
@@ -23,22 +34,22 @@ export function AdsDashboardModal(props: ModalProps): ReactElement {
     >
       <Modal.Header title="Ads dashboard" />
       <Modal.Body className="flex flex-col gap-4">
-        <Modal.Subtitle>Overview{!campaign && ' all time'}</Modal.Subtitle>
+        <Modal.Subtitle>Overview{!boosted && ' all time'}</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
           <DataTile
             label="Ads cost"
-            value={0}
+            value={stats.totalSpend}
             icon={<CoreIcon size={IconSize.XSmall} />}
           />
-          <DataTile label="Ads views" value={0} />
-          <DataTile label="Comments" value={0} />
-          <DataTile label="Upvotes" value={0} />
+          <DataTile label="Impressions" value={stats.impressions} />
+          <DataTile label="Clicks" value={stats.clicks} />
+          <DataTile label="Engagements" value={stats.engagements} />
         </div>
         <Modal.Subtitle>Running ads</Modal.Subtitle>
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
-          <CampaignList list={data} onClick={setCampaign} />
+          <CampaignList list={list} onClick={setBoosted} />
         )}
       </Modal.Body>
     </Modal>

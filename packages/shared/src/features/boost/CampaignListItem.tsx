@@ -9,25 +9,27 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../../components/typography/Typography';
-import type { PostCampaign } from '../../hooks/post/usePostBoost';
 import { Image } from '../../components/image/Image';
 import { getAbsoluteDifferenceInDays } from './utils';
+import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
 
-const statusToColor: Record<PostCampaign['status'], string> = {
+const statusToColor: Record<PromotedPost['status'], string> = {
   active: 'bg-action-upvote-active text-action-upvote-default',
   completed: 'bg-action-share-active text-action-share-default',
   cancelled: 'bg-action-downvote-active text-action-downvote-default',
 };
 
 interface CampaignListItemProps {
-  campaign: PostCampaign;
+  data: BoostedPostData;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 export function CampaignListItem({
-  campaign,
+  data,
   onClick,
 }: CampaignListItemProps): ReactElement {
+  const { campaign, post } = data;
+
   const getCaption = () => {
     if (campaign.status === 'completed') {
       return 'Completed';
@@ -38,7 +40,7 @@ export function CampaignListItem({
     }
 
     const remainingDays = getAbsoluteDifferenceInDays(
-      new Date(campaign.boostedUntil),
+      new Date(campaign.endedAt),
       new Date(),
     );
 
@@ -52,9 +54,9 @@ export function CampaignListItem({
       className="flex w-full flex-row items-center gap-4"
     >
       <span className="flex flex-1 flex-row items-center gap-2">
-        {campaign.image && (
+        {post.image && (
           <Image
-            src={campaign.image}
+            src={post.image}
             className={classNames(
               'rounded-12 object-cover',
               iconSizeToClassName[IconSize.Size48],
@@ -66,7 +68,7 @@ export function CampaignListItem({
           color={TypographyColor.Secondary}
           className="line-clamp-2 flex-1 text-left"
         >
-          {campaign.title}
+          {post.title}
         </Typography>
       </span>
       <Typography
