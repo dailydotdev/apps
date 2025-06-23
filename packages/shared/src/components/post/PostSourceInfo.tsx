@@ -29,6 +29,7 @@ interface SourceInfoProps {
   className?: string;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   onReadArticle?: () => void;
+  showActions?: boolean;
 }
 
 function PostSourceInfo({
@@ -37,6 +38,7 @@ function PostSourceInfo({
   className,
   onClose,
   onReadArticle,
+  showActions = true,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
   const isMobile = useViewSize(ViewSize.MobileXL);
@@ -120,13 +122,15 @@ function PostSourceInfo({
                 />
               )}
           </div>
-          <PostHeaderActions
-            post={post}
-            onClose={onClose}
-            onReadArticle={onReadArticle}
-            className="ml-auto hidden tablet:flex"
-            contextMenuId="post-widgets-context"
-          />
+          {showActions && (
+            <PostHeaderActions
+              post={post}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+              className="ml-auto hidden tablet:flex"
+              contextMenuId="post-widgets-context"
+            />
+          )}
         </>
       )}
       {!!date && (

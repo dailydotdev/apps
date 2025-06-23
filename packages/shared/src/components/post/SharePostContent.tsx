@@ -167,6 +167,7 @@ export function CommonSharePostContent({
             post={sharedPost}
             onReadArticle={onReadArticle}
             size={ProfileImageSize.Small}
+            showActions={false}
           />
           <ReadArticleButton
             content={getReadPostButtonText(sharedPost)}
