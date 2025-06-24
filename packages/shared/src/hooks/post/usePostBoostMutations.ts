@@ -40,6 +40,7 @@ export const usePostBoostMutation = ({
     ),
     queryFn: () => getBoostEstimatedReach(toEstimate),
     enabled: !!toEstimate,
+    initialData: { min: 0, max: 0 },
   });
 
   const { mutateAsync: onBoostPost } = useMutation({

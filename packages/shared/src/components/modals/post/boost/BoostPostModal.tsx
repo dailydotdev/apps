@@ -103,6 +103,9 @@ export function BoostPostModal({
     return <AdsDashboardModal isOpen />;
   }
 
+  // just to avoid any edge case where the min, for some reason is greater than max
+  const maxReach = Math.max(estimatedReach.min, estimatedReach.max);
+
   return (
     <Modal
       {...props}
@@ -155,7 +158,7 @@ export function BoostPostModal({
               Total spend
             </Typography>
             <Typography className="mt-2" type={TypographyType.Body}>
-              {estimatedReach?.min ?? 0} - {estimatedReach?.max ?? 0}
+              {estimatedReach.min} - {maxReach}
             </Typography>
             <Typography
               type={TypographyType.Callout}
