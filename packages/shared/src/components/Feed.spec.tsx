@@ -1,5 +1,5 @@
 import nock from 'nock';
-import React from 'react';
+import React, { useState } from 'react';
 import type { RenderResult } from '@testing-library/react';
 import {
   findByText,
@@ -756,6 +756,33 @@ describe('Feed logged in', () => {
   });
 
   it('should open a modal to view post details', async () => {
+    mocked(useRouter).mockImplementation(() => ({
+      route: '/',
+      pathname: '/',
+      query: {
+        pmid: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+        pmcid: 'post-context-my-feed',
+      },
+      asPath: '/posts/4f354bb73009e4adfa5dbcbf9b3c4ebf',
+      push: jest.fn(),
+      replace: jest.fn(),
+      basePath: '',
+      isLocaleDomain: true,
+      prefetch: jest.fn(),
+      beforePopState: jest.fn(),
+      reload: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      isFallback: false,
+      isReady: true,
+      isPreview: false,
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+        emit: jest.fn(),
+      },
+    }));
+
     renderComponent();
     await waitForNock();
     const [first] = await screen.findAllByLabelText('Comments');
@@ -808,6 +835,55 @@ describe('Feed logged in', () => {
   });
 
   it('should be able to navigate through posts', async () => {
+    mocked(useRouter).mockImplementation(() => {
+      const [id, setId] = useState('4f354bb73009e4adfa5dbcbf9b3c4ebf');
+
+      return {
+        route: '/',
+        pathname: '/',
+        query: {
+          pmid: id,
+          pmcid: 'post-context-my-feed',
+        },
+        asPath: `/posts/${id}`,
+        push: async (url, asUrl) => {
+          if (!asUrl) {
+            return true;
+          }
+
+          const pathname = typeof asUrl === 'string' ? asUrl : asUrl?.pathname;
+
+          if (!pathname?.startsWith('/posts/')) {
+            return true;
+          }
+
+          const newId = pathname.split('/posts/').pop();
+
+          if (newId) {
+            setId(newId);
+          }
+
+          return true;
+        },
+        replace: jest.fn(),
+        basePath: '',
+        isLocaleDomain: true,
+        prefetch: jest.fn(),
+        beforePopState: jest.fn(),
+        reload: jest.fn(),
+        back: jest.fn(),
+        forward: jest.fn(),
+        isFallback: false,
+        isReady: true,
+        isPreview: false,
+        events: {
+          on: jest.fn(),
+          off: jest.fn(),
+          emit: jest.fn(),
+        },
+      };
+    });
+
     const [firstPost, secondPost] = defaultFeedPage.edges;
     renderComponent();
     await waitForNock();
