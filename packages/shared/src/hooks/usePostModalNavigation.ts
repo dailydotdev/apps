@@ -42,11 +42,11 @@ export const usePostModalNavigation = (
   canFetchMore: boolean,
 ): UsePostModalNavigation => {
   const router = useRouter();
-  // special query to track base pathname for the modal
+  // special query params to track base pathnames and params for the post modal
   const basePathname = (router.query?.pmp as string) || router.pathname;
   const baseAsPath = (router.query?.pmap as string) || router.asPath;
+  const pmid = router.query?.pmid as string;
   const { logEvent } = useContext(LogContext);
-  const pmid = router.query?.pmid as string; // special query we use to track id of the post in the masked url
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const scrollPositionOnFeed = useRef(0);
 
