@@ -122,26 +122,30 @@ const baseProps: FunnelStepPricingV2 = {
       image: '/images/onboarding/pricing-v2-header.png',
     },
     reviews: {
-      heading: 'What our users say',
+      heading: 'Engineers ❤️ daily.dev',
       items: [
         {
-          authorInfo: 'John Doe',
+          authorInfo: 'Dave N., Senior Data Scientist',
           reviewText:
-            'daily.dev Plus has completely transformed how I stay updated with tech news.',
+            'This is the only tool I’ve stuck with for more than a month. It fits naturally into my routine and keeps me sharp.',
           authorImage: 'https://placehold.co/80',
-          image: 'https://placehold.co/400',
         },
         {
-          authorInfo: 'Jane Smith',
+          authorInfo: 'Lina P., Senior Frontend Engineer',
           reviewText:
-            'The premium features are worth every penny. I especially love the advanced filtering.',
+            'I’ve tried dozens of dev tools, but only daily.dev feels like it actually understands what I need.',
           authorImage: 'https://placehold.co/80',
-          image: 'https://placehold.co/400',
+        },
+        {
+          authorInfo: 'Ravi S., DevOps Lead',
+          reviewText:
+            'It’s the only feed that actually saves me time and keeps me learning.',
+          authorImage: 'https://placehold.co/80',
         },
       ],
     },
     trust: {
-      image: 'https://daily.dev/static/placeholders/trust-badges.png',
+      image: 'https://media.daily.dev/image/upload/s--ZOzmj3AB--/f_auto/v1743939472/public/Review',
     },
     faq: {
       items: [

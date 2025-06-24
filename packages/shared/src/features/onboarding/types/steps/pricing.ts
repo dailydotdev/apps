@@ -69,7 +69,7 @@ export interface FunnelStepPricingV2Parameters {
   refund: FunnelStepPricingRefund;
   reviews: {
     heading: string;
-    items: Array<Omit<ImageReviewProps, 'className'>>;
+    items: Array<Omit<ImageReviewProps, 'className' | 'image'>>;
   };
   trust: {
     image: string;

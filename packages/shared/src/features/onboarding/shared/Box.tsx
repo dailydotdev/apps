@@ -6,6 +6,13 @@ import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
 import classed from '../../../lib/classed';
 import { LazyImage } from '../../../components/LazyImage';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import type { ImageReviewProps } from './ImageReview';
+import { Stars } from './Stars';
 
 const Box = classed(
   'div',
@@ -105,6 +112,55 @@ export const BoxFaq = ({ items, className }: BoxFaqProps): ReactElement => {
           <li key={item.question} className="flex flex-col gap-2">
             <h4 className="font-bold typo-callout">{item.question}</h4>
             <p className="text-text-tertiary typo-callout">{item.answer}</p>
+          </li>
+        ))}
+      </ul>
+    </Box>
+  );
+};
+
+export interface BoxImageReviewProps extends BoxBaseProps {
+  heading: string;
+  items: Array<Omit<ImageReviewProps, 'className' | 'image'>>;
+}
+
+export const BoxReviews = ({
+  heading,
+  items,
+  className,
+}: BoxImageReviewProps): ReactElement => {
+  return (
+    <Box className={classNames(className, 'border-0 px-3 py-6')}>
+      <Typography
+        bold
+        className="text-center"
+        tag={TypographyTag.H3}
+        type={TypographyType.Title1}
+      >
+        {heading}
+      </Typography>
+      <ul aria-label="Reviews from our users" className="flex flex-col gap-4">
+        {items.map((item) => (
+          <li
+            aria-label={`${item.authorInfo} review`}
+            className="flex flex-col gap-2 rounded-16 bg-surface-invert p-4"
+            key={item.authorInfo}
+          >
+            <div className="flex items-center gap-2">
+              <LazyImage
+                className="size-8 rounded-8"
+                fit="cover"
+                imgAlt={item.authorInfo}
+                imgSrc={item.authorImage}
+              />
+              <Typography type={TypographyType.Callout}>
+                {item.authorInfo}
+              </Typography>
+            </div>
+            <Stars />
+            <Typography type={TypographyType.Callout}>
+              {item.reviewText}
+            </Typography>
           </li>
         ))}
       </ul>

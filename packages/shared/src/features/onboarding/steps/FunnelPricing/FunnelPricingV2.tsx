@@ -21,6 +21,7 @@ import {
   StepHeadlineAlign,
   CreditCards,
   PricingPlans,
+  BoxReviews,
 } from '../../shared';
 import { PricingEmailSupport } from './common';
 import { LazyImage } from '../../../../components/LazyImage';
@@ -129,7 +130,8 @@ const Pricing = ({
   parameters,
 }: FunnelStepPricingV2): ReactElement => {
   const id = useId();
-  const { hero, features, plansBlock, discount, faq } = parameters;
+  const { hero, features, plansBlock, discount, faq, trust, reviews } =
+    parameters;
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
 
@@ -217,7 +219,17 @@ const Pricing = ({
           />
         </div>
         {/* Reviews */}
-        {/*  reviews image */}
+        <BoxReviews className="!bg-action-bookmark-active" {...reviews} />
+        {!!trust.image && (
+          <LazyImage
+            eager
+            imgSrc={trust.image}
+            imgAlt="Social proof image"
+            className="w-full rounded-16"
+            ratio="100%"
+            fit="cover"
+          />
+        )}
         <PricingSelection
           discountStartDate={discountStartDate}
           onProceedToCheckout={onProceedToCheckout}
