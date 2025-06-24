@@ -14,6 +14,9 @@ button {
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
 }
+.DropdownMenuItem:focus-visible {
+  outline: none!important;
+}
 .DropdownMenuContent[data-side="top"],
 .DropdownMenuSubContent[data-side="top"] {
   animation-name: slideDownAndFade;
