@@ -60,7 +60,14 @@ export const usePostModalNavigation = ({
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const scrollPositionOnFeed = useRef(0);
 
+  // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
+  const isNavigationActive = contextId === activeContextId;
+
   const openedPostIndex = useMemo(() => {
+    if (!isNavigationActive) {
+      return undefined;
+    }
+
     if (!items) {
       return undefined;
     }
@@ -82,7 +89,7 @@ export const usePostModalNavigation = ({
     }
 
     return foundIndex;
-  }, [items, pmid]);
+  }, [items, pmid, isNavigationActive]);
 
   const getPostItem = useCallback(
     (index: number) =>
@@ -160,8 +167,7 @@ export const usePostModalNavigation = ({
   };
 
   useEffect(() => {
-    // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
-    if (contextId !== activeContextId) {
+    if (!isNavigationActive) {
       return;
     }
 
@@ -188,14 +194,7 @@ export const usePostModalNavigation = ({
     if (indexFromQuery !== -1) {
       onChangeSelected(indexFromQuery);
     }
-  }, [
-    openedPostIndex,
-    pmid,
-    items,
-    onChangeSelected,
-    contextId,
-    activeContextId,
-  ]);
+  }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
   const result = {
     postPosition: getPostPosition(),
