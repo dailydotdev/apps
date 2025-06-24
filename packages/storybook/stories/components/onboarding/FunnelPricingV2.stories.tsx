@@ -13,6 +13,7 @@ import ExtensionProviders from '../../extension/_providers';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
 import { FunnelPaymentPricingContext } from '@dailydotdev/shared/src/contexts/payment/context';
 import { MockPaymentProvider, mockPricing } from './FunnelPricing.stories';
+import { DISCOUNT_LOCAL_STORAGE_KEY } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 
 const meta: Meta<typeof FunnelPricingV2> = {
   title: 'Components/Onboarding/Steps/FunnelPricingV2',
@@ -38,6 +39,10 @@ const meta: Meta<typeof FunnelPricingV2> = {
       </FunnelPaymentPricingContext.Provider>
     </ExtensionProviders>
   ),
+  beforeEach: () => {
+    // clear start date from localStorage at the beginning of each story
+    localStorage.removeItem(DISCOUNT_LOCAL_STORAGE_KEY);
+  }
 };
 
 export default meta;
@@ -116,10 +121,11 @@ const baseProps: FunnelStepPricingV2 = {
       cta: 'Get my plan',
     },
     refund: {
-      title: '30-day money-back guarantee',
+      image:
+        'https://media.daily.dev/image/upload/s--QHvr7zBd--/f_auto/v1743491782/public/approved',
+      title: '100% money back <strong class="text-status-success">guarantee</strong>',
       content:
-        'If you are not satisfied with daily.dev Plus, we will provide a full refund within 30 days of purchase.',
-      image: '/images/onboarding/pricing-v2-header.png',
+        "We're confident in the quality of our plan. More than a million developers around the world use daily.dev to grow professionally. To get the most out of it, use daily.dev daily. Consume content, explore, and interact with the community. If you still don't love it after 30 days, contact us. We guarantee a full hassle-free refund. No questions asked.",
     },
     reviews: {
       heading: 'Engineers ❤️ daily.dev',
@@ -176,21 +182,3 @@ export const Default: Story = {
   },
 };
 
-export const WithoutDiscount: Story = {
-  args: {
-    ...baseProps,
-  },
-};
-
-export const DailyPricing: Story = {
-  args: {
-    ...baseProps,
-    parameters: {
-      ...baseProps.parameters,
-      plansBlock: {
-        ...baseProps.parameters.plansBlock,
-        pricingType: FunnelPricingType.Daily,
-      },
-    },
-  },
-};

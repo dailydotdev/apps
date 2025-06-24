@@ -22,6 +22,7 @@ import {
   CreditCards,
   PricingPlans,
   BoxReviews,
+  BoxContentImage,
 } from '../../shared';
 import { PricingEmailSupport } from './common';
 import { LazyImage } from '../../../../components/LazyImage';
@@ -130,7 +131,7 @@ const Pricing = ({
   parameters,
 }: FunnelStepPricingV2): ReactElement => {
   const id = useId();
-  const { hero, features, plansBlock, discount, faq, trust, reviews } =
+  const { hero, features, plansBlock, discount, faq, trust, refund, reviews } =
     parameters;
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
@@ -218,8 +219,20 @@ const Pricing = ({
             {...parameters}
           />
         </div>
-        {/* Reviews */}
+        {/* Refund */}
+        <BoxContentImage
+          title={refund.title}
+          content={refund.content}
+          image={{ src: refund.image, alt: 'Checkmark' }}
+          className="border-0 !bg-action-upvote-float"
+          typographyClasses={{
+            title: 'typo-title2 font-bold',
+            content: 'typo-callout text-text-tertiary',
+          }}
+        />
+        {/* Review */}
         <BoxReviews className="!bg-action-bookmark-active" {...reviews} />
+        {/* Image */}
         {!!trust.image && (
           <LazyImage
             eager
@@ -230,13 +243,26 @@ const Pricing = ({
             fit="cover"
           />
         )}
+        {/* Plans pt.2 */}
         <PricingSelection
           discountStartDate={discountStartDate}
           onProceedToCheckout={onProceedToCheckout}
           {...parameters}
         />
-        {/* Text Box - FAQ version */}
+        {/* Refund pt.2 */}
+        <BoxContentImage
+          title={refund.title}
+          content={refund.content}
+          image={{ src: refund.image, alt: 'Checkmark' }}
+          className="border-0 !bg-action-upvote-float"
+          typographyClasses={{
+            title: 'typo-title2 font-bold',
+            content: 'typo-callout text-text-tertiary',
+          }}
+        />
+        {/* FAQs */}
         <BoxFaq className="border-0" items={faq.items} />
+        {/* Contact support */}
         <PricingEmailSupport />
       </div>
     </>

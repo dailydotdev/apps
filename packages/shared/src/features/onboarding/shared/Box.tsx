@@ -13,6 +13,7 @@ import {
 } from '../../../components/typography/Typography';
 import type { ImageReviewProps } from './ImageReview';
 import { Stars } from './Stars';
+import { sanitizeMessage } from '../lib/utils';
 
 const Box = classed(
   'div',
@@ -68,6 +69,7 @@ export interface BoxContentImageProps extends BoxBaseProps {
   title: string;
   content: string;
   image: Pick<ComponentProps<'img'>, 'src' | 'alt' | 'className'>;
+  typographyClasses?: Record<'title' | 'content', string>;
 }
 
 export const BoxContentImage = ({
@@ -75,10 +77,19 @@ export const BoxContentImage = ({
   content,
   image,
   className,
+  typographyClasses = {
+    title: 'font-bold typo-title3',
+    content: 'text-text-tertiary typo-callout',
+  },
 }: BoxContentImageProps): ReactElement => {
   return (
     <Box className={className}>
-      <h3 className="font-bold typo-title3">{title}</h3>
+      <h3
+        className={typographyClasses.title}
+        dangerouslySetInnerHTML={{
+          __html: sanitizeMessage(title),
+        }}
+      />
       <div>
         <LazyImage
           eager
@@ -91,7 +102,10 @@ export const BoxContentImage = ({
           )}
           fit="contain"
         />
-        <p className="text-text-tertiary typo-callout">{content}</p>
+        <p
+          className={typographyClasses.content}
+          dangerouslySetInnerHTML={{ __html: sanitizeMessage(content) }}
+        />
       </div>
     </Box>
   );
