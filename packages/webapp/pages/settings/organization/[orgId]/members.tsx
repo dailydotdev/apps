@@ -183,7 +183,7 @@ const OrganizationOptionsMenu = ({
                 disabled={disabled}
               >
                 {anchorProps ? (
-                  <Link {...anchorProps} passHref>
+                  <Link href={anchorProps.href} passHref>
                     <a className="flex" {...anchorProps} role="menuitem">
                       {icon} {label}
                     </a>
