@@ -10,8 +10,6 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
-import PostNavigation from '../post/PostNavigation';
-import { useReadArticle } from '../../hooks/usePostContent';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -29,7 +27,6 @@ export default function PostModal({
   onRemovePost,
   ...props
 }: PostModalProps): ReactElement {
-  const onReadArticle = useReadArticle({ post, origin: Origin.ArticleModal });
   const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
     offset: 0,
@@ -44,16 +41,10 @@ export default function PostModal({
       postType={PostType.Share}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
+      postPosition={postPosition}
+      onPreviousPost={onPreviousPost}
+      onNextPost={onNextPost}
     >
-      <PostNavigation
-        className={{
-          container: 'pl-4',
-        }}
-        postPosition={postPosition}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        onReadArticle={onReadArticle}
-      />
       <EnableNotification
         source={NotificationPromptSource.SquadPostModal}
         label={post?.source?.handle}
