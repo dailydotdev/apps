@@ -44,13 +44,11 @@ export const CollectionCardHeader = ({
         sources={sources}
         totalSources={totalSources}
       >
-        <>
-          <div className="flex-1" />
-          <PostOptionButton
-            post={post}
-            triggerClassName="group-hover:flex laptop:hidden"
-          />
-        </>
+        <div className="flex-1" />
+        <PostOptionButton
+          post={post}
+          triggerClassName="group-hover:flex laptop:hidden"
+        />
       </CollectionPillSources>
     </>
   );
