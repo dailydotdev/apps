@@ -40,7 +40,7 @@ export type UsePostModalNavigationProps = {
   fetchPage: () => Promise<unknown>;
   updatePost: UpdateFeedPost;
   canFetchMore: boolean;
-  contextId: string;
+  contextId?: string;
 };
 
 export const usePostModalNavigation = ({

@@ -70,6 +70,7 @@ export function Dropdown({
   disabled,
   ...props
 }: DropdownProps): ReactElement {
+  console.log('className', className);
   const id = useId();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isVisible, setVisibility] = useState(false);
