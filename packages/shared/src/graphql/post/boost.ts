@@ -71,6 +71,7 @@ export interface BoostedPostStats
 interface CampaignBoostedPost extends Pick<Post, 'id' | 'title'> {
   image: string;
   permalink: string;
+  engagements: number;
 }
 
 export interface BoostedPostData {

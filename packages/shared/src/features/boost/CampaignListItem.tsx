@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { MouseEventHandler, ReactElement } from 'react';
+import type { MouseEventHandler, PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
 import { IconSize, iconSizeToClassName } from '../../components/Icon';
 import { ArrowIcon } from '../../components/icons';
@@ -18,6 +18,21 @@ const statusToColor: Record<PromotedPost['status'], string> = {
   completed: 'bg-action-share-active text-action-share-default',
   cancelled: 'bg-action-downvote-active text-action-downvote-default',
 };
+
+export const BoostStatus = ({
+  children,
+  status,
+}: PropsWithChildren<{
+  status: PromotedPost['status'];
+}>) => (
+  <Typography
+    tag={TypographyTag.Span}
+    type={TypographyType.Footnote}
+    className={classNames('rounded-6 px-1', statusToColor[status])}
+  >
+    {children}
+  </Typography>
+);
 
 interface CampaignListItemProps {
   data: BoostedPostData;
@@ -71,13 +86,7 @@ export function CampaignListItem({
           {post.title}
         </Typography>
       </span>
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Footnote}
-        className={classNames('rounded-6 px-1', statusToColor[campaign.status])}
-      >
-        {getCaption()}
-      </Typography>
+      <BoostStatus status={campaign.status}>{getCaption()}</BoostStatus>
       <ArrowIcon size={IconSize.Medium} className="rotate-90" />
     </button>
   );

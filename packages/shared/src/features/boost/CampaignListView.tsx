@@ -5,7 +5,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import type { PostCampaign } from '../../hooks/post/usePostBoost';
 import { Image } from '../../components/image/Image';
 import {
   Button,
@@ -18,34 +17,33 @@ import { DataTile } from './DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
+import type { BoostedPostData } from '../../graphql/post/boost';
 
 interface CampaignListViewProps {
-  campaign: PostCampaign;
+  data: BoostedPostData;
 }
 
 export function CampaignListView({
-  campaign,
+  data,
 }: CampaignListViewProps): ReactElement {
+  const { campaign, post } = data;
   const date = useMemo(() => {
+    const totalDays = getAbsoluteDifferenceInDays(
+      campaign.endedAt,
+      campaign.startedAt,
+    );
+
     const getEndsIn = () => {
       if (campaign.status === 'active') {
-        return getAbsoluteDifferenceInDays(campaign.boostedUntil, new Date());
+        return getAbsoluteDifferenceInDays(campaign.endedAt, new Date());
       }
 
-      return getAbsoluteDifferenceInDays(
-        campaign.boostedUntil,
-        campaign.createdAt,
-      );
+      return totalDays;
     };
-
-    const totalDays = getAbsoluteDifferenceInDays(
-      campaign.boostedUntil,
-      campaign.createdAt,
-    );
 
     return {
       endsIn: getEndsIn(),
-      startedIn: getAbsoluteDifferenceInDays(new Date(), campaign.createdAt),
+      startedIn: getAbsoluteDifferenceInDays(new Date(), campaign.startedAt),
       totalDays,
     };
   }, [campaign]);
@@ -58,10 +56,10 @@ export function CampaignListView({
             type={TypographyType.Callout}
             className="line-clamp-3 flex-1"
           >
-            {campaign.title}
+            {post.title}
           </Typography>
         </span>
-        <Image src={campaign.image} className="h-12 w-18 rounded-12" />
+        <Image src={post.image} className="h-12 w-18 rounded-12" />
         <Button icon={<LinkIcon />} variant={ButtonVariant.Tertiary} />
       </div>
       <div className="flex flex-col gap-1">
@@ -82,21 +80,21 @@ export function CampaignListView({
         </span>
         <div className="mt-3 grid grid-cols-2 gap-4">
           <DataTile
-            label="Ads cost"
-            value={campaign.cost}
+            label="Spend"
+            value={campaign.budget}
             icon={<CoreIcon size={IconSize.XSmall} />}
           />
-          <DataTile label="Ads views" value={campaign.views} />
-          <DataTile label="Comments" value={campaign.comments} />
-          <DataTile label="Upvotes" value={campaign.upvotes} />
+          <DataTile label="Impressions" value={campaign.impressions} />
+          <DataTile label="Clicks" value={campaign.clicks} />
+          <DataTile label="Engagements" value={post.engagements} />
         </div>
       </div>
       <div className="h-px w-full bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-2">
         <Typography type={TypographyType.Body}>Summary</Typography>
         <Typography type={TypographyType.Callout}>
-          <CoreIcon size={IconSize.Size16} /> {campaign.cost} | {date.totalDays}{' '}
-          days
+          <CoreIcon size={IconSize.Size16} /> {campaign.budget} |{' '}
+          {date.totalDays} days
         </Typography>
       </div>
       <Button

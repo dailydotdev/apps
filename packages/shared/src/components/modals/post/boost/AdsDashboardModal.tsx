@@ -9,6 +9,7 @@ import { DataTile } from '../../../../features/boost/DataTile';
 import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
 import { CampaignList } from '../../../../features/boost/CampaignList';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
+import { BoostedPostViewModal } from './BoostedPostViewModal';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialBoostedPost?: BoostedPostData;
@@ -25,6 +26,16 @@ export function AdsDashboardModal({
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
 
+  if (boosted) {
+    return (
+      <BoostedPostViewModal
+        {...props}
+        data={boosted}
+        onRequestClose={() => setBoosted(null)}
+      />
+    );
+  }
+
   return (
     <Modal
       {...props}
@@ -34,7 +45,7 @@ export function AdsDashboardModal({
     >
       <Modal.Header title="Ads dashboard" />
       <Modal.Body className="flex flex-col gap-4">
-        <Modal.Subtitle>Overview{!boosted && ' all time'}</Modal.Subtitle>
+        <Modal.Subtitle>Overview all time</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
           <DataTile
             label="Ads cost"
