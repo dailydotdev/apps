@@ -40,9 +40,11 @@ export const usePostModalNavigation = (
   fetchPage: () => Promise<unknown>,
   updatePost: UpdateFeedPost,
   canFetchMore: boolean,
+  contextId: string,
 ): UsePostModalNavigation => {
   const router = useRouter();
   // special query params to track base pathnames and params for the post modal
+  const activeContextId = router.query?.pmcid as string;
   const basePathname = (router.query?.pmp as string) || router.pathname;
   const baseAsPath = (router.query?.pmap as string) || router.asPath;
   const pmid = router.query?.pmid as string;
@@ -102,6 +104,7 @@ export const usePostModalNavigation = (
               pmid: postId,
               pmp: basePathname,
               pmap: baseAsPath,
+              pmcid: contextId,
             },
           },
           `${webappUrl}posts/${postId}`,
@@ -115,7 +118,15 @@ export const usePostModalNavigation = (
         updatePost(item.page, item.index, { ...post, read: true });
       }
     },
-    [basePathname, baseAsPath, getPost, getPostItem, router, updatePost],
+    [
+      basePathname,
+      baseAsPath,
+      getPost,
+      getPostItem,
+      router,
+      updatePost,
+      contextId,
+    ],
   );
 
   const onOpenModal = (index: number) => {
@@ -141,6 +152,11 @@ export const usePostModalNavigation = (
   };
 
   useEffect(() => {
+    // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
+    if (contextId !== activeContextId) {
+      return;
+    }
+
     if (!items) {
       return;
     }
@@ -164,7 +180,14 @@ export const usePostModalNavigation = (
     if (indexFromQuery !== -1) {
       onChangeSelected(indexFromQuery);
     }
-  }, [openedPostIndex, pmid, items, onChangeSelected]);
+  }, [
+    openedPostIndex,
+    pmid,
+    items,
+    onChangeSelected,
+    contextId,
+    activeContextId,
+  ]);
 
   const result = {
     postPosition: getPostPosition(),
