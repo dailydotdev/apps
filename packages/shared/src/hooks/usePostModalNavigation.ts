@@ -40,7 +40,7 @@ export type UsePostModalNavigationProps = {
   fetchPage: () => Promise<unknown>;
   updatePost: UpdateFeedPost;
   canFetchMore: boolean;
-  contextId?: string;
+  feedName: string;
 };
 
 export const usePostModalNavigation = ({
@@ -48,11 +48,11 @@ export const usePostModalNavigation = ({
   fetchPage,
   updatePost,
   canFetchMore,
-  contextId,
+  feedName,
 }: UsePostModalNavigationProps): UsePostModalNavigation => {
   const router = useRouter();
   // special query params to track base pathnames and params for the post modal
-  const activeContextId = router.query?.pmcid as string;
+  const activeFeedName = router.query?.pmcid as string;
   const basePathname = (router.query?.pmp as string) || router.pathname;
   const baseAsPath = (router.query?.pmap as string) || router.asPath;
   const pmid = router.query?.pmid as string;
@@ -61,7 +61,7 @@ export const usePostModalNavigation = ({
   const scrollPositionOnFeed = useRef(0);
 
   // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
-  const isNavigationActive = contextId === activeContextId;
+  const isNavigationActive = feedName === activeFeedName;
 
   const openedPostIndex = useMemo(() => {
     if (!isNavigationActive) {
@@ -119,7 +119,7 @@ export const usePostModalNavigation = ({
               pmid: postId,
               pmp: basePathname,
               pmap: baseAsPath,
-              pmcid: contextId,
+              pmcid: feedName,
             },
           },
           `${webappUrl}posts/${postId}`,
@@ -140,7 +140,7 @@ export const usePostModalNavigation = ({
       getPostItem,
       router,
       updatePost,
-      contextId,
+      feedName,
     ],
   );
 

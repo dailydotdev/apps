@@ -239,6 +239,7 @@ export default function Feed<T>({
     fetchPage,
     updatePost,
     canFetchMore,
+    feedName,
   });
 
   const infiniteScrollRef = useFeedInfiniteScroll({
