@@ -66,6 +66,7 @@ import {
   DropdownMenuTrigger,
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
+import Link from 'next/link';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -182,9 +183,11 @@ const OrganizationOptionsMenu = ({
                 disabled={disabled}
               >
                 {anchorProps ? (
-                  <a className="flex" {...anchorProps} role="menuitem">
-                    {icon} {label}
-                  </a>
+                  <Link {...anchorProps} passHref>
+                    <a className="flex" {...anchorProps} role="menuitem">
+                      {icon} {label}
+                    </a>
+                  </Link>
                 ) : (
                   <button className="flex" type="button" role="menuitem">
                     {icon} {label}
