@@ -225,13 +225,13 @@ export default function Feed<T>({
     postPosition,
     selectedPost,
     selectedPostIndex,
-  } = usePostModalNavigation(
+  } = usePostModalNavigation({
     items,
     fetchPage,
     updatePost,
     canFetchMore,
     contextId,
-  );
+  });
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,

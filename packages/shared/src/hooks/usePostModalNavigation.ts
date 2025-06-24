@@ -35,13 +35,21 @@ interface UsePostModalNavigation {
   selectedPostIndex: number;
 }
 
-export const usePostModalNavigation = (
-  items: FeedItem[],
-  fetchPage: () => Promise<unknown>,
-  updatePost: UpdateFeedPost,
-  canFetchMore: boolean,
-  contextId: string,
-): UsePostModalNavigation => {
+export type UsePostModalNavigationProps = {
+  items: FeedItem[];
+  fetchPage: () => Promise<unknown>;
+  updatePost: UpdateFeedPost;
+  canFetchMore: boolean;
+  contextId: string;
+};
+
+export const usePostModalNavigation = ({
+  items,
+  fetchPage,
+  updatePost,
+  canFetchMore,
+  contextId,
+}: UsePostModalNavigationProps): UsePostModalNavigation => {
   const router = useRouter();
   // special query params to track base pathnames and params for the post modal
   const activeContextId = router.query?.pmcid as string;
