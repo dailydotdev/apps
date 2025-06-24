@@ -28,7 +28,7 @@ export const usePostBoostMutation = ({
   toEstimate,
   onBoostSuccess,
   onCancelSuccess,
-}: UsePostBoostMutationProps): UsePostBoostMutation => {
+}: UsePostBoostMutationProps = {}): UsePostBoostMutation => {
   const client = useQueryClient();
   const { user, updateUser } = useAuthContext();
   const { data: estimatedReach } = useQuery({

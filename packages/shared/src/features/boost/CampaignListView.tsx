@@ -21,10 +21,14 @@ import type { BoostedPostData } from '../../graphql/post/boost';
 
 interface CampaignListViewProps {
   data: BoostedPostData;
+  isLoading: boolean;
+  onBoostClick: () => void;
 }
 
 export function CampaignListView({
   data,
+  isLoading,
+  onBoostClick,
 }: CampaignListViewProps): ReactElement {
   const { campaign, post } = data;
   const date = useMemo(() => {
@@ -102,6 +106,9 @@ export function CampaignListView({
         className="w-full"
         color={campaign.status === 'active' && ButtonColor.Ketchup}
         icon={campaign.status !== 'active' && <BeforeIcon />}
+        onClick={onBoostClick}
+        disabled={isLoading}
+        loading={isLoading}
       >
         {campaign.status === 'active' ? 'Stop campaign' : 'Boost again'}
       </Button>

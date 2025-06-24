@@ -10,6 +10,9 @@ import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoad
 import { CampaignList } from '../../../../features/boost/CampaignList';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
+import { BoostPostModal } from './BoostPostModal';
+import usePostById from '../../../../hooks/usePostById';
+import type { Post } from '../../../../graphql/posts';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialBoostedPost?: BoostedPostData;
@@ -20,16 +23,24 @@ export function AdsDashboardModal({
   ...props
 }: AdsDashboardModalProps): ReactElement {
   const { data, isLoading, stats } = usePostBoost();
+  const [toBoost, setToBoost] = useState<Post['id']>();
+  const { post } = usePostById({ id: toBoost });
   const [boosted, setBoosted] = useState<BoostedPostData>(initialBoostedPost);
   const list = useMemo(() => {
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
+
+  if (post) {
+    return <BoostPostModal {...props} post={post} />;
+  }
 
   if (boosted) {
     return (
       <BoostedPostViewModal
         {...props}
         data={boosted}
+        isLoading={isLoading}
+        onBoostAgain={setToBoost}
         onRequestClose={() => setBoosted(null)}
       />
     );
