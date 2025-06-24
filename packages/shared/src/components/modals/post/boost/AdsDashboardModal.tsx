@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import { CoreIcon } from '../../../icons';
@@ -20,8 +20,7 @@ export function AdsDashboardModal({
   ...props
 }: AdsDashboardModalProps): ReactElement {
   const { data, isLoading, stats } = usePostBoost();
-  const [boosted, setBoosted] =
-    React.useState<BoostedPostData>(initialBoostedPost);
+  const [boosted, setBoosted] = useState<BoostedPostData>(initialBoostedPost);
   const list = useMemo(() => {
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
