@@ -79,6 +79,7 @@ const PricingPlan = ({
           ),
           content: 'flex flex-row items-center gap-2 font-normal',
         }}
+        value={priceId}
         checked={isActive}
         onChange={() => onChange?.(priceId)}
       >
@@ -92,6 +93,7 @@ const PricingPlan = ({
                 ? badge.background ?? 'bg-brand-default'
                 : 'bg-surface-secondary',
             )}
+            data-testid="plan-badge"
           >
             {badge.text}
           </Typography>

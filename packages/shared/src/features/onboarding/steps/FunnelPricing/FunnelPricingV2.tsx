@@ -88,6 +88,7 @@ const PricingSelection = ({
         size={ButtonSize.Large}
         color={ButtonColor.Cabbage}
         className="w-full"
+        data-testid="funnel-pricing-cta"
         onClick={() => onProceedToCheckout?.(selectedPlan)}
       >
         {cta || 'Get my plan'}

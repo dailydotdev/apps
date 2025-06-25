@@ -61,7 +61,7 @@ const useDiscountTimer = ({
     clearTimer,
   } = useTimer(
     () => {
-      onTimerEnd();
+      onTimerEnd?.();
       clearTimer();
     },
     isActive ? calculateTimeLeft(startDate, durationInMinutes) : 0,
