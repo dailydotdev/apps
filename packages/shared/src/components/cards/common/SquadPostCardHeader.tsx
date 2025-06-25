@@ -12,6 +12,7 @@ import {
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { useBookmarkProvider } from '../../../hooks';
 import type { UserShortProfile } from '../../../lib/user';
+import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -22,17 +23,13 @@ const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
 );
 
-type SquadPostCardHeaderProps = Pick<
-  Post,
-  'author' | 'source' | 'permalink' | 'bookmarked'
-> & { enableSourceHeader?: boolean };
+type SquadPostCardHeaderProps = { post: Post; enableSourceHeader?: boolean };
 
 export const SquadPostCardHeader = ({
-  author,
-  source,
+  post,
   enableSourceHeader = false,
-  bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const { author, source, bookmarked } = post;
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
@@ -53,7 +50,7 @@ export const SquadPostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <div className="relative flex flex-row gap-2">
+        <div className="relative flex w-full flex-row gap-2">
           <SourceButton
             source={source}
             className={classNames(
@@ -81,6 +78,11 @@ export const SquadPostCardHeader = ({
               <UserEntityCard user={author as UserShortProfile} />
             </HoverCard>
           )}
+          <div className="flex flex-1" />
+          <PostOptionButton
+            post={post}
+            triggerClassName="group-hover:flex laptop:hidden"
+          />
         </div>
       </div>
     </>

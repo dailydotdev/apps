@@ -24,7 +24,6 @@ export default function PostModal({
   onNextPost,
   postPosition,
   post,
-  onRemovePost,
   ...props
 }: PostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -58,7 +57,6 @@ export default function PostModal({
         inlineActions
         onClose={onRequestClose}
         origin={Origin.ArticleModal}
-        onRemovePost={onRemovePost}
         className={{
           fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
           navigation: { actions: 'ml-auto tablet:hidden' },

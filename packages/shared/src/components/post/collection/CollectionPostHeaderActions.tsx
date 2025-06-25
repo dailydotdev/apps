@@ -16,8 +16,6 @@ export const CollectionPostHeaderActions = ({
   inlineActions,
   className,
   notificationClassName,
-  contextMenuId,
-  onRemovePost,
   ...props
 }: PostHeaderActionsProps): ReactElement => {
   return (
@@ -34,8 +32,6 @@ export const CollectionPostHeaderActions = ({
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}
-        contextMenuId={contextMenuId}
-        onRemovePost={onRemovePost}
         origin={Origin.CollectionModal}
       />
     </Container>

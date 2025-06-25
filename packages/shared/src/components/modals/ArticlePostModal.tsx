@@ -23,7 +23,6 @@ export default function ArticlePostModal({
   onNextPost,
   postPosition,
   post,
-  onRemovePost,
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -59,7 +58,6 @@ export default function ArticlePostModal({
         }}
         onClose={onRequestClose}
         origin={Origin.ArticleModal}
-        onRemovePost={onRemovePost}
       />
     </BasePostModal>
   );

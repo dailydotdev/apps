@@ -24,7 +24,6 @@ export const CollectionGrid = forwardRef(function CollectionCard(
     domProps = {},
     onUpvoteClick,
     onCommentClick,
-    onMenuClick,
     onCopyLinkClick,
     onPostClick,
     onPostAuxClick,
@@ -53,12 +52,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <CollectionCardHeader
-        sources={post.collectionSources}
-        totalSources={post.numCollectionSources}
-        onMenuClick={(event) => onMenuClick?.(event, post)}
-        bookmarked={post.bookmarked}
-      />
+      <CollectionCardHeader post={post} />
       <FreeformCardTitle
         className={classNames(
           generateTitleClamp({
