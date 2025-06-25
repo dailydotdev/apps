@@ -11,6 +11,7 @@ import {
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
+import { useTransactionError } from '../useTransactionError';
 
 interface UsePostBoostMutationProps {
   toEstimate?: BoostPostProps;
@@ -61,6 +62,7 @@ export const usePostBoostMutation = ({
         onBoostSuccess?.();
       }
     },
+    onError: useTransactionError(),
   });
 
   const { mutateAsync: onCancelBoost } = useMutation({
