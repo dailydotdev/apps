@@ -391,6 +391,7 @@ export default function CommentActionButtons({
                   key={label}
                   onClick={action}
                   disabled={disabled}
+                  role="menuitem"
                 >
                   <div className="flex w-full items-center gap-2 typo-callout">
                     {icon} {label}
