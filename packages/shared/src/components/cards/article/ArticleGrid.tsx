@@ -96,7 +96,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           post,
           classNames(
             className,
-            showFeedback && '!p-0',
+            '!p-0',
             postRelevant &&
               '!border-status-success !bg-action-upvote-float text-action-upvote-default',
             postIrrelevant &&
@@ -179,6 +179,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             isHoveringCard={isHovering}
             className={{
               image: classNames(
+                'px-1',
                 showFeedback && 'mb-0',
                 smallCard && ' !my-0 !h-26',
               ),
