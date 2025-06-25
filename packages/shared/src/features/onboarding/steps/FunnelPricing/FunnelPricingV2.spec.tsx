@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'jotai';
@@ -25,13 +26,15 @@ import {
 
 const mockOnTransition = jest.fn();
 
-type HydrateAtomsProps = {
-  initialValues: [any, any][];
-  children: React.ReactNode;
-};
-
 // Hydration component to set initial atom values
-const HydrateAtoms = ({ initialValues, children }: HydrateAtomsProps) => {
+const HydrateAtoms = ({
+  initialValues,
+  children,
+}: PropsWithChildren<{
+  initialValues: typeof useHydrateAtoms extends (values: infer T) => void
+    ? T
+    : never;
+}>) => {
   useHydrateAtoms(initialValues);
   return children;
 };
@@ -242,7 +245,7 @@ describe('FunnelPricingV2', () => {
     renderComponent();
 
     // Find all radio inputs
-    const checkedRadios = screen.getAllByRole('radio', {
+    const checkedRadios = screen.getAllByRole<HTMLInputElement>('radio', {
       checked: true,
     });
     const uniqueCheckedValues = [
@@ -250,7 +253,7 @@ describe('FunnelPricingV2', () => {
     ];
 
     expect(uniqueCheckedValues.length).toBe(1);
-    expect(checkedRadios[0].parentElement).toHaveTextContent('Annual');
+    expect(checkedRadios[0].value).toBe('annual');
   });
 
   it('should call onTransition with the selected plan when clicking the CTA button', () => {
