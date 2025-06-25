@@ -84,7 +84,7 @@ type PostFlags = {
   showOnFeed: boolean;
   promoteToPublic: number;
   coverVideo?: string;
-  boosted: boolean;
+  campaignId: string | null;
 };
 
 export enum UserVote {

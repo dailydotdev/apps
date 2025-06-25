@@ -16,12 +16,13 @@ import { Image } from '../../../image/Image';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
-import { AdsDashboardModal } from './AdsDashboardModal';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
 import { usePostImage } from '../../../../hooks/post/usePostImage';
 import { BoostPostSuccessModal } from './BoostPostSuccessModal';
 import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../common/types';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -35,7 +36,6 @@ interface BoostPostModalProps extends ModalProps {
 const SCREENS = {
   FORM: 'FORM',
   BUY_CORES: 'BUY_CORES',
-  DASHBOARD: 'DASHBOARD',
   SUCCESS: 'SUCCESS',
 } as const;
 
@@ -46,6 +46,7 @@ export function BoostPostModal({
   ...props
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
+  const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
@@ -94,13 +95,9 @@ export function BoostPostModal({
     return (
       <BoostPostSuccessModal
         {...props}
-        onBackToDashboard={() => setActiveScreen(SCREENS.DASHBOARD)}
+        onBackToDashboard={() => openModal({ type: LazyModal.AdsDashboard })}
       />
     );
-  }
-
-  if (activeScreen === SCREENS.DASHBOARD) {
-    return <AdsDashboardModal isOpen />;
   }
 
   // just to avoid any edge case where the min, for some reason is greater than max

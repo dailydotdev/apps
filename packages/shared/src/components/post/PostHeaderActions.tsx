@@ -87,7 +87,7 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {!post.flags?.boosted && canBoost && <BoostPostButton post={post} />}
+      {!post.flags?.campaignId && canBoost && <BoostPostButton post={post} />}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
         post={post}

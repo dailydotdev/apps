@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import { CoreIcon } from '../../../icons';
@@ -10,9 +10,10 @@ import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoad
 import { CampaignList } from '../../../../features/boost/CampaignList';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
-import { BoostPostModal } from './BoostPostModal';
 import usePostById from '../../../../hooks/usePostById';
 import type { Post } from '../../../../graphql/posts';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../common/types';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialBoostedPost?: BoostedPostData;
@@ -22,6 +23,7 @@ export function AdsDashboardModal({
   initialBoostedPost,
   ...props
 }: AdsDashboardModalProps): ReactElement {
+  const { openModal } = useLazyModal();
   const { data, isLoading, stats } = usePostBoost();
   const [toBoost, setToBoost] = useState<Post['id']>();
   const { post } = usePostById({ id: toBoost });
@@ -30,8 +32,14 @@ export function AdsDashboardModal({
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
 
-  if (post) {
-    return <BoostPostModal {...props} post={post} />;
+  useEffect(() => {
+    if (post) {
+      openModal({ type: LazyModal.BoostPost, props: { post } });
+    }
+  }, [openModal, post]);
+
+  if (toBoost) {
+    return null;
   }
 
   if (boosted) {
@@ -53,7 +61,7 @@ export function AdsDashboardModal({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Header title="Ads dashboard" />
+      <Modal.Header title="Ads dashboard" showCloseButton />
       <Modal.Body className="flex flex-col gap-4">
         <Modal.Subtitle>Overview all time</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
