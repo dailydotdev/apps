@@ -21,6 +21,7 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
             image
             shortId
             permalink
+            engagements
           }
           campaign {
             campaignId
@@ -104,6 +105,7 @@ export const BOOSTED_POST_CAMPAIGN_BY_ID = gql`
         image
         shortId
         permalink
+        engagements
       }
       campaign {
         campaignId
