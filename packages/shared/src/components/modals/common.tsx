@@ -1,6 +1,7 @@
 import type React from 'react';
 import dynamic from 'next/dynamic';
 import { LazyModal } from './common/types';
+import SquadsNotificationsModal from '../notifications/SquadsNotificationsModal';
 
 export type CloseModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
@@ -335,6 +336,7 @@ export const modals = {
   [LazyModal.ListAwards]: ListAwardsModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
+  [LazyModal.SquadsNotifications]: SquadsNotificationsModal,
 };
 
 type GetComponentProps<T> = T extends
