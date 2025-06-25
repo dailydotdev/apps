@@ -761,7 +761,7 @@ describe('Feed logged in', () => {
       pathname: '/',
       query: {
         pmid: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-        pmcid: 'post-context-my-feed',
+        pmcid: 'my-feed',
       },
       asPath: '/posts/4f354bb73009e4adfa5dbcbf9b3c4ebf',
       push: jest.fn(),
@@ -843,7 +843,7 @@ describe('Feed logged in', () => {
         pathname: '/',
         query: {
           pmid: id,
-          pmcid: 'post-context-my-feed',
+          pmcid: 'my-feed',
         },
         asPath: `/posts/${id}`,
         push: async (url, asUrl) => {
