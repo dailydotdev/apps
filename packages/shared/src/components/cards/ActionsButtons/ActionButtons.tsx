@@ -23,6 +23,8 @@ import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { AwardButton } from '../../award/AwardButton';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -46,6 +48,8 @@ const ActionButtons = ({
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
+  const { user } = useAuthContext();
+  const isSameUser = post.author?.id === user?.id;
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
@@ -156,6 +160,18 @@ const ActionButtons = ({
           ) : null}
         </QuaternaryButton>
       </Tooltip>
+      {!isSameUser && (
+        <AwardButton
+          entity={{
+            id: post.id,
+            receiver: post.author,
+            numAwards: post.numAwards,
+          }}
+          type="POST"
+          post={post}
+          iconSize={IconSize.XSmall}
+        />
+      )}
       <BookmarkButton
         post={post}
         buttonProps={{
