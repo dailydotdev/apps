@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import type { LoggedUser } from '../../lib/user';
@@ -137,7 +137,9 @@ it('should render the comment box', async () => {
 it('should call onDelete callback', async () => {
   renderLayout({}, loggedUser);
   const el = await screen.findByLabelText('Options');
-  el.click();
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
   const [, remove] = await screen.findAllByRole('menuitem');
   remove.click();
   expect(onDelete).toBeCalledWith(comment, 'c1');
