@@ -101,14 +101,18 @@ const baseProps: FunnelStepPricingV2 = {
             text: 'Popular',
             background: 'bg-accent-cabbage-default',
           },
+          oldPrice: {
+            monthly: '$9.99',
+            daily: '$0.99',
+          }
         },
         {
-          priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
+          priceId: 'pri_01jcdp5ef4yhv00p43hr2knrd2',
           label: '3 Months',
           variation: PricingPlanVariation.BEST_VALUE,
           badge: {
             text: 'Save 50%',
-            background: 'bg-accent-cabbage-default',
+            background: 'bg-status-success',
           },
         },
         {

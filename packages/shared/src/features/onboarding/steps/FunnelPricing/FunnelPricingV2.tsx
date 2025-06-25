@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useCallback, useEffect, useId } from 'react';
+import React, { useCallback, useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import Head from 'next/head';
 import { useAtomValue } from 'jotai';
@@ -20,7 +20,6 @@ import {
   StepHeadline,
   StepHeadlineAlign,
   CreditCards,
-  PricingPlans,
   BoxReviews,
   BoxContentImage,
 } from '../../shared';
@@ -38,8 +37,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { usePaymentContext } from '../../../../contexts/payment/context';
-import { getPricing } from './FunnelPricing';
+import { PricingPlansV2 } from '../../shared/PricingPlansV2';
 
 type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
   discountStartDate: Date | null;
@@ -49,35 +47,11 @@ type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
 const PricingSelection = ({
   discount,
   onProceedToCheckout,
-  plansBlock: { cta, ctaMessage, heading, plans, pricingType, timer },
+  plansBlock: { cta, ctaMessage, heading, plans, timer },
 }: PricingSelectionProps) => {
   const applyDiscount = useAtomValue(applyDiscountAtom);
   const discountStartDate = useAtomValue(discountTimerAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
-  const id = useId();
-
-  const { productOptions } = usePaymentContext();
-  const organizedPlans = useMemo(
-    () =>
-      plans
-        ?.map((plan) => {
-          const pricing = productOptions?.find(
-            (option) => option?.priceId === plan.priceId,
-          );
-
-          if (!pricing) {
-            return null;
-          }
-
-          return {
-            ...plan,
-            value: plan.priceId,
-            price: getPricing(pricing, pricingType),
-          };
-        })
-        .filter(Boolean),
-    [plans, productOptions, pricingType],
-  );
 
   return (
     <section className="flex flex-col gap-4">
@@ -91,10 +65,10 @@ const PricingSelection = ({
           isActive
         />
       )}
-      <PricingPlans
-        name={id}
+      <PricingPlansV2
         onChange={setSelectedPlan}
-        plans={organizedPlans}
+        value={selectedPlan}
+        items={plans}
       />
       <Typography
         className="text-center"

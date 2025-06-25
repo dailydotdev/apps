@@ -18,6 +18,7 @@ export interface FunnelStepPricingPlan {
     text: string;
     background: string;
   };
+  oldPrice?: Record<FunnelPricingType, string>;
 }
 
 export interface FunnelStepPricingDiscount {

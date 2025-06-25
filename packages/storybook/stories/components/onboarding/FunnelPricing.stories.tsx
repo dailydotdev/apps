@@ -12,7 +12,10 @@ import { fn } from 'storybook/test';
 import { PricingPlanVariation } from '@dailydotdev/shared/src/features/onboarding/shared/PricingPlan';
 import ExtensionProviders from '../../extension/_providers';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
-import { PaymentContext, FunnelPaymentPricingContext } from '@dailydotdev/shared/src/contexts/payment/context';
+import {
+  PaymentContext,
+  FunnelPaymentPricingContext,
+} from '@dailydotdev/shared/src/contexts/payment/context';
 import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
 import {
   PlusPriceType,
@@ -29,11 +32,39 @@ export const mockPricing: ProductPricingPreview[] = [
   {
     priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
     price: {
-      amount: 15,
-      formatted: '$15',
+      amount: 6.93,
+      formatted: '$6.93',
       monthly: {
-        amount: 15,
-        formatted: '$15',
+        amount: 6.93,
+        formatted: '$6.93',
+      },
+      daily: {
+        amount: 0.49,
+        formatted: '$0.49',
+      },
+    },
+    currency: {
+      code: 'USD',
+      symbol: '$',
+    },
+    duration: PlusPriceType.Monthly,
+    metadata: {
+      appsId: PlusPriceTypeAppsId.Default,
+      title: 'Monthly',
+      idMap: {
+        paddle: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
+        ios: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
+      },
+    },
+  },
+  {
+    priceId: 'pri_01jcdp5ef4yhv00p43hr2knrd2',
+    price: {
+      amount: 5.99,
+      formatted: '$5.99',
+      monthly: {
+        amount: 5.99,
+        formatted: '$5.99',
       },
       daily: {
         amount: 0.49,
@@ -60,7 +91,7 @@ export const mockPricing: ProductPricingPreview[] = [
       amount: 150,
       formatted: '$150',
       monthly: {
-        amount: 12.50,
+        amount: 12.5,
         formatted: '$12.50',
       },
       daily: {
@@ -85,7 +116,11 @@ export const mockPricing: ProductPricingPreview[] = [
 ];
 
 // Mock PaymentContext provider
-export const MockPaymentProvider = ({ children }: { children: React.ReactNode }) => {
+export const MockPaymentProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const mockContextValue = {
     openCheckout: fn(),
     productOptions: mockPricing,
@@ -103,7 +138,13 @@ export const MockPaymentProvider = ({ children }: { children: React.ReactNode })
 };
 
 // Hydrate atoms wrapper
-const HydrateAtoms = ({ children, initialValues }: { children: React.ReactNode; initialValues: [any, any][] }) => {
+const HydrateAtoms = ({
+  children,
+  initialValues,
+}: {
+  children: React.ReactNode;
+  initialValues: [any, any][];
+}) => {
   useHydrateAtoms(initialValues);
   return <>{children}</>;
 };
@@ -133,7 +174,9 @@ const meta: Meta<typeof FunnelPricing> = {
           ]}
         >
           <ExtensionProviders>
-            <FunnelPaymentPricingContext.Provider value={{ pricing: mockPricing }}>
+            <FunnelPaymentPricingContext.Provider
+              value={{ pricing: mockPricing }}
+            >
               <MockPaymentProvider>
                 <FunnelStepBackground step={props}>
                   <FunnelPricing {...props} />
