@@ -7,7 +7,6 @@ import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
   DiscussIcon as CommentIcon,
-  BookmarkIcon,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
@@ -112,7 +111,7 @@ const ActionButtons = ({
           >
             <UpvoteButtonIcon
               secondary={isUpvoteActive}
-              size={IconSize.Small}
+              size={IconSize.XSmall}
             />
             <InteractionCounter
               className={classNames(
@@ -128,7 +127,12 @@ const ActionButtons = ({
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
-            icon={<DownvoteIcon secondary={isDownvoteActive} />}
+            icon={
+              <DownvoteIcon
+                secondary={isDownvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
             pressed={isDownvoteActive}
             onClick={onToggleDownvote}
             variant={ButtonVariant.Tertiary}
@@ -139,7 +143,9 @@ const ActionButtons = ({
       <Tooltip content="Comments">
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
-          icon={<CommentIcon secondary={post.commented} />}
+          icon={
+            <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
+          }
           pressed={post.commented}
           onClick={() => onCommentClick?.(post)}
           size={ButtonSize.Small}
@@ -154,7 +160,6 @@ const ActionButtons = ({
         post={post}
         buttonProps={{
           id: `post-${post.id}-bookmark-btn`,
-          icon: <BookmarkIcon secondary={post.bookmarked} />,
           onClick: onToggleBookmark,
           size: ButtonSize.Small,
         }}
@@ -162,7 +167,7 @@ const ActionButtons = ({
       <Tooltip content="Copy link">
         <Button
           size={ButtonSize.Small}
-          icon={<LinkIcon />}
+          icon={<LinkIcon size={IconSize.XSmall} />}
           onClick={onCopyLink}
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
