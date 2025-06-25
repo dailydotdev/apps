@@ -17,9 +17,9 @@ import useFeedSettings from '../../../hooks/useFeedSettings';
 import type { BlockTagSelection } from './common';
 import { getBlockedMessage } from './common';
 import { GenericTagButton } from '../../filters/TagButton';
-import { SimpleTooltip } from '../../tooltips';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useCustomFeed } from '../../../hooks/feed/useCustomFeed';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface PostTagsPanelProps {
   post: Post;
@@ -139,9 +139,9 @@ export function PostTagsPanel({
         <ConditionalWrapper
           condition={isBlockDisabled}
           wrapper={(children: ReactElement) => (
-            <SimpleTooltip content="Select at least one tag or source to block">
+            <Tooltip content="Select at least one tag or source to block">
               <span>{children}</span>
-            </SimpleTooltip>
+            </Tooltip>
           )}
         >
           <Button

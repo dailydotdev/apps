@@ -73,7 +73,12 @@ export const SearchControlHeader = ({
   }
 
   const dropdownProps: Partial<DropdownProps> = {
-    className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
+    className: {
+      label: 'hidden',
+      chevron: 'hidden',
+      button: '!px-1',
+      container: 'flex',
+    },
     dynamicMenuWidth: true,
     shouldIndicateSelected: true,
     buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,

@@ -1,18 +1,14 @@
-import React, { useId } from 'react';
+import React from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
-
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-
 import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
-
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
 import {
   DateFormat,
@@ -47,26 +43,30 @@ import {
   ClearIcon,
   DevPlusIcon,
   EyeIcon,
+  MenuIcon,
   StarIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
-
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/fields/ContextMenu';
-import ContextMenu from '@dailydotdev/shared/src/components/fields/ContextMenu';
-import OptionsButton from '@dailydotdev/shared/src/components/buttons/OptionsButton';
-import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SeatsOverview } from '@dailydotdev/shared/src/features/organizations/components/SeatsOverview';
 import type { ContextMenuDrawerItem } from '@dailydotdev/shared/src/components/drawers/ContextMenuDrawer';
 import classNames from 'classnames';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
+import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
+import Link from 'next/link';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -78,9 +78,7 @@ const OrganizationOptionsMenu = ({
   member: Omit<OrganizationMember, 'lastActive'>;
 }) => {
   const { user: currentUser } = useAuthContext();
-  const contextMenuId = useId();
   const router = useRouter();
-  const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const {
     removeOrganizationMember,
     updateOrganizationMemberRole,
@@ -107,7 +105,7 @@ const OrganizationOptionsMenu = ({
     ...(memberHasPlusOutsideOrg && {
       disabled: true,
       Wrapper: ({ children }) => (
-        <SimpleTooltip
+        <Tooltip
           content={
             <>
               This member already has a Plus subscription outside of your
@@ -117,7 +115,7 @@ const OrganizationOptionsMenu = ({
           }
         >
           <div>{children}</div>
-        </SimpleTooltip>
+        </Tooltip>
       ),
     }),
   });
@@ -155,10 +153,52 @@ const OrganizationOptionsMenu = ({
   }
 
   return (
-    <>
-      <OptionsButton onClick={onMenuClick} />
-      <ContextMenu options={options} id={contextMenuId} isOpen={isOpen} />
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          className="my-auto"
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {options.map(
+          ({
+            label,
+            icon,
+            action,
+            anchorProps,
+            disabled,
+            Wrapper,
+          }: MenuItemProps) => (
+            <ConditionalWrapper
+              key={label}
+              condition={!!Wrapper}
+              wrapper={(children) => <Wrapper>{children}</Wrapper>}
+            >
+              <DropdownMenuItem
+                onClick={action}
+                key={label}
+                disabled={disabled}
+              >
+                {anchorProps ? (
+                  <Link href={anchorProps.href} passHref>
+                    <a className="flex" {...anchorProps} role="menuitem">
+                      {icon} {label}
+                    </a>
+                  </Link>
+                ) : (
+                  <button className="flex" type="button" role="menuitem">
+                    {icon} {label}
+                  </button>
+                )}
+              </DropdownMenuItem>
+            </ConditionalWrapper>
+          ),
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

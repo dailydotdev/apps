@@ -12,7 +12,7 @@ import {
   ShareIcon,
   BookmarkIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -188,7 +188,7 @@ export default function CompanionMenu({
     });
   };
 
-  const tooltipContainerProps = { className: 'shadow-2 whitespace-nowrap' };
+  const tooltipContainerClassName = 'shadow-2 whitespace-nowrap';
 
   const onEscape = () => {
     if (!companionState) {
@@ -209,16 +209,15 @@ export default function CompanionMenu({
       <CompanionToggle
         companionState={companionState}
         isAlertDisabled={!showCompanionHelper}
-        tooltipContainerProps={tooltipContainerProps}
+        tooltipContainerClassName={tooltipContainerClassName}
         onToggleCompanion={toggleCompanion}
       />
-      <SimpleTooltip
-        placement="left"
+      <Tooltip
+        side="left"
         content={
           post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
         }
-        appendTo="parent"
-        container={tooltipContainerProps}
+        className={tooltipContainerClassName}
       >
         <Button
           icon={
@@ -229,12 +228,11 @@ export default function CompanionMenu({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Avocado}
         />
-      </SimpleTooltip>
-      <SimpleTooltip
-        placement="left"
+      </Tooltip>
+      <Tooltip
+        side="left"
         content="Add comment"
-        appendTo="parent"
-        container={tooltipContainerProps}
+        className={tooltipContainerClassName}
       >
         <Button
           variant={ButtonVariant.Tertiary}
@@ -254,12 +252,11 @@ export default function CompanionMenu({
             }
           }}
         />
-      </SimpleTooltip>
-      <SimpleTooltip
-        placement="left"
+      </Tooltip>
+      <Tooltip
+        side="left"
         content={`${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`}
-        appendTo="parent"
-        container={tooltipContainerProps}
+        className={tooltipContainerClassName}
       >
         <Button
           icon={<BookmarkIcon secondary={post?.bookmarked} />}
@@ -268,12 +265,11 @@ export default function CompanionMenu({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Bun}
         />
-      </SimpleTooltip>
-      <SimpleTooltip
-        placement="left"
+      </Tooltip>
+      <Tooltip
+        side="left"
         content="Share post"
-        appendTo="parent"
-        container={tooltipContainerProps}
+        className={tooltipContainerClassName}
       >
         <Button
           variant={ButtonVariant.Tertiary}
@@ -281,19 +277,18 @@ export default function CompanionMenu({
           onClick={onShare}
           icon={<ShareIcon />}
         />
-      </SimpleTooltip>
-      <SimpleTooltip
-        placement="left"
+      </Tooltip>
+      <Tooltip
+        side="left"
         content="More options"
-        appendTo="parent"
-        container={tooltipContainerProps}
+        className={tooltipContainerClassName}
       >
         <Button
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           onClick={onContextOptions}
         />
-      </SimpleTooltip>
+      </Tooltip>
       <CompanionContextMenu
         onShare={onShare}
         postData={post}

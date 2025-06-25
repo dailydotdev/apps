@@ -7,12 +7,17 @@ import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
 import type { PostType } from '../../graphql/posts';
 import type { Source } from '../../graphql/sources';
+import PostNavigation from '../post/PostNavigation';
+import type { PostPosition } from '../../hooks/usePostModalNavigation';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
   source?: Source;
   isLoading?: boolean;
   loadingClassName?: string;
+  postPosition?: PostPosition;
+  onPreviousPost?: () => void;
+  onNextPost?: () => void;
 }
 
 function BasePostModal({
@@ -22,6 +27,9 @@ function BasePostModal({
   postType,
   source,
   loadingClassName,
+  postPosition,
+  onPreviousPost,
+  onNextPost,
   ...props
 }: BasePostModalProps): ReactElement {
   return (
@@ -44,7 +52,17 @@ function BasePostModal({
           className={loadingClassName}
         />
       ) : (
-        children
+        <>
+          <PostNavigation
+            className={{
+              container: 'pl-4',
+            }}
+            postPosition={postPosition}
+            onPreviousPost={onPreviousPost}
+            onNextPost={onNextPost}
+          />
+          {children}
+        </>
       )}
     </Modal>
   );

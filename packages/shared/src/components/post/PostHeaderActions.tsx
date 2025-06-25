@@ -8,7 +8,6 @@ import {
   PostType,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
@@ -16,22 +15,9 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
+import { Tooltip } from '../tooltip/Tooltip';
 
 const Container = classed('div', 'flex flex-row items-center');
-
-interface GetButtonVariantProps {
-  inlineActions: boolean;
-}
-
-const getButtonVariant = ({
-  inlineActions,
-}: GetButtonVariantProps): ButtonVariant => {
-  if (inlineActions) {
-    return ButtonVariant.Tertiary;
-  }
-
-  return ButtonVariant.Primary;
-};
 
 export function PostHeaderActions({
   onReadArticle,
@@ -40,28 +26,23 @@ export function PostHeaderActions({
   inlineActions,
   className,
   notificationClassName,
-  contextMenuId,
-  onRemovePost,
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
+  const isMobile = useViewSizeClient(ViewSize.MobileXL);
+  const isEnlarged = isFixedNavigation || isLaptop;
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
-  const isEnlarged = isFixedNavigation || isLaptop;
   const ButtonWithExperiment = useCallback(() => {
     return (
-      <SimpleTooltip
-        placement="bottom"
-        content={readButtonText}
-        disabled={!inlineActions}
-      >
+      <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
         <Button
           variant={
-            isEnlarged
-              ? getButtonVariant({ inlineActions })
-              : ButtonVariant.Float
+            isFixedNavigation || isMobile
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Secondary
           }
           tag="a"
           href={post.sharedPost?.permalink ?? post.permalink}
@@ -69,32 +50,31 @@ export function PostHeaderActions({
           icon={<OpenLinkIcon />}
           onClick={onReadArticle}
           data-testid="postActionsRead"
-          size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
+          size={ButtonSize.Small}
         >
           {!inlineActions ? readButtonText : null}
         </Button>
-      </SimpleTooltip>
+      </Tooltip>
     );
   }, [
     inlineActions,
-    isEnlarged,
     onReadArticle,
     openNewTab,
     post.permalink,
     post.sharedPost?.permalink,
     readButtonText,
+    isFixedNavigation,
+    isMobile,
   ]);
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
+      {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}
-        contextMenuId={contextMenuId}
-        onRemovePost={onRemovePost}
         origin={Origin.ArticleModal}
         isEnlarged={isEnlarged}
       />

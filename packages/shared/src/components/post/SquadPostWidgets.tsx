@@ -1,89 +1,47 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
-import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
-import { PostHeaderActions } from './PostHeaderActions';
-import SourceButton from '../cards/common/SourceButton';
-import type { BasicSourceMember, Squad } from '../../graphql/sources';
-import { SquadActionButton } from '../squads/SquadActionButton';
-import { Origin } from '../../lib/log';
-import { useSquad } from '../../hooks';
-import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
-import SquadMemberShortList from '../squads/SquadMemberShortList';
+import type { Squad } from '../../graphql/sources';
+import { isSourcePublicSquad } from '../../graphql/squads';
 import type { PostWidgetsProps } from './PostWidgets';
-import { ProfileImageSize } from '../ProfilePicture';
 import { FooterLinks } from '../footer';
-
-const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
-  const { isFetched } = useAuthContext();
-  const { id: squadId, handle } = squadSource || {};
-  const { squad } = useSquad({ handle });
-
-  const { data: squadMembers } = useQuery<BasicSourceMember[]>({
-    queryKey: ['squadMembersInitial', handle],
-    queryFn: () => getSquadMembers(squadId),
-    enabled: isFetched && !!squadId,
-  });
-
-  if (!squad) {
-    return null;
-  }
-
-  return (
-    <div className="rounded-16 border border-border-subtlest-tertiary p-4">
-      <div className="flex flex-row justify-between">
-        <SourceButton source={squad} size={ProfileImageSize.XXXLarge} />
-        <SquadMemberShortList
-          squad={squad}
-          members={squadMembers}
-          className="h-10"
-        />
-      </div>
-      <h3 className="mt-3 text-text-primary typo-title2">{squad.name}</h3>
-      <h4 className="text-text-tertiary typo-callout">{`@${squad.handle}`}</h4>
-      {squad.description && (
-        <p className="mt-1 overflow-hidden text-ellipsis text-text-tertiary typo-callout">
-          {squad.description}
-        </p>
-      )}
-      <SquadActionButton
-        className={{ button: 'mt-3 w-full' }}
-        squad={squad}
-        origin={Origin.ArticleModal}
-      />
-      {!squad.currentMember && (
-        <p className="mt-3 text-text-tertiary typo-callout">
-          Join the {squad.name} Squad to see more posts on your feed
-        </p>
-      )}
-    </div>
-  );
-};
+import SquadEntityCard from '../cards/entity/SquadEntityCard';
+import UserEntityCard from '../cards/entity/UserEntityCard';
+import type { UserShortProfile } from '../../lib/user';
 
 export function SquadPostWidgets({
   onCopyPostLink,
   post,
   origin,
   className,
-  onClose,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const squad = post.source as Squad;
   const isPublicSquad = isSourcePublicSquad(squad);
 
+  const cardClasses = 'w-full bg-transparent';
+
   return (
     <PageWidgets className={className}>
-      <PostHeaderActions
-        post={post}
-        onClose={onClose}
-        className="hidden pt-6 tablet:flex"
-        contextMenuId="post-widgets-context"
+      {!!squad && (
+        <SquadEntityCard
+          className={{
+            container: cardClasses,
+          }}
+          handle={post.source.handle}
+          origin={origin}
+        />
+      )}
+      <UserEntityCard
+        className={{
+          container: cardClasses,
+        }}
+        user={post.author as UserShortProfile}
       />
-      {!!squad && !squad.currentMember && <SquadCard squadSource={squad} />}
       {isPublicSquad && (
         <>
           <ShareBar post={post} />

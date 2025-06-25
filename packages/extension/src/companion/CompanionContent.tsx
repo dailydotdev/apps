@@ -7,7 +7,6 @@ import {
   TLDRText,
 } from '@dailydotdev/shared/src/components/utilities';
 import '@dailydotdev/shared/src/styles/globals.css';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import {
   Button,
@@ -20,6 +19,8 @@ import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
@@ -68,11 +69,10 @@ export default function CompanionContent({
           <LogoIcon className={{ container: 'w-8 rounded-8' }} />
         </a>
         {post?.trending && <HotLabel />}
-        <SimpleTooltip
-          placement="top"
+        <Tooltip
+          side="top"
           content="Copy link"
-          appendTo="parent"
-          container={{ className: 'shadow-2 whitespace-nowrap' }}
+          className="whitespace-nowrap shadow-2"
         >
           <Button
             icon={<CopyIcon />}
@@ -81,7 +81,7 @@ export default function CompanionContent({
             className="ml-auto"
             onClick={logAndCopyLink}
           />
-        </SimpleTooltip>
+        </Tooltip>
       </div>
       <p className="my-4 flex-1 break-words typo-callout">
         <TLDRText>TLDR -</TLDRText>

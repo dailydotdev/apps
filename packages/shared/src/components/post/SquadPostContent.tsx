@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import PostSourceInfo from './PostSourceInfo';
 import { BasePostContent } from './BasePostContent';
 import { PostType, isVideoPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
@@ -16,6 +15,7 @@ import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
+import PostSourceInfo from './PostSourceInfo';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -37,7 +37,6 @@ function SquadPostContentRaw({
   onPreviousPost,
   onNextPost,
   onClose,
-  onRemovePost,
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
@@ -57,7 +56,6 @@ function SquadPostContentRaw({
     postPosition,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   useEffect(() => {
@@ -92,7 +90,7 @@ function SquadPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 laptop:px-8',
+          'relative flex min-w-0 flex-1 flex-col px-4 pt-6 laptop:px-8',
           className?.content,
         )}
       >
@@ -116,8 +114,10 @@ function SquadPostContentRaw({
           post={post}
         >
           <PostSourceInfo
-            source={post.source}
-            className={classNames('!typo-body', customNavigation && 'mt-6')}
+            post={post}
+            onClose={onClose}
+            onReadArticle={onReadArticle}
+            className="mb-6"
           />
           <SquadPostAuthor
             author={post?.author}
@@ -132,7 +132,7 @@ function SquadPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary laptop:mb-0"
+        className="mb-6 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />
