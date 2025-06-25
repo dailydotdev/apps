@@ -39,7 +39,7 @@ const meta: Meta<typeof FunnelPricingV2> = {
       </FunnelPaymentPricingContext.Provider>
     </ExtensionProviders>
   ),
-  beforeEach: () => {
+  play: () => {
     // clear start date from localStorage at the beginning of each story
     localStorage.removeItem(DISCOUNT_LOCAL_STORAGE_KEY);
   }
