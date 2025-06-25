@@ -1,13 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useId } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
-import OptionsButton from '../../buttons/OptionsButton';
-import ContextMenu from '../../fields/ContextMenu';
-import { EditIcon, TrashIcon } from '../../icons';
-import useContextMenu from '../../../hooks/useContextMenu';
+import type { MenuItemProps } from '../../fields/ContextMenu';
+import { EditIcon, MenuIcon, TrashIcon } from '../../icons';
 import { usePrompt } from '../../../hooks/usePrompt';
-import { ButtonSize } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import type { SourcePostModeration } from '../../../graphql/squads';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../dropdown/DropdownMenu';
+import { Button } from '../../buttons/Button';
 
 interface SquadModerationItemContextMenuProps
   extends Pick<SourcePostModeration, 'id'> {
@@ -18,8 +23,6 @@ export const SquadModerationItemContextMenu = ({
   id,
   onDelete,
 }: SquadModerationItemContextMenuProps): ReactElement => {
-  const contextMenuId = useId();
-  const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
   const { showPrompt } = usePrompt();
   const router = useRouter();
 
@@ -34,30 +37,38 @@ export const SquadModerationItemContextMenu = ({
     }
   };
 
+  const options: MenuItemProps[] = [
+    {
+      label: 'Edit post',
+      action: () => router.push(`/posts/${id}/edit?moderation=true`),
+      icon: <EditIcon aria-hidden />,
+    },
+    {
+      label: 'Delete post',
+      action: handleDelete,
+      icon: <TrashIcon aria-hidden />,
+    },
+  ];
+
   return (
     <>
-      <OptionsButton
-        onClick={onMenuClick}
-        className="z-1 !my-0"
-        side="right"
-        size={ButtonSize.Medium}
-      />
-      <ContextMenu
-        options={[
-          {
-            label: 'Edit post',
-            action: () => router.push(`/posts/${id}/edit?moderation=true`),
-            icon: <EditIcon aria-hidden />,
-          },
-          {
-            label: 'Delete post',
-            action: handleDelete,
-            icon: <TrashIcon aria-hidden />,
-          },
-        ]}
-        id={contextMenuId}
-        isOpen={isOpen}
-      />
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            className="z-1 my-0"
+            icon={<MenuIcon />}
+            size={ButtonSize.Small}
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {options.map(({ label, icon, action }: MenuItemProps) => (
+            <DropdownMenuItem key={label} onClick={action}>
+              {icon} {label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 };
