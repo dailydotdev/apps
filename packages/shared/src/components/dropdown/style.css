@@ -1,9 +1,6 @@
-/* reset */
-button {
-  all: unset;
+[data-radix-popper-content-wrapper] {
+  z-index: 1000!important;
 }
-
-[data-radix-popper-content-wrapper] { z-index: 1000!important; }
 
 .DropdownMenuContent,
 .DropdownMenuSubContent {

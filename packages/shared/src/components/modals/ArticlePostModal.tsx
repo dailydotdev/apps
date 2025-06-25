@@ -29,7 +29,6 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
-
   return (
     <BasePostModal
       {...props}
@@ -38,6 +37,9 @@ export default function ArticlePostModal({
       postType={PostType.Article}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
+      postPosition={postPosition}
+      onPreviousPost={onPreviousPost}
+      onNextPost={onNextPost}
     >
       <PostContent
         position={position}

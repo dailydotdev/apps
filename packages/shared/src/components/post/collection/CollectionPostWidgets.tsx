@@ -3,7 +3,6 @@ import React from 'react';
 import { PageWidgets } from '../../utilities';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
-import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { CollectionsIntro } from '../widgets';
 import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
@@ -15,16 +14,9 @@ export const CollectionPostWidgets = ({
   post,
   origin,
   className,
-  onClose,
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
-      <CollectionPostHeaderActions
-        post={post}
-        onClose={onClose}
-        className="hidden pt-6 laptop:flex"
-        contextMenuId="post-widgets-context"
-      />
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}

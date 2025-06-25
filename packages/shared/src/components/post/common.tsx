@@ -33,13 +33,14 @@ export interface PostNavigationClassName {
   title?: string;
 }
 
-export interface PostNavigationProps extends PostActions {
+export interface PostNavigationProps extends Omit<PostActions, 'post'> {
   postPosition?: PostPosition;
   onPreviousPost?: () => unknown;
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
   isBannerVisible?: boolean;
   contextMenuId?: string;
+  post?: Post;
 }
 
 export type PassedPostNavigationProps = Pick<
