@@ -49,7 +49,6 @@ export function PostContentRaw({
   postPosition,
   isFallback,
   customNavigation,
-  onRemovePost,
   backToSquad,
   isBannerVisible,
   isPostPage,
@@ -79,7 +78,6 @@ export function PostContentRaw({
     onReadArticle,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   // Only send view post if the post is a video type
@@ -147,7 +145,12 @@ export function PostContentRaw({
           post={post}
         >
           <div className="my-6">
-            <PostSourceInfo className="mb-3" source={post.source} />
+            <PostSourceInfo
+              className="mb-3"
+              post={post}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+            />
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
@@ -215,7 +218,7 @@ export function PostContentRaw({
       <PostWidgets
         onReadArticle={onReadArticle}
         post={post}
-        className="pb-8"
+        className="pb-8 pt-4"
         onClose={onClose}
         origin={origin}
         onCopyPostLink={onCopyPostLink}
