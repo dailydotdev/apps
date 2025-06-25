@@ -36,7 +36,6 @@ const CollectionPostContentRaw = ({
   postPosition,
   isFallback,
   customNavigation,
-  onRemovePost,
   backToSquad,
   isBannerVisible,
   isPostPage,
@@ -64,7 +63,6 @@ const CollectionPostContentRaw = ({
     onReadArticle,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   const onSendViewPost = useViewPost();

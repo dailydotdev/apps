@@ -12,7 +12,6 @@ import {
   getPostClassNames,
 } from '../common/Card';
 import CardOverlay from '../common/CardOverlay';
-import OptionsButton from '../../buttons/OptionsButton';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
@@ -27,7 +26,6 @@ export const FreeformGrid = forwardRef(function SharePostCard(
     onPostAuxClick,
     onUpvoteClick,
     onCommentClick,
-    onMenuClick,
     onCopyLinkClick,
     onBookmarkClick,
     children,
@@ -59,16 +57,9 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <OptionsButton
-        className="absolute right-2 top-2 group-hover:flex laptop:hidden"
-        onClick={(event) => onMenuClick?.(event, post)}
-        side="top"
-      />
       <SquadPostCardHeader
-        author={post.author}
-        source={post.source}
+        post={post}
         enableSourceHeader={enableSourceHeader}
-        bookmarked={post.bookmarked}
       />
       <CardTextContainer>
         <FreeformCardTitle
