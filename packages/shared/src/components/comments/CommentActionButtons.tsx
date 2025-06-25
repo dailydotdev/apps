@@ -14,6 +14,7 @@ import {
   AddUserIcon,
   BlockIcon,
   GiftIcon,
+  MenuIcon,
 } from '../icons';
 import type { Comment } from '../../graphql/comments';
 import type { UserShortProfile } from '../../lib/user';
@@ -30,9 +31,6 @@ import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import type { MenuItemProps } from '../fields/ContextMenu';
-import ContextMenu from '../fields/ContextMenu';
-import useContextMenu from '../../hooks/useContextMenu';
-import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -54,8 +52,13 @@ import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { truncateTextClassNames } from '../utilities';
 import { CommentAwardActions } from './CommentAwardActions';
-import { MenuIcon } from '../MenuIcon';
 import { Tooltip } from '../tooltip/Tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -89,8 +92,6 @@ export default function CommentActionButtons({
   const { isLoggedIn, user, showLogin } = useAuthContext();
   const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
-  const id = `comment-actions-menu-${comment.id}`;
-  const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { isValidRegion: isPlusAvailable } = useAuthContext();
@@ -175,7 +176,6 @@ export default function CommentActionButtons({
       label: 'Edit comment',
       action: () => {
         onEdit(comment);
-        onHide();
       },
       icon: <EditIcon />,
     });
@@ -191,7 +191,7 @@ export default function CommentActionButtons({
 
   if (isMobileSmall) {
     commentOptions.push({
-      icon: <MenuIcon Icon={ShareIcon} />,
+      icon: <ShareIcon />,
       label: 'Share via',
       action: () => onShare(comment),
     });
@@ -372,7 +372,35 @@ export default function CommentActionButtons({
           color={ButtonColor.Cabbage}
         />
       </Tooltip>
-      {!!commentOptions && <OptionsButton side="top" onClick={onMenuClick} />}
+      {!!commentOptions && (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Tooltip side="top" content="Options">
+              <Button
+                variant={ButtonVariant.Tertiary}
+                className="my-auto"
+                icon={<MenuIcon />}
+                size={ButtonSize.Small}
+              />
+            </Tooltip>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {commentOptions.map(
+              ({ label, icon, action, disabled }: MenuItemProps) => (
+                <DropdownMenuItem
+                  key={label}
+                  onClick={action}
+                  disabled={disabled}
+                >
+                  <div className="flex w-full items-center gap-2 typo-callout">
+                    {icon} {label}
+                  </div>
+                </DropdownMenuItem>
+              ),
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
       {voteState.numUpvotes > 0 && (
         <Tooltip content="See who upvoted">
           <ClickableText
@@ -384,14 +412,6 @@ export default function CommentActionButtons({
           </ClickableText>
         </Tooltip>
       )}
-      <ContextMenu
-        disableBoundariesCheck
-        id={id}
-        className="menu-primary typo-callout"
-        animation="fade"
-        options={commentOptions}
-        isOpen={isOpen}
-      />
     </div>
   );
 }
