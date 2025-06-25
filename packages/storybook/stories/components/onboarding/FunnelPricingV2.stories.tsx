@@ -92,6 +92,7 @@ const baseProps: FunnelStepPricingV2 = {
         message: 'This offer ends in',
       },
       pricingType: FunnelPricingType.Monthly,
+      defaultPlan: 'pri_01jmf95s11a9hedbh2bfcz5dz7',
       plans: [
         {
           priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',

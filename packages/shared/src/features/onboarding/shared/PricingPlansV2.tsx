@@ -10,6 +10,8 @@ import {
 } from '../../../components/typography/Typography';
 import { usePaymentContext } from '../../../contexts/payment/context';
 import type { ProductPricingPreview } from '../../../graphql/paddle';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import { PricingPlanVariation } from './PricingPlan';
 
 interface PricingPlansV2Props {
   onChange?: (plan: string) => void;
@@ -20,7 +22,7 @@ interface PricingPlansV2Props {
 interface PricingPlanProps
   extends Pick<
     FunnelStepPricingPlan,
-    'priceId' | 'label' | 'badge' | 'oldPrice'
+    'priceId' | 'label' | 'badge' | 'oldPrice' | 'variation'
   > {
   isActive?: boolean;
   onChange?: (planId: string) => void;
@@ -32,132 +34,168 @@ const PricingPlan = ({
   onChange,
   ...plan
 }: PricingPlanProps) => {
-  const { priceId, label, badge, price: productOption, oldPrice } = plan;
+  const {
+    priceId,
+    variation,
+    label,
+    badge,
+    price: productOption,
+    oldPrice,
+  } = plan;
   const { price } = productOption ?? {};
+  const isBestValue = variation === PricingPlanVariation.BEST_VALUE;
 
   return (
-    <RadioItem
-      className={{
-        wrapper: classNames(
-          'flex flex-col gap-2 rounded-16 border px-2 py-3',
-          isActive
-            ? 'border-action-share-default bg-brand-float'
-            : 'border-border-subtlest-secondary bg-surface-invert',
-        ),
-        content: 'flex flex-row items-center gap-2 font-normal',
-      }}
-      checked={isActive}
-      onClick={() => onChange?.(priceId)}
-    >
-      {badge?.text && (
-        <Typography
-          type={TypographyType.Caption1}
-          tag={TypographyTag.Span}
-          className={classNames(
-            'absolute -top-3 left-3 inline-flex -translate-y-1/2 rounded-6 px-1 text-white',
-            isActive
-              ? badge.background ?? 'bg-brand-default'
-              : 'bg-surface-secondary',
-          )}
-        >
-          {badge.text}
-        </Typography>
-      )}
-      <div className="flex-1">
-        <Typography
-          bold
-          type={TypographyType.Body}
-          tag={TypographyTag.H4}
-          color={isActive ? TypographyColor.Primary : TypographyColor.Tertiary}
-        >
-          {label}
-        </Typography>
-        {!!price && (
-          <>
-            {oldPrice?.monthly && (
-              <Typography
-                tag={TypographyTag.Del}
-                className="mr-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Quaternary}
-              >
-                {oldPrice.monthly}
-              </Typography>
-            )}
-            <Typography
-              type={TypographyType.Footnote}
-              tag={TypographyTag.Span}
-              color={
-                isActive ? TypographyColor.Primary : TypographyColor.Tertiary
-              }
-            >
-              {price.monthly.formatted}
-            </Typography>
-          </>
-        )}
-      </div>
-      {!!price && (
+    <ConditionalWrapper
+      condition={isBestValue}
+      wrapper={(children) => (
         <div
           className={classNames(
-            'flex items-end justify-end gap-5',
-            isActive ? 'text-text-primary' : 'text-text-tertiary',
+            'rounded-16 p-1',
+            isActive
+              ? 'bg-gradient-funnel-best-price text-white'
+              : 'bg-border-subtlest-secondary text-text-tertiary',
           )}
         >
-          {oldPrice?.daily && (
-            <Typography
-              tag={TypographyTag.Del}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {oldPrice.daily}
-            </Typography>
-          )}
-          <div className="relative">
-            <svg
-              viewBox="0.7 0.8 19.3 52"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className={classNames(
-                'absolute bottom-0 left-0 top-0 z-1 h-full w-auto -translate-x-full',
-                isActive ? 'text-brand-active' : 'text-surface-float',
-              )}
-            >
-              <path
-                d="M14.8285 2.70366C15.5565 1.52067 16.8461 0.800049 18.2352 0.800049H20V52.8H18.2352C16.8461 52.8 15.5565 52.0794 14.8285 50.8964L1.29009 28.8964C0.49893 27.6108 0.49893 25.9893 1.29009 24.7037L14.8285 2.70366Z"
-                fill="currentColor"
-              />
-            </svg>
-            <div
-              className={classNames(
-                'relative z-2 flex items-center gap-1 rounded-r-8 p-1 pl-0',
-                isActive ? 'bg-brand-active' : 'bg-surface-float',
-              )}
-            >
-              <Typography bold type={TypographyType.Callout}>
-                $
-              </Typography>
-              <Typography
-                bold
-                type={TypographyType.Mega3}
-                tag={TypographyTag.Span}
-              >
-                0
-              </Typography>
-              <div>
+          <Typography
+            bold
+            type={TypographyType.Footnote}
+            className="p-1 pt-0 text-center"
+          >
+            BEST VALUE
+          </Typography>
+          {children}
+        </div>
+      )}
+    >
+      <RadioItem
+        className={{
+          wrapper: classNames(
+            'flex flex-col gap-2 rounded-16 bg-white px-2 py-3',
+            !isBestValue && 'border',
+            isActive
+              ? 'border-action-share-default bg-brand-float'
+              : 'border-border-subtlest-secondary bg-surface-invert',
+          ),
+          content: 'flex flex-row items-center gap-2 font-normal',
+        }}
+        checked={isActive}
+        onChange={() => onChange?.(priceId)}
+      >
+        {badge?.text && (
+          <Typography
+            type={TypographyType.Caption1}
+            tag={TypographyTag.Span}
+            className={classNames(
+              'absolute -top-3 left-3 inline-flex -translate-y-1/2 rounded-6 px-1 text-white',
+              isActive
+                ? badge.background ?? 'bg-brand-default'
+                : 'bg-surface-secondary',
+            )}
+          >
+            {badge.text}
+          </Typography>
+        )}
+        <div className="flex-1">
+          <Typography
+            bold
+            type={TypographyType.Body}
+            tag={TypographyTag.H4}
+            color={
+              isActive ? TypographyColor.Primary : TypographyColor.Tertiary
+            }
+          >
+            {label}
+          </Typography>
+          {!!price && (
+            <>
+              {oldPrice?.monthly && (
                 <Typography
-                  className="-mb-1"
-                  bold
-                  type={TypographyType.Callout}
+                  tag={TypographyTag.Del}
+                  className="mr-2"
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Quaternary}
                 >
-                  49
+                  {oldPrice.monthly}
                 </Typography>
-                <Typography type={TypographyType.Caption2}>per day</Typography>
+              )}
+              <Typography
+                type={TypographyType.Footnote}
+                tag={TypographyTag.Span}
+                color={
+                  isActive ? TypographyColor.Primary : TypographyColor.Tertiary
+                }
+              >
+                {price.monthly.formatted}
+              </Typography>
+            </>
+          )}
+        </div>
+        {!!price && (
+          <div
+            className={classNames(
+              'flex items-end justify-end gap-5',
+              isActive ? 'text-text-primary' : 'text-text-tertiary',
+            )}
+          >
+            {oldPrice?.daily && (
+              <Typography
+                tag={TypographyTag.Del}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {oldPrice.daily}
+              </Typography>
+            )}
+            <div className="relative">
+              <svg
+                viewBox="0.7 0.8 19.3 52"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={classNames(
+                  'absolute bottom-0 left-0 top-0 z-1 h-full w-auto -translate-x-full',
+                  isActive ? 'text-brand-active' : 'text-surface-float',
+                )}
+              >
+                <path
+                  d="M14.8285 2.70366C15.5565 1.52067 16.8461 0.800049 18.2352 0.800049H20V52.8H18.2352C16.8461 52.8 15.5565 52.0794 14.8285 50.8964L1.29009 28.8964C0.49893 27.6108 0.49893 25.9893 1.29009 24.7037L14.8285 2.70366Z"
+                  fill="currentColor"
+                />
+              </svg>
+              <div
+                className={classNames(
+                  'relative z-2 flex items-center gap-1 rounded-r-8 p-1 pl-0',
+                  isActive ? 'bg-brand-active' : 'bg-surface-float',
+                )}
+              >
+                <Typography bold type={TypographyType.Callout}>
+                  $
+                </Typography>
+                <Typography
+                  bold
+                  type={TypographyType.Mega3}
+                  tag={TypographyTag.Span}
+                >
+                  0
+                </Typography>
+                <div>
+                  <Typography
+                    className="-mb-1"
+                    bold
+                    type={TypographyType.Callout}
+                  >
+                    49
+                  </Typography>
+                  <Typography type={TypographyType.Caption2}>
+                    per day
+                  </Typography>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </RadioItem>
+        )}
+      </RadioItem>
+    </ConditionalWrapper>
   );
 };
 

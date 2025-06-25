@@ -63,6 +63,7 @@ export interface FunnelStepPricingV2Parameters {
       message: string;
     };
     pricingType: FunnelPricingType;
+    defaultPlan: FunnelStepPricingPlan['priceId'];
     plans: Array<FunnelStepPricingPlan>;
     ctaMessage: string;
     cta: string;

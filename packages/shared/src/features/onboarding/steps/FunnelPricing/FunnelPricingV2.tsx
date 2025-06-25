@@ -47,11 +47,17 @@ type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
 const PricingSelection = ({
   discount,
   onProceedToCheckout,
-  plansBlock: { cta, ctaMessage, heading, plans, timer },
+  plansBlock: { cta, ctaMessage, heading, plans, timer, defaultPlan },
 }: PricingSelectionProps) => {
   const applyDiscount = useAtomValue(applyDiscountAtom);
   const discountStartDate = useAtomValue(discountTimerAtom);
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
+
+  useEffect(() => {
+    if (!selectedPlan && defaultPlan) {
+      setSelectedPlan(defaultPlan);
+    }
+  }, [defaultPlan, selectedPlan, setSelectedPlan]);
 
   return (
     <section className="flex flex-col gap-4">
