@@ -14,12 +14,13 @@ function PostNavigation({
   onNextPost,
   className = {},
   contextMenuId = 'post-navigation-context',
+  post,
   ...props
 }: PostNavigationProps): ReactElement {
   return (
     <div
       className={classNames(
-        'flex h-10 flex-row items-center gap-2',
+        'flex h-10 w-full flex-row items-center gap-2 bg-background-subtle',
         className?.container,
       )}
       role="navigation"
@@ -50,12 +51,15 @@ function PostNavigation({
           />
         </Tooltip>
       )}
-      <PostHeaderActions
-        {...props}
-        className={classNames('flex', className?.actions)}
-        notificationClassName="ml-4"
-        contextMenuId={contextMenuId}
-      />
+      {post && (
+        <PostHeaderActions
+          {...props}
+          className={classNames('ml-auto flex', className?.actions)}
+          notificationClassName="ml-4"
+          contextMenuId={contextMenuId}
+          post={post}
+        />
+      )}
     </div>
   );
 }

@@ -40,6 +40,9 @@ export default function PostModal({
       postType={PostType.Share}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
+      postPosition={postPosition}
+      onPreviousPost={onPreviousPost}
+      onNextPost={onNextPost}
     >
       <EnableNotification
         source={NotificationPromptSource.SquadPostModal}

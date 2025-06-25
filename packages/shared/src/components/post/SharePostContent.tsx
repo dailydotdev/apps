@@ -164,8 +164,10 @@ export function CommonSharePostContent({
                 ? `${sharedPost.readTime}m read time`
                 : undefined
             }
-            source={sharedPost.source}
+            post={sharedPost}
+            onReadArticle={onReadArticle}
             size={ProfileImageSize.Small}
+            showActions={false}
           />
           <ReadArticleButton
             content={getReadPostButtonText(sharedPost)}

@@ -40,6 +40,9 @@ export default function CollectionPostModal({
       postType={PostType.Collection}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
+      postPosition={postPosition}
+      onPreviousPost={onPreviousPost}
+      onNextPost={onNextPost}
     >
       <CollectionPostContent
         position={position}

@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
-import PostNavigation from './PostNavigation';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -42,8 +41,10 @@ export function BasePostContent({
 
   return (
     <>
-      {isPostPage ? (
-        <GoBackHeaderMobile className={classNames(className.header, '-mx-4')}>
+      {isPostPage && (
+        <GoBackHeaderMobile
+          className={classNames(className.header, '-mx-4 bg-background-subtle')}
+        >
           <PostHeaderActions
             post={post}
             className="ml-auto"
@@ -51,8 +52,6 @@ export function BasePostContent({
             onReadArticle={navigationProps.onReadArticle}
           />
         </GoBackHeaderMobile>
-      ) : (
-        <PostNavigation {...navigationProps} className={className.navigation} />
       )}
       {children}
       <PostEngagements

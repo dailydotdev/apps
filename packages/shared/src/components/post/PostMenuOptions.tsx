@@ -33,12 +33,13 @@ export function PostMenuOptions({
       <PostOptionButton
         post={post}
         size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
-        variant={isEnlarged ? ButtonVariant.Tertiary : ButtonVariant.Float}
+        variant={ButtonVariant.Tertiary}
         origin={origin}
       />
       {onClose && (
         <Tooltip side="bottom" content="Close">
           <Button
+            size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             icon={<CloseIcon />}
             onClick={(e) => onClose(e)}
