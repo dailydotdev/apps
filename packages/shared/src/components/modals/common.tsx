@@ -289,6 +289,13 @@ const BoostPostModal = dynamic(
     ),
 );
 
+const BoostedPostViewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "boostedPostViewModal" */ './post/boost/BoostedPostViewModal'
+    ),
+);
+
 const OrganizationInviteMemberModal = dynamic(() =>
   import(
     /* webpackChunkName: "inviteMemberModal" */ '../../features/organizations/components/InviteMemberModal'
@@ -349,6 +356,7 @@ export const modals = {
   [LazyModal.ListAwards]: ListAwardsModal,
   [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
+  [LazyModal.BoostedPostView]: BoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
 };

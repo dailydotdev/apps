@@ -118,7 +118,9 @@ export const BOOSTED_POST_CAMPAIGN_BY_ID = gql`
   }
 `;
 
-export const getBoostedPostByCampaignId = async (id: string) => {
+export const getBoostedPostByCampaignId = async (
+  id: string,
+): Promise<BoostedPostData> => {
   const result = await gqlClient.request(BOOSTED_POST_CAMPAIGN_BY_ID, { id });
 
   return result.postCampaignById;

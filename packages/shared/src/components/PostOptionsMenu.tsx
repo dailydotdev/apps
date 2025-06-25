@@ -76,6 +76,7 @@ import { settingsUrl, webappUrl } from '../lib/constants';
 import { SharedFeedPage } from './utilities';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { BoostIcon } from './icons/Boost';
+import { getBoostedPostByCampaignId } from '../graphql/post/boost';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -378,11 +379,24 @@ export default function PostOptionsMenu({
     });
   };
 
+  const onManageBoost = async () => {
+    try {
+      const data = await getBoostedPostByCampaignId(post.id);
+
+      openModal({
+        type: LazyModal.BoostedPostView,
+        props: { data },
+      });
+    } catch (err) {
+      displayToast('Error fetching campaign');
+    }
+  };
+
   if (canBoost) {
     postOptions.push({
-      icon: <MenuIcon Icon={BoostIcon} />,
+      icon: <MenuIcon Icon={BoostIcon} secondary={!!post?.flags?.campaignId} />,
       label: 'Boost post',
-      action: onBoostPost,
+      action: post?.flags?.campaignId ? onManageBoost : onBoostPost,
     });
   }
 

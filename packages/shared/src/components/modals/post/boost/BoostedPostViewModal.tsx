@@ -11,8 +11,8 @@ import type { Post } from '../../../../graphql/posts';
 
 interface BoostedPostViewModalProps extends ModalProps {
   data: BoostedPostData;
-  isLoading: boolean;
-  onBoostAgain: (id: Post['id']) => void;
+  isLoading?: boolean;
+  onBoostAgain?: (id: Post['id']) => void;
 }
 
 export function BoostedPostViewModal({
@@ -55,3 +55,5 @@ export function BoostedPostViewModal({
     </Modal>
   );
 }
+
+export default BoostedPostViewModal;
