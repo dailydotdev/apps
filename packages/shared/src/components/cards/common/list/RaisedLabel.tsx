@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { SimpleTooltip } from '../../../tooltips/SimpleTooltip';
+import { Tooltip } from '../../../tooltip/Tooltip';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -37,7 +37,7 @@ export function RaisedLabel({
         className,
       )}
     >
-      <SimpleTooltip content={description}>
+      <Tooltip content={description}>
         <div
           className={classNames(
             'relative -top-2 flex h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
@@ -46,7 +46,7 @@ export function RaisedLabel({
         >
           {type}
         </div>
-      </SimpleTooltip>
+      </Tooltip>
     </div>
   );
 }

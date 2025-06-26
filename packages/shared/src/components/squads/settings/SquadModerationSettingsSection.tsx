@@ -5,8 +5,8 @@ import { Radio } from '../../fields/Radio';
 import { SourceMemberRole } from '../../../graphql/sources';
 import { Switch } from '../../fields/Switch';
 import { WidgetCard } from '../../widgets/WidgetCard';
-import { SimpleTooltip } from '../../tooltips';
 import { useToggle } from '../../../hooks/useToggle';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface SquadModerationSettingsSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
@@ -66,11 +66,11 @@ export function SquadModerationSettingsSection({
           title="Require post approval"
           description="Turn this on to have admins or moderators approve every new post before it's published."
         >
-          <SimpleTooltip
-            placement="top-start"
+          <Tooltip
+            side="top"
             content="Only admins and moderators can post; their posts are auto-published."
-            container={{ className: 'max-w-[188px] p-2 text-center' }}
-            show={memberPostingRole === SourceMemberRole.Moderator}
+            className="max-w-64 !p-2 text-center"
+            visible={memberPostingRole === SourceMemberRole.Moderator}
           >
             <span className="max-w-fit cursor-pointer">
               <Switch
@@ -84,7 +84,7 @@ export function SquadModerationSettingsSection({
                 <span>{moderationRequired ? 'On' : 'Off'}</span>
               </Switch>
             </span>
-          </SimpleTooltip>
+          </Tooltip>
         </SquadSettingsSection>
         <SquadSettingsSection
           title="Invitation permissions"

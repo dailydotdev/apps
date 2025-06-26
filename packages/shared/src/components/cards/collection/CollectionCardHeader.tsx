@@ -1,28 +1,28 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { SourceAvatarProps } from '../../profile/source';
 import { CollectionPillSources } from '../../post/collection';
-import OptionsButton from '../../buttons/OptionsButton';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from '../common/BookmarkProviderHeader';
 import { useBookmarkProvider } from '../../../hooks';
+import { PostOptionButton } from '../../../features/posts/PostOptionButton';
+import type { Post } from '../../../graphql/posts';
 
 interface CollectionCardHeaderProps {
-  sources: SourceAvatarProps['source'][];
-  totalSources: number;
-  onMenuClick?: (e: React.MouseEvent) => void;
-  bookmarked?: boolean;
+  post: Post;
 }
 
 export const CollectionCardHeader = ({
-  sources,
-  totalSources,
-  onMenuClick,
-  bookmarked,
+  post,
 }: CollectionCardHeaderProps): ReactElement => {
+  const {
+    collectionSources: sources,
+    numCollectionSources: totalSources,
+    bookmarked,
+  } = post;
+
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
@@ -37,18 +37,19 @@ export const CollectionCardHeader = ({
       <CollectionPillSources
         className={{
           main: classNames(
-            'm-2',
+            'm-2 mb-1',
             highlightBookmarkedPost && headerHiddenClassName,
           ),
         }}
         sources={sources}
         totalSources={totalSources}
-      />
-      <OptionsButton
-        className="absolute right-3 top-3 group-hover:flex laptop:hidden"
-        onClick={onMenuClick}
-        tooltipPlacement="top"
-      />
+      >
+        <div className="flex-1" />
+        <PostOptionButton
+          post={post}
+          triggerClassName="group-hover:flex laptop:hidden"
+        />
+      </CollectionPillSources>
     </>
   );
 };

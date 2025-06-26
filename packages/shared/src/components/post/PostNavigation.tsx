@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ArrowIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
+import { Tooltip } from '../tooltip/Tooltip';
 
 function PostNavigation({
   postPosition,
@@ -14,18 +14,19 @@ function PostNavigation({
   onNextPost,
   className = {},
   contextMenuId = 'post-navigation-context',
+  post,
   ...props
 }: PostNavigationProps): ReactElement {
   return (
     <div
       className={classNames(
-        'flex h-10 flex-row items-center gap-2',
+        'flex h-10 w-full flex-row items-center gap-2 bg-background-subtle',
         className?.container,
       )}
       role="navigation"
     >
       {onPreviousPost && (
-        <SimpleTooltip content="Previous">
+        <Tooltip content="Previous">
           <Button
             className="-rotate-90"
             icon={<ArrowIcon />}
@@ -35,10 +36,10 @@ function PostNavigation({
               postPosition,
             )}
           />
-        </SimpleTooltip>
+        </Tooltip>
       )}
       {onNextPost && (
-        <SimpleTooltip content="Next">
+        <Tooltip content="Next">
           <Button
             className="rotate-90"
             icon={<ArrowIcon />}
@@ -48,14 +49,17 @@ function PostNavigation({
               postPosition,
             )}
           />
-        </SimpleTooltip>
+        </Tooltip>
       )}
-      <PostHeaderActions
-        {...props}
-        className={classNames('flex', className?.actions)}
-        notificationClassName="ml-4"
-        contextMenuId={contextMenuId}
-      />
+      {post && (
+        <PostHeaderActions
+          {...props}
+          className={classNames('ml-auto flex', className?.actions)}
+          notificationClassName="ml-4"
+          contextMenuId={contextMenuId}
+          post={post}
+        />
+      )}
     </div>
   );
 }

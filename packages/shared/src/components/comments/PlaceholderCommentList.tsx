@@ -18,7 +18,7 @@ export default function PlaceholderCommentList({
 
   return (
     <>
-      {Object.keys([...Array(amount)]).map((key) => (
+      {Object.keys([...Array(Math.max(0, amount))]).map((key) => (
         <PlaceholderComment {...props} key={key} />
       ))}
     </>

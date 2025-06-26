@@ -19,11 +19,7 @@ import {
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import Link from 'next/link';
-import {
-  briefingUrl,
-  plusUrl,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { plusUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   useConditionalFeature,
   usePlusSubscription,
@@ -34,7 +30,7 @@ import {
   briefButtonBg,
   briefCardBg,
 } from '@dailydotdev/shared/src/styles/custom';
-import { useNewPostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
+import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
 import {
@@ -89,13 +85,13 @@ const Page = (): ReactElement => {
     onNext,
     postPosition,
     selectedPost,
-  } = useNewPostModalNavigation(
+  } = usePostModalNavigation({
     items,
     fetchPage,
     updatePost,
     canFetchMore,
-    briefingUrl,
-  );
+    feedName: 'briefing',
+  });
 
   const PostModal = PostModalMap[selectedPost?.type];
 

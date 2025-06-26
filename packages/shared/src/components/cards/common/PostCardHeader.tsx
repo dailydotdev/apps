@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import OptionsButton from '../../buttons/OptionsButton';
+import dynamic from 'next/dynamic';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
@@ -20,18 +20,27 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
-import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
+import { PostOptionButton } from '../../../features/posts/PostOptionButton';
+import type { UserShortProfile } from '../../../lib/user';
+
+const HoverCard = dynamic(
+  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
+);
+
+const UserEntityCard = dynamic(
+  /* webpackChunkName: "userEntityCard" */ () =>
+    import('../entity/UserEntityCard'),
+);
 
 interface CardHeaderProps {
   post: Post;
   className?: string;
   children?: ReactNode;
   source: Source;
-  onMenuClick?: (e: React.MouseEvent) => void;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
   openNewTab?: boolean;
@@ -44,7 +53,6 @@ const Container = getGroupedHoverContainer('span');
 export const PostCardHeader = ({
   post,
   className,
-  onMenuClick,
   onReadArticleClick,
   children,
   source,
@@ -94,12 +102,19 @@ export const PostCardHeader = ({
           source={source}
         />
         {!!post?.author && (
-          <ProfileTooltip userId={post.author.id}>
-            <ProfileImageLink
-              picture={{ size: ProfileImageSize.Medium }}
-              user={post.author}
-            />
-          </ProfileTooltip>
+          <HoverCard
+            align="start"
+            side="bottom"
+            sideOffset={10}
+            trigger={
+              <ProfileImageLink
+                picture={{ size: ProfileImageSize.Medium }}
+                user={post.author}
+              />
+            }
+          >
+            <UserEntityCard user={post.author as UserShortProfile} />
+          </HoverCard>
         )}
         {children}
         <Container
@@ -118,7 +133,7 @@ export const PostCardHeader = ({
                   openNewTab={openNewTab}
                 />
               )}
-              <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
+              <PostOptionButton post={post} />
             </>
           )}
         </Container>

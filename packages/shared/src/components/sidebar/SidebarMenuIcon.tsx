@@ -9,8 +9,8 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SidebarArrowLeft, SidebarArrowRight } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import LogContext from '../../contexts/LogContext';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export const SidebarMenuIcon = (): ReactElement => {
   const { sidebarExpanded, toggleSidebarExpanded } = useSettingsContext();
@@ -41,8 +41,8 @@ export const SidebarMenuIcon = (): ReactElement => {
       >
         Menu
       </Typography>
-      <SimpleTooltip
-        placement="right"
+      <Tooltip
+        side="right"
         content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
       >
         <Button
@@ -55,7 +55,7 @@ export const SidebarMenuIcon = (): ReactElement => {
           )}
           icon={sidebarExpanded ? <SidebarArrowLeft /> : <SidebarArrowRight />}
         />
-      </SimpleTooltip>
+      </Tooltip>
     </div>
   );
 };

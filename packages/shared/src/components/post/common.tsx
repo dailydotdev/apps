@@ -7,7 +7,6 @@ import type {
 import type { Post } from '../../graphql/posts';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import classed from '../../lib/classed';
-import type { PostOptionsMenuProps } from '../PostOptionsMenu';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
 import type {
   UsePostContent,
@@ -25,12 +24,7 @@ export interface PostContentClassName {
 
 type PostActions = Pick<
   PostHeaderActionsProps,
-  | 'post'
-  | 'onClose'
-  | 'onReadArticle'
-  | 'inlineActions'
-  | 'onRemovePost'
-  | 'isFixedNavigation'
+  'post' | 'onClose' | 'onReadArticle' | 'inlineActions' | 'isFixedNavigation'
 >;
 
 export interface PostNavigationClassName {
@@ -39,22 +33,19 @@ export interface PostNavigationClassName {
   title?: string;
 }
 
-export interface PostNavigationProps extends PostActions {
+export interface PostNavigationProps extends Omit<PostActions, 'post'> {
   postPosition?: PostPosition;
   onPreviousPost?: () => unknown;
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
   isBannerVisible?: boolean;
   contextMenuId?: string;
+  post?: Post;
 }
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
-  | 'onNextPost'
-  | 'onPreviousPost'
-  | 'postPosition'
-  | 'onRemovePost'
-  | 'isBannerVisible'
+  'onNextPost' | 'onPreviousPost' | 'postPosition' | 'isBannerVisible'
 >;
 
 export interface PostHeaderActionsProps {
@@ -66,7 +57,6 @@ export interface PostHeaderActionsProps {
   inlineActions?: boolean;
   notificationClassName?: string;
   contextMenuId: string;
-  onRemovePost?: PostOptionsMenuProps['onRemovePost'];
   isFixedNavigation?: boolean;
 }
 

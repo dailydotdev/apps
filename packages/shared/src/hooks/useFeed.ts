@@ -313,7 +313,9 @@ export default function useFeed<T>(
     }
     if (feedQuery.isFetching) {
       newItems.push(
-        ...Array(placeholdersPerPage).fill({ type: 'placeholder' }),
+        ...Array(Math.max(0, placeholdersPerPage)).fill({
+          type: 'placeholder',
+        }),
       );
     }
     return newItems;

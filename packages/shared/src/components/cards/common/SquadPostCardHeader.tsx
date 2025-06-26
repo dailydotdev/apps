@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import type { Post } from '../../../graphql/posts';
 import { ProfileImageSize } from '../../ProfilePicture';
 import SourceButton from './SourceButton';
@@ -8,21 +9,27 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
-import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { useBookmarkProvider } from '../../../hooks';
+import type { UserShortProfile } from '../../../lib/user';
+import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 
-type SquadPostCardHeaderProps = Pick<
-  Post,
-  'author' | 'source' | 'permalink' | 'bookmarked'
-> & { enableSourceHeader?: boolean };
+const UserEntityCard = dynamic(
+  /* webpackChunkName: "userEntityCard" */ () =>
+    import('../entity/UserEntityCard'),
+);
+
+const HoverCard = dynamic(
+  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
+);
+
+type SquadPostCardHeaderProps = { post: Post; enableSourceHeader?: boolean };
 
 export const SquadPostCardHeader = ({
-  author,
-  source,
+  post,
   enableSourceHeader = false,
-  bookmarked,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const { author, source, bookmarked } = post;
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
@@ -43,7 +50,7 @@ export const SquadPostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <div className="relative flex flex-row gap-2">
+        <div className="relative flex w-full flex-row gap-2">
           <SourceButton
             source={source}
             className={classNames(
@@ -57,13 +64,25 @@ export const SquadPostCardHeader = ({
             }
           />
           {author && (
-            <ProfileTooltip userId={author.id}>
-              <ProfileImageLink
-                picture={{ size: ProfileImageSize.Medium }}
-                user={author}
-              />
-            </ProfileTooltip>
+            <HoverCard
+              align="start"
+              side="bottom"
+              sideOffset={10}
+              trigger={
+                <ProfileImageLink
+                  picture={{ size: ProfileImageSize.Medium }}
+                  user={author}
+                />
+              }
+            >
+              <UserEntityCard user={author as UserShortProfile} />
+            </HoverCard>
           )}
+          <div className="flex flex-1" />
+          <PostOptionButton
+            post={post}
+            triggerClassName="group-hover:flex laptop:hidden"
+          />
         </div>
       </div>
     </>
