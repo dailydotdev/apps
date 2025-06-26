@@ -32,7 +32,7 @@ const createRouterInitialState = (): RouterMemoryState => {
   return {
     query: {},
     pathname: '/',
-    asPath: undefined,
+    asPath: '/',
   };
 };
 
@@ -49,14 +49,16 @@ export const useRouterMemory = (): UseRouterMemory => {
       // in memory router only supports url and as as strings, so we can convert
       // them to URL objects for internal handling, this is compatible with next/router
       const urlObject = new URL(url, 'http://localhost');
-      const asObject = as ? new URL(as, 'http://localhost') : undefined;
+      const asObject = as ? new URL(as, 'http://localhost') : urlObject;
 
       dispatch({
         type: 'push',
         payload: {
           query: Object.fromEntries(urlObject.searchParams.entries()),
           pathname: urlObject.pathname,
-          asPath: asObject?.pathname,
+          asPath: `${asObject.pathname}${
+            asObject.search ? `?${asObject.search}` : ''
+          }`,
         },
       });
 
