@@ -54,13 +54,14 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   return FunnelBackgroundVariant.Default;
 };
 
-const hiddenBgSteps = [FunnelStepType.Checkout];
+const hiddenBgSteps = [FunnelStepType.Checkout, FunnelStepType.PricingV2];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.OrganicSignup,
   FunnelStepType.BrowserExtension,
 ];
+const alwaysLightSteps = [FunnelStepType.PricingV2];
 
 export const FunnelStepBackground = ({
   children,
@@ -69,8 +70,11 @@ export const FunnelStepBackground = ({
 }: StepBackgroundProps): ReactElement => {
   const isLightMode = useIsLightTheme();
 
-  const isForcedDarkThemeStep = useMemo(
-    () => alwaysDarkSteps.includes(step.type),
+  const isStepForcedTo = useMemo(
+    () => ({
+      dark: alwaysDarkSteps.includes(step.type),
+      light: alwaysLightSteps.includes(step.type),
+    }),
     [step.type],
   );
 
@@ -84,11 +88,15 @@ export const FunnelStepBackground = ({
 
   const shouldShowBg = !hiddenBgSteps.some((type) => type === step.type);
 
+  const needInvertedColors =
+    (isStepForcedTo.dark && isLightMode) ||
+    (isStepForcedTo.light && !isLightMode);
+
   return (
     <div
       className={classNames(
         'relative flex flex-1 flex-col bg-background-default',
-        isForcedDarkThemeStep && isLightMode && 'invert',
+        needInvertedColors && 'invert',
       )}
     >
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>

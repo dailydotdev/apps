@@ -96,6 +96,7 @@ const PricingSelection = ({
         <Typography
           className="mb-4 flex gap-1 rounded-8 bg-surface-float px-2 py-0.5"
           type={TypographyType.Callout}
+          color={TypographyColor.Primary}
         >
           <ShieldCheckIcon aria-hidden />
           Pay safe & secure
