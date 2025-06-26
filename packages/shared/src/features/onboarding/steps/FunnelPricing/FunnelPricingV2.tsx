@@ -123,7 +123,7 @@ const Pricing = ({
   }, [isActive, discountStartDate, setTimer]);
 
   const onProceedToCheckout = useCallback(
-    (plan) => {
+    (plan: string) => {
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: { plan, applyDiscount },
@@ -237,7 +237,9 @@ const Pricing = ({
           }}
         />
         {/* FAQs */}
-        <BoxFaq className="border-0" items={faq.items} />
+        {!!faq.items.length && (
+          <BoxFaq className="border-0" items={faq.items} />
+        )}
         {/* Contact support */}
         <PricingEmailSupport />
       </div>

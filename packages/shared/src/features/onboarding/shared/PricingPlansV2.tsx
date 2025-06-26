@@ -44,7 +44,7 @@ const PricingPlan = ({
   } = plan;
   const { price } = productOption ?? {};
   const isBestValue = variation === PricingPlanVariation.BEST_VALUE;
-  const currencySymbol = price.daily.formatted.replace(/[0-9.,\s]/g, '');
+  const currencySymbol = price.daily?.formatted?.replace(/[0-9.,\s]/g, '');
   const [firstDigit, otherDigits] = price?.daily?.formatted
     .replace(currencySymbol, '')
     .split(/\.|,/);
@@ -75,13 +75,13 @@ const PricingPlan = ({
       <RadioItem
         className={{
           wrapper: classNames(
-            'flex flex-col gap-2 rounded-16 px-2 py-3',
+            'flex flex-col gap-2 rounded-16 bg-white px-2 py-3',
             !isBestValue && 'border',
             isActive
               ? 'border-action-share-default bg-brand-float'
               : 'border-border-subtlest-secondary bg-surface-invert',
           ),
-          content: 'flex flex-row items-center gap-2 font-normal',
+          content: 'relative z-1 flex flex-row items-center gap-2 font-normal',
         }}
         value={priceId}
         checked={isActive}
@@ -92,9 +92,9 @@ const PricingPlan = ({
             type={TypographyType.Caption1}
             tag={TypographyTag.Span}
             className={classNames(
-              'absolute -top-3 left-3 inline-flex -translate-y-1/2 rounded-6 px-1 text-white',
-              isActive
-                ? badge.background ?? 'bg-brand-default'
+              'absolute -top-3 left-3 z-3 inline-flex -translate-y-1/2 rounded-6 px-1 text-white',
+              isActive || isBestValue
+                ? badge.background || 'bg-brand-default'
                 : 'bg-surface-secondary',
             )}
             data-testid="plan-badge"
@@ -107,9 +107,9 @@ const PricingPlan = ({
             bold
             type={TypographyType.Body}
             tag={TypographyTag.H4}
-            color={
-              isActive ? TypographyColor.Primary : TypographyColor.Tertiary
-            }
+            className={classNames(
+              isActive ? 'text-black' : 'text-text-tertiary',
+            )}
           >
             {label}
           </Typography>
@@ -128,9 +128,9 @@ const PricingPlan = ({
               <Typography
                 type={TypographyType.Footnote}
                 tag={TypographyTag.Span}
-                color={
-                  isActive ? TypographyColor.Primary : TypographyColor.Tertiary
-                }
+                className={classNames(
+                  isActive ? 'text-black' : 'text-text-tertiary',
+                )}
               >
                 {price.monthly.formatted}
               </Typography>
@@ -141,7 +141,7 @@ const PricingPlan = ({
           <div
             className={classNames(
               'flex items-end justify-end gap-5',
-              isActive ? 'text-text-primary' : 'text-text-tertiary',
+              isActive ? 'text-black' : 'text-text-tertiary',
             )}
           >
             {oldPrice?.daily && (
@@ -221,6 +221,10 @@ export const PricingPlansV2 = ({
       })),
     [items, productOptions],
   );
+
+  if (!productOptions?.length) {
+    return null;
+  }
 
   return (
     <ul aria-label="Pricing plans" className="flex flex-col gap-3">
