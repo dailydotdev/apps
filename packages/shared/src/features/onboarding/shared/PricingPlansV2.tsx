@@ -44,6 +44,10 @@ const PricingPlan = ({
   } = plan;
   const { price } = productOption ?? {};
   const isBestValue = variation === PricingPlanVariation.BEST_VALUE;
+  const currencySymbol = price.daily.formatted.replace(/[0-9.,\s]/g, '');
+  const [firstDigit, otherDigits] = price?.daily?.formatted
+    .replace(currencySymbol, '')
+    .split(/\.|,/);
 
   return (
     <ConditionalWrapper
@@ -71,7 +75,7 @@ const PricingPlan = ({
       <RadioItem
         className={{
           wrapper: classNames(
-            'flex flex-col gap-2 rounded-16 bg-white px-2 py-3',
+            'flex flex-col gap-2 rounded-16 px-2 py-3',
             !isBestValue && 'border',
             isActive
               ? 'border-action-share-default bg-brand-float'
@@ -171,14 +175,14 @@ const PricingPlan = ({
                 )}
               >
                 <Typography bold type={TypographyType.Callout}>
-                  $
+                  {currencySymbol}
                 </Typography>
                 <Typography
                   bold
                   type={TypographyType.Mega3}
                   tag={TypographyTag.Span}
                 >
-                  0
+                  {firstDigit}
                 </Typography>
                 <div>
                   <Typography
@@ -186,7 +190,7 @@ const PricingPlan = ({
                     bold
                     type={TypographyType.Callout}
                   >
-                    49
+                    {otherDigits}
                   </Typography>
                   <Typography type={TypographyType.Caption2}>
                     per day
