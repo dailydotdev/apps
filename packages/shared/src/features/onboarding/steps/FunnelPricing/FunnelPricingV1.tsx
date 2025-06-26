@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import type { ReactElement } from 'react';
 import { useAtom } from 'jotai';
-import type { FunnelStepPricing } from '../../types/funnel';
+import type { FunnelStepPricingV1 } from '../../types/funnel';
 import {
   FunnelStepTransitionType,
   FunnelPricingType,
@@ -102,7 +102,7 @@ export const getPricing = (
   };
 };
 
-export const FunnelPricing = ({
+export const FunnelPricingV1 = ({
   onTransition,
   isActive,
   parameters: {
@@ -118,7 +118,7 @@ export const FunnelPricing = ({
     faq,
     pricingType,
   },
-}: FunnelStepPricing): ReactElement => {
+}: FunnelStepPricingV1): ReactElement => {
   const [selectedPlan, setSelectedPlan] = useAtom(selectedPlanAtom);
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);

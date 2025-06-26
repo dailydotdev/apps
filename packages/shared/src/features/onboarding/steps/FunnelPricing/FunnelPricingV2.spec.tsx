@@ -40,6 +40,7 @@ const HydrateAtoms = ({
 };
 
 const mockPricingParameters: FunnelStepPricingV2['parameters'] = {
+  version: 'v2',
   discount: {
     message: 'Your special offer is live for the next:',
     duration: 15,
@@ -58,6 +59,25 @@ const mockPricingParameters: FunnelStepPricingV2['parameters'] = {
       'AI-powered learning, simplified',
     ],
   },
+  plans: [
+    {
+      priceId: 'monthly',
+      label: 'Monthly',
+      badge: {
+        text: 'Popular',
+        background: '#CE3DF3',
+      },
+    },
+    {
+      priceId: 'annual',
+      label: 'Annual',
+      variation: PricingPlanVariation.BEST_VALUE,
+      badge: {
+        text: 'Save 50%',
+        background: '#0ABA6E',
+      },
+    },
+  ],
   plansBlock: {
     heading: 'Your personalized plan is ready!',
     timer: {
@@ -65,25 +85,6 @@ const mockPricingParameters: FunnelStepPricingV2['parameters'] = {
     },
     pricingType: FunnelPricingType.Monthly,
     defaultPlan: 'annual',
-    plans: [
-      {
-        priceId: 'monthly',
-        label: 'Monthly',
-        badge: {
-          text: 'Popular',
-          background: '#CE3DF3',
-        },
-      },
-      {
-        priceId: 'annual',
-        label: 'Annual',
-        variation: PricingPlanVariation.BEST_VALUE,
-        badge: {
-          text: 'Save 50%',
-          background: '#0ABA6E',
-        },
-      },
-    ],
     ctaMessage: '30-day money-back guarantee',
     cta: 'Get my plan',
   },
@@ -118,7 +119,7 @@ const mockPricingParameters: FunnelStepPricingV2['parameters'] = {
 
 const defaultProps: FunnelStepPricingV2 = {
   id: 'test-id',
-  type: FunnelStepType.PricingV2,
+  type: FunnelStepType.Pricing,
   transitions: [],
   parameters: mockPricingParameters,
   onTransition: mockOnTransition,

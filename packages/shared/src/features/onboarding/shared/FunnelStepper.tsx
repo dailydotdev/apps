@@ -34,7 +34,6 @@ import {
   FunnelPlusCards,
   FunnelOrganicSignup,
   FunnelBrowserExtension,
-  FunnelPricingV2,
 } from '../steps';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -66,7 +65,6 @@ const stepComponentMap = {
   [FunnelStepType.Quiz]: FunnelQuiz,
   [FunnelStepType.SocialProof]: FunnelSocialProof,
   [FunnelStepType.Pricing]: FunnelPricing,
-  [FunnelStepType.PricingV2]: FunnelPricingV2,
   [FunnelStepType.Signup]: FunnelRegistration,
   [FunnelStepType.PaymentSuccessful]: FunnelPaymentSuccessful,
   [FunnelStepType.ProfileForm]: FunnelProfileForm,

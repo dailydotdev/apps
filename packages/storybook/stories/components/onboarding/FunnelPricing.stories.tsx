@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
-import { FunnelPricing } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing/FunnelPricing';
+import { FunnelPricing } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing';
 import {
   FunnelStepType,
   FunnelStepPricing,

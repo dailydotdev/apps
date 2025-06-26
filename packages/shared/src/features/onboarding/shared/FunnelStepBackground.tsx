@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { FunnelStep } from '../types/funnel';
 import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
 import { useIsLightTheme } from '../../../hooks/utils';
+import { isV2 } from '../steps/FunnelPricing/FunnelPricingV2';
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
@@ -54,14 +55,13 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
   return FunnelBackgroundVariant.Default;
 };
 
-const hiddenBgSteps = [FunnelStepType.Checkout, FunnelStepType.PricingV2];
+const hiddenBgSteps = [FunnelStepType.Checkout];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.OrganicSignup,
   FunnelStepType.BrowserExtension,
 ];
-const alwaysLightSteps = [FunnelStepType.PricingV2];
 
 export const FunnelStepBackground = ({
   children,
@@ -69,13 +69,15 @@ export const FunnelStepBackground = ({
   step,
 }: StepBackgroundProps): ReactElement => {
   const isLightMode = useIsLightTheme();
+  const isPricingV2 =
+    step.type === FunnelStepType.Pricing && isV2(step.parameters);
 
   const isStepForcedTo = useMemo(
     () => ({
       dark: alwaysDarkSteps.includes(step.type),
-      light: alwaysLightSteps.includes(step.type),
+      light: isPricingV2,
     }),
-    [step.type],
+    [isPricingV2, step.type],
   );
 
   const bgClassName = useMemo(() => {
@@ -86,7 +88,8 @@ export const FunnelStepBackground = ({
     );
   }, [step]);
 
-  const shouldShowBg = !hiddenBgSteps.some((type) => type === step.type);
+  const shouldShowBg =
+    !isPricingV2 && !hiddenBgSteps.some((type) => type === step.type);
 
   const needInvertedColors =
     (isStepForcedTo.dark && isLightMode) ||

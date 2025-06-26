@@ -1,6 +1,6 @@
 export { FunnelQuiz } from './FunnelQuiz';
 export { FunnelSocialProof } from './FunnelSocialProof';
-export { FunnelPricing, FunnelPricingV2 } from './FunnelPricing';
+export { FunnelPricing } from './FunnelPricing';
 export { FunnelPaymentSuccessful } from './FunnelPaymentSuccessful';
 export { FunnelProfileForm } from './FunnelProfileForm';
 export { FunnelEditTags } from './FunnelEditTags';

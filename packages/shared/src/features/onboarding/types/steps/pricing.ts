@@ -33,6 +33,7 @@ export interface FunnelStepPricingRefund {
 }
 
 export interface FunnelStepPricingParameters {
+  version?: 'v1';
   headline: string;
   cta: string;
   pricingType: FunnelPricingType;
@@ -47,6 +48,7 @@ export interface FunnelStepPricingParameters {
 }
 
 export interface FunnelStepPricingV2Parameters {
+  version: 'v2';
   discount: FunnelStepPricingDiscount;
   hero: {
     image: string;
@@ -57,6 +59,7 @@ export interface FunnelStepPricingV2Parameters {
     heading: string;
     items: string[];
   };
+  plans: Array<FunnelStepPricingPlan>;
   plansBlock: {
     heading: string;
     timer: {
@@ -64,7 +67,6 @@ export interface FunnelStepPricingV2Parameters {
     };
     pricingType: FunnelPricingType;
     defaultPlan: FunnelStepPricingPlan['priceId'];
-    plans: Array<FunnelStepPricingPlan>;
     ctaMessage: string;
     cta: string;
   };

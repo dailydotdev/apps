@@ -206,7 +206,7 @@ const PricingPlan = ({
 };
 
 export const PricingPlansV2 = ({
-  items,
+  items = [],
   value,
   onChange,
 }: PricingPlansV2Props) => {

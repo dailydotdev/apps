@@ -15,7 +15,6 @@ export enum FunnelStepType {
   Quiz = 'quiz',
   Signup = 'registration',
   Pricing = 'pricing',
-  PricingV2 = 'pricingV2',
   Checkout = 'checkout',
   PaymentSuccessful = 'paymentSuccessful',
   TagSelection = 'tagsSelection',
@@ -192,7 +191,7 @@ export interface FunnelStepSignup
 
 export * from './steps/pricing';
 
-export interface FunnelStepPricing
+export interface FunnelStepPricingV1
   extends FunnelStepCommon<FunnelStepPricingParameters> {
   type: FunnelStepType.Pricing;
   onTransition: FunnelStepTransitionCallback<{
@@ -204,13 +203,15 @@ export interface FunnelStepPricing
 
 export interface FunnelStepPricingV2
   extends FunnelStepCommon<FunnelStepPricingV2Parameters> {
-  type: FunnelStepType.PricingV2;
+  type: FunnelStepType.Pricing;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
     applyDiscount: boolean;
   }>;
   discountStartDate: Date;
 }
+
+export type FunnelStepPricing = FunnelStepPricingV1 | FunnelStepPricingV2;
 
 export interface FunnelStepCheckoutParameters {
   discountCode?: string;
@@ -351,7 +352,6 @@ export type FunnelStep =
   | FunnelStepQuiz
   | FunnelStepSignup
   | FunnelStepPricing
-  | FunnelStepPricingV2
   | FunnelStepCheckout
   | FunnelStepTagSelection
   | FunnelStepReadingReminder

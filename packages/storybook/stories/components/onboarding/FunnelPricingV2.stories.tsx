@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react-vite';
-import { FunnelPricingV2 } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing/FunnelPricingV2';
+import { FunnelPricing } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing';
 import {
   FunnelStepType,
   FunnelStepPricingV2,
@@ -14,10 +14,11 @@ import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboardin
 import { FunnelPaymentPricingContext } from '@dailydotdev/shared/src/contexts/payment/context';
 import { MockPaymentProvider, mockPricing } from './FunnelPricing.stories';
 import { DISCOUNT_LOCAL_STORAGE_KEY } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
+import FunnelPricingV2 from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPricing/FunnelPricingV2';
 
 const meta: Meta<typeof FunnelPricingV2> = {
   title: 'Components/Onboarding/Steps/FunnelPricingV2',
-  component: FunnelPricingV2,
+  component: FunnelPricing,
   parameters: {
     controls: {
       expanded: true,
@@ -31,7 +32,7 @@ const meta: Meta<typeof FunnelPricingV2> = {
           <div className="flex flex-col min-h-dvh">
             <FunnelStepBackground step={props}>
               <div className="mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg">
-                <FunnelPricingV2 {...props} />
+                <FunnelPricing {...props} />
               </div>
             </FunnelStepBackground>
           </div>
@@ -42,7 +43,7 @@ const meta: Meta<typeof FunnelPricingV2> = {
   play: () => {
     // clear start date from localStorage at the beginning of each story
     localStorage.removeItem(DISCOUNT_LOCAL_STORAGE_KEY);
-  }
+  },
 };
 
 export default meta;
@@ -51,7 +52,7 @@ type Story = StoryObj<typeof FunnelPricingV2>;
 // Base props for all stories
 const baseProps: FunnelStepPricingV2 = {
   id: 'pricing-v2',
-  type: FunnelStepType.PricingV2,
+  type: FunnelStepType.Pricing,
   isActive: true,
   onTransition: fn(),
   discountStartDate: new Date(),
@@ -66,6 +67,7 @@ const baseProps: FunnelStepPricingV2 = {
     },
   ],
   parameters: {
+    version: 'v2',
     discount: {
       message: 'Your special offer is live for the next:',
       duration: 15,
@@ -86,6 +88,35 @@ const baseProps: FunnelStepPricingV2 = {
         'Build your dev presence faster',
       ],
     },
+    plans: [
+      {
+        priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
+        label: '1 Month',
+        variation: PricingPlanVariation.DEFAULT,
+        badge: {
+          text: 'Popular',
+          background: 'bg-accent-cabbage-default',
+        },
+        oldPrice: {
+          monthly: '$9.99',
+          daily: '$0.99',
+        },
+      },
+      {
+        priceId: 'pri_01jcdp5ef4yhv00p43hr2knrd2',
+        label: '3 Months',
+        variation: PricingPlanVariation.BEST_VALUE,
+        badge: {
+          text: 'Save 50%',
+          background: 'bg-status-success',
+        },
+      },
+      {
+        priceId: 'pri_01jmf95s11a9hedbh2bfcz5dz7',
+        label: '6 Months',
+        variation: PricingPlanVariation.DEFAULT,
+      },
+    ],
     plansBlock: {
       heading: 'Your personalized plan is ready!',
       timer: {
@@ -93,42 +124,14 @@ const baseProps: FunnelStepPricingV2 = {
       },
       pricingType: FunnelPricingType.Monthly,
       defaultPlan: 'pri_01jmf95s11a9hedbh2bfcz5dz7',
-      plans: [
-        {
-          priceId: 'pri_01jcdp5ef4yhv00p43hr2knrdg',
-          label: '1 Month',
-          variation: PricingPlanVariation.DEFAULT,
-          badge: {
-            text: 'Popular',
-            background: 'bg-accent-cabbage-default',
-          },
-          oldPrice: {
-            monthly: '$9.99',
-            daily: '$0.99',
-          }
-        },
-        {
-          priceId: 'pri_01jcdp5ef4yhv00p43hr2knrd2',
-          label: '3 Months',
-          variation: PricingPlanVariation.BEST_VALUE,
-          badge: {
-            text: 'Save 50%',
-            background: 'bg-status-success',
-          },
-        },
-        {
-          priceId: 'pri_01jmf95s11a9hedbh2bfcz5dz7',
-          label: '6 Months',
-          variation: PricingPlanVariation.DEFAULT,
-        },
-      ],
       ctaMessage: '30-day money-back guarantee',
       cta: 'Get my plan',
     },
     refund: {
       image:
         'https://media.daily.dev/image/upload/s--QHvr7zBd--/f_auto/v1743491782/public/approved',
-      title: '100% money back <strong class="text-status-success">guarantee</strong>',
+      title:
+        '100% money back <strong class="text-status-success">guarantee</strong>',
       content:
         "We're confident in the quality of our plan. More than a million developers around the world use daily.dev to grow professionally. To get the most out of it, use daily.dev daily. Consume content, explore, and interact with the community. If you still don't love it after 30 days, contact us. We guarantee a full hassle-free refund. No questions asked.",
     },
@@ -156,7 +159,8 @@ const baseProps: FunnelStepPricingV2 = {
       ],
     },
     trust: {
-      image: 'https://media.daily.dev/image/upload/s--ZOzmj3AB--/f_auto/v1743939472/public/Review',
+      image:
+        'https://media.daily.dev/image/upload/s--ZOzmj3AB--/f_auto/v1743939472/public/Review',
     },
     faq: {
       items: [
@@ -186,4 +190,3 @@ export const Default: Story = {
     discountStartDate: new Date(),
   },
 };
-

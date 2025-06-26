@@ -2,7 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import { useAtomValue } from 'jotai';
-import type { FunnelStepPricingV2 } from '../../types/funnel';
+import type {
+  FunnelStepPricingParameters,
+  FunnelStepPricingV2,
+  FunnelStepPricingV2Parameters,
+} from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { withIsActiveGuard } from '../../shared/withActiveGuard';
 import {
@@ -38,15 +42,22 @@ import {
 } from '../../../../components/typography/Typography';
 import { PricingPlansV2 } from '../../shared/PricingPlansV2';
 
-type PricingSelectionProps = FunnelStepPricingV2['parameters'] & {
+type PricingSelectionProps = FunnelStepPricingV2Parameters & {
   discountStartDate: Date | null;
   onProceedToCheckout?: (plan: string) => void;
+};
+
+export const isV2 = (
+  parameters: FunnelStepPricingParameters | FunnelStepPricingV2Parameters,
+): parameters is FunnelStepPricingV2Parameters => {
+  return parameters.version === 'v2';
 };
 
 const PricingSelection = ({
   discount,
   onProceedToCheckout,
-  plansBlock: { cta, ctaMessage, heading, plans, timer, defaultPlan },
+  plans,
+  plansBlock: { cta, ctaMessage, heading, timer, defaultPlan },
 }: PricingSelectionProps) => {
   const applyDiscount = useAtomValue(applyDiscountAtom);
   const discountStartDate = useAtomValue(discountTimerAtom);
@@ -113,7 +124,7 @@ const Pricing = ({
 }: FunnelStepPricingV2): ReactElement => {
   const id = useId();
   const { hero, features, plansBlock, discount, faq, trust, refund, reviews } =
-    parameters;
+    parameters as FunnelStepPricingV2Parameters;
   const [applyDiscount, setApplyDiscount] = useAtom(applyDiscountAtom);
   const [discountStartDate, setTimer] = useAtom(discountTimerAtom);
 
