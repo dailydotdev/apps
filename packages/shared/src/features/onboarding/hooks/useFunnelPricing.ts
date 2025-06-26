@@ -26,7 +26,7 @@ export const useFunnelPricing = (
   );
 
   const plansArray: FunnelStepPricingPlan[] =
-    step.type === FunnelStepType.Pricing
+    step?.type === FunnelStepType.Pricing
       ? step?.parameters?.plans
       : step?.parameters?.plansBlock?.plans;
 
