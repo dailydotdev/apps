@@ -344,7 +344,7 @@ export const SEARCH_POSTS_QUERY = gql`
     $query: String!
     ${SUPPORTED_TYPES}
     $contentCuration: [String]
-    $time: String
+    $time: SearchTime
     $version: Int
   ) {
     page: searchPosts(

@@ -16,11 +16,8 @@ import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
 import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
-import { useUseSearchSuggestionsContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSearchSuggestionsContentPreferenceMutationSubscription';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
-import { feature } from '../../../lib/featureManagement';
-import { useFeaturesReadyContext } from '../../GrowthBookProvider';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 const SEARCH_VERSION_THRESHOLD = 3;
@@ -55,21 +52,13 @@ export const SearchResultsLayout = (
     });
   const sources = suggestedSources?.hits ?? [];
 
-  const {
-    isLoading: isUsersLoading,
-    suggestions: suggestedUsers,
-    queryKey: usersQueryKey,
-  } = useSearchProviderSuggestions({
-    query: `${query}`,
-    provider: SearchProviderEnum.Users,
-    limit: 10,
-    includeContentPreference: true,
-  });
-  const { getFeatureValue } = useFeaturesReadyContext();
-  const searchVersion = getFeatureValue(feature.searchVersion);
-  useUseSearchSuggestionsContentPreferenceMutationSubscription({
-    queryKey: usersQueryKey,
-  });
+  const { isLoading: isUsersLoading, suggestions: suggestedUsers } =
+    useSearchProviderSuggestions({
+      query: `${query}`,
+      provider: SearchProviderEnum.Users,
+      limit: 10,
+      includeContentPreference: true,
+    });
 
   const users = suggestedUsers?.hits ?? [];
 
@@ -102,12 +91,10 @@ export const SearchResultsLayout = (
             <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
               Related posts
             </h2>
-            {searchVersion >= SEARCH_VERSION_THRESHOLD ? (
-              <div className="mx-4 flex gap-2">
-                <SearchFilterTimeButton />
-                <SearchFilterPostTypeButton />
-              </div>
-            ) : undefined}
+            <div className="mx-4 flex gap-2">
+              <SearchFilterTimeButton />
+              <SearchFilterPostTypeButton />
+            </div>
           </div>
 
           <div

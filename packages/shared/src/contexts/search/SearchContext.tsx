@@ -1,10 +1,10 @@
 import { createContextProvider } from '@kickass-coderz/react';
 import { useMemo, useState } from 'react';
-import type { TIME_OPTIONS } from '../../components/search/common';
+import { SearchTime } from '../../graphql/search';
 
-type TimeOption = (typeof TIME_OPTIONS)[number];
+type TimeOption = (typeof SearchTime)[number];
 const [SearchProvider, useSearchContextProvider] = createContextProvider(() => {
-  const [time, setTime] = useState<TimeOption>('All time');
+  const [time, setTime] = useState<TimeOption>(SearchTime.AllTime);
   const [postTypes, setPostTypes] = useState<Record<string, boolean>>({});
 
   const contentCurationFilter = useMemo(
