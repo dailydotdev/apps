@@ -5,6 +5,7 @@ import classed from '../../../lib/classed';
 import { Origin } from '../../../lib/log';
 import type { PostHeaderActionsProps } from '../common';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -14,19 +15,20 @@ export const BriefPostHeaderActions = ({
   inlineActions,
   className,
   notificationClassName,
-  contextMenuId,
-  onRemovePost,
+  isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement => {
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
+  const isEnlarged = isFixedNavigation || isLaptop;
+
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       <PostMenuOptions
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}
-        contextMenuId={contextMenuId}
-        onRemovePost={onRemovePost}
         origin={Origin.BriefModal}
+        isEnlarged={isEnlarged}
       />
     </Container>
   );

@@ -23,7 +23,6 @@ export default function BriefPostModal({
   onNextPost,
   postPosition,
   post,
-  onRemovePost,
   ...props
 }: BriefPostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -40,6 +39,9 @@ export default function BriefPostModal({
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
       size={Modal.Size.Large}
+      postPosition={postPosition}
+      onPreviousPost={onPreviousPost}
+      onNextPost={onNextPost}
     >
       <BriefPostContent
         position={position}
@@ -52,13 +54,12 @@ export default function BriefPostModal({
           onboarding: 'mt-8',
           navigation: { actions: 'ml-auto laptop:hidden' },
           fixedNavigation: {
-            container: modalSizeToClassName[Modal.Size.XLarge],
+            container: modalSizeToClassName[Modal.Size.Large],
             actions: 'ml-auto',
           },
         }}
         onClose={onRequestClose}
         origin={Origin.BriefModal}
-        onRemovePost={onRemovePost}
       />
     </BasePostModal>
   );

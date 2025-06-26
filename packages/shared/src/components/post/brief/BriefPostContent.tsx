@@ -52,7 +52,6 @@ const BriefPostContentRaw = ({
   postPosition,
   isFallback,
   customNavigation,
-  onRemovePost,
   backToSquad,
   isBannerVisible,
   isPostPage,
@@ -85,7 +84,6 @@ const BriefPostContentRaw = ({
     post,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   const onSendViewPost = useViewPost();
@@ -143,14 +141,12 @@ const BriefPostContentRaw = ({
               hasNavigation || customNavigation ? 'mt-6' : 'mt-6 laptop:mt-0',
             )}
           >
-            <div className="absolute -top-2 right-8">
-              <BriefPostHeaderActions
-                post={post}
-                onClose={onClose}
-                className="hidden pt-6 laptop:flex"
-                contextMenuId="post-widgets-context"
-              />
-            </div>
+            {/* TODO feat-brief this needs to somehow go inside PostNavigation on the right */}
+            <BriefPostHeaderActions
+              post={post}
+              onClose={onClose}
+              contextMenuId="post-widgets-context"
+            />
             <div className="flex flex-col gap-1">
               <Typography
                 type={TypographyType.LargeTitle}
