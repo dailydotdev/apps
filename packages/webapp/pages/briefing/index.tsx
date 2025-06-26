@@ -41,7 +41,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import type { PostItem } from '@dailydotdev/shared/src/graphql/posts';
 import { FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
-import { noop } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -255,7 +254,6 @@ const Page = (): ReactElement => {
           onNextPost={onNext}
           postPosition={postPosition}
           post={selectedPost}
-          onRemovePost={noop}
         />
       )}
     </ProtectedPage>
