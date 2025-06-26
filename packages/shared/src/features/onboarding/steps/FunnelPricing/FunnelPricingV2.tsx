@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
-import Head from 'next/head';
 import { useAtomValue } from 'jotai';
 import type { FunnelStepPricingV2 } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
@@ -160,20 +159,16 @@ const Pricing = ({
       <div className="flex flex-col gap-6 px-4 py-6">
         {/* Hero */}
         {hero.image && (
-          <>
-            <Head>
-              <link rel="preload" as="image" href={hero.image} />
-            </Head>
-            <LazyImage
-              aria-hidden
-              eager
-              imgSrc={hero.image}
-              className="h-auto w-full object-center"
-              fit="contain"
-              ratio="64%"
-              imgAlt="Supportive illustration for the information"
-            />
-          </>
+          <LazyImage
+            aria-hidden
+            eager
+            fetchPriority="high"
+            imgSrc={hero.image}
+            className="h-auto w-full object-center"
+            fit="contain"
+            ratio="64%"
+            imgAlt="Supportive illustration for the information"
+          />
         )}
         <StepHeadline
           heading={hero.headline}
