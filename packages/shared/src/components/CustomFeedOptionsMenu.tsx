@@ -1,18 +1,22 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { ContextMenuIds } from '../hooks/constants';
 import type { MenuItemProps } from './fields/ContextMenu';
-import ContextMenu from './fields/ContextMenu';
 import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
 import { MenuIcon } from './MenuIcon';
-import useContextMenu from '../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import type { UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { useFeeds } from '../hooks';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './dropdown/DropdownMenu';
+import { Tooltip } from './tooltip/Tooltip';
 
 type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
@@ -38,9 +42,6 @@ const CustomFeedOptionsMenu = ({
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
-  const { isOpen, onMenuClick } = useContextMenu({
-    id: ContextMenuIds.CustomFeedContext,
-  });
   const { feeds } = useFeeds();
 
   const handleOpenModal = () => {
@@ -73,22 +74,25 @@ const CustomFeedOptionsMenu = ({
   options.push(...additionalOptions);
 
   return (
-    <>
-      <Button
-        className={classNames('justify-center', className?.button)}
-        onClick={onMenuClick}
-        size={ButtonSize.Small}
-        variant={buttonVariant}
-        icon={<DotsIcon />}
-      />
-      <ContextMenu
-        className={className?.menu}
-        disableBoundariesCheck
-        id={ContextMenuIds.CustomFeedContext}
-        options={options}
-        isOpen={isOpen}
-      />
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Tooltip content="Options">
+          <Button
+            className={classNames('justify-center', className?.button)}
+            size={ButtonSize.Small}
+            variant={buttonVariant}
+            icon={<DotsIcon />}
+          />
+        </Tooltip>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {options.map(({ label, icon, action }: MenuItemProps) => (
+          <DropdownMenuItem key={label} onClick={action}>
+            {icon} {label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
