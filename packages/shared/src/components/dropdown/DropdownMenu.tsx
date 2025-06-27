@@ -35,6 +35,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
     const [open, setOpen] = useState(false);
 
     const [handleScroll] = useDebounceFn(() => {
+      props.onOpenChange?.(false);
       setOpen(false);
     }, 50);
 
@@ -48,8 +49,11 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
 
     return (
       <DropdownMenuRoot
-        open={open}
-        onOpenChange={setOpen}
+        open={props.open || open}
+        onOpenChange={(value) => {
+          props.onOpenChange?.(value);
+          setOpen(value);
+        }}
         modal={false}
         {...props}
       >

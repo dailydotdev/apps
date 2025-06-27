@@ -796,19 +796,22 @@ export const PostOptionButton = (props): ReactElement => {
     triggerClassName,
     variant = ButtonVariant.Tertiary,
   } = props;
+  const [tooltipVisible, setTooltipVisible] = useState(false);
   const [open, setOpen] = useState(false);
   return (
-    <DropdownMenu onOpenChange={setOpen}>
-      <DropdownMenuTrigger>
-        <Tooltip content="Options">
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <Tooltip content="Options" visible={tooltipVisible}>
+        <DropdownMenuTrigger asChild>
           <Button
             variant={variant}
             icon={<RawMenuIcon />}
             size={size}
             className={classNames('my-auto', triggerClassName)}
+            onMouseEnter={() => setTooltipVisible(true)}
+            onMouseLeave={() => setTooltipVisible(false)}
           />
-        </Tooltip>
-      </DropdownMenuTrigger>
+        </DropdownMenuTrigger>
+      </Tooltip>
       {!!open && <PostOptionButtonContent {...props} />}
     </DropdownMenu>
   );
