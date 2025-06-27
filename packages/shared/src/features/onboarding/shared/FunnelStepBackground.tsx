@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { FunnelStep } from '../types/funnel';
 import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
 import { useIsLightTheme } from '../../../hooks/utils';
+import { isFunnelPricingV2 } from '../steps/FunnelPricing/common';
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
@@ -68,10 +69,15 @@ export const FunnelStepBackground = ({
   step,
 }: StepBackgroundProps): ReactElement => {
   const isLightMode = useIsLightTheme();
+  const isPricingV2 =
+    step.type === FunnelStepType.Pricing && isFunnelPricingV2(step.parameters);
 
-  const isForcedDarkThemeStep = useMemo(
-    () => alwaysDarkSteps.includes(step.type),
-    [step.type],
+  const isStepForcedTo = useMemo(
+    () => ({
+      dark: alwaysDarkSteps.includes(step.type),
+      light: isPricingV2,
+    }),
+    [isPricingV2, step.type],
   );
 
   const bgClassName = useMemo(() => {
@@ -82,13 +88,18 @@ export const FunnelStepBackground = ({
     );
   }, [step]);
 
-  const shouldShowBg = !hiddenBgSteps.some((type) => type === step.type);
+  const shouldShowBg =
+    !isPricingV2 && !hiddenBgSteps.some((type) => type === step.type);
+
+  const needInvertedColors =
+    (isStepForcedTo.dark && isLightMode) ||
+    (isStepForcedTo.light && !isLightMode);
 
   return (
     <div
       className={classNames(
         'relative flex flex-1 flex-col bg-background-default',
-        isForcedDarkThemeStep && isLightMode && 'invert',
+        needInvertedColors && 'invert',
       )}
     >
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>

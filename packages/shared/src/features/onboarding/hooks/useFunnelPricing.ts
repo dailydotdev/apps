@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import type { ProductPricingPreview } from '../../../graphql/paddle';
 import { useProductPricingByIds } from '../../../hooks/useProductPricing';
-import type { FunnelJSON } from '../types/funnel';
+import type { FunnelJSON, FunnelStepPricing } from '../types/funnel';
 import { FunnelStepType } from '../types/funnel';
 
 export const useFunnelPricing = (
   funnel: FunnelJSON,
 ): { data: ProductPricingPreview[] } => {
-  const step = useMemo(
+  const step: FunnelStepPricing = useMemo(
     () =>
       funnel.chapters
         .flatMap((chapter) => chapter.steps)
@@ -24,36 +24,38 @@ export const useFunnelPricing = (
       return [];
     }
 
-    return step.parameters.plans
-      .map((plan) => {
-        const preview = data?.find(
-          (pricing) => pricing.priceId === plan.priceId,
-        );
+    return (
+      step?.parameters?.plans
+        ?.map((plan) => {
+          const preview = data?.find(
+            (pricing) => pricing.priceId === plan.priceId,
+          );
 
-        if (!preview) {
-          return null;
-        }
+          if (!preview) {
+            return null;
+          }
 
-        const hasBadge =
-          !!plan.badge?.text?.trim()?.length && !!plan.badge?.background;
+          const hasBadge =
+            !!plan.badge?.text?.trim()?.length && !!plan.badge?.background;
 
-        return {
-          ...preview,
-          metadata: {
-            title: plan.label,
-            caption: hasBadge
-              ? {
-                  copy: plan.badge?.text,
-                  color: plan.badge?.background,
-                }
-              : undefined,
-            idMap: {
-              paddle: plan.priceId,
+          return {
+            ...preview,
+            metadata: {
+              title: plan.label,
+              caption: hasBadge
+                ? {
+                    copy: plan.badge?.text,
+                    color: plan.badge?.background,
+                  }
+                : undefined,
+              idMap: {
+                paddle: plan.priceId,
+              },
             },
-          },
-        } as ProductPricingPreview;
-      })
-      .filter(Boolean);
+          } as ProductPricingPreview;
+        })
+        .filter(Boolean) ?? []
+    );
   }, [data, step]);
 
   return { data: pricingPreview ?? [] };

@@ -11,6 +11,7 @@ import { getPathnameWithQuery } from '../../../lib';
 export const sanitizeMessage = (
   message: string,
   allowedTags = ['b', 'strong', 'br'],
+  allowedAttributes = ['class'],
 ): string => {
   // Only run on client-side
   if (typeof window === 'undefined') {
@@ -21,7 +22,7 @@ export const sanitizeMessage = (
 
   return purify.sanitize(message, {
     ALLOWED_TAGS: allowedTags,
-    ALLOWED_ATTR: [],
+    ALLOWED_ATTR: allowedAttributes,
   });
 };
 
