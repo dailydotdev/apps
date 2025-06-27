@@ -42,7 +42,9 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
     <>
       <div className="my-6">
-        <h1 className="whitespace-pre-line font-bold typo-title2">{title}</h1>
+        <h1 className="whitespace-pre-line text-[2rem] font-bold leading-[1.3]">
+          {title}
+        </h1>
         {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
       </div>
       {post.type === PostType.Freeform && (
