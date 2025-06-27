@@ -948,3 +948,18 @@ export const BRIEFING_POSTS_QUERY = gql`
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
+
+export enum BriefingType {
+  Daily = 'daily',
+  Weekly = 'weekly',
+}
+
+export const GENERATE_BRIEFING = gql`
+  mutation GenerateBriefing($type: BriefingType!) {
+    generateBriefing(type: $type) {
+      id: postId
+    }
+  }
+`;
+
+export const briefRefetchIntervalMs = 2000;

@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -15,6 +16,10 @@ import type { BriefCardProps } from './BriefCard';
 import { BriefGradientIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { gqlClient } from '../../../../graphql/common';
+import type { Post } from '../../../../graphql/posts';
+import { BriefingType, GENERATE_BRIEFING } from '../../../../graphql/posts';
+import { useBriefCardContext } from './BriefCardContext';
 
 export type BriefCardDefaultProps = BriefCardProps;
 
@@ -28,6 +33,23 @@ export const BriefCardDefault = ({
   title,
   children,
 }: BriefCardDefaultProps): ReactElement => {
+  const briefCardContext = useBriefCardContext();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async () => {
+      const result = await gqlClient.request<{
+        generateBriefing: Pick<Post, 'id'>;
+      }>(GENERATE_BRIEFING, {
+        type: BriefingType.Daily,
+      });
+
+      return result.generateBriefing;
+    },
+    onSuccess: (data) => {
+      briefCardContext.setBrief({ id: data.id, createdAt: new Date() });
+    },
+  });
+
   return (
     <div
       style={rootStyle}
@@ -55,8 +77,9 @@ export const BriefCardDefault = ({
         type="button"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
+        loading={isPending}
         onClick={() => {
-          // TODO feat-brief start briefing generation
+          mutate();
         }}
       >
         Generate

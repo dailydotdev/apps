@@ -199,7 +199,7 @@ const Page = (): ReactElement => {
                         <BriefListItem
                           key={post.id}
                           post={post}
-                          title={format(new Date(post.createdAt), 'MMM d')}
+                          title={post.title}
                           pill={
                             index === 0 && !post.read
                               ? { label: 'Just in' }

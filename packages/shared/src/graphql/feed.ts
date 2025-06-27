@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
 import type { Post } from './posts';
-import { PostType } from './posts';
+import { PostType } from '../types';
 import type { Connection } from './common';
 import type { FeedOrder } from '../lib/constants';
 

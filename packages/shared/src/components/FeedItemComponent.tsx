@@ -203,7 +203,7 @@ export default function FeedItemComponent({
 
   // TODO feat-brief remove this
   if (index === 0 && item.type === FeedItemType.Post) {
-    return <BriefCard state="loading" post={item.post} />;
+    return <BriefCard />;
   }
 
   switch (item.type) {
