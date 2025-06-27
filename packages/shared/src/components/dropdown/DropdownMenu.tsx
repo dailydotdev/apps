@@ -1,10 +1,11 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import './style.css';
 import type {
   DropdownMenuContentProps as RadixDropdownMenuContentProps,
   DropdownMenuProps,
+  DropdownMenuTriggerProps,
 } from '@radix-ui/react-dropdown-menu';
 import {
   DropdownMenu as DropdownMenuRoot,
@@ -16,6 +17,7 @@ import {
 import classed from '../../lib/classed';
 import { useEventListener } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
+import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
 
 export const DropdownMenuItem = classed(
@@ -30,32 +32,33 @@ interface DropdownMenuContentProps
   align?: 'start' | 'center' | 'end';
 }
 
-export const DropdownMenuTrigger = React.forwardRef(
-  ({ children, tooltip, ...props }, forwardedRef) => {
-    const [tooltipVisible, setTooltipVisible] = useState(false);
-    return (
-      <ConditionalWrapper
-        condition={!!tooltip}
-        wrapper={(component) => {
-          const { ...tooltipProps } = tooltip;
-          return (
-            <Tooltip {...tooltipProps} visible={tooltipVisible}>
-              {component}
-            </Tooltip>
-          );
-        }}
-      >
-        <DropdownMenuTriggerRoot ref={forwardedRef} {...props}>
-          {React.cloneElement(children, {
-            onMouseEnter: () => setTooltipVisible(true),
-            onMouseLeave: () => setTooltipVisible(false),
-            ...children.props,
-          })}
-        </DropdownMenuTriggerRoot>
-      </ConditionalWrapper>
-    );
-  },
-);
+export const DropdownMenuTrigger = React.forwardRef<
+  HTMLButtonElement,
+  DropdownMenuTriggerProps & { tooltip?: Omit<TooltipProps, 'children'> }
+>(({ children, tooltip, ...props }, forwardedRef) => {
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  return (
+    <ConditionalWrapper
+      condition={!!tooltip}
+      wrapper={(component) => {
+        const { ...tooltipProps } = tooltip;
+        return (
+          <Tooltip {...tooltipProps} visible={tooltipVisible}>
+            {component}
+          </Tooltip>
+        );
+      }}
+    >
+      <DropdownMenuTriggerRoot ref={forwardedRef} {...props}>
+        {React.cloneElement(children as ReactElement, {
+          onMouseEnter: () => setTooltipVisible(true),
+          onMouseLeave: () => setTooltipVisible(false),
+          ...(children as ReactElement)?.props,
+        })}
+      </DropdownMenuTriggerRoot>
+    </ConditionalWrapper>
+  );
+});
 DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
 
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
