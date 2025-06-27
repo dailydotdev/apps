@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import Link from '../../../utilities/Link';
+import Link from 'next/link';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Button } from '../../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';

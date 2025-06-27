@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import Link from '../../utilities/Link';
+import Link from 'next/link';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card, CardLink } from '../common/Card';
 import { Image, ImageType } from '../../image/Image';

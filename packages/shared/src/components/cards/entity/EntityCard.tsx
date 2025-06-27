@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import classNames from 'classnames';
-import Link from '../../utilities/Link';
+import Link from 'next/link';
 import { Image } from '../../image/Image';
 
 export type EntityCardProps = {

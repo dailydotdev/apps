@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import Link from 'next/link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useContentPreferenceStatusQuery } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreferenceStatusQuery';
