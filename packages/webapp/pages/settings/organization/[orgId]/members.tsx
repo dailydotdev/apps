@@ -66,7 +66,7 @@ import {
   DropdownMenuTrigger,
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
-import Link from 'next/link';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
