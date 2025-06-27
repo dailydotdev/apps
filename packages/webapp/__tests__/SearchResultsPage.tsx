@@ -10,6 +10,7 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import * as contexts from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
 
 jest.mock('next/router', () => ({
@@ -46,11 +47,13 @@ const renderComponent = (): RenderResult => {
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      <MainFeedLayout
-        feedName="search"
-        isSearchOn
-        searchQuery={DEFAULT_QUERY}
-      />
+      <SearchProvider>
+        <MainFeedLayout
+          feedName="search"
+          isSearchOn
+          searchQuery={DEFAULT_QUERY}
+        />
+      </SearchProvider>
     </TestBootProvider>,
   );
 };
