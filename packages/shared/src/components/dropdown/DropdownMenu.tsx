@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import './style.css';
 import type {
@@ -14,6 +14,7 @@ import {
   DropdownMenuItem as DropdownMenuItemRoot,
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
+import { useEventListener } from '../../hooks';
 
 export const DropdownMenuTrigger = DropdownMenuTriggerRoot;
 
@@ -33,18 +34,10 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ children, ...props }) => {
     const [open, setOpen] = useState(false);
 
-    useEffect(() => {
-      const handleScroll = () => {
-        props.onOpenChange?.(false);
-        setOpen(false);
-      };
-
-      document.addEventListener('scroll', handleScroll, true);
-
-      return () => {
-        document.removeEventListener('scroll', handleScroll, true);
-      };
-    }, []);
+    useEventListener(globalThis, 'scroll', () => {
+      props.onOpenChange?.(false);
+      setOpen(false);
+    });
 
     return (
       <DropdownMenuRoot
