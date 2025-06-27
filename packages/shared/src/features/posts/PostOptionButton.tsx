@@ -74,6 +74,7 @@ import {
   demotePost,
   isVideoPost,
   promotePost,
+  useCanBoostPost,
   UserVote,
 } from '../../graphql/posts';
 import { postLogEvent } from '../../lib/feed';
@@ -94,6 +95,7 @@ import { Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import type { PostItem } from '../../hooks/useFeed';
+import { BoostIcon } from '../../components/icons/Boost';
 
 const getBlockLabel = (
   name: string,
@@ -169,6 +171,7 @@ const PostOptionButtonContent = ({
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { canBoost } = useCanBoostPost(post);
 
   const banPostPrompt = useCallback(async () => {
     const options: PromptOptions = {
@@ -422,12 +425,30 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
-    {
-      icon: <MenuIcon Icon={EyeIcon} />,
-      label: 'Hide',
-      action: onHidePost,
-    },
   ];
+
+  const onBoostPost = () => {
+    openModal({
+      type: LazyModal.BoostPost,
+      props: {
+        post,
+      },
+    });
+  };
+
+  if (canBoost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BoostIcon} />,
+      label: 'Boost post',
+      action: onBoostPost,
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={EyeIcon} />,
+    label: 'Hide',
+    action: onHidePost,
+  });
 
   const { shouldUseListFeedLayout } = useFeedLayout();
 

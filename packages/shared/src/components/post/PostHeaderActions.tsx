@@ -6,6 +6,7 @@ import {
   getReadPostButtonText,
   isInternalReadType,
   PostType,
+  useCanBoostPost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -15,6 +16,7 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
+import { BoostPostButton } from '../../features/boost/BoostPostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -35,6 +37,7 @@ export function PostHeaderActions({
   const isEnlarged = isFixedNavigation || isLaptop;
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
+  const { canBoost } = useCanBoostPost(post);
   const ButtonWithExperiment = useCallback(() => {
     return (
       <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
@@ -70,6 +73,7 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
+      {!post.flags?.boosted && canBoost && <BoostPostButton post={post} />}
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}

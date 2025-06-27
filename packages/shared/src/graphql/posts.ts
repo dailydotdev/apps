@@ -15,6 +15,11 @@ import {
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
+import {
+  useCanPurchaseCores,
+  useHasAccessToCores,
+} from '../hooks/useCoresFeature';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -79,6 +84,7 @@ type PostFlags = {
   showOnFeed: boolean;
   promoteToPublic: number;
   coverVideo?: string;
+  boosted: boolean;
 };
 
 export enum UserVote {
@@ -935,4 +941,17 @@ export const updateSourcePostModeration = async (
   );
 
   return res.updateSourcePostModeration;
+};
+
+export const checkCanBoostByUser = (post: Post, userId: string) =>
+  (post?.author?.id && post?.author?.id === userId) ||
+  (post?.scout?.id && post?.scout?.id === userId);
+
+export const useCanBoostPost = (post: Post) => {
+  const { user } = useAuthContext();
+  const hasAccess = useHasAccessToCores();
+  const canBuy = useCanPurchaseCores();
+  const canBoost = hasAccess && canBuy && checkCanBoostByUser(post, user?.id);
+
+  return { canBoost };
 };
