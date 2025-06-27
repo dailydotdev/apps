@@ -2,7 +2,10 @@ import type { ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import './style.css';
-import type { DropdownMenuContentProps as RadixDropdownMenuContentProps } from '@radix-ui/react-dropdown-menu';
+import type {
+  DropdownMenuContentProps as RadixDropdownMenuContentProps,
+  DropdownMenuProps,
+} from '@radix-ui/react-dropdown-menu';
 import {
   DropdownMenu as DropdownMenuRoot,
   DropdownMenuContent as DropdownMenuContentRoot,
@@ -26,32 +29,34 @@ interface DropdownMenuContentProps
   align?: 'start' | 'center' | 'end';
 }
 
-export const DropdownMenu = React.forwardRef(({ children }, forwardedRef) => {
-  const [open, setOpen] = useState(false);
+export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
+  ({ children, ...props }) => {
+    const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setOpen(false);
-    };
+    useEffect(() => {
+      const handleScroll = () => {
+        setOpen(false);
+      };
 
-    document.addEventListener('scroll', handleScroll, true);
+      document.addEventListener('scroll', handleScroll, true);
 
-    return () => {
-      document.removeEventListener('scroll', handleScroll, true);
-    };
-  }, []);
+      return () => {
+        document.removeEventListener('scroll', handleScroll, true);
+      };
+    }, []);
 
-  return (
-    <DropdownMenuRoot
-      open={open}
-      ref={forwardedRef}
-      onOpenChange={setOpen}
-      modal={false}
-    >
-      {children}
-    </DropdownMenuRoot>
-  );
-});
+    return (
+      <DropdownMenuRoot
+        open={open}
+        onOpenChange={setOpen}
+        modal={false}
+        {...props}
+      >
+        {children}
+      </DropdownMenuRoot>
+    );
+  },
+);
 DropdownMenu.displayName = 'DropdownMenu';
 
 export const DropdownMenuContent = React.forwardRef<
