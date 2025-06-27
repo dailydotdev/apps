@@ -60,8 +60,12 @@ const useSharedByToast = (): void => {
       hasShownToast.current = true;
       displayToast(
         <div className="flex items-center gap-4">
-          <Link href={`/${user.username}`} onClick={() => dismissToast()}>
-            <a className="flex items-center gap-2">
+          <Link href={`/${user.username}`}>
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+            <a
+              className="flex items-center gap-2"
+              onClick={() => dismissToast()}
+            >
               <ProfilePicture user={user} size={ProfileImageSize.Medium} />
               <span>
                 <Typography
