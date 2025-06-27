@@ -30,7 +30,7 @@ const SearchFilterTimeButton = () => {
           {Object.entries(SearchTime).map(([value, label]) => (
             <DropdownMenuItem
               key={label}
-              onClick={() => setTime(value)}
+              onClick={() => setTime(value as keyof SearchTime)}
               className={classNames(
                 'flex',
                 time === value
