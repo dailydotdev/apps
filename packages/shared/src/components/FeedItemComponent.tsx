@@ -32,7 +32,6 @@ import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
-import { FeedCardContext } from '../features/boost/FeedCardContext';
 
 const CommentPopup = dynamic(
   () =>
@@ -209,79 +208,75 @@ export default function FeedItemComponent({
       return null;
     }
 
-    const isBoostedReach = item.type === FeedItemType.Ad && !!item.post;
-
     return (
-      <FeedCardContext.Provider value={{ isBoostedReach }}>
-        <PostTag
-          enableSourceHeader={
-            feedName !== 'squad' && item.post.source?.type === 'squad'
-          }
-          ref={inViewRef}
-          post={{
-            ...item.post,
-          }}
-          data-testid="postItem"
-          onUpvoteClick={(post, origin = Origin.Feed) => {
-            toggleUpvote({
-              payload: post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          onDownvoteClick={(post, origin = Origin.Feed) => {
-            toggleDownvote({
-              payload: post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          onPostClick={(post) => onPostClick(post, index, row, column)}
-          onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
-          onReadArticleClick={() =>
-            onReadArticleClick(item.post, index, row, column)
-          }
-          onShare={(post) => onShare(post, row, column)}
-          onBookmarkClick={(post, origin = Origin.Feed) => {
-            toggleBookmark({
-              post,
-              origin,
-              opts: {
-                columns,
-                column,
-                row,
-              },
-            });
-          }}
-          openNewTab={openNewTab}
-          enableMenu={!!user}
-          onMenuClick={(event) => onMenuClick(event, index, row, column)}
-          onCopyLinkClick={(event, post) =>
-            onCopyLinkClick(event, post, index, row, column)
-          }
-          menuOpened={postMenuIndex === index}
-          onCommentClick={(post) => onCommentClick(post, index, row, column)}
-          eagerLoadImage={row === 0 && column === 0}
-        >
-          {showCommentPopupId === item.post.id && (
-            <CommentPopup
-              onClose={() => setShowCommentPopupId(null)}
-              onSubmit={(content) =>
-                comment({ post: item.post, content, row, column, columns })
-              }
-              loading={isSendingComment}
-            />
-          )}
-        </PostTag>
-      </FeedCardContext.Provider>
+      <PostTag
+        enableSourceHeader={
+          feedName !== 'squad' && item.post.source?.type === 'squad'
+        }
+        ref={inViewRef}
+        post={{
+          ...item.post,
+        }}
+        data-testid="postItem"
+        onUpvoteClick={(post, origin = Origin.Feed) => {
+          toggleUpvote({
+            payload: post,
+            origin,
+            opts: {
+              columns,
+              column,
+              row,
+            },
+          });
+        }}
+        onDownvoteClick={(post, origin = Origin.Feed) => {
+          toggleDownvote({
+            payload: post,
+            origin,
+            opts: {
+              columns,
+              column,
+              row,
+            },
+          });
+        }}
+        onPostClick={(post) => onPostClick(post, index, row, column)}
+        onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
+        onReadArticleClick={() =>
+          onReadArticleClick(item.post, index, row, column)
+        }
+        onShare={(post) => onShare(post, row, column)}
+        onBookmarkClick={(post, origin = Origin.Feed) => {
+          toggleBookmark({
+            post,
+            origin,
+            opts: {
+              columns,
+              column,
+              row,
+            },
+          });
+        }}
+        openNewTab={openNewTab}
+        enableMenu={!!user}
+        onMenuClick={(event) => onMenuClick(event, index, row, column)}
+        onCopyLinkClick={(event, post) =>
+          onCopyLinkClick(event, post, index, row, column)
+        }
+        menuOpened={postMenuIndex === index}
+        onCommentClick={(post) => onCommentClick(post, index, row, column)}
+        eagerLoadImage={row === 0 && column === 0}
+      >
+        {showCommentPopupId === item.post.id && (
+          <CommentPopup
+            onClose={() => setShowCommentPopupId(null)}
+            onSubmit={(content) =>
+              comment({ post: item.post, content, row, column, columns })
+            }
+            loading={isSendingComment}
+          />
+        )}
+      </PostTag>
     );
   }
 
