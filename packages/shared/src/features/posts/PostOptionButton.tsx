@@ -97,7 +97,6 @@ import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import type { PostItem } from '../../hooks/useFeed';
 import { BoostIcon } from '../../components/icons/Boost';
-import { getBoostedPostByCampaignId } from '../../graphql/post/boost';
 
 const getBlockLabel = (
   name: string,
@@ -155,7 +154,7 @@ const PostOptionButtonContent = ({
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
-  const post = loadedPost ?? initialPost;
+  const post = loadedPost ?? (initialPost as Post);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
@@ -439,16 +438,10 @@ const PostOptionButtonContent = ({
   };
 
   const onManageBoost = async () => {
-    try {
-      const data = await getBoostedPostByCampaignId(post.id);
-
-      openModal({
-        type: LazyModal.BoostedPostView,
-        props: { data },
-      });
-    } catch (err) {
-      displayToast('Error fetching campaign');
-    }
+    openModal({
+      type: LazyModal.FetchBoostedPostView,
+      props: { campaignId: post.flags.campaignId },
+    });
   };
 
   if (canBoost) {

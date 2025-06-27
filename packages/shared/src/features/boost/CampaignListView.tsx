@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -24,6 +25,33 @@ interface CampaignListViewProps {
   isLoading: boolean;
   onBoostClick: () => void;
 }
+
+interface CampaignStatsGridProps {
+  impressions: number;
+  engagements: number;
+  clicks: number;
+  cores: number;
+  className?: string;
+}
+
+export const CampaignStatsGrid = ({
+  className,
+  cores,
+  clicks,
+  engagements,
+  impressions,
+}: CampaignStatsGridProps) => (
+  <div className={classNames('grid grid-cols-2 gap-4', className)}>
+    <DataTile
+      label="Spend"
+      value={cores}
+      icon={<CoreIcon size={IconSize.XSmall} />}
+    />
+    <DataTile label="Impressions" value={impressions} />
+    <DataTile label="Clicks" value={clicks} />
+    <DataTile label="Engagements" value={engagements} />
+  </div>
+);
 
 export function CampaignListView({
   data,
@@ -82,16 +110,13 @@ export function CampaignListView({
             Ends in {date.endsIn} days
           </Typography>
         </span>
-        <div className="mt-3 grid grid-cols-2 gap-4">
-          <DataTile
-            label="Spend"
-            value={campaign.budget}
-            icon={<CoreIcon size={IconSize.XSmall} />}
-          />
-          <DataTile label="Impressions" value={campaign.impressions} />
-          <DataTile label="Clicks" value={campaign.clicks} />
-          <DataTile label="Engagements" value={post.engagements} />
-        </div>
+        <CampaignStatsGrid
+          className="mt-3"
+          cores={campaign.budget}
+          clicks={campaign.clicks}
+          impressions={campaign.impressions}
+          engagements={post.engagements}
+        />
       </div>
       <div className="h-px w-full bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-2">

@@ -1,13 +1,20 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BoostStatus } from '../../../../features/boost/CampaignListItem';
-import { CampaignListView } from '../../../../features/boost/CampaignListView';
+import {
+  CampaignListView,
+  CampaignStatsGrid,
+} from '../../../../features/boost/CampaignListView';
 import { capitalize } from '../../../../lib/strings';
 import type { ModalProps } from '../../common/Modal';
 import { Modal } from '../../common/Modal';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
+import { getBoostedPostByCampaignId } from '../../../../graphql/post/boost';
 import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
 import type { Post } from '../../../../graphql/posts';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 
 interface BoostedPostViewModalProps extends ModalProps {
   data: BoostedPostData;
@@ -56,4 +63,65 @@ export function BoostedPostViewModal({
   );
 }
 
-export default BoostedPostViewModal;
+export function FetchBoostedViewModal({
+  campaignId,
+  ...props
+}: Omit<BoostedPostViewModalProps, 'data'> & {
+  campaignId: string;
+}): ReactElement {
+  const { user } = useAuthContext();
+  const { data, isLoading } = useQuery({
+    queryKey: generateQueryKey(RequestKey.PostCampaigns, user, campaignId),
+    queryFn: () => getBoostedPostByCampaignId(campaignId),
+    staleTime: StaleTime.Default,
+    enabled: !!campaignId && !!user,
+  });
+
+  if (isLoading) {
+    return (
+      <Modal
+        {...props}
+        isOpen
+        kind={Modal.Kind.FixedCenter}
+        size={Modal.Size.Small}
+      >
+        <Modal.Header title="Boost" showCloseButton={false} />
+        <div className="flex flex-col gap-4">
+          <span className="text-text-quaternary typo-caption1">
+            Fetching data, please hold...
+          </span>
+          <CampaignStatsGrid
+            clicks={0}
+            cores={0}
+            engagements={0}
+            impressions={0}
+          />
+        </div>
+      </Modal>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Modal
+        {...props}
+        isOpen
+        kind={Modal.Kind.FixedCenter}
+        size={Modal.Size.Small}
+      >
+        <Modal.Header title="Boost" showCloseButton={false} />
+        <span className="text-text-quaternary typo-caption1">
+          No campaign found
+        </span>
+        <CampaignStatsGrid
+          clicks={0}
+          cores={0}
+          engagements={0}
+          impressions={0}
+        />
+      </Modal>
+    );
+  }
+
+  return <BoostedPostViewModal {...props} data={data} />;
+}

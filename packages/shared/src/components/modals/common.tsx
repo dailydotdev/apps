@@ -289,11 +289,16 @@ const BoostPostModal = dynamic(
     ),
 );
 
-const BoostedPostViewModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "boostedPostViewModal" */ './post/boost/BoostedPostViewModal'
-    ),
+const BoostedPostViewModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "boostedPostViewModal" */ './post/boost/BoostedPostViewModal'
+  ).then((mod) => mod.BoostedPostViewModal),
+);
+
+const FetchBoostedPostViewModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "fetchBoostedPostViewModal" */ './post/boost/BoostedPostViewModal'
+  ).then((mod) => mod.FetchBoostedViewModal),
 );
 
 const OrganizationInviteMemberModal = dynamic(() =>
@@ -357,6 +362,7 @@ export const modals = {
   [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
   [LazyModal.BoostedPostView]: BoostedPostViewModal,
+  [LazyModal.FetchBoostedPostView]: FetchBoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
 };
