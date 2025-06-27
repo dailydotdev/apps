@@ -1,5 +1,5 @@
-import type { ReactNode, ReactElement } from 'react';
-import React, { useState } from 'react';
+import type { ReactNode } from 'react';
+import React, { isValidElement, useState } from 'react';
 import classNames from 'classnames';
 import './style.css';
 import type {
@@ -37,6 +37,11 @@ export const DropdownMenuTrigger = React.forwardRef<
   DropdownMenuTriggerProps & { tooltip?: Omit<TooltipProps, 'children'> }
 >(({ children, tooltip, ...props }, forwardedRef) => {
   const [tooltipVisible, setTooltipVisible] = useState(false);
+
+  if (!isValidElement(children)) {
+    return undefined;
+  }
+
   return (
     <ConditionalWrapper
       condition={!!tooltip}
@@ -50,11 +55,11 @@ export const DropdownMenuTrigger = React.forwardRef<
       }}
     >
       <DropdownMenuTriggerRoot ref={forwardedRef} {...props}>
-        {React.cloneElement(children as ReactElement, {
+        {React.cloneElement(children, {
           onMouseEnter: () => setTooltipVisible(true),
           onMouseLeave: () => setTooltipVisible(false),
           'aria-label': tooltip?.content,
-          ...(children as ReactElement)?.props,
+          ...children?.props,
         })}
       </DropdownMenuTriggerRoot>
     </ConditionalWrapper>
