@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import './style.css';
 import type { DropdownMenuContentProps as RadixDropdownMenuContentProps } from '@radix-ui/react-dropdown-menu';
@@ -12,7 +12,6 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
 
-export const DropdownMenu = DropdownMenuRoot;
 export const DropdownMenuTrigger = DropdownMenuTriggerRoot;
 
 export const DropdownMenuItem = classed(
@@ -26,6 +25,34 @@ interface DropdownMenuContentProps
   className?: string;
   align?: 'start' | 'center' | 'end';
 }
+
+export const DropdownMenu = React.forwardRef(({ children }, forwardedRef) => {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setOpen(false);
+    };
+
+    document.addEventListener('scroll', handleScroll, true);
+
+    return () => {
+      document.removeEventListener('scroll', handleScroll, true);
+    };
+  }, []);
+
+  return (
+    <DropdownMenuRoot
+      open={open}
+      ref={forwardedRef}
+      onOpenChange={setOpen}
+      modal={false}
+    >
+      {children}
+    </DropdownMenuRoot>
+  );
+});
+DropdownMenu.displayName = 'DropdownMenu';
 
 export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
