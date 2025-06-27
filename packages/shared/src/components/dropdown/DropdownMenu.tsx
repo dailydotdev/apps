@@ -14,7 +14,6 @@ import {
   DropdownMenuItem as DropdownMenuItemRoot,
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
-import useDebounceFn from '../../hooks/useDebounceFn';
 
 export const DropdownMenuTrigger = DropdownMenuTriggerRoot;
 
@@ -34,18 +33,18 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ children, ...props }) => {
     const [open, setOpen] = useState(false);
 
-    const [handleScroll] = useDebounceFn(() => {
-      props.onOpenChange?.(false);
-      setOpen(false);
-    }, 50);
-
     useEffect(() => {
+      const handleScroll = () => {
+        props.onOpenChange?.(false);
+        setOpen(false);
+      };
+
       document.addEventListener('scroll', handleScroll, true);
 
       return () => {
         document.removeEventListener('scroll', handleScroll, true);
       };
-    }, [handleScroll]);
+    }, []);
 
     return (
       <DropdownMenuRoot
