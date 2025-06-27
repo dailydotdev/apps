@@ -53,6 +53,7 @@ export const DropdownMenuTrigger = React.forwardRef<
         {React.cloneElement(children as ReactElement, {
           onMouseEnter: () => setTooltipVisible(true),
           onMouseLeave: () => setTooltipVisible(false),
+          'aria-label': tooltip?.content,
           ...(children as ReactElement)?.props,
         })}
       </DropdownMenuTriggerRoot>
