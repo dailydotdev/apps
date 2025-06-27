@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import type { ButtonProps, ButtonSize } from '../../buttons/Button';
 import { Button, ButtonVariant } from '../../buttons/Button';
