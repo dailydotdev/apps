@@ -165,6 +165,9 @@ export const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
+    flags {
+      totalUpvotes
+    }
     currentMember {
       ...CurrentMember
     }
