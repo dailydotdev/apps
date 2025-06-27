@@ -50,6 +50,23 @@ export const publishTimeRelativeShort = (
   return `${numYears}y`;
 };
 
+export const publishTimeLiveTimer: typeof publishTimeRelativeShort = (
+  value,
+  now = new Date(),
+) => {
+  const date = new Date(value);
+
+  const dt = (now.getTime() - date.getTime()) / 1000;
+
+  if (dt <= oneMinute) {
+    const numSeconds = Math.round(dt) || 1; // always show at least 1s to show timer running
+
+    return `${numSeconds}s`;
+  }
+
+  return publishTimeRelativeShort(value, now);
+};
+
 export enum TimeFormatType {
   Post = 'post',
   Comment = 'comment',
@@ -58,6 +75,7 @@ export enum TimeFormatType {
   PlusMember = 'plusMember',
   Transaction = 'transaction',
   LastActivity = 'lastActivity',
+  LiveTimer = 'liveTimer',
 }
 
 export function postDateFormat(
@@ -252,6 +270,10 @@ export const formatDate = ({ value, type }: FormatDateProps): string => {
 
   if (type === TimeFormatType.LastActivity) {
     return getLastActivityDateFormat(date);
+  }
+
+  if (type === TimeFormatType.LiveTimer) {
+    return publishTimeLiveTimer(date);
   }
 
   return postDateFormat(date);
