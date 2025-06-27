@@ -126,15 +126,6 @@ module.exports = {
             importNames: ['isWeekend'],
             message: 'Please import from src/common instead.',
           },
-          {
-            name: 'next/link',
-            message: 'Please import from src/common instead.',
-          },
-          {
-            name: 'react-router-dom',
-            importNames: ['Link'],
-            message: 'Please import from src/common instead.',
-          },
         ],
       },
     ],
