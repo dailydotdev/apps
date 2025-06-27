@@ -20,7 +20,6 @@ import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
 
 type SearchResultsLayoutProps = PropsWithChildren;
-const SEARCH_VERSION_THRESHOLD = 3;
 
 export const SearchResultsLayout = (
   props: SearchResultsLayoutProps,
