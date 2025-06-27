@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import type { LoggedUser } from '../../lib/user';
@@ -97,7 +97,9 @@ it('should show options button with edit option when user is the author', async 
   } as unknown as LoggedUser);
   const el = await screen.findByLabelText('Options');
   expect(el).toBeInTheDocument();
-  el.click();
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
   const editItem = await screen.findByText('Edit comment');
   expect(editItem).toBeInTheDocument();
 });
@@ -106,7 +108,9 @@ it('should show options button with report option when user is not the author', 
   renderComponent();
   const el = await screen.findByLabelText('Options');
   expect(el).toBeInTheDocument();
-  el.click();
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
   const reportItem = await screen.findByText('Report comment');
   expect(reportItem).toBeInTheDocument();
 });
@@ -222,7 +226,9 @@ it('should call onComment callback', async () => {
 it('should call onDelete callback', async () => {
   renderComponent({}, loggedUser);
   const el = await screen.findByLabelText('Options');
-  el.click();
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
   const [, remove] = await screen.findAllByRole('menuitem');
   remove.click();
   expect(onDelete).toBeCalledWith(comment, 'c1');
@@ -236,7 +242,9 @@ it('should allow delete for moderators', async () => {
   };
   renderComponent({}, user);
   const el = await screen.findByLabelText('Options');
-  el.click();
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
   const [remove] = await screen.findAllByRole('menuitem');
   remove.click();
   expect(onDelete).toBeCalledWith(comment, 'c1');
@@ -245,7 +253,9 @@ it('should allow delete for moderators', async () => {
 it('should call onEdit callback', async () => {
   renderComponent({}, loggedUser);
   const el = await screen.findByLabelText('Options');
-  el.click();
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
   const [edit] = await screen.findAllByRole('menuitem');
   edit.click();
   expect(onEdit).toBeCalledWith(comment);
