@@ -32,8 +32,8 @@ const HydrateAtoms = ({
   initialValues,
   children,
 }: PropsWithChildren<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialValues: Iterable<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly [WritableAtom<unknown, [any], unknown>, unknown]
   >;
 }>) => {
