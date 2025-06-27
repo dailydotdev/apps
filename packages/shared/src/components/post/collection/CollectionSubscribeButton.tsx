@@ -14,53 +14,12 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type CollectionSubscribeButtonProps = {
   post: Post;
-  isCondensed?: boolean;
-};
-
-type CollectionSubscribeButtonViewProps = {
-  isSubscribed: boolean;
-  isFetching: boolean;
-  onClick: () => void;
-};
-
-const CollectionSubscribeButtonRegular = ({
-  isSubscribed,
-  isFetching,
-  onClick,
-}: CollectionSubscribeButtonViewProps): ReactElement => {
-  return (
-    <Button
-      variant={isSubscribed ? ButtonVariant.Secondary : ButtonVariant.Primary}
-      icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
-      disabled={isFetching}
-      onClick={onClick}
-    >
-      {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
-    </Button>
-  );
-};
-
-const CollectionSubscribeButtonCondensed = ({
-  isSubscribed,
-  isFetching,
-  onClick,
-}: CollectionSubscribeButtonViewProps): ReactElement => {
-  return (
-    <Button
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
-      icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
-      disabled={isFetching}
-      onClick={onClick}
-    >
-      {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
-    </Button>
-  );
+  buttonVariant?: ButtonVariant;
 };
 
 export const CollectionSubscribeButton = ({
   post,
-  isCondensed,
+  buttonVariant = ButtonVariant.Float,
 }: CollectionSubscribeButtonProps): ReactElement => {
   const { isLoggedIn, showLogin } = useAuthContext();
   const {
@@ -105,15 +64,16 @@ export const CollectionSubscribeButton = ({
       subscribeNotification(notificationPreferenceParams);
     }
   };
-  const ButtonComponent = isCondensed
-    ? CollectionSubscribeButtonCondensed
-    : CollectionSubscribeButtonRegular;
 
   return (
-    <ButtonComponent
-      isSubscribed={isSubscribed}
-      isFetching={isFetching}
+    <Button
+      variant={buttonVariant}
+      size={ButtonSize.Small}
+      icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
+      disabled={isFetching}
       onClick={onClick}
-    />
+    >
+      {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+    </Button>
   );
 };
