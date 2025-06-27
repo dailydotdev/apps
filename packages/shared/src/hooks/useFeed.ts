@@ -27,7 +27,6 @@ import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
-import { dummyAdBoostedPost } from '../features/boost/utils';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -259,7 +258,6 @@ export default function useFeed<T>(
         index: adPage,
         updatedAt: adsUpdatedAt,
         // TODO: remove this once integration comes in
-        post: index === 2 ? dummyAdBoostedPost : undefined,
       } as AdItem;
     },
     [
