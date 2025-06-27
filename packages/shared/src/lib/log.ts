@@ -80,7 +80,6 @@ export enum LogEvent {
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
-  StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
@@ -293,10 +292,6 @@ export enum LogEvent {
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
   // End Credits
-}
-
-export enum FeedItemTitle {
-  SubmitArticle = 'Submit article',
 }
 
 export enum TargetType {
