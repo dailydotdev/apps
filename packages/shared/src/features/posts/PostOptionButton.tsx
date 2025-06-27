@@ -90,7 +90,6 @@ import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollo
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { MenuIcon } from '../../components/MenuIcon';
-import { Tooltip } from '../../components/tooltip/Tooltip';
 import { Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -796,22 +795,17 @@ export const PostOptionButton = (props): ReactElement => {
     triggerClassName,
     variant = ButtonVariant.Tertiary,
   } = props;
-  const [tooltipVisible, setTooltipVisible] = useState(false);
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <Tooltip content="Options" visible={tooltipVisible}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant={variant}
-            icon={<RawMenuIcon />}
-            size={size}
-            className={classNames('my-auto', triggerClassName)}
-            onMouseEnter={() => setTooltipVisible(true)}
-            onMouseLeave={() => setTooltipVisible(false)}
-          />
-        </DropdownMenuTrigger>
-      </Tooltip>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+        <Button
+          variant={variant}
+          icon={<RawMenuIcon />}
+          size={size}
+          className={classNames('my-auto', triggerClassName)}
+        />
+      </DropdownMenuTrigger>
       {!!open && <PostOptionButtonContent {...props} />}
     </DropdownMenu>
   );

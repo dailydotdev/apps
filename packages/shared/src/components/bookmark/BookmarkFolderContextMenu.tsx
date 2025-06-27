@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import type { BookmarkFolder } from '../../graphql/bookmarks';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
@@ -14,7 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { Tooltip } from '../tooltip/Tooltip';
 import { Button } from '../buttons/Button';
 
 interface BookmarkFolderContextMenuProps {
@@ -24,7 +23,6 @@ interface BookmarkFolderContextMenuProps {
 export const BookmarkFolderContextMenu = ({
   folder,
 }: BookmarkFolderContextMenuProps): ReactElement => {
-  const [tooltipVisible, setTooltipVisible] = useState(false);
   const { openModal, closeModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { update: updateFolder, delete: deleteFolder } = useBookmarkFolder({
@@ -68,18 +66,14 @@ export const BookmarkFolderContextMenu = ({
 
   return (
     <DropdownMenu>
-      <Tooltip content="Options" visible={tooltipVisible}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="ml-3"
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Secondary}
-            icon={<MenuIcon />}
-            onMouseEnter={() => setTooltipVisible(true)}
-            onMouseLeave={() => setTooltipVisible(false)}
-          />
-        </DropdownMenuTrigger>
-      </Tooltip>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+        <Button
+          className="ml-3"
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Secondary}
+          icon={<MenuIcon />}
+        />
+      </DropdownMenuTrigger>
       <DropdownMenuContent>
         {options.map(({ label, icon, action }: MenuItemProps) => (
           <DropdownMenuItem key={label} onClick={action}>

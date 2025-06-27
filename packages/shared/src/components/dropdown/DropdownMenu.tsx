@@ -15,8 +15,8 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
 import { useEventListener } from '../../hooks';
-
-export const DropdownMenuTrigger = DropdownMenuTriggerRoot;
+import ConditionalWrapper from '../ConditionalWrapper';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -29,6 +29,34 @@ interface DropdownMenuContentProps
   className?: string;
   align?: 'start' | 'center' | 'end';
 }
+
+export const DropdownMenuTrigger = React.forwardRef(
+  ({ children, tooltip, ...props }, forwardedRef) => {
+    const [tooltipVisible, setTooltipVisible] = useState(false);
+    return (
+      <ConditionalWrapper
+        condition={!!tooltip}
+        wrapper={(component) => {
+          const { ...tooltipProps } = tooltip;
+          return (
+            <Tooltip {...tooltipProps} visible={tooltipVisible}>
+              {component}
+            </Tooltip>
+          );
+        }}
+      >
+        <DropdownMenuTriggerRoot ref={forwardedRef} {...props}>
+          {React.cloneElement(children, {
+            onMouseEnter: () => setTooltipVisible(true),
+            onMouseLeave: () => setTooltipVisible(false),
+            ...children.props,
+          })}
+        </DropdownMenuTriggerRoot>
+      </ConditionalWrapper>
+    );
+  },
+);
+DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
 
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ children, ...props }) => {

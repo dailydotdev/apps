@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { MenuItemProps } from './fields/ContextMenu';
 import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
@@ -16,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './dropdown/DropdownMenu';
-import { Tooltip } from './tooltip/Tooltip';
 
 type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
@@ -43,7 +42,6 @@ const CustomFeedOptionsMenu = ({
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { feeds } = useFeeds();
-  const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const handleOpenModal = () => {
     if (feeds?.edges?.length > 0) {
@@ -76,18 +74,14 @@ const CustomFeedOptionsMenu = ({
 
   return (
     <DropdownMenu>
-      <Tooltip content="Options" visible={tooltipVisible}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className={classNames('justify-center', className?.button)}
-            size={ButtonSize.Small}
-            variant={buttonVariant}
-            icon={<DotsIcon />}
-            onMouseEnter={() => setTooltipVisible(true)}
-            onMouseLeave={() => setTooltipVisible(false)}
-          />
-        </DropdownMenuTrigger>
-      </Tooltip>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+        <Button
+          className={classNames('justify-center', className?.button)}
+          size={ButtonSize.Small}
+          variant={buttonVariant}
+          icon={<DotsIcon />}
+        />
+      </DropdownMenuTrigger>
       <DropdownMenuContent>
         {options.map(({ label, icon, action }: MenuItemProps) => (
           <DropdownMenuItem key={label} onClick={action}>
