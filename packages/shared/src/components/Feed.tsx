@@ -48,8 +48,8 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
-import { FeedCardContext } from '../features/boost/FeedCardContext';
 import { FeedItemType } from './cards/common/common';
+import { FeedCardContextProvider } from '../features/boost/FeedCardContext';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -434,11 +434,9 @@ export default function Feed<T>({
         ) : (
           <>
             {items.map((item, index) => (
-              <FeedCardContext.Provider
+              <FeedCardContextProvider
                 key={getFeedItemKey(item, index)}
-                value={{
-                  isBoostedReach: item.type === FeedItemType.Ad && !!item.post,
-                }}
+                isBoostedReach={item.type === FeedItemType.Ad && !!item.post}
               >
                 <FeedItemComponent
                   item={item}
@@ -466,7 +464,7 @@ export default function Feed<T>({
                   onAdAction={onAdAction}
                   onReadArticleClick={onReadArticleClick}
                 />
-              </FeedCardContext.Provider>
+              </FeedCardContextProvider>
             ))}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />

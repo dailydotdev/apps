@@ -1,12 +1,14 @@
-import { createContext, useContext } from 'react';
+import { createContextProvider } from '@kickass-coderz/react';
+import type { PropsWithChildren } from 'react';
 
-interface FeedCardContextData {
+type FeedCardContextData = {
   isBoostedReach: boolean;
-}
+};
 
-export const FeedCardContext = createContext<FeedCardContextData>({
-  isBoostedReach: false,
-});
+const [FeedCardContextProvider, useFeedCardContext] = createContextProvider(
+  ({ isBoostedReach }: PropsWithChildren<FeedCardContextData>) => ({
+    isBoostedReach,
+  }),
+);
 
-export const useFeedCardContext = (): FeedCardContextData =>
-  useContext(FeedCardContext);
+export { FeedCardContextProvider, useFeedCardContext };
