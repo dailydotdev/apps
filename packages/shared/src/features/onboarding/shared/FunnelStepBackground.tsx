@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { FunnelStep } from '../types/funnel';
 import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
 import { useIsLightTheme } from '../../../hooks/utils';
-import { isV2 } from '../steps/FunnelPricing/FunnelPricingV2';
+import { isFunnelPricingV2 } from '../steps/FunnelPricing/common';
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
@@ -70,7 +70,7 @@ export const FunnelStepBackground = ({
 }: StepBackgroundProps): ReactElement => {
   const isLightMode = useIsLightTheme();
   const isPricingV2 =
-    step.type === FunnelStepType.Pricing && isV2(step.parameters);
+    step.type === FunnelStepType.Pricing && isFunnelPricingV2(step.parameters);
 
   const isStepForcedTo = useMemo(
     () => ({

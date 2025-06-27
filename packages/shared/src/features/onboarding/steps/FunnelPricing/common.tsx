@@ -7,6 +7,10 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import type {
+  FunnelStepPricingParameters,
+  FunnelStepPricingV2Parameters,
+} from '../../types/steps/pricing';
 
 export const PricingEmailSupport = (): ReactElement => {
   return (
@@ -27,4 +31,10 @@ export const PricingEmailSupport = (): ReactElement => {
       </a>
     </Typography>
   );
+};
+
+export const isFunnelPricingV2 = (
+  parameters: FunnelStepPricingParameters | FunnelStepPricingV2Parameters,
+): parameters is FunnelStepPricingV2Parameters => {
+  return parameters.version === 'v2';
 };

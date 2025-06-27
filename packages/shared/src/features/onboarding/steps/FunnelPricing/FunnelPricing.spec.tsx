@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
-import { FunnelPricing } from './FunnelPricing';
 import type { FunnelStepPricing } from '../../types/funnel';
 import {
   FunnelStepType,
@@ -18,6 +17,7 @@ import {
   PlusPriceType,
   PlusPriceTypeAppsId,
 } from '../../../../lib/featureValues';
+import { FunnelPricingV1 } from './FunnelPricingV1';
 
 const mockOnTransition = jest.fn();
 
@@ -184,7 +184,7 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
             isPricesPending: false,
           }}
         >
-          <FunnelPricing {...defaultProps} {...props} />
+          <FunnelPricingV1 {...defaultProps} {...props} />
         </PaymentContext.Provider>
       </HydrateAtoms>
     </Provider>,

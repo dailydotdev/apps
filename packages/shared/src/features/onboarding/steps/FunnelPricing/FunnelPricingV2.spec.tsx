@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { WritableAtom } from 'jotai';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import { FunnelPricingV2 } from './FunnelPricingV2';
@@ -31,11 +32,12 @@ const HydrateAtoms = ({
   initialValues,
   children,
 }: PropsWithChildren<{
-  initialValues: typeof useHydrateAtoms extends (values: infer T) => void
-    ? T
-    : never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialValues: Iterable<
+    readonly [WritableAtom<unknown, [any], unknown>, unknown]
+  >;
 }>) => {
-  useHydrateAtoms(initialValues);
+  useHydrateAtoms(new Map(initialValues));
   return children;
 };
 

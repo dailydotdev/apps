@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useId } from 'react';
 import { useAtom } from 'jotai/react';
 import { useAtomValue } from 'jotai';
 import type {
-  FunnelStepPricingParameters,
   FunnelStepPricingV2,
   FunnelStepPricingV2Parameters,
 } from '../../types/funnel';
@@ -45,12 +44,6 @@ import { PricingPlansV2 } from '../../shared/PricingPlansV2';
 type PricingSelectionProps = FunnelStepPricingV2Parameters & {
   discountStartDate: Date | null;
   onProceedToCheckout?: (plan: string) => void;
-};
-
-export const isV2 = (
-  parameters: FunnelStepPricingParameters | FunnelStepPricingV2Parameters,
-): parameters is FunnelStepPricingV2Parameters => {
-  return parameters.version === 'v2';
 };
 
 const PricingSelection = ({
