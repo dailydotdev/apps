@@ -59,28 +59,26 @@ const useSharedByToast = (): void => {
     const timeout = setTimeout(() => {
       hasShownToast.current = true;
       displayToast(
-        <div className="flex items-center gap-4 ">
-          <Link
-            onClick={() => dismissToast()}
-            className="flex items-center gap-2 "
-            href={`/${user.username}`}
-          >
-            <ProfilePicture user={user} size={ProfileImageSize.Medium} />
-            <span>
-              <Typography
-                type={TypographyType.Subhead}
-                tag={TypographyTag.Span}
-                bold
-              >
-                {user.name}
-              </Typography>{' '}
-              <Typography
-                type={TypographyType.Subhead}
-                tag={TypographyTag.Span}
-              >
-                shared this post
-              </Typography>
-            </span>
+        <div className="flex items-center gap-4">
+          <Link href={`/${user.username}`} onClick={() => dismissToast()}>
+            <a className="flex items-center gap-2">
+              <ProfilePicture user={user} size={ProfileImageSize.Medium} />
+              <span>
+                <Typography
+                  type={TypographyType.Subhead}
+                  tag={TypographyTag.Span}
+                  bold
+                >
+                  {user.name}
+                </Typography>{' '}
+                <Typography
+                  type={TypographyType.Subhead}
+                  tag={TypographyTag.Span}
+                >
+                  shared this post
+                </Typography>
+              </span>
+            </a>
           </Link>
           {showFollow && (
             <Button

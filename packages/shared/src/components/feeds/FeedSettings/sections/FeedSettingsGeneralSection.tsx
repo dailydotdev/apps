@@ -57,8 +57,8 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             {isMainFeed && isPlus ? (
               <span>
                 Want a custom feed name? You can always{' '}
-                <Link className="underline" href={`${webappUrl}feeds/new`}>
-                  create
+                <Link href={`${webappUrl}feeds/new`}>
+                  <a className="underline">create</a>
                 </Link>{' '}
                 a custom feed!
               </span>

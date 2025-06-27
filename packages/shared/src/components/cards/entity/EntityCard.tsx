@@ -34,19 +34,18 @@ const EntityCard = ({
       )}
     >
       <div className="flex w-full items-start gap-2">
-        <Link
-          href={permalink}
-          className={classNames(className?.image, 'overflow-hidden')}
-        >
-          <Image
-            className="h-full w-full object-cover"
-            src={image}
-            alt={
-              type === 'user'
-                ? `${entityName}'s user avatar`
-                : `${entityName}'s image`
-            }
-          />
+        <Link href={permalink}>
+          <a className={classNames(className?.image, 'overflow-hidden')}>
+            <Image
+              className="h-full w-full object-cover"
+              src={image}
+              alt={
+                type === 'user'
+                  ? `${entityName}'s user avatar`
+                  : `${entityName}'s image`
+              }
+            />
+          </a>
         </Link>
         <div className="ml-auto flex items-center gap-2">{actionButtons}</div>
         <div />
