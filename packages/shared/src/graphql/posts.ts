@@ -15,6 +15,8 @@ import {
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
+import { PostType } from '../types';
+import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -29,15 +31,8 @@ export interface SharedPost extends Post {
   image: string;
 }
 
-export enum PostType {
-  Article = 'article',
-  Share = 'share',
-  Welcome = 'welcome',
-  Freeform = 'freeform',
-  VideoYouTube = 'video:youtube',
-  Collection = 'collection',
-  Brief = 'brief',
-}
+// just re-export for old usage, type should be imported from root types.ts
+export { PostType };
 
 export const internalReadTypes: PostType[] = [
   PostType.Welcome,
@@ -938,3 +933,18 @@ export const updateSourcePostModeration = async (
 
   return res.updateSourcePostModeration;
 };
+
+export const BRIEFING_POSTS_PER_PAGE_DEFAULT = 20;
+
+export const BRIEFING_POSTS_QUERY = gql`
+  query BriefingPosts(
+    $after: String
+    $first: Int
+    $loggedIn: Boolean! = false
+  ) {
+    page: briefingPosts(after: $after, first: $first) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;

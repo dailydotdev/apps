@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { CUSTOM_FEED_FRAGMENT, FEED_POST_INFO_FRAGMENT } from './fragments';
+import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
 import type { Post } from './posts';
 import { PostType } from './posts';
 import type { Connection } from './common';
@@ -58,46 +58,6 @@ export type Feed = {
 export type FeedList = {
   feedList: Connection<Feed>;
 };
-
-export const FEED_POST_FRAGMENT = gql`
-  fragment FeedPost on Post {
-    ...FeedPostInfo
-    sharedPost {
-      id
-      title
-      image
-      readTime
-      permalink
-      commentsPermalink
-      createdAt
-      type
-      tags
-      private
-      source {
-        id
-        handle
-        permalink
-        image
-        type
-      }
-      slug
-      clickbaitTitleDetected
-      translation {
-        ...PostTranslateableFields
-      }
-    }
-    trending
-    feedMeta
-    collectionSources {
-      handle
-      image
-    }
-    numCollectionSources
-    updatedAt
-    slug
-  }
-  ${FEED_POST_INFO_FRAGMENT}
-`;
 
 export const USER_POST_FRAGMENT = gql`
   fragment UserPost on Post {

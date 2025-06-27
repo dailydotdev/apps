@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -25,7 +25,7 @@ import {
   usePlusSubscription,
 } from '@dailydotdev/shared/src/hooks';
 import { featurePlusCtaCopy } from '@dailydotdev/shared/src/lib/featureManagement';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   briefButtonBg,
   briefCardBg,
@@ -38,19 +38,23 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
-import type { PostItem } from '@dailydotdev/shared/src/graphql/posts';
-import { FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  BRIEFING_POSTS_PER_PAGE_DEFAULT,
+  BRIEFING_POSTS_QUERY,
+} from '@dailydotdev/shared/src/graphql/posts';
 import { useRouter } from 'next/router';
+import { format } from 'date-fns';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const Page = (): ReactElement => {
+  const currentYear = new Date().getFullYear().toString();
   const router = useRouter();
   const { user } = useAuthContext();
-  const currentSettings = useContext(FeedContext);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const {
     value: { full: plusCta },
@@ -61,19 +65,16 @@ const Page = (): ReactElement => {
 
   const selectedBriefId = router?.query?.pmid as string;
 
-  // just simulate some briefs with existing posts
+  const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
   const { items, updatePost, fetchPage, canFetchMore } = useFeed(
-    generateQueryKey(RequestKey.Feeds, user, 'briefing'),
-    10,
-    currentSettings.adTemplate,
-    10,
+    feedQueryKey,
+    BRIEFING_POSTS_PER_PAGE_DEFAULT,
+    null,
+    BRIEFING_POSTS_PER_PAGE_DEFAULT,
     {
-      query: FEED_QUERY,
+      query: BRIEFING_POSTS_QUERY,
       settings: {},
-      variables: {
-        ranking: 'POPULARITY',
-        version: 1,
-      },
+      variables: {},
     },
   );
 
@@ -94,13 +95,10 @@ const Page = (): ReactElement => {
 
   const PostModal = PostModalMap[selectedPost?.type];
 
-  const briefs: PostItem[] = items?.filter((item) => item.type === 'post');
-
-  const onBriefClick = (
-    briefId: string,
-    event: MouseEvent<HTMLAnchorElement>,
-  ) => {
-    const briefIndex = briefs.findIndex((item) => item.post.slug === briefId);
+  const onBriefClick = (post: Post, event: MouseEvent<HTMLAnchorElement>) => {
+    const briefIndex = items.findIndex(
+      (item) => item.type === 'post' && item.post.slug === post.slug,
+    );
 
     if (briefIndex === -1) {
       return;
@@ -173,73 +171,69 @@ const Page = (): ReactElement => {
                 </Link>
               </div>
             )}
-            <BriefListSection>
-              <BriefListItem
-                briefId={briefs?.[0]?.post.slug}
-                title="May 14"
-                pill={{ label: 'Just in' }}
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                onClick={onBriefClick}
-              />
-              <BriefListItem
-                briefId={briefs?.[1]?.post.slug}
-                title="May 2"
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                isRead
-                onClick={onBriefClick}
-              />
-              <BriefListItem
-                briefId={briefs?.[2]?.post.slug}
-                title="April 7"
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                isRead
-                onClick={onBriefClick}
-              />
-            </BriefListSection>
-            <BriefListSection>
-              <BriefListHeading title="2024" />
-              <BriefListItem
-                briefId={briefs?.[3]?.post.slug}
-                title="December 22"
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                isLocked
-                onClick={onBriefClick}
-              />
-              <BriefListItem
-                briefId={briefs?.[4]?.post.slug}
-                title="December 1"
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                isRead
-                onClick={onBriefClick}
-              />
-              <BriefListItem
-                briefId={briefs?.[5]?.post.slug}
-                title="November 5"
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                onClick={onBriefClick}
-              />
-              <BriefListItem
-                briefId={briefs?.[6]?.post.slug}
-                title="October 22"
-                readTime="8m"
-                postsCount={783}
-                sourcesCount={147}
-                isRead
-                onClick={onBriefClick}
-              />
-            </BriefListSection>
+            <ActiveFeedContext.Provider
+              value={{ queryKey: feedQueryKey, items }}
+            >
+              {items
+                .reduce(
+                  (acc, item, index) => {
+                    if (item.type === 'post') {
+                      const previousItem = acc[acc.length - 1];
+                      const year = format(
+                        new Date(item.post.createdAt),
+                        'yyyy',
+                      );
+
+                      if (!previousItem || previousItem.title !== year) {
+                        acc.push({
+                          title: year,
+                          items: [],
+                        });
+                      }
+
+                      const section = acc[acc.length - 1];
+
+                      const { post } = item;
+
+                      section.items.push(
+                        <BriefListItem
+                          key={post.id}
+                          post={post}
+                          title={format(new Date(post.createdAt), 'MMM d')}
+                          pill={
+                            index === 0 && !post.read
+                              ? { label: 'Just in' }
+                              : undefined
+                          }
+                          readTime={post.readTime}
+                          isRead={post.read}
+                          // TODO feat-brief real counts
+                          postsCount={783}
+                          sourcesCount={147}
+                          onClick={onBriefClick}
+                          origin={Origin.BriefPage}
+                        />,
+                      );
+                    }
+
+                    return acc;
+                  },
+                  [] as {
+                    title: string;
+                    items: ReactElement[];
+                  }[],
+                )
+                .map((section) => {
+                  return (
+                    <BriefListSection key={section.title}>
+                      {section.title !== currentYear && (
+                        <BriefListHeading title={section.title} />
+                      )}
+                      {section.items}
+                    </BriefListSection>
+                  );
+                })}
+            </ActiveFeedContext.Provider>
           </div>
         </main>
       </div>

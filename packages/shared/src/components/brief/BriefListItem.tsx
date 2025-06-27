@@ -14,22 +14,26 @@ import { Pill } from '../Pill';
 import { IconSize } from '../Icon';
 import { LockIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
+import type { Origin } from '../../lib/log';
+import useOnPostClick from '../../hooks/useOnPostClick';
+import type { Post } from '../../graphql/posts';
+import { isNullOrUndefined } from '../../lib/func';
 
 export type BriefListItemProps = {
-  briefId: string;
   className?: string;
   title: ReactNode;
   pill?: Omit<PillProps, 'className'>;
-  readTime?: string;
+  readTime?: number;
   postsCount?: number;
   sourcesCount?: number;
   isRead?: boolean;
   isLocked?: boolean;
-  onClick?: (briefId: string, event: MouseEvent<HTMLAnchorElement>) => void;
+  onClick?: (post: Post, event: MouseEvent<HTMLAnchorElement>) => void;
+  origin: Origin;
+  post: Post;
 };
 
 export const BriefListItem = ({
-  briefId,
   className,
   title,
   pill,
@@ -39,14 +43,20 @@ export const BriefListItem = ({
   isRead,
   isLocked,
   onClick,
+  origin,
+  post,
 }: BriefListItemProps): ReactElement => {
+  const onPostClick = useOnPostClick({ origin });
+
   return (
     <Link
-      href={`${webappUrl}posts/${briefId}`}
+      href={`${webappUrl}posts/${post.slug}`}
       onClick={(event) => {
         if (typeof onClick === 'function') {
-          onClick(briefId, event);
+          onClick(post, event);
         }
+
+        onPostClick({ post });
       }}
     >
       <article
@@ -89,13 +99,13 @@ export const BriefListItem = ({
               color={TypographyColor.Tertiary}
             >
               {[
-                readTime && (
+                !isNullOrUndefined(readTime) && (
                   <Typography
                     tag={TypographyTag.Span}
                     key="read-time"
                     color={TypographyColor.Primary}
                   >
-                    {readTime} read time
+                    {readTime}m read time
                   </Typography>
                 ),
                 postsCount && `${postsCount} posts`,

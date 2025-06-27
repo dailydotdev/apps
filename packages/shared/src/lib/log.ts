@@ -74,6 +74,7 @@ export enum Origin {
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
   BriefModal = 'brief modal',
+  BriefPage = 'brief page',
 }
 
 export enum LogEvent {

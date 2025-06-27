@@ -38,6 +38,7 @@ import { briefFeatureList, PlusList } from '../../plus/PlusList';
 import { HourDropdown } from '../../fields/HourDropdown';
 import { RadioItem } from '../../fields/RadioItem';
 import { Checkbox } from '../../fields/Checkbox';
+import { isNullOrUndefined } from '../../../lib/func';
 
 const BriefPostContentRaw = ({
   post,
@@ -170,17 +171,19 @@ const BriefPostContentRaw = ({
               </Typography>
             </div>
             <div className="flex items-center gap-3">
-              <Pill
-                className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2"
-                label={
-                  <div className="flex items-center gap-1">
-                    <TimerIcon />
-                    <Typography type={TypographyType.Footnote}>
-                      {post.readTime}m read
-                    </Typography>
-                  </div>
-                }
-              />
+              {!isNullOrUndefined(post.readTime) && (
+                <Pill
+                  className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2"
+                  label={
+                    <div className="flex items-center gap-1">
+                      <TimerIcon />
+                      <Typography type={TypographyType.Footnote}>
+                        {post.readTime}m read
+                      </Typography>
+                    </div>
+                  }
+                />
+              )}
               <div className="flex items-center gap-1">
                 <CollectionPillSources
                   alwaysShowSources
