@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import Link from '../../utilities/Link';
+import Link from 'next/link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
 import {

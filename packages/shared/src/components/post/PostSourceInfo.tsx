@@ -5,7 +5,7 @@ import type {
   ReactElement,
 } from 'react';
 import React, { useEffect, useState } from 'react';
-import Link from '../utilities/Link';
+import Link from 'next/link';
 import { SourceType } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
 import type { ProfileImageSize } from '../ProfilePicture';

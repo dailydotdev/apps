@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from '../../utilities/Link';
+import Link from 'next/link';
 import EntityCard from './EntityCard';
 import {
   Typography,
