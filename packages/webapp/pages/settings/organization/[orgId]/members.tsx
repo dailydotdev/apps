@@ -154,7 +154,7 @@ const OrganizationOptionsMenu = ({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button
           variant={ButtonVariant.Tertiary}
           className="my-auto"
