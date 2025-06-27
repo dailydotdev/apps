@@ -2,17 +2,9 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import {
-  DiscussIcon,
-  EarthIcon,
-  HashtagIcon,
-  LinkIcon,
-  SquadIcon,
-} from '../../icons';
+import { DiscussIcon, EarthIcon, HashtagIcon, SquadIcon } from '../../icons';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
-import { LazyModal } from '../../modals/common/types';
-import { useLazyModal } from '../../../hooks/useLazyModal';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
@@ -25,7 +17,6 @@ export const DiscoverSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { completeAction } = useActions();
   const { user } = useAuthContext();
-  const { modal, openModal } = useLazyModal();
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
@@ -61,16 +52,8 @@ export const DiscoverSection = ({
           }
         },
       },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <LinkIcon secondary={active} />} />
-        ),
-        title: 'Submit a link',
-        action: () => openModal({ type: LazyModal.SubmitArticle }),
-        active: modal?.type === LazyModal.SubmitArticle,
-      },
     ].filter(Boolean);
-  }, [completeAction, modal?.type, openModal, user]);
+  }, [completeAction, user]);
 
   return (
     <Section

@@ -12,7 +12,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  DocsIcon,
   EditIcon,
   LinkIcon,
   PlusIcon,
@@ -20,8 +19,6 @@ import {
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 
 const ActionButton = <TagName extends AllowedTags>({
   children,
@@ -43,7 +40,6 @@ const ActionButton = <TagName extends AllowedTags>({
 
 export function FooterPlusButton(): ReactElement {
   const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
   const drawerRef = useRef<DrawerRef>();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const props = user
@@ -75,15 +71,6 @@ export function FooterPlusButton(): ReactElement {
               href={`${link.post.create}?share=true`}
             >
               Share a link
-            </ActionButton>
-            <ActionButton
-              icon={<DocsIcon />}
-              onClick={() => {
-                drawerRef?.current?.onClose();
-                openModal({ type: LazyModal.SubmitArticle });
-              }}
-            >
-              Community picks
             </ActionButton>
           </div>
         </Drawer>
