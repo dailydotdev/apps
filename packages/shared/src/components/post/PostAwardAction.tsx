@@ -1,7 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import {
+  useCanAwardUser,
+  useHasAccessToCores,
+} from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -13,6 +16,7 @@ import type { Post } from '../../graphql/posts';
 import { Image } from '../image/Image';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
+import type { LoggedUser } from '../../lib/user';
 
 export interface PostAwardActionProps {
   post: Post;
@@ -21,18 +25,24 @@ export interface PostAwardActionProps {
 const PostAwardAction = ({ post }: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
-  const isSameUser = user?.id === post.author.id;
+  const isSameUser = user?.id === post?.author?.id;
   const hasAccessToCores = useHasAccessToCores();
+  const canAward = useCanAwardUser({
+    sendingUser: user as LoggedUser,
+    receivingUser: post?.author as LoggedUser,
+  });
+  const canActuallyAward = post?.userState?.awarded || canAward;
+  const showBtn = hasAccessToCores && !isSameUser && canActuallyAward;
+
+  if (!showBtn) {
+    return null;
+  }
 
   const awardEntity = {
     id: post.id,
     receiver: post.author,
     numAwards: post.numAwards,
   };
-
-  if (!hasAccessToCores || isSameUser) {
-    return null;
-  }
 
   const openAwardModal = () => {
     if (!user) {
