@@ -48,19 +48,20 @@ const PostAwardAction = ({ post }: PostAwardActionProps) => {
     });
   };
 
-  const tooltip = post?.userState.awarded
-    ? `You already awarded this award!`
-    : `Award this post`;
+  const disabled = post.userState.awarded;
 
   return (
-    <Tooltip content={tooltip}>
+    <Tooltip content="Award this post">
       <QuaternaryButton
         id={`post-${post.id}-award-btn`}
         pressed={!!post.userState.awarded}
         onClick={openAwardModal}
         size={ButtonSize.Small}
+        aria-disabled={disabled}
         className="btn-tertiary-cabbage"
         variant={ButtonVariant.Tertiary}
+        buttonClassName={disabled && '!pointer-events-none'}
+        labelClassName={disabled && '!pointer-events-none'}
         color={ButtonColor.Cabbage}
         icon={
           post.featuredAward?.award?.image ? (
