@@ -27,7 +27,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {!!squad && !squad.currentMember && (
+      {!!squad && (
         <SquadEntityCard
           className={{
             container: cardClasses,

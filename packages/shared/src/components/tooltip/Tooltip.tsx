@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 
-type TooltipProps = TooltipProviderProps &
+export type TooltipProps = TooltipProviderProps &
   Omit<TooltipContentProps, 'content'> & {
     appendTo?: Element | DocumentFragment;
     content: ReactNode;

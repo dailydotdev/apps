@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import type { Squad } from '../../../graphql/sources';
 import {
   Typography,

@@ -2,7 +2,7 @@ import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import type { Squad } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { ButtonProps } from '../buttons/Button';

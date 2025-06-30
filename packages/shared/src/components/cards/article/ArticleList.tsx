@@ -35,7 +35,6 @@ export const ArticleList = forwardRef(function ArticleList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
-    onMenuClick,
     onBookmarkClick,
     onCopyLinkClick,
     openNewTab,
@@ -103,7 +102,6 @@ export const ArticleList = forwardRef(function ArticleList(
               post={post}
               openNewTab={openNewTab}
               postLink={post.permalink}
-              onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
               metadata={{
                 topLabel: (

@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter as useRouterNext } from 'next/router';
 import LogContext from '../contexts/LogContext';
 import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
@@ -14,8 +14,11 @@ import { postLogEvent } from '../lib/feed';
 import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { Origin } from '../lib/log';
 import { webappUrl } from '../lib/constants';
-import { getPathnameWithQuery } from '../lib';
+import { getPathnameWithQuery, objectToQueryParams } from '../lib';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
+import { isExtension } from '../lib/func';
+import type { UseRouterMemory as UsePostModalRouter } from './useRouterMemory';
+import { useRouterMemory } from './useRouterMemory';
 
 export enum PostPosition {
   First = 'first',
@@ -40,19 +43,24 @@ export type UsePostModalNavigationProps = {
   fetchPage: () => Promise<unknown>;
   updatePost: UpdateFeedPost;
   canFetchMore: boolean;
-  contextId: string;
+  feedName: string;
 };
+
+// for extension we use in memory router
+const useRouter: () => UsePostModalRouter = isExtension
+  ? useRouterMemory
+  : useRouterNext;
 
 export const usePostModalNavigation = ({
   items,
   fetchPage,
   updatePost,
   canFetchMore,
-  contextId,
+  feedName,
 }: UsePostModalNavigationProps): UsePostModalNavigation => {
   const router = useRouter();
   // special query params to track base pathnames and params for the post modal
-  const activeContextId = router.query?.pmcid as string;
+  const activeFeedName = router.query?.pmcid as string;
   const basePathname = (router.query?.pmp as string) || router.pathname;
   const baseAsPath = (router.query?.pmap as string) || router.asPath;
   const pmid = router.query?.pmid as string;
@@ -61,7 +69,7 @@ export const usePostModalNavigation = ({
   const scrollPositionOnFeed = useRef(0);
 
   // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
-  const isNavigationActive = contextId === activeContextId;
+  const isNavigationActive = feedName === activeFeedName;
 
   const openedPostIndex = useMemo(() => {
     if (!isNavigationActive) {
@@ -111,22 +119,20 @@ export const usePostModalNavigation = ({
       if (post) {
         const postId = post.slug || post.id;
 
-        await router.push(
-          {
-            pathname: basePathname,
-            query: {
-              ...router.query,
-              pmid: postId,
-              pmp: basePathname,
-              pmap: baseAsPath,
-              pmcid: contextId,
-            },
-          },
-          `${webappUrl}posts/${postId}`,
-          {
-            scroll: false,
-          },
+        const newPathname = getPathnameWithQuery(
+          basePathname,
+          objectToQueryParams({
+            ...router.query,
+            pmid: postId,
+            pmp: basePathname,
+            pmap: baseAsPath,
+            pmcid: feedName,
+          }),
         );
+
+        await router.push(newPathname, `${webappUrl}posts/${postId}`, {
+          scroll: false,
+        });
       }
       if (post?.type === PostType.Share) {
         const item = getPostItem(index);
@@ -140,7 +146,7 @@ export const usePostModalNavigation = ({
       getPostItem,
       router,
       updatePost,
-      contextId,
+      feedName,
     ],
   );
 

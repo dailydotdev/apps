@@ -25,7 +25,6 @@ export default function CollectionPostModal({
   onNextPost,
   postPosition,
   post,
-  onRemovePost,
   ...props
 }: CollectionPostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -41,6 +40,9 @@ export default function CollectionPostModal({
       postType={PostType.Collection}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
+      postPosition={postPosition}
+      onPreviousPost={onPreviousPost}
+      onNextPost={onNextPost}
     >
       <CollectionPostContent
         position={position}
@@ -59,7 +61,6 @@ export default function CollectionPostModal({
         }}
         onClose={onRequestClose}
         origin={Origin.CollectionModal}
-        onRemovePost={onRemovePost}
       />
     </BasePostModal>
   );
