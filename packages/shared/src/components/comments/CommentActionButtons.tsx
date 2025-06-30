@@ -374,15 +374,13 @@ export default function CommentActionButtons({
       </Tooltip>
       {!!commentOptions && (
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Tooltip side="top" content="Options">
-              <Button
-                variant={ButtonVariant.Tertiary}
-                className="my-auto"
-                icon={<MenuIcon />}
-                size={ButtonSize.Small}
-              />
-            </Tooltip>
+          <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              className="my-auto"
+              icon={<MenuIcon />}
+              size={ButtonSize.Small}
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {commentOptions.map(
