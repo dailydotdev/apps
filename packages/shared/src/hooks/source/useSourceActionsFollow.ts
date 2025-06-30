@@ -30,6 +30,7 @@ export function useSourceActionsFollow({
   });
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
     origin: Origin.SourcePage,
+    shouldInvalidateQueries: false,
   });
 
   const addFollow = useCallback(async () => {
