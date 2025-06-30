@@ -23,8 +23,7 @@ import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { AwardButton } from '../../award/AwardButton';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import PostAwardAction from '../../post/PostAwardAction';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -48,8 +47,6 @@ const ActionButtons = ({
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
-  const { user } = useAuthContext();
-  const isSameUser = post.author?.id === user?.id;
   const isFeedPreview = useFeedPreviewMode();
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
@@ -105,30 +102,32 @@ const ActionButtons = ({
       <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center">
           <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-            <Button
-              className="pointer-events-auto w-8 px-0"
+            <QuaternaryButton
+              className="btn-tertiary-avocado pointer-events-auto w-8 px-0"
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  size={IconSize.XSmall}
+                />
+              }
             >
-              <UpvoteButtonIcon
-                secondary={isUpvoteActive}
-                size={IconSize.XSmall}
-              />
-            </Button>
-          </Tooltip>
-          {post?.numUpvotes > 0 && (
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums text-action-upvote-default typo-footnote',
-                !post.numUpvotes && 'invisible',
+              {post?.numUpvotes > 0 && (
+                <InteractionCounter
+                  className={classNames(
+                    'tabular-nums typo-footnote',
+                    !post.numUpvotes && 'invisible',
+                  )}
+                  value={post.numUpvotes}
+                />
               )}
-              value={post.numUpvotes}
-            />
-          )}
+            </QuaternaryButton>
+          </Tooltip>
         </div>
         <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
           <Button
@@ -160,34 +159,13 @@ const ActionButtons = ({
           >
             {post.numComments ? (
               <InteractionCounter
-                className="!typo-footnote"
+                className="tabular-nums !typo-footnote"
                 value={post.numComments}
               />
             ) : null}
           </QuaternaryButton>
         </Tooltip>
-        {!isSameUser && (
-          <div className="flex items-center">
-            <AwardButton
-              showFeaturedAward
-              entity={{
-                id: post.id,
-                receiver: post.author,
-                numAwards: post.numAwards,
-              }}
-              type="POST"
-              post={post}
-              iconSize={IconSize.XSmall}
-            />
-            {post?.numAwards && post?.numAwards > 0 && (
-              <InteractionCounter
-                className="font-bold text-brand-default typo-footnote"
-                value={post.numAwards}
-              />
-            )}
-          </div>
-        )}
-
+        <PostAwardAction post={post} />
         <BookmarkButton
           post={post}
           buttonProps={{
