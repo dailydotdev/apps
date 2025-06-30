@@ -193,13 +193,13 @@ const ActionButtons = ({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: ButtonSize.Small,
+            size: ButtonSize.XSmall,
           }}
         />
         <Tooltip content="Copy link">
           <Button
             size={ButtonSize.Small}
-            icon={<LinkIcon size={IconSize.XSmall} />}
+            icon={<LinkIcon size={IconSize.XXSmall} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Water}
