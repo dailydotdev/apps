@@ -15,10 +15,7 @@ import {
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
-import {
-  useCanPurchaseCores,
-  useHasAccessToCores,
-} from '../hooks/useCoresFeature';
+import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
@@ -949,9 +946,8 @@ export const checkCanBoostByUser = (post: Post, userId: string) =>
 
 export const useCanBoostPost = (post: Post) => {
   const { user } = useAuthContext();
-  const hasAccess = useHasAccessToCores();
   const canBuy = useCanPurchaseCores();
-  const canBoost = hasAccess && canBuy && checkCanBoostByUser(post, user?.id);
+  const canBoost = canBuy && checkCanBoostByUser(post, user?.id);
 
   return { canBoost };
 };
