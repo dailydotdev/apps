@@ -131,10 +131,8 @@ export const getBoostedPostByCampaignId = async (
 export const BOOST_ESTIMATED_REACH = gql`
   query BoostEstimatedReach($postId: ID!, $duration: Int!, $budget: Int!) {
     boostEstimatedReach(postId: $postId, duration: $duration, budget: $budget) {
-      estimatedReach {
-        min
-        max
-      }
+      min
+      max
     }
   }
 `;
@@ -161,7 +159,7 @@ export const getBoostEstimatedReach = async ({
     duration,
   });
 
-  return result.estimatedReach;
+  return result.boostEstimatedReach;
 };
 
 export const START_POST_BOOST = gql`
