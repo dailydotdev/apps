@@ -5,7 +5,6 @@ import type { Post } from '../../../../graphql/posts';
 import { UserVote } from '../../../../graphql/posts';
 import InteractionCounter from '../../../InteractionCounter';
 import {
-  BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
@@ -181,7 +180,6 @@ export default function ActionButtons({
           post={post}
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
-            icon: <BookmarkIcon secondary={post.bookmarked} />,
             onClick: onToggleBookmark,
             variant: ButtonVariant.Tertiary,
             className: 'pointer-events-auto ml-2',
