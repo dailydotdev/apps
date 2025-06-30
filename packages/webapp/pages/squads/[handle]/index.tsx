@@ -25,6 +25,7 @@ import type {
   Squad,
   Source,
 } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
@@ -287,7 +288,16 @@ export async function getServerSideProps({
 
     const [squad, referringUser] = await Promise.all(promises);
 
-    if (squad?.type === 'machine') {
+    if (squad?.type === SourceType.User) {
+      return {
+        redirect: {
+          destination: `/${squad.id}`,
+          permanent: false,
+        },
+      };
+    }
+
+    if (squad?.type === SourceType.Machine) {
       return {
         redirect: {
           destination: `/sources/${handle}`,
