@@ -275,6 +275,12 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     translation {
       ...PostTranslateableFields
     }
+    numAwards
+    featuredAward {
+      award {
+        image
+      }
+    }
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;

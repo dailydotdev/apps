@@ -98,34 +98,38 @@ const ActionButtons = ({
   return (
     <div
       className={classNames(
-        'flex flex-row items-center justify-between',
+        'flex flex-row items-center justify-between px-1 pb-1',
         className,
       )}
     >
-      <div className="flex flex-row items-center rounded-12 bg-surface-float">
-        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-          <Button
-            className="pointer-events-auto !pl-1 !pr-3"
-            id={`post-${post.id}-upvote-btn`}
-            color={ButtonColor.Avocado}
-            pressed={isUpvoteActive}
-            onClick={onToggleUpvote}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-          >
-            <UpvoteButtonIcon
-              secondary={isUpvoteActive}
-              size={IconSize.XSmall}
-            />
+      <div className="flex flex-1 items-center justify-between">
+        <div className="flex items-center">
+          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+            <Button
+              className="pointer-events-auto w-8 px-0"
+              id={`post-${post.id}-upvote-btn`}
+              color={ButtonColor.Avocado}
+              pressed={isUpvoteActive}
+              onClick={onToggleUpvote}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+            >
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={IconSize.XSmall}
+              />
+            </Button>
+          </Tooltip>
+          {post?.numUpvotes > 0 && (
             <InteractionCounter
               className={classNames(
-                'ml-1.5 tabular-nums',
+                'tabular-nums text-action-upvote-default typo-footnote',
                 !post.numUpvotes && 'invisible',
               )}
               value={post.numUpvotes}
             />
-          </Button>
-        </Tooltip>
+          )}
+        </div>
         <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
           <Button
             className="pointer-events-auto"
@@ -143,52 +147,65 @@ const ActionButtons = ({
             size={ButtonSize.Small}
           />
         </Tooltip>
-      </div>
-      <Tooltip content="Comments">
-        <QuaternaryButton
-          id={`post-${post.id}-comment-btn`}
-          icon={
-            <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
-          }
-          pressed={post.commented}
-          onClick={() => onCommentClick?.(post)}
-          size={ButtonSize.Small}
-          className="btn-tertiary-blueCheese"
-        >
-          {post.numComments ? (
-            <InteractionCounter value={post.numComments} />
-          ) : null}
-        </QuaternaryButton>
-      </Tooltip>
-      {!isSameUser && (
-        <AwardButton
-          entity={{
-            id: post.id,
-            receiver: post.author,
-            numAwards: post.numAwards,
-          }}
-          type="POST"
+        <Tooltip content="Comments">
+          <QuaternaryButton
+            id={`post-${post.id}-comment-btn`}
+            icon={
+              <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
+            }
+            pressed={post.commented}
+            onClick={() => onCommentClick?.(post)}
+            size={ButtonSize.Small}
+            className="btn-tertiary-blueCheese"
+          >
+            {post.numComments ? (
+              <InteractionCounter
+                className="!typo-footnote"
+                value={post.numComments}
+              />
+            ) : null}
+          </QuaternaryButton>
+        </Tooltip>
+        {!isSameUser && (
+          <div className="flex items-center">
+            <AwardButton
+              showFeaturedAward
+              entity={{
+                id: post.id,
+                receiver: post.author,
+                numAwards: post.numAwards,
+              }}
+              type="POST"
+              post={post}
+              iconSize={IconSize.XSmall}
+            />
+            {post?.numAwards && post?.numAwards > 0 && (
+              <InteractionCounter
+                className="font-bold text-brand-default typo-footnote"
+                value={post.numAwards}
+              />
+            )}
+          </div>
+        )}
+
+        <BookmarkButton
           post={post}
-          iconSize={IconSize.XSmall}
+          buttonProps={{
+            id: `post-${post.id}-bookmark-btn`,
+            onClick: onToggleBookmark,
+            size: ButtonSize.Small,
+          }}
         />
-      )}
-      <BookmarkButton
-        post={post}
-        buttonProps={{
-          id: `post-${post.id}-bookmark-btn`,
-          onClick: onToggleBookmark,
-          size: ButtonSize.Small,
-        }}
-      />
-      <Tooltip content="Copy link">
-        <Button
-          size={ButtonSize.Small}
-          icon={<LinkIcon size={IconSize.XSmall} />}
-          onClick={onCopyLink}
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Cabbage}
-        />
-      </Tooltip>
+        <Tooltip content="Copy link">
+          <Button
+            size={ButtonSize.Small}
+            icon={<LinkIcon size={IconSize.XSmall} />}
+            onClick={onCopyLink}
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Water}
+          />
+        </Tooltip>
+      </div>
     </div>
   );
 };
