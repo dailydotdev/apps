@@ -78,11 +78,10 @@ function PostSourceInfo({
       {!isUnknown && (
         <>
           <div className="flex flex-row items-center">
-            <Link
-              href={source.permalink}
-              className="text-text-secondary typo-callout"
-            >
-              {source.handle}
+            <Link href={source.permalink}>
+              <a className="text-text-secondary typo-callout">
+                {source.handle}
+              </a>
             </Link>
             {showActionBtn && <Separator />}
             {showActionBtn && source?.type !== SourceType.Squad && (

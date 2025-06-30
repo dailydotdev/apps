@@ -118,8 +118,10 @@ function PostModerationModal({
           <ConditionalWrapper
             condition={!!externalLink}
             wrapper={(component) => (
-              <Link href={externalLink} target="_blank" rel={anchorDefaultRel}>
-                {component}
+              <Link href={externalLink}>
+                <a target="_blank" rel={anchorDefaultRel}>
+                  {component}
+                </a>
               </Link>
             )}
           >
