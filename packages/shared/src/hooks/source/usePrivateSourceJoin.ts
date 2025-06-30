@@ -16,6 +16,7 @@ export type UsePrivateSourceJoin = {
 const sourceTypeToPage: Record<SourceType, string> = {
   [SourceType.Squad]: 'squads',
   [SourceType.Machine]: 'sources',
+  [SourceType.User]: '', // empty string for user type, as it redirects to the user profile
 };
 
 export const usePrivateSourceJoin = ({
