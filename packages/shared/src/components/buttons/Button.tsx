@@ -108,8 +108,14 @@ function ButtonComponent<TagName extends AllowedTags>(
         VariantColorToClassName[variant]?.[color],
         className,
       )}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={(e) => {
+        props.onMouseEnter?.(e);
+        setIsHovering(true);
+      }}
+      onMouseLeave={(e) => {
+        props.onMouseLeave?.(e);
+        setIsHovering(false);
+      }}
     >
       {icon &&
         [ButtonIconPosition.Left, ButtonIconPosition.Top].includes(
