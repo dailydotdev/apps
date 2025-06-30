@@ -53,7 +53,7 @@ export const SquadModerationItemContextMenu = ({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button
             variant={ButtonVariant.Tertiary}
             className="z-1 my-0"
