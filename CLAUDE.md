@@ -187,6 +187,83 @@ When looking for existing components or creating new ones, follow this hierarchy
 - **Need colors?** → Use semantic tokens from `packages/shared/tailwind/colors/`
 - **Need typography?** → Use `Typography` component with semantic sizes
 
+## Storybook Documentation & Development
+
+### Overview
+Storybook is used for component development, documentation, and visual testing. It showcases components from the shared package with full design system integration.
+
+### Development Commands
+```bash
+# Run Storybook development server (http://localhost:6006)
+pnpm --filter storybook dev
+
+# Build static Storybook
+pnpm --filter storybook build
+
+# Lint stories
+pnpm --filter storybook lint
+```
+
+### Story Organization
+Stories follow atomic design principles:
+- **tokens/** - Design tokens (colors, typography)
+- **atoms/** - Basic components (Button, Icon, Typography)
+- **components/** - Complex components by category (cards, drawers, forms, modals)
+- **experiments/** - A/B testing documentation
+- **extension/** - Extension-specific components
+
+### Writing Stories Best Practices
+
+1. **Basic Story Structure**:
+   ```typescript
+   import type { Meta, StoryObj } from '@storybook/react-vite';
+   import { Component } from '@dailydotdev/shared/src/components/Component';
+
+   const meta: Meta<typeof Component> = {
+     title: 'Category/Component',
+     component: Component,
+     parameters: {
+       design: { type: 'figma', url: 'figma-url' }
+     },
+     tags: ['autodocs'],
+   };
+
+   export default meta;
+   type Story = StoryObj<typeof Component>;
+
+   export const Default: Story = { args: {} };
+   ```
+
+2. **Component Categories**:
+   - Import from `@dailydotdev/shared/src/components/`
+   - Use descriptive titles following atomic design hierarchy
+   - Link to Figma designs in parameters
+
+3. **Context Providers**:
+   - Wrap data-dependent components with `ExtensionProviders`
+   - Use MSW addon for API mocking with realistic data
+
+4. **Interactive Features**:
+   - Use `fn()` from 'storybook/test' for mock callbacks
+   - Add ArgTypes for better control definitions
+   - Create stories for all component states and variants
+
+### Available Features
+- **Theme switching** (light/dark) via addon-themes
+- **Design integration** with Figma links
+- **Auto-generated docs** with tags: ['autodocs']
+- **MSW integration** for API mocking
+- **TypeScript support** with full type safety
+- **Icon gallery** with interactive display
+- **Color tokens** showcase all Tailwind design system colors
+
+### When to Use Storybook
+- **Component development**: Build components in isolation
+- **Documentation**: Auto-generate component docs
+- **Visual testing**: See components in all states
+- **Design handoff**: Compare with Figma designs
+- **API integration**: Test with mocked GraphQL responses
+
 ## Development Notes
 
 - Extension uses `webextension-polyfill` for cross-browser compatibility
