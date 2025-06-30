@@ -51,24 +51,22 @@ export const SquadModerationItemContextMenu = ({
   ];
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            className="z-1 my-0"
-            icon={<MenuIcon />}
-            size={ButtonSize.Small}
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {options.map(({ label, icon, action }: MenuItemProps) => (
-            <DropdownMenuItem key={label} onClick={action}>
-              {icon} {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          className="z-1 my-0"
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {options.map(({ label, icon, action }: MenuItemProps) => (
+          <DropdownMenuItem key={label} onClick={action}>
+            {icon} {label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
