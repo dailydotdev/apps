@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -61,7 +62,7 @@ const PostAwardAction = ({ post }: PostAwardActionProps) => {
         className="btn-tertiary-cabbage"
         variant={ButtonVariant.Tertiary}
         buttonClassName={disabled && '!pointer-events-none'}
-        labelClassName={disabled && '!pointer-events-none'}
+        labelClassName={classNames('pl-0', disabled && '!pointer-events-none')}
         color={ButtonColor.Cabbage}
         icon={
           post.featuredAward?.award?.image ? (

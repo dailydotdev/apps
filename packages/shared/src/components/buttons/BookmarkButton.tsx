@@ -10,14 +10,16 @@ import useContextMenu from '../../hooks/useContextMenu';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
-import { ButtonColor, ButtonVariant } from './Button';
+import { ButtonColor, ButtonVariant, ButtonIconPosition } from './Button';
 import { Tooltip } from '../tooltip/Tooltip';
+import type { IconSize } from '../Icon';
 
 interface BookmarkButtonProps {
-  buttonProps?: QuaternaryButtonProps<'button'>;
+  buttonProps?: Omit<QuaternaryButtonProps<'button'>, 'icon'>;
   contextMenuId?: string;
   post: Post;
   children?: ReactNode;
+  iconSize?: IconSize;
 }
 
 export function BookmarkButton({
@@ -25,6 +27,7 @@ export function BookmarkButton({
   buttonProps = {},
   post,
   children,
+  iconSize,
 }: BookmarkButtonProps): ReactElement {
   const finalId = `${contextMenuId}-${post.id}`;
   const hasReminder = !!post.bookmark?.remindAt;
@@ -47,13 +50,12 @@ export function BookmarkButton({
         <QuaternaryButton
           color={ButtonColor.Bun}
           variant={ButtonVariant.Tertiary}
+          iconPosition={ButtonIconPosition.Top}
           {...buttonProps}
           type="button"
           pressed={post.bookmarked}
           onClick={onClick}
-          icon={
-            <Icon {...buttonProps?.icon?.props} secondary={post.bookmarked} />
-          }
+          icon={<Icon secondary={post.bookmarked} size={iconSize} />}
         >
           {children}
         </QuaternaryButton>

@@ -100,35 +100,34 @@ const ActionButtons = ({
       )}
     >
       <div className="flex flex-1 items-center justify-between">
-        <div className="flex items-center">
-          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-            <QuaternaryButton
-              className="btn-tertiary-avocado pointer-events-auto w-8 px-0"
-              id={`post-${post.id}-upvote-btn`}
-              color={ButtonColor.Avocado}
-              pressed={isUpvoteActive}
-              onClick={onToggleUpvote}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={
-                <UpvoteButtonIcon
-                  secondary={isUpvoteActive}
-                  size={IconSize.XSmall}
-                />
-              }
-            >
-              {post?.numUpvotes > 0 && (
-                <InteractionCounter
-                  className={classNames(
-                    'tabular-nums typo-footnote',
-                    !post.numUpvotes && 'invisible',
-                  )}
-                  value={post.numUpvotes}
-                />
-              )}
-            </QuaternaryButton>
-          </Tooltip>
-        </div>
+        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+          <QuaternaryButton
+            labelClassName="pl-0"
+            className="btn-tertiary-avocado pointer-events-auto px-0"
+            id={`post-${post.id}-upvote-btn`}
+            color={ButtonColor.Avocado}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
+          >
+            {post?.numUpvotes > 0 && (
+              <InteractionCounter
+                className={classNames(
+                  'tabular-nums typo-footnote',
+                  !post.numUpvotes && 'invisible',
+                )}
+                value={post.numUpvotes}
+              />
+            )}
+          </QuaternaryButton>
+        </Tooltip>
         <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
           <Button
             className="pointer-events-auto"
@@ -148,6 +147,7 @@ const ActionButtons = ({
         </Tooltip>
         <Tooltip content="Comments">
           <QuaternaryButton
+            labelClassName="pl-0"
             id={`post-${post.id}-comment-btn`}
             icon={
               <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
@@ -171,13 +171,14 @@ const ActionButtons = ({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: ButtonSize.XSmall,
+            size: ButtonSize.Small,
           }}
+          iconSize={IconSize.XSmall}
         />
         <Tooltip content="Copy link">
           <Button
             size={ButtonSize.Small}
-            icon={<LinkIcon size={IconSize.XXSmall} />}
+            icon={<LinkIcon size={IconSize.XSmall} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Water}
