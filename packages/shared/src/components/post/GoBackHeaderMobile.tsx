@@ -37,19 +37,6 @@ export const GoBackButton = ({
   const canGoBack =
     globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
 
-  const handleGoBack = useCallback(() => {
-    // For post pages, we want to ensure proper scroll restoration
-    if (router.pathname.startsWith('/posts/')) {
-      // Store the current referrer information for better scroll restoration
-      try {
-        sessionStorage.setItem('postPageReferrer', document.referrer || '/');
-      } catch (e) {
-        // Silently fail if sessionStorage is not available
-      }
-    }
-    router.back();
-  }, [router]);
-
   const logoButton = showLogo ? (
     <Logo
       className="my-2"
@@ -64,7 +51,7 @@ export const GoBackButton = ({
       icon={<ArrowIcon className="-rotate-90" />}
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
-      onClick={handleGoBack}
+      onClick={router.back}
       className={className}
     />
   ) : (
