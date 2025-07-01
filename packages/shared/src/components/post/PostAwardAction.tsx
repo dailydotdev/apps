@@ -20,9 +20,10 @@ import type { LoggedUser } from '../../lib/user';
 
 export interface PostAwardActionProps {
   post: Post;
+  iconSize?: IconSize;
 }
 
-const PostAwardAction = ({ post }: PostAwardActionProps) => {
+const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
@@ -82,7 +83,7 @@ const PostAwardAction = ({ post }: PostAwardActionProps) => {
               className={iconSizeToClassName[IconSize.XSmall]}
             />
           ) : (
-            <MedalBadgeIcon secondary size={IconSize.XSmall} />
+            <MedalBadgeIcon secondary size={iconSize} />
           )
         }
       >

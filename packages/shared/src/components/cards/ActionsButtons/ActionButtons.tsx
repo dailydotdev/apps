@@ -165,7 +165,7 @@ const ActionButtons = ({
             ) : null}
           </QuaternaryButton>
         </Tooltip>
-        <PostAwardAction post={post} />
+        <PostAwardAction post={post} iconSize={IconSize.XSmall} />
         <BookmarkButton
           post={post}
           buttonProps={{
