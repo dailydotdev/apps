@@ -22,6 +22,7 @@ import {
   SIMILAR_SOURCES_QUERY,
   SOURCE_QUERY,
   SOURCE_RELATED_TAGS_QUERY,
+  SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
@@ -272,7 +273,16 @@ export async function getStaticProps({
       id: params?.source,
     });
 
-    if (res.source?.type === 'squad') {
+    if (res.source?.type === SourceType.User) {
+      return {
+        redirect: {
+          destination: `/${res.source.id}`,
+          permanent: false,
+        },
+      };
+    }
+
+    if (res.source?.type === SourceType.Squad) {
       return {
         redirect: {
           destination: `/squads/${params?.source}`,
