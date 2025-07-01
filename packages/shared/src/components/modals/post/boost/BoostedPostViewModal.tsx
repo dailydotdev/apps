@@ -32,7 +32,7 @@ export function BoostedPostViewModal({
 
   const handleBoostClick = () => {
     if (data.campaign.status === 'ACTIVE') {
-      return onCancelBoost(data.campaign.campaignId);
+      return onCancelBoost(data.post.id);
     }
 
     return onBoostAgain(data.post.id);
