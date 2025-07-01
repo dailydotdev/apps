@@ -18,6 +18,8 @@ import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type SquadEntityCardProps = {
   handle: string;
@@ -36,6 +38,11 @@ const SquadEntityCard = ({
   const { onMenuClick } = useContextMenu({
     id: ContextMenuIds.SquadMenuContext,
   });
+  const { isLoading } = useShowFollowAction({
+    entityId: squad?.id,
+    entityType: ContentPreferenceType.Source,
+  });
+
   if (!squad) {
     return null;
   }
@@ -53,29 +60,31 @@ const SquadEntityCard = ({
       }}
       entityName={name}
       actionButtons={
-        <>
-          <Button
-            className="justify-center"
-            variant={ButtonVariant.Option}
-            icon={<MenuIcon />}
-            onClick={onMenuClick}
-            size={ButtonSize.Small}
-          />
-          {squad && (
-            <>
-              <SquadHeaderMenu squad={squad} className="z-[9999]" />
-              <SquadActionButton
-                size={ButtonSize.Small}
-                copy={{
-                  join: 'Join',
-                  leave: 'Leave',
-                }}
-                squad={squad}
-                origin={origin}
-              />
-            </>
-          )}
-        </>
+        !isLoading && (
+          <>
+            <Button
+              className="justify-center"
+              variant={ButtonVariant.Option}
+              icon={<MenuIcon />}
+              onClick={onMenuClick}
+              size={ButtonSize.Small}
+            />
+            {squad && (
+              <>
+                <SquadHeaderMenu squad={squad} className="z-[9999]" />
+                <SquadActionButton
+                  size={ButtonSize.Small}
+                  copy={{
+                    join: 'Join',
+                    leave: 'Leave',
+                  }}
+                  squad={squad}
+                  origin={origin}
+                />
+              </>
+            )}
+          </>
+        )
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">

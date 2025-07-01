@@ -26,7 +26,7 @@ type SourceEntityCardProps = {
 };
 
 const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
-  const showBtn = useShowFollowAction({
+  const { showActionBtn, isLoading } = useShowFollowAction({
     entityId: source.id,
     entityType: ContentPreferenceType.Source,
   });
@@ -48,23 +48,25 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
       }}
       entityName={name}
       actionButtons={
-        <>
-          <CustomFeedOptionsMenu
-            buttonVariant={ButtonVariant.Option}
-            className={{
-              menu: 'z-[9999]',
-            }}
-            {...menuProps}
-          />
-          {showBtn && (
-            <SourceActionsFollow
-              isFetching={false}
-              isSubscribed={isFollowing}
-              onClick={toggleFollow}
-              variant={ButtonVariant.Primary}
+        !isLoading && (
+          <>
+            <CustomFeedOptionsMenu
+              buttonVariant={ButtonVariant.Option}
+              className={{
+                menu: 'z-[9999]',
+              }}
+              {...menuProps}
             />
-          )}
-        </>
+            {showActionBtn && (
+              <SourceActionsFollow
+                isFetching={false}
+                isSubscribed={isFollowing}
+                onClick={toggleFollow}
+                variant={ButtonVariant.Primary}
+              />
+            )}
+          </>
+        )
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">

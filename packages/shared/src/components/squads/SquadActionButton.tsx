@@ -100,7 +100,7 @@ export const SquadActionButton = ({
   alwaysShow = false,
   ...rest
 }: SquadActionButtonProps): ReactElement => {
-  const showBtn = useShowFollowAction({
+  const { showActionBtn } = useShowFollowAction({
     entityId: squad.id,
     entityType: ContentPreferenceType.Source,
   });
@@ -229,7 +229,7 @@ export const SquadActionButton = ({
     }
   };
 
-  if (!showBtn && !alwaysShow) {
+  if (!showActionBtn && !alwaysShow) {
     return null;
   }
 

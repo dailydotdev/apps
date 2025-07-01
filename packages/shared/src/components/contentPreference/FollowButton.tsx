@@ -45,8 +45,7 @@ export const FollowButton = ({
   alwaysShow = false,
 }: FollowButtonProps): ReactElement => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
-  const showBtn = useShowFollowAction({
-    initialStatus: currentStatus,
+  const { showActionBtn } = useShowFollowAction({
     entityId,
     entityType: type,
   });
@@ -102,7 +101,10 @@ export const FollowButton = ({
 
   const isLoading = isLoadingFollow || isLoadingNotify;
 
-  if (useIsSpecialUser({ userId: entityId }) || (!showBtn && !alwaysShow)) {
+  if (
+    useIsSpecialUser({ userId: entityId }) ||
+    (!showActionBtn && !alwaysShow)
+  ) {
     return null;
   }
 
