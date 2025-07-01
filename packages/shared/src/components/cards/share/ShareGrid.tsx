@@ -93,7 +93,9 @@ export const ShareGrid = forwardRef(function ShareGrid(
       <PostCardFooter
         openNewTab={openNewTab}
         post={footerPost}
-        className={{}}
+        className={{
+          image: 'px-1',
+        }}
       />
     );
   }, [isDeleted, isPrivate, openNewTab, post]);
@@ -105,7 +107,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         className: getPostClassNames(
           post,
           domProps.className,
-          'min-h-card max-h-card',
+          'min-h-card max-h-card !p-0',
         ),
       }}
       ref={ref}
