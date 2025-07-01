@@ -15,6 +15,8 @@ import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import useSourceMenuProps from '../../../hooks/useSourceMenuProps';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type SourceEntityCardProps = {
   source: SourceTooltip;
@@ -24,6 +26,10 @@ type SourceEntityCardProps = {
 };
 
 const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
+  const showBtn = useShowFollowAction({
+    entityId: source.id,
+    entityType: ContentPreferenceType.Source,
+  });
   const { isFollowing, toggleFollow } = useSourceActions({
     source: source as Source,
   });
@@ -50,12 +56,14 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             }}
             {...menuProps}
           />
-          <SourceActionsFollow
-            isFetching={false}
-            isSubscribed={isFollowing}
-            onClick={toggleFollow}
-            variant={ButtonVariant.Primary}
-          />
+          {showBtn && (
+            <SourceActionsFollow
+              isFetching={false}
+              isSubscribed={isFollowing}
+              onClick={toggleFollow}
+              variant={ButtonVariant.Primary}
+            />
+          )}
         </>
       }
     >

@@ -11,6 +11,7 @@ import type { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 import SourceActionsFollow from '../sources/SourceActions/SourceActionsFollow';
 import type { Origin } from '../../lib/log';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
+import useShowFollowAction from '../../hooks/useShowFollowAction';
 
 export type FollowButtonProps = {
   className?: string;
@@ -42,7 +43,11 @@ export const FollowButton = ({
   copyType,
 }: FollowButtonProps): ReactElement => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
-
+  const showBtn = useShowFollowAction({
+    initialStatus: currentStatus,
+    entityId,
+    entityType: type,
+  });
   const { mutate: onButtonClick, isPending: isLoadingFollow } = useMutation({
     mutationFn: async () => {
       const opts = origin
@@ -95,7 +100,7 @@ export const FollowButton = ({
 
   const isLoading = isLoadingFollow || isLoadingNotify;
 
-  if (useIsSpecialUser({ userId: entityId })) {
+  if (useIsSpecialUser({ userId: entityId }) || !showBtn) {
     return null;
   }
 
