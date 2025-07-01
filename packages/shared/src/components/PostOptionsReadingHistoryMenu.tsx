@@ -1,11 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ReadHistoryPost } from '../graphql/posts';
-import { ShareIcon, BookmarkIcon, MiniCloseIcon as XIcon } from './icons';
+import { ShareIcon, BookmarkIcon, MiniCloseIcon as XIcon, MenuIcon as DotsIcon } from './icons';
 import type { UseBookmarkPostRollback } from '../hooks/useBookmarkPost';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
@@ -21,15 +20,13 @@ import {
   updateInfiniteCache,
 } from '../lib/query';
 import { Origin } from '../lib/log';
-import useContextMenu from '../hooks/useContextMenu';
-import { ContextMenu as ContextMenuIds } from '../hooks/constants';
-
-const ContextMenu = dynamic(
-  () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
-  {
-    ssr: false,
-  },
-);
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from './dropdown/DropdownMenu';
+import { Button, ButtonVariant, ButtonSize } from './buttons/Button';
 
 export type PostOptionsReadingHistoryMenuProps = {
   post: ReadHistoryPost;
@@ -39,6 +36,12 @@ export type PostOptionsReadingHistoryMenuProps = {
   onHideHistoryPost?: (postId: string) => unknown;
   indexes: QueryIndexes;
 };
+
+interface MenuItemProps {
+  icon: ReactElement;
+  label: string;
+  action: () => void;
+}
 
 const updateReadingHistoryPost =
   (
@@ -82,16 +85,12 @@ const getBookmarkIconAndMenuIcon = (bookmarked: boolean) => (
 export default function PostOptionsReadingHistoryMenu({
   post,
   onShare,
-  onHiddenMenu,
   onHideHistoryPost,
   indexes,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
-  const { isOpen } = useContextMenu({
-    id: ContextMenuIds.PostReadingHistoryContext,
-  });
   const { toggleBookmark } = useBookmarkPost({
     onMutate: () => {
       const updatePost = updateReadingHistoryPost(
@@ -133,14 +132,22 @@ export default function PostOptionsReadingHistoryMenu({
   ];
 
   return (
-    <ContextMenu
-      disableBoundariesCheck
-      id="reading-history-options-context"
-      className="menu-primary"
-      animation="fade"
-      onHidden={onHiddenMenu}
-      options={options}
-      isOpen={isOpen}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          className="z-1 my-0"
+          icon={<DotsIcon />}
+          size={ButtonSize.Small}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {options.map(({ label, icon, action }: MenuItemProps) => (
+          <DropdownMenuItem key={label} onClick={action}>
+            {icon} {label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
