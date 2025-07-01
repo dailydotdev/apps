@@ -12,6 +12,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../useTransactionError';
+import { useToastNotification } from '../useToastNotification';
 
 interface UsePostBoostMutationProps {
   toEstimate?: BoostPostProps;
@@ -23,6 +24,7 @@ interface UsePostBoostMutation {
   estimatedReach: BoostEstimatedReach;
   onBoostPost: typeof startPostBoost;
   onCancelBoost: typeof cancelPostBoost;
+  isLoadingCancel: boolean;
 }
 
 export const usePostBoostMutation = ({
@@ -31,8 +33,9 @@ export const usePostBoostMutation = ({
   onCancelSuccess,
 }: UsePostBoostMutationProps = {}): UsePostBoostMutation => {
   const client = useQueryClient();
+  const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
-  const { data: estimatedReach } = useQuery({
+  const { data: estimatedReach, isPending } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.PostCampaigns,
       user,
@@ -58,6 +61,10 @@ export const usePostBoostMutation = ({
           queryKey: generateQueryKey(RequestKey.Transactions, user),
           exact: false,
         });
+        client.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+          exact: false,
+        });
 
         onBoostSuccess?.();
       }
@@ -68,11 +75,20 @@ export const usePostBoostMutation = ({
   const { mutateAsync: onCancelBoost } = useMutation({
     mutationFn: cancelPostBoost,
     onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: [RequestKey.PostCampaigns] });
+      await client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+        exact: false,
+      });
+      displayToast('Post boost canceled!');
 
       onCancelSuccess?.();
     },
   });
 
-  return { estimatedReach, onBoostPost, onCancelBoost };
+  return {
+    estimatedReach,
+    onBoostPost,
+    onCancelBoost,
+    isLoadingCancel: isPending,
+  };
 };

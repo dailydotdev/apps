@@ -28,7 +28,9 @@ export function BoostedPostViewModal({
   onBoostAgain,
   ...props
 }: BoostedPostViewModalProps): ReactElement {
-  const { onCancelBoost } = usePostBoostMutation({});
+  const { onCancelBoost, isLoadingCancel } = usePostBoostMutation({
+    onCancelSuccess: () => props.onRequestClose(null),
+  });
 
   const handleBoostClick = () => {
     if (data.campaign.status === 'ACTIVE') {
@@ -55,7 +57,7 @@ export function BoostedPostViewModal({
         </span>
         <CampaignListView
           data={data}
-          isLoading={isLoading}
+          isLoading={isLoading || isLoadingCancel}
           onBoostClick={handleBoostClick}
         />
       </Modal.Body>
