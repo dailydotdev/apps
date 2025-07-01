@@ -244,6 +244,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       contentPreference {
         status
       }
+      coresRole
     }
     type
     tags
