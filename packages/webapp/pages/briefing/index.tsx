@@ -18,7 +18,6 @@ import {
   ArrowIcon,
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import Link from 'next/link';
 import { plusUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   useConditionalFeature,
@@ -46,6 +45,7 @@ import {
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -114,7 +114,7 @@ const Page = (): ReactElement => {
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-4">
         <main className="relative flex flex-1 flex-col gap-6">
           <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
-            <Link legacyBehavior passHref href={`${webappUrl}bookmarks`}>
+            <Link href={`${webappUrl}bookmarks`}>
               <Button
                 className="laptop:hidden"
                 tag="a"
