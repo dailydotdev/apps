@@ -46,7 +46,7 @@ export const WelcomePostCardFooter = ({
           post={post}
           imageProps={{
             src: image,
-            className: 'my-2 w-full px-1',
+            className: 'mt-2 mb-1 w-full px-1',
             alt: 'Post Cover image',
           }}
         />
