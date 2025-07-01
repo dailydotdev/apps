@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -28,9 +27,8 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
     sendingUser: user,
     receivingUser: post?.author as LoggedUser,
   });
-  const showBtn = !isSameUser && (post?.userState?.awarded || canAward);
 
-  if (!showBtn) {
+  if (!canAward && !isSameUser) {
     return null;
   }
 
@@ -45,6 +43,15 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
       return showLogin({ trigger: AuthTriggers.GiveAward });
     }
 
+    if (isSameUser) {
+      return openModal({
+        type: LazyModal.ListAwards,
+        props: {
+          queryProps: { id: post.id, type: 'POST' },
+        },
+      });
+    }
+
     return openModal({
       type: LazyModal.GiveAward,
       props: {
@@ -55,8 +62,6 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
     });
   };
 
-  const disabled = post.userState.awarded;
-
   return (
     <Tooltip content="Award this post">
       <QuaternaryButton
@@ -64,11 +69,9 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         pressed={!!post.userState.awarded}
         onClick={openAwardModal}
         size={ButtonSize.Small}
-        aria-disabled={disabled}
         className="btn-tertiary-cabbage"
         variant={ButtonVariant.Tertiary}
-        buttonClassName={disabled && '!pointer-events-none'}
-        labelClassName={classNames('pl-0', disabled && '!pointer-events-none')}
+        labelClassName="pl-0"
         color={ButtonColor.Cabbage}
         icon={
           post.featuredAward?.award?.image ? (
