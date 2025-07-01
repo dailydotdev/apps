@@ -161,7 +161,7 @@ export function BoostPostModal({
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Estimated reach
+              Potential reach
             </Typography>
           </div>
         </div>
