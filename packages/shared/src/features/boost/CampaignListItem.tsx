@@ -14,9 +14,9 @@ import { getAbsoluteDifferenceInDays } from './utils';
 import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
 
 const statusToColor: Record<PromotedPost['status'], string> = {
-  active: 'bg-action-upvote-active text-action-upvote-default',
-  completed: 'bg-action-share-active text-action-share-default',
-  cancelled: 'bg-action-downvote-active text-action-downvote-default',
+  ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
+  COMPLETED: 'bg-action-share-active text-action-share-default',
+  CANCELED: 'bg-action-downvote-active text-action-downvote-default',
 };
 
 export const BoostStatus = ({
@@ -49,11 +49,11 @@ export function CampaignListItem({
   const { campaign, post } = data;
 
   const getCaption = () => {
-    if (campaign.status === 'completed') {
+    if (campaign.status === 'COMPLETED') {
       return 'Completed';
     }
 
-    if (campaign.status === 'cancelled') {
+    if (campaign.status === 'CANCELED') {
       return 'Cancelled';
     }
 
