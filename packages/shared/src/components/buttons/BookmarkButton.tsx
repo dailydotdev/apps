@@ -62,22 +62,23 @@ export function BookmarkButton({
   if (hasReminder) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <div>
-            <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-              <QuaternaryButton
-                color={ButtonColor.Bun}
-                variant={ButtonVariant.Tertiary}
-                {...buttonProps}
-                type="button"
-                pressed={post.bookmarked}
-                onClick={onClick}
-                icon={<Icon secondary={post.bookmarked} />}
-              >
-                {children}
-              </QuaternaryButton>
-            </Tooltip>
-          </div>
+        <DropdownMenuTrigger
+          tooltip={{
+            content: post.bookmarked ? 'Remove bookmark' : 'Bookmark',
+          }}
+          asChild
+        >
+          <QuaternaryButton
+            color={ButtonColor.Bun}
+            variant={ButtonVariant.Tertiary}
+            {...buttonProps}
+            type="button"
+            pressed={post.bookmarked}
+            onClick={onClick}
+            icon={<Icon secondary={post.bookmarked} />}
+          >
+            {children}
+          </QuaternaryButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {dropdownOptions.map(({ label, action }) => (
