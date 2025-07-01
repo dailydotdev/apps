@@ -45,7 +45,7 @@ export function BookmarkButton({
     },
     {
       label: 'Remove bookmark',
-      action: buttonProps.onClick,
+      action: (e) => buttonProps.onClick(e),
     },
   ];
 
@@ -88,7 +88,7 @@ export function BookmarkButton({
         {...buttonProps}
         type="button"
         pressed={post.bookmarked}
-        onClick={buttonProps.onClick}
+        onClick={(e) => buttonProps.onClick?.(e)}
         icon={<Icon secondary={post.bookmarked} />}
       >
         {children}
