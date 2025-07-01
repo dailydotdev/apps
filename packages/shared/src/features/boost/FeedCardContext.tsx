@@ -3,12 +3,11 @@ import type { Post } from '../../graphql/posts';
 
 type FeedCardContextData = {
   isBoostedReach: boolean;
-  post: Partial<Post>;
+  post?: Post;
 };
 
 export const FeedCardContext = createContext<FeedCardContextData>({
   isBoostedReach: false,
-  post: {},
 });
 
 export const useFeedCardContext = () => useContext(FeedCardContext);
