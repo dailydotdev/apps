@@ -107,7 +107,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         className: getPostClassNames(
           post,
           domProps.className,
-          'min-h-card max-h-card !p-0',
+          'min-h-card max-h-card',
         ),
       }}
       ref={ref}
