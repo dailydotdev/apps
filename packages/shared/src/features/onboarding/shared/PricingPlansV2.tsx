@@ -42,12 +42,9 @@ const PricingPlan = ({
     price: productOption,
     oldPrice,
   } = plan;
-  const { price } = productOption ?? {};
+  const { price, currency } = productOption ?? {};
   const isBestValue = variation === PricingPlanVariation.BEST_VALUE;
-  const currencySymbol = price.daily?.formatted?.replace(/[0-9.,\s]/g, '');
-  const [firstDigit, otherDigits] = price?.daily?.formatted
-    .replace(currencySymbol, '')
-    .split(/\.|,/);
+  const [digits, decimals] = `${price?.daily?.amount}`.split(/\.|,/);
 
   return (
     <ConditionalWrapper
@@ -175,14 +172,14 @@ const PricingPlan = ({
                 )}
               >
                 <Typography bold type={TypographyType.Callout}>
-                  {currencySymbol}
+                  {currency.symbol}
                 </Typography>
                 <Typography
                   bold
                   type={TypographyType.Mega3}
                   tag={TypographyTag.Span}
                 >
-                  {firstDigit}
+                  {digits}
                 </Typography>
                 <div>
                   <Typography
@@ -190,7 +187,7 @@ const PricingPlan = ({
                     bold
                     type={TypographyType.Callout}
                   >
-                    {otherDigits}
+                    {decimals.padEnd(2, '0') || '00'}
                   </Typography>
                   <Typography type={TypographyType.Caption2}>
                     per day
