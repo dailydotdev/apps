@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import { OpenLinkIcon } from '../icons';
 import {
   getReadPostButtonText,
@@ -18,6 +19,7 @@ import { CollectionSubscribeButton } from './collection/CollectionSubscribeButto
 import { useViewSizeClient, ViewSize } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostPostButton';
 import { Tooltip } from '../tooltip/Tooltip';
+import { getPostByIdKey } from '../../lib/query';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -31,6 +33,7 @@ export function PostHeaderActions({
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
+  const { isSuccess } = useQuery({ queryKey: getPostByIdKey(post?.id) });
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
@@ -73,7 +76,9 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {!post.flags?.campaignId && canBoost && <BoostPostButton post={post} />}
+      {!post.flags?.campaignId && canBoost && isSuccess && (
+        <BoostPostButton post={post} />
+      )}
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}
