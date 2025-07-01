@@ -194,11 +194,10 @@ export default function ActionButtons({
         />
         <Tooltip content="Copy link">
           <Button
-            className="pointer-events-auto"
+            className="pointer-events-auto hover:bg-overlay-float-water hover:text-text-link"
             icon={<LinkIcon />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Water}
           />
         </Tooltip>
       </div>

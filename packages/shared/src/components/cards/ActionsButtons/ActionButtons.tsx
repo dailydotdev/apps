@@ -181,7 +181,7 @@ const ActionButtons = ({
             icon={<LinkIcon size={IconSize.XSmall} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Water}
+            className="hover:bg-overlay-float-water hover:text-text-link"
           />
         </Tooltip>
       </div>
