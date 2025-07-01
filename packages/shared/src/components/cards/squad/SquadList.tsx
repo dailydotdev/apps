@@ -62,7 +62,6 @@ export const SquadList = ({
         origin={Origin.SquadDirectory}
         copy={{ join: 'Join', view: 'View' }}
         data-testid="squad-action"
-        showViewSquadIfMember
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
     </div>

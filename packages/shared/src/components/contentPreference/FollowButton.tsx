@@ -26,6 +26,7 @@ export type FollowButtonProps = {
   buttonClassName?: string;
   showSubscribe?: boolean;
   copyType?: CopyType;
+  alwaysShow?: boolean;
 };
 
 export const FollowButton = ({
@@ -41,6 +42,7 @@ export const FollowButton = ({
   buttonClassName,
   showSubscribe = true,
   copyType,
+  alwaysShow = false,
 }: FollowButtonProps): ReactElement => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
   const showBtn = useShowFollowAction({
@@ -100,7 +102,7 @@ export const FollowButton = ({
 
   const isLoading = isLoadingFollow || isLoadingNotify;
 
-  if (useIsSpecialUser({ userId: entityId }) || !showBtn) {
+  if (useIsSpecialUser({ userId: entityId }) || (!showBtn && !alwaysShow)) {
     return null;
   }
 

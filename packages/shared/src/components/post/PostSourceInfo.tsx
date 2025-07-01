@@ -4,7 +4,7 @@ import type {
   MouseEventHandler,
   ReactElement,
 } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
 import { SourceType } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
@@ -21,6 +21,7 @@ import { useSquad, useViewSize, ViewSize } from '../../hooks';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import type { Post } from '../../graphql/posts';
 import { PostHeaderActions } from './PostHeaderActions';
+import useShowFollowAction from '../../hooks/useShowFollowAction';
 
 interface SourceInfoProps {
   post: Post;
@@ -42,26 +43,18 @@ function PostSourceInfo({
 }: SourceInfoProps): ReactElement {
   const { source } = post;
   const isMobile = useViewSize(ViewSize.MobileXL);
-  const [showActionBtn, setShowActionBtn] = useState(false);
+  const showActionBtn = useShowFollowAction({
+    entityId: source.id,
+    entityType: ContentPreferenceType.Source,
+  });
   const isUnknown = source.id === 'unknown';
   const { squad, isLoading: isLoadingSquad } = useSquad({
     handle: source.handle,
   });
-  const { data, status } = useContentPreferenceStatusQuery({
+  const { data } = useContentPreferenceStatusQuery({
     id: source.id,
     entity: ContentPreferenceType.Source,
   });
-
-  useEffect(() => {
-    if (isMobile && status === 'success' && !showActionBtn) {
-      setShowActionBtn(
-        ![
-          ContentPreferenceStatus.Follow,
-          ContentPreferenceStatus.Subscribed,
-        ].includes(data?.status),
-      );
-    }
-  }, [status, data?.status, showActionBtn, isMobile]);
 
   const isFollowing = [
     ContentPreferenceStatus.Follow,
@@ -83,8 +76,8 @@ function PostSourceInfo({
                 {source.handle}
               </a>
             </Link>
-            {showActionBtn && <Separator />}
-            {showActionBtn && source?.type !== SourceType.Squad && (
+            {isMobile && showActionBtn && <Separator />}
+            {isMobile && showActionBtn && source?.type !== SourceType.Squad && (
               <FollowButton
                 variant={ButtonVariant.Tertiary}
                 followedVariant={ButtonVariant.Tertiary}
@@ -99,7 +92,8 @@ function PostSourceInfo({
                 showSubscribe={false}
               />
             )}
-            {showActionBtn &&
+            {isMobile &&
+              showActionBtn &&
               source?.type === SourceType.Squad &&
               !isLoadingSquad && (
                 <SquadActionButton
@@ -117,7 +111,6 @@ function PostSourceInfo({
                     leave: 'Leave',
                   }}
                   origin={Origin.PostContent}
-                  showViewSquadIfMember={false}
                 />
               )}
           </div>
