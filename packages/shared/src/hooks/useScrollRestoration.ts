@@ -22,7 +22,7 @@ export const useScrollRestoration = (): void => {
   useEffect(() => {
     const scrollPosition = scrollPositions[pathname] || 0;
 
-    globalThis?.window?.scrollTo(0, scrollPosition);
+    window.scrollTo(0, scrollPosition);
   }, [pathname]);
 };
 
