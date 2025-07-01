@@ -25,7 +25,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
   const canAward = useCanAwardUser({
-    sendingUser: user as LoggedUser,
+    sendingUser: user,
     receivingUser: post?.author as LoggedUser,
   });
   const showBtn = !isSameUser && (post?.userState?.awarded || canAward);
