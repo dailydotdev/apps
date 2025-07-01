@@ -1,10 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  useCanAwardUser,
-  useHasAccessToCores,
-} from '../../hooks/useCoresFeature';
+import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -27,13 +24,11 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
-  const hasAccessToCores = useHasAccessToCores();
   const canAward = useCanAwardUser({
     sendingUser: user as LoggedUser,
     receivingUser: post?.author as LoggedUser,
   });
-  const canActuallyAward = post?.userState?.awarded || canAward;
-  const showBtn = hasAccessToCores && !isSameUser && canActuallyAward;
+  const showBtn = !isSameUser && (post?.userState?.awarded || canAward);
 
   if (!showBtn) {
     return null;
