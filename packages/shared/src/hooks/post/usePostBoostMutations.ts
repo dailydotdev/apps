@@ -67,7 +67,11 @@ export const usePostBoostMutation = ({
 
   const { mutateAsync: onCancelBoost } = useMutation({
     mutationFn: cancelPostBoost,
-    onSuccess: onCancelSuccess,
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: [RequestKey.PostCampaigns] });
+
+      onCancelSuccess?.();
+    },
   });
 
   return { estimatedReach, onBoostPost, onCancelBoost };

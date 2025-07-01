@@ -49,7 +49,7 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
 export interface PromotedPost {
   campaignId: string;
   postId: string;
-  status: 'COMPLETED' | 'CANCELED' | 'ACTIVE';
+  status: 'COMPLETED' | 'CANCELLED' | 'ACTIVE';
   budget: number;
   currentBudget: number;
   startedAt: Date;
