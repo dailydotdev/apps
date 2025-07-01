@@ -28,7 +28,10 @@ export const BoostStatus = ({
   <Typography
     tag={TypographyTag.Span}
     type={TypographyType.Footnote}
-    className={classNames('rounded-6 px-1', statusToColor[status])}
+    className={classNames(
+      'rounded-6 px-1',
+      statusToColor[status] ?? statusToColor.ACTIVE,
+    )}
   >
     {children}
   </Typography>

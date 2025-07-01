@@ -446,7 +446,7 @@ const PostOptionButtonContent = ({
   if (canBoost) {
     postOptions.push({
       icon: <MenuIcon Icon={BoostIcon} secondary={!!post?.flags?.campaignId} />,
-      label: 'Boost post',
+      label: post?.flags?.campaignId ? 'Manage ad' : 'Boost post',
       action: post?.flags?.campaignId ? onManageBoost : onBoostPost,
     });
   }

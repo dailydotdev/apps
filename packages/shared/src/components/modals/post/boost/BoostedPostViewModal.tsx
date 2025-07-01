@@ -31,7 +31,7 @@ export function BoostedPostViewModal({
   const { onCancelBoost } = usePostBoostMutation({});
 
   const handleBoostClick = () => {
-    if (data.campaign.status === 'active') {
+    if (data.campaign.status === 'ACTIVE') {
       return onCancelBoost(data.campaign.campaignId);
     }
 

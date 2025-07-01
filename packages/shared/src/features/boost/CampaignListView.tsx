@@ -60,14 +60,13 @@ export function CampaignListView({
 }: CampaignListViewProps): ReactElement {
   const { campaign, post } = data;
   const date = useMemo(() => {
-    const totalDays = getAbsoluteDifferenceInDays(
-      campaign.endedAt,
-      campaign.startedAt,
-    );
+    const startedAt = new Date(campaign.startedAt);
+    const endedAt = new Date(campaign.endedAt);
+    const totalDays = getAbsoluteDifferenceInDays(endedAt, startedAt);
 
     const getEndsIn = () => {
-      if (campaign.status === 'active') {
-        return getAbsoluteDifferenceInDays(campaign.endedAt, new Date());
+      if (campaign.status === 'ACTIVE') {
+        return getAbsoluteDifferenceInDays(endedAt, new Date());
       }
 
       return totalDays;
@@ -75,14 +74,14 @@ export function CampaignListView({
 
     return {
       endsIn: getEndsIn(),
-      startedIn: getAbsoluteDifferenceInDays(new Date(), campaign.startedAt),
+      startedIn: getAbsoluteDifferenceInDays(new Date(), startedAt),
       totalDays,
     };
   }, [campaign]);
 
   return (
-    <div className="flex flex-col gap-6 p-2">
-      <div className="flex flex-row items-center gap-4">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-row items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-2 pl-3">
         <span className="flex flex-1 flex-row">
           <Typography
             type={TypographyType.Callout}
@@ -91,11 +90,15 @@ export function CampaignListView({
             {post.title}
           </Typography>
         </span>
-        <Image src={post.image} className="h-12 w-18 rounded-12" />
+        <Image src={post.image} className="h-12 w-18 rounded-12 object-cover" />
         <Button icon={<LinkIcon />} variant={ButtonVariant.Tertiary} />
       </div>
       <div className="flex flex-col gap-1">
-        <ProgressBar percentage={date.startedIn / date.totalDays} />
+        <ProgressBar
+          percentage={date.startedIn / date.totalDays}
+          shouldShowBg
+          className={{ wrapper: 'h-2' }}
+        />
         <span className="flex flex-row justify-between">
           <Typography
             type={TypographyType.Subhead}
@@ -129,13 +132,13 @@ export function CampaignListView({
       <Button
         variant={ButtonVariant.Float}
         className="w-full"
-        color={campaign.status === 'active' && ButtonColor.Ketchup}
-        icon={campaign.status !== 'active' && <BeforeIcon />}
+        color={campaign.status === 'ACTIVE' && ButtonColor.Ketchup}
+        icon={campaign.status !== 'ACTIVE' && <BeforeIcon secondary />}
         onClick={onBoostClick}
         disabled={isLoading}
         loading={isLoading}
       >
-        {campaign.status === 'active' ? 'Stop campaign' : 'Boost again'}
+        {campaign.status === 'ACTIVE' ? 'Stop campaign' : 'Boost again'}
       </Button>
     </div>
   );

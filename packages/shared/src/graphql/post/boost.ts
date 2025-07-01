@@ -31,6 +31,8 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
             currentBudget
             impressions
             clicks
+            startedAt
+            endedAt
           }
         }
       }
@@ -47,11 +49,11 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
 export interface PromotedPost {
   campaignId: string;
   postId: string;
-  status: 'completed' | 'cancelled' | 'active';
+  status: 'COMPLETED' | 'CANCELED' | 'ACTIVE';
   budget: number;
   currentBudget: number;
   startedAt: Date;
-  endedAt?: Date;
+  endedAt: Date;
   impressions: number;
   clicks: number;
 }
@@ -115,6 +117,8 @@ export const BOOSTED_POST_CAMPAIGN_BY_ID = gql`
         currentBudget
         impressions
         clicks
+        startedAt
+        endedAt
       }
     }
   }
