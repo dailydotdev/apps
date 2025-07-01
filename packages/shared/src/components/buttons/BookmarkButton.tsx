@@ -1,4 +1,4 @@
-import type { ReactElement, MouseEvent, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
 import type { QuaternaryButtonProps } from './QuaternaryButton';
@@ -33,16 +33,6 @@ export function BookmarkButton({
   const { onRemoveReminder } = useBookmarkReminder({ post });
   const Icon = hasReminder ? BookmarkReminderIcon : BookmarkIcon;
 
-  const onClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (hasReminder) {
-      // Prevent default click behavior when we have a reminder (dropdown will handle it)
-      e.preventDefault();
-      return;
-    }
-
-    buttonProps.onClick?.(e);
-  };
-
   const dropdownOptions = [
     {
       label: 'Edit reminder',
@@ -62,22 +52,22 @@ export function BookmarkButton({
   if (hasReminder) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <div>
-            <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-              <QuaternaryButton
-                color={ButtonColor.Bun}
-                variant={ButtonVariant.Tertiary}
-                {...buttonProps}
-                type="button"
-                pressed={post.bookmarked}
-                onClick={onClick}
-                icon={<Icon secondary={post.bookmarked} />}
-              >
-                {children}
-              </QuaternaryButton>
-            </Tooltip>
-          </div>
+        <DropdownMenuTrigger
+          asChild
+          tooltip={{
+            content: post.bookmarked ? 'Remove bookmark' : 'Bookmark',
+          }}
+        >
+          <QuaternaryButton
+            color={ButtonColor.Bun}
+            variant={ButtonVariant.Tertiary}
+            {...buttonProps}
+            type="button"
+            pressed={post.bookmarked}
+            icon={<Icon secondary={post.bookmarked} />}
+          >
+            {children}
+          </QuaternaryButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {dropdownOptions.map(({ label, action }) => (
@@ -98,7 +88,7 @@ export function BookmarkButton({
         {...buttonProps}
         type="button"
         pressed={post.bookmarked}
-        onClick={onClick}
+        onClick={buttonProps.onClick}
         icon={<Icon secondary={post.bookmarked} />}
       >
         {children}
