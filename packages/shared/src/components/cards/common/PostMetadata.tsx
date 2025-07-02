@@ -6,6 +6,7 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -28,6 +29,7 @@ export default function PostMetadata({
 }: PostMetadataProps): ReactElement {
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
+  const { isBoostedAdPost } = useFeedCardContext();
 
   return (
     <div
@@ -36,6 +38,8 @@ export default function PostMetadata({
         className,
       )}
     >
+      {isBoostedAdPost && <strong>Boosted</strong>}
+      {isBoostedAdPost && <Separator />}
       {!!description && (
         <TruncateText title={description}>{description}</TruncateText>
       )}

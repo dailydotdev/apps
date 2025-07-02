@@ -153,7 +153,7 @@ const PostOptionButtonContent = ({
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
-  const post = loadedPost ?? initialPost;
+  const post = loadedPost ?? (initialPost as Post);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
@@ -436,11 +436,18 @@ const PostOptionButtonContent = ({
     });
   };
 
+  const onManageBoost = async () => {
+    openModal({
+      type: LazyModal.FetchBoostedPostView,
+      props: { campaignId: post.flags.campaignId },
+    });
+  };
+
   if (canBoost) {
     postOptions.push({
-      icon: <MenuIcon Icon={BoostIcon} />,
-      label: 'Boost post',
-      action: onBoostPost,
+      icon: <MenuIcon Icon={BoostIcon} secondary={!!post?.flags?.campaignId} />,
+      label: post?.flags?.campaignId ? 'Manage ad' : 'Boost post',
+      action: post?.flags?.campaignId ? onManageBoost : onBoostPost,
     });
   }
 

@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { PostCampaign } from '../../hooks/post/usePostBoost';
 import {
   Typography,
   TypographyColor,
@@ -9,10 +8,11 @@ import {
 import { IconSize } from '../../components/Icon';
 import { BoostIcon } from '../../components/icons/Boost';
 import { CampaignListItem } from './CampaignListItem';
+import type { BoostedPostData } from '../../graphql/post/boost';
 
 interface CampaignListProps {
-  list: PostCampaign[];
-  onClick?: (campaign: PostCampaign) => void;
+  list: BoostedPostData[];
+  onClick?: (campaign: BoostedPostData) => void;
 }
 
 export function CampaignList({
@@ -44,11 +44,11 @@ export function CampaignList({
 
   return (
     <div className="flex flex-col gap-4">
-      {list.map((campaign) => (
+      {list.map((data) => (
         <CampaignListItem
-          key={campaign.id}
-          campaign={campaign}
-          onClick={() => onClick(campaign)}
+          key={data.campaign.campaignId}
+          data={data}
+          onClick={() => onClick(data)}
         />
       ))}
     </div>

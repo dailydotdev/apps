@@ -48,6 +48,8 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { FeedItemType } from './cards/common/common';
+import { FeedCardContext } from '../features/posts/FeedCardContext';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -432,33 +434,39 @@ export default function Feed<T>({
         ) : (
           <>
             {items.map((item, index) => (
-              <FeedItemComponent
-                item={item}
-                index={index}
-                row={calculateRow(index, virtualizedNumCards)}
-                column={calculateColumn(index, virtualizedNumCards)}
-                columns={virtualizedNumCards}
+              <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
-                openNewTab={openNewTab}
-                postMenuIndex={postMenuIndex}
-                showCommentPopupId={showCommentPopupId}
-                setShowCommentPopupId={setShowCommentPopupId}
-                isSendingComment={isSendingComment}
-                comment={comment}
-                user={user}
-                feedName={feedName}
-                ranking={ranking}
-                toggleBookmark={toggleBookmark}
-                toggleUpvote={toggleUpvote}
-                toggleDownvote={toggleDownvote}
-                onPostClick={onPostCardClick}
-                onShare={onShareClick}
-                onMenuClick={onMenuClick}
-                onCopyLinkClick={onCopyLinkClickLogged}
-                onCommentClick={onCommentClick}
-                onAdAction={onAdAction}
-                onReadArticleClick={onReadArticleClick}
-              />
+                value={{
+                  isBoostedAdPost: item.type === FeedItemType.Ad && !!item.post,
+                }}
+              >
+                <FeedItemComponent
+                  item={item}
+                  index={index}
+                  row={calculateRow(index, virtualizedNumCards)}
+                  column={calculateColumn(index, virtualizedNumCards)}
+                  columns={virtualizedNumCards}
+                  openNewTab={openNewTab}
+                  postMenuIndex={postMenuIndex}
+                  showCommentPopupId={showCommentPopupId}
+                  setShowCommentPopupId={setShowCommentPopupId}
+                  isSendingComment={isSendingComment}
+                  comment={comment}
+                  user={user}
+                  feedName={feedName}
+                  ranking={ranking}
+                  toggleBookmark={toggleBookmark}
+                  toggleUpvote={toggleUpvote}
+                  toggleDownvote={toggleDownvote}
+                  onPostClick={onPostCardClick}
+                  onShare={onShareClick}
+                  onMenuClick={onMenuClick}
+                  onCopyLinkClick={onCopyLinkClickLogged}
+                  onCommentClick={onCommentClick}
+                  onAdAction={onAdAction}
+                  onReadArticleClick={onReadArticleClick}
+                />
+              </FeedCardContext.Provider>
             ))}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />

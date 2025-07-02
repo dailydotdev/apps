@@ -35,6 +35,7 @@ interface FeedItemBase<T extends FeedItemType> {
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
+  post?: Post;
   index: number;
   updatedAt: number;
 }
@@ -256,7 +257,7 @@ export default function useFeed<T>(
         ad: nextAd,
         index: adPage,
         updatedAt: adsUpdatedAt,
-      };
+      } as AdItem;
     },
     [
       adsData,
