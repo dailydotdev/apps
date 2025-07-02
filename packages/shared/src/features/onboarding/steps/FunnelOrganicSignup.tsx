@@ -114,7 +114,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
 
     const onSuccessfulRegistration = useCallback(
       (data: LoggedUser | AnonymousUser) => {
-        console.log('onSuccessfulRegistration', data);
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
           details: { user: data },
@@ -135,18 +134,11 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     );
 
     useEffect(() => {
-      console.log('useEffect: user', {
-        isAuthReady,
-        user,
-        alreadyChecked: hasAlreadyCheckedUser.current,
-      });
-
       if (!isAuthReady || !user || (user && !isActionsFetched)) {
         return;
       }
 
       if (!hasAlreadyCheckedUser.current && user.infoConfirmed) {
-        console.log('transition');
         onTransition?.({
           type: FunnelStepTransitionType.Complete,
           details: { user },
@@ -202,7 +194,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               onSuccessfulRegistration={onSuccessfulRegistration}
               onAuthStateUpdate={onAuthStateUpdate}
               onSuccessfulLogin={() => {
-                console.log('is called');
                 // user now is logged, even if the `user` object is not populated yet.
                 // this callback is fired only after a lot of auth checks
                 onTransition?.({

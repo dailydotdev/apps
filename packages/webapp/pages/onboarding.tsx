@@ -230,7 +230,6 @@ const useOnboardingAuth = () => {
       targetId: ExperimentWinner.OnboardingV4,
       onSuccessfulRegistration: (data) => {
         updateAuth({ isAuthenticating: false });
-        console.log('Onboarding registration successful');
       },
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
       onAuthStateUpdate: (props: AuthProps) =>
