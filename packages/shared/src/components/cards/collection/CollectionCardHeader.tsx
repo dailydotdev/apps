@@ -37,7 +37,7 @@ export const CollectionCardHeader = ({
       <CollectionPillSources
         className={{
           main: classNames(
-            'm-2 mb-1',
+            'mb-1 mt-3',
             highlightBookmarkedPost && headerHiddenClassName,
           ),
         }}
