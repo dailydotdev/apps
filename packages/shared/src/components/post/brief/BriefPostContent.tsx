@@ -59,14 +59,15 @@ const BriefPostContentRaw = ({
   isPostPage,
 }: PostContentProps): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { user, isAuthReady } = useAuthContext();
+  const isNotPlus = !isPlus && isAuthReady;
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
     feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus,
+    shouldEvaluate: isNotPlus,
   });
 
-  const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const { updatedAt, createdAt, contentHtml } = post;
   const postsCount = post?.flags?.posts || 0;
@@ -237,7 +238,7 @@ const BriefPostContentRaw = ({
               </div>
             </div>
             <Markdown content={contentHtml} />
-            {!isPlus && (
+            {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div
                   style={{

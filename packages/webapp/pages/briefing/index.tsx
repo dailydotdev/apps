@@ -54,13 +54,14 @@ import { getTemplatedTitle } from '../../components/layouts/utils';
 const Page = (): ReactElement => {
   const currentYear = new Date().getFullYear().toString();
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const isNotPlus = !isPlus && isAuthReady;
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
     feature: featurePlusCtaCopy,
-    shouldEvaluate: !isPlus,
+    shouldEvaluate: isNotPlus,
   });
 
   const selectedBriefId = router?.query?.pmid as string;
@@ -135,7 +136,7 @@ const Page = (): ReactElement => {
             />
           </header>
           <div className="flex flex-col px-4">
-            {!isPlus && (
+            {isNotPlus && (
               <div
                 style={{
                   background: briefCardBg,
