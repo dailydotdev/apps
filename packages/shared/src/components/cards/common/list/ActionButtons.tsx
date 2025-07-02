@@ -182,7 +182,7 @@ export default function ActionButtons({
             ) : null}
           </QuaternaryButton>
         </LinkWithTooltip>
-        <PostAwardAction post={post} />
+        <PostAwardAction iconSize={IconSize.Medium} post={post} />
         <BookmarkButton
           post={post}
           buttonProps={{

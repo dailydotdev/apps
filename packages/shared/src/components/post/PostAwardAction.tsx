@@ -69,7 +69,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         pressed={!!post.userState?.awarded}
         onClick={openAwardModal}
         size={ButtonSize.Small}
-        className="btn-tertiary-cabbage"
+        className="btn-tertiary-cabbage pointer-events-auto"
         variant={ButtonVariant.Tertiary}
         labelClassName="pl-0"
         color={ButtonColor.Cabbage}
