@@ -1,9 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Source } from '../../../graphql/sources';
-import { FlexRow } from '../../utilities';
 import { SourceAvatar } from './SourceAvatar';
 import type { ProfileImageSize } from '../../ProfilePicture';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+} from '../../typography/Typography';
 
 interface SourceShortInfoProps {
   source: Source;
@@ -19,14 +23,18 @@ export function SourceShortInfo({
   }
 
   return (
-    <FlexRow className="flex-1 items-center truncate">
+    <div className="flex flex-1 flex-row items-center truncate">
       <SourceAvatar source={source} size={size} />
-      <span className="flex flex-col items-start typo-callout">
-        <h3 className="font-bold">{source.name}</h3>
+      <span className="flex flex-1 flex-col items-start truncate typo-callout">
+        <Typography bold truncate tag={TypographyTag.H3} className="max-w-full">
+          {source.name}
+        </Typography>
         {source.handle && (
-          <p className="text-text-quaternary">@{source.handle}</p>
+          <Typography color={TypographyColor.Quaternary} tag={TypographyTag.P}>
+            @{source.handle}
+          </Typography>
         )}
       </span>
-    </FlexRow>
+    </div>
   );
 }
