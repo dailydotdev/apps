@@ -21,6 +21,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { TruncateText } from '../../utilities';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -82,7 +83,9 @@ export function SquadsDropdown({
           }
           size={ButtonSize.Large}
         >
-          {selected !== -1 ? list[selected].name : 'Everyone'}
+          <TruncateText>
+            {selected !== -1 ? list[selected].name : 'Everyone'}
+          </TruncateText>
           <ArrowIcon className="ml-auto rotate-90" secondary />
         </Button>
       </DropdownMenuTrigger>
