@@ -150,7 +150,7 @@ const MobileFooterNavbar = ({
       spring="veryGentle"
       element="nav"
       className={classNames(
-        'grid w-full auto-cols-fr grid-flow-col items-center justify-between rounded-16',
+        'grid w-full select-none auto-cols-fr grid-flow-col items-center justify-between rounded-16',
         !isPostPage && activeClasses,
         !isPostPage && 'border-t border-border-subtlest-tertiary',
       )}
