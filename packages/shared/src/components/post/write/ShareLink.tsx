@@ -70,7 +70,7 @@ export function ShareLink({
     retryWithRandomizedHandle: true,
   });
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     if (isPosting || isPostingModeration || isCreatingSquad) {
@@ -78,7 +78,7 @@ export function ShareLink({
     }
 
     if (!squad) {
-      onSubmitPost(
+      await onSubmitPost(
         e,
         {
           ...generateDefaultSquad(user.username),
@@ -117,7 +117,7 @@ export function ShareLink({
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      onSubmitPost(e, squad, commentary);
+      await onSubmitPost(e, squad, commentary);
       return push(squad.permalink);
     }
 
