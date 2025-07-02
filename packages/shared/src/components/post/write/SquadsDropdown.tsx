@@ -89,13 +89,13 @@ export function SquadsDropdown({
       <DropdownMenuContent
         align="start"
         sideOffset={10}
-        className="flex max-h-96 flex-col gap-1 overflow-y-auto overflow-x-hidden laptop:w-70"
+        className="flex max-h-96 flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0 laptop:w-70"
       >
         <Typography
           bold
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
-          className="flex h-8 items-center px-4"
+          className="sticky top-0 z-1 flex h-8 items-center bg-background-popover px-4"
         >
           Public
         </Typography>
@@ -119,7 +119,7 @@ export function SquadsDropdown({
           bold
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
-          className="flex h-8 items-center px-4"
+          className="sticky top-0 z-2 flex h-8 items-center bg-background-popover px-4"
         >
           Squads you&apos;ve joined
         </Typography>
