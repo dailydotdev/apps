@@ -16,7 +16,7 @@ import { IconSize } from '../Icon';
 import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
-import type { FunnelStepPlusCards } from '../../features/onboarding/types/funnel';
+import type { PlanCard } from '../../features/onboarding/types/funnel';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -28,6 +28,11 @@ interface PlusCardProps {
   onClickNext: () => void;
   onClickPlus: () => void;
   productOption?: ProductPricingPreview;
+  copy?: {
+    title?: string;
+    description?: string;
+    cta?: string;
+  };
 }
 
 const cardContent = {
@@ -191,7 +196,9 @@ type PlusComparingCardsProps = {
   onClickNext: () => void;
   onClickPlus: () => void;
   productOption?: ProductPricingPreview;
-} & Pick<FunnelStepPlusCards, 'free' | 'plus'>;
+  free?: Partial<PlanCard>;
+  plus?: Partial<PlanCard>;
+};
 
 export const PlusComparingCards = ({
   productOption,

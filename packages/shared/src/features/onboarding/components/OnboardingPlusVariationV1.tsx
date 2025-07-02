@@ -71,7 +71,7 @@ const VariationCardOption = ({
   );
 };
 
-type Parameters = FunnelStepPlusCards['parameters'];
+type Parameters = Pick<FunnelStepPlusCards, 'parameters'>;
 
 interface OnboardingStepProps extends Parameters {
   onSkip?: () => void;

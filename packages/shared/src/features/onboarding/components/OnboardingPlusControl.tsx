@@ -42,7 +42,7 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
-type Parameters = FunnelStepPlusCards['parameters'];
+type Parameters = Pick<FunnelStepPlusCards, 'parameters'>;
 
 interface OnboardingPlusControlProps extends Parameters {
   onSkip?: () => void;
@@ -50,9 +50,9 @@ interface OnboardingPlusControlProps extends Parameters {
 }
 
 export const OnboardingPlusControl = ({
+  parameters: { headline, explainer, free, plus },
   onSkip,
   onComplete,
-  parameters: { headline, explainer, free, plus },
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { item } = useFunnelAnnualPricing();

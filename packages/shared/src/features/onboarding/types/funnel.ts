@@ -326,6 +326,7 @@ export interface FunnelStepPlusCards
   extends FunnelStepCommon<{
     headline?: string;
     explainer?: string;
+    version?: string;
     free?: Partial<PlanCard>;
     plus?: Partial<PlanCard>;
   }> {
