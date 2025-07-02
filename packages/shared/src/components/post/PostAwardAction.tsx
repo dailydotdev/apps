@@ -66,7 +66,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
     <Tooltip content="Award this post">
       <QuaternaryButton
         id={`post-${post.id}-award-btn`}
-        pressed={!!post.userState.awarded}
+        pressed={!!post.userState?.awarded}
         onClick={openAwardModal}
         size={ButtonSize.Small}
         className="btn-tertiary-cabbage"
