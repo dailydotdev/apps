@@ -6,13 +6,6 @@
     @apply overflow-hidden;
   }
 
-  :is(h1, h2, h3, h4, h5, h6) {
-    @apply font-sans;
-  }
-  :is(p, blockquote, pre, ul, ol, li, a, hr, img){
-    @apply font-serif;
-  }
-
   & :where(h1) {
     @apply font-bold typo-large-title mt-10 mb-7;
     line-height: 1.3;
