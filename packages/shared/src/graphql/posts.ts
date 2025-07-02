@@ -947,7 +947,8 @@ export const checkCanBoostByUser = (post: Post, userId: string) =>
 export const useCanBoostPost = (post: Post) => {
   const { user } = useAuthContext();
   const canBuy = useCanPurchaseCores();
-  const canBoost = canBuy && checkCanBoostByUser(post, user?.id);
+  const canBoost =
+    canBuy && checkCanBoostByUser(post, user?.id) && user.isTeamMember; // TODO: remove is testing check after testing
 
   return { canBoost };
 };
