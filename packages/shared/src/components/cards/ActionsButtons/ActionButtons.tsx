@@ -171,9 +171,8 @@ const ActionButtons = ({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: ButtonSize.Small,
+            size: ButtonSize.XSmall,
           }}
-          iconSize={IconSize.XSmall}
         />
         <Tooltip content="Copy link">
           <Button
