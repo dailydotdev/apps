@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { OpenLinkIcon } from '../icons';
 import {
   getReadPostButtonText,
@@ -33,7 +33,13 @@ export function PostHeaderActions({
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
-  const { isSuccess } = useQuery({ queryKey: getPostByIdKey(post?.id) });
+  const key = getPostByIdKey(post?.id);
+  const client = useQueryClient();
+  const { isSuccess } = useQuery({
+    queryKey: key,
+    queryFn: () => client.getQueryData(key),
+    staleTime: Infinity,
+  });
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
