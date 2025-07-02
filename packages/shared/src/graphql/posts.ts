@@ -541,7 +541,7 @@ export interface ExternalLinkPreview {
   title?: string;
   image?: string;
   source?: Source;
-  similarPosts?: Array<Post> | null;
+  relatedPublicPosts?: Array<Post> | null;
 }
 
 export const PREVIEW_LINK_MUTATION = gql`
@@ -550,7 +550,7 @@ export const PREVIEW_LINK_MUTATION = gql`
       id
       title
       image
-      similarPosts {
+      relatedPublicPosts {
         id
         title
         permalink

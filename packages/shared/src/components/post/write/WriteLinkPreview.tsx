@@ -97,14 +97,14 @@ export function WriteLinkPreview({
         )}
       </WritePreviewContainer>
 
-      {!!preview.similarPosts && (
+      {!!preview.relatedPublicPosts && (
         <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float py-4">
           <Typography bold type={TypographyType.Body} className="px-4">
             This link has already been shared here:
           </Typography>
 
           <div className="flex max-h-52 flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4">
-            {preview.similarPosts.map((post) => {
+            {preview.relatedPublicPosts.map((post) => {
               return (
                 <div key={post.id} className="flex items-center gap-4">
                   {post.source.type === SourceType.User ? (
