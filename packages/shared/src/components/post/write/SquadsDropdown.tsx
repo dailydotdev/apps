@@ -92,7 +92,7 @@ export function SquadsDropdown({
       <DropdownMenuContent
         align="start"
         sideOffset={10}
-        className="flex max-h-96 flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0 laptop:w-70"
+        className="flex max-h-96 w-[var(--radix-popper-anchor-width)] flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0"
       >
         <Typography
           bold
@@ -109,7 +109,7 @@ export function SquadsDropdown({
         >
           <ProfilePicture
             user={user}
-            size={!isLaptop ? ProfileImageSize.XXLarge : ProfileImageSize.Large}
+            size={ProfileImageSize.Large}
             className="mr-2"
             nativeLazyLoading
           />
@@ -133,10 +133,7 @@ export function SquadsDropdown({
             className="flex h-12 w-full items-center px-4 hover:bg-surface-float"
             onClick={() => onSelect(index)}
           >
-            <SourceShortInfo
-              source={squad}
-              size={!isLaptop ? ProfileImageSize.XXLarge : undefined}
-            />
+            <SourceShortInfo source={squad} size={ProfileImageSize.Large} />
             <ArrowIcon className="ml-auto rotate-90" secondary />
           </DropdownMenuItem>
         ))}
