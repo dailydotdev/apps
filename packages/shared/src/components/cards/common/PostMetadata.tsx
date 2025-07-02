@@ -29,7 +29,7 @@ export default function PostMetadata({
 }: PostMetadataProps): ReactElement {
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
-  const { isBoostedReach } = useFeedCardContext();
+  const { isBoostedAdPost } = useFeedCardContext();
 
   return (
     <div
@@ -38,8 +38,8 @@ export default function PostMetadata({
         className,
       )}
     >
-      {isBoostedReach && <strong>Boosted</strong>}
-      {isBoostedReach && <Separator />}
+      {isBoostedAdPost && <strong>Boosted</strong>}
+      {isBoostedAdPost && <Separator />}
       {!!description && (
         <TruncateText title={description}>{description}</TruncateText>
       )}
