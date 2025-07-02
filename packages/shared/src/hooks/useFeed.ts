@@ -257,7 +257,6 @@ export default function useFeed<T>(
         ad: nextAd,
         index: adPage,
         updatedAt: adsUpdatedAt,
-        // TODO: remove this once integration comes in
       } as AdItem;
     },
     [

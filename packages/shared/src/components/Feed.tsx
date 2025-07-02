@@ -49,7 +49,7 @@ import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedItemType } from './cards/common/common';
-import { FeedCardContext } from '../features/boost/FeedCardContext';
+import { FeedCardContext } from '../features/posts/FeedCardContext';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),

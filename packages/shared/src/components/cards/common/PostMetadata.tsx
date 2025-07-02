@@ -6,7 +6,7 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
-import { useFeedCardContext } from '../../../features/boost/FeedCardContext';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
