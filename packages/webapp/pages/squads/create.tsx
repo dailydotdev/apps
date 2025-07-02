@@ -166,7 +166,6 @@ function CreatePost(): ReactElement {
         ...generateDefaultSquad(user.username),
         id: user.id,
         handle: user.id,
-        // type: SourceType.User,
       });
     }
 
