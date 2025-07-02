@@ -163,9 +163,9 @@ function CreatePost(): ReactElement {
 
     if (!squad) {
       return onSubmitFreeformPost(params, {
-        ...generateDefaultSquad(user?.username),
-        id: user?.id,
-        handle: user?.id,
+        ...generateDefaultSquad(user.username),
+        id: user.id,
+        handle: user.id,
         // type: SourceType.User,
       });
     }

@@ -2,12 +2,12 @@ import type { FormEventHandler, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
-import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
@@ -33,7 +33,7 @@ export function ShareLink({
   moderated,
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
-  const { displayToast } = useToastNotification();
+  const client = useQueryClient();
   const [commentary, setCommentary] = useState(
     fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
   );
@@ -78,7 +78,19 @@ export function ShareLink({
     }
 
     if (!squad) {
-      return displayToast('You must select a Squad to post to!');
+      onSubmitPost(
+        e,
+        {
+          ...generateDefaultSquad(user.username),
+          id: user.id,
+          handle: user.id,
+        },
+        commentary,
+      );
+      client.refetchQueries({
+        queryKey: ['author', user.id],
+      });
+      return push(`${user.permalink}/posts`);
     }
 
     if (fetchedPost?.id) {
