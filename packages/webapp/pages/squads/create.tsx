@@ -23,7 +23,10 @@ import {
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourcePermissions,
+  SourceType,
+} from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
   usePostToSquad,
@@ -37,6 +40,7 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
+import { useQueryClient } from '@tanstack/react-query';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -53,6 +57,7 @@ function CreatePost(): ReactElement {
   const { completeAction } = useActions();
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const client = useQueryClient();
   const [selected, setSelected] = useState(-1);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
@@ -97,11 +102,20 @@ function CreatePost(): ReactElement {
     await push(link);
   };
   const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
-    onPostSuccess: async (data) => {
-      onPostSuccess(data.commentsPermalink);
+    onPostSuccess: async (post) => {
+      if (post?.source?.type === SourceType.User) {
+        client.refetchQueries({
+          queryKey: ['author', user.id],
+        });
+      }
+      onPostSuccess(
+        post.source.type === SourceType.User
+          ? `${user.permalink}/posts`
+          : post.commentsPermalink,
+      );
     },
-    onSourcePostModerationSuccess: async (data) => {
-      onPostSuccess(data.source.permalink);
+    onSourcePostModerationSuccess: async (post) => {
+      onPostSuccess(post.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -148,8 +162,12 @@ function CreatePost(): ReactElement {
     }
 
     if (!squad) {
-      displayToast('Select a Squad to post to!');
-      return null;
+      return onSubmitFreeformPost(params, {
+        ...generateDefaultSquad(user?.username),
+        id: user?.id,
+        handle: user?.id,
+        // type: SourceType.User,
+      });
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
