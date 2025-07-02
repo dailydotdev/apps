@@ -228,9 +228,7 @@ const useOnboardingAuth = () => {
       initialEmail: auth.email,
       isLoginFlow,
       targetId: ExperimentWinner.OnboardingV4,
-      onSuccessfulRegistration: (data) => {
-        updateAuth({ isAuthenticating: false });
-      },
+      onSuccessfulRegistration: () => updateAuth({ isAuthenticating: false }),
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
       onAuthStateUpdate: (props: AuthProps) =>
         updateAuth({ isAuthenticating: true, ...props }),
