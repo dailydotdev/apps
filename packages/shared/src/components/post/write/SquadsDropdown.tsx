@@ -64,7 +64,7 @@ export function SquadsDropdown({
       <DropdownMenuTrigger asChild>
         <Button
           variant={ButtonVariant.Float}
-          className="mt-6 !justify-start !font-normal laptop:w-70"
+          className="mt-6 w-full !justify-start !font-normal laptop:w-70"
           icon={
             selected !== -1 ? (
               <SourceAvatar
