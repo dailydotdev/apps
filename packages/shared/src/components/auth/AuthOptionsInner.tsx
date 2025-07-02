@@ -282,6 +282,8 @@ function AuthOptionsInner({
     const loggedUser = data?.user as LoggedUser;
     trackSignup(loggedUser);
 
+    console.log('onProfileSuccess', data?.user, redirect);
+
     // if redirect is set, move before modal close
     if (redirect) {
       await router.push(redirect);
