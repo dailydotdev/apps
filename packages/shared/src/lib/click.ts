@@ -6,13 +6,16 @@ export interface CombinedClicks<T = HTMLAnchorElement> {
   onClick: React.MouseEventHandler<T>;
 }
 
-export type PostClick = (
-  post: Post,
-  index: number,
-  row: number,
-  column: number,
-  isAuxClick?: boolean,
-) => Promise<void>;
+interface PostClickProps {
+  post: Post;
+  index: number;
+  row: number;
+  column: number;
+  isAuxClick?: boolean;
+  isAdPost?: boolean;
+}
+
+export type PostClick = (props: PostClickProps) => Promise<void>;
 
 export const combinedClicks = <T = HTMLAnchorElement>(
   func: React.MouseEventHandler<T>,

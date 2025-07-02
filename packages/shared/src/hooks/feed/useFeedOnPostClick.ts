@@ -1,11 +1,8 @@
 import { useMemo } from 'react';
 import type { Post } from '../../graphql/posts';
 import type { FeedItem, PostItem } from '../useFeed';
+import type { PostClickOptionalProps } from '../useOnPostClick';
 import useOnPostClick from '../useOnPostClick';
-
-interface PostClickOptionalProps {
-  skipPostUpdate?: boolean;
-}
 
 export type FeedPostClick = (
   post: Post,

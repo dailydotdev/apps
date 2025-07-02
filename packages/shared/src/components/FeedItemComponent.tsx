@@ -32,6 +32,7 @@ import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
+import { useFeedCardContext } from '../features/posts/FeedCardContext';
 
 const CommentPopup = dynamic(
   () =>
@@ -147,6 +148,11 @@ const getTags = ({
   };
 };
 
+interface HandlePostClickProps {
+  post: Post;
+  isAux?: boolean;
+}
+
 export default function FeedItemComponent({
   item,
   index,
@@ -196,6 +202,7 @@ export default function FeedItemComponent({
     shouldUseListMode,
     postType: (item as PostItem).post?.type,
   });
+  const { isBoostedAdPost } = useFeedCardContext();
 
   if (
     item.type === FeedItemType.Post ||
@@ -207,6 +214,17 @@ export default function FeedItemComponent({
     ) {
       return null;
     }
+
+    const handlePostClick = ({ post, isAux }: HandlePostClickProps) => {
+      onPostClick({
+        post,
+        index,
+        row,
+        column,
+        isAuxClick: isAux,
+        isAdPost: isBoostedAdPost,
+      });
+    };
 
     return (
       <PostTag
@@ -240,8 +258,8 @@ export default function FeedItemComponent({
             },
           });
         }}
-        onPostClick={(post) => onPostClick(post, index, row, column)}
-        onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
+        onPostClick={(post) => handlePostClick({ post })}
+        onPostAuxClick={(post) => handlePostClick({ post, isAux: true })}
         onReadArticleClick={() =>
           onReadArticleClick(item.post, index, row, column)
         }

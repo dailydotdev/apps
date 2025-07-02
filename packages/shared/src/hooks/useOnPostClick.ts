@@ -20,9 +20,10 @@ import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import type { FeedData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
 
-interface PostClickOptionalProps {
+export interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
   parent_id?: string;
+  isAd?: boolean;
 }
 
 export type FeedPostClick = ({
@@ -119,6 +120,7 @@ export default function useOnPostClick({
                 null,
                 optional?.parent_id,
               ).extra,
+              is_ad: optional?.isAd ? true : undefined,
               feedback: post.type === PostType.Article ? true : undefined,
             },
           }),

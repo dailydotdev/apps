@@ -336,15 +336,17 @@ export default function Feed<T>({
     onCloseModal(false);
   };
 
-  const onPostCardClick: PostClick = async (
+  const onPostCardClick: PostClick = async ({
     post,
     index,
     row,
     column,
     isAuxClick,
-  ) => {
+    isAdPost,
+  }) => {
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
+      isAd: isAdPost,
     });
     if (!isAuxClick && !shouldUseListFeedLayout) {
       onPostModalOpen({ index, row, column });
