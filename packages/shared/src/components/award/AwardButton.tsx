@@ -19,18 +19,14 @@ import type {
 } from '../../contexts/GiveAwardModalContext';
 import type { Post } from '../../graphql/posts';
 import { Tooltip } from '../tooltip/Tooltip';
-import { IconSize, iconSizeToClassName } from '../Icon';
-import { Image } from '../image/Image';
 
 type AwardButtonProps = {
   type: AwardTypes;
   className?: string;
   entity: AwardEntity;
-  iconSize?: IconSize;
   flags?: Record<string, string>;
   post?: Post;
   copy?: string;
-  showFeaturedAward?: boolean;
 } & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
 export const AwardButton = ({
   type,
@@ -38,8 +34,6 @@ export const AwardButton = ({
   entity,
   pressed,
   variant = ButtonVariant.Tertiary,
-  iconSize = IconSize.Small,
-  showFeaturedAward = false,
   post,
   flags,
   copy,
@@ -79,17 +73,7 @@ export const AwardButton = ({
         <Button
           pressed={pressed}
           size={ButtonSize.Small}
-          icon={
-            showFeaturedAward && post?.featuredAward?.award?.image ? (
-              <Image
-                src={post?.featuredAward?.award?.image}
-                alt={post?.featuredAward?.award?.name}
-                className={iconSizeToClassName[iconSize]}
-              />
-            ) : (
-              <MedalBadgeIcon secondary size={iconSize} />
-            )
-          }
+          icon={<MedalBadgeIcon secondary />}
           className={classNames(className, pressed && 'pointer-events-none')}
           variant={variant}
           color={ButtonColor.Cabbage}
