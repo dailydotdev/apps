@@ -2,19 +2,22 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
-import { FunnelPricing } from './FunnelPricing';
-import type { FunnelStepPricing } from '../types/funnel';
+import type { FunnelStepPricing } from '../../types/funnel';
 import {
   FunnelStepType,
   FunnelStepTransitionType,
   FunnelPricingType,
-} from '../types/funnel';
-import { PricingPlanVariation } from '../shared/PricingPlan';
-import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
-import { applyDiscountAtom, selectedPlanAtom } from '../store/funnel.store';
-import { PaymentContext } from '../../../contexts/payment/context';
-import type { ProductPricingPreview } from '../../../graphql/paddle';
-import { PlusPriceType, PlusPriceTypeAppsId } from '../../../lib/featureValues';
+} from '../../types/funnel';
+import { PricingPlanVariation } from '../../shared/PricingPlan';
+import { setupDateMock } from '../../../../../__tests__/helpers/dateMock';
+import { applyDiscountAtom, selectedPlanAtom } from '../../store/funnel.store';
+import { PaymentContext } from '../../../../contexts/payment/context';
+import type { ProductPricingPreview } from '../../../../graphql/paddle';
+import {
+  PlusPriceType,
+  PlusPriceTypeAppsId,
+} from '../../../../lib/featureValues';
+import { FunnelPricingV1 } from './FunnelPricingV1';
 
 const mockOnTransition = jest.fn();
 
@@ -181,7 +184,7 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
             isPricesPending: false,
           }}
         >
-          <FunnelPricing {...defaultProps} {...props} />
+          <FunnelPricingV1 {...defaultProps} {...props} />
         </PaymentContext.Provider>
       </HydrateAtoms>
     </Provider>,
