@@ -321,6 +321,10 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     flags {
       promoteToPublic
       coverVideo
+      posts
+      sources
+      savedTime
+      generatedAt
     }
     userState {
       vote
@@ -532,6 +536,11 @@ export const FEED_POST_FRAGMENT = gql`
     numCollectionSources
     updatedAt
     slug
+    flags {
+      posts
+      sources
+      savedTime
+    }
   }
   ${FEED_POST_INFO_FRAGMENT}
 `;

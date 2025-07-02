@@ -30,3 +30,5 @@ export enum PostType {
   Collection = 'collection',
   Brief = 'brief',
 }
+
+export const briefSourcesLimit = 6;

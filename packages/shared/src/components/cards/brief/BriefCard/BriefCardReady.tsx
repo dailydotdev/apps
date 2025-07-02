@@ -10,11 +10,12 @@ import { Pill } from '../../../Pill';
 import { ProfileImageSize } from '../../../ProfilePicture';
 import { CollectionPillSources } from '../../../post/collection/CollectionPillSources';
 import { DateFormat } from '../../../utilities/DateFormat';
-import { TimeFormatType } from '../../../../lib/dateFormat';
+import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { isNullOrUndefined } from '../../../../lib/func';
 import Link from '../../../utilities/Link';
 import { webappUrl } from '../../../../lib/constants';
 import type { Post } from '../../../../graphql/posts';
+import { briefSourcesLimit } from '../../../../types';
 
 export type BriefCardReadyProps = BriefCardProps & {
   post: Post;
@@ -30,9 +31,8 @@ export const BriefCardReady = ({
   title,
   children,
 }: BriefCardReadyProps): ReactElement => {
-  // TODO feat-brief: load posts and sources count from post
-  const postsCount = 8888;
-  const sourcesCount = 8888;
+  const postsCount = post?.flags?.posts || 0;
+  const sourcesCount = post?.flags?.sources || 0;
 
   return (
     <Link href={`${webappUrl}posts/${post.slug}`}>
@@ -61,12 +61,27 @@ export const BriefCardReady = ({
             />
           </Typography>
           <div className="flex flex-col gap-1">
-            <Typography type={TypographyType.Callout}>
-              Brief completed in 38m
-            </Typography>
-            <Typography type={TypographyType.Callout}>
-              Save 3.5h of reading
-            </Typography>
+            {post.flags?.generatedAt && (
+              <Typography type={TypographyType.Callout}>
+                Brief completed in{' '}
+                {formatDate({
+                  value: new Date(post.createdAt),
+                  now: new Date(post.flags?.generatedAt),
+                  type: TimeFormatType.LiveTimer,
+                })}
+              </Typography>
+            )}
+            {post.flags?.savedTime && (
+              <Typography type={TypographyType.Callout}>
+                Save{' '}
+                {formatDate({
+                  value: new Date(),
+                  now: new Date(Date.now() + post.flags.savedTime * 60 * 1000),
+                  type: TimeFormatType.LiveTimer,
+                })}{' '}
+                of reading
+              </Typography>
+            )}
           </div>
           {children}
           <div className="mt-auto flex flex-col gap-3">
@@ -84,16 +99,18 @@ export const BriefCardReady = ({
               />
             )}
             <div className="flex items-center">
-              <CollectionPillSources
-                alwaysShowSources
-                className={{
-                  main: classNames('m-2'),
-                }}
-                // TODO feat-brief load multiple sources same as collections
-                sources={[post.source]}
-                totalSources={1}
-                size={ProfileImageSize.Size16}
-              />
+              {post.collectionSources?.length > 0 && (
+                <CollectionPillSources
+                  alwaysShowSources
+                  className={{
+                    main: classNames('m-2'),
+                  }}
+                  sources={post.collectionSources}
+                  totalSources={post.collectionSources.length}
+                  size={ProfileImageSize.Size16}
+                  limit={briefSourcesLimit}
+                />
+              )}
               <Typography
                 className="flex flex-row gap-2"
                 type={TypographyType.Subhead}

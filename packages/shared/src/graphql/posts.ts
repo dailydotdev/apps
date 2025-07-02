@@ -75,6 +75,10 @@ type PostFlags = {
   showOnFeed: boolean;
   promoteToPublic: number;
   coverVideo?: string;
+  posts?: number;
+  sources?: number;
+  savedTime?: number;
+  generatedAt?: Date;
 };
 
 export enum UserVote {
@@ -231,6 +235,10 @@ export const POST_BY_ID_QUERY = gql`
       }
       updatedAt
       numCollectionSources
+      collectionSources {
+        handle
+        image
+      }
     }
     relatedCollectionPosts: relatedPosts(
       id: $id

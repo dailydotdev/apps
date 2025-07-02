@@ -17,6 +17,7 @@ interface CollectionPillSourcesProps {
   totalSources: number;
   size?: ProfileImageSize;
   children?: ReactNode;
+  limit?: number;
 }
 export const CollectionPillSources = ({
   className,
@@ -25,6 +26,7 @@ export const CollectionPillSources = ({
   alwaysShowSources = false,
   size = ProfileImageSize.Medium,
   children,
+  limit,
 }: CollectionPillSourcesProps): ReactElement => {
   const hasSources = !!sources?.length;
 
@@ -42,6 +44,7 @@ export const CollectionPillSources = ({
           })}
           total={totalSources}
           size={size}
+          limit={limit}
         >
           {sources.map((source) => (
             <SourceAvatar

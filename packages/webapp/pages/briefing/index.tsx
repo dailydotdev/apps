@@ -207,9 +207,8 @@ const Page = (): ReactElement => {
                           }
                           readTime={post.readTime}
                           isRead={post.read}
-                          // TODO feat-brief real counts
-                          postsCount={783}
-                          sourcesCount={147}
+                          postsCount={post.flags?.posts || 0}
+                          sourcesCount={post.flags?.sources || 0}
                           onClick={onBriefClick}
                           origin={Origin.BriefPage}
                         />,

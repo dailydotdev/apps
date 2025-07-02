@@ -10,7 +10,7 @@ import {
 } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
-import { TimeFormatType } from '../../../lib/dateFormat';
+import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -39,6 +39,7 @@ import { HourDropdown } from '../../fields/HourDropdown';
 import { RadioItem } from '../../fields/RadioItem';
 import { Checkbox } from '../../fields/Checkbox';
 import { isNullOrUndefined } from '../../../lib/func';
+import { briefSourcesLimit } from '../../../types';
 
 const BriefPostContentRaw = ({
   post,
@@ -68,9 +69,8 @@ const BriefPostContentRaw = ({
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const { updatedAt, createdAt, contentHtml } = post;
-  // TODO feat-brief: load posts and sources count from post
-  const postsCount = 8888;
-  const sourcesCount = 8888;
+  const postsCount = post?.flags?.posts || 0;
+  const sourcesCount = post?.flags?.sources || 0;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -167,7 +167,24 @@ const BriefPostContentRaw = ({
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                Brief completed in 38m · Save 3.5h of reading
+                {[
+                  post.flags?.generatedAt &&
+                    `Brief completed in ${formatDate({
+                      value: new Date(post.createdAt),
+                      now: new Date(post.flags?.generatedAt),
+                      type: TimeFormatType.LiveTimer,
+                    })}`,
+                  !!post.flags?.savedTime &&
+                    `Save ${formatDate({
+                      value: new Date(),
+                      now: new Date(
+                        Date.now() + post.flags.savedTime * 60 * 1000,
+                      ),
+                      type: TimeFormatType.LiveTimer,
+                    })} of reading`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
               </Typography>
             </div>
             <div className="flex items-center gap-3">
@@ -185,16 +202,18 @@ const BriefPostContentRaw = ({
                 />
               )}
               <div className="flex items-center gap-1">
-                <CollectionPillSources
-                  alwaysShowSources
-                  className={{
-                    main: classNames('m-2'),
-                  }}
-                  // TODO feat-brief load multiple sources same as collections
-                  sources={[post.source]}
-                  totalSources={1}
-                  size={ProfileImageSize.Size16}
-                />
+                {post.collectionSources?.length > 0 && (
+                  <CollectionPillSources
+                    alwaysShowSources
+                    className={{
+                      main: classNames('m-2'),
+                    }}
+                    sources={post.collectionSources}
+                    totalSources={post.collectionSources.length}
+                    size={ProfileImageSize.Size16}
+                    limit={briefSourcesLimit}
+                  />
+                )}
                 <Typography
                   className="flex flex-row gap-2"
                   type={TypographyType.Subhead}
