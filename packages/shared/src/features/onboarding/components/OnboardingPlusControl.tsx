@@ -52,8 +52,7 @@ interface OnboardingPlusControlProps extends Parameters {
 export const OnboardingPlusControl = ({
   onSkip,
   onComplete,
-  headline,
-  explainer,
+  parameters: { headline, explainer, free, plus },
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { item } = useFunnelAnnualPricing();
@@ -86,6 +85,8 @@ export const OnboardingPlusControl = ({
           productOption={item}
           onClickNext={onSkip}
           onClickPlus={onComplete}
+          free={free}
+          plus={plus}
         />
       ) : (
         <PlusSkeleton />

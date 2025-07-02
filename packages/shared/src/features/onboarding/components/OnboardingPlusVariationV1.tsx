@@ -81,7 +81,11 @@ interface OnboardingStepProps extends Parameters {
 export const OnboardingPlusVariationV1 = ({
   onSkip,
   onComplete,
-  headline = 'Suffer less. Debugging bad decisions is harder.',
+  parameters: {
+    headline = 'Suffer less. Debugging bad decisions is harder.',
+    free,
+    plus,
+  },
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -181,8 +185,11 @@ export const OnboardingPlusVariationV1 = ({
             <div className="flex h-fit flex-col gap-4 rounded-12 bg-background-default p-4">
               <VariationCardOption
                 selected
-                title="Plus"
-                description="For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster."
+                title={plus?.title || 'Plus'}
+                description={
+                  plus?.description ||
+                  'For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster.'
+                }
                 price={item?.price.monthly?.formatted ?? '0'}
               />
             </div>
@@ -200,8 +207,11 @@ export const OnboardingPlusVariationV1 = ({
           >
             <VariationCardOption
               selected={false}
-              title="Free"
-              description="For casual browsing. Get the basics and stay updated with the essentials."
+              title={free?.title || 'Free'}
+              description={
+                free?.description ||
+                'For casual browsing. Get the basics and stay updated with the essentials.'
+              }
               price={`${item?.currency?.symbol ?? '$'}0`}
             />
           </a>
@@ -214,13 +224,13 @@ export const OnboardingPlusVariationV1 = ({
               onClick={onComplete}
               data-funnel-track={FunnelTargetId.StepCta}
             >
-              Continue with Plus
+              {plus?.cta || 'Continue with Plus'}
             </Button>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              30 day hassle-free refund. No questions asked.
+              {plus?.note || '30 day hassle-free refund. No questions asked.'}
             </Typography>
           </div>
         </div>

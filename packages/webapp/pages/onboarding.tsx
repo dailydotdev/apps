@@ -117,7 +117,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     props: {
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
-      initialStepId,
+      initialStepId: 'plus',
     },
   };
 };

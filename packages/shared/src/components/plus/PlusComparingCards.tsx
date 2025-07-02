@@ -16,6 +16,7 @@ import { IconSize } from '../Icon';
 import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import type { FunnelStepPlusCards } from '../../features/onboarding/types/funnel';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -55,6 +56,7 @@ const PlusCard = ({
   productOption: plan,
   onClickNext,
   onClickPlus,
+  copy,
 }: PlusCardProps): ReactElement => {
   const id = useId();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -87,7 +89,7 @@ const PlusCard = ({
           id={`${id}-heading`}
         >
           {isPaidPlan && <DevPlusIcon aria-hidden size={IconSize.Small} />}
-          {heading.label}
+          {copy?.title || heading.label}
         </Typography>
         {plan?.metadata.caption && (
           <PlusPlanExtraLabel
@@ -124,7 +126,7 @@ const PlusCard = ({
           type="button"
           data-funnel-track={FunnelTargetId.StepSkip}
         >
-          Join for free
+          {copy?.cta || 'Join for free'}
         </Button>
       ) : (
         <Button
@@ -141,7 +143,7 @@ const PlusCard = ({
           variant={ButtonVariant.Primary}
           data-funnel-track={FunnelTargetId.StepCta}
         >
-          Get started
+          {copy?.cta || 'Get started'}
         </Button>
       )}
       <Typography
@@ -149,14 +151,14 @@ const PlusCard = ({
         color={TypographyColor.Tertiary}
         type={TypographyType.Footnote}
       >
-        {isPaidPlan ? (
-          <>
-            30 day hassle-free refund.{' '}
-            <span className="whitespace-nowrap">No questions asked.</span>
-          </>
-        ) : (
-          'Free forever'
-        )}
+        {isPaidPlan
+          ? copy?.description || (
+              <>
+                30 day hassle-free refund.{' '}
+                <span className="whitespace-nowrap">No questions asked.</span>
+              </>
+            )
+          : copy?.description || 'Free forever'}
       </Typography>
       <div>
         {isPaidPlan && (
@@ -185,34 +187,37 @@ const PlusCard = ({
   );
 };
 
-interface PlusComparingCardsProps {
+type PlusComparingCardsProps = {
   onClickNext: () => void;
   onClickPlus: () => void;
   productOption?: ProductPricingPreview;
-}
+} & Pick<FunnelStepPlusCards, 'free' | 'plus'>;
 
 export const PlusComparingCards = ({
   productOption,
   onClickNext,
   onClickPlus,
+  free,
+  plus,
 }: PlusComparingCardsProps): ReactElement => {
   const currency = productOption.currency?.symbol;
+
+  const productOptions = Object.values(OnboardingPlans).map((plan) => ({
+    key: plan,
+    currency,
+    productOption: plan === OnboardingPlans.Plus ? productOption : undefined,
+    onClickNext,
+    onClickPlus,
+    copy: plan === OnboardingPlans.Plus ? plus : free,
+  }));
 
   return (
     <ul
       aria-label="Pricing plans"
       className="mx-auto flex grid-cols-1 flex-col-reverse place-content-center items-start gap-6 tablet:grid-cols-2 laptop:grid"
     >
-      {Object.values(OnboardingPlans).map((plan) => (
-        <PlusCard
-          key={plan}
-          currency={currency}
-          productOption={
-            plan === OnboardingPlans.Plus ? productOption : undefined
-          }
-          onClickNext={onClickNext}
-          onClickPlus={onClickPlus}
-        />
+      {productOptions.map((option) => (
+        <PlusCard key={option.key} {...option} />
       ))}
     </ul>
   );

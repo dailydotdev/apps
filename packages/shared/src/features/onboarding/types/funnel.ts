@@ -338,7 +338,7 @@ export interface FunnelStepOrganicCheckout extends FunnelStepCommon {
   type: FunnelStepType.OrganicCheckout;
 }
 
-interface PlanCard {
+export interface PlanCard {
   cta: string;
   title: string;
   description: string;
