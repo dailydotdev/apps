@@ -89,7 +89,7 @@ export function SquadsDropdown({
       <DropdownMenuContent
         align="start"
         sideOffset={10}
-        className="flex flex-col gap-1 laptop:w-70"
+        className="flex max-h-96 flex-col gap-1 overflow-y-auto overflow-x-hidden laptop:w-70"
       >
         <Typography
           bold
