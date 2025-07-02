@@ -41,6 +41,7 @@ import {
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import { useQueryClient } from '@tanstack/react-query';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -110,7 +111,7 @@ function CreatePost(): ReactElement {
       }
       onPostSuccess(
         post.source.type === SourceType.User
-          ? `${user.permalink}/posts`
+          ? `${webappUrl}${user.username}/posts`
           : post.commentsPermalink,
       );
     },

@@ -16,6 +16,7 @@ import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import type { SourcePostModeration } from '../../../graphql/squads';
+import { webappUrl } from '../../../lib/constants';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -90,7 +91,7 @@ export function ShareLink({
       client.refetchQueries({
         queryKey: ['author', user.id],
       });
-      return push(`${user.permalink}/posts`);
+      return push(`${webappUrl}${user.username}/posts`);
     }
 
     if (fetchedPost?.id) {
