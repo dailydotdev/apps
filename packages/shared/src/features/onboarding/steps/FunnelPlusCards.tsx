@@ -39,7 +39,7 @@ const PlusCards = ({ onTransition, parameters }: FunnelStepPlusCards) => {
   };
 
   switch (version) {
-    case 'V2':
+    case 'v2':
       return <OnboardingPlusVariationV1 {...onboardingProps} />;
     default:
       return <OnboardingPlusControl {...onboardingProps} />;
