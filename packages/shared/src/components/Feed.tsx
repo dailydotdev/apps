@@ -26,11 +26,9 @@ import useFeedInfiniteScroll, {
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import LogContext from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
-import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/log';
-import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -192,8 +190,9 @@ export default function Feed<T>({
   const contextId = `post-context-${feedName}`;
 
   const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
-  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
-    useFeedContextMenu({ contextId });
+  const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu({
+    contextId,
+  });
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const logOpts = useMemo(() => {
@@ -208,13 +207,24 @@ export default function Feed<T>({
     };
   }, [postMenuLocation, virtualizedNumCards, postModalIndex]);
 
+  const onRemovePost = useCallback(
+    async (removePostIndex: number) => {
+      const item = items[removePostIndex] as PostItem;
+      removePost(item.page, item.index);
+    },
+    [items, removePost],
+  );
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
       items,
       logOpts,
+      allowPin,
+      origin,
+      onRemovePost,
     };
-  }, [feedQueryKey, items, logOpts]);
+  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -224,8 +234,13 @@ export default function Feed<T>({
     onNext,
     postPosition,
     selectedPost,
-    selectedPostIndex,
-  } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
+  } = usePostModalNavigation({
+    items,
+    fetchPage,
+    updatePost,
+    canFetchMore,
+    feedName,
+  });
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
@@ -344,15 +359,6 @@ export default function Feed<T>({
     copyLink({ post, columns: virtualizedNumCards, row, column });
   };
 
-  const onShareOptionsHidden = () => {
-    setPostMenuIndex(null);
-  };
-
-  const onRemovePost = async (removePostIndex: number) => {
-    const item = items[removePostIndex] as PostItem;
-    removePost(item.page, item.index);
-  };
-
   const onCommentClick = (
     post: Post,
     index: number,
@@ -386,20 +392,6 @@ export default function Feed<T>({
         ...feedLogExtra(feedName, ranking),
       }),
     );
-  };
-
-  const post = (items[postMenuIndex] as PostItem)?.post;
-  const commonMenuItems = {
-    onShare: () =>
-      openSharePost({
-        post,
-        columns: virtualizedNumCards,
-        row: postMenuLocation.row,
-        column: postMenuLocation.column,
-      }),
-    post,
-    prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
-    nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
   const PostModal = PostModalMap[selectedPost?.type];
@@ -471,21 +463,6 @@ export default function Feed<T>({
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
-            <PostOptionsMenu
-              {...commonMenuItems}
-              feedName={feedName}
-              postIndex={postMenuIndex}
-              onHidden={() => setPostMenuIndex(null)}
-              onRemovePost={onRemovePost}
-              origin={origin}
-              allowPin={allowPin}
-              contextId={contextId}
-            />
-            <ShareOptionsMenu
-              {...commonMenuItems}
-              shouldUseListFeedLayout={shouldUseListFeedLayout}
-              onHidden={onShareOptionsHidden}
-            />
             {!shouldUseListFeedLayout && selectedPost && PostModal && (
               <PostModal
                 isOpen={!!selectedPost}
@@ -495,7 +472,6 @@ export default function Feed<T>({
                 onNextPost={onNext}
                 postPosition={postPosition}
                 post={selectedPost}
-                onRemovePost={() => onRemovePost(selectedPostIndex)}
               />
             )}
           </>

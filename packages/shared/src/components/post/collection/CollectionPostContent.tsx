@@ -22,6 +22,7 @@ import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
 import { PostTagList } from '../tags/PostTagList';
+import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 
 const CollectionPostContentRaw = ({
   post,
@@ -36,7 +37,6 @@ const CollectionPostContentRaw = ({
   postPosition,
   isFallback,
   customNavigation,
-  onRemovePost,
   backToSquad,
   isBannerVisible,
   isPostPage,
@@ -64,7 +64,6 @@ const CollectionPostContentRaw = ({
     onReadArticle,
     onClose,
     inlineActions,
-    onRemovePost,
   };
 
   const onSendViewPost = useViewPost();
@@ -117,20 +116,23 @@ const CollectionPostContentRaw = ({
           origin={origin}
           post={post}
         >
-          <div
-            className={classNames(
-              'mb-6 flex flex-col gap-6',
-              hasNavigation || customNavigation ? 'mt-6' : 'mt-6 laptop:mt-0',
-            )}
-          >
-            <CollectionsIntro className="laptop:hidden" />
-            <Link href={`${webappUrl}sources/collections`} passHref>
-              <Pill
-                tag="a"
-                label="Collection"
-                className="bg-theme-overlay-float-cabbage text-brand-default"
+          <div className="mb-6 flex flex-col gap-6">
+            <CollectionsIntro className="mt-6 laptop:hidden" />
+            <div className="flex flex-row items-center pt-6">
+              <Link href={`${webappUrl}sources/collections`} passHref>
+                <Pill
+                  tag="a"
+                  label="Collection"
+                  className="bg-theme-overlay-float-cabbage text-brand-default"
+                />
+              </Link>
+              <CollectionPostHeaderActions
+                post={post}
+                onClose={onClose}
+                className="ml-auto hidden laptop:flex"
+                contextMenuId="post-widgets-context"
               />
-            </Link>
+            </div>
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
@@ -163,7 +165,7 @@ const CollectionPostContentRaw = ({
       <CollectionPostWidgets
         onCopyPostLink={onCopyPostLink}
         post={post}
-        className="pb-8"
+        className="pb-8 pt-6"
         onClose={onClose}
         origin={origin}
       />

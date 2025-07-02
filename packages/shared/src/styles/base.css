@@ -871,6 +871,10 @@ meter::-webkit-meter-bar {
     background: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 50%),
     radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);
   }
+
+  &-best-price {
+    background: linear-gradient(135deg, #E769FB 0%, #9E70F8 44.71%, #68A6FD 100%);
+  }
 }
 
 @layer utilities {

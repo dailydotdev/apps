@@ -1,13 +1,8 @@
+import React, { useCallback, useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
-import React, { useContext, useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import useFeedSettings from '../hooks/useFeedSettings';
-import useReportPost from '../hooks/useReportPost';
-import type { Post } from '../graphql/posts';
-import { isVideoPost, UserVote } from '../graphql/posts';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   AddUserIcon,
   BellAddIcon,
@@ -21,6 +16,7 @@ import {
   FolderIcon,
   HammerIcon,
   LanguageIcon,
+  MenuIcon as RawMenuIcon,
   MiniCloseIcon,
   MinusIcon,
   PinIcon,
@@ -32,12 +28,19 @@ import {
   ShieldWarningIcon,
   TrashIcon,
   UpvoteIcon,
-} from './icons';
-import type { ReportedCallback } from './modals';
-import useTagAndSource from '../hooks/useTagAndSource';
-import LogContext from '../contexts/LogContext';
-import { postLogEvent } from '../lib/feed';
-import { MenuIcon } from './MenuIcon';
+} from '../../components/icons';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../components/dropdown/DropdownMenu';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
   ToastSubject,
   useAdvancedSettings,
@@ -45,59 +48,52 @@ import {
   usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
-} from '../hooks';
-import type { AllFeedPages } from '../lib/query';
-import { generateQueryKey, getPostByIdKey, RequestKey } from '../lib/query';
-import AuthContext from '../contexts/AuthContext';
-import { LogEvent, Origin, TargetId } from '../lib/log';
-import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import usePostById, { invalidatePostCacheById } from '../hooks/usePostById';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
-import { labels } from '../lib';
-import type { MenuItemProps } from './fields/ContextMenu';
-import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
-import useContextMenu from '../hooks/useContextMenu';
-import { SourceType } from '../graphql/sources';
-import { useSharePost } from '../hooks/useSharePost';
-import { useBookmarkReminder } from '../hooks/notifications';
-import { BookmarkReminderIcon } from './icons/Bookmark/Reminder';
-import { useSourceActionsFollow } from '../hooks/source/useSourceActionsFollow';
-import { useContentPreference } from '../hooks/contentPreference/useContentPreference';
+} from '../../hooks';
+import usePostById, { invalidatePostCacheById } from '../../hooks/usePostById';
+import { useActiveFeedContext } from '../../contexts';
+import useFeedSettings from '../../hooks/useFeedSettings';
+import { useLogContext } from '../../contexts/LogContext';
+import useReportPost from '../../hooks/useReportPost';
+import { useSharePost } from '../../hooks/useSharePost';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import useTagAndSource from '../../hooks/useTagAndSource';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import {
   ContentPreferenceStatus,
   ContentPreferenceType,
-} from '../graphql/contentPreference';
-import { isFollowingContent } from '../hooks/contentPreference/types';
-import { useIsSpecialUser } from '../hooks/auth/useIsSpecialUser';
-import { useActiveFeedContext } from '../contexts';
-import { FeedSettingsMenu } from './feeds/FeedSettings/types';
-import { settingsUrl, webappUrl } from '../lib/constants';
-import { SharedFeedPage } from './utilities';
-import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
-
-const ContextMenu = dynamic(
-  () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
-  {
-    ssr: false,
-  },
-);
-
-export interface PostOptionsMenuProps {
-  postIndex?: number;
-  post: Post;
-  prevPost?: Post;
-  nextPost?: Post;
-  feedName?: AllFeedPages;
-  onHidden?: () => unknown;
-  onRemovePost?: (postIndex: number) => Promise<unknown>;
-  setShowBanPost?: () => unknown;
-  setShowPromotePost?: () => unknown;
-  setShowClickbaitPost?: () => unknown;
-  contextId?: string;
-  origin: Origin;
-  allowPin?: boolean;
-}
+} from '../../graphql/contentPreference';
+import { SourceType } from '../../graphql/sources';
+import { generateQueryKey, getPostByIdKey, RequestKey } from '../../lib/query';
+import { usePostMenuActions } from '../../hooks/usePostMenuActions';
+import type { Post } from '../../graphql/posts';
+import {
+  banPost,
+  clickbaitPost,
+  demotePost,
+  isVideoPost,
+  promotePost,
+  UserVote,
+} from '../../graphql/posts';
+import { postLogEvent } from '../../lib/feed';
+import type { ReportedCallback } from '../../components/modals';
+import { labels } from '../../lib';
+import type { MenuItemProps } from '../../components/fields/ContextMenu';
+import { useBookmarkReminder } from '../../hooks/notifications';
+import { BookmarkReminderIcon } from '../../components/icons/Bookmark/Reminder';
+import { LazyModal } from '../../components/modals/common/types';
+import { settingsUrl, webappUrl } from '../../lib/constants';
+import { FeedSettingsMenu } from '../../components/feeds/FeedSettings/types';
+import { SharedFeedPage } from '../../components/utilities';
+import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
+import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
+import { isFollowingContent } from '../../hooks/contentPreference/types';
+import { MenuIcon } from '../../components/MenuIcon';
+import { Roles } from '../../lib/user';
+import type { PromptOptions } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
+import type { PostItem } from '../../hooks/useFeed';
 
 const getBlockLabel = (
   name: string,
@@ -119,53 +115,113 @@ const getBlockLabel = (
   ];
 };
 
-export default function PostOptionsMenu({
-  postIndex,
+const PostOptionButtonContent = ({
   post: initialPost,
-  prevPost,
-  nextPost,
-  feedName,
-  onHidden,
-  onRemovePost,
-  setShowBanPost,
-  setShowPromotePost,
-  setShowClickbaitPost,
-  origin,
-  allowPin,
-  contextId = ContextMenuTypes.PostContext,
-}: PostOptionsMenuProps): ReactElement {
+  origin: initialOrigin,
+}): ReactElement => {
   const client = useQueryClient();
   const router = useRouter();
-  const { user, isLoggedIn } = useContext(AuthContext);
+  const { user, isLoggedIn } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const { isOpen: isPostOptionsOpen, onHide: closePostOptions } =
-    useContextMenu({
-      id: contextId,
-    });
   const { post: loadedPost } = usePostById({
     id: initialPost?.id,
   });
   const feedContextData = useActiveFeedContext();
-  const { queryKey: feedQueryKey, logOpts } = feedContextData;
+  const {
+    queryKey: feedQueryKey,
+    logOpts,
+    allowPin,
+    items,
+    origin: feedOrigin,
+    onRemovePost,
+  } = feedContextData;
+  const origin = initialOrigin || feedOrigin;
+
+  const { postIndex, prevPost, nextPost } = useMemo(() => {
+    const postIndexSelect = items.findIndex(
+      (item) => item.type === 'post' && item.post.id === initialPost.id,
+    );
+    return {
+      postIndex: postIndexSelect,
+      prevPost: (items[postIndexSelect - 1] as PostItem)?.post,
+      nextPost: (items[postIndexSelect + 1] as PostItem)?.post,
+    };
+  }, [items, initialPost.id]);
+
+  const isModerator = user?.roles?.includes(Roles.Moderator);
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? initialPost;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
-      enabled: isPostOptionsOpen,
+      enabled: true,
       feedId: customFeedId,
     });
   const { onUpdateSettings } = useAdvancedSettings({
     enabled: false,
     feedId: customFeedId,
   });
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
+  const { showPrompt } = usePrompt();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+
+  const banPostPrompt = useCallback(async () => {
+    const options: PromptOptions = {
+      title: 'Ban post 💩',
+      description: 'Are you sure you want to ban this post?',
+      okButton: {
+        title: 'Ban',
+        className: 'btn-primary-ketchup',
+      },
+    };
+    if (await showPrompt(options)) {
+      await banPost(post.id);
+    }
+  }, [post.id, showPrompt]);
+
+  const promotePostPrompt = useCallback(async () => {
+    const promoteFlag = post.flags?.promoteToPublic;
+
+    const options: PromptOptions = {
+      title: promoteFlag ? 'Demote post' : 'Promote post',
+      description: `Do you want to ${
+        promoteFlag ? 'demote' : 'promote'
+      } this post ${promoteFlag ? 'from' : 'to'} the public?`,
+      okButton: {
+        title: promoteFlag ? 'Demote' : 'Promote',
+      },
+    };
+    if (await showPrompt(options)) {
+      if (promoteFlag) {
+        await demotePost(post.id);
+      } else {
+        await promotePost(post.id);
+      }
+    }
+  }, [post.flags?.promoteToPublic, post.id, showPrompt]);
+
+  const clickbaitPostPrompt = useCallback(async () => {
+    const isClickbait = post.clickbaitTitleDetected;
+
+    const options: PromptOptions = {
+      title: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+      description: `Do you want to ${
+        isClickbait ? 'remove' : 'mark'
+      } this post as clickbait?`,
+      okButton: {
+        title: isClickbait ? 'Remove' : 'Mark',
+      },
+    };
+
+    if (await showPrompt(options)) {
+      await clickbaitPost(post.id);
+    }
+  }, [post.clickbaitTitleDetected, post.id, showPrompt]);
 
   const {
     onBlockSource,
@@ -204,13 +260,13 @@ export default function PostOptionsMenu({
   ) => {
     const onUndo = async () => {
       await undo?.();
-      client.invalidateQueries({ queryKey: generateQueryKey(feedName, user) });
+      client.invalidateQueries({ queryKey: feedQueryKey });
     };
     displayToast(message, {
       subject: ToastSubject.Feed,
       onUndo: undo !== null ? onUndo : null,
     });
-    onRemovePost?.(_postIndex);
+    onRemovePost?.(postIndex);
   };
   const {
     onConfirmDeletePost,
@@ -429,7 +485,8 @@ export default function PostOptionsMenu({
             `${webappUrl}feeds/${defaultFeedId}/edit?dview=${FeedSettingsMenu.AI}`,
           );
         }
-        if (feedName === SharedFeedPage.Custom) {
+
+        if (feedQueryKey.some((qk) => qk === SharedFeedPage.Custom)) {
           return router.push(
             `${webappUrl}feeds/${router.query.slugOrId}/edit?dview=${FeedSettingsMenu.AI}`,
           );
@@ -656,9 +713,7 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={EditIcon} />,
       label: 'Edit post',
       action: () => {
-        router.push(`${post.commentsPermalink}/edit`).then(() => {
-          closePostOptions();
-        });
+        router.push(`${post.commentsPermalink}/edit`);
       },
     });
   }
@@ -696,40 +751,62 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (setShowBanPost) {
+  if (isModerator) {
     postOptions.push({
       icon: <MenuIcon Icon={HammerIcon} />,
       label: 'Ban',
-      action: setShowBanPost,
+      action: banPostPrompt,
     });
   }
-  if (setShowPromotePost) {
+  if (isModerator) {
     const promoteFlag = post.flags?.promoteToPublic;
     postOptions.push({
       icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
       label: promoteFlag ? 'Demote' : 'Promote',
-      action: setShowPromotePost,
+      action: promotePostPrompt,
     });
   }
 
-  if (setShowClickbaitPost) {
+  if (isModerator) {
     const isClickbait = post.clickbaitTitleDetected;
     postOptions.push({
       icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
       label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
-      action: setShowClickbaitPost,
+      action: clickbaitPostPrompt,
     });
   }
 
   return (
-    <ContextMenu
-      disableBoundariesCheck
-      id={contextId}
-      className="menu-primary"
-      animation="fade"
-      onHidden={onHidden}
-      options={postOptions}
-      isOpen={isPostOptionsOpen}
-    />
+    <DropdownMenuContent>
+      {postOptions.map(({ label, icon, action, disabled }: MenuItemProps) => (
+        <DropdownMenuItem key={label} onClick={action} disabled={disabled}>
+          <div className="flex w-full items-center gap-2 typo-callout">
+            {icon} {label}
+          </div>
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuContent>
   );
-}
+};
+
+export const PostOptionButton = (props): ReactElement => {
+  const {
+    size = ButtonSize.Small,
+    triggerClassName,
+    variant = ButtonVariant.Tertiary,
+  } = props;
+  const [open, setOpen] = useState(false);
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+        <Button
+          variant={variant}
+          icon={<RawMenuIcon />}
+          size={size}
+          className={classNames('my-auto', triggerClassName)}
+        />
+      </DropdownMenuTrigger>
+      {!!open && <PostOptionButtonContent {...props} />}
+    </DropdownMenu>
+  );
+};

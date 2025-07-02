@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
+import Link from '../../../utilities/Link';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Button } from '../../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';
@@ -57,8 +57,8 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             {isMainFeed && isPlus ? (
               <span>
                 Want a custom feed name? You can always{' '}
-                <Link className="underline" href={`${webappUrl}feeds/new`}>
-                  create
+                <Link href={`${webappUrl}feeds/new`}>
+                  <a className="underline">create</a>
                 </Link>{' '}
                 a custom feed!
               </span>
