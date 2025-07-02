@@ -6,7 +6,6 @@ import { ArrowIcon } from '../../icons';
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole, SourceType } from '../../../graphql/sources';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { useViewSize, ViewSize } from '../../../hooks';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { cloudinarySquadsImageFallback } from '../../../lib/image';
 import {
@@ -57,7 +56,6 @@ export function SquadsDropdown({
   selected,
   list,
 }: SquadsDropdownProps): ReactElement {
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { user } = useAuthContext();
 
   return (
