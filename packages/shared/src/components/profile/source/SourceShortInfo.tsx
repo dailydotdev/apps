@@ -19,7 +19,7 @@ export function SourceShortInfo({
   }
 
   return (
-    <FlexRow className="items-center">
+    <FlexRow className="flex-1 items-center truncate">
       <SourceAvatar source={source} size={size} />
       <span className="flex flex-col items-start typo-callout">
         <h3 className="font-bold">{source.name}</h3>
