@@ -1,6 +1,12 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react-vite';
-import { DiscountTimer } from '@dailydotdev/shared/src/features/onboarding/shared/DiscountTimer';
+import {
+  DiscountTimer,
+  DiscountTimerVariant,
+} from '@dailydotdev/shared/src/features/onboarding/shared/DiscountTimer';
+import { DISCOUNT_LOCAL_STORAGE_KEY } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
+import { ButtonSize, ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 const meta: Meta<typeof DiscountTimer> = {
   title: 'Components/Onboarding/Shared/DiscountTimer',
@@ -15,7 +21,8 @@ const meta: Meta<typeof DiscountTimer> = {
     },
   },
   args: {
-    discountMessage: 'Limited time offer: <b>30% discount</b> on Annual Pro plan',
+    discountMessage:
+      'Limited time offer: <b>30% discount</b> on Annual Pro plan',
     durationInMinutes: 30,
     startDate: new Date(),
     className: '',
@@ -23,6 +30,9 @@ const meta: Meta<typeof DiscountTimer> = {
     isActive: true,
   },
   tags: ['autodocs'],
+  beforeEach: () => {
+    localStorage.removeItem(DISCOUNT_LOCAL_STORAGE_KEY);
+  },
 };
 
 export default meta;
@@ -49,5 +59,24 @@ export const Inactive: Story = {
   args: {
     isActive: false,
     discountMessage: 'Timer is currently paused',
+  },
+};
+
+export const WithSlot: Story = {
+  args: {
+    variant: DiscountTimerVariant.WithSlot,
+    discountMessage: 'Your special offer is live for the next:',
+    durationInMinutes: 30,
+    isActive: true,
+    className: "bg-brand-default text-white",
+    children: (
+      <Button
+        className=" bg-white text-black"
+        size={ButtonSize.Medium}
+        variant={ButtonVariant.Float}
+      >
+        Get my plan
+      </Button>
+    )
   },
 };
