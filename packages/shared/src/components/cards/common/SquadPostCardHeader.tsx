@@ -85,7 +85,7 @@ export const SquadPostCardHeader = ({
           <div className="flex flex-1" />
           <PostOptionButton
             post={post}
-            triggerClassName="group-hover:flex laptop:hidden"
+            triggerClassName="laptop:mouse:invisible laptop:mouse:group-hover:visible"
           />
         </div>
       </div>
