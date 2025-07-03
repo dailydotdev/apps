@@ -756,11 +756,12 @@ const CLAIM_CLAIMABLE_ITEM_MUTATION = gql`
 
 export const claimClaimableItem = async (): Promise<boolean> => {
   try {
-    return gqlClient
-      .request<{
-        claimUnclaimedItem: { claimed: boolean };
-      }>(CLAIM_CLAIMABLE_ITEM_MUTATION)
-      .then((res) => res.claimUnclaimedItem.claimed);
+    const {
+      claimUnclaimedItem: { claimed },
+    } = await gqlClient.request<{
+      claimUnclaimedItem: { claimed: boolean };
+    }>(CLAIM_CLAIMABLE_ITEM_MUTATION);
+    return claimed;
   } catch (error) {
     return false;
   }
