@@ -54,7 +54,7 @@ export default plugin(({ addUtilities }) => {
 
     '.typo-markdown': {
       'font-size': '1.0625rem',
-      'line-height': '1.75rem',
+      'line-height': '1.7',
     },
 
     '.typo-body': {
