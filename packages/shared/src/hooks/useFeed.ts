@@ -34,7 +34,7 @@ interface FeedItemBase<T extends FeedItemType> {
 }
 
 interface AdItem extends FeedItemBase<FeedItemType.Ad> {
-  ad: Ad & { data?: { post?: Post } };
+  ad: Ad;
   index: number;
   updatedAt: number;
 }
