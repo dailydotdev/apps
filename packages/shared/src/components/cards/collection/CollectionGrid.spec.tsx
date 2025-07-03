@@ -118,6 +118,7 @@ it('should display the `collection` pill in the header', async () => {
 it('should show options button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByLabelText('Options');
-  expect(header).toHaveClass('inline-flex');
-  expect(header).toHaveClass('group-hover:flex laptop:hidden');
+  expect(header).toHaveClass('my-auto');
+  expect(header).toHaveClass('laptop:mouse:invisible');
+  expect(header).toHaveClass('laptop:mouse:group-hover:visible');
 });
