@@ -6,17 +6,21 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../typography/Typography';
-import { DevPlusIcon, VIcon } from '../icons';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { defaultFeatureList, plusFeatureList, PlusList } from './PlusList';
-import { usePlusSubscription } from '../../hooks';
-import { LogEvent, TargetId } from '../../lib/log';
-import { IconSize } from '../Icon';
-import { PlusPlanExtraLabel } from './PlusPlanExtraLabel';
-import type { ProductPricingPreview } from '../../graphql/paddle';
-import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
-import type { PlanCard } from '../../features/onboarding/types/funnel';
+} from '../../../components/typography/Typography';
+import { DevPlusIcon, VIcon } from '../../../components/icons';
+import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import {
+  defaultFeatureList,
+  plusFeatureList,
+  PlusList,
+} from '../../../components/plus/PlusList';
+import { usePlusSubscription } from '../../../hooks';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { IconSize } from '../../../components/Icon';
+import { PlusPlanExtraLabel } from '../../../components/plus/PlusPlanExtraLabel';
+import type { ProductPricingPreview } from '../../../graphql/paddle';
+import { FunnelTargetId } from '../types/funnelEvents';
+import type { PlanCard } from '../types/funnel';
 
 export enum OnboardingPlans {
   Free = 'Free',

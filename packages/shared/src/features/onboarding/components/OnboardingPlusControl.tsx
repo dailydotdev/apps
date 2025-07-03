@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { PlusComparingCards } from '../../../components/plus/PlusComparingCards';
+import { PlusComparingCards } from './PlusComparingCards';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
 import type { FunnelStepPlusCards } from '../types/funnel';
