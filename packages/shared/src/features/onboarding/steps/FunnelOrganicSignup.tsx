@@ -134,22 +134,15 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     );
 
     useEffect(() => {
-      if (!isAuthReady || !user) {
+      if (!isAuthReady || !user || (user && !isActionsFetched)) {
         return;
       }
 
-      if (!hasAlreadyCheckedUser.current) {
-        if (
-          isAuthReady &&
-          isLoggedIn &&
-          !!user.infoConfirmed &&
-          isActionsFetched
-        ) {
-          onTransition?.({
-            type: FunnelStepTransitionType.Complete,
-            details: { user },
-          });
-        }
+      if (!hasAlreadyCheckedUser.current && user.infoConfirmed) {
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { user },
+        });
       }
 
       hasAlreadyCheckedUser.current = true;

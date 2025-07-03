@@ -1,10 +1,19 @@
 import React from 'react';
-import type { ReactElement, ComponentProps } from 'react';
+import type { ReactElement, ComponentProps, FC } from 'react';
 import classNames from 'classnames';
 import { VIcon } from '../../../components/icons/V';
+import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
 import classed from '../../../lib/classed';
 import { LazyImage } from '../../../components/LazyImage';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import type { ImageReviewProps } from './ImageReview';
+import { Stars } from './Stars';
+import { sanitizeMessage } from '../lib/utils';
 
 const Box = classed(
   'div',
@@ -18,21 +27,37 @@ export interface BoxBaseProps {
 export interface BoxListProps extends BoxBaseProps {
   title: string;
   items: string[];
+  icon?: {
+    Component: FC<IconProps>;
+    className?: string;
+  };
+  typographyClasses?: Record<'title' | 'listItem', string>;
 }
 
 export const BoxList = ({
   title,
   items,
   className,
+  icon = { Component: VIcon },
+  typographyClasses = {
+    title: 'font-bold typo-body',
+    listItem: 'typo-callout',
+  },
 }: BoxListProps): ReactElement => {
   return (
     <Box className={className}>
-      <h3 className="font-bold typo-body">{title}</h3>
+      <h3 className={typographyClasses.title}>{title}</h3>
       <ul className="flex flex-col gap-1">
         {items.map((item) => (
           <li key={item} className="flex flex-row items-start gap-1">
-            <VIcon size={IconSize.XSmall} />
-            <span className="flex-1 typo-callout">{item}</span>
+            <icon.Component
+              aria-hidden
+              className={icon.className}
+              size={IconSize.XSmall}
+            />
+            <span className={classNames('flex-1', typographyClasses.listItem)}>
+              {item}
+            </span>
           </li>
         ))}
       </ul>
@@ -44,6 +69,7 @@ export interface BoxContentImageProps extends BoxBaseProps {
   title: string;
   content: string;
   image: Pick<ComponentProps<'img'>, 'src' | 'alt' | 'className'>;
+  typographyClasses?: Record<'title' | 'content', string>;
 }
 
 export const BoxContentImage = ({
@@ -51,10 +77,19 @@ export const BoxContentImage = ({
   content,
   image,
   className,
+  typographyClasses = {
+    title: 'font-bold typo-title3',
+    content: 'text-text-tertiary typo-callout',
+  },
 }: BoxContentImageProps): ReactElement => {
   return (
     <Box className={className}>
-      <h3 className="font-bold typo-title3">{title}</h3>
+      <h3
+        className={typographyClasses.title}
+        dangerouslySetInnerHTML={{
+          __html: sanitizeMessage(title),
+        }}
+      />
       <div>
         <LazyImage
           eager
@@ -67,7 +102,10 @@ export const BoxContentImage = ({
           )}
           fit="contain"
         />
-        <p className="text-text-tertiary typo-callout">{content}</p>
+        <p
+          className={typographyClasses.content}
+          dangerouslySetInnerHTML={{ __html: sanitizeMessage(content) }}
+        />
       </div>
     </Box>
   );
@@ -88,6 +126,55 @@ export const BoxFaq = ({ items, className }: BoxFaqProps): ReactElement => {
           <li key={item.question} className="flex flex-col gap-2">
             <h4 className="font-bold typo-callout">{item.question}</h4>
             <p className="text-text-tertiary typo-callout">{item.answer}</p>
+          </li>
+        ))}
+      </ul>
+    </Box>
+  );
+};
+
+export interface BoxImageReviewProps extends BoxBaseProps {
+  heading: string;
+  items: Array<Omit<ImageReviewProps, 'className' | 'image'>>;
+}
+
+export const BoxReviews = ({
+  heading,
+  items,
+  className,
+}: BoxImageReviewProps): ReactElement => {
+  return (
+    <Box className={classNames(className, 'border-0 px-3 py-6')}>
+      <Typography
+        bold
+        className="text-center"
+        tag={TypographyTag.H3}
+        type={TypographyType.Title1}
+      >
+        {heading}
+      </Typography>
+      <ul aria-label="Reviews from our users" className="flex flex-col gap-4">
+        {items.map((item) => (
+          <li
+            aria-label={`${item.authorInfo} review`}
+            className="flex flex-col gap-2 rounded-16 bg-surface-invert p-4"
+            key={item.authorInfo}
+          >
+            <div className="flex items-center gap-2">
+              <LazyImage
+                className="size-8 rounded-8"
+                fit="cover"
+                imgAlt={item.authorInfo}
+                imgSrc={item.authorImage}
+              />
+              <Typography type={TypographyType.Callout}>
+                {item.authorInfo}
+              </Typography>
+            </div>
+            <Stars />
+            <Typography type={TypographyType.Callout}>
+              {item.reviewText}
+            </Typography>
           </li>
         ))}
       </ul>
