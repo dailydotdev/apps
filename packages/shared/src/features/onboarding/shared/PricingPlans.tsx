@@ -8,7 +8,7 @@ export interface PricingPlansProps<T extends string = string> {
   name: string;
   value?: T;
   onChange: (value: T) => unknown;
-  perks: PricingPlanProps<T>['perks'];
+  perks?: PricingPlanProps<T>['perks'];
   plans: Omit<PricingPlanProps<T>, 'perks' | 'name' | 'onChange'>[];
   className?: string;
 }

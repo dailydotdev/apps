@@ -54,6 +54,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
               buttonVariant={ButtonVariant.Option}
               className={{
                 menu: 'z-[9999]',
+                button: 'invisible group-hover/menu:visible',
               }}
               {...menuProps}
             />

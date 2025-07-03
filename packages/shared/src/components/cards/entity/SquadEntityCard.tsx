@@ -63,7 +63,7 @@ const SquadEntityCard = ({
         !isLoading && (
           <>
             <Button
-              className="justify-center"
+              className="invisible justify-center group-hover/menu:visible"
               variant={ButtonVariant.Option}
               icon={<MenuIcon />}
               onClick={onMenuClick}

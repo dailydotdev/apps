@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect } from 'react';
-import { OnboardingPlus } from '../components/OnboardingPlus';
 import type { FunnelStepPlusCards } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { OnboardingPlusControl } from '../components/OnboardingPlusControl';
+import { OnboardingPlusVariationV1 } from '../components/OnboardingPlusVariationV1';
 
-const PlusCards = ({ onTransition }: FunnelStepPlusCards) => {
+const PlusCards = ({ onTransition, parameters }: FunnelStepPlusCards) => {
   const { user } = useAuthContext();
+  const { version = 'V1' } = parameters;
 
   const transitionToNext = useCallback(
     ({ skip }: { skip: boolean }) => {
@@ -30,12 +32,18 @@ const PlusCards = ({ onTransition }: FunnelStepPlusCards) => {
     return null;
   }
 
-  return (
-    <OnboardingPlus
-      onComplete={() => transitionToNext({ skip: false })}
-      onSkip={() => transitionToNext({ skip: true })}
-    />
-  );
+  const onboardingProps = {
+    onComplete: () => transitionToNext({ skip: false }),
+    onSkip: () => transitionToNext({ skip: true }),
+    parameters,
+  };
+
+  switch (version) {
+    case 'v2':
+      return <OnboardingPlusVariationV1 {...onboardingProps} />;
+    default:
+      return <OnboardingPlusControl {...onboardingProps} />;
+  }
 };
 
 export const FunnelPlusCards = withIsActiveGuard(PlusCards);
