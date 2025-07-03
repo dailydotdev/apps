@@ -1,7 +1,12 @@
 import { useCallback, useContext } from 'react';
-import type { MutationKey } from '@tanstack/react-query';
+import type {
+  InfiniteData,
+  MutationKey,
+  QueryClient,
+  QueryKey,
+} from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Post, ReadHistoryPost } from '../graphql/posts';
+import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
@@ -10,18 +15,19 @@ import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
-import { updatePostCache } from '../lib/query';
+import { updatePostCache, RequestKey } from '../lib/query';
 import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { PostLogEventFnOptions } from '../lib/feed';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
-import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import type { AdItem, FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
+import type { Bookmark } from '../graphql/bookmarks';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -195,12 +201,16 @@ type MutateBookmarkFeedPostProps = {
   id: string;
   updatePost: UpdateFeedPost;
   items: FeedItem[];
+  queryClient?: QueryClient;
+  feedQueryKey?: QueryKey;
 };
 
 export const mutateBookmarkFeedPost = ({
   id,
   items,
   updatePost,
+  queryClient,
+  feedQueryKey,
 }: MutateBookmarkFeedPostProps): ReturnType<
   UseBookmarkPostProps['onMutate']
 > => {
@@ -212,7 +222,11 @@ export const mutateBookmarkFeedPost = ({
     (item) => item.type === 'post' && item.post.id === id,
   );
 
-  if (postIndexToUpdate === -1) {
+  const adIndexToUpdate = items.findIndex(
+    (item) => item.type === 'ad' && item.ad.data?.post?.id === id,
+  );
+
+  if (postIndexToUpdate === -1 && adIndexToUpdate === -1) {
     return undefined;
   }
 
@@ -225,34 +239,116 @@ export const mutateBookmarkFeedPost = ({
     };
   };
 
-  const postItem = (items[postIndexToUpdate] as PostItem)?.post;
-  const previousBookmark = postItem?.bookmark;
-  const previousState = postItem?.bookmarked;
+  let previousBookmark: Bookmark;
+  let previousState: boolean | undefined;
+  const rollbackFunctions: (() => void)[] = [];
 
-  optimisticPostUpdateInFeed(
-    items,
-    updatePost,
-    mutationHandler,
-  )({ index: postIndexToUpdate });
-
-  return () => {
-    const postIndexToRollback = items.findIndex(
-      (item) => item.type === 'post' && item.post.id === id,
-    );
-
-    if (postIndexToRollback === -1) {
-      return;
-    }
-
-    const rollbackMutationHandler = () => ({
-      bookmarked: previousState,
-      bookmark: previousBookmark,
-    });
+  // Handle regular post update
+  if (postIndexToUpdate !== -1) {
+    const postItem = (items[postIndexToUpdate] as PostItem)?.post;
+    previousBookmark = postItem?.bookmark;
+    previousState = postItem?.bookmarked;
 
     optimisticPostUpdateInFeed(
       items,
       updatePost,
-      rollbackMutationHandler,
+      mutationHandler,
     )({ index: postIndexToUpdate });
+
+    rollbackFunctions.push(() => {
+      const postIndexToRollback = items.findIndex(
+        (item) => item.type === 'post' && item.post.id === id,
+      );
+
+      if (postIndexToRollback === -1) {
+        return;
+      }
+
+      const rollbackMutationHandler = () => ({
+        bookmarked: previousState,
+        bookmark: previousBookmark,
+      });
+
+      optimisticPostUpdateInFeed(
+        items,
+        updatePost,
+        rollbackMutationHandler,
+      )({ index: postIndexToUpdate });
+    });
+  }
+
+  // Handle Post Ad update
+  if (adIndexToUpdate !== -1 && queryClient && feedQueryKey) {
+    const adItem = items[adIndexToUpdate] as AdItem;
+    const adPost = adItem.ad.data?.post;
+
+    if (adPost) {
+      previousBookmark = adPost.bookmark;
+      previousState = adPost.bookmarked;
+
+      // Update the ad's post in the ads cache
+      const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+      const adsData = queryClient.getQueryData(adsQueryKey);
+
+      if (adsData) {
+        queryClient.setQueryData(
+          adsQueryKey,
+          (currentData: InfiniteData<Ad>) => {
+            const updatedData = { ...currentData };
+
+            // Find and update the specific ad that contains the post
+            updatedData.pages = currentData.pages.map((page: Ad) => {
+              if (page.data?.post?.id === id) {
+                return {
+                  ...page,
+                  data: {
+                    ...page.data,
+                    post: {
+                      ...page.data.post,
+                      ...mutationHandler(page.data.post),
+                    },
+                  },
+                };
+              }
+              return page;
+            });
+
+            return updatedData;
+          },
+        );
+
+        rollbackFunctions.push(() => {
+          queryClient.setQueryData(
+            adsQueryKey,
+            (currentData: InfiniteData<Ad>) => {
+              const updatedData = { ...currentData };
+
+              updatedData.pages = currentData.pages.map((page: Ad) => {
+                if (page.data?.post?.id === id) {
+                  return {
+                    ...page,
+                    data: {
+                      ...page.data,
+                      post: {
+                        ...page.data.post,
+                        bookmarked: previousState,
+                        bookmark: previousBookmark,
+                      },
+                    },
+                  };
+                }
+                return page;
+              });
+
+              return updatedData;
+            },
+          );
+        });
+      }
+    }
+  }
+
+  return () => {
+    rollbackFunctions.forEach((rollback) => rollback());
   };
 };

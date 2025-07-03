@@ -1,3 +1,4 @@
+import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { addDays, addHours, nextMonday, set } from 'date-fns';
@@ -8,12 +9,16 @@ import type {
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 import { useActiveFeedContext } from '../../contexts';
-import { updateCachedPagePost, updatePostCache } from '../../lib/query';
+import {
+  updateCachedPagePost,
+  updatePostCache,
+  RequestKey,
+} from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import type { Post } from '../../graphql/posts';
+import type { Ad, Post } from '../../graphql/posts';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 
@@ -89,12 +94,50 @@ export const useBookmarkReminder = ({
       const postIndexToUpdate = items.findIndex(
         (item) => item.type === 'post' && item.post.id === postId,
       );
-      const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
-        bookmark,
-        bookmarked: true,
-      }));
 
-      update({ index: postIndexToUpdate });
+      const adIndexToUpdate = items.findIndex(
+        (item) => item.type === 'ad' && item.ad.data?.post?.id === postId,
+      );
+
+      if (postIndexToUpdate !== -1) {
+        const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
+          bookmark,
+          bookmarked: true,
+        }));
+
+        update({ index: postIndexToUpdate });
+      }
+
+      if (adIndexToUpdate !== -1) {
+        const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+        const adsData = client.getQueryData(adsQueryKey);
+
+        if (adsData) {
+          client.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+            const updatedData = { ...currentData };
+
+            // Find and update the specific ad that contains the post
+            updatedData.pages = currentData.pages.map((page: Ad) => {
+              if (page.data?.post?.id === postId) {
+                return {
+                  ...page,
+                  data: {
+                    ...page.data,
+                    post: {
+                      ...page.data.post,
+                      bookmarked: true,
+                      bookmark: { ...page.data.post.bookmark, remindAt },
+                    },
+                  },
+                };
+              }
+              return page;
+            });
+
+            return updatedData;
+          });
+        }
+      }
     }
   };
 
