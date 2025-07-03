@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
 import {
@@ -124,6 +124,7 @@ const UserEntityCard = ({ user, className }: Props) => {
               buttonVariant={ButtonVariant.Option}
               className={{
                 menu: 'z-[9999]',
+                button: 'invisible group-hover/menu:visible',
               }}
               {...menuProps}
               additionalOptions={options}

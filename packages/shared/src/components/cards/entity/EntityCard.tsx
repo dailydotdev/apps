@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import { Image } from '../../image/Image';
 
 export type EntityCardProps = {
@@ -29,24 +29,23 @@ const EntityCard = ({
   return (
     <div
       className={classNames(
-        'flex w-80 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4',
+        'group/menu flex w-80 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4',
         className?.container,
       )}
     >
       <div className="flex w-full items-start gap-2">
-        <Link
-          href={permalink}
-          className={classNames(className?.image, 'overflow-hidden')}
-        >
-          <Image
-            className="h-full w-full object-cover"
-            src={image}
-            alt={
-              type === 'user'
-                ? `${entityName}'s user avatar`
-                : `${entityName}'s image`
-            }
-          />
+        <Link href={permalink}>
+          <a className={classNames(className?.image, 'overflow-hidden')}>
+            <Image
+              className="h-full w-full object-cover"
+              src={image}
+              alt={
+                type === 'user'
+                  ? `${entityName}'s user avatar`
+                  : `${entityName}'s image`
+              }
+            />
+          </a>
         </Link>
         <div className="ml-auto flex items-center gap-2">{actionButtons}</div>
         <div />

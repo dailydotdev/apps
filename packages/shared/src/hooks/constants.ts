@@ -7,7 +7,6 @@ export enum ContextMenu {
   TagOptionsContext = 'tag-options-context',
   ShortcutContext = 'shortcut-context',
   SourceIntegrationContext = 'source-integration-context',
-  CustomFeedContext = 'custom-feed-context',
 }
 
 export const ContextMenuIds = ContextMenu;

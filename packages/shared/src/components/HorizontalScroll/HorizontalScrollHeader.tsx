@@ -1,6 +1,6 @@
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React from 'react';
-import Link from 'next/link';
+import Link from '../utilities/Link';
 import { Button } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
 import ConditionalWrapper from '../ConditionalWrapper';

@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import EntityCard from './EntityCard';
 import {
   Typography,
@@ -47,6 +47,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             buttonVariant={ButtonVariant.Option}
             className={{
               menu: 'z-[9999]',
+              button: 'invisible group-hover/menu:visible',
             }}
             {...menuProps}
           />

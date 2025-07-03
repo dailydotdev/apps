@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import Link from '../../utilities/Link';
 import {
   Typography,
   TypographyColor,
@@ -55,7 +55,7 @@ const SquadEntityCard = ({
       actionButtons={
         <>
           <Button
-            className="justify-center"
+            className="invisible justify-center group-hover/menu:visible"
             variant={ButtonVariant.Option}
             icon={<MenuIcon />}
             onClick={onMenuClick}
