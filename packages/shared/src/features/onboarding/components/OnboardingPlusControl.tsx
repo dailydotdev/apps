@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { PlusComparingCards } from '../../../components/plus/PlusComparingCards';
+import { PlusComparingCards } from './PlusComparingCards';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
 import type { FunnelStepPlusCards } from '../types/funnel';
@@ -42,7 +42,7 @@ const PlusSkeleton = (): ReactElement => (
   </div>
 );
 
-type Parameters = FunnelStepPlusCards['parameters'];
+type Parameters = Pick<FunnelStepPlusCards, 'parameters'>;
 
 interface OnboardingPlusControlProps extends Parameters {
   onSkip?: () => void;
@@ -50,10 +50,9 @@ interface OnboardingPlusControlProps extends Parameters {
 }
 
 export const OnboardingPlusControl = ({
+  parameters: { headline, explainer, free, plus },
   onSkip,
   onComplete,
-  headline,
-  explainer,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { item } = useFunnelAnnualPricing();
@@ -86,6 +85,8 @@ export const OnboardingPlusControl = ({
           productOption={item}
           onClickNext={onSkip}
           onClickPlus={onComplete}
+          free={free}
+          plus={plus}
         />
       ) : (
         <PlusSkeleton />
