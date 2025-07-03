@@ -154,36 +154,34 @@ export const mutateVoteFeedPost = ({
 
       // Update the ad's post in the ads cache
       const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
-      const adsData = queryClient.getQueryData(adsQueryKey);
 
-      if (adsData) {
+      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+        if (!currentData || !currentData.pages?.length) {
+          return currentData;
+        }
+
+        const existingAdPost = currentData.pages.find(
+          (page) => page.data?.post?.id === id,
+        )?.data?.post;
+        return updateAdPostInCache(
+          id,
+          currentData,
+          mutationHandler(existingAdPost),
+        );
+      });
+
+      rollbackFunctions.push(() => {
+        const rollbackMutationHandler = voteMutationHandlers[previousVote];
+
+        if (!rollbackMutationHandler) {
+          return;
+        }
+
         queryClient.setQueryData(
           adsQueryKey,
-          (currentData: InfiniteData<Ad>) => {
-            const existingAdPost = (adsData as InfiniteData<Ad>).pages.find(
-              (page) => page.data?.post?.id === id,
-            )?.data?.post;
-            return updateAdPostInCache(
-              id,
-              currentData,
-              mutationHandler(existingAdPost),
-            );
-          },
+          createAdPostRollbackHandler(id, {}, rollbackMutationHandler),
         );
-
-        rollbackFunctions.push(() => {
-          const rollbackMutationHandler = voteMutationHandlers[previousVote];
-
-          if (!rollbackMutationHandler) {
-            return;
-          }
-
-          queryClient.setQueryData(
-            adsQueryKey,
-            createAdPostRollbackHandler(id, {}, rollbackMutationHandler),
-          );
-        });
-      }
+      });
     }
   }
 
