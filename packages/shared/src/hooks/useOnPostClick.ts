@@ -15,7 +15,7 @@ import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { Origin } from '../lib/log';
 import { ActiveFeedContext } from '../contexts';
-import { updateCachedPagePost } from '../lib/query';
+import { updateCachedPagePost, updateFeedAndAdsCache } from '../lib/query';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import type { FeedData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
@@ -140,21 +140,35 @@ export default function useOnPostClick({
           };
 
           if (feedQueryKey) {
-            const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
-            const updateFeedPostCache = optimisticPostUpdateInFeed(
-              items,
-              updateFeedPost,
-              mutationHandler,
-            );
             const postIndex = items.findIndex(
-              (item) => item.type === 'post' && item.post.id === post.id,
+              (item) =>
+                (item.type === 'post' && item.post.id === post.id) ||
+                (item.type === 'ad' && item.ad.data?.post?.id === post.id),
             );
 
             if (postIndex === -1) {
               return;
             }
 
-            await updateFeedPostCache({ index: postIndex });
+            const item = items[postIndex];
+            if (item.type === 'post') {
+              // For regular posts, use the existing optimistic update
+              const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
+              const updateFeedPostCache = optimisticPostUpdateInFeed(
+                items,
+                updateFeedPost,
+                mutationHandler,
+              );
+              await updateFeedPostCache({ index: postIndex });
+            } else if (item.type === 'ad' && item.ad.data?.post) {
+              // For Post Ads, update both feed and ads cache
+              updateFeedAndAdsCache(
+                post.id,
+                feedQueryKey,
+                client,
+                mutationHandler(),
+              );
+            }
           } else if (!feedName && shouldUseListFeedLayout) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(

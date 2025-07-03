@@ -606,3 +606,42 @@ export const createAdPostRollbackHandler = (
     return updatedData;
   };
 };
+
+export const updateFeedAndAdsCache = (
+  postId: string,
+  feedQueryKey: QueryKey,
+  queryClient: QueryClient,
+  update: Partial<Post>,
+): void => {
+  // Update the main feed cache
+  const updateFeedPost = updateCachedPagePost(feedQueryKey, queryClient);
+  const feedData =
+    queryClient.getQueryData<InfiniteData<FeedData>>(feedQueryKey);
+
+  if (feedData) {
+    const { pageIndex, index } = findIndexOfPostInData(feedData, postId, true);
+    if (index > -1) {
+      const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+      updateFeedPost(pageIndex, index, {
+        ...currentPost,
+        ...update,
+      });
+    }
+  }
+
+  // Update the ads cache if the post exists there
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  const adsData = queryClient.getQueryData<InfiniteData<Ad>>(adsQueryKey);
+
+  if (adsData) {
+    const existingAdPost = adsData.pages.find(
+      (page) => page.data?.post?.id === postId,
+    )?.data?.post;
+
+    if (existingAdPost) {
+      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+        return updateAdPostInCache(postId, currentData, update);
+      });
+    }
+  }
+};

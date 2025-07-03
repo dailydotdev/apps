@@ -3,7 +3,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Post } from '../graphql/posts';
 import { dismissPostFeedback, UserVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
-import { updateCachedPagePost, updatePostCache } from '../lib/query';
+import {
+  updateCachedPagePost,
+  updatePostCache,
+  updateFeedAndAdsCache,
+} from '../lib/query';
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { SharedFeedPage } from '../components/utilities';
 import type { EmptyResponse } from '../graphql/emptyResponse';
@@ -55,21 +59,33 @@ export const usePostFeedback = ({
       };
 
       if (feedQueryKey) {
-        const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
-        const updateFeedPostCache = optimisticPostUpdateInFeed(
-          items,
-          updateFeedPost,
-          mutationHandler,
-        );
         const postIndex = items.findIndex(
-          (item) => item.type === 'post' && item.post.id === post.id,
+          (item) =>
+            (item.type === 'post' && item.post.id === post.id) ||
+            (item.type === 'ad' && item.ad.data?.post?.id === post.id),
         );
 
         if (postIndex === -1) {
           return;
         }
 
-        updateFeedPostCache({ index: postIndex });
+        const item = items[postIndex];
+        if (item.type === 'post') {
+          const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
+          const updateFeedPostCache = optimisticPostUpdateInFeed(
+            items,
+            updateFeedPost,
+            mutationHandler,
+          );
+          updateFeedPostCache({ index: postIndex });
+        } else if (item.type === 'ad' && item.ad.data?.post) {
+          updateFeedAndAdsCache(
+            post.id,
+            feedQueryKey,
+            client,
+            mutationHandler(item.ad.data.post),
+          );
+        }
       }
 
       updatePostCache(client, post.id, mutationHandler(post as Post));
