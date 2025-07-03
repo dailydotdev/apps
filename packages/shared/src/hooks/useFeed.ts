@@ -33,7 +33,7 @@ interface FeedItemBase<T extends FeedItemType> {
   dataUpdatedAt: number;
 }
 
-interface AdItem extends FeedItemBase<FeedItemType.Ad> {
+export interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
   index: number;
   updatedAt: number;

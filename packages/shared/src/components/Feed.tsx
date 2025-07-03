@@ -261,6 +261,7 @@ export default function Feed<T>({
     ranking,
     items,
     updatePost,
+    feedQueryKey,
   });
 
   const { toggleBookmark } = useFeedBookmarkPost({
