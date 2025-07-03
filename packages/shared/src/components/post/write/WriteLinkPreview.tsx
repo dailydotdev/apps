@@ -97,7 +97,7 @@ export function WriteLinkPreview({
         )}
       </WritePreviewContainer>
 
-      {!!preview.relatedPublicPosts && (
+      {preview.relatedPublicPosts?.length > 0 && (
         <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float py-4">
           <Typography bold type={TypographyType.Body} className="px-4">
             This link has already been shared here:
@@ -117,11 +117,12 @@ export function WriteLinkPreview({
                     <SourceAvatar source={post.source} className="!mr-0" />
                   )}
 
-                  <div className="flex flex-col">
-                    <Typography bold type={TypographyType.Footnote}>
+                  <div className="flex flex-1 flex-col truncate">
+                    <Typography bold truncate type={TypographyType.Footnote}>
                       {post.title ?? preview.title}
                     </Typography>
                     <Typography
+                      truncate
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
