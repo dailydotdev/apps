@@ -130,7 +130,7 @@ export function WriteLinkPreview({
                     </Typography>
                   </div>
 
-                  <Link href={`${webappUrl}/posts/${post.id}`} passHref>
+                  <Link href={`${webappUrl}posts/${post.id}`} passHref>
                     <Button
                       tag="a"
                       target="_blank"
