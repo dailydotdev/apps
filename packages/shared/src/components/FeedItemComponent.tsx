@@ -199,11 +199,14 @@ export default function FeedItemComponent({
 
   if (
     item.type === FeedItemType.Post ||
-    (item.type === FeedItemType.Ad && item.post)
+    (item.type === FeedItemType.Ad && item.ad.data?.post)
   ) {
+    const itemPost =
+      item.type === FeedItemType.Post ? item.post : item.ad.data?.post;
+
     if (
-      !!item.post.pinnedAt &&
-      item.post.source?.currentMember?.flags?.collapsePinnedPosts
+      !!itemPost.pinnedAt &&
+      itemPost.source?.currentMember?.flags?.collapsePinnedPosts
     ) {
       return null;
     }
@@ -211,12 +214,10 @@ export default function FeedItemComponent({
     return (
       <PostTag
         enableSourceHeader={
-          feedName !== 'squad' && item.post.source?.type === 'squad'
+          feedName !== 'squad' && itemPost.source?.type === 'squad'
         }
         ref={inViewRef}
-        post={{
-          ...item.post,
-        }}
+        post={{ ...itemPost }}
         data-testid="postItem"
         onUpvoteClick={(post, origin = Origin.Feed) => {
           toggleUpvote({
@@ -243,7 +244,7 @@ export default function FeedItemComponent({
         onPostClick={(post) => onPostClick(post, index, row, column)}
         onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
         onReadArticleClick={() =>
-          onReadArticleClick(item.post, index, row, column)
+          onReadArticleClick(itemPost, index, row, column)
         }
         onShare={(post) => onShare(post, row, column)}
         onBookmarkClick={(post, origin = Origin.Feed) => {
@@ -267,11 +268,11 @@ export default function FeedItemComponent({
         onCommentClick={(post) => onCommentClick(post, index, row, column)}
         eagerLoadImage={row === 0 && column === 0}
       >
-        {showCommentPopupId === item.post.id && (
+        {showCommentPopupId === itemPost.id && (
           <CommentPopup
             onClose={() => setShowCommentPopupId(null)}
             onSubmit={(content) =>
-              comment({ post: item.post, content, row, column, columns })
+              comment({ post: itemPost, content, row, column, columns })
             }
             loading={isSendingComment}
           />

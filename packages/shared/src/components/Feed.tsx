@@ -437,7 +437,8 @@ export default function Feed<T>({
               <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
                 value={{
-                  isBoostedAdPost: item.type === FeedItemType.Ad && !!item.post,
+                  isBoostedAdPost:
+                    item.type === FeedItemType.Ad && !!item.ad.data?.post,
                 }}
               >
                 <FeedItemComponent
