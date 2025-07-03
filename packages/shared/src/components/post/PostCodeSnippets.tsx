@@ -86,6 +86,7 @@ export const PostCodeSnippets = ({
     <div className={classNames(className, 'overflow-hidden rounded-12')}>
       <RenderMarkdown
         isExpandable
+        className="font-mono"
         content={markdownContent}
         header={{ buttons: NavigationButtons }}
         onCopy={copyTracking}
