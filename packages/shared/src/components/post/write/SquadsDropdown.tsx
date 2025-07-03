@@ -21,6 +21,7 @@ import {
 } from '../../typography/Typography';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { TruncateText } from '../../utilities';
+import type { LoggedUser } from '../../../lib/user';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -49,6 +50,15 @@ export const generateDefaultSquad = (username: string): Squad => ({
   memberInviteRole: SourceMemberRole.Member,
   moderationPostCount: 0,
   moderationRequired: false,
+});
+
+export const generateUserSourceAsSquad = (user: LoggedUser): Squad => ({
+  ...generateDefaultSquad(user.username),
+  id: user.id,
+  name: user.name,
+  handle: user.id,
+  // @ts-expect-error Intentionally using a UserSource as a Squad
+  type: SourceType.User,
 });
 
 export function SquadsDropdown({

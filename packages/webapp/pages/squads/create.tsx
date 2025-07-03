@@ -19,6 +19,7 @@ import TabContainer, {
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import {
   generateDefaultSquad,
+  generateUserSourceAsSquad,
   SquadsDropdown,
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -163,11 +164,7 @@ function CreatePost(): ReactElement {
     }
 
     if (!squad) {
-      return onSubmitFreeformPost(params, {
-        ...generateDefaultSquad(user.username),
-        id: user.id,
-        handle: user.id,
-      });
+      return onSubmitFreeformPost(params, generateUserSourceAsSquad(user));
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
