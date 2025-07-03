@@ -8,6 +8,7 @@ import {
   generateQueryKey,
   RequestKey,
   updateReadingHistoryListPost,
+  updateAdPostInCache,
 } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import type { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
@@ -158,26 +159,14 @@ export const mutateVoteFeedPost = ({
         queryClient.setQueryData(
           adsQueryKey,
           (currentData: InfiniteData<Ad>) => {
-            const updatedData = { ...currentData };
-
-            // Find and update the specific ad that contains the post
-            updatedData.pages = currentData.pages.map((page: Ad) => {
-              if (page.data?.post?.id === id) {
-                return {
-                  ...page,
-                  data: {
-                    ...page.data,
-                    post: {
-                      ...page.data.post,
-                      ...mutationHandler(page.data.post),
-                    },
-                  },
-                };
-              }
-              return page;
-            });
-
-            return updatedData;
+            const existingAdPost = (adsData as InfiniteData<Ad>).pages.find(
+              (page) => page.data?.post?.id === id,
+            )?.data?.post;
+            return updateAdPostInCache(
+              id,
+              currentData,
+              mutationHandler(existingAdPost),
+            );
           },
         );
 

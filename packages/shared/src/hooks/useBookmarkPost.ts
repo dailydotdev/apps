@@ -15,7 +15,7 @@ import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
-import { updatePostCache, RequestKey } from '../lib/query';
+import { updatePostCache, RequestKey, updateAdPostInCache } from '../lib/query';
 import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
@@ -294,26 +294,14 @@ export const mutateBookmarkFeedPost = ({
         queryClient.setQueryData(
           adsQueryKey,
           (currentData: InfiniteData<Ad>) => {
-            const updatedData = { ...currentData };
-
-            // Find and update the specific ad that contains the post
-            updatedData.pages = currentData.pages.map((page: Ad) => {
-              if (page.data?.post?.id === id) {
-                return {
-                  ...page,
-                  data: {
-                    ...page.data,
-                    post: {
-                      ...page.data.post,
-                      ...mutationHandler(page.data.post),
-                    },
-                  },
-                };
-              }
-              return page;
-            });
-
-            return updatedData;
+            const existingAdPost = (adsData as InfiniteData<Ad>).pages.find(
+              (page) => page.data?.post?.id === id,
+            )?.data?.post;
+            return updateAdPostInCache(
+              id,
+              currentData,
+              mutationHandler(existingAdPost),
+            );
           },
         );
 

@@ -17,6 +17,7 @@ import type {
   Post,
   PostData,
   ReadHistoryPost,
+  Ad,
 } from '../graphql/posts';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
@@ -546,4 +547,31 @@ export const updatePostCache = (
       },
     };
   });
+};
+
+export const updateAdPostInCache = (
+  postId: string,
+  currentData: InfiniteData<Ad>,
+  update: Partial<Post>,
+): InfiniteData<Ad> => {
+  const updatedData = { ...currentData };
+
+  // Find and update the specific ad that contains the post
+  updatedData.pages = currentData.pages.map((page: Ad) => {
+    if (page.data?.post?.id === postId) {
+      return {
+        ...page,
+        data: {
+          ...page.data,
+          post: {
+            ...page.data.post,
+            ...update,
+          },
+        },
+      };
+    }
+    return page;
+  });
+
+  return updatedData;
 };

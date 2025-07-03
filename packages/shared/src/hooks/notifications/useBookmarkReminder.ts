@@ -13,6 +13,7 @@ import {
   updateCachedPagePost,
   updatePostCache,
   RequestKey,
+  updateAdPostInCache,
 } from '../../lib/query';
 import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
@@ -114,27 +115,10 @@ export const useBookmarkReminder = ({
 
         if (adsData) {
           client.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
-            const updatedData = { ...currentData };
-
-            // Find and update the specific ad that contains the post
-            updatedData.pages = currentData.pages.map((page: Ad) => {
-              if (page.data?.post?.id === postId) {
-                return {
-                  ...page,
-                  data: {
-                    ...page.data,
-                    post: {
-                      ...page.data.post,
-                      bookmarked: true,
-                      bookmark: { ...page.data.post.bookmark, remindAt },
-                    },
-                  },
-                };
-              }
-              return page;
+            return updateAdPostInCache(postId, currentData, {
+              bookmark,
+              bookmarked: true,
             });
-
-            return updatedData;
           });
         }
       }
