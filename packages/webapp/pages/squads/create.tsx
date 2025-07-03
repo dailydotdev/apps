@@ -204,7 +204,10 @@ function CreatePost(): ReactElement {
           className={{ header: 'px-1' }}
           showHeader={isTablet}
         >
-          <Tab label={WriteFormTab.NewPost} className="px-5">
+          <Tab
+            label={WriteFormTab.NewPost}
+            className="flex flex-col gap-4 px-5"
+          >
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
@@ -213,9 +216,9 @@ function CreatePost(): ReactElement {
               onSelect={setSelected}
               selected={selected}
             />
-            <WriteFreeformContent className="mt-6" />
+            <WriteFreeformContent />
           </Tab>
-          <Tab label={WriteFormTab.Share} className="px-5">
+          <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
@@ -226,7 +229,6 @@ function CreatePost(): ReactElement {
             />
             <ShareLink
               squad={squad}
-              className="mt-4"
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}
