@@ -756,7 +756,7 @@ const CLAIM_CLAIMABLE_ITEM_MUTATION = gql`
 
 export const claimClaimableItem = async (): Promise<boolean> => {
   try {
-    return await gqlClient
+    return gqlClient
       .request<{
         claimUnclaimedItem: { claimed: boolean };
       }>(CLAIM_CLAIMABLE_ITEM_MUTATION)

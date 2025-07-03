@@ -212,13 +212,14 @@ function AuthOptionsInner({
       });
 
       // Check for claimable items on login (e.g., Plus subscription)
-      const hasClaimed = await claimClaimableItem();
-      if (hasClaimed) {
-        // We need to refetch the boot query for load the latest user data
-        await queryClient.invalidateQueries({
-          queryKey: BOOT_QUERY_KEY,
-        });
-      }
+      claimClaimableItem().then((hasClaimed) => {
+        if (hasClaimed) {
+          // We need to refetch the boot query to load the latest user data
+          queryClient.invalidateQueries({
+            queryKey: BOOT_QUERY_KEY,
+          });
+        }
+      });
 
       const isAlreadyOnboarded = await checkForOnboardedUser(user);
       if (!isAlreadyOnboarded) {
