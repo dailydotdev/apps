@@ -9,6 +9,7 @@ import {
   RequestKey,
   updateReadingHistoryListPost,
   updateAdPostInCache,
+  createAdPostRollbackHandler,
 } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import type { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
@@ -179,27 +180,7 @@ export const mutateVoteFeedPost = ({
 
           queryClient.setQueryData(
             adsQueryKey,
-            (currentData: InfiniteData<Ad>) => {
-              const updatedData = { ...currentData };
-
-              updatedData.pages = currentData.pages.map((page: Ad) => {
-                if (page.data?.post?.id === id) {
-                  return {
-                    ...page,
-                    data: {
-                      ...page.data,
-                      post: {
-                        ...page.data.post,
-                        ...rollbackMutationHandler(page.data.post),
-                      },
-                    },
-                  };
-                }
-                return page;
-              });
-
-              return updatedData;
-            },
+            createAdPostRollbackHandler(id, {}, rollbackMutationHandler),
           );
         });
       }

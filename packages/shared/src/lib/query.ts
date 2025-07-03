@@ -575,3 +575,34 @@ export const updateAdPostInCache = (
 
   return updatedData;
 };
+
+export const createAdPostRollbackHandler = (
+  postId: string,
+  previousState: Partial<Post>,
+  rollbackMutationHandler?: (post: Post) => Partial<Post>,
+) => {
+  return (currentData: InfiniteData<Ad>): InfiniteData<Ad> => {
+    const updatedData = { ...currentData };
+
+    // Find and update the specific ad that contains the post
+    updatedData.pages = currentData.pages.map((page: Ad) => {
+      if (page.data?.post?.id === postId) {
+        return {
+          ...page,
+          data: {
+            ...page.data,
+            post: {
+              ...page.data.post,
+              ...(rollbackMutationHandler
+                ? rollbackMutationHandler(page.data.post)
+                : previousState),
+            },
+          },
+        };
+      }
+      return page;
+    });
+
+    return updatedData;
+  };
+};

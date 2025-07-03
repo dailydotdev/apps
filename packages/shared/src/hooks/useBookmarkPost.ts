@@ -15,7 +15,12 @@ import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
-import { updatePostCache, RequestKey, updateAdPostInCache } from '../lib/query';
+import {
+  updatePostCache,
+  RequestKey,
+  updateAdPostInCache,
+  createAdPostRollbackHandler,
+} from '../lib/query';
 import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
@@ -308,28 +313,10 @@ export const mutateBookmarkFeedPost = ({
         rollbackFunctions.push(() => {
           queryClient.setQueryData(
             adsQueryKey,
-            (currentData: InfiniteData<Ad>) => {
-              const updatedData = { ...currentData };
-
-              updatedData.pages = currentData.pages.map((page: Ad) => {
-                if (page.data?.post?.id === id) {
-                  return {
-                    ...page,
-                    data: {
-                      ...page.data,
-                      post: {
-                        ...page.data.post,
-                        bookmarked: previousState,
-                        bookmark: previousBookmark,
-                      },
-                    },
-                  };
-                }
-                return page;
-              });
-
-              return updatedData;
-            },
+            createAdPostRollbackHandler(id, {
+              bookmarked: previousState,
+              bookmark: previousBookmark,
+            }),
           );
         });
       }
