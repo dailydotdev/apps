@@ -2,12 +2,12 @@ import type { FormEventHandler, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
-import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
@@ -16,6 +16,7 @@ import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import type { SourcePostModeration } from '../../../graphql/squads';
+import { webappUrl } from '../../../lib/constants';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -33,7 +34,7 @@ export function ShareLink({
   moderated,
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
-  const { displayToast } = useToastNotification();
+  const client = useQueryClient();
   const [commentary, setCommentary] = useState(
     fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
   );
@@ -70,7 +71,7 @@ export function ShareLink({
     retryWithRandomizedHandle: true,
   });
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     if (isPosting || isPostingModeration || isCreatingSquad) {
@@ -78,7 +79,19 @@ export function ShareLink({
     }
 
     if (!squad) {
-      return displayToast('You must select a Squad to post to!');
+      await onSubmitPost(
+        e,
+        {
+          ...generateDefaultSquad(user.username),
+          id: user.id,
+          handle: user.id,
+        },
+        commentary,
+      );
+      client.refetchQueries({
+        queryKey: ['author', user.id],
+      });
+      return push(`${webappUrl}${user.username}/posts`);
     }
 
     if (fetchedPost?.id) {
@@ -105,7 +118,7 @@ export function ShareLink({
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      onSubmitPost(e, squad, commentary);
+      await onSubmitPost(e, squad, commentary);
       return push(squad.permalink);
     }
 
