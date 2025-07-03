@@ -305,7 +305,8 @@ export function PostActions({
             id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
-            className="btn-tertiary-cabbage"
+            className="hover:text-text-link"
+            buttonClassName="hover:bg-overlay-float-water"
           >
             Copy
           </QuaternaryButton>
