@@ -29,7 +29,7 @@ const EntityCard = ({
   return (
     <div
       className={classNames(
-        'flex w-80 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4',
+        'group/menu flex w-80 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4',
         className?.container,
       )}
     >
