@@ -12,8 +12,6 @@ import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
-import { getQueryClient } from './queryClient';
-import { BOOT_QUERY_KEY } from '../contexts/common';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -749,8 +747,8 @@ export const REQUEST_APP_ACCOUNT_TOKEN_MUTATION = gql`
 `;
 
 const CLAIM_CLAIMABLE_ITEM_MUTATION = gql`
-  mutation ClaimClaimableItem($id: ID!) {
-    claimClaimableItem {
+  mutation ClaimClaimableItem {
+    claimUnclaimedItem {
       claimed
     }
   }
@@ -758,20 +756,11 @@ const CLAIM_CLAIMABLE_ITEM_MUTATION = gql`
 
 export const claimClaimableItem = async (): Promise<boolean> => {
   try {
-    const hasClaimed = await gqlClient
+    return await gqlClient
       .request<{
-        claimClaimableItem: { claimed: boolean };
+        claimUnclaimedItem: { claimed: boolean };
       }>(CLAIM_CLAIMABLE_ITEM_MUTATION)
-      .then((res) => res.claimClaimableItem.claimed);
-
-    if (hasClaimed) {
-      // Now user may be eligible for Plus, so we need to refetch the boot query
-      await getQueryClient().refetchQueries({
-        queryKey: BOOT_QUERY_KEY,
-      });
-    }
-
-    return hasClaimed;
+      .then((res) => res.claimUnclaimedItem.claimed);
   } catch (error) {
     return false;
   }
