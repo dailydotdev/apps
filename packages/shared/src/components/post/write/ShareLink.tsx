@@ -11,7 +11,10 @@ import { usePostToSquad } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
-import { generateDefaultSquad } from './SquadsDropdown';
+import {
+  generateDefaultSquad,
+  generateUserSourceAsSquad,
+} from './SquadsDropdown';
 import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
@@ -98,15 +101,7 @@ export function ShareLink({
         return null;
       }
 
-      await onSubmitPost(
-        e,
-        {
-          ...generateDefaultSquad(user.username),
-          id: user.id,
-          handle: user.id,
-        },
-        commentary,
-      );
+      await onSubmitPost(e, generateUserSourceAsSquad(user), commentary);
       client.refetchQueries({
         queryKey: ['author', user.id],
       });
