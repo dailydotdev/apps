@@ -93,9 +93,9 @@ export function ShareLink({
         },
       };
       const sharePost =
-        (preview.relatedPublicPosts?.length > 0 &&
-          (await showPrompt(prompOptions))) ||
-        true;
+        preview.relatedPublicPosts?.length > 0
+          ? await showPrompt(prompOptions)
+          : true;
 
       if (!sharePost) {
         return null;
