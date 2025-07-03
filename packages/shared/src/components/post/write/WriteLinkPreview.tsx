@@ -20,6 +20,9 @@ import {
 import { SourceType } from '../../../graphql/sources';
 import Link from '../../utilities/Link';
 import { webappUrl } from '../../../lib/constants';
+import { TimeFormatType } from '../../../lib/dateFormat';
+import { DateFormat } from '../../utilities';
+import { Separator } from '../../cards/common/common';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -126,8 +129,14 @@ export function WriteLinkPreview({
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
-                      {post.source.type === SourceType.User ? '@' : ''}
-                      {post.source.name}
+                      <DateFormat
+                        date={new Date(post.createdAt)}
+                        type={TimeFormatType.Post}
+                      />
+                      <Separator />
+                      {post.source.type === SourceType.User
+                        ? `@${post.author.username}`
+                        : post.source.name}
                     </Typography>
                   </div>
 

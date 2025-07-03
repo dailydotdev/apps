@@ -554,6 +554,7 @@ export const PREVIEW_LINK_MUTATION = gql`
         id
         title
         permalink
+        createdAt
         source {
           id
           name
@@ -563,6 +564,7 @@ export const PREVIEW_LINK_MUTATION = gql`
         author {
           id
           image
+          username
         }
       }
     }
