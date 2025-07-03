@@ -11,6 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
 import { ButtonColor, ButtonIconPosition, ButtonVariant } from './Button';
+import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { IconSize } from '../Icon';
 
@@ -20,6 +21,7 @@ interface BookmarkButtonProps {
   post: Post;
   children?: ReactNode;
   iconSize?: IconSize;
+  tooltipSide?: TooltipProps['side'];
 }
 
 export function BookmarkButton({
@@ -28,6 +30,7 @@ export function BookmarkButton({
   post,
   children,
   iconSize,
+  tooltipSide,
 }: BookmarkButtonProps): ReactElement {
   const finalId = `${contextMenuId}-${post.id}`;
   const hasReminder = !!post.bookmark?.remindAt;
@@ -45,7 +48,10 @@ export function BookmarkButton({
 
   return (
     <>
-      <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+      <Tooltip
+        content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        side={tooltipSide}
+      >
         <QuaternaryButton
           color={ButtonColor.Bun}
           variant={ButtonVariant.Tertiary}

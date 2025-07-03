@@ -100,7 +100,10 @@ const ActionButtons = ({
       )}
     >
       <div className="flex flex-1 items-center justify-between">
-        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+        <Tooltip
+          content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+          side="bottom"
+        >
           <QuaternaryButton
             labelClassName="pl-0"
             className="btn-tertiary-avocado pointer-events-auto px-0"
@@ -128,7 +131,10 @@ const ActionButtons = ({
             )}
           </QuaternaryButton>
         </Tooltip>
-        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
+        <Tooltip
+          content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+          side="bottom"
+        >
           <Button
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
@@ -145,7 +151,7 @@ const ActionButtons = ({
             size={ButtonSize.Small}
           />
         </Tooltip>
-        <Tooltip content="Comments">
+        <Tooltip content="Comments" side="bottom">
           <QuaternaryButton
             labelClassName="pl-0"
             id={`post-${post.id}-comment-btn`}
@@ -167,6 +173,7 @@ const ActionButtons = ({
         </Tooltip>
         <PostAwardAction post={post} iconSize={IconSize.XSmall} />
         <BookmarkButton
+          tooltipSide="bottom"
           post={post}
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
@@ -175,7 +182,7 @@ const ActionButtons = ({
           }}
           iconSize={IconSize.XSmall}
         />
-        <Tooltip content="Copy link">
+        <Tooltip content="Copy link" side="bottom">
           <Button
             size={ButtonSize.Small}
             icon={<LinkIcon size={IconSize.XSmall} />}
