@@ -47,7 +47,7 @@ export const CollectionCardHeader = ({
         <div className="flex-1" />
         <PostOptionButton
           post={post}
-          triggerClassName="group-hover:flex laptop:hidden"
+          triggerClassName="laptop:mouse:invisible laptop:mouse:group-hover:visible"
         />
       </CollectionPillSources>
     </>
