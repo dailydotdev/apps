@@ -16,6 +16,7 @@ import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import type { SourcePostModeration } from '../../../graphql/squads';
+import { usePrompt } from '../../../hooks/usePrompt';
 import { webappUrl } from '../../../lib/constants';
 
 interface ShareLinkProps {
@@ -35,6 +36,7 @@ export function ShareLink({
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
   const client = useQueryClient();
+  const { showPrompt } = usePrompt();
   const [commentary, setCommentary] = useState(
     fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
   );
@@ -79,6 +81,23 @@ export function ShareLink({
     }
 
     if (!squad) {
+      const prompOptions = {
+        title: 'This link has already been shared.',
+        description: 'Are you sure you want to repost it?',
+        okButton: {
+          title: 'Repost',
+          className: 'btn-primary-cabbage',
+        },
+      };
+      const sharePost =
+        (preview.relatedPublicPosts?.length > 0 &&
+          (await showPrompt(prompOptions))) ||
+        true;
+
+      if (!sharePost) {
+        return null;
+      }
+
       await onSubmitPost(
         e,
         {
