@@ -22,7 +22,13 @@ export const useScrollRestoration = (): void => {
   useEffect(() => {
     const scrollPosition = scrollPositions[pathname] || 0;
 
-    window.scrollTo(0, scrollPosition);
+    // Add a small delay to ensure content is loaded before restoring scroll
+    // This is especially important for feed pages that load content dynamically
+    const timeoutId = setTimeout(() => {
+      window.scrollTo(0, scrollPosition);
+    }, 50);
+
+    return () => clearTimeout(timeoutId);
   }, [pathname]);
 };
 
