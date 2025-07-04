@@ -20,13 +20,13 @@ const useShowFollowAction = ({
   entityType,
 }: UseShowFollowActionProps): UseShowFollowAction => {
   const [showActionBtn, setShowActionBtn] = useState(false);
-  const { data, status, isLoading } = useContentPreferenceStatusQuery({
+  const { data, isSuccess, isLoading } = useContentPreferenceStatusQuery({
     id: entityId,
     entity: entityType,
   });
 
   useEffect(() => {
-    if (status === 'success' && !showActionBtn) {
+    if (isSuccess && !showActionBtn) {
       setShowActionBtn(
         ![
           ContentPreferenceStatus.Follow,
@@ -34,7 +34,7 @@ const useShowFollowAction = ({
         ].includes(data?.status),
       );
     }
-  }, [status, data?.status, showActionBtn]);
+  }, [isSuccess, data?.status, showActionBtn]);
 
   return { showActionBtn, isLoading };
 };
