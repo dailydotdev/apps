@@ -151,7 +151,7 @@ const PostOptionButtonContent = ({
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
-  const post = loadedPost ?? initialPost;
+  const post = loadedPost ?? (initialPost as Post);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
@@ -608,7 +608,7 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (post?.source?.name) {
+  if (post?.source?.name && post?.source?.type !== SourceType.User) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: getBlockLabel(post.source.name, {
