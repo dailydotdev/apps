@@ -6,7 +6,7 @@ import SourceButton from '../cards/common/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileImageSize } from '../ProfilePicture';
-import { MedalBadgeIcon } from '../icons';
+import { BriefGradientIcon, MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { BadgeIconGoldGradient } from '../badges/BadgeIcon';
 import { Image, ImageType } from '../image/Image';
@@ -73,6 +73,14 @@ function NotificationItemAvatar({
           fill="url(#goldGradient)"
         />
         <BadgeIconGoldGradient />
+      </span>
+    );
+  }
+
+  if (type === NotificationAvatarType.Brief) {
+    return (
+      <span className="rounded-8 bg-surface-float p-1">
+        <BriefGradientIcon secondary size={IconSize.Small} />
       </span>
     );
   }

@@ -15,14 +15,18 @@ interface CollectionPillSourcesProps {
   sources: SourceAvatarProps['source'][];
   alwaysShowSources?: boolean;
   totalSources: number;
+  size?: ProfileImageSize;
   children?: ReactNode;
+  limit?: number;
 }
 export const CollectionPillSources = ({
   className,
   sources,
   totalSources,
   alwaysShowSources = false,
+  size = ProfileImageSize.Medium,
   children,
+  limit,
 }: CollectionPillSourcesProps): ReactElement => {
   const hasSources = !!sources?.length;
 
@@ -39,7 +43,8 @@ export const CollectionPillSources = ({
             'hidden group-hover:flex': !alwaysShowSources,
           })}
           total={totalSources}
-          size={ProfileImageSize.Medium}
+          size={size}
+          limit={limit}
         >
           {sources.map((source) => (
             <SourceAvatar
@@ -49,7 +54,7 @@ export const CollectionPillSources = ({
               )}
               key={source.handle}
               source={source}
-              size={ProfileImageSize.Medium}
+              size={size}
             />
           ))}
         </ProfilePictureGroup>

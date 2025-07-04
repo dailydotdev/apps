@@ -20,3 +20,15 @@ export type FAQItem = {
   question: string;
   answer: React.ReactNode;
 };
+
+export enum PostType {
+  Article = 'article',
+  Share = 'share',
+  Welcome = 'welcome',
+  Freeform = 'freeform',
+  VideoYouTube = 'video:youtube',
+  Collection = 'collection',
+  Brief = 'brief',
+}
+
+export const briefSourcesLimit = 6;

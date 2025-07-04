@@ -33,6 +33,7 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { BriefPostContent } from '@dailydotdev/shared/src/components/post/brief/BriefPostContent';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -90,6 +91,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   freeform: SquadPostContent,
   [PostType.VideoYouTube]: PostContent,
   collection: CollectionPostContent,
+  [PostType.Brief]: BriefPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {
