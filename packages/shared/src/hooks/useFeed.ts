@@ -66,7 +66,7 @@ export type FeedItem =
   | PlusEntryItem;
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
-  item.type === FeedItemType.Ad && !!item.ad.data?.post;
+  item?.type === FeedItemType.Ad && !!item.ad.data?.post;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
