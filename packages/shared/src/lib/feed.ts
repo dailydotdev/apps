@@ -94,7 +94,7 @@ export interface FeedItemPosition {
 
 export type PostLogEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
-  isAd?: boolean;
+  is_ad?: boolean;
 };
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
@@ -106,7 +106,7 @@ export function postLogEvent(
 ): PostItemLogEvent {
   const extra: Record<string, unknown> = {
     ...opts?.extra,
-    ...(opts?.isAd && { is_ad: true }),
+    ...(opts?.is_ad && { is_ad: true }),
   };
 
   if (typeof window !== 'undefined') {
@@ -234,7 +234,7 @@ export function usePostLogEvent() {
     ) => {
       return postLogEvent(eventName, post, {
         ...opts,
-        isAd: !!boostedBy,
+        is_ad: !!boostedBy,
       });
     },
     [boostedBy],

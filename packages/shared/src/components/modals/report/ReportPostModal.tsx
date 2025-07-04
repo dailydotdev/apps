@@ -156,7 +156,7 @@ export function ReportPostModal({
     logEvent(
       postLogEvent('report post', post, {
         extra: { origin, reason, comment: text },
-        isAd,
+        is_ad: isAd,
       }),
     );
 

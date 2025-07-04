@@ -378,7 +378,7 @@ export default function Feed<T>({
         column,
         row,
         ...feedLogExtra(feedName, ranking),
-        isAd,
+        is_ad: isAd,
       }),
     );
     if (!shouldUseListFeedLayout) {

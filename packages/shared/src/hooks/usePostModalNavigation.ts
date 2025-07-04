@@ -282,7 +282,7 @@ export const usePostModalNavigation = ({
         logEvent(
           postLogEvent('navigate previous', current, {
             extra: { origin: Origin.ArticleModal },
-            isAd: selectedPostIsAd,
+            is_ad: selectedPostIsAd,
           }),
         );
       }
@@ -312,7 +312,7 @@ export const usePostModalNavigation = ({
       logEvent(
         postLogEvent('navigate next', current, {
           extra: { origin: Origin.ArticleModal },
-          isAd: selectedPostIsAd,
+          is_ad: selectedPostIsAd,
         }),
       );
       onChangeSelected(index);
