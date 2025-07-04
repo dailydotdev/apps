@@ -50,6 +50,7 @@ import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedItemType } from './cards/common/common';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
+import ConditionalWrapper from './ConditionalWrapper';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -236,6 +237,7 @@ export default function Feed<T>({
     onNext,
     postPosition,
     selectedPost,
+    selectedPostIsAd,
   } = usePostModalNavigation({
     items,
     fetchPage,
@@ -478,15 +480,28 @@ export default function Feed<T>({
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
             {!shouldUseListFeedLayout && selectedPost && PostModal && (
-              <PostModal
-                isOpen={!!selectedPost}
-                id={selectedPost.id}
-                onRequestClose={onPostModalClose}
-                onPreviousPost={onPrevious}
-                onNextPost={onNext}
-                postPosition={postPosition}
-                post={selectedPost}
-              />
+              <ConditionalWrapper
+                condition={selectedPostIsAd}
+                wrapper={(children) => (
+                  <FeedCardContext.Provider
+                    value={{
+                      boostedBy: selectedPost.author || selectedPost.scout,
+                    }}
+                  >
+                    {children}
+                  </FeedCardContext.Provider>
+                )}
+              >
+                <PostModal
+                  isOpen={!!selectedPost}
+                  id={selectedPost.id}
+                  onRequestClose={onPostModalClose}
+                  onPreviousPost={onPrevious}
+                  onNextPost={onNext}
+                  postPosition={postPosition}
+                  post={selectedPost}
+                />
+              </ConditionalWrapper>
             )}
           </>
         )}

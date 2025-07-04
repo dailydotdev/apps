@@ -36,6 +36,7 @@ interface UsePostModalNavigation {
   isFetchingNextPage?: boolean;
   selectedPost: Post | null;
   selectedPostIndex: number;
+  selectedPostIsAd: boolean;
 }
 
 export type UsePostModalNavigationProps = {
@@ -241,9 +242,15 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
+  const selectedPostItem =
+    openedPostIndex !== undefined ? items[openedPostIndex] : null;
+  const selectedPostIsAd =
+    selectedPostItem?.type === 'ad' && !!selectedPostItem.ad.data?.post;
+
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
+    selectedPostIsAd,
     onCloseModal: async () => {
       const searchParams = new URLSearchParams(window.location.search);
 
@@ -275,6 +282,7 @@ export const usePostModalNavigation = ({
         logEvent(
           postLogEvent('navigate previous', current, {
             extra: { origin: Origin.ArticleModal },
+            isAd: selectedPostIsAd,
           }),
         );
       }
@@ -304,6 +312,7 @@ export const usePostModalNavigation = ({
       logEvent(
         postLogEvent('navigate next', current, {
           extra: { origin: Origin.ArticleModal },
+          isAd: selectedPostIsAd,
         }),
       );
       onChangeSelected(index);
