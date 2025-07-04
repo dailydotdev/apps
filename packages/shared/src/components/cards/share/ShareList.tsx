@@ -22,6 +22,7 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { SourceType } from '../../../graphql/sources';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -50,6 +51,7 @@ export const ShareList = forwardRef(function ShareList(
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
+  const isUserSource = post.source.type === SourceType.User;
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -105,11 +107,13 @@ export const ShareList = forwardRef(function ShareList(
         }}
         postLink={post.sharedPost.permalink}
       >
-        <SourceButton
-          size={ProfileImageSize.Large}
-          source={post.source}
-          className="relative"
-        />
+        {!isUserSource && (
+          <SourceButton
+            size={ProfileImageSize.Large}
+            source={post.source}
+            className="relative"
+          />
+        )}
       </PostCardHeader>
       <CardContent>
         <div className="mr-4 flex flex-1 flex-col">
