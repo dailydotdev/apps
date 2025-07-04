@@ -67,11 +67,6 @@ export const featurePlusButtonColors = new Feature<
 
 export const featureInteractiveFeed = new Feature('interactive_feed', false);
 
-export const featureOnboardingGridVariationV1 = new Feature(
-  'onboarding_plus_feature_grid_v1',
-  false,
-);
-
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 export const featureOnboardingGridVariation = new Feature(
   'onboarding_feature_grid_variation',

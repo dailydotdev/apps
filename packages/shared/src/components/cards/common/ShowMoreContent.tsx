@@ -39,7 +39,7 @@ export default function ShowMoreContent({
   return (
     <div className={className}>
       <p
-        className="select-text break-words typo-body"
+        className="select-text break-words typo-markdown"
         data-testid="tldr-container"
       >
         {contentPrefix}
