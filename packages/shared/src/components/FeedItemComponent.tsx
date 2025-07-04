@@ -186,7 +186,7 @@ export default function FeedItemComponent({
   );
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
-  const { isAd } = useFeedCardContext();
+  const { boostedBy } = useFeedCardContext();
   const {
     PostTag,
     AdTag,
@@ -269,7 +269,7 @@ export default function FeedItemComponent({
         }
         menuOpened={postMenuIndex === index}
         onCommentClick={(post) =>
-          onCommentClick(post, index, row, column, isAd)
+          onCommentClick(post, index, row, column, !!boostedBy)
         }
         eagerLoadImage={row === 0 && column === 0}
       >

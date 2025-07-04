@@ -444,7 +444,6 @@ export default function Feed<T>({
                     item.type === FeedItemType.Ad &&
                     !!item.ad.data?.post &&
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
-                  isAd: item.type === FeedItemType.Ad && !!item.ad.data?.post,
                 }}
               >
                 <FeedItemComponent
