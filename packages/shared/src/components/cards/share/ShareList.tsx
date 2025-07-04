@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -22,6 +22,7 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { isSourceUserSource } from '../../../graphql/sources';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -50,6 +51,7 @@ export const ShareList = forwardRef(function ShareList(
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
+  const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -64,6 +66,36 @@ export const ShareList = forwardRef(function ShareList(
       />
     </Container>
   );
+
+  const metadata = useMemo(() => {
+    if (isUserSource) {
+      return {
+        topLabel: post.author.name,
+      };
+    }
+
+    return {
+      topLabel: enableSourceHeader ? (
+        <Link href={post.source.permalink}>
+          <a href={post.source.permalink} className="relative z-1">
+            {post.source.name}
+          </a>
+        </Link>
+      ) : (
+        post.author.name
+      ),
+      bottomLabel: enableSourceHeader
+        ? post.author.name
+        : `@${post.sharedPost?.source.handle}`,
+    };
+  }, [
+    enableSourceHeader,
+    isUserSource,
+    post.author.name,
+    post.sharedPost?.source.handle,
+    post.source.name,
+    post.source.permalink,
+  ]);
 
   return (
     <FeedItemContainer
@@ -89,27 +121,16 @@ export const ShareList = forwardRef(function ShareList(
         }}
         openNewTab={openNewTab}
         onReadArticleClick={onReadArticleClick}
-        metadata={{
-          topLabel: enableSourceHeader ? (
-            <Link href={post.source.permalink}>
-              <a href={post.source.permalink} className="relative z-1">
-                {post.source.name}
-              </a>
-            </Link>
-          ) : (
-            post.author.name
-          ),
-          bottomLabel: enableSourceHeader
-            ? post.author.name
-            : `@${post.sharedPost?.source.handle}`,
-        }}
+        metadata={metadata}
         postLink={post.sharedPost.permalink}
       >
-        <SourceButton
-          size={ProfileImageSize.Large}
-          source={post.source}
-          className="relative"
-        />
+        {!isUserSource && (
+          <SourceButton
+            size={ProfileImageSize.Large}
+            source={post.source}
+            className="relative"
+          />
+        )}
       </PostCardHeader>
       <CardContent>
         <div className="mr-4 flex flex-1 flex-col">

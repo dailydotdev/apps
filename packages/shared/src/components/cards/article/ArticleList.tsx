@@ -27,6 +27,7 @@ import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { isSourceUserSource } from '../../../graphql/sources';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -56,6 +57,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
+  const isUserSource = isSourceUserSource(post.source);
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
       <ActionButtons
@@ -119,11 +121,13 @@ export const ArticleList = forwardRef(function ArticleList(
                 ),
               }}
             >
-              <SourceButton
-                size={ProfileImageSize.Large}
-                source={post.source}
-                className="relative"
-              />
+              {!isUserSource && (
+                <SourceButton
+                  size={ProfileImageSize.Large}
+                  source={post.source}
+                  className="relative"
+                />
+              )}
             </PostCardHeader>
 
             <CardContent>

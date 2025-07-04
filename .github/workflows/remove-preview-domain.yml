@@ -17,9 +17,11 @@ jobs:
         with:
           script: |
             const subdomain = `${{ github.head_ref }}`
+              .toLowerCase()
               .slice(0, 32)
-              // Remove any trailing non-alphanumeric characters
-              .replace(/[^a-zA-Z0-9](?=[^a-zA-Z0-9]*$)/, '')
+              .replace(/[^a-z0-9-]/g, '-')
+              .replace(/^-+|-+$/g, '')
+              .replace(/-{2,}/g, '-')
 
             const domain = `${subdomain}.${{ vars.PREVIEW_DOMAIN }}`
               .toLowerCase()
