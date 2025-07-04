@@ -60,6 +60,7 @@ export interface BasicSourceMember {
 export enum SourceType {
   Machine = 'machine',
   Squad = 'squad',
+  User = 'user',
 }
 
 export interface Squad extends Source {

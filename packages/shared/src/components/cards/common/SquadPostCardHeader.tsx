@@ -13,6 +13,7 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { useBookmarkProvider } from '../../../hooks';
 import type { UserShortProfile } from '../../../lib/user';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
+import { SourceType } from '../../../graphql/sources';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -33,6 +34,7 @@ export const SquadPostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
+  const isUserSource = post.source.type === SourceType.User;
 
   return (
     <>
@@ -51,18 +53,20 @@ export const SquadPostCardHeader = ({
         )}
       >
         <div className="relative flex w-full flex-row gap-2">
-          <SourceButton
-            source={source}
-            className={classNames(
-              'z-0',
-              !enableSourceHeader && 'absolute -bottom-2 -right-2',
-            )}
-            size={
-              !!author || enableSourceHeader
-                ? ProfileImageSize.Medium
-                : ProfileImageSize.XSmall
-            }
-          />
+          {!isUserSource && (
+            <SourceButton
+              source={source}
+              className={classNames(
+                'z-0',
+                !enableSourceHeader && 'absolute -bottom-2 -right-2',
+              )}
+              size={
+                !!author || enableSourceHeader
+                  ? ProfileImageSize.Medium
+                  : ProfileImageSize.XSmall
+              }
+            />
+          )}
           {author && (
             <HoverCard
               align="start"

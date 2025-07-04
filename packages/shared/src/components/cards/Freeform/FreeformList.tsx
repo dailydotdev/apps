@@ -25,6 +25,7 @@ import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
+import { SourceType } from '../../../graphql/sources';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -57,6 +58,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
+  const isUserSource = post.source.type === SourceType.User;
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -102,10 +104,12 @@ export const FreeformList = forwardRef(function SharePostCard(
               : `@${post.source.handle ?? post.sharedPost.source.handle}`,
           }}
         >
-          <SquadHeaderPicture
-            source={post.source}
-            reverse={!enableSourceHeader}
-          />
+          {!isUserSource && (
+            <SquadHeaderPicture
+              source={post.source}
+              reverse={!enableSourceHeader}
+            />
+          )}
         </PostCardHeader>
 
         <CardContent className="my-2">
