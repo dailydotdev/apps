@@ -9,7 +9,7 @@ import { FooterLinks } from '../../../components/footer';
 import AuthOptions from '../../../components/auth/AuthOptions';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
-import { useActions, useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
 import type { AuthProps } from '../../../components/auth/common';
 import { AuthDisplay } from '../../../components/auth/common';
 import { ExperimentWinner } from '../../../lib/featureValues';
@@ -23,6 +23,7 @@ import {
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
 } from '../../../lib/image';
+import { useOnboardingActions } from '../../../hooks/auth';
 
 type FunnelOrganicSignupProps = FunnelStepOrganicSignup;
 
@@ -64,7 +65,8 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const isMobile = useViewSize(ViewSize.MobileL);
     const setAuth = useSetAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
-    const { isActionsFetched } = useActions();
+    const { isOnboardingActionsReady, isOnboardingComplete } =
+      useOnboardingActions();
     const [authDisplay, setAuthDisplay] = useState(
       AuthDisplay.OnboardingSignup,
     );
@@ -87,7 +89,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             defaultDisplay === AuthDisplay.Registration &&
             !!data.isAuthenticating
           ) {
-            // This step is on charge of the email registration flow,
+            // This step is in charge of the email registration flow,
             // is not required to setAuth for isAuthenticating true.
             return;
           }
@@ -134,7 +136,12 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     );
 
     useEffect(() => {
-      if (!isAuthReady || !user || (user && !isActionsFetched)) {
+      if (
+        !isAuthReady ||
+        !user ||
+        (user && !isOnboardingActionsReady) ||
+        isOnboardingComplete
+      ) {
         return;
       }
 
@@ -146,9 +153,19 @@ export const FunnelOrganicSignup = withIsActiveGuard(
       }
 
       hasAlreadyCheckedUser.current = true;
-    }, [isActionsFetched, isAuthReady, isLoggedIn, onTransition, user]);
+    }, [
+      isAuthReady,
+      isOnboardingActionsReady,
+      isOnboardingComplete,
+      onTransition,
+      user,
+    ]);
 
-    if (!isAuthReady || (isLoggedIn && user.infoConfirmed)) {
+    if (
+      !isAuthReady ||
+      (isLoggedIn && user.infoConfirmed) ||
+      isOnboardingComplete
+    ) {
       return null;
     }
 
