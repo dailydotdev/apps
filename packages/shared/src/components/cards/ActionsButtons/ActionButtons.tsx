@@ -10,12 +10,7 @@ import {
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
@@ -133,7 +128,7 @@ const ActionButtons = ({
           content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
           side="bottom"
         >
-          <Button
+          <QuaternaryButton
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
@@ -182,7 +177,7 @@ const ActionButtons = ({
           iconSize={IconSize.XSmall}
         />
         <Tooltip content="Copy link" side="bottom">
-          <Button
+          <QuaternaryButton
             size={ButtonSize.Small}
             icon={<LinkIcon size={IconSize.XSmall} />}
             onClick={onCopyLink}

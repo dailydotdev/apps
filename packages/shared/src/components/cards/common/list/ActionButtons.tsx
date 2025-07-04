@@ -9,7 +9,7 @@ import {
   DiscussIcon as CommentIcon,
   LinkIcon,
 } from '../../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
+import { ButtonColor, ButtonVariant } from '../../../buttons/Button';
 import {
   useFeedPreviewMode,
   usePostActions,
@@ -143,7 +143,7 @@ export default function ActionButtons({
               : 'Downvote'
           }
         >
-          <Button
+          <QuaternaryButton
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
@@ -195,7 +195,7 @@ export default function ActionButtons({
           }}
         />
         <Tooltip content="Copy link">
-          <Button
+          <QuaternaryButton
             className="pointer-events-auto hover:bg-overlay-float-water hover:text-text-link"
             icon={<LinkIcon />}
             onClick={onCopyLink}
