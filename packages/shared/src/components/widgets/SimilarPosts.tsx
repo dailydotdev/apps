@@ -10,6 +10,7 @@ import { CardLink } from '../cards/common/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
+import { ActiveFeedContext } from '../../contexts';
 import LogContext from '../../contexts/LogContext';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
@@ -110,6 +111,7 @@ export default function SimilarPosts({
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
   const { logEvent } = useContext(LogContext);
+  const { logOpts } = useContext(ActiveFeedContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
   const moreButtonText = moreButtonProps?.text || 'View all';
@@ -118,6 +120,7 @@ export default function SimilarPosts({
     logEvent(
       postLogEvent('click', post, {
         extra: { origin: 'recommendation' },
+        ...(logOpts && logOpts),
       }),
     );
   };

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
@@ -11,10 +11,12 @@ import {
 } from '../../icons';
 import { SocialIconType } from '../../../lib/socialMedia';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, Origin } from '../../../lib/log';
+import { Origin } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ReferralCampaignKey } from '../../../lib';
 import { getShortLinkProps } from '../../../hooks';
+import { postLogEvent } from '../../../lib/feed';
+import { ActiveFeedContext } from '../../../contexts';
 
 type SocialShareButtonProps = {
   post: Post;
@@ -87,6 +89,7 @@ const SocialIconButton = ({
     user,
   );
   const { logEvent } = useLogContext();
+  const { logOpts } = useContext(ActiveFeedContext);
   const linkData = queryClient.getQueryData<string | undefined>(linkKey);
 
   return (
@@ -94,13 +97,15 @@ const SocialIconButton = ({
       variant={variant}
       tag="a"
       onClick={() =>
-        logEvent({
-          event_name: LogEvent.SharePost,
-          extra: JSON.stringify({
-            provider: platform,
-            origin: Origin.Suggestions,
+        logEvent(
+          postLogEvent('share post', post, {
+            extra: {
+              provider: platform,
+              origin: Origin.Suggestions,
+            },
+            ...(logOpts && logOpts),
           }),
-        })
+        )
       }
       {...getBtnProps({
         post,
