@@ -18,7 +18,7 @@ import { ProfileImageSize } from '../../../ProfilePicture';
 import { ProfileImageLink } from '../../../profile/ProfileImageLink';
 import type { UserShortProfile } from '../../../../lib/user';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
-import { SourceType } from '../../../../graphql/sources';
+import { isSourceUserSource } from '../../../../graphql/sources';
 
 const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('../HoverCard'),
@@ -60,6 +60,7 @@ export const PostCardHeader = ({
   });
 
   const isCollectionType = post.type === 'collection';
+  const isUserSource = isSourceUserSource(post.source);
   const showCTA =
     !isFeedPreview &&
     [PostType.Article, PostType.VideoYouTube].includes(post.type);
@@ -80,10 +81,9 @@ export const PostCardHeader = ({
               <ProfileImageLink
                 className={classNames('z-1', !!children && 'ml-2')}
                 picture={{
-                  size:
-                    post.source?.type === SourceType.User
-                      ? ProfileImageSize.Large
-                      : ProfileImageSize.Medium,
+                  size: isUserSource
+                    ? ProfileImageSize.Large
+                    : ProfileImageSize.Medium,
                 }}
                 user={post.author}
               />

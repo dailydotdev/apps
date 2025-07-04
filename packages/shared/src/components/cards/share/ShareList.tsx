@@ -22,7 +22,7 @@ import ActionButtons from '../common/list/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { SourceType } from '../../../graphql/sources';
+import { isSourceUserSource } from '../../../graphql/sources';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -51,7 +51,7 @@ export const ShareList = forwardRef(function ShareList(
   const isVideoType = isVideoPost(post);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
-  const isUserSource = post.source.type === SourceType.User;
+  const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -68,7 +68,7 @@ export const ShareList = forwardRef(function ShareList(
   );
 
   const metadata = useMemo(() => {
-    if (post.source.type === SourceType.User) {
+    if (isUserSource) {
       return {
         topLabel: post.author.name,
       };
@@ -90,11 +90,11 @@ export const ShareList = forwardRef(function ShareList(
     };
   }, [
     enableSourceHeader,
+    isUserSource,
     post.author.name,
     post.sharedPost?.source.handle,
     post.source.name,
     post.source.permalink,
-    post.source.type,
   ]);
 
   return (

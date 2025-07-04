@@ -6,7 +6,7 @@ import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import type { Squad } from '../../graphql/sources';
-import { SourceType } from '../../graphql/sources';
+import { isSourceUserSource } from '../../graphql/sources';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import type { PostWidgetsProps } from './PostWidgets';
 import { FooterLinks } from '../footer';
@@ -22,7 +22,7 @@ export function SquadPostWidgets({
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const squad = post.source as Squad;
-  const isUserSource = post.source.type === SourceType.User;
+  const isUserSource = isSourceUserSource(post.source);
   const isPublicSquad = isSourcePublicSquad(squad);
 
   const cardClasses = 'w-full bg-transparent';
