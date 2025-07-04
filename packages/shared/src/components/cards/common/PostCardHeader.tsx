@@ -8,7 +8,7 @@ import type { Source } from '../../../graphql/sources';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
@@ -69,6 +69,7 @@ export const PostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
   });
+
   const articleLink = useMemo(() => {
     if (post.sharedPost) {
       const shouldUseInternalLink =
