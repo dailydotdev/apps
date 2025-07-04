@@ -13,6 +13,7 @@ import { SearchPanelUserSuggestions } from './SearchPanelUserSuggestions';
 import { useEventListener } from '../../../hooks';
 import { useSearchProvider } from '../../../hooks/search';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useSearchContextProvider } from '../../../contexts/search/SearchContext';
 
 type Props = {
   anchor: MutableRefObject<HTMLElement>;
@@ -21,6 +22,7 @@ type Props = {
 
 const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
   const { search } = useSearchProvider();
+  const { time, contentCurationFilter } = useSearchContextProvider();
   const { logEvent } = useLogContext();
 
   useEventListener(anchor, 'keydown', (event) => {
@@ -85,6 +87,7 @@ const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
               extra: JSON.stringify({
                 query,
                 provider: SearchProviderEnum.Posts,
+                filters: { time, contentCuration: contentCurationFilter },
               }),
             });
 
