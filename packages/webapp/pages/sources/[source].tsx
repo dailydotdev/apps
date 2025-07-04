@@ -19,6 +19,7 @@ import type {
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import {
+  isSourceUserSource,
   SIMILAR_SOURCES_QUERY,
   SOURCE_QUERY,
   SOURCE_RELATED_TAGS_QUERY,
@@ -273,7 +274,7 @@ export async function getStaticProps({
       id: params?.source,
     });
 
-    if (res.source?.type === SourceType.User) {
+    if (isSourceUserSource(res.source)) {
       return {
         redirect: {
           destination: `/${res.source.id}`,

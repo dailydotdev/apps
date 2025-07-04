@@ -64,7 +64,7 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
-import { SourceType } from '../../graphql/sources';
+import { isSourceUserSource, SourceType } from '../../graphql/sources';
 import { generateQueryKey, getPostByIdKey, RequestKey } from '../../lib/query';
 import { usePostMenuActions } from '../../hooks/usePostMenuActions';
 import type { Post } from '../../graphql/posts';
@@ -151,7 +151,7 @@ const PostOptionButtonContent = ({
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
-  const post = loadedPost ?? initialPost;
+  const post = loadedPost ?? (initialPost as Post);
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
@@ -608,7 +608,7 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (post?.source?.name) {
+  if (post?.source?.name && !isSourceUserSource(post?.source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: getBlockLabel(post.source.name, {
