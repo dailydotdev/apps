@@ -25,6 +25,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { isSourceUserSource } from '../../graphql/sources';
 
 export interface PostItemCardProps {
   className?: string;
@@ -39,7 +40,7 @@ export interface PostItemCardProps {
 
 const SourceShadow = classed(
   'div',
-  'absolute left-5 -my-1 w-8 h-8 rounded-full bg-background-default',
+  'absolute left-5 -my-1 w-8 h-8 bg-background-default',
 );
 
 export default function PostItemCard({
@@ -59,6 +60,7 @@ export default function PostItemCard({
     onHide({ postId: post.id, timestamp: timestampDb });
   };
   const article = post?.sharedPost ?? post;
+  const isUserSource = isSourceUserSource(post.source);
 
   const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
 
@@ -89,16 +91,21 @@ export default function PostItemCard({
             loading="lazy"
             fallbackSrc={cloudinaryPostImageCoverPlaceholder}
           />
-          <SourceShadow className={showVoteActions && 'top-8'} />
+          <SourceShadow
+            className={classNames(
+              showVoteActions && 'top-8',
+              isUserSource ? 'rounded-12' : 'rounded-full',
+            )}
+          />
           <ProfilePicture
             size={ProfileImageSize.Small}
-            rounded="full"
+            rounded={isUserSource ? ProfileImageSize.Small : 'full'}
             className={classNames(
               'absolute left-6',
               showVoteActions && 'top-8',
             )}
             user={{
-              image: post.source.image,
+              image: isUserSource ? post.author.image : post.source.image,
               username: `source of ${post.title}`,
             }}
             nativeLazyLoading
