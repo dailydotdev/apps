@@ -43,7 +43,7 @@ const SearchFilterPostTypeButton = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button
           variant={ButtonVariant.Float}
           icon={<FilterIcon />}

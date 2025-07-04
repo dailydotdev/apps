@@ -17,7 +17,7 @@ const SearchFilterTimeButton = () => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
