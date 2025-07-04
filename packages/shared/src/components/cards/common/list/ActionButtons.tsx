@@ -114,7 +114,7 @@ export default function ActionButtons({
         >
           <QuaternaryButton
             className="btn-tertiary-avocado pointer-events-auto"
-            labelClassName="pl-0"
+            labelClassName="!pl-0"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={post?.userState?.vote === UserVote.Up}
@@ -127,12 +127,13 @@ export default function ActionButtons({
               />
             }
           >
-            {post?.numUpvotes ? (
-              <InteractionCounter
-                className="tabular-nums"
-                value={post?.numUpvotes}
-              />
-            ) : null}
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums',
+                !post?.numUpvotes && 'invisible',
+              )}
+              value={post?.numUpvotes}
+            />
           </QuaternaryButton>
         </Tooltip>
         <Tooltip
@@ -143,7 +144,7 @@ export default function ActionButtons({
           }
         >
           <Button
-            className="pointer-events-auto"
+            className="pointer-events-auto pr-[1ch]"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
             icon={
@@ -161,7 +162,7 @@ export default function ActionButtons({
           href={post.commentsPermalink}
         >
           <QuaternaryButton
-            labelClassName="pl-0"
+            labelClassName="!pl-0"
             id={`post-${post.id}-comment-btn`}
             className="btn-tertiary-blueCheese pointer-events-auto"
             color={ButtonColor.BlueCheese}
@@ -174,12 +175,13 @@ export default function ActionButtons({
             }
             onClick={() => onCommentClick?.(post)}
           >
-            {post?.numComments > 0 ? (
-              <InteractionCounter
-                className="tabular-nums"
-                value={post.numComments}
-              />
-            ) : null}
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums',
+                !post.numComments && 'invisible',
+              )}
+              value={post.numComments}
+            />
           </QuaternaryButton>
         </LinkWithTooltip>
         <PostAwardAction iconSize={IconSize.Medium} post={post} />
@@ -189,7 +191,7 @@ export default function ActionButtons({
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
             variant: ButtonVariant.Tertiary,
-            className: 'pointer-events-auto',
+            className: 'pointer-events-auto pr-[1ch]',
           }}
         />
         <Tooltip content="Copy link">

@@ -105,8 +105,8 @@ const ActionButtons = ({
           side="bottom"
         >
           <QuaternaryButton
-            labelClassName="pl-0"
-            className="btn-tertiary-avocado pointer-events-auto px-0"
+            labelClassName="!pl-0"
+            className="btn-tertiary-avocado pointer-events-auto"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
@@ -120,15 +120,13 @@ const ActionButtons = ({
               />
             }
           >
-            {post?.numUpvotes > 0 && (
-              <InteractionCounter
-                className={classNames(
-                  'tabular-nums typo-footnote',
-                  !post.numUpvotes && 'invisible',
-                )}
-                value={post.numUpvotes}
-              />
-            )}
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums typo-footnote',
+                !post.numUpvotes && 'invisible',
+              )}
+              value={post.numUpvotes}
+            />
           </QuaternaryButton>
         </Tooltip>
         <Tooltip
@@ -136,7 +134,7 @@ const ActionButtons = ({
           side="bottom"
         >
           <Button
-            className="pointer-events-auto"
+            className="pointer-events-auto pr-[1ch]"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
             icon={
@@ -153,7 +151,7 @@ const ActionButtons = ({
         </Tooltip>
         <Tooltip content="Comments" side="bottom">
           <QuaternaryButton
-            labelClassName="pl-0"
+            labelClassName="!pl-0"
             id={`post-${post.id}-comment-btn`}
             icon={
               <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
@@ -163,12 +161,13 @@ const ActionButtons = ({
             size={ButtonSize.Small}
             className="btn-tertiary-blueCheese"
           >
-            {post.numComments ? (
-              <InteractionCounter
-                className="tabular-nums !typo-footnote"
-                value={post.numComments}
-              />
-            ) : null}
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums !typo-footnote',
+                !post.numComments && 'invisible',
+              )}
+              value={post.numComments}
+            />
           </QuaternaryButton>
         </Tooltip>
         <PostAwardAction post={post} iconSize={IconSize.XSmall} />
@@ -179,6 +178,7 @@ const ActionButtons = ({
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
             size: ButtonSize.Small,
+            className: 'pr-[1ch]',
           }}
           iconSize={IconSize.XSmall}
         />

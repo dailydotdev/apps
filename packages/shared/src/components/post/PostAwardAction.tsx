@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -71,7 +72,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         size={ButtonSize.Small}
         className="btn-tertiary-cabbage pointer-events-auto"
         variant={ButtonVariant.Tertiary}
-        labelClassName="pl-0"
+        labelClassName="!pl-0"
         color={ButtonColor.Cabbage}
         icon={
           post.featuredAward?.award?.image ? (
@@ -85,12 +86,13 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
           )
         }
       >
-        {post?.numAwards > 0 && (
-          <InteractionCounter
-            className="tabular-nums !typo-footnote"
-            value={post.numAwards}
-          />
-        )}
+        <InteractionCounter
+          className={classNames(
+            'tabular-nums !typo-footnote',
+            !post.numAwards && 'invisible',
+          )}
+          value={post.numAwards}
+        />
       </QuaternaryButton>
     </Tooltip>
   );
