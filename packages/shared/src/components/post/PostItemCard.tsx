@@ -71,6 +71,8 @@ export default function PostItemCard({
     className,
   );
 
+  const title = post?.title || post?.sharedPost?.title;
+
   return (
     <article className={classNames(!clickable && classes)}>
       <ConditionalWrapper
@@ -106,7 +108,7 @@ export default function PostItemCard({
             )}
             user={{
               image: isUserSource ? post.author.image : post.source.image,
-              username: `source of ${post.title}`,
+              username: `source of ${title}`,
             }}
             nativeLazyLoading
           />
@@ -118,7 +120,7 @@ export default function PostItemCard({
           >
             <div className="ml-4 flex flex-1 flex-col">
               <h3 className="mr-6 line-clamp-2 flex flex-1 break-words text-left typo-callout">
-                {post.title}
+                {title}
               </h3>
               <PostMetadata
                 readTime={post.readTime}
