@@ -144,7 +144,7 @@ export default function ActionButtons({
           }
         >
           <Button
-            className="pointer-events-auto pr-[1ch]"
+            className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
             icon={
@@ -191,7 +191,7 @@ export default function ActionButtons({
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
             variant: ButtonVariant.Tertiary,
-            className: 'pointer-events-auto pr-[1ch]',
+            className: 'pointer-events-auto',
           }}
         />
         <Tooltip content="Copy link">

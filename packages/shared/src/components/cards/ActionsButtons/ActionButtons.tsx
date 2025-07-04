@@ -134,7 +134,7 @@ const ActionButtons = ({
           side="bottom"
         >
           <Button
-            className="pointer-events-auto pr-[1ch]"
+            className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
             icon={
@@ -178,7 +178,6 @@ const ActionButtons = ({
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
             size: ButtonSize.Small,
-            className: 'pr-[1ch]',
           }}
           iconSize={IconSize.XSmall}
         />

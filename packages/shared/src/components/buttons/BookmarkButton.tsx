@@ -56,9 +56,9 @@ export function BookmarkButton({
     },
   ];
 
-  const { onClick, ...buttonPropsWithoutOnClick } = buttonProps;
-
   if (hasReminder) {
+    const { onClick, ...buttonPropsWithoutOnClick } = buttonProps;
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger
