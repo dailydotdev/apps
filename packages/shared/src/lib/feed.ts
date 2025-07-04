@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type { FeedItem, PostItem } from '../hooks/useFeed';
 import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
@@ -225,14 +226,17 @@ export type FeedAdTemplate = {
 export function usePostLogEvent() {
   const { boostedBy } = useFeedCardContext();
 
-  return (
-    eventName: string,
-    post: Post | ReadHistoryPost | PostBootData,
-    opts?: PostLogEventFnOptions,
-  ) => {
-    return postLogEvent(eventName, post, {
-      ...opts,
-      isAd: !!boostedBy,
-    });
-  };
+  return useCallback(
+    (
+      eventName: string,
+      post: Post | ReadHistoryPost | PostBootData,
+      opts?: PostLogEventFnOptions,
+    ) => {
+      return postLogEvent(eventName, post, {
+        ...opts,
+        isAd: !!boostedBy,
+      });
+    },
+    [boostedBy],
+  );
 }

@@ -50,7 +50,6 @@ import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedItemType } from './cards/common/common';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
-import ConditionalWrapper from './ConditionalWrapper';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -198,6 +197,22 @@ export default function Feed<T>({
   });
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    postPosition,
+    selectedPost,
+    selectedPostIsAd,
+  } = usePostModalNavigation({
+    items,
+    fetchPage,
+    updatePost,
+    canFetchMore,
+    feedName,
+  });
+
   const logOpts = useMemo(() => {
     return {
       columns: virtualizedNumCards,
@@ -207,8 +222,9 @@ export default function Feed<T>({
       column: !isNullOrUndefined(postModalIndex?.column)
         ? postModalIndex.column
         : postMenuLocation?.column,
+      is_ad: selectedPostIsAd ? true : undefined,
     };
-  }, [postMenuLocation, virtualizedNumCards, postModalIndex]);
+  }, [postMenuLocation, virtualizedNumCards, postModalIndex, selectedPostIsAd]);
 
   const onRemovePost = useCallback(
     async (removePostIndex: number) => {
@@ -230,21 +246,6 @@ export default function Feed<T>({
   }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
 
   const { ranking } = (variables as RankVariables) || {};
-  const {
-    onOpenModal,
-    onCloseModal,
-    onPrevious,
-    onNext,
-    postPosition,
-    selectedPost,
-    selectedPostIsAd,
-  } = usePostModalNavigation({
-    items,
-    fetchPage,
-    updatePost,
-    canFetchMore,
-    feedName,
-  });
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
@@ -480,28 +481,15 @@ export default function Feed<T>({
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
             {!shouldUseListFeedLayout && selectedPost && PostModal && (
-              <ConditionalWrapper
-                condition={selectedPostIsAd}
-                wrapper={(children) => (
-                  <FeedCardContext.Provider
-                    value={{
-                      boostedBy: selectedPost.author || selectedPost.scout,
-                    }}
-                  >
-                    {children}
-                  </FeedCardContext.Provider>
-                )}
-              >
-                <PostModal
-                  isOpen={!!selectedPost}
-                  id={selectedPost.id}
-                  onRequestClose={onPostModalClose}
-                  onPreviousPost={onPrevious}
-                  onNextPost={onNext}
-                  postPosition={postPosition}
-                  post={selectedPost}
-                />
-              </ConditionalWrapper>
+              <PostModal
+                isOpen={!!selectedPost}
+                id={selectedPost.id}
+                onRequestClose={onPostModalClose}
+                onPreviousPost={onPrevious}
+                onNextPost={onNext}
+                postPosition={postPosition}
+                post={selectedPost}
+              />
             )}
           </>
         )}
