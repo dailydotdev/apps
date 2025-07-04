@@ -15,7 +15,6 @@ import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
-import { useSearchContextProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -41,7 +40,6 @@ export default function MainFeedPage({
 }: MainFeedPageProps): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { logEvent } = useLogContext();
-  const { time, contentCurationFilter } = useSearchContextProvider();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
@@ -118,13 +116,13 @@ export default function MainFeedPage({
             onNavTabClick={onNavTabClick}
             searchChildren={
               <PostsSearch
-                onSubmitQuery={async (query) => {
+                onSubmitQuery={async (query, extraFlags) => {
                   logEvent({
                     event_name: LogEvent.SubmitSearch,
                     extra: JSON.stringify({
                       query,
                       provider: SearchProviderEnum.Posts,
-                      filters: { time, contentCuration: contentCurationFilter },
+                      ...extraFlags,
                     }),
                   });
 
