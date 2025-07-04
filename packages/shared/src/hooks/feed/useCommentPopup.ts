@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { CommentOnData } from '../../graphql/comments';
 import { COMMENT_ON_POST_MUTATION } from '../../graphql/comments';
 import LogContext from '../../contexts/LogContext';
-import { feedLogExtra, postLogEvent } from '../../lib/feed';
+import { feedLogExtra, usePostLogEvent } from '../../lib/feed';
 import type { Post } from '../../graphql/posts';
 import { gqlClient } from '../../graphql/common';
 
@@ -22,6 +22,7 @@ export default function useCommentPopup(
   }) => Promise<CommentOnData>;
   showCommentPopupId: string;
 } {
+  const postLogEvent = usePostLogEvent();
   const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
   const { logEvent } = useContext(LogContext);
 

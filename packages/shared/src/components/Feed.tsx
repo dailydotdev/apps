@@ -196,6 +196,22 @@ export default function Feed<T>({
   });
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    postPosition,
+    selectedPost,
+    selectedPostIsAd,
+  } = usePostModalNavigation({
+    items,
+    fetchPage,
+    updatePost,
+    canFetchMore,
+    feedName,
+  });
+
   const logOpts = useMemo(() => {
     return {
       columns: virtualizedNumCards,
@@ -205,8 +221,9 @@ export default function Feed<T>({
       column: !isNullOrUndefined(postModalIndex?.column)
         ? postModalIndex.column
         : postMenuLocation?.column,
+      is_ad: selectedPostIsAd ? true : undefined,
     };
-  }, [postMenuLocation, virtualizedNumCards, postModalIndex]);
+  }, [postMenuLocation, virtualizedNumCards, postModalIndex, selectedPostIsAd]);
 
   const onRemovePost = useCallback(
     async (removePostIndex: number) => {
@@ -228,20 +245,6 @@ export default function Feed<T>({
   }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
 
   const { ranking } = (variables as RankVariables) || {};
-  const {
-    onOpenModal,
-    onCloseModal,
-    onPrevious,
-    onNext,
-    postPosition,
-    selectedPost,
-  } = usePostModalNavigation({
-    items,
-    fetchPage,
-    updatePost,
-    canFetchMore,
-    feedName,
-  });
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
@@ -366,6 +369,7 @@ export default function Feed<T>({
     index: number,
     row: number,
     column: number,
+    isAd?: boolean,
   ): void => {
     logEvent(
       postLogEvent('comments click', post, {
@@ -373,6 +377,7 @@ export default function Feed<T>({
         column,
         row,
         ...feedLogExtra(feedName, ranking),
+        is_ad: isAd,
       }),
     );
     if (!shouldUseListFeedLayout) {

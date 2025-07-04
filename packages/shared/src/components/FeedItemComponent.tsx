@@ -33,6 +33,7 @@ import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
+import { useFeedCardContext } from '../features/posts/FeedCardContext';
 
 const CommentPopup = dynamic(
   () =>
@@ -83,6 +84,7 @@ export type FeedItemComponentProps = {
     index: number,
     row: number,
     column: number,
+    isAd?: boolean,
   ) => unknown;
   onAdAction: (
     action: Exclude<AdActions, AdActions.Impression>,
@@ -185,6 +187,7 @@ export default function FeedItemComponent({
   );
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const { boostedBy } = useFeedCardContext();
   const {
     PostTag,
     AdTag,
@@ -263,7 +266,9 @@ export default function FeedItemComponent({
           onCopyLinkClick(event, post, index, row, column)
         }
         menuOpened={postMenuIndex === index}
-        onCommentClick={(post) => onCommentClick(post, index, row, column)}
+        onCommentClick={(post) =>
+          onCommentClick(post, index, row, column, !!boostedBy)
+        }
         eagerLoadImage={row === 0 && column === 0}
       >
         {showCommentPopupId === itemPost.id && (

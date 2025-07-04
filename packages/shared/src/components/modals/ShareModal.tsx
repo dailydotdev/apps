@@ -4,6 +4,7 @@ import { useSwipeable } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
 import LogContext from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
+import { ActiveFeedContext } from '../../contexts';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
@@ -25,6 +26,7 @@ export default function ShareModal({
   const isComment = !!comment;
   const isMobile = useViewSize(ViewSize.MobileL);
   const { logEvent } = useContext(LogContext);
+  const { logOpts } = useContext(ActiveFeedContext);
 
   const baseLogEvent = (eventName: string, extra?: Record<string, unknown>) =>
     logEvent(
@@ -38,6 +40,7 @@ export default function ShareModal({
         columns,
         column,
         row,
+        ...(logOpts && logOpts),
       }),
     );
 

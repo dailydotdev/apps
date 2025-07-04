@@ -87,6 +87,7 @@ const useBookmarkPost = ({
   const { logEvent } = useContext(LogContext);
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
+  const postLogEvent = usePostLogEvent();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -194,6 +195,7 @@ const useBookmarkPost = ({
       removeBookmark,
       displayToast,
       openModal,
+      postLogEvent,
     ],
   );
 

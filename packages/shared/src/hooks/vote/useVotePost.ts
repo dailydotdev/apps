@@ -7,7 +7,7 @@ import { UserVote } from '../../graphql/posts';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import type { PostLogEventFnOptions } from '../../lib/feed';
-import { postLogEvent } from '../../lib/feed';
+import { usePostLogEvent } from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
@@ -35,6 +35,7 @@ const useVotePost = ({
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
+  const postLogEvent = usePostLogEvent();
   const defaultOnMutate = ({ id, vote }) => {
     const mutationHandler = voteMutationHandlers[vote];
 
@@ -97,7 +98,7 @@ const useVotePost = ({
 
       await upvotePost({ id: post.id });
     },
-    [cancelPostVote, showLogin, logEvent, upvotePost, user],
+    [cancelPostVote, showLogin, logEvent, upvotePost, user, postLogEvent],
   );
 
   const toggleDownvote: UseVotePost['toggleDownvote'] = useCallback(
@@ -130,7 +131,7 @@ const useVotePost = ({
 
       downvotePost({ id: post.id });
     },
-    [cancelPostVote, downvotePost, showLogin, logEvent, user],
+    [cancelPostVote, downvotePost, showLogin, logEvent, user, postLogEvent],
   );
 
   return {

@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Post, PostsEngaged, SharedPost } from '../graphql/posts';
 import { POSTS_ENGAGED_SUBSCRIPTION, PostType } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
+import { useActiveFeedContext } from '../contexts';
 import { postLogEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
@@ -53,6 +54,7 @@ const usePostContent = ({
   const id = post?.id;
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
+  const { logOpts } = useActiveFeedContext();
   const onReadArticle = useReadArticle({ origin, post });
   const { commentsPermalink } = post;
   const cid = ReferralCampaignKey.SharePost;
@@ -63,10 +65,11 @@ const usePostContent = ({
       logEvent(
         postLogEvent('share post', post, {
           extra: { provider, origin },
+          ...(logOpts && logOpts),
         }),
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin, post],
+    [origin, post, logOpts],
   );
 
   const onCopyLink = useCallback(async () => {
@@ -112,6 +115,7 @@ const usePostContent = ({
               ? post.sharedPost.clickbaitTitleDetected
               : post.clickbaitTitleDetected,
         },
+        ...(logOpts && logOpts),
       }),
     );
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
