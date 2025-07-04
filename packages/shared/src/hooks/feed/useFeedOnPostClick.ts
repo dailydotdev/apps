@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post } from '../../graphql/posts';
-import { isBoostedPostAd, type FeedItem } from '../useFeed';
+import type { FeedItem } from '../useFeed';
+import { isBoostedPostAd } from '../useFeed';
 import useOnPostClick from '../useOnPostClick';
 import { updateFeedAndAdsCache } from '../../lib/query';
 
