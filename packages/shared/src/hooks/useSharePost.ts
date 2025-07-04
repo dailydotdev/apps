@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
 import type { Post } from '../graphql/posts';
-import { postLogEvent } from '../lib/feed';
+import { usePostLogEvent } from '../lib/feed';
 import LogContext from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
 import type { Origin } from '../lib/log';
@@ -24,6 +24,7 @@ export function useSharePost(origin: Origin): UseSharePost {
   const [, copyLink] = useCopyPostLink();
   const { getShortUrl, getTrackedUrl } = useGetShortUrl();
   const { openModal } = useLazyModal();
+  const postLogEvent = usePostLogEvent();
 
   const openSharePost = useCallback(
     (props) => openModal({ type: LazyModal.Share, props }),
@@ -46,7 +47,7 @@ export function useSharePost(origin: Origin): UseSharePost {
       );
       copyLink({ link: trackedLink, shorten: true });
     },
-    [logEvent, origin, getTrackedUrl, copyLink],
+    [logEvent, origin, getTrackedUrl, copyLink, postLogEvent],
   );
 
   const openNativeSharePost = useCallback(
@@ -69,7 +70,7 @@ export function useSharePost(origin: Origin): UseSharePost {
         // Do nothing
       }
     },
-    [getShortUrl, origin, logEvent],
+    [getShortUrl, origin, logEvent, postLogEvent],
   );
 
   return {

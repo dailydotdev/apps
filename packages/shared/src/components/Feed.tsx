@@ -367,6 +367,7 @@ export default function Feed<T>({
     index: number,
     row: number,
     column: number,
+    isAd?: boolean,
   ): void => {
     logEvent(
       postLogEvent('comments click', post, {
@@ -374,6 +375,7 @@ export default function Feed<T>({
         column,
         row,
         ...feedLogExtra(feedName, ranking),
+        isAd,
       }),
     );
     if (!shouldUseListFeedLayout) {
@@ -442,6 +444,7 @@ export default function Feed<T>({
                     item.type === FeedItemType.Ad &&
                     !!item.ad.data?.post &&
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
+                  isAd: item.type === FeedItemType.Ad && !!item.ad.data?.post,
                 }}
               >
                 <FeedItemComponent

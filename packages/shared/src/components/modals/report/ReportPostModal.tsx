@@ -29,6 +29,7 @@ interface Props extends ModalProps {
   origin: Origin;
   post: Post | PostBootData | ReadHistoryPost;
   onReported?: ReportedCallback;
+  isAd?: boolean;
 }
 
 const reportReasons: { value: ReportReason; label: string }[] = [
@@ -96,6 +97,7 @@ export function ReportPostModal({
   post,
   origin,
   onReported,
+  isAd,
   ...props
 }: Props): ReactElement {
   const { logEvent } = useLogContext();
@@ -154,6 +156,7 @@ export function ReportPostModal({
     logEvent(
       postLogEvent('report post', post, {
         extra: { origin, reason, comment: text },
+        isAd,
       }),
     );
 

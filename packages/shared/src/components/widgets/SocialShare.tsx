@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { ShareProvider, addLogQueryParams } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import type { FeedItemPosition } from '../../lib/feed';
-import { postLogEvent } from '../../lib/feed';
+import { usePostLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import type { Comment } from '../../graphql/comments';
@@ -57,6 +57,7 @@ export const SocialShare = ({
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyLink();
   const { logEvent } = useContext(LogContext);
+  const postLogEvent = usePostLogEvent();
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const [squadToShare, setSquadToShare] = shareToSquadState;
   const logClick = (provider: ShareProvider) =>

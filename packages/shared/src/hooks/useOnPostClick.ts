@@ -9,7 +9,7 @@ import LogContext from '../contexts/LogContext';
 import {
   feedLogExtra,
   optimisticPostUpdateInFeed,
-  postLogEvent,
+  usePostLogEvent,
 } from '../lib/feed';
 import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
@@ -101,6 +101,7 @@ export default function useOnPostClick({
   const { shouldUseListFeedLayout } = useFeedLayout({
     feedRelated: false,
   });
+  const postLogEvent = usePostLogEvent();
 
   return useMemo(
     () =>
@@ -207,6 +208,7 @@ export default function useOnPostClick({
       ranking,
       origin,
       logEvent,
+      postLogEvent,
     ],
   );
 }

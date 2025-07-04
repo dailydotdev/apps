@@ -25,14 +25,14 @@ import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { PostLogEventFnOptions } from '../lib/feed';
-import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
+import { optimisticPostUpdateInFeed, usePostLogEvent } from '../lib/feed';
 import type { AdItem, FeedItem, PostItem, UpdateFeedPost } from './useFeed';
-import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import type { Bookmark } from '../graphql/bookmarks';
+import { ActionType } from '../graphql/actions';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -87,6 +87,7 @@ const useBookmarkPost = ({
   const { logEvent } = useContext(LogContext);
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
+  const postLogEvent = usePostLogEvent();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -194,6 +195,7 @@ const useBookmarkPost = ({
       removeBookmark,
       displayToast,
       openModal,
+      postLogEvent,
     ],
   );
 
