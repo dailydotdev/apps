@@ -86,7 +86,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           </div>
           <PostMetadata
             className={classNames(
-              'mx-4 line-clamp-1 break-words',
+              'mx-2 line-clamp-1 break-words',
               image ? 'mt-0' : 'mt-1',
             )}
             createdAt={post.createdAt}

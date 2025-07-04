@@ -176,6 +176,7 @@ export interface Ad {
   impressionStatus?: number;
   tagLine?: string;
   backgroundColor?: string;
+  data?: { post?: Post };
 }
 
 export type ReadHistoryPost = Pick<
