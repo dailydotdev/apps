@@ -65,10 +65,10 @@ jobs:
           script: |
             const subdomain = `${{ github.head_ref }}`
               .toLowerCase()
+              .slice(0, 32)
               .replace(/[^a-z0-9-]/g, '-')
               .replace(/^-+|-+$/g, '')
               .replace(/-{2,}/g, '-')
-              .slice(0, 32)
 
             const domain = `${subdomain}.${{ vars.PREVIEW_DOMAIN }}`
               .toLowerCase()
