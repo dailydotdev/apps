@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { OpenLinkIcon } from '../icons';
 import {
   getReadPostButtonText,
   isInternalReadType,
   PostType,
+  useCanBoostPost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -15,7 +17,9 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
+import { BoostPostButton } from '../../features/boost/BoostPostButton';
 import { Tooltip } from '../tooltip/Tooltip';
+import { getPostByIdKey } from '../../lib/query';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -29,12 +33,20 @@ export function PostHeaderActions({
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
+  const key = getPostByIdKey(post?.id);
+  const client = useQueryClient();
+  const { isSuccess } = useQuery({
+    queryKey: key,
+    queryFn: () => client.getQueryData(key),
+    staleTime: Infinity,
+  });
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
   const isEnlarged = isFixedNavigation || isLaptop;
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
+  const { canBoost } = useCanBoostPost(post);
   const ButtonWithExperiment = useCallback(() => {
     return (
       <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
@@ -70,6 +82,9 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
+      {!post.flags?.campaignId && canBoost && isSuccess && (
+        <BoostPostButton post={post} />
+      )}
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}

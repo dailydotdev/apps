@@ -226,6 +226,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numComments
     numAwards
     summary
+    flags {
+      campaignId
+    }
     bookmark {
       remindAt
     }
@@ -321,6 +324,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     flags {
       promoteToPublic
       coverVideo
+      campaignId
     }
     userState {
       vote

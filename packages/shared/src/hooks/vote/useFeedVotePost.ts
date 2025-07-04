@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import type { QueryKey } from '@tanstack/react-query';
 import type { FeedItem, UpdateFeedPost } from '../useFeed';
 import { feedLogExtra } from '../../lib/feed';
 import type { Origin } from '../../lib/log';
@@ -15,6 +16,7 @@ export type UseFeedVotePostProps = {
   ranking: string;
   items: FeedItem[];
   updatePost: UpdateFeedPost;
+  feedQueryKey?: QueryKey;
 };
 
 export type UseFeedVotePost = UseVotePost;
@@ -24,6 +26,7 @@ export const useFeedVotePost = ({
   ranking,
   items,
   updatePost,
+  feedQueryKey,
 }: UseFeedVotePostProps): UseFeedVotePost => {
   const queryClient = useQueryClient();
 
@@ -38,6 +41,8 @@ export const useFeedVotePost = ({
         ...(mutationVariables as UseVoteMutationProps),
         items,
         updatePost,
+        queryClient,
+        feedQueryKey,
       });
     },
   });
@@ -52,6 +57,8 @@ export const useFeedVotePost = ({
         vote,
         items,
         updatePost,
+        queryClient,
+        feedQueryKey,
       });
     },
   });

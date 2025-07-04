@@ -74,6 +74,7 @@ import {
   demotePost,
   isVideoPost,
   promotePost,
+  useCanBoostPost,
   UserVote,
 } from '../../graphql/posts';
 import { postLogEvent } from '../../lib/feed';
@@ -93,7 +94,9 @@ import { MenuIcon } from '../../components/MenuIcon';
 import { Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
-import type { PostItem } from '../../hooks/useFeed';
+import { BoostIcon } from '../../components/icons/Boost';
+import type { FeedItem } from '../../hooks/useFeed';
+import { isBoostedPostAd } from '../../hooks/useFeed';
 
 const getBlockLabel = (
   name: string,
@@ -139,12 +142,25 @@ const PostOptionButtonContent = ({
 
   const { postIndex, prevPost, nextPost } = useMemo(() => {
     const postIndexSelect = items.findIndex(
-      (item) => item.type === 'post' && item.post.id === initialPost.id,
+      (item) =>
+        (item.type === 'post' && item.post.id === initialPost.id) ||
+        (item.type === 'ad' && item.ad.data?.post?.id === initialPost.id),
     );
+
+    const getPostFromItem = (item: FeedItem) => {
+      if (item?.type === 'post') {
+        return item.post;
+      }
+      if (isBoostedPostAd(item)) {
+        return item.ad.data.post;
+      }
+      return null;
+    };
+
     return {
       postIndex: postIndexSelect,
-      prevPost: (items[postIndexSelect - 1] as PostItem)?.post,
-      nextPost: (items[postIndexSelect + 1] as PostItem)?.post,
+      prevPost: getPostFromItem(items[postIndexSelect - 1]),
+      nextPost: getPostFromItem(items[postIndexSelect + 1]),
     };
   }, [items, initialPost.id]);
 
@@ -169,6 +185,7 @@ const PostOptionButtonContent = ({
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { canBoost } = useCanBoostPost(post);
 
   const banPostPrompt = useCallback(async () => {
     const options: PromptOptions = {
@@ -422,12 +439,37 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
-    {
-      icon: <MenuIcon Icon={EyeIcon} />,
-      label: 'Hide',
-      action: onHidePost,
-    },
   ];
+
+  const onBoostPost = () => {
+    openModal({
+      type: LazyModal.BoostPost,
+      props: {
+        post,
+      },
+    });
+  };
+
+  const onManageBoost = async () => {
+    openModal({
+      type: LazyModal.FetchBoostedPostView,
+      props: { campaignId: post.flags.campaignId },
+    });
+  };
+
+  if (canBoost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BoostIcon} secondary={!!post?.flags?.campaignId} />,
+      label: post?.flags?.campaignId ? 'Manage ad' : 'Boost post',
+      action: post?.flags?.campaignId ? onManageBoost : onBoostPost,
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={EyeIcon} />,
+    label: 'Hide',
+    action: onHidePost,
+  });
 
   const { shouldUseListFeedLayout } = useFeedLayout();
 

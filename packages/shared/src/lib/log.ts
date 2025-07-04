@@ -68,6 +68,7 @@ export enum Origin {
   WalletPageCTA = 'wallet page cta',
   WalletPagePackage = 'wallet page package',
   Award = 'award',
+  BoostPost = 'BoostPost',
   CoresPage = 'cores page',
   AwardsList = 'awards list',
   // End Credits

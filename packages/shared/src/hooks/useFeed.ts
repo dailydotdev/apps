@@ -33,10 +33,14 @@ interface FeedItemBase<T extends FeedItemType> {
   dataUpdatedAt: number;
 }
 
-interface AdItem extends FeedItemBase<FeedItemType.Ad> {
+export interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
   index: number;
   updatedAt: number;
+}
+
+export interface AdPostItem extends AdItem {
+  ad: Ad & { data: { post?: Post } };
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -60,6 +64,9 @@ export type FeedItem =
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
   | PlusEntryItem;
+
+export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
+  item?.type === FeedItemType.Ad && !!item.ad.data?.post;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -256,7 +263,7 @@ export default function useFeed<T>(
         ad: nextAd,
         index: adPage,
         updatedAt: adsUpdatedAt,
-      };
+      } as AdItem;
     },
     [
       adsData,

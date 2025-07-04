@@ -164,7 +164,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
                 createdAt={post.createdAt}
                 readTime={post.readTime}
                 isVideoType={isVideoType}
-                className="mx-4"
+                className="mx-2"
               />
             )}
           </Container>

@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
-import useFeed from '../hooks/useFeed';
+import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -48,6 +48,7 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { FeedCardContext } from '../features/posts/FeedCardContext';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -259,6 +260,7 @@ export default function Feed<T>({
     ranking,
     items,
     updatePost,
+    feedQueryKey,
   });
 
   const { toggleBookmark } = useFeedBookmarkPost({
@@ -432,33 +434,41 @@ export default function Feed<T>({
         ) : (
           <>
             {items.map((item, index) => (
-              <FeedItemComponent
-                item={item}
-                index={index}
-                row={calculateRow(index, virtualizedNumCards)}
-                column={calculateColumn(index, virtualizedNumCards)}
-                columns={virtualizedNumCards}
+              <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
-                openNewTab={openNewTab}
-                postMenuIndex={postMenuIndex}
-                showCommentPopupId={showCommentPopupId}
-                setShowCommentPopupId={setShowCommentPopupId}
-                isSendingComment={isSendingComment}
-                comment={comment}
-                user={user}
-                feedName={feedName}
-                ranking={ranking}
-                toggleBookmark={toggleBookmark}
-                toggleUpvote={toggleUpvote}
-                toggleDownvote={toggleDownvote}
-                onPostClick={onPostCardClick}
-                onShare={onShareClick}
-                onMenuClick={onMenuClick}
-                onCopyLinkClick={onCopyLinkClickLogged}
-                onCommentClick={onCommentClick}
-                onAdAction={onAdAction}
-                onReadArticleClick={onReadArticleClick}
-              />
+                value={{
+                  boostedBy:
+                    isBoostedPostAd(item) &&
+                    (item.ad.data?.post?.author || item.ad.data?.post?.scout),
+                }}
+              >
+                <FeedItemComponent
+                  item={item}
+                  index={index}
+                  row={calculateRow(index, virtualizedNumCards)}
+                  column={calculateColumn(index, virtualizedNumCards)}
+                  columns={virtualizedNumCards}
+                  openNewTab={openNewTab}
+                  postMenuIndex={postMenuIndex}
+                  showCommentPopupId={showCommentPopupId}
+                  setShowCommentPopupId={setShowCommentPopupId}
+                  isSendingComment={isSendingComment}
+                  comment={comment}
+                  user={user}
+                  feedName={feedName}
+                  ranking={ranking}
+                  toggleBookmark={toggleBookmark}
+                  toggleUpvote={toggleUpvote}
+                  toggleDownvote={toggleDownvote}
+                  onPostClick={onPostCardClick}
+                  onShare={onShareClick}
+                  onMenuClick={onMenuClick}
+                  onCopyLinkClick={onCopyLinkClickLogged}
+                  onCommentClick={onCommentClick}
+                  onAdAction={onAdAction}
+                  onReadArticleClick={onReadArticleClick}
+                />
+              </FeedCardContext.Provider>
             ))}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
