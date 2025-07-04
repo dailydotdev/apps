@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
@@ -44,6 +45,8 @@ import {
   DATE_SINCE_ACTIONS_REQUIRED,
   onboardingCompletedActions,
 } from '../../hooks/auth';
+import { claimClaimableItem } from '../../graphql/users';
+import { BOOT_QUERY_KEY } from '../../contexts/common';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -118,6 +121,7 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
 }: AuthOptionsProps): ReactElement {
+  const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
   const { trackSignup } = usePixelsContext();
@@ -205,6 +209,16 @@ function AuthOptionsInner({
     if (user.infoConfirmed) {
       logEvent({
         event_name: AuthEventNames.LoginSuccessfully,
+      });
+
+      // Check for claimable items on login (e.g., Plus subscription)
+      claimClaimableItem().then((hasClaimed) => {
+        if (hasClaimed) {
+          // We need to refetch the boot query to load the latest user data
+          queryClient.invalidateQueries({
+            queryKey: BOOT_QUERY_KEY,
+          });
+        }
       });
 
       const isAlreadyOnboarded = await checkForOnboardedUser(user);

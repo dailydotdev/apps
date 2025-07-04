@@ -745,3 +745,24 @@ export const REQUEST_APP_ACCOUNT_TOKEN_MUTATION = gql`
     requestAppAccountToken
   }
 `;
+
+const CLAIM_CLAIMABLE_ITEM_MUTATION = gql`
+  mutation ClaimClaimableItem {
+    claimUnclaimedItem {
+      claimed
+    }
+  }
+`;
+
+export const claimClaimableItem = async (): Promise<boolean> => {
+  try {
+    const {
+      claimUnclaimedItem: { claimed },
+    } = await gqlClient.request<{
+      claimUnclaimedItem: { claimed: boolean };
+    }>(CLAIM_CLAIMABLE_ITEM_MUTATION);
+    return claimed;
+  } catch (error) {
+    return false;
+  }
+};
