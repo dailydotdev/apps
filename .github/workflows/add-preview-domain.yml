@@ -67,6 +67,8 @@ jobs:
               .slice(0, 32)
               // Remove any trailing non-alphanumeric characters
               .replace(/[^a-zA-Z0-9](?=[^a-zA-Z0-9]*$)/, '')
+              // Replace any non-alphanumeric characters with a hyphen
+              .replace(/[^a-zA-Z0-9]/g, '-')
 
             const domain = `${subdomain}.${{ vars.PREVIEW_DOMAIN }}`
               .toLowerCase()
