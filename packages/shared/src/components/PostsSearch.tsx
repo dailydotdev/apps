@@ -15,6 +15,7 @@ import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
 import { useConditionalFeature } from '../hooks';
 import { feature } from '../lib/featureManagement';
+import { useSearchContextProvider } from '../contexts/search/SearchContext';
 
 const AutoCompleteMenu = dynamic(
   () =>
@@ -32,7 +33,12 @@ export type PostsSearchProps = {
   suggestionType?: string;
   autoFocus?: boolean;
   className?: string;
-  onSubmitQuery: (query: string) => Promise<unknown>;
+  onSubmitQuery: (
+    query: string,
+    extraFlags?: {
+      filters?: { time?: string; contentCuration: string[] };
+    },
+  ) => Promise<unknown>;
   onClearQuery?: () => Promise<unknown>;
 } & Pick<HTMLAttributes<HTMLInputElement>, 'onFocus'>;
 
@@ -52,6 +58,7 @@ export default function PostsSearch({
   onFocus,
   onClearQuery,
 }: PostsSearchProps): ReactElement {
+  const { time, contentCurationFilter } = useSearchContextProvider();
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
@@ -110,7 +117,12 @@ export default function PostsSearch({
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
-    await onSubmitQuery(itemQuery || query);
+    await onSubmitQuery(itemQuery || query, {
+      filters: {
+        time: time.toString(),
+        contentCuration: contentCurationFilter,
+      },
+    });
     if (itemQuery) {
       setInitialQuery(itemQuery);
     }

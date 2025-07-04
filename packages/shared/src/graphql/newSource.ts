@@ -1,10 +1,8 @@
 import { gql } from 'graphql-request';
-import type { SubmissionAvailability } from './submitArticle';
 
-export type SourceRequestAvailability = Pick<
-  SubmissionAvailability,
-  'hasAccess'
->;
+export type SourceRequestAvailability = {
+  hasAccess: boolean;
+};
 
 export const SOURCE_BY_FEED_QUERY = gql`
   query SourceByFeed($feed: String!) {
