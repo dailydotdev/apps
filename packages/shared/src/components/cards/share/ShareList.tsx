@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -67,6 +67,36 @@ export const ShareList = forwardRef(function ShareList(
     </Container>
   );
 
+  const metadata = useMemo(() => {
+    if (post.source.type === SourceType.User) {
+      return {
+        topLabel: post.author.name,
+      };
+    }
+
+    return {
+      topLabel: enableSourceHeader ? (
+        <Link href={post.source.permalink}>
+          <a href={post.source.permalink} className="relative z-1">
+            {post.source.name}
+          </a>
+        </Link>
+      ) : (
+        post.author.name
+      ),
+      bottomLabel: enableSourceHeader
+        ? post.author.name
+        : `@${post.sharedPost?.source.handle}`,
+    };
+  }, [
+    enableSourceHeader,
+    post.author.name,
+    post.sharedPost?.source.handle,
+    post.source.name,
+    post.source.permalink,
+    post.source.type,
+  ]);
+
   return (
     <FeedItemContainer
       domProps={{
@@ -91,20 +121,7 @@ export const ShareList = forwardRef(function ShareList(
         }}
         openNewTab={openNewTab}
         onReadArticleClick={onReadArticleClick}
-        metadata={{
-          topLabel: enableSourceHeader ? (
-            <Link href={post.source.permalink}>
-              <a href={post.source.permalink} className="relative z-1">
-                {post.source.name}
-              </a>
-            </Link>
-          ) : (
-            post.author.name
-          ),
-          bottomLabel: enableSourceHeader
-            ? post.author.name
-            : `@${post.sharedPost?.source.handle}`,
-        }}
+        metadata={metadata}
         postLink={post.sharedPost.permalink}
       >
         {!isUserSource && (
