@@ -38,7 +38,7 @@ export default function PostMetadata({
         className,
       )}
     >
-      <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+      <TruncateText>
         {boostedBy && <strong>Boosted by @{boostedBy.username}</strong>}
         {boostedBy && <Separator />}
         {!!description && (
@@ -66,7 +66,7 @@ export default function PostMetadata({
           </span>
         )}
         {children}
-      </span>
+      </TruncateText>
     </div>
   );
 }

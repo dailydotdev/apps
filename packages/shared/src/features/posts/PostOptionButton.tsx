@@ -97,6 +97,7 @@ import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { BoostIcon } from '../../components/icons/Boost';
 import type { FeedItem } from '../../hooks/useFeed';
+import { isBoostedPostAd } from '../../hooks/useFeed';
 
 const getBlockLabel = (
   name: string,
@@ -151,7 +152,7 @@ const PostOptionButtonContent = ({
       if (item?.type === 'post') {
         return item.post;
       }
-      if (item?.type === 'ad' && item.ad.data?.post) {
+      if (isBoostedPostAd(item)) {
         return item.ad.data.post;
       }
       return null;

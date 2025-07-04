@@ -11,7 +11,8 @@ import LogContext from '../contexts/LogContext';
 import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
-import type { AdItem, FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import { isBoostedPostAd } from './useFeed';
 import { Origin } from '../lib/log';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery, objectToQueryParams } from '../lib';
@@ -60,8 +61,7 @@ export const usePostModalNavigation = ({
   feedName,
 }: UsePostModalNavigationProps): UsePostModalNavigation => {
   const isPostItem = (item: FeedItem) =>
-    item.type === 'post' ||
-    (item.type === 'ad' && (item as AdItem).ad?.data?.post);
+    item.type === 'post' || isBoostedPostAd(item);
   const router = useRouter();
   // special query params to track base pathnames and params for the post modal
   const activeFeedName = router.query?.pmcid as string;
@@ -92,7 +92,7 @@ export const usePostModalNavigation = ({
       if (item.type === 'post') {
         return item.post.slug === pmid || item.post.id === pmid;
       }
-      if (item.type === 'ad' && item.ad.data?.post) {
+      if (isBoostedPostAd(item)) {
         return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
       }
 
@@ -116,7 +116,7 @@ export const usePostModalNavigation = ({
       if (item.type === 'post') {
         return item as PostItem;
       }
-      if (item.type === 'ad' && item.ad.data?.post) {
+      if (isBoostedPostAd(item)) {
         // For Post Ads, we need to create a PostItem-like structure
         // Note: AdItem doesn't have a page property, so we'll use -1 as default
         return {
@@ -141,7 +141,7 @@ export const usePostModalNavigation = ({
       if (item.type === 'post') {
         return item.post;
       }
-      if (item.type === 'ad' && item.ad.data?.post) {
+      if (isBoostedPostAd(item)) {
         return item.ad.data.post;
       }
 
@@ -230,7 +230,7 @@ export const usePostModalNavigation = ({
       if (item.type === 'post') {
         return item.post.slug === pmid || item.post.id === pmid;
       }
-      if (item.type === 'ad' && item.ad.data?.post) {
+      if (isBoostedPostAd(item)) {
         return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
       }
 
