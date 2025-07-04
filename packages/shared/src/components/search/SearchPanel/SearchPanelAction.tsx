@@ -14,6 +14,7 @@ import {
 import { IconSize } from '../../Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useSearchContextProvider } from '../../../contexts/search/SearchContext';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -25,6 +26,7 @@ export const SearchPanelAction = ({
   const searchPanel = useContext(SearchPanelContext);
   const Icon = providerToIconMap[provider];
   const { search } = useSearchProvider();
+  const { time, contentCurationFilter } = useSearchContextProvider();
   const itemProps = useSearchPanelAction({ provider });
   const isDefaultProvider = provider === defaultSearchProvider;
   const isDefaultActive = !searchPanel.provider && isDefaultProvider;
@@ -36,7 +38,11 @@ export const SearchPanelAction = ({
       onClick={() => {
         logEvent({
           event_name: LogEvent.SubmitSearch,
-          extra: JSON.stringify({ query: searchPanel.query, provider }),
+          extra: JSON.stringify({
+            query: searchPanel.query,
+            provider,
+            filters: { time, contentCuration: contentCurationFilter },
+          }),
         });
 
         search({ provider, query: searchPanel.query });

@@ -291,7 +291,6 @@ export function PostActions({
           )}
           <BookmarkButton
             post={post}
-            contextMenuId="post-content-bookmark"
             buttonProps={{
               id: 'bookmark-post-btn',
               pressed: post.bookmarked,

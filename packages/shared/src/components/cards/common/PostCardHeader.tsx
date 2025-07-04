@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
-import { SourceType } from '../../../graphql/sources';
+import { isSourceUserSource } from '../../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
@@ -63,7 +63,7 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
-  const isUserSource = post.source.type === SourceType.User;
+  const isUserSource = isSourceUserSource(post.source);
   const { interactiveFeedExp } = useInteractiveFeedContext();
 
   const { highlightBookmarkedPost } = useBookmarkProvider({

@@ -13,7 +13,7 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { useBookmarkProvider } from '../../../hooks';
 import type { UserShortProfile } from '../../../lib/user';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
-import { SourceType } from '../../../graphql/sources';
+import { isSourceUserSource } from '../../../graphql/sources';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -34,7 +34,7 @@ export const SquadPostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
   });
-  const isUserSource = post.source.type === SourceType.User;
+  const isUserSource = isSourceUserSource(post.source);
 
   return (
     <>
