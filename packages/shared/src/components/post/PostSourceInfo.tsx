@@ -42,7 +42,7 @@ function PostSourceInfo({
   showActions = true,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
-  const showActionBtn = useShowFollowAction({
+  const { showActionBtn } = useShowFollowAction({
     entityId: source.id,
     entityType: ContentPreferenceType.Source,
   });

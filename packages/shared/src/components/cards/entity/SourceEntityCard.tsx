@@ -6,17 +6,17 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import type { Source, SourceTooltip } from '../../../graphql/sources';
+import type { SourceTooltip } from '../../../graphql/sources';
 import { largeNumberFormat } from '../../../lib';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
-import SourceActionsFollow from '../../sources/SourceActions/SourceActionsFollow';
 import { ButtonVariant } from '../../buttons/Button';
-import { useSourceActions } from '../../../hooks';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import useSourceMenuProps from '../../../hooks/useSourceMenuProps';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import { FollowButton } from '../../contentPreference/FollowButton';
+import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 type SourceEntityCardProps = {
   source: SourceTooltip;
@@ -30,8 +30,10 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     entityId: source.id,
     entityType: ContentPreferenceType.Source,
   });
-  const { isFollowing, toggleFollow } = useSourceActions({
-    source: source as Source,
+
+  const { data: contentPreference } = useContentPreferenceStatusQuery({
+    id: source.id,
+    entity: ContentPreferenceType.Source,
   });
   const menuProps = useSourceMenuProps({ source });
 
@@ -59,11 +61,13 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
               {...menuProps}
             />
             {showActionBtn && (
-              <SourceActionsFollow
-                isFetching={false}
-                isSubscribed={isFollowing}
-                onClick={toggleFollow}
+              <FollowButton
+                entityId={source.id}
+                entityName={source.name}
+                type={ContentPreferenceType.Source}
                 variant={ButtonVariant.Primary}
+                status={contentPreference?.status}
+                showSubscribe={false}
               />
             )}
           </>
