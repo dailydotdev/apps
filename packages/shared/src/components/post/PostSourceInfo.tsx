@@ -17,7 +17,7 @@ import {
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
-import { useSquad, useViewSize, ViewSize } from '../../hooks';
+import { useSquad } from '../../hooks';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import type { Post } from '../../graphql/posts';
 import { PostHeaderActions } from './PostHeaderActions';
@@ -42,7 +42,6 @@ function PostSourceInfo({
   showActions = true,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
-  const isMobile = useViewSize(ViewSize.MobileXL);
   const showActionBtn = useShowFollowAction({
     entityId: source.id,
     entityType: ContentPreferenceType.Source,
@@ -76,43 +75,44 @@ function PostSourceInfo({
                 {source.handle}
               </a>
             </Link>
-            {isMobile && showActionBtn && <Separator />}
-            {isMobile && showActionBtn && source?.type !== SourceType.Squad && (
-              <FollowButton
-                variant={ButtonVariant.Tertiary}
-                followedVariant={ButtonVariant.Tertiary}
-                buttonClassName={classNames(
-                  'min-w-min !px-0 ',
-                  !isFollowing && 'text-text-link',
+            {showActionBtn && (
+              <>
+                <Separator className="flex tablet:hidden" />
+                {source?.type !== SourceType.Squad && (
+                  <FollowButton
+                    variant={ButtonVariant.Tertiary}
+                    followedVariant={ButtonVariant.Tertiary}
+                    buttonClassName={classNames(
+                      'flex min-w-min !px-0 tablet:hidden',
+                      !isFollowing && 'text-text-link',
+                    )}
+                    entityId={source.id}
+                    status={data?.status}
+                    type={ContentPreferenceType.Source}
+                    entityName={source.name}
+                    showSubscribe={false}
+                  />
                 )}
-                entityId={source.id}
-                status={data?.status}
-                type={ContentPreferenceType.Source}
-                entityName={source.name}
-                showSubscribe={false}
-              />
+                {source?.type === SourceType.Squad && !isLoadingSquad && (
+                  <SquadActionButton
+                    buttonVariants={[ButtonVariant.Tertiary]}
+                    size={ButtonSize.XSmall}
+                    className={{
+                      button: classNames(
+                        'flex min-w-min !px-0 tablet:hidden',
+                        !squad.currentMember && 'text-text-link',
+                      ),
+                    }}
+                    squad={squad}
+                    copy={{
+                      join: 'Join',
+                      leave: 'Leave',
+                    }}
+                    origin={Origin.PostContent}
+                  />
+                )}
+              </>
             )}
-            {isMobile &&
-              showActionBtn &&
-              source?.type === SourceType.Squad &&
-              !isLoadingSquad && (
-                <SquadActionButton
-                  buttonVariants={[ButtonVariant.Tertiary]}
-                  size={ButtonSize.XSmall}
-                  className={{
-                    button: classNames(
-                      'min-w-min !px-0',
-                      !squad.currentMember && 'text-text-link',
-                    ),
-                  }}
-                  squad={squad}
-                  copy={{
-                    join: 'Join',
-                    leave: 'Leave',
-                  }}
-                  origin={Origin.PostContent}
-                />
-              )}
           </div>
           {showActions && (
             <PostHeaderActions
