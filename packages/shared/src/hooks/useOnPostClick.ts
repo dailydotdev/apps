@@ -19,6 +19,7 @@ import { updateCachedPagePost, updateFeedAndAdsCache } from '../lib/query';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import type { FeedData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
+import { isBoostedPostAd } from './useFeed';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -160,7 +161,7 @@ export default function useOnPostClick({
                 mutationHandler,
               );
               await updateFeedPostCache({ index: postIndex });
-            } else if (item.type === 'ad' && item.ad.data?.post) {
+            } else if (isBoostedPostAd(item)) {
               // For Post Ads, update both feed and ads cache
               updateFeedAndAdsCache(
                 post.id,

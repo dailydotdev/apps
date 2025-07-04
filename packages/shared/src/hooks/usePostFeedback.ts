@@ -13,6 +13,7 @@ import { SharedFeedPage } from '../components/utilities';
 import type { EmptyResponse } from '../graphql/emptyResponse';
 import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
+import { isBoostedPostAd } from './useFeed';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -78,7 +79,7 @@ export const usePostFeedback = ({
             mutationHandler,
           );
           updateFeedPostCache({ index: postIndex });
-        } else if (item.type === 'ad' && item.ad.data?.post) {
+        } else if (isBoostedPostAd(item)) {
           updateFeedAndAdsCache(
             post.id,
             feedQueryKey,

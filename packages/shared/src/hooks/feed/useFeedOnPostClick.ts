@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post } from '../../graphql/posts';
-import type { FeedItem } from '../useFeed';
+import { isBoostedPostAd, type FeedItem } from '../useFeed';
 import useOnPostClick from '../useOnPostClick';
 import { updateFeedAndAdsCache } from '../../lib/query';
 
@@ -46,7 +46,7 @@ export default function useFeedOnPostClick(
         const item = items[index];
         if (item.type === 'post') {
           updatePost(item.page, item.index, { ...post, read: true });
-        } else if (item.type === 'ad' && item.ad.data?.post && feedQueryKey) {
+        } else if (isBoostedPostAd(item) && feedQueryKey) {
           updateFeedAndAdsCache(post.id, feedQueryKey, queryClient, {
             read: true,
           });

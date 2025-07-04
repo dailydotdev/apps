@@ -2,6 +2,7 @@ import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import type { FeedItem } from '../hooks/useFeed';
+import { isBoostedPostAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
@@ -197,10 +198,7 @@ export default function FeedItemComponent({
     postType: (item as PostItem).post?.type,
   });
 
-  if (
-    item.type === FeedItemType.Post ||
-    (item.type === FeedItemType.Ad && item.ad.data?.post)
-  ) {
+  if (item.type === FeedItemType.Post || isBoostedPostAd(item)) {
     const itemPost =
       item.type === FeedItemType.Post ? item.post : item.ad.data?.post;
 

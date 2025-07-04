@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
-import useFeed from '../hooks/useFeed';
+import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -48,7 +48,6 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
-import { FeedItemType } from './cards/common/common';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 
 const FeedErrorScreen = dynamic(
@@ -439,8 +438,7 @@ export default function Feed<T>({
                 key={getFeedItemKey(item, index)}
                 value={{
                   boostedBy:
-                    item.type === FeedItemType.Ad &&
-                    !!item.ad.data?.post &&
+                    isBoostedPostAd(item) &&
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
                 }}
               >
