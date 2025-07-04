@@ -16,6 +16,7 @@ import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
+import { SourceType } from '../../graphql/sources';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -113,12 +114,14 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
-          <PostSourceInfo
-            post={post}
-            onClose={onClose}
-            onReadArticle={onReadArticle}
-            className="mb-6"
-          />
+          {post.source?.type !== SourceType.User && (
+            <PostSourceInfo
+              post={post}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+              className="mb-6"
+            />
+          )}
           <SquadPostAuthor
             author={post?.author}
             role={role}

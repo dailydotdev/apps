@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
@@ -18,7 +18,10 @@ import type { NextSeoProps } from 'next-seo';
 import { NextSeo } from 'next-seo';
 import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourcePermissions,
+  SourceType,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import { useActions, usePostToSquad } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -28,6 +31,8 @@ import {
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import { useSourcePostModerationById } from '@dailydotdev/shared/src/hooks/source/useSourcePostModerationById';
 import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
+import { generateUserSourceAsSquad } from '@dailydotdev/shared/src/components/post/write';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -49,11 +54,21 @@ function EditPost(): ReactElement {
     post?.type === PostType.Share
       ? WriteFormTabToFormID[WriteFormTab.Share]
       : WriteFormTabToFormID[WriteFormTab.NewPost];
-  const squad = squads?.find(({ id, handle }) =>
-    [id, handle].includes((post || moderated)?.source?.id),
-  );
+
+  const squad = useMemo(() => {
+    if (post?.source?.type === SourceType.User) {
+      return generateUserSourceAsSquad(user);
+    }
+
+    return squads?.find(({ id, handle }) =>
+      [id, handle].includes((post || moderated)?.source?.id),
+    );
+  }, [moderated, post, squads, user]);
+
   const fetchedPost = post || moderated;
-  const isVerified = verifyPermission(squad, SourcePermissions.Post);
+  const isVerified =
+    post?.source?.type !== SourceType.User &&
+    verifyPermission(squad, SourcePermissions.Post);
   const { displayToast } = useToastNotification();
   const {
     onAskConfirmation,
@@ -138,6 +153,12 @@ function EditPost(): ReactElement {
     !fetchedPost &&
     (!isReady || isLoading || isModerationLoading || !isDraftReady);
 
+  const isForbidden =
+    // @ts-expect-error temporary fix for TS error
+    squad?.type === SourceType.User
+      ? !canEdit
+      : !isVerified || !squad || !canEdit;
+
   return (
     <WritePostContextProvider
       post={post}
@@ -154,11 +175,7 @@ function EditPost(): ReactElement {
       enableUpload
     >
       <NextSeo {...seo} noindex nofollow />
-      <WritePage
-        isEdit
-        isLoading={isLoadingPage}
-        isForbidden={!isVerified || !squad || !canEdit}
-      >
+      <WritePage isEdit isLoading={isLoadingPage} isForbidden={isForbidden}>
         <WritePostHeader isEdit />
         {fetchedPost?.type === PostType.Share ? (
           <ShareLink
@@ -168,7 +185,12 @@ function EditPost(): ReactElement {
             className="px-4 py-6"
             onPostSuccess={() => {
               onAskConfirmation(false);
-              push(squad.permalink);
+              push(
+                // @ts-expect-error temporary fix for TS error
+                squad?.type === SourceType.User
+                  ? `${webappUrl}${user.username}/posts`
+                  : squad.permalink,
+              );
             }}
           />
         ) : (

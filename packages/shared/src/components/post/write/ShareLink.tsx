@@ -2,20 +2,25 @@ import type { FormEventHandler, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad } from '../../../hooks';
-import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
-import { generateDefaultSquad } from './SquadsDropdown';
+import {
+  generateDefaultSquad,
+  generateUserSourceAsSquad,
+} from './SquadsDropdown';
 import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import type { SourcePostModeration } from '../../../graphql/squads';
+import { usePrompt } from '../../../hooks/usePrompt';
+import { webappUrl } from '../../../lib/constants';
 
 interface ShareLinkProps {
   squad: Squad;
@@ -33,7 +38,8 @@ export function ShareLink({
   moderated,
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
-  const { displayToast } = useToastNotification();
+  const client = useQueryClient();
+  const { showPrompt } = usePrompt();
   const [commentary, setCommentary] = useState(
     fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
   );
@@ -70,7 +76,7 @@ export function ShareLink({
     retryWithRandomizedHandle: true,
   });
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     if (isPosting || isPostingModeration || isCreatingSquad) {
@@ -78,7 +84,28 @@ export function ShareLink({
     }
 
     if (!squad) {
-      return displayToast('You must select a Squad to post to!');
+      const prompOptions = {
+        title: 'This link has already been shared.',
+        description: 'Are you sure you want to repost it?',
+        okButton: {
+          title: 'Repost',
+          className: 'btn-primary-cabbage',
+        },
+      };
+      const sharePost =
+        preview.relatedPublicPosts?.length > 0
+          ? await showPrompt(prompOptions)
+          : true;
+
+      if (!sharePost) {
+        return null;
+      }
+
+      await onSubmitPost(e, generateUserSourceAsSquad(user), commentary);
+      client.refetchQueries({
+        queryKey: ['author', user.id],
+      });
+      return push(`${webappUrl}${user.username}/posts`);
     }
 
     if (fetchedPost?.id) {
@@ -105,7 +132,7 @@ export function ShareLink({
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      onSubmitPost(e, squad, commentary);
+      await onSubmitPost(e, squad, commentary);
       return push(squad.permalink);
     }
 
