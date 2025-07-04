@@ -244,6 +244,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       contentPreference {
         status
       }
+      coresRole
     }
     type
     tags
@@ -277,6 +278,12 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     language
     translation {
       ...PostTranslateableFields
+    }
+    numAwards
+    featuredAward {
+      award {
+        image
+      }
     }
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}

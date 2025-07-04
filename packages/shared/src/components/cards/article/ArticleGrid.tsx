@@ -95,7 +95,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           post,
           classNames(
             className,
-            showFeedback && '!p-0',
+            '!p-0',
             postRelevant &&
               '!border-status-success !bg-action-upvote-float text-action-upvote-default',
             postIrrelevant &&
@@ -155,7 +155,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         {!showFeedback && (
           <Container>
             <CardSpace />
-            <div className="mx-2 flex items-center">
+            <div className="mx-4 flex items-center">
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
             </div>
@@ -177,6 +177,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             isHoveringCard={isHovering}
             className={{
               image: classNames(
+                'px-1',
                 showFeedback && 'mb-0',
                 smallCard && ' !my-0 !h-26',
               ),

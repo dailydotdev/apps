@@ -7,16 +7,10 @@ import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
   DiscussIcon as CommentIcon,
-  BookmarkIcon,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
@@ -24,6 +18,7 @@ import { IconSize } from '../../Icon';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
+import PostAwardAction from '../../post/PostAwardAction';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -95,79 +90,102 @@ const ActionButtons = ({
   return (
     <div
       className={classNames(
-        'flex flex-row items-center justify-between',
+        'flex flex-row items-center justify-between px-1 pb-1',
         className,
       )}
     >
-      <div className="flex flex-row items-center rounded-12 bg-surface-float">
-        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-          <Button
-            className="pointer-events-auto !pl-1 !pr-3"
+      <div className="flex flex-1 items-center justify-between">
+        <Tooltip
+          content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+          side="bottom"
+        >
+          <QuaternaryButton
+            labelClassName="!pl-0"
+            className="btn-tertiary-avocado pointer-events-auto"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
           >
-            <UpvoteButtonIcon
-              secondary={isUpvoteActive}
-              size={IconSize.Small}
-            />
             <InteractionCounter
               className={classNames(
-                'ml-1.5 tabular-nums',
+                'tabular-nums typo-footnote',
                 !post.numUpvotes && 'invisible',
               )}
               value={post.numUpvotes}
             />
-          </Button>
+          </QuaternaryButton>
         </Tooltip>
-        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
-          <Button
+        <Tooltip
+          content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+          side="bottom"
+        >
+          <QuaternaryButton
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
-            icon={<DownvoteIcon secondary={isDownvoteActive} />}
+            icon={
+              <DownvoteIcon
+                secondary={isDownvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
             pressed={isDownvoteActive}
             onClick={onToggleDownvote}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           />
         </Tooltip>
-      </div>
-      <Tooltip content="Comments">
-        <QuaternaryButton
-          id={`post-${post.id}-comment-btn`}
-          icon={<CommentIcon secondary={post.commented} />}
-          pressed={post.commented}
-          onClick={() => onCommentClick?.(post)}
-          size={ButtonSize.Small}
-          className="btn-tertiary-blueCheese"
-        >
-          {post.numComments ? (
-            <InteractionCounter value={post.numComments} />
-          ) : null}
-        </QuaternaryButton>
-      </Tooltip>
-      <BookmarkButton
-        post={post}
-        buttonProps={{
-          id: `post-${post.id}-bookmark-btn`,
-          icon: <BookmarkIcon secondary={post.bookmarked} />,
-          onClick: onToggleBookmark,
-          size: ButtonSize.Small,
-        }}
-      />
-      <Tooltip content="Copy link">
-        <Button
-          size={ButtonSize.Small}
-          icon={<LinkIcon />}
-          onClick={onCopyLink}
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Cabbage}
+        <Tooltip content="Comments" side="bottom">
+          <QuaternaryButton
+            labelClassName="!pl-0"
+            id={`post-${post.id}-comment-btn`}
+            icon={
+              <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
+            }
+            pressed={post.commented}
+            onClick={() => onCommentClick?.(post)}
+            size={ButtonSize.Small}
+            className="btn-tertiary-blueCheese"
+          >
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums !typo-footnote',
+                !post.numComments && 'invisible',
+              )}
+              value={post.numComments}
+            />
+          </QuaternaryButton>
+        </Tooltip>
+        <PostAwardAction post={post} iconSize={IconSize.XSmall} />
+        <BookmarkButton
+          tooltipSide="bottom"
+          post={post}
+          buttonProps={{
+            id: `post-${post.id}-bookmark-btn`,
+            onClick: onToggleBookmark,
+            size: ButtonSize.Small,
+          }}
+          iconSize={IconSize.XSmall}
         />
-      </Tooltip>
+        <Tooltip content="Copy link" side="bottom">
+          <QuaternaryButton
+            size={ButtonSize.Small}
+            icon={<LinkIcon size={IconSize.XSmall} />}
+            onClick={onCopyLink}
+            variant={ButtonVariant.Tertiary}
+            className="hover:bg-overlay-float-water hover:text-text-link"
+          />
+        </Tooltip>
+      </div>
     </div>
   );
 };

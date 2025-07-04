@@ -56,6 +56,7 @@ function FeedItemContainer(
         data-testid="postItem"
         ref={ref}
         className={classNames(
+          '!p-0',
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
           highlightBookmarkedPost &&

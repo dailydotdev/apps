@@ -9,6 +9,7 @@ import {
   getPostClassNames,
   FreeformCardTitle,
   CardSpace,
+  CardTextContainer,
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
@@ -52,27 +53,28 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <CollectionCardHeader post={post} />
-      <FreeformCardTitle
-        className={classNames(
-          generateTitleClamp({
-            hasImage: !!image,
-            hasHtmlContent: !!post.contentHtml,
-          }),
-          'px-2 font-bold text-text-primary typo-title3',
-        )}
-      >
-        {post.title}
-      </FreeformCardTitle>
+      <CardTextContainer>
+        <CollectionCardHeader post={post} />
+        <FreeformCardTitle
+          className={classNames(
+            generateTitleClamp({
+              hasImage: !!image,
+              hasHtmlContent: !!post.contentHtml,
+            }),
+            'font-bold text-text-primary typo-title3',
+          )}
+        >
+          {post.title}
+        </FreeformCardTitle>
 
-      {!!post.image && <CardSpace />}
-      <PostTags post={post} />
+        {!!post.image && <CardSpace />}
+        <PostTags post={post} />
+      </CardTextContainer>
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
-        className={classNames('m-2', post.image ? 'mb-0' : 'mb-4')}
+        className={classNames('mx-4 my-2', post.image ? 'mb-0' : 'mb-4')}
       />
-
       <Container>
         <WelcomePostCardFooter
           image={image}

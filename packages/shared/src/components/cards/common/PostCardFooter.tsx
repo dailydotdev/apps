@@ -39,12 +39,12 @@ export const PostCardFooter = ({
           className: classNames(
             'w-full',
             className.image,
-            !isVideoType && 'my-2',
+            !isVideoType && 'mb-1 mt-2',
           ),
           ...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }),
           src: post.image,
         }}
-        videoProps={{ className: 'my-2' }}
+        videoProps={{ className: 'mb-1 mt-2' }}
       />
     </>
   );
