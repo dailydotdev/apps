@@ -41,7 +41,6 @@ export const UnfeaturedSquadGrid = ({
           squad={source}
           origin={Origin.SquadDirectory}
           data-testid="squad-action"
-          showViewSquadIfMember
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
         />
       </div>

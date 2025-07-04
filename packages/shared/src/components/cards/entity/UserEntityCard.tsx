@@ -30,6 +30,7 @@ import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useUserMenuProps from '../../../hooks/useUserMenuProps';
+import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type Props = {
   user: UserShortProfile;
@@ -50,6 +51,11 @@ const UserEntityCard = ({ user, className }: Props) => {
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const menuProps = useUserMenuProps({ user });
+  const { isLoading } = useShowFollowAction({
+    entityId: user.id,
+    entityType: ContentPreferenceType.User,
+  });
+
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
       openModal({
@@ -107,6 +113,8 @@ const UserEntityCard = ({ user, className }: Props) => {
     });
   }
 
+  const showActionBtns = !isLoading && !isSameUser;
+
   return (
     <EntityCard
       permalink={permalink}
@@ -118,7 +126,7 @@ const UserEntityCard = ({ user, className }: Props) => {
       }}
       entityName={username}
       actionButtons={
-        !isSameUser && (
+        showActionBtns && (
           <>
             <CustomFeedOptionsMenu
               buttonVariant={ButtonVariant.Option}
