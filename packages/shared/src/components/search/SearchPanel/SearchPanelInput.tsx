@@ -33,6 +33,7 @@ import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
+import { useSearchContextProvider } from '../../../contexts/search/SearchContext';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -57,6 +58,7 @@ export const SearchPanelInput = ({
 }: SearchPanelInputProps): ReactElement => {
   const router = useRouter();
   const { search } = useSearchProvider();
+  const { time, contentCurationFilter } = useSearchContextProvider();
   const searchPanel = useContext(SearchPanelContext);
   const fieldRef = useRef<HTMLInputElement>();
   const { logEvent } = useLogContext();
@@ -94,7 +96,11 @@ export const SearchPanelInput = ({
 
     logEvent({
       event_name: LogEvent.SubmitSearch,
-      extra: JSON.stringify({ query: finalValue, provider }),
+      extra: JSON.stringify({
+        query: finalValue,
+        provider,
+        filters: { time, contentCuration: contentCurationFilter },
+      }),
     });
 
     setInput(finalValue);
