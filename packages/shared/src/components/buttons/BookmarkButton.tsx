@@ -50,6 +50,8 @@ export function BookmarkButton({
   ];
 
   if (hasReminder) {
+    const { onClick, ...buttonPropsWithoutOnClick } = buttonProps;
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger
@@ -61,7 +63,7 @@ export function BookmarkButton({
           <QuaternaryButton
             color={ButtonColor.Bun}
             variant={ButtonVariant.Tertiary}
-            {...buttonProps}
+            {...buttonPropsWithoutOnClick}
             type="button"
             pressed={post.bookmarked}
             icon={<Icon secondary={post.bookmarked} />}
