@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import { BellIcon } from '../icons';
 import { Bubble } from '../tooltips/utils';
 import { getUnreadText, notificationsUrl } from './utils';
@@ -10,8 +10,8 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { webappUrl } from '../../lib/constants';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { useViewSize, ViewSize } from '../../hooks';
+import { Tooltip } from '../tooltip/Tooltip';
 
 function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   const router = useRouter();
@@ -31,17 +31,16 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   const mobileVariant = atNotificationsPage ? undefined : ButtonVariant.Option;
 
   return (
-    <LinkWithTooltip
-      tooltip={{ placement: 'bottom', content: 'Notifications' }}
-      href={`${webappUrl}notifications`}
-    >
-      <a className="relative laptop:flex">
-        <Button
-          variant={isLaptop ? ButtonVariant.Float : mobileVariant}
-          className="justify-center"
-          onClick={onNavigateNotifications}
-          icon={<BellIcon secondary={atNotificationsPage} />}
-        />
+    <Tooltip side="bottom" content="Notifications">
+      <Button
+        variant={isLaptop ? ButtonVariant.Float : mobileVariant}
+        className="relative justify-center"
+        tag="a"
+        iconPosition={ButtonIconPosition.Top}
+        href={`${webappUrl}notifications`}
+        onClick={onNavigateNotifications}
+        icon={<BellIcon secondary={atNotificationsPage} />}
+      >
         {hasNotification && (
           <Bubble
             className={classNames(
@@ -52,8 +51,8 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
             {getUnreadText(unreadCount)}
           </Bubble>
         )}
-      </a>
-    </LinkWithTooltip>
+      </Button>
+    </Tooltip>
   );
 }
 
