@@ -34,7 +34,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
     <Tooltip side="bottom" content="Notifications">
       <Button
         variant={isLaptop ? ButtonVariant.Float : mobileVariant}
-        className="relative justify-center"
+        className="relative w-10 justify-center"
         tag="a"
         iconPosition={ButtonIconPosition.Top}
         href={`${webappUrl}notifications`}
