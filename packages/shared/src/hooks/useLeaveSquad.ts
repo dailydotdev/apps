@@ -29,10 +29,6 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
   const { deleteSquad: deleteCachedSquad } = useBoot();
-  const contentPrefKey = generateQueryKey(RequestKey.ContentPreference, user, {
-    id: squad.id,
-    entity: ContentPreferenceType.Source,
-  });
 
   const onLeaveSquad = useCallback(
     async ({ forceLeave = false }: Params = {}) => {
@@ -53,21 +49,21 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
         });
         await leaveSquad(squad.id);
         deleteCachedSquad(squad.id);
-        queryClient.invalidateQueries({
-          queryKey: contentPrefKey,
-        });
+
+        queryClient.setQueryData(
+          generateQueryKey(RequestKey.ContentPreference, user, {
+            id: squad.id,
+            entity: ContentPreferenceType.Source,
+          }),
+          {
+            status: null,
+          },
+        );
       }
 
       return left;
     },
-    [
-      deleteCachedSquad,
-      showPrompt,
-      squad,
-      logEvent,
-      contentPrefKey,
-      queryClient,
-    ],
+    [deleteCachedSquad, showPrompt, squad, logEvent, user, queryClient],
   );
 
   return onLeaveSquad;
