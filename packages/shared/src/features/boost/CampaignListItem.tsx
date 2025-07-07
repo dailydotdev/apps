@@ -15,7 +15,7 @@ import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
 
 const statusToColor: Record<PromotedPost['status'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
-  COMPLETED: 'bg-action-share-active text-action-share-default',
+  INACTIVE: 'bg-action-share-active text-action-share-default',
   CANCELLED: 'bg-action-downvote-active text-action-downvote-default',
 };
 
