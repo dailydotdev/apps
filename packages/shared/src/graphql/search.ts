@@ -6,6 +6,17 @@ import type { Post } from './posts';
 import { labels } from '../lib';
 import type { ContentPreference } from './contentPreference';
 
+export enum SearchTime {
+  AllTime = 'All Time',
+  Today = 'Today',
+  Yesterday = 'Yesterday',
+  LastSevenDays = 'Last 7 Days',
+  LastThirtyDays = 'Last 30 Days',
+  LastMonth = 'Last Month',
+  ThisYear = 'This Year',
+  LastYear = 'Last Year',
+}
+
 export enum SearchProviderEnum {
   Posts = 'posts',
   Tags = 'tags',

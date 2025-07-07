@@ -116,12 +116,13 @@ export default function MainFeedPage({
             onNavTabClick={onNavTabClick}
             searchChildren={
               <PostsSearch
-                onSubmitQuery={async (query) => {
+                onSubmitQuery={async (query, extraFlags) => {
                   logEvent({
                     event_name: LogEvent.SubmitSearch,
                     extra: JSON.stringify({
                       query,
                       provider: SearchProviderEnum.Posts,
+                      ...extraFlags,
                     }),
                   });
 

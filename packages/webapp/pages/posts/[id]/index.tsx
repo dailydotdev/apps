@@ -33,6 +33,7 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -98,7 +99,10 @@ export interface PostParams extends ParsedUrlQuery {
 
 export const seoTitle = (post: Post): string | undefined => {
   if (post?.type === PostType.Share && post?.title === null) {
-    return `Shared post at ${post?.source?.name}`;
+    const sourceName = isSourceUserSource(post?.source)
+      ? `by ${post?.author?.username}`
+      : `at ${post?.source?.name}`;
+    return `Shared post ${sourceName}`;
   }
 
   return post?.title;
