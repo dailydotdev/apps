@@ -19,6 +19,7 @@ import { NextSeo } from 'next-seo';
 import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import {
+  isSourceUserSource,
   SourcePermissions,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
@@ -47,6 +48,7 @@ function EditPost(): ReactElement {
     id: idQuery,
     options: { enabled: !isModeration },
   });
+  const isUserSource = isSourceUserSource(post?.source);
   const { moderated, isLoading: isModerationLoading } =
     useSourcePostModerationById({ id: idQuery, enabled: isModeration });
   const { squads, user } = useAuthContext();
@@ -56,19 +58,18 @@ function EditPost(): ReactElement {
       : WriteFormTabToFormID[WriteFormTab.NewPost];
 
   const squad = useMemo(() => {
-    if (post?.source?.type === SourceType.User) {
+    if (isUserSource) {
       return generateUserSourceAsSquad(user);
     }
 
     return squads?.find(({ id, handle }) =>
       [id, handle].includes((post || moderated)?.source?.id),
     );
-  }, [moderated, post, squads, user]);
+  }, [isUserSource, moderated, post, squads, user]);
 
   const fetchedPost = post || moderated;
   const isVerified =
-    post?.source?.type !== SourceType.User &&
-    verifyPermission(squad, SourcePermissions.Post);
+    !isUserSource && verifyPermission(squad, SourcePermissions.Post);
   const { displayToast } = useToastNotification();
   const {
     onAskConfirmation,

@@ -6,11 +6,13 @@ import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
+import { useSearchContextProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 
 export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,
 ): ReactElement {
   const router = useRouter();
+  const { time, contentCurationFilter } = useSearchContextProvider();
   const { logEvent } = useLogContext();
 
   const onSubmitQuery = (query: string): Promise<boolean> => {
@@ -19,6 +21,7 @@ export default function RouterPostsSearch(
       extra: JSON.stringify({
         query,
         provider: SearchProviderEnum.Posts,
+        filters: { time, contentCuration: contentCurationFilter },
       }),
     });
 

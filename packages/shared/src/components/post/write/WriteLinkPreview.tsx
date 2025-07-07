@@ -17,7 +17,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { SourceType } from '../../../graphql/sources';
+import { isSourceUserSource } from '../../../graphql/sources';
 import Link from '../../utilities/Link';
 import { webappUrl } from '../../../lib/constants';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -108,9 +108,11 @@ export function WriteLinkPreview({
 
           <div className="flex max-h-52 flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4">
             {preview.relatedPublicPosts.map((post) => {
+              const isUserSource = isSourceUserSource(post.source);
+
               return (
                 <div key={post.id} className="flex items-center gap-4">
-                  {post.source.type === SourceType.User ? (
+                  {isUserSource ? (
                     <ProfilePicture
                       user={post.author}
                       size={ProfileImageSize.Large}
@@ -134,7 +136,7 @@ export function WriteLinkPreview({
                         type={TimeFormatType.Post}
                       />
                       <Separator />
-                      {post.source.type === SourceType.User
+                      {isUserSource
                         ? `@${post.author.username}`
                         : post.source.name}
                     </Typography>

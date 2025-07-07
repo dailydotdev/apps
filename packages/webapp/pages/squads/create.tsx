@@ -25,8 +25,8 @@ import {
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import {
+  isSourceUserSource,
   SourcePermissions,
-  SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
@@ -105,13 +105,16 @@ function CreatePost(): ReactElement {
   };
   const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
     onPostSuccess: async (post) => {
-      if (post?.source?.type === SourceType.User) {
+      const isUserSource = isSourceUserSource(post.source);
+
+      if (isUserSource) {
         client.refetchQueries({
           queryKey: ['author', user.id],
         });
       }
+
       onPostSuccess(
-        post.source.type === SourceType.User
+        isUserSource
           ? `${webappUrl}${user.username}/posts`
           : post.commentsPermalink,
       );

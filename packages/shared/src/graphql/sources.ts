@@ -63,6 +63,9 @@ export enum SourceType {
   User = 'user',
 }
 
+export const isSourceUserSource = (source?: Source): boolean =>
+  source?.type === SourceType.User;
+
 export interface Squad extends Source {
   active: boolean;
   permalink: string;

@@ -13,6 +13,7 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import HistoryPage from '../pages/history';
 
 const routerReplace = jest.fn();
@@ -84,7 +85,9 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <HistoryPage />
+        <SearchProvider>
+          <HistoryPage />
+        </SearchProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
