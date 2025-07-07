@@ -383,6 +383,7 @@ export enum TargetId {
   SmartPrompt = 'smart prompt',
   Account = 'account',
   Brief = 'brief',
+  Notifications = 'notifications',
 }
 
 export enum NotificationChannel {

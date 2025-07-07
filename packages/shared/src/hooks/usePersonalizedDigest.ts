@@ -17,7 +17,7 @@ import { ApiError, getApiError, gqlClient } from '../graphql/common';
 export enum SendType {
   Weekly = 'weekly',
   Workdays = 'workdays',
-  Off = 'off',
+  Daily = 'daily',
 }
 export type UsePersonalizedDigest = {
   getPersonalizedDigest: (

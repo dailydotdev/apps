@@ -1,7 +1,7 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import type { ReactElement, SetStateAction } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { cloudinaryNotificationsBrowser } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -15,9 +15,14 @@ import {
   NotificationCategory,
   NotificationChannel,
   NotificationPromptSource,
+  TargetId,
 } from '@dailydotdev/shared/src/lib/log';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
-import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
+import {
+  SendType,
+  usePersonalizedDigest,
+  usePlusSubscription,
+} from '@dailydotdev/shared/src/hooks';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '@dailydotdev/shared/src/hooks/usePersistentContext';
@@ -37,6 +42,13 @@ import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import type { NextSeoProps } from 'next-seo';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -52,6 +64,7 @@ const seo: NextSeoProps = {
 };
 
 const AccountNotificationsPage = (): ReactElement => {
+  const { isPlus } = usePlusSubscription();
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const { onTogglePermission } = usePushNotificationMutation();
@@ -87,15 +100,32 @@ const AccountNotificationsPage = (): ReactElement => {
   const streakReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.StreakReminder,
   );
-  const personalizedDigest = getPersonalizedDigest(
-    UserPersonalizedDigestType.Digest,
-  );
+
+  const selectedDigest = useMemo(() => {
+    if (isLoading) {
+      return null;
+    }
+
+    const brief = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
+
+    if (brief) {
+      return brief;
+    }
+
+    const digest = getPersonalizedDigest(UserPersonalizedDigestType.Digest);
+
+    if (digest) {
+      return digest;
+    }
+
+    return null;
+  }, [getPersonalizedDigest, isLoading]);
 
   if (
-    !isNullOrUndefined(personalizedDigest) &&
-    personalizedDigest?.preferredHour !== digestTimeIndex
+    !isNullOrUndefined(selectedDigest) &&
+    selectedDigest?.preferredHour !== digestTimeIndex
   ) {
-    setDigestTimeIndex(personalizedDigest?.preferredHour);
+    setDigestTimeIndex(selectedDigest?.preferredHour);
   }
   if (
     !isNullOrUndefined(readingReminder) &&
@@ -103,8 +133,6 @@ const AccountNotificationsPage = (): ReactElement => {
   ) {
     setReadingTimeIndex(readingReminder?.preferredHour);
   }
-  const personalizedDigestType =
-    personalizedDigest?.flags?.sendType || (!isLoading ? SendType.Off : null);
 
   const {
     acceptedMarketing,
@@ -115,11 +143,7 @@ const AccountNotificationsPage = (): ReactElement => {
     awardNotifications,
   } = user ?? {};
   const emailNotification =
-    acceptedMarketing ||
-    notificationEmail ||
-    !!personalizedDigest ||
-    followingEmail ||
-    awardEmail;
+    acceptedMarketing || notificationEmail || followingEmail || awardEmail;
 
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
@@ -153,12 +177,6 @@ const AccountNotificationsPage = (): ReactElement => {
       followingEmail: value,
       awardEmail: value,
     });
-
-    if (value) {
-      subscribePersonalizedDigest({ sendType: SendType.Weekly });
-    } else {
-      unsubscribePersonalizedDigest();
-    }
   };
 
   const onLogToggle = (
@@ -290,25 +308,37 @@ const AccountNotificationsPage = (): ReactElement => {
     updateUserProfile({ awardNotifications: value });
   };
 
-  const setPersonalizedDigestType = (sendType: SendType): void => {
-    onLogToggle(
-      sendType !== SendType.Off,
-      NotificationChannel.Email,
-      NotificationCategory.Digest,
-    );
+  const onSubscribeDigest = async ({
+    type,
+    sendType,
+  }: {
+    type: UserPersonalizedDigestType;
+    sendType: SendType;
+  }): Promise<void> => {
+    onLogToggle(true, NotificationChannel.Email, NotificationCategory.Digest);
 
-    if (sendType === SendType.Off) {
-      unsubscribePersonalizedDigest();
-    } else {
-      logEvent({
-        event_name: LogEvent.ScheduleDigest,
-        extra: JSON.stringify({
-          hour: digestTimeIndex,
-          timezone: user?.timezone,
-          frequency: sendType,
-        }),
-      });
-      subscribePersonalizedDigest({ sendType });
+    logEvent({
+      event_name: LogEvent.ScheduleDigest,
+      extra: JSON.stringify({
+        hour: digestTimeIndex,
+        timezone: user?.timezone,
+        frequency: sendType,
+        type,
+      }),
+    });
+
+    await subscribePersonalizedDigest({ type, sendType });
+  };
+
+  const onUnsubscribeDigest = async ({
+    type,
+  }: {
+    type?: UserPersonalizedDigestType;
+  }): Promise<void> => {
+    onLogToggle(false, NotificationChannel.Email, NotificationCategory.Digest);
+
+    if (type) {
+      await unsubscribePersonalizedDigest({ type });
     }
   };
 
@@ -331,7 +361,7 @@ const AccountNotificationsPage = (): ReactElement => {
         extra: JSON.stringify({
           hour: preferredHour,
           timezone: user?.timezone,
-          frequency: personalizedDigestType,
+          frequency: selectedDigest.flags.sendType,
         }),
       });
     }
@@ -339,7 +369,7 @@ const AccountNotificationsPage = (): ReactElement => {
     subscribePersonalizedDigest({
       type,
       hour: preferredHour,
-      sendType: personalizedDigestType as SendType,
+      sendType: selectedDigest.flags.sendType,
     });
     setHour(preferredHour);
   };
@@ -445,44 +475,165 @@ const AccountNotificationsPage = (): ReactElement => {
         >
           Transactions (Cores earnings & rewards)
         </Checkbox>
-        <div className="my-2 gap-1">
-          <h3 className="font-bold typo-callout">Personalized digest</h3>
-          <p className="text-text-tertiary typo-footnote">
-            Stay informed with daily or weekly emails tailored to your
-            interests.
-          </p>
-        </div>
+      </div>
+      <HorizontalSeparator className="my-4" />
+      <div className="flex flex-row gap-4">
+        <AccountContentSection
+          className={{
+            heading: 'mt-0',
+            container: 'flex w-full flex-1 flex-col gap-4',
+          }}
+          title="Smart Digests and AI Briefings"
+        />
+        <Switch
+          data-testid="digest_notification-switch"
+          inputId="digest_notification-switch"
+          name="digest_notification"
+          className="w-20 justify-end"
+          compact={false}
+          checked={!!selectedDigest}
+          onToggle={async () => {
+            if (!selectedDigest) {
+              onSubscribeDigest({
+                type: isPlus
+                  ? UserPersonalizedDigestType.Brief
+                  : UserPersonalizedDigestType.Digest,
+                sendType: isPlus ? SendType.Daily : SendType.Workdays,
+              });
+            } else {
+              onUnsubscribeDigest({});
+
+              await unsubscribePersonalizedDigest({
+                type: UserPersonalizedDigestType.Digest,
+              });
+              await unsubscribePersonalizedDigest({
+                type: UserPersonalizedDigestType.Brief,
+              });
+            }
+          }}
+        >
+          {selectedDigest ? 'On' : 'Off'}
+        </Switch>
+      </div>
+      <div className="mt-6 flex w-full flex-col gap-4">
         <Radio
           name="personalizedDigest"
-          value={personalizedDigestType}
           options={[
-            { label: 'Daily (Mon-Fri)', value: SendType.Workdays },
-            { label: 'Weekly', value: SendType.Weekly },
-            { label: 'Off', value: SendType.Off },
-          ]}
-          onChange={setPersonalizedDigestType}
+            {
+              label: (
+                <>
+                  <Typography
+                    bold
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                  >
+                    Personalized digest
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    className="text-wrap"
+                  >
+                    Stay informed with daily or weekly emails tailored to your
+                    interests.
+                  </Typography>
+                </>
+              ),
+              value: UserPersonalizedDigestType.Digest,
+            },
+            {
+              label: (
+                <>
+                  <Typography
+                    bold
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                  >
+                    <span className="flex gap-2">
+                      Presidential briefing
+                      <PlusUser />
+                    </span>
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    className="text-wrap"
+                  >
+                    Receive concise, high-quality AI-generated summaries.
+                  </Typography>
+                  {!isPlus && (
+                    <UpgradeToPlus
+                      className="mt-2"
+                      target={TargetId.Notifications}
+                      size={ButtonSize.Small}
+                    />
+                  )}
+                </>
+              ),
+              value: UserPersonalizedDigestType.Brief,
+              disabled: !isPlus,
+            },
+          ].filter(Boolean)}
+          value={selectedDigest?.type ?? null}
+          onChange={async (type) => {
+            if (type === UserPersonalizedDigestType.Brief) {
+              await onSubscribeDigest({
+                type: UserPersonalizedDigestType.Brief,
+                sendType: SendType.Daily,
+              });
+              await unsubscribePersonalizedDigest({
+                type: UserPersonalizedDigestType.Digest,
+              });
+            } else {
+              await onSubscribeDigest({
+                type: UserPersonalizedDigestType.Digest,
+                sendType: SendType.Workdays,
+              });
+              await unsubscribePersonalizedDigest({
+                type: UserPersonalizedDigestType.Brief,
+              });
+            }
+          }}
+          reverse
+          className={{
+            label: 'w-[calc(100%-2.4rem)]',
+            content: 'w-full !pr-0',
+            container: 'gap-4',
+          }}
         />
-        {personalizedDigestType !== 'off' && (
+        {!!selectedDigest && (
           <>
-            <div className="my-2">
-              <h3 className="font-bold typo-callout">
-                What&apos;s the ideal time to email you?
-              </h3>
-            </div>
-            <HourDropdown
-              className={{
-                container: 'w-40',
-                ...(!isPushSupported && { menu: '-translate-y-[19rem]' }),
+            <Radio
+              name="personalizedDigest"
+              value={selectedDigest?.flags?.sendType ?? null}
+              options={[
+                selectedDigest?.type === UserPersonalizedDigestType.Brief
+                  ? { label: 'Daily', value: SendType.Daily }
+                  : { label: 'Daily (Mon-Fri)', value: SendType.Workdays },
+                { label: 'Weekly', value: SendType.Weekly },
+              ]}
+              onChange={(sendType) => {
+                onSubscribeDigest({
+                  type: selectedDigest.type,
+                  sendType,
+                });
               }}
-              hourIndex={digestTimeIndex}
-              setHourIndex={(hour) =>
-                setCustomTime(
-                  UserPersonalizedDigestType.Digest,
-                  hour,
-                  setDigestTimeIndex,
-                )
-              }
             />
+            <>
+              <div className="my-2">
+                <h3 className="font-bold typo-callout">When to send?</h3>
+              </div>
+              <HourDropdown
+                className={{
+                  container: 'w-40',
+                  ...(!isPushSupported && { menu: '-translate-y-[19rem]' }),
+                }}
+                hourIndex={digestTimeIndex}
+                setHourIndex={(hour) =>
+                  setCustomTime(selectedDigest.type, hour, setDigestTimeIndex)
+                }
+              />
+            </>
           </>
         )}
       </div>

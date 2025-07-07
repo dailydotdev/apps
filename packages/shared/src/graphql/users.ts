@@ -409,6 +409,7 @@ export enum UserPersonalizedDigestType {
   Digest = 'digest',
   ReadingReminder = 'reading_reminder',
   StreakReminder = 'streak_reminder',
+  Brief = 'brief',
 }
 
 export type UserPersonalizedDigest = {
