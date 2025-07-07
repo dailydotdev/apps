@@ -19,6 +19,8 @@ import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
 import type { BoostedPostData } from '../../graphql/post/boost';
+import { DateFormat } from '../../components/utilities';
+import { TimeFormatType } from '../../lib/dateFormat';
 
 interface CampaignListViewProps {
   data: BoostedPostData;
@@ -79,6 +81,15 @@ export function CampaignListView({
     };
   }, [campaign]);
 
+  console.log('date: ', date);
+  const percentage = useMemo(() => {
+    if (campaign.status !== 'ACTIVE') {
+      return 100;
+    }
+
+    return (date.startedIn / date.totalDays) * 100;
+  }, [campaign.status, date]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-row items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-2 pl-3">
@@ -95,23 +106,26 @@ export function CampaignListView({
       </div>
       <div className="flex flex-col gap-1">
         <ProgressBar
-          percentage={date.startedIn / date.totalDays}
+          percentage={percentage}
           shouldShowBg
-          className={{ wrapper: 'h-2' }}
+          className={{ wrapper: 'h-2 rounded-6' }}
         />
         <span className="flex flex-row justify-between">
           <Typography
             type={TypographyType.Subhead}
             color={TypographyColor.Secondary}
           >
-            Started {date.startedIn} days ago
+            Started{' '}
+            <DateFormat date={campaign.startedAt} type={TimeFormatType.Post} />
           </Typography>
-          <Typography
-            type={TypographyType.Subhead}
-            color={TypographyColor.Secondary}
-          >
-            Ends in {date.endsIn} days
-          </Typography>
+          {campaign.status === 'ACTIVE' && (
+            <Typography
+              type={TypographyType.Subhead}
+              color={TypographyColor.Secondary}
+            >
+              Ends in {date.endsIn} {date.endsIn === 1 ? 'day' : 'days'}
+            </Typography>
+          )}
         </span>
         <CampaignStatsGrid
           className="mt-3"

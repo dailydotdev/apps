@@ -49,12 +49,12 @@ export function CampaignListItem({
   const { campaign, post } = data;
 
   const getCaption = () => {
-    if (campaign.status === 'COMPLETED') {
-      return 'Completed';
+    if (campaign.status === 'INACTIVE') {
+      return 'COMPLETED';
     }
 
-    if (campaign.status === 'CANCELLED') {
-      return 'Cancelled';
+    if (campaign.status !== 'ACTIVE') {
+      return campaign.status;
     }
 
     const remainingDays = getAbsoluteDifferenceInDays(
