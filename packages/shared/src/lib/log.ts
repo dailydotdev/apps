@@ -82,7 +82,6 @@ export enum LogEvent {
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
-  StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
@@ -297,10 +296,6 @@ export enum LogEvent {
   // End Credits
 }
 
-export enum FeedItemTitle {
-  SubmitArticle = 'Submit article',
-}
-
 export enum TargetType {
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
@@ -415,7 +410,6 @@ export enum NotificationPromptSource {
   BookmarkReminder = 'bookmark reminder',
   NotificationsPage = 'notifications page',
   NewComment = 'new comment',
-  CommunityPicks = 'community picks modal',
   NewSourceModal = 'new source modal',
   SquadPage = 'squad page',
   NotificationItem = 'notification item',

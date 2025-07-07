@@ -11,7 +11,6 @@ export const cookiePolicy = 'https://r.daily.dev/cookie-policy';
 export const reputation = 'https://r.daily.dev/reputation';
 export const ownershipGuide = 'https://r.daily.dev/claim';
 export const contentGuidelines = 'https://r.daily.dev/content-guidelines';
-export const communityLinksGuidelines = 'https://r.daily.dev/community-links';
 export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';

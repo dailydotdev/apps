@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
+import { isSourceUserSource } from '../../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
@@ -62,6 +63,7 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
+  const isUserSource = isSourceUserSource(post.source);
   const { interactiveFeedExp } = useInteractiveFeedContext();
 
   const { highlightBookmarkedPost } = useBookmarkProvider({
@@ -93,14 +95,16 @@ export const PostCardHeader = ({
           interactiveFeedExp && 'mx-0',
         )}
       >
-        <SourceButton
-          size={
-            isFeedPreview && interactiveFeedExp
-              ? ProfileImageSize.Small
-              : undefined
-          }
-          source={source}
-        />
+        {!isUserSource && (
+          <SourceButton
+            size={
+              isFeedPreview && interactiveFeedExp
+                ? ProfileImageSize.Small
+                : undefined
+            }
+            source={source}
+          />
+        )}
         {!!post?.author && (
           <HoverCard
             align="start"

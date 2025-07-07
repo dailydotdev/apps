@@ -557,7 +557,7 @@ export const expandPinnedPosts = async (
 };
 
 export const verifyPermission = (
-  squad: Squad,
+  squad: Pick<Squad, 'currentMember'>,
   permission: SourcePermissions,
 ): boolean => !!squad?.currentMember?.permissions?.includes(permission);
 

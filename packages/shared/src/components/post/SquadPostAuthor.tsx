@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import {
-  getProfilePictureClasses,
-  ProfileImageSize,
-  ProfilePicture,
-} from '../ProfilePicture';
+import { getProfilePictureClasses, ProfileImageSize } from '../ProfilePicture';
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -25,6 +21,7 @@ import {
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { ButtonVariant } from '../buttons/Button';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -94,12 +91,14 @@ function SquadPostAuthor({
     <span
       className={classNames('flex flex-row items-center', className?.container)}
     >
-      <ProfilePicture
+      <ProfileImageLink
+        picture={{
+          size,
+          nativeLazyLoading: true,
+          eager: true,
+          fetchPriority: 'high',
+        }}
         user={author}
-        size={size}
-        nativeLazyLoading
-        eager
-        fetchPriority="high"
       />
       <a
         href={author.permalink}
