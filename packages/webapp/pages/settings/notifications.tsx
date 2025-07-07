@@ -604,7 +604,7 @@ const AccountNotificationsPage = (): ReactElement => {
         {!!selectedDigest && (
           <>
             <Radio
-              name="personalizedDigest"
+              name="personalizedDigestSendType"
               value={selectedDigest?.flags?.sendType ?? null}
               options={[
                 selectedDigest?.type === UserPersonalizedDigestType.Brief
