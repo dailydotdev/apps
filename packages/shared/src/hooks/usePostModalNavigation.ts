@@ -242,11 +242,7 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
-  const selectedPostItem =
-    openedPostIndex !== undefined ? items[openedPostIndex] : null;
-  const selectedPostIsAd =
-    selectedPostItem?.type === 'ad' && !!selectedPostItem.ad.data?.post;
-
+  const selectedPostIsAd = isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
