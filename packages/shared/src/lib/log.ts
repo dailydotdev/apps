@@ -81,6 +81,7 @@ export enum LogEvent {
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
+  CommentsClick = 'comments click',
   StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
@@ -135,6 +136,7 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  ReportPost = 'report post',
   // moderation - end
   // bookmark - start
   BookmarkPost = 'bookmark post',
@@ -267,11 +269,16 @@ export enum LogEvent {
   ShareSource = 'share source',
   ShareTag = 'share tag',
   SharePost = 'share post',
+  ShareComment = 'share comment',
   // End Share
   // Start Smart Prompts
   SmartPrompt = 'smart prompt',
   ToggleSmartPrompts = 'toggle smart prompts',
   // End Smart Prompts
+  // Navigation
+  NavigatePrevious = 'navigate previous',
+  NavigateNext = 'navigate next',
+  // End Navigation
   // Start Profile
   ProfileView = 'profile view',
   UpdateProfile = 'update profile',

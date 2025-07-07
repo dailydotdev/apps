@@ -53,6 +53,8 @@ import usePostById, { invalidatePostCacheById } from '../../hooks/usePostById';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
+import { usePostLogEvent } from '../../lib/feed';
+import { useFeedCardContext } from './FeedCardContext';
 import useReportPost from '../../hooks/useReportPost';
 import { useSharePost } from '../../hooks/useSharePost';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
@@ -77,7 +79,6 @@ import {
   useCanBoostPost,
   UserVote,
 } from '../../graphql/posts';
-import { postLogEvent } from '../../lib/feed';
 import type { ReportedCallback } from '../../components/modals';
 import { labels } from '../../lib';
 import type { MenuItemProps } from '../../components/fields/ContextMenu';
@@ -179,6 +180,8 @@ const PostOptionButtonContent = ({
     feedId: customFeedId,
   });
   const { logEvent } = useLogContext();
+  const postLogEvent = usePostLogEvent();
+  const { boostedBy } = useFeedCardContext();
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
@@ -416,14 +419,14 @@ const PostOptionButtonContent = ({
     }
 
     logEvent(
-      postLogEvent('hide post', post, {
+      postLogEvent(LogEvent.HidePost, post, {
         extra: { origin: Origin.PostContextMenu },
         ...logOpts,
       }),
     );
 
     showMessageAndRemovePost(
-      '🙈 This post won’t show up on your feed anymore',
+      "🙈 This post won't show up on your feed anymore",
       postIndex,
       () => unhidePost(post.id),
     );
@@ -747,6 +750,7 @@ const PostOptionButtonContent = ({
           post,
           onReported: onReportedPost,
           origin: Origin.PostContextMenu,
+          isAd: !!boostedBy,
         },
       }),
   });

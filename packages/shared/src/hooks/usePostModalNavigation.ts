@@ -13,7 +13,7 @@ import { PostType } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
 import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { isBoostedPostAd } from './useFeed';
-import { Origin } from '../lib/log';
+import { Origin, LogEvent } from '../lib/log';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery, objectToQueryParams } from '../lib';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
@@ -37,6 +37,7 @@ interface UsePostModalNavigation {
   isFetchingNextPage?: boolean;
   selectedPost: Post | null;
   selectedPostIndex: number;
+  selectedPostIsAd: boolean;
 }
 
 export type UsePostModalNavigationProps = {
@@ -241,9 +242,11 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
+  const selectedPostIsAd = isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
+    selectedPostIsAd,
     onCloseModal: async () => {
       const searchParams = new URLSearchParams(window.location.search);
 
@@ -273,8 +276,9 @@ export const usePostModalNavigation = ({
       const current = getPost(openedPostIndex);
       if (current) {
         logEvent(
-          postLogEvent('navigate previous', current, {
+          postLogEvent(LogEvent.NavigatePrevious, current, {
             extra: { origin: Origin.ArticleModal },
+            is_ad: selectedPostIsAd,
           }),
         );
       }
@@ -302,8 +306,9 @@ export const usePostModalNavigation = ({
       }
       setIsFetchingNextPage(false);
       logEvent(
-        postLogEvent('navigate next', current, {
+        postLogEvent(LogEvent.NavigateNext, current, {
           extra: { origin: Origin.ArticleModal },
+          is_ad: selectedPostIsAd,
         }),
       );
       onChangeSelected(index);

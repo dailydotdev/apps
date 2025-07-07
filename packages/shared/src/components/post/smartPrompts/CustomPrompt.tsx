@@ -17,8 +17,9 @@ import { labels } from '../../../lib';
 import { RenderMarkdown } from '../../RenderMarkdown';
 import { CopyIcon, EditIcon } from '../../icons';
 import { useCopyText } from '../../../hooks/useCopy';
-import { postLogEvent } from '../../../lib/feed';
 import { LogEvent } from '../../../lib/log';
+import { useActiveFeedContext } from '../../../contexts';
+import { postLogEvent } from '../../../lib/feed';
 import { useLogContext } from '../../../contexts/LogContext';
 
 type CustomPromptProps = {
@@ -27,6 +28,7 @@ type CustomPromptProps = {
 
 export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const { logOpts } = useActiveFeedContext();
   const { data: prompts } = usePromptsQuery();
   const [isEdit, setIsEdit] = useState(false);
   const [copying, copy] = useCopyText();
@@ -41,12 +43,13 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
       logEvent(
         postLogEvent(LogEvent.SmartPrompt, post, {
           extra: { prompt: 'custom-prompt' },
+          ...(logOpts && logOpts),
         }),
       );
       setIsEdit(false);
       executePrompt(e.target[0].value);
     },
-    [executePrompt, logEvent, post],
+    [executePrompt, logEvent, post, logOpts],
   );
 
   if (!data || isEdit) {

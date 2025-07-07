@@ -25,7 +25,7 @@ import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { PostLogEventFnOptions } from '../lib/feed';
-import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
+import { optimisticPostUpdateInFeed, usePostLogEvent } from '../lib/feed';
 import type { AdItem, FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
@@ -33,6 +33,7 @@ import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import type { Bookmark } from '../graphql/bookmarks';
+import { useActiveFeedContext } from '../contexts';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -87,6 +88,8 @@ const useBookmarkPost = ({
   const { logEvent } = useContext(LogContext);
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
+  const postLogEvent = usePostLogEvent();
+  const { logOpts } = useActiveFeedContext();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -150,8 +153,15 @@ const useBookmarkPost = ({
         opts,
       });
 
+      // Merge ActiveFeedContext.logOpts if available (modal context)
+      const finalLogOptions = logOpts
+        ? { ...logOptions, ...logOpts }
+        : logOptions;
+
       if (post.bookmarked) {
-        logEvent(postLogEvent(LogEvent.RemovePostBookmark, post, logOptions));
+        logEvent(
+          postLogEvent(LogEvent.RemovePostBookmark, post, finalLogOptions),
+        );
         if (disableToast) {
           return;
         }
@@ -160,7 +170,7 @@ const useBookmarkPost = ({
         return;
       }
 
-      logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
+      logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
 
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
@@ -178,7 +188,11 @@ const useBookmarkPost = ({
               listId: list?.id,
               onMoveBookmark: async () => {
                 logEvent(
-                  postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOptions),
+                  postLogEvent(
+                    LogEvent.MoveBookmarkToFolder,
+                    post,
+                    finalLogOptions,
+                  ),
                 );
               },
             },
@@ -194,6 +208,8 @@ const useBookmarkPost = ({
       removeBookmark,
       displayToast,
       openModal,
+      postLogEvent,
+      logOpts,
     ],
   );
 
