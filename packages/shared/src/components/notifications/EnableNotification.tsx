@@ -32,8 +32,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.NotificationItem]: '',
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
   [NotificationPromptSource.SquadPostCommentary]: '',
-  [NotificationPromptSource.SquadPostModal]:
-    'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
+  [NotificationPromptSource.SquadPostModal]: '',
   [NotificationPromptSource.SquadChecklist]: '',
   [NotificationPromptSource.SourceSubscribe]: 'w-full px-3 !pt-0 !pb-2',
   [NotificationPromptSource.ReadingReminder]: '',
