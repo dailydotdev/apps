@@ -14,7 +14,6 @@ import {
   oneMinute,
   TimeFormatType,
 } from '../../../../lib/dateFormat';
-import { transactionRefetchIntervalMs } from '../../../../graphql/njord';
 import usePostById from '../../../../hooks/usePostById';
 import {
   BriefCardContextProvider,
@@ -110,7 +109,7 @@ export const BriefCardInternal = (
 
         // in case of query error keep refetching until maxRetries is reached
         if (queryError) {
-          return transactionRefetchIntervalMs;
+          return briefRefetchIntervalMs;
         }
 
         return false;
