@@ -10,6 +10,7 @@ import { ReferralCampaignKey } from '../lib';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import type { ShareProps } from '../components/modals/post/common';
+import { LogEvent } from '../lib/log';
 
 type FuncProps = Omit<ShareProps, 'origin'>;
 
@@ -34,7 +35,7 @@ export function useSharePost(origin: Origin): UseSharePost {
   const copyLinkShare: UseSharePost['copyLink'] = useCallback(
     ({ post, columns, column, row }) => {
       logEvent(
-        postLogEvent('share post', post, {
+        postLogEvent(LogEvent.SharePost, post, {
           columns,
           column,
           row,
@@ -62,7 +63,7 @@ export function useSharePost(origin: Origin): UseSharePost {
           url: shortLink,
         });
         logEvent(
-          postLogEvent('share post', post, {
+          postLogEvent(LogEvent.SharePost, post, {
             extra: { origin, provider: ShareProvider.Native },
           }),
         );

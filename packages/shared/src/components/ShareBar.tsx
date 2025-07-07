@@ -34,7 +34,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
 
   const logShareEvent = (provider: ShareProvider) =>
     logEvent(
-      postLogEvent('share post', post, {
+      postLogEvent(LogEvent.SharePost, post, {
         extra: { provider, origin: Origin.ShareBar },
         ...(logOpts && logOpts),
       }),

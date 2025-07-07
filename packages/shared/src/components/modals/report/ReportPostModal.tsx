@@ -9,6 +9,7 @@ import type { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';
 import useReportPost from '../../../hooks/useReportPost';
 import { postLogEvent } from '../../../lib/feed';
+import { LogEvent } from '../../../lib/log';
 import type { Origin } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ReasonSelectionModal } from './ReasonSelectionModal';
@@ -154,7 +155,7 @@ export function ReportPostModal({
     }
 
     logEvent(
-      postLogEvent('report post', post, {
+      postLogEvent(LogEvent.ReportPost, post, {
         extra: { origin, reason, comment: text },
         is_ad: isAd,
       }),

@@ -28,7 +28,7 @@ import LogContext from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/log';
+import { Origin, LogEvent } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -372,7 +372,7 @@ export default function Feed<T>({
     isAd?: boolean,
   ): void => {
     logEvent(
-      postLogEvent('comments click', post, {
+      postLogEvent(LogEvent.CommentsClick, post, {
         columns: virtualizedNumCards,
         column,
         row,

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
-import { Origin } from '../../../lib/log';
+import { Origin, LogEvent } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { ShareProvider } from '../../../lib/share';
@@ -40,7 +40,7 @@ export function PostContentShare({
         className={{ container: 'w-full flex-1' }}
         link={shareLink}
         onCopy={() => onInteract('none')}
-        logProps={postLogEvent('share post', post, {
+        logProps={postLogEvent(LogEvent.SharePost, post, {
           extra: {
             provider: ShareProvider.CopyLink,
             origin: Origin.PostContent,

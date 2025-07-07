@@ -1,6 +1,7 @@
 import { useInView } from 'react-intersection-observer';
 import { useContext, useEffect } from 'react';
 import { adLogEvent, feedLogExtra, usePostLogEvent } from '../../lib/feed';
+import { LogEvent } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
 import { PostType } from '../../graphql/posts';
@@ -34,7 +35,7 @@ export default function useLogImpression(
       if (inView && !item.post.impressionStatus) {
         logEventStart(
           eventKey,
-          postLogEvent('impression', item.post, {
+          postLogEvent(LogEvent.Impression, item.post, {
             columns,
             column,
             row,

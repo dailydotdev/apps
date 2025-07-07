@@ -21,6 +21,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
+import { LogEvent } from '../../lib/log';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -118,7 +119,7 @@ export default function SimilarPosts({
 
   const onLinkClick = async (post: Post): Promise<void> => {
     logEvent(
-      postLogEvent('click', post, {
+      postLogEvent(LogEvent.Click, post, {
         extra: { origin: 'recommendation' },
         ...(logOpts && logOpts),
       }),

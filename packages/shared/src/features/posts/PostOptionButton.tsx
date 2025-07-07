@@ -419,14 +419,14 @@ const PostOptionButtonContent = ({
     }
 
     logEvent(
-      postLogEvent('hide post', post, {
+      postLogEvent(LogEvent.HidePost, post, {
         extra: { origin: Origin.PostContextMenu },
         ...logOpts,
       }),
     );
 
     showMessageAndRemovePost(
-      '🙈 This post won’t show up on your feed anymore',
+      "🙈 This post won't show up on your feed anymore",
       postIndex,
       () => unhidePost(post.id),
     );

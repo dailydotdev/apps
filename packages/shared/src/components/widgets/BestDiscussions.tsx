@@ -19,6 +19,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { LogEvent } from '../../lib/log';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -85,7 +86,7 @@ export default function BestDiscussions({
 
   const onLinkClick = (post: Post): void => {
     logEvent(
-      postLogEvent('click', post, {
+      postLogEvent(LogEvent.Click, post, {
         extra: { origin: 'best discussions' },
         ...(logOpts && logOpts),
       }),

@@ -11,7 +11,7 @@ import {
 } from '../../icons';
 import { SocialIconType } from '../../../lib/socialMedia';
 import { useLogContext } from '../../../contexts/LogContext';
-import { Origin } from '../../../lib/log';
+import { Origin, LogEvent } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ReferralCampaignKey } from '../../../lib';
 import { getShortLinkProps } from '../../../hooks';
@@ -98,7 +98,7 @@ const SocialIconButton = ({
       tag="a"
       onClick={() =>
         logEvent(
-          postLogEvent('share post', post, {
+          postLogEvent(LogEvent.SharePost, post, {
             extra: {
               provider: platform,
               origin: Origin.Suggestions,

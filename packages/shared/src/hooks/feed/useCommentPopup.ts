@@ -6,6 +6,7 @@ import LogContext from '../../contexts/LogContext';
 import { feedLogExtra, usePostLogEvent } from '../../lib/feed';
 import type { Post } from '../../graphql/posts';
 import { gqlClient } from '../../graphql/common';
+import { LogEvent } from '../../lib/log';
 
 export default function useCommentPopup(
   feedName: string,
@@ -45,7 +46,7 @@ export default function useCommentPopup(
 
     onSuccess: async (data, { post, row, column, columns }) => {
       logEvent(
-        postLogEvent('comment post', post, {
+        postLogEvent(LogEvent.CommentPost, post, {
           columns,
           column,
           row,

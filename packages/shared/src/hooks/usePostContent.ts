@@ -15,6 +15,7 @@ import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from './useCopyPostLink';
 import type { EmptyPromise } from '../lib/func';
 import type { Origin } from '../lib/log';
+import { LogEvent } from '../lib/log';
 
 export interface UsePostContent {
   onCopyPostLink: () => void;
@@ -63,7 +64,7 @@ const usePostContent = ({
   const logShareEvent = useCallback(
     (provider: ShareProvider) =>
       logEvent(
-        postLogEvent('share post', post, {
+        postLogEvent(LogEvent.SharePost, post, {
           extra: { provider, origin },
           ...(logOpts && logOpts),
         }),

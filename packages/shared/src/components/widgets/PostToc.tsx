@@ -9,6 +9,7 @@ import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import styles from './PostToc.module.css';
 import { WidgetContainer } from './common';
+import { LogEvent } from '../../lib/log';
 
 export type PostTocProps = {
   post: Post;
@@ -35,7 +36,7 @@ export default function PostToc({
 
   const onLinkClick = async (): Promise<void> => {
     logEvent(
-      postLogEvent('click', post, {
+      postLogEvent(LogEvent.Click, post, {
         extra: { origin: 'toc' },
         ...(logOpts && logOpts),
       }),

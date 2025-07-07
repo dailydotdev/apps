@@ -13,7 +13,7 @@ import { PostType } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
 import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { isBoostedPostAd } from './useFeed';
-import { Origin } from '../lib/log';
+import { Origin, LogEvent } from '../lib/log';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery, objectToQueryParams } from '../lib';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
@@ -280,7 +280,7 @@ export const usePostModalNavigation = ({
       const current = getPost(openedPostIndex);
       if (current) {
         logEvent(
-          postLogEvent('navigate previous', current, {
+          postLogEvent(LogEvent.NavigatePrevious, current, {
             extra: { origin: Origin.ArticleModal },
             is_ad: selectedPostIsAd,
           }),
@@ -310,7 +310,7 @@ export const usePostModalNavigation = ({
       }
       setIsFetchingNextPage(false);
       logEvent(
-        postLogEvent('navigate next', current, {
+        postLogEvent(LogEvent.NavigateNext, current, {
           extra: { origin: Origin.ArticleModal },
           is_ad: selectedPostIsAd,
         }),

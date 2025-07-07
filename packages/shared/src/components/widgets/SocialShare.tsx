@@ -63,7 +63,7 @@ export const SocialShare = ({
   const [squadToShare, setSquadToShare] = shareToSquadState;
   const logClick = (provider: ShareProvider) =>
     logEvent(
-      postLogEvent('share post', post, {
+      postLogEvent(LogEvent.SharePost, post, {
         columns,
         column,
         row,
