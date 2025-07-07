@@ -81,7 +81,6 @@ export function CampaignListView({
     };
   }, [campaign]);
 
-  console.log('date: ', date);
   const percentage = useMemo(() => {
     if (campaign.status !== 'ACTIVE') {
       return 100;
