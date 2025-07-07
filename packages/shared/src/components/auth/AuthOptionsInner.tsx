@@ -46,7 +46,6 @@ import {
   onboardingCompletedActions,
 } from '../../hooks/auth';
 import { claimClaimableItem } from '../../graphql/users';
-import { BOOT_QUERY_KEY } from '../../contexts/common';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -214,10 +213,7 @@ function AuthOptionsInner({
       // Check for claimable items on login (e.g., Plus subscription)
       claimClaimableItem().then((hasClaimed) => {
         if (hasClaimed) {
-          // We need to refetch the boot query to load the latest user data
-          queryClient.invalidateQueries({
-            queryKey: BOOT_QUERY_KEY,
-          });
+          refetchBoot();
         }
       });
 
