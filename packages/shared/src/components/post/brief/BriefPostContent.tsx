@@ -237,7 +237,7 @@ const BriefPostContentRaw = ({
                 </Typography>
               </div>
             </div>
-            <Markdown content={contentHtml} />
+            <Markdown content={contentHtml} isSerif />
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div

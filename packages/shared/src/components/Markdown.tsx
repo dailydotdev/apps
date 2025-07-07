@@ -21,6 +21,7 @@ interface MarkdownProps {
   className?: string;
   content: string;
   appendTooltipTo?: () => HTMLElement;
+  isSerif?: boolean;
 }
 
 const TOOLTIP_SPACING = 8;
@@ -45,6 +46,7 @@ export default function Markdown({
   className,
   content,
   appendTooltipTo,
+  isSerif = false,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
   const [userId, setUserId] = useState('');
@@ -92,7 +94,11 @@ export default function Markdown({
       appendTo={appendTooltipTo?.()}
       trigger={
         <div
-          className={classNames(styles.markdown, className)}
+          className={classNames(
+            styles.markdown,
+            isSerif && styles.markdownSerif,
+            className,
+          )}
           dangerouslySetInnerHTML={{
             __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
           }}
