@@ -25,7 +25,7 @@ import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { PostLogEventFnOptions } from '../lib/feed';
-import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
+import { optimisticPostUpdateInFeed, usePostLogEvent } from '../lib/feed';
 import type { AdItem, FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
