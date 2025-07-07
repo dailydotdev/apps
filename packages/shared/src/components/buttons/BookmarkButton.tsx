@@ -72,7 +72,7 @@ export function BookmarkButton({
             variant={ButtonVariant.Tertiary}
             {...buttonPropsWithoutOnClick}
             type="button"
-            iconPosition={ButtonIconPosition.Top}
+            iconPosition={ButtonIconPosition.Left}
             pressed={post.bookmarked}
             icon={<Icon secondary={post.bookmarked} size={iconSize} />}
           >
