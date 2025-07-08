@@ -98,7 +98,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         hour,
         type,
         sendType,
-        email: params?.flags?.email ?? true,
+        email: params?.flags?.email,
       });
 
       return result.subscribePersonalizedDigest;
@@ -118,7 +118,6 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         ...(hour && { preferredHour: hour }),
         ...(type && { type }),
         flags: {
-          email: params?.flags?.email ?? true,
           ...existingData?.flags,
           ...(sendType && { sendType }),
           ...flags,

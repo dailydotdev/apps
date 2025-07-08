@@ -502,6 +502,9 @@ const AccountNotificationsPage = (): ReactElement => {
                   ? UserPersonalizedDigestType.Brief
                   : UserPersonalizedDigestType.Digest,
                 sendType: isPlus ? SendType.Daily : SendType.Workdays,
+                flags: {
+                  email: isPlus ? true : undefined,
+                },
               });
             } else {
               onUnsubscribeDigest({});
@@ -583,6 +586,9 @@ const AccountNotificationsPage = (): ReactElement => {
               await onSubscribeDigest({
                 type: UserPersonalizedDigestType.Brief,
                 sendType: SendType.Daily,
+                flags: {
+                  email: true,
+                },
               });
               await unsubscribePersonalizedDigest({
                 type: UserPersonalizedDigestType.Digest,
