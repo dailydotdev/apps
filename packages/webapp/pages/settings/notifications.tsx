@@ -1,7 +1,7 @@
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import type { ReactElement, SetStateAction } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { cloudinaryNotificationsBrowser } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
@@ -63,6 +63,8 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useQuery } from '@tanstack/react-query';
 import { sourceQueryOptions } from '@dailydotdev/shared/src/graphql/sources';
 import { BRIEFING_SOURCE } from '@dailydotdev/shared/src/types';
+import { useRouter } from 'next/router';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -78,6 +80,7 @@ const seo: NextSeoProps = {
 };
 
 const AccountNotificationsPage = (): ReactElement => {
+  const router = useRouter();
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { isSubscribed, isInitialized, isPushSupported } =
@@ -397,6 +400,38 @@ const AccountNotificationsPage = (): ReactElement => {
 
   const showAlert =
     isPushSupported && isAlertShown && isInitialized && !isSubscribed;
+
+  const shouldManageSlack = router?.query?.lzym === LazyModal.SlackIntegration;
+
+  useEffect(() => {
+    if (!shouldManageSlack || !briefingSource) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete('lzym');
+
+    router?.replace(
+      getPathnameWithQuery(router?.pathname, searchParams),
+      undefined,
+      {
+        shallow: true,
+      },
+    );
+
+    openModal({
+      type: LazyModal.SlackIntegration,
+      props: {
+        source: briefingSource,
+        redirectPath: getPathnameWithQuery(
+          router?.pathname,
+          new URLSearchParams({
+            lzym: LazyModal.SlackIntegration,
+          }),
+        ),
+      },
+    });
+  }, [shouldManageSlack, briefingSource, openModal, router]);
 
   return (
     <AccountPageContainer title="Notifications">
@@ -720,6 +755,12 @@ const AccountNotificationsPage = (): ReactElement => {
                             type: LazyModal.SlackIntegration,
                             props: {
                               source: briefingSource,
+                              redirectPath: getPathnameWithQuery(
+                                router?.pathname,
+                                new URLSearchParams({
+                                  lzym: LazyModal.SlackIntegration,
+                                }),
+                              ),
                             },
                           });
                         }}
