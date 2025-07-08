@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { blurClasses } from './common';
 
 const NewComment = dynamic(() =>
@@ -31,6 +32,10 @@ export default function FooterWrapper({
   showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
+  const router = useRouter();
+
+  const showPlusButton = !router?.pathname.startsWith('/settings');
+
   return (
     <div
       className={classNames(
@@ -52,7 +57,7 @@ export default function FooterWrapper({
           />
         </div>
       )}
-      {showNav && (
+      {showNav && showPlusButton && (
         <>
           <FooterPlusButton />
           <MobileFooterNavbar isPostPage={!!post} />

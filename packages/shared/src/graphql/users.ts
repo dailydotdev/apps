@@ -429,6 +429,7 @@ export type UserPersonalizedDigestSubscribe = {
   type?: UserPersonalizedDigestType;
   sendType?: SendType;
   email?: boolean;
+  slack?: boolean;
 };
 
 export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
@@ -440,6 +441,7 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
       flags {
         sendType
         email
+        slack
       }
     }
   }
@@ -469,6 +471,7 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
     $type: DigestType
     $sendType: UserPersonalizedDigestSendType
     $email: Boolean
+    $slack: Boolean
   ) {
     subscribePersonalizedDigest(
       hour: $hour
@@ -476,6 +479,7 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
       type: $type
       sendType: $sendType
       email: $email
+      slack: $slack
     ) {
       preferredDay
       preferredHour
@@ -483,6 +487,7 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
       flags {
         sendType
         email
+        slack
       }
     }
   }

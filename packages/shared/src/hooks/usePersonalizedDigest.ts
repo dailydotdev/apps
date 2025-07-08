@@ -28,7 +28,7 @@ export type UsePersonalizedDigest = {
     hour?: number;
     type?: UserPersonalizedDigestType;
     sendType?: SendType;
-    flags?: Pick<UserPersonalizedDigest['flags'], 'email'>;
+    flags?: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
   }) => Promise<UserPersonalizedDigest>;
   unsubscribePersonalizedDigest: (params?: {
     type?: UserPersonalizedDigestType;
@@ -81,7 +81,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
       hour?: number;
       type?: UserPersonalizedDigestType;
       sendType?: SendType;
-      flags?: Pick<UserPersonalizedDigest['flags'], 'email'>;
+      flags?: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
     }) => {
       const {
         hour = 8,
@@ -99,6 +99,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         type,
         sendType,
         email: params?.flags?.email,
+        slack: params?.flags?.slack,
       });
 
       return result.subscribePersonalizedDigest;

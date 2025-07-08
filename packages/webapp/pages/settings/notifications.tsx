@@ -17,7 +17,12 @@ import {
   NotificationPromptSource,
   TargetId,
 } from '@dailydotdev/shared/src/lib/log';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   SendType,
   usePersonalizedDigest,
@@ -34,7 +39,10 @@ import type { UserPersonalizedDigest } from '@dailydotdev/shared/src/graphql/use
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
-import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  OpenLinkIcon,
+  ReadingStreakIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
 import { ToggleWeekStart } from '@dailydotdev/shared/src/components/widgets/ToggleWeekStart';
@@ -50,6 +58,11 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useQuery } from '@tanstack/react-query';
+import { sourceQueryOptions } from '@dailydotdev/shared/src/graphql/sources';
+import { BRIEFING_SOURCE } from '@dailydotdev/shared/src/types';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -65,6 +78,7 @@ const seo: NextSeoProps = {
 };
 
 const AccountNotificationsPage = (): ReactElement => {
+  const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
@@ -121,6 +135,11 @@ const AccountNotificationsPage = (): ReactElement => {
 
     return null;
   }, [getPersonalizedDigest, isLoading]);
+
+  const { data: briefingSource } = useQuery({
+    ...sourceQueryOptions({ sourceId: BRIEFING_SOURCE }),
+    enabled: selectedDigest?.type === UserPersonalizedDigestType.Brief,
+  });
 
   if (
     !isNullOrUndefined(selectedDigest) &&
@@ -315,7 +334,7 @@ const AccountNotificationsPage = (): ReactElement => {
   }: {
     type: UserPersonalizedDigestType;
     sendType: SendType;
-    flags?: Pick<UserPersonalizedDigest['flags'], 'email'>;
+    flags?: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
   }): Promise<void> => {
     onLogToggle(true, NotificationChannel.Email, NotificationCategory.Digest);
 
@@ -644,17 +663,26 @@ const AccountNotificationsPage = (): ReactElement => {
               <>
                 <h3 className="font-bold typo-callout">Receive via</h3>
                 <div className="grid grid-cols-1 gap-2">
-                  <Checkbox name="inAppDigest" checked disabled>
+                  <Checkbox
+                    name="inAppDigest"
+                    className="flex-row-reverse"
+                    checkmarkClassName="!mr-0"
+                    checked
+                    disabled
+                  >
                     In app (always active)
                   </Checkbox>
                   <Checkbox
                     name="emailDigest"
+                    className="flex-row-reverse"
+                    checkmarkClassName="!mr-0"
                     checked={selectedDigest.flags.email ?? false}
                     onToggleCallback={(value) => {
                       onSubscribeDigest({
                         type: selectedDigest.type,
                         sendType: selectedDigest.flags.sendType,
                         flags: {
+                          ...selectedDigest.flags,
                           email: value,
                         },
                       });
@@ -664,13 +692,41 @@ const AccountNotificationsPage = (): ReactElement => {
                   </Checkbox>
                   <Checkbox
                     name="slackDigest"
+                    className="flex-row-reverse"
+                    checkmarkClassName="!mr-0"
                     checked={selectedDigest.flags.slack ?? false}
-                    onToggleCallback={() => {
-                      // TODO feat-brief slack toggle
+                    onToggleCallback={(value) => {
+                      onSubscribeDigest({
+                        type: selectedDigest.type,
+                        sendType: selectedDigest.flags.sendType,
+                        flags: {
+                          ...selectedDigest.flags,
+                          slack: value,
+                        },
+                      });
                     }}
-                    disabled
                   >
-                    Slack (coming soon)
+                    Slack
+                    {!!selectedDigest.flags.slack && !!briefingSource && (
+                      <Button
+                        className="absolute bottom-0 right-12 top-0"
+                        type="text"
+                        size={ButtonSize.Small}
+                        variant={ButtonVariant.Subtle}
+                        iconPosition={ButtonIconPosition.Right}
+                        icon={<OpenLinkIcon />}
+                        onClick={() => {
+                          openModal({
+                            type: LazyModal.SlackIntegration,
+                            props: {
+                              source: briefingSource,
+                            },
+                          });
+                        }}
+                      >
+                        Slack settings
+                      </Button>
+                    )}
                   </Checkbox>
                 </div>
               </>

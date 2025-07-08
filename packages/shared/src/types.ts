@@ -32,3 +32,5 @@ export enum PostType {
 }
 
 export const briefSourcesLimit = 6;
+
+export const BRIEFING_SOURCE = 'briefing';
