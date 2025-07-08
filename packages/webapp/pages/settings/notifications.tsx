@@ -538,7 +538,7 @@ const AccountNotificationsPage = (): ReactElement => {
                   <Typography
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
-                    className="text-wrap"
+                    className="text-wrap font-normal"
                   >
                     Stay informed with daily or weekly emails tailored to your
                     interests.
@@ -563,7 +563,7 @@ const AccountNotificationsPage = (): ReactElement => {
                   <Typography
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
-                    className="text-wrap"
+                    className="text-wrap font-normal"
                   >
                     Receive concise, high-quality AI-generated summaries.
                   </Typography>
