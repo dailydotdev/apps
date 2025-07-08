@@ -75,7 +75,7 @@ const BriefPostContentRaw = ({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    'laptop:flex-row laptop:pb-0',
+    '!max-w-3xl laptop:flex-row laptop:pb-0',
     className?.container,
   );
 
