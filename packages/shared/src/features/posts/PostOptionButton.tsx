@@ -28,7 +28,6 @@ import {
   ShieldWarningIcon,
   TrashIcon,
   UpvoteIcon,
-  MailIcon,
   SettingsIcon,
 } from '../../components/icons';
 import {
@@ -433,17 +432,10 @@ const PostOptionButtonContent = ({
       action: onHidePost,
     },
     isBriefPost && {
-      icon: <MenuIcon Icon={MailIcon} />,
-      label: 'Send to mail',
-      action: () => {
-        // TODO feat-brief
-      },
-    },
-    isBriefPost && {
       icon: <MenuIcon Icon={SettingsIcon} />,
       label: 'Settings',
       action: () => {
-        // TODO feat-brief
+        router?.push(`${settingsUrl}/notifications`);
       },
     },
   ].filter(Boolean);

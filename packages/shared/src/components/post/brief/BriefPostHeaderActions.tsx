@@ -2,10 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import classed from '../../../lib/classed';
-import { Origin } from '../../../lib/log';
 import type { PostHeaderActionsProps } from '../common';
-import { PostMenuOptions } from '../PostMenuOptions';
-import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
+import Link from '../../utilities/Link';
+import { Button, ButtonSize } from '../../buttons/Button';
+import { settingsUrl } from '../../../lib/constants';
+import { SettingsIcon } from '../../icons';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -18,18 +19,16 @@ export const BriefPostHeaderActions = ({
   isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement => {
-  const isLaptop = useViewSizeClient(ViewSize.Laptop);
-  const isEnlarged = isFixedNavigation || isLaptop;
-
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <PostMenuOptions
-        post={post}
-        onClose={onClose}
-        inlineActions={inlineActions}
-        origin={Origin.BriefModal}
-        isEnlarged={isEnlarged}
-      />
+      <Link passHref href={`${settingsUrl}/notifications`}>
+        <Button
+          className="absolute right-4 top-4 hidden laptop:block"
+          icon={<SettingsIcon />}
+          tag="a"
+          size={ButtonSize.Medium}
+        />
+      </Link>
     </Container>
   );
 };
