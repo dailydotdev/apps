@@ -28,6 +28,7 @@ export type UsePersonalizedDigest = {
     hour?: number;
     type?: UserPersonalizedDigestType;
     sendType?: SendType;
+    flags?: Pick<UserPersonalizedDigest['flags'], 'email'>;
   }) => Promise<UserPersonalizedDigest>;
   unsubscribePersonalizedDigest: (params?: {
     type?: UserPersonalizedDigestType;
@@ -80,6 +81,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
       hour?: number;
       type?: UserPersonalizedDigestType;
       sendType?: SendType;
+      flags?: Pick<UserPersonalizedDigest['flags'], 'email'>;
     }) => {
       const {
         hour = 8,
@@ -96,6 +98,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         hour,
         type,
         sendType,
+        email: params?.flags?.email ?? true,
       });
 
       return result.subscribePersonalizedDigest;
@@ -106,6 +109,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         hour = 8,
         type = UserPersonalizedDigestType.Digest,
         sendType,
+        flags,
       } = params || {};
       await queryClient.cancelQueries({ queryKey });
       const existingData = data?.find((item) => item.type === type);
@@ -113,7 +117,12 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         ...existingData,
         ...(hour && { preferredHour: hour }),
         ...(type && { type }),
-        ...(sendType && { flags: { sendType } }),
+        flags: {
+          email: params?.flags?.email ?? true,
+          ...existingData?.flags,
+          ...(sendType && { sendType }),
+          ...flags,
+        },
       };
       queryClient.setQueryData(
         queryKey,

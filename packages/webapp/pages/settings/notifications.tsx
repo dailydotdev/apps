@@ -30,6 +30,7 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
+import type { UserPersonalizedDigest } from '@dailydotdev/shared/src/graphql/users';
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
@@ -311,9 +312,11 @@ const AccountNotificationsPage = (): ReactElement => {
   const onSubscribeDigest = async ({
     type,
     sendType,
+    flags,
   }: {
     type: UserPersonalizedDigestType;
     sendType: SendType;
+    flags?: Pick<UserPersonalizedDigest['flags'], 'email'>;
   }): Promise<void> => {
     onLogToggle(true, NotificationChannel.Email, NotificationCategory.Digest);
 
@@ -327,7 +330,7 @@ const AccountNotificationsPage = (): ReactElement => {
       }),
     });
 
-    await subscribePersonalizedDigest({ type, sendType });
+    await subscribePersonalizedDigest({ type, sendType, flags });
   };
 
   const onUnsubscribeDigest = async ({
@@ -620,9 +623,7 @@ const AccountNotificationsPage = (): ReactElement => {
               }}
             />
             <>
-              <div className="my-2">
-                <h3 className="font-bold typo-callout">When to send?</h3>
-              </div>
+              <h3 className="font-bold typo-callout">When to send?</h3>
               <HourDropdown
                 className={{
                   container: 'w-40',
@@ -634,6 +635,41 @@ const AccountNotificationsPage = (): ReactElement => {
                 }
               />
             </>
+            {selectedDigest.type === UserPersonalizedDigestType.Brief && (
+              <>
+                <h3 className="font-bold typo-callout">Receive via</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  <Checkbox name="inAppDigest" checked disabled>
+                    In app (always active)
+                  </Checkbox>
+                  <Checkbox
+                    name="emailDigest"
+                    checked={selectedDigest.flags.email ?? false}
+                    onToggleCallback={(value) => {
+                      onSubscribeDigest({
+                        type: selectedDigest.type,
+                        sendType: selectedDigest.flags.sendType,
+                        flags: {
+                          email: value,
+                        },
+                      });
+                    }}
+                  >
+                    Email
+                  </Checkbox>
+                  <Checkbox
+                    name="slackDigest"
+                    checked={selectedDigest.flags.slack ?? false}
+                    onToggleCallback={() => {
+                      // TODO feat-brief slack toggle
+                    }}
+                    disabled
+                  >
+                    Slack (coming soon)
+                  </Checkbox>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
