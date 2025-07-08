@@ -103,9 +103,12 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     data: postById,
     isError,
     isPending,
+    status,
+    error,
   } = useQuery<PostData>({
     queryKey: key,
     queryFn: async () => {
+      console.log('Fetching post by ID:', id); // never hit on first render
       const res = await gqlClient.request<PostData>(POST_BY_ID_QUERY, { id });
       fetchTranslations([res.post]);
 
@@ -115,6 +118,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     staleTime: StaleTime.Default,
     enabled: !!id && tokenRefreshed,
   });
+  console.log('query state: ', { status, error });
   const post = postById || (options?.initialData as PostData);
 
   useMutationSubscription({
