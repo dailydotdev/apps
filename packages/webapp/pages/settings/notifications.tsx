@@ -155,7 +155,6 @@ const AccountNotificationsPage = (): ReactElement => {
         category: [
           NotificationCategory.Product,
           NotificationCategory.Marketing,
-          NotificationCategory.Digest,
         ],
       }),
     };

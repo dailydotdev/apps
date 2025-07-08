@@ -174,7 +174,7 @@ it('should change user all email subscription', async () => {
   fireEvent.click(subscription);
   await waitFor(() => {
     expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
-    expect(personalizedDigestMutationCalled).toBe(true);
+    expect(personalizedDigestMutationCalled).toBe(false);
   });
 
   expect(logEvent).toHaveBeenCalledTimes(1);
@@ -182,7 +182,7 @@ it('should change user all email subscription', async () => {
     event_name: 'enable notification',
     extra: JSON.stringify({
       channel: 'email',
-      category: ['product', 'marketing', 'digest'],
+      category: ['product', 'marketing'],
     }),
   });
 });
@@ -229,7 +229,7 @@ it('should unsubscribe from all email campaigns', async () => {
     event_name: 'disable notification',
     extra: JSON.stringify({
       channel: 'email',
-      category: ['product', 'marketing', 'digest'],
+      category: ['product', 'marketing'],
     }),
   });
 });
@@ -298,7 +298,7 @@ it('should subscribe to personalized digest subscription', async () => {
         day: 3,
         hour: 8,
         type: UserPersonalizedDigestType.Digest,
-        sendType: SendType.Weekly,
+        sendType: SendType.Workdays,
       },
     },
     result: {
@@ -308,14 +308,14 @@ it('should subscribe to personalized digest subscription', async () => {
           preferredHour: 9,
           type: UserPersonalizedDigestType.Digest,
           flags: {
-            sendType: SendType.Weekly,
+            sendType: SendType.Workdays,
           },
         },
       },
     },
   });
 
-  const subscription = await screen.findByLabelText('Weekly');
+  const subscription = await screen.findByTestId('digest_notification-switch');
   expect(subscription).not.toBeChecked();
 
   fireEvent.click(subscription);
@@ -333,7 +333,7 @@ it('should subscribe to personalized digest subscription', async () => {
   });
   expect(logEvent).toHaveBeenCalledWith({
     event_name: 'schedule digest',
-    extra: JSON.stringify({ hour: 8, frequency: 'weekly' }),
+    extra: JSON.stringify({ hour: 8, frequency: 'workdays', type: 'digest' }),
   });
 });
 
@@ -348,7 +348,7 @@ it('should unsubscribe from personalized digest subscription', async () => {
             preferredHour: 9,
             type: UserPersonalizedDigestType.Digest,
             flags: {
-              sendType: SendType.Weekly,
+              sendType: SendType.Workdays,
             },
           },
         ],
@@ -369,12 +369,22 @@ it('should unsubscribe from personalized digest subscription', async () => {
       },
     },
   });
+  mockGraphQL({
+    request: {
+      query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: { type: UserPersonalizedDigestType.Brief },
+    },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
 
-  const subscription = await screen.findByLabelText('Weekly');
+  const subscription = await screen.findByTestId('digest_notification-switch');
   await waitFor(() => expect(subscription).toBeChecked());
 
-  const unsubscribe = screen.getByText('Off');
-  fireEvent.click(unsubscribe);
+  fireEvent.click(subscription);
   await waitForNock();
 
   expect(subscription).not.toBeChecked();
