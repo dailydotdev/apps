@@ -91,10 +91,10 @@ export const ShareList = forwardRef(function ShareList(
   }, [
     enableSourceHeader,
     isUserSource,
-    post.author.name,
-    post.sharedPost?.source.handle,
-    post.source.name,
-    post.source.permalink,
+    post?.author?.name,
+    post?.sharedPost?.source?.handle,
+    post?.source?.name,
+    post?.source?.permalink,
   ]);
 
   return (

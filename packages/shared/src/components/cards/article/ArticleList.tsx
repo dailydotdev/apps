@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -72,6 +72,30 @@ export const ArticleList = forwardRef(function ArticleList(
     </Container>
   );
 
+  const metadata = useMemo(() => {
+    if (isUserSource) {
+      return {
+        topLabel: post.author.name,
+      };
+    }
+
+    return {
+      topLabel: (
+        <Link href={post.source.permalink}>
+          <a href={post.source.permalink} className="relative z-1">
+            {post.source.name}
+          </a>
+        </Link>
+      ),
+      bottomLabel: (
+        <PostReadTime
+          readTime={post.readTime}
+          isVideoType={isVideoPost(post)}
+        />
+      ),
+    };
+  }, [isUserSource, post]);
+
   return (
     <FeedItemContainer
       domProps={{
@@ -105,21 +129,7 @@ export const ArticleList = forwardRef(function ArticleList(
               openNewTab={openNewTab}
               postLink={post.permalink}
               onReadArticleClick={onReadArticleClick}
-              metadata={{
-                topLabel: (
-                  <Link href={post.source.permalink}>
-                    <a href={post.source.permalink} className="relative z-1">
-                      {post.source.name}
-                    </a>
-                  </Link>
-                ),
-                bottomLabel: (
-                  <PostReadTime
-                    readTime={post.readTime}
-                    isVideoType={isVideoPost(post)}
-                  />
-                ),
-              }}
+              metadata={metadata}
             >
               {!isUserSource && (
                 <SourceButton
