@@ -57,6 +57,9 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
           }),
           {
             status: null,
+            referenceId: squad.id,
+            type: ContentPreferenceType.Source,
+            createdAt: new Date(),
           },
         );
       }

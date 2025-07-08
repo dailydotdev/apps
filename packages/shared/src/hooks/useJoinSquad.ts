@@ -68,6 +68,9 @@ export const useJoinSquad = ({
       }),
       {
         status: ContentPreferenceStatus.Subscribed,
+        referenceId: squad.id,
+        type: ContentPreferenceType.Source,
+        createdAt: new Date(),
       },
     );
     completeAction(ActionType.JoinSquad);
