@@ -58,7 +58,7 @@ function SquadPostContentRaw({
     onClose,
     inlineActions,
   };
-  const isUserSource = isSourceUserSource(post.source);
+  const isUserSource = isSourceUserSource(post?.source);
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
