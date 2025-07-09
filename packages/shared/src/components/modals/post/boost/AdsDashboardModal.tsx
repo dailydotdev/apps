@@ -74,7 +74,7 @@ export function AdsDashboardModal({
           <DataTile label="Clicks" value={stats.clicks} />
           <DataTile label="Engagements" value={stats.engagements} />
         </div>
-        <Modal.Subtitle>Running ads</Modal.Subtitle>
+        <Modal.Subtitle>Active ads</Modal.Subtitle>
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
