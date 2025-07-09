@@ -15,6 +15,7 @@ import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutatio
 import type { Post } from '../../../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import type { PromptOptions } from '../../../../hooks/usePrompt';
 import { usePrompt } from '../../../../hooks/usePrompt';
 
 interface BoostedPostViewModalProps extends ModalProps {
@@ -36,13 +37,15 @@ export function BoostedPostViewModal({
 
   const handleBoostClick = async () => {
     if (data.campaign.status === 'ACTIVE') {
-      const promptOptions = {
+      const promptOptions: PromptOptions = {
         title: 'Cancel Boost',
-        message: 'Are you sure you want to cancel this campaign?',
-        confirmText: 'Yes, cancel',
-        cancelText: 'No, keep boosting',
-        onConfirm: () => onCancelBoost(data.post.id),
-        onCancel: () => {},
+        description: 'Are you sure you want to cancel this campaign?',
+        okButton: {
+          title: 'Yes, Cancel',
+        },
+        cancelButton: {
+          title: 'No, Keep Boosting',
+        },
       };
 
       if (!(await showPrompt(promptOptions))) {
