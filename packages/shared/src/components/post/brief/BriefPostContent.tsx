@@ -2,6 +2,8 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { Fragment, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import {
   SendType,
   ToastSubject,
@@ -27,12 +29,17 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Pill } from '../../Pill';
-import { ChecklistAIcon, TimerIcon } from '../../icons';
+import { ChecklistAIcon, OpenLinkIcon, TimerIcon } from '../../icons';
 import { CollectionPillSources } from '../collection/CollectionPillSources';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { briefButtonBg, briefCardBg } from '../../../styles/custom';
 import { plusUrl } from '../../../lib/constants';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { LottieAnimation } from '../../LottieAnimation';
@@ -42,10 +49,14 @@ import { RadioItem } from '../../fields/RadioItem';
 import { Checkbox } from '../../fields/Checkbox';
 import { isNullOrUndefined } from '../../../lib/func';
 import type { PropsParameters } from '../../../types';
-import { briefSourcesLimit } from '../../../types';
+import { BRIEFING_SOURCE, briefSourcesLimit } from '../../../types';
 import type { UserPersonalizedDigest } from '../../../graphql/users';
 import { UserPersonalizedDigestType } from '../../../graphql/users';
 import { useLogContext } from '../../../contexts/LogContext';
+import { sourceQueryOptions } from '../../../graphql/sources';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { getPathnameWithQuery } from '../../../lib/links';
+import { LazyModal } from '../../modals/common/types';
 
 const BriefPostContentRaw = ({
   post,
@@ -64,6 +75,8 @@ const BriefPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
+  const router = useRouter();
+  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady } = useAuthContext();
@@ -102,6 +115,11 @@ const BriefPostContentRaw = ({
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
 
   const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
+
+  const { data: briefingSource } = useQuery({
+    ...sourceQueryOptions({ sourceId: BRIEFING_SOURCE }),
+    enabled: briefDigest?.type === UserPersonalizedDigestType.Brief,
+  });
 
   if (
     !isNullOrUndefined(briefDigest) &&
@@ -150,6 +168,38 @@ const BriefPostContentRaw = ({
 
     onSendViewPost(post.id);
   }, [post?.id, onSendViewPost, user?.id]);
+
+  const shouldManageSlack = router?.query?.lzym === LazyModal.SlackIntegration;
+
+  useEffect(() => {
+    if (!shouldManageSlack || !briefingSource) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete('lzym');
+
+    router?.replace(
+      router?.pathname,
+      getPathnameWithQuery(`/posts/${post.slug}`, searchParams),
+      {
+        shallow: true,
+      },
+    );
+
+    openModal({
+      type: LazyModal.SlackIntegration,
+      props: {
+        source: briefingSource,
+        redirectPath: getPathnameWithQuery(
+          `/posts/${post.slug}`,
+          new URLSearchParams({
+            lzym: LazyModal.SlackIntegration,
+          }),
+        ),
+      },
+    });
+  }, [shouldManageSlack, briefingSource, openModal, router, post?.slug]);
 
   return (
     <PostContentContainer
@@ -448,6 +498,32 @@ const BriefPostContentRaw = ({
                     }}
                   >
                     Slack
+                    {!!briefDigest.flags.slack && !!briefingSource && (
+                      <Button
+                        className="absolute bottom-0 right-12 top-0"
+                        type="text"
+                        size={ButtonSize.Small}
+                        variant={ButtonVariant.Subtle}
+                        iconPosition={ButtonIconPosition.Right}
+                        icon={<OpenLinkIcon />}
+                        onClick={() => {
+                          openModal({
+                            type: LazyModal.SlackIntegration,
+                            props: {
+                              source: briefingSource,
+                              redirectPath: getPathnameWithQuery(
+                                `/posts/${post.slug}`,
+                                new URLSearchParams({
+                                  lzym: LazyModal.SlackIntegration,
+                                }),
+                              ),
+                            },
+                          });
+                        }}
+                      >
+                        Slack settings
+                      </Button>
+                    )}
                   </Checkbox>
                 </div>
               </div>
