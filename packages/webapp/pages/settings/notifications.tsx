@@ -669,9 +669,8 @@ const AccountNotificationsPage = (): ReactElement => {
               name="personalizedDigestSendType"
               value={selectedDigest?.flags?.sendType ?? null}
               options={[
-                selectedDigest?.type === UserPersonalizedDigestType.Brief
-                  ? { label: 'Daily', value: SendType.Daily }
-                  : { label: 'Daily (Mon-Fri)', value: SendType.Workdays },
+                { label: 'Daily', value: SendType.Daily },
+                { label: 'Workdays (Mon-Fri)', value: SendType.Workdays },
                 { label: 'Weekly', value: SendType.Weekly },
               ]}
               onChange={(sendType) => {
