@@ -15,7 +15,7 @@ import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
 
 const statusToColor: Record<PromotedPost['status'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
-  COMPLETED: 'bg-action-share-active text-action-share-default',
+  INACTIVE: 'bg-action-share-active text-action-share-default',
   CANCELLED: 'bg-action-downvote-active text-action-downvote-default',
 };
 
@@ -49,12 +49,12 @@ export function CampaignListItem({
   const { campaign, post } = data;
 
   const getCaption = () => {
-    if (campaign.status === 'COMPLETED') {
-      return 'Completed';
+    if (campaign.status === 'INACTIVE') {
+      return 'COMPLETED';
     }
 
-    if (campaign.status === 'CANCELLED') {
-      return 'Cancelled';
+    if (campaign.status !== 'ACTIVE') {
+      return campaign.status;
     }
 
     const remainingDays = getAbsoluteDifferenceInDays(

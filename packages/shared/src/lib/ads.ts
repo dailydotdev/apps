@@ -8,9 +8,10 @@ export enum AdActions {
 }
 
 export const fetchAd = async (active = false): Promise<Ad | null> => {
-  const res = await fetch(`${apiUrl}/v1/a?active=${active}`, {
-    credentials: 'include',
-  });
+  const res = await fetch(
+    `${apiUrl}/v1/a?active=${active}&allow_post_boost=true`,
+    { credentials: 'include' },
+  );
   const ads = (await res.json()) as Ad[];
   return ads[0];
 };
