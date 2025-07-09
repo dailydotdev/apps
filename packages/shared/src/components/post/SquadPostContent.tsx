@@ -58,6 +58,7 @@ function SquadPostContentRaw({
     onClose,
     inlineActions,
   };
+  const isUserSource = isSourceUserSource(post.source);
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -114,7 +115,7 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
-          {!isSourceUserSource(post?.source) && (
+          {!isUserSource && (
             <PostSourceInfo
               post={post}
               onClose={onClose}
@@ -127,6 +128,7 @@ function SquadPostContentRaw({
             role={role}
             date={post.createdAt}
             className={{ container: 'mt-3' }}
+            isUserSource={isUserSource}
           />
           <Content post={post} onReadArticle={onReadArticle} />
         </BasePostContent>

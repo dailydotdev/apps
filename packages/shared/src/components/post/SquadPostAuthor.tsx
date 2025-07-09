@@ -34,6 +34,7 @@ interface SquadPostAuthorProps {
   role?: SourceMemberRole;
   size?: ProfileImageSize;
   date?: string;
+  isUserSource?: boolean;
 }
 
 const SquadPostAuthorSkeleton = ({
@@ -59,6 +60,7 @@ function SquadPostAuthor({
   role,
   size = ProfileImageSize.XXXLarge,
   date,
+  isUserSource = false,
 }: SquadPostAuthorProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileXL);
   const { data, status } = useContentPreferenceStatusQuery({
@@ -134,7 +136,9 @@ function SquadPostAuthor({
             {author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={author} />
             )}
-            <UserBadge role={role}>{getRoleName(role)}</UserBadge>
+            {!isUserSource && (
+              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
+            )}
           </div>
         </div>
       </a>
