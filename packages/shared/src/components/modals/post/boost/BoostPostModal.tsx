@@ -107,6 +107,7 @@ export function BoostPostModal({
     <Modal
       {...props}
       isOpen
+      shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >

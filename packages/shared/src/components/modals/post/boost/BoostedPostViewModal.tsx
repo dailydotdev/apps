@@ -15,6 +15,9 @@ import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutatio
 import type { Post } from '../../../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import type { PromptOptions } from '../../../../hooks/usePrompt';
+import { usePrompt } from '../../../../hooks/usePrompt';
+import { ButtonColor } from '../../../buttons/Button';
 
 interface BoostedPostViewModalProps extends ModalProps {
   data: BoostedPostData;
@@ -22,18 +25,33 @@ interface BoostedPostViewModalProps extends ModalProps {
   onBoostAgain?: (id: Post['id']) => void;
 }
 
+const promptOptions: PromptOptions = {
+  title: 'Stop this boost?',
+  description:
+    "If you stop this boost now, it will no longer be promoted. We'll credit the remaining Cores back to your balance for the unused budget",
+  okButton: {
+    title: 'Stop boost',
+    color: ButtonColor.Ketchup,
+  },
+};
+
 export function BoostedPostViewModal({
   data,
   isLoading,
   onBoostAgain,
   ...props
 }: BoostedPostViewModalProps): ReactElement {
+  const { showPrompt } = usePrompt();
   const { onCancelBoost, isLoadingCancel } = usePostBoostMutation({
     onCancelSuccess: () => props.onRequestClose(null),
   });
 
-  const handleBoostClick = () => {
+  const handleBoostClick = async () => {
     if (data.campaign.status === 'ACTIVE') {
+      if (!(await showPrompt(promptOptions))) {
+        return null;
+      }
+
       return onCancelBoost(data.post.id);
     }
 
