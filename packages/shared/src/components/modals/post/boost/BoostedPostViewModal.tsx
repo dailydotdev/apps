@@ -39,14 +39,12 @@ export function BoostedPostViewModal({
   const handleBoostClick = async () => {
     if (data.campaign.status === 'ACTIVE') {
       const promptOptions: PromptOptions = {
-        title: 'Cancel Boost',
-        description: 'Are you sure you want to cancel this campaign?',
+        title: 'Stop this boost?',
+        description:
+          "If you stop this boost now, it will no longer be promoted. We'll credit the remaining Cores back to your balance for the unused budget",
         okButton: {
-          title: 'Confirm',
+          title: 'Stop boost',
           color: ButtonColor.Ketchup,
-        },
-        cancelButton: {
-          title: 'No, Keep Boosting',
         },
       };
 
