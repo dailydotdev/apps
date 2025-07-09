@@ -25,9 +25,9 @@ function FunnelEditTagsComponent({
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isDisabled = tagsCount < minimumRequirement;
 
-  if (!user) {
-    return null;
-  }
+  // if (!user) {
+  //   return null;
+  // }
 
   return (
     <FunnelStepCtaWrapper
