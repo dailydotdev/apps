@@ -139,7 +139,7 @@ export function CampaignListView({
         <Typography type={TypographyType.Body}>Summary</Typography>
         <Typography type={TypographyType.Callout}>
           <CoreIcon size={IconSize.Size16} /> {campaign.budget} |{' '}
-          {date.totalDays} days
+          {date.totalDays} {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>
       <Button
