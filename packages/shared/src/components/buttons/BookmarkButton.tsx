@@ -1,75 +1,100 @@
-import type { ReactElement, MouseEvent, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
-import ContextMenu from '../fields/ContextMenu';
 import type { QuaternaryButtonProps } from './QuaternaryButton';
 import { QuaternaryButton } from './QuaternaryButton';
 import { BookmarkIcon } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
-import useContextMenu from '../../hooks/useContextMenu';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
 import { ButtonColor, ButtonVariant } from './Button';
 import { Tooltip } from '../tooltip/Tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 
 interface BookmarkButtonProps {
   buttonProps?: QuaternaryButtonProps<'button'>;
-  contextMenuId?: string;
   post: Post;
   children?: ReactNode;
 }
 
 export function BookmarkButton({
-  contextMenuId = 'bookmark-action',
   buttonProps = {},
   post,
   children,
 }: BookmarkButtonProps): ReactElement {
-  const finalId = `${contextMenuId}-${post.id}`;
   const hasReminder = !!post.bookmark?.remindAt;
   const { openModal } = useLazyModal();
   const { onRemoveReminder } = useBookmarkReminder({ post });
-  const { onMenuClick } = useContextMenu({ id: finalId });
   const Icon = hasReminder ? BookmarkReminderIcon : BookmarkIcon;
-  const onClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (hasReminder) {
-      return onMenuClick(e);
-    }
 
-    return buttonProps.onClick?.(e);
-  };
+  const dropdownOptions = [
+    {
+      label: 'Edit reminder',
+      action: () =>
+        openModal({ type: LazyModal.BookmarkReminder, props: { post } }),
+    },
+    {
+      label: 'Remove reminder',
+      action: () => onRemoveReminder(post.id),
+    },
+    {
+      label: 'Remove bookmark',
+      action: (e) => buttonProps.onClick(e),
+    },
+  ];
+
+  if (hasReminder) {
+    const { onClick, ...buttonPropsWithoutOnClick } = buttonProps;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          asChild
+          tooltip={{
+            content: post.bookmarked ? 'Remove bookmark' : 'Bookmark',
+          }}
+        >
+          <QuaternaryButton
+            color={ButtonColor.Bun}
+            variant={ButtonVariant.Tertiary}
+            {...buttonPropsWithoutOnClick}
+            type="button"
+            pressed={post.bookmarked}
+            icon={<Icon secondary={post.bookmarked} />}
+          >
+            {children}
+          </QuaternaryButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {dropdownOptions.map(({ label, action }) => (
+            <DropdownMenuItem key={label} onClick={action}>
+              {label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
-    <>
-      <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-        <QuaternaryButton
-          color={ButtonColor.Bun}
-          variant={ButtonVariant.Tertiary}
-          {...buttonProps}
-          type="button"
-          pressed={post.bookmarked}
-          onClick={onClick}
-          icon={<Icon secondary={post.bookmarked} />}
-        >
-          {children}
-        </QuaternaryButton>
-      </Tooltip>
-      <ContextMenu
-        id={finalId}
-        options={[
-          {
-            label: 'Edit reminder',
-            action: () =>
-              openModal({ type: LazyModal.BookmarkReminder, props: { post } }),
-          },
-          {
-            label: 'Remove reminder',
-            action: () => onRemoveReminder(post.id),
-          },
-          { label: 'Remove bookmark', action: buttonProps.onClick },
-        ]}
-      />
-    </>
+    <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+      <QuaternaryButton
+        color={ButtonColor.Bun}
+        variant={ButtonVariant.Tertiary}
+        {...buttonProps}
+        type="button"
+        pressed={post.bookmarked}
+        onClick={(e) => buttonProps.onClick?.(e)}
+        icon={<Icon secondary={post.bookmarked} />}
+      >
+        {children}
+      </QuaternaryButton>
+    </Tooltip>
   );
 }

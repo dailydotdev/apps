@@ -1,5 +1,6 @@
 import type { FormEventHandler, ReactElement } from 'react';
 import React, { useImperativeHandle, useRef } from 'react';
+import classNames from 'classnames';
 import ImageInput from '../../../fields/ImageInput';
 import { CameraIcon } from '../../../icons';
 import { TextField } from '../../../fields/TextField';
@@ -92,7 +93,7 @@ export function WriteFreeformContent({
 
   return (
     <WritePageMain
-      className={className}
+      className={classNames(className, 'gap-4')}
       onSubmit={handleSubmit}
       ref={formRef}
       id="write-post-freeform"
@@ -101,7 +102,7 @@ export function WriteFreeformContent({
         size={isLaptop ? 'medium' : 'large'}
         className={{
           container:
-            '!w-full border-none bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem]',
+            '!w-full !rounded-14 border-none bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem]',
           root: 'relative w-full tablet:w-min',
         }}
         enableHover={false}
@@ -145,7 +146,7 @@ export function WriteFreeformContent({
         placement={AlertPlacement.Right}
       >
         <TextField
-          className={{ container: 'mt-6 w-full' }}
+          className={{ container: 'w-full' }}
           inputId="title"
           name="title"
           label="Post Title*"
@@ -157,7 +158,6 @@ export function WriteFreeformContent({
         />
       </AlertPointer>
       <MarkdownInput
-        className={{ container: 'mt-4' }}
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
         initialContent={draft?.content ?? fetchedPost?.content ?? ''}
@@ -166,7 +166,7 @@ export function WriteFreeformContent({
         isUpdatingDraft={isUpdatingDraft}
         maxInputLength={MAX_CONTENT_LENGTH}
       />
-      <WriteFooter isLoading={isPosting} className="mt-5" />
+      <WriteFooter isLoading={isPosting} />
     </WritePageMain>
   );
 }

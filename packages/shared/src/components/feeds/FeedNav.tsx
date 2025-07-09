@@ -225,9 +225,9 @@ function FeedNav(): ReactElement {
             <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
-        <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">
+        <div className="absolute right-0 top-0 hidden h-[3.25rem] items-center bg-background-default tablet:flex laptop:hidden">
           <NotificationsBell compact />
-        </StickyNavIconWrapper>
+        </div>
       </div>
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner

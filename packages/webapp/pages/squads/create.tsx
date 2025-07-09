@@ -19,11 +19,15 @@ import TabContainer, {
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import {
   generateDefaultSquad,
+  generateUserSourceAsSquad,
   SquadsDropdown,
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  isSourceUserSource,
+  SourcePermissions,
+} from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
   usePostToSquad,
@@ -37,6 +41,8 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
+import { useQueryClient } from '@tanstack/react-query';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -53,6 +59,7 @@ function CreatePost(): ReactElement {
   const { completeAction } = useActions();
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const client = useQueryClient();
   const [selected, setSelected] = useState(-1);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
@@ -97,11 +104,23 @@ function CreatePost(): ReactElement {
     await push(link);
   };
   const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
-    onPostSuccess: async (data) => {
-      onPostSuccess(data.commentsPermalink);
+    onPostSuccess: async (post) => {
+      const isUserSource = isSourceUserSource(post.source);
+
+      if (isUserSource) {
+        client.refetchQueries({
+          queryKey: ['author', user.id],
+        });
+      }
+
+      onPostSuccess(
+        isUserSource
+          ? `${webappUrl}${user.username}/posts`
+          : post.commentsPermalink,
+      );
     },
-    onSourcePostModerationSuccess: async (data) => {
-      onPostSuccess(data.source.permalink);
+    onSourcePostModerationSuccess: async (post) => {
+      onPostSuccess(post.source.permalink);
     },
     onError: (data: ApiErrorResult) => {
       if (data?.response?.errors?.[0]) {
@@ -148,8 +167,7 @@ function CreatePost(): ReactElement {
     }
 
     if (!squad) {
-      displayToast('Select a Squad to post to!');
-      return null;
+      return onSubmitFreeformPost(params, generateUserSourceAsSquad(user));
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
@@ -189,7 +207,10 @@ function CreatePost(): ReactElement {
           className={{ header: 'px-1' }}
           showHeader={isTablet}
         >
-          <Tab label={WriteFormTab.NewPost} className="px-5">
+          <Tab
+            label={WriteFormTab.NewPost}
+            className="flex flex-col gap-4 px-5"
+          >
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
@@ -198,9 +219,9 @@ function CreatePost(): ReactElement {
               onSelect={setSelected}
               selected={selected}
             />
-            <WriteFreeformContent className="mt-6" />
+            <WriteFreeformContent />
           </Tab>
-          <Tab label={WriteFormTab.Share} className="px-5">
+          <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
@@ -211,7 +232,6 @@ function CreatePost(): ReactElement {
             />
             <ShareLink
               squad={squad}
-              className="mt-4"
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}

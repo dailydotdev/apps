@@ -60,7 +60,11 @@ export interface BasicSourceMember {
 export enum SourceType {
   Machine = 'machine',
   Squad = 'squad',
+  User = 'user',
 }
+
+export const isSourceUserSource = (source?: Source): boolean =>
+  source?.type === SourceType.User;
 
 export interface Squad extends Source {
   active: boolean;

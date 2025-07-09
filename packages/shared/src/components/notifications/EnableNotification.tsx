@@ -28,13 +28,11 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.NotificationsPage]:
     'px-6 w-full border-l bg-surface-float',
   [NotificationPromptSource.NewComment]: 'rounded-16 border px-4 mx-3 mb-3',
-  [NotificationPromptSource.CommunityPicks]: 'rounded-16 border px-4 mt-3',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.NotificationItem]: '',
   [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
   [NotificationPromptSource.SquadPostCommentary]: '',
-  [NotificationPromptSource.SquadPostModal]:
-    'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
+  [NotificationPromptSource.SquadPostModal]: '',
   [NotificationPromptSource.SquadChecklist]: '',
   [NotificationPromptSource.SourceSubscribe]: 'w-full px-3 !pt-0 !pb-2',
   [NotificationPromptSource.ReadingReminder]: '',
@@ -44,7 +42,6 @@ const containerClassName: Record<NotificationPromptSource, string> = {
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.NotificationsPage]: false,
   [NotificationPromptSource.NewComment]: false,
-  [NotificationPromptSource.CommunityPicks]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPage]: true,
   [NotificationPromptSource.SquadPostCommentary]: false,
@@ -79,8 +76,6 @@ function EnableNotification({
     [NotificationPromptSource.NewComment]: `Want to get notified when ${
       contentName ?? 'someone'
     } responds so you can continue the conversation?`,
-    [NotificationPromptSource.CommunityPicks]:
-      'Would you like to get notified on the status of your post submissions in real time?',
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',

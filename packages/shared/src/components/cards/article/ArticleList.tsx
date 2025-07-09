@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -27,6 +27,7 @@ import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { isSourceUserSource } from '../../../graphql/sources';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -56,6 +57,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
+  const isUserSource = isSourceUserSource(post.source);
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
       <ActionButtons
@@ -69,6 +71,30 @@ export const ArticleList = forwardRef(function ArticleList(
       />
     </Container>
   );
+
+  const metadata = useMemo(() => {
+    if (isUserSource) {
+      return {
+        topLabel: post.author.name,
+      };
+    }
+
+    return {
+      topLabel: (
+        <Link href={post.source.permalink}>
+          <a href={post.source.permalink} className="relative z-1">
+            {post.source.name}
+          </a>
+        </Link>
+      ),
+      bottomLabel: (
+        <PostReadTime
+          readTime={post.readTime}
+          isVideoType={isVideoPost(post)}
+        />
+      ),
+    };
+  }, [isUserSource, post]);
 
   return (
     <FeedItemContainer
@@ -103,27 +129,15 @@ export const ArticleList = forwardRef(function ArticleList(
               openNewTab={openNewTab}
               postLink={post.permalink}
               onReadArticleClick={onReadArticleClick}
-              metadata={{
-                topLabel: (
-                  <Link href={post.source.permalink}>
-                    <a href={post.source.permalink} className="relative z-1">
-                      {post.source.name}
-                    </a>
-                  </Link>
-                ),
-                bottomLabel: (
-                  <PostReadTime
-                    readTime={post.readTime}
-                    isVideoType={isVideoPost(post)}
-                  />
-                ),
-              }}
+              metadata={metadata}
             >
-              <SourceButton
-                size={ProfileImageSize.Large}
-                source={post.source}
-                className="relative"
-              />
+              {!isUserSource && (
+                <SourceButton
+                  size={ProfileImageSize.Large}
+                  source={post.source}
+                  className="relative"
+                />
+              )}
             </PostCardHeader>
 
             <CardContent>

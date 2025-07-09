@@ -25,6 +25,7 @@ import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
+import { isSourceUserSource } from '../../../graphql/sources';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -57,6 +58,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
+  const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -74,6 +76,28 @@ export const FreeformList = forwardRef(function SharePostCard(
       />
     </Container>
   );
+
+  const metadata = useMemo(() => {
+    if (isUserSource) {
+      return {
+        topLabel: post.author.name,
+      };
+    }
+
+    return {
+      topLabel: enableSourceHeader ? post.source.name : post.author.name,
+      bottomLabel: enableSourceHeader
+        ? post.author.name
+        : `@${post.source.handle ?? post.sharedPost.source.handle}`,
+    };
+  }, [
+    enableSourceHeader,
+    isUserSource,
+    post?.author?.name,
+    post?.sharedPost?.source?.handle,
+    post?.source?.handle,
+    post?.source?.name,
+  ]);
 
   return (
     <FeedItemContainer
@@ -93,19 +117,13 @@ export const FreeformList = forwardRef(function SharePostCard(
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader
-          post={post}
-          metadata={{
-            topLabel: enableSourceHeader ? post.source.name : post.author.name,
-            bottomLabel: enableSourceHeader
-              ? post.author.name
-              : `@${post.source.handle ?? post.sharedPost.source.handle}`,
-          }}
-        >
-          <SquadHeaderPicture
-            source={post.source}
-            reverse={!enableSourceHeader}
-          />
+        <PostCardHeader post={post} metadata={metadata}>
+          {!isUserSource && (
+            <SquadHeaderPicture
+              source={post.source}
+              reverse={!enableSourceHeader}
+            />
+          )}
         </PostCardHeader>
 
         <CardContent className="my-2">

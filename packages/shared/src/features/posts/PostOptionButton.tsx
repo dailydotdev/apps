@@ -66,7 +66,7 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
-import { SourceType } from '../../graphql/sources';
+import { isSourceUserSource, SourceType } from '../../graphql/sources';
 import { generateQueryKey, getPostByIdKey, RequestKey } from '../../lib/query';
 import { usePostMenuActions } from '../../hooks/usePostMenuActions';
 import type { Post } from '../../graphql/posts';
@@ -653,7 +653,7 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (post?.source?.name) {
+  if (post?.source?.name && !isSourceUserSource(post?.source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: getBlockLabel(post.source.name, {

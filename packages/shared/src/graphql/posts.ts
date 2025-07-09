@@ -545,6 +545,7 @@ export interface ExternalLinkPreview {
   title?: string;
   image?: string;
   source?: Source;
+  relatedPublicPosts?: Array<Post> | null;
 }
 
 export const PREVIEW_LINK_MUTATION = gql`
@@ -553,6 +554,23 @@ export const PREVIEW_LINK_MUTATION = gql`
       id
       title
       image
+      relatedPublicPosts {
+        id
+        title
+        permalink
+        createdAt
+        source {
+          id
+          name
+          image
+          type
+        }
+        author {
+          id
+          image
+          username
+        }
+      }
     }
   }
 `;
