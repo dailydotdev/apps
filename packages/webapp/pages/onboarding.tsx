@@ -117,7 +117,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     props: {
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
-      initialStepId: 'tags',
+      initialStepId,
     },
   };
 };
@@ -333,7 +333,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       </div>
     );
   }
-  console.log('step', funnelState);
 
   return (
     isFunnelReady && (
