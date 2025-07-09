@@ -18,7 +18,11 @@ import {
   ArrowIcon,
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { plusUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  plusUrl,
+  settingsUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import {
   useConditionalFeature,
   usePlusSubscription,
@@ -131,7 +135,7 @@ const Page = (): ReactElement => {
               className="ml-auto"
               icon={<SettingsIcon className="text-text-secondary" />}
               onClick={() => {
-                // TODO feat-brief open/goto settings
+                router?.push(`${settingsUrl}/notifications`);
               }}
             />
           </header>
