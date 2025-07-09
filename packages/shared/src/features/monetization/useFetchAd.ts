@@ -2,14 +2,14 @@ import { useCallback } from 'react';
 import { useFeature } from '../../components/GrowthBookProvider';
 import type { Ad } from '../../graphql/posts';
 import { fetchAd } from '../../lib/ads';
-import { featurePostBoost } from '../../lib/featureManagement';
+import { featurePostBoostAds } from '../../lib/featureManagement';
 
 interface UseFetchAds {
   fetchAd: (params: { active?: boolean }) => Promise<Ad | null>;
 }
 
 export const useFetchAd = (): UseFetchAds => {
-  const isEnabled = useFeature(featurePostBoost);
+  const isEnabled = useFeature(featurePostBoostAds);
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
     ({ active }) => {
