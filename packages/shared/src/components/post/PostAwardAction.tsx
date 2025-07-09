@@ -72,7 +72,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         size={ButtonSize.Small}
         className="btn-tertiary-cabbage pointer-events-auto"
         variant={ButtonVariant.Tertiary}
-        labelClassName="!pl-0"
+        labelClassName="!pl-[1px]"
         color={ButtonColor.Cabbage}
         icon={
           post.featuredAward?.award?.image ? (
