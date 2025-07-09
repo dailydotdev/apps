@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { OpenLinkIcon } from '../icons';
+import type { PostData } from '../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
@@ -35,11 +36,7 @@ export function PostHeaderActions({
 }: PostHeaderActionsProps): ReactElement {
   const key = getPostByIdKey(post?.id);
   const client = useQueryClient();
-  const { isSuccess } = useQuery({
-    queryKey: key,
-    queryFn: () => client.getQueryData(key),
-    staleTime: Infinity,
-  });
+  const postById = client.getQueryData<PostData>(key);
   const { openNewTab } = useContext(SettingsContext);
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
@@ -82,7 +79,7 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {!post.flags?.campaignId && canBoost && isSuccess && (
+      {canBoost && postById && !postById.post?.flags?.campaignId && (
         <BoostPostButton post={post} />
       )}
       {isCollection && <CollectionSubscribeButton post={post} />}
