@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -20,6 +20,8 @@ import { gqlClient } from '../../../../graphql/common';
 import type { Post } from '../../../../graphql/posts';
 import { BriefingType, GENERATE_BRIEFING } from '../../../../graphql/posts';
 import { useBriefCardContext } from './BriefCardContext';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 
 export type BriefCardDefaultProps = BriefCardProps;
 
@@ -33,7 +35,9 @@ export const BriefCardDefault = ({
   title,
   children,
 }: BriefCardDefaultProps): ReactElement => {
+  const queryClient = useQueryClient();
   const briefCardContext = useBriefCardContext();
+  const { user } = useAuthContext();
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
@@ -47,6 +51,10 @@ export const BriefCardDefault = ({
     },
     onSuccess: (data) => {
       briefCardContext.setBrief({ id: data.id, createdAt: new Date() });
+
+      queryClient.removeQueries({
+        queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
+      });
     },
   });
 
