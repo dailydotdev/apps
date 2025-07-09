@@ -334,10 +334,12 @@ const AccountNotificationsPage = (): ReactElement => {
     type,
     sendType,
     flags,
+    preferredHour,
   }: {
     type: UserPersonalizedDigestType;
     sendType: SendType;
     flags?: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
+    preferredHour?: number;
   }): Promise<void> => {
     onLogToggle(true, NotificationChannel.Email, NotificationCategory.Digest);
 
@@ -351,7 +353,12 @@ const AccountNotificationsPage = (): ReactElement => {
       }),
     });
 
-    await subscribePersonalizedDigest({ type, sendType, flags });
+    await subscribePersonalizedDigest({
+      type,
+      sendType,
+      flags,
+      hour: preferredHour ?? selectedDigest?.preferredHour,
+    });
   };
 
   const onUnsubscribeDigest = async ({
@@ -394,6 +401,7 @@ const AccountNotificationsPage = (): ReactElement => {
       type,
       hour: preferredHour,
       sendType: selectedDigest.flags.sendType,
+      flags: selectedDigest.flags,
     });
     setHour(preferredHour);
   };
