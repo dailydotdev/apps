@@ -62,7 +62,7 @@ export const BriefCardDefault = ({
     <div
       style={rootStyle}
       className={classNames(
-        'flex flex-col gap-4 rounded-16 px-6 py-4',
+        'flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
         'backdrop-blur-3xl',
         className,
       )}

@@ -121,7 +121,6 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
-  // TODO feat-brief update if needed for list view
   [PostType.Brief]: BriefCard,
 };
 

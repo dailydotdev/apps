@@ -174,7 +174,9 @@ export const BriefCardInternal = (
 export const BriefCard = (props: Omit<BriefCardProps, 'post' | 'state'>) => {
   return (
     <BriefCardContextProvider>
-      <BriefCardInternal {...props} />
+      <div className="flex flex-1 p-2 laptop:p-0">
+        <BriefCardInternal {...props} />
+      </div>
     </BriefCardContextProvider>
   );
 };

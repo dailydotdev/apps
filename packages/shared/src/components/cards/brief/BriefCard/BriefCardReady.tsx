@@ -38,56 +38,64 @@ export const BriefCardReady = ({
     <Link href={`${webappUrl}posts/${post.slug}`}>
       <a
         className={classNames(
-          'flex rounded-16 border border-white bg-transparent',
+          'flex flex-1 rounded-16 border border-white bg-transparent',
           className,
         )}
       >
         <div
           style={rootStyle}
           className={classNames(
-            'flex flex-1 flex-col gap-4 rounded-16 px-6 py-4 text-black',
+            'flex flex-1 flex-col gap-2 rounded-16 px-6 py-4 text-black laptop:gap-4',
             'backdrop-blur-3xl',
             'border-4 border-black',
           )}
         >
-          <BriefIcon secondary size={IconSize.Size48} />
-          <Typography type={TypographyType.Title2} bold>
-            {title}
-          </Typography>
-          <Typography type={TypographyType.Callout}>
-            <DateFormat
-              date={post.updatedAt || post.createdAt}
-              type={TimeFormatType.Post}
-            />
-          </Typography>
-          <div className="flex flex-col gap-1">
-            {post.flags?.generatedAt && (
-              <Typography type={TypographyType.Callout}>
-                Brief completed in{' '}
-                {formatDate({
-                  value: new Date(post.createdAt),
-                  now: new Date(post.flags?.generatedAt),
-                  type: TimeFormatType.LiveTimer,
-                })}
+          <div className="flex flex-1 flex-row items-center gap-2 laptop:flex-col laptop:items-start laptop:gap-4">
+            <BriefIcon secondary size={IconSize.Size48} />
+            <div className="flex flex-1 flex-col laptop:gap-4 ">
+              <Typography className="typo-callout laptop:typo-title2" bold>
+                {title}
               </Typography>
-            )}
-            {post.flags?.savedTime && (
               <Typography type={TypographyType.Callout}>
-                Save{' '}
-                {formatDate({
-                  value: new Date(),
-                  now: new Date(Date.now() + post.flags.savedTime * 60 * 1000),
-                  type: TimeFormatType.LiveTimer,
-                })}{' '}
-                of reading
+                <DateFormat
+                  date={post.updatedAt || post.createdAt}
+                  type={TimeFormatType.Post}
+                />
               </Typography>
-            )}
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col gap-2 laptop:gap-4">
+            <div className="flex flex-row gap-1 laptop:flex-col">
+              {post.flags?.generatedAt && (
+                <Typography type={TypographyType.Callout}>
+                  Brief completed in{' '}
+                  {formatDate({
+                    value: new Date(post.createdAt),
+                    now: new Date(post.flags?.generatedAt),
+                    type: TimeFormatType.LiveTimer,
+                  })}
+                </Typography>
+              )}
+              {post.flags?.savedTime && (
+                <Typography type={TypographyType.Callout}>
+                  Save{' '}
+                  {formatDate({
+                    value: new Date(),
+                    now: new Date(
+                      Date.now() + post.flags.savedTime * 60 * 1000,
+                    ),
+                    type: TimeFormatType.LiveTimer,
+                  })}{' '}
+                  of reading
+                </Typography>
+              )}
+            </div>
           </div>
           {children}
           <div className="mt-auto flex flex-col gap-3">
             {!isNullOrUndefined(post.readTime) && (
               <Pill
-                className="rounded-20 border border-b-overlay-secondary-pepper px-2.5 py-2"
+                className="absolute right-4 top-4 rounded-20 border border-b-overlay-secondary-pepper px-2.5 py-2 laptop:relative laptop:right-auto laptop:top-auto"
                 label={
                   <div className="flex items-center gap-1">
                     <TimerIcon />
