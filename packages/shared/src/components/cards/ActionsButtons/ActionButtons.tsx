@@ -100,7 +100,7 @@ const ActionButtons = ({
           side="bottom"
         >
           <QuaternaryButton
-            labelClassName="!pl-0"
+            labelClassName="!pl-[1px]"
             className="btn-tertiary-avocado pointer-events-auto"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
@@ -146,7 +146,7 @@ const ActionButtons = ({
         </Tooltip>
         <Tooltip content="Comments" side="bottom">
           <QuaternaryButton
-            labelClassName="!pl-0"
+            labelClassName="!pl-[1px]"
             id={`post-${post.id}-comment-btn`}
             icon={
               <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
@@ -183,6 +183,7 @@ const ActionButtons = ({
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Water}
+            buttonClassName="hover:text-text-link"
           />
         </Tooltip>
       </div>
