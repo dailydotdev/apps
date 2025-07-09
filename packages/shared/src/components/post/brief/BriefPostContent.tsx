@@ -498,7 +498,7 @@ const BriefPostContentRaw = ({
                     }}
                   >
                     Slack
-                    {!!briefDigest.flags.slack && !!briefingSource && (
+                    {!!briefDigest?.flags.slack && !!briefingSource && (
                       <Button
                         className="absolute bottom-0 right-12 top-0"
                         type="text"
