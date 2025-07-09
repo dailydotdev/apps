@@ -17,6 +17,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { PromptOptions } from '../../../../hooks/usePrompt';
 import { usePrompt } from '../../../../hooks/usePrompt';
+import { ButtonColor } from '../../../buttons/Button';
 
 interface BoostedPostViewModalProps extends ModalProps {
   data: BoostedPostData;
@@ -41,7 +42,8 @@ export function BoostedPostViewModal({
         title: 'Cancel Boost',
         description: 'Are you sure you want to cancel this campaign?',
         okButton: {
-          title: 'Yes, Cancel',
+          title: 'Confirm',
+          color: ButtonColor.Ketchup,
         },
         cancelButton: {
           title: 'No, Keep Boosting',
