@@ -18,7 +18,6 @@ import type { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
-import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
@@ -27,6 +26,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
+import { useFetchAd } from '../features/monetization/useFetchAd';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -175,10 +175,11 @@ export default function useFeed<T>(
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
 
+  const { fetchAd } = useFetchAd();
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
-      const ad = await fetchAd(!!pageParam);
+      const ad = await fetchAd({ active: !!pageParam });
 
       if (!ad) {
         return {

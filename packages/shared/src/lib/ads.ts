@@ -7,11 +7,10 @@ export enum AdActions {
   Impression = 'impression',
 }
 
-export const fetchAd = async (active = false): Promise<Ad | null> => {
-  const res = await fetch(
-    `${apiUrl}/v1/a?active=${active}&allow_post_boost=true`,
-    { credentials: 'include' },
-  );
+export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> => {
+  const res = await fetch(`${apiUrl}/v1/a?${params.toString()}`, {
+    credentials: 'include',
+  });
   const ads = (await res.json()) as Ad[];
   return ads[0];
 };
