@@ -1,10 +1,12 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
+  SendType,
   ToastSubject,
   useConditionalFeature,
+  usePersonalizedDigest,
   usePlusSubscription,
   useToastNotification,
 } from '../../../hooks';
@@ -39,7 +41,11 @@ import { HourDropdown } from '../../fields/HourDropdown';
 import { RadioItem } from '../../fields/RadioItem';
 import { Checkbox } from '../../fields/Checkbox';
 import { isNullOrUndefined } from '../../../lib/func';
+import type { PropsParameters } from '../../../types';
 import { briefSourcesLimit } from '../../../types';
+import type { UserPersonalizedDigest } from '../../../graphql/users';
+import { UserPersonalizedDigestType } from '../../../graphql/users';
+import { useLogContext } from '../../../contexts/LogContext';
 
 const BriefPostContentRaw = ({
   post,
@@ -58,6 +64,7 @@ const BriefPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady } = useAuthContext();
   const isNotPlus = !isPlus && isAuthReady;
@@ -89,6 +96,52 @@ const BriefPostContentRaw = ({
   };
 
   const onSendViewPost = useViewPost();
+
+  const { getPersonalizedDigest, subscribePersonalizedDigest } =
+    usePersonalizedDigest();
+  const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
+
+  const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
+
+  if (
+    !isNullOrUndefined(briefDigest) &&
+    briefDigest?.preferredHour !== digestTimeIndex
+  ) {
+    setDigestTimeIndex(briefDigest?.preferredHour);
+  }
+
+  const onSubscribeDigest = async ({
+    sendType,
+    flags,
+    preferredHour,
+  }: Partial<{
+    type: UserPersonalizedDigestType;
+    sendType: SendType;
+    flags: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
+    preferredHour: number;
+  }>): Promise<void> => {
+    const params: PropsParameters<typeof subscribePersonalizedDigest> = {
+      type: UserPersonalizedDigestType.Brief,
+      sendType: sendType ?? briefDigest?.flags?.sendType,
+      flags: {
+        email: flags?.email ?? briefDigest?.flags?.email,
+        slack: flags?.slack ?? briefDigest?.flags?.slack,
+      },
+      hour: preferredHour ?? briefDigest?.preferredHour,
+    };
+
+    logEvent({
+      event_name: LogEvent.ScheduleDigest,
+      extra: JSON.stringify({
+        hour: params.hour,
+        timezone: user?.timezone,
+        frequency: params.sendType,
+        type: params.type,
+      }),
+    });
+
+    await subscribePersonalizedDigest(params);
+  };
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -284,7 +337,7 @@ const BriefPostContentRaw = ({
                 </div>
               </div>
             )}
-            {isPlus && (
+            {post?.content && isPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div
                   style={{
@@ -304,9 +357,11 @@ const BriefPostContentRaw = ({
                     className={{
                       button: '!max-w-40',
                     }}
-                    hourIndex={0}
-                    setHourIndex={() => {
-                      // TODO feat-brief save settings
+                    hourIndex={digestTimeIndex}
+                    setHourIndex={(index) => {
+                      onSubscribeDigest({
+                        preferredHour: index,
+                      });
                     }}
                   />
                   <RadioItem
@@ -315,10 +370,12 @@ const BriefPostContentRaw = ({
                       content: 'flex-row-reverse justify-between !px-0',
                     }}
                     disabled={false}
-                    name="vertical"
-                    checked
+                    name="daily"
+                    checked={briefDigest?.flags?.sendType === SendType.Daily}
                     onChange={() => {
-                      // TODO feat-brief save settings
+                      onSubscribeDigest({
+                        sendType: SendType.Daily,
+                      });
                     }}
                   >
                     Daily
@@ -328,11 +385,27 @@ const BriefPostContentRaw = ({
                       wrapper: 'w-full',
                       content: 'flex-row-reverse justify-between !px-0',
                     }}
-                    disabled={false}
-                    name="vertical"
-                    checked={false}
+                    name="workdays"
+                    checked={briefDigest?.flags?.sendType === SendType.Workdays}
                     onChange={() => {
-                      // TODO feat-brief save settings
+                      onSubscribeDigest({
+                        sendType: SendType.Workdays,
+                      });
+                    }}
+                  >
+                    Workdays (Mon-Fri)
+                  </RadioItem>
+                  <RadioItem
+                    className={{
+                      wrapper: 'w-full',
+                      content: 'flex-row-reverse justify-between !px-0',
+                    }}
+                    name="weekly"
+                    checked={briefDigest?.flags?.sendType === SendType.Weekly}
+                    onChange={() => {
+                      onSubscribeDigest({
+                        sendType: SendType.Weekly,
+                      });
                     }}
                   >
                     Weekly
@@ -342,51 +415,40 @@ const BriefPostContentRaw = ({
                   </Typography>
                   <Checkbox
                     className="flex-row-reverse !px-0"
+                    name="in-app"
+                    disabled
+                    checked={!!briefDigest}
+                  >
+                    In app (always active)
+                  </Checkbox>
+                  <Checkbox
+                    className="flex-row-reverse !px-0"
                     name="email"
-                    checked={false}
-                    onToggleCallback={() => {
-                      // TODO feat-brief save settings
+                    checked={!!briefDigest?.flags?.email}
+                    onToggleCallback={(checked) => {
+                      onSubscribeDigest({
+                        flags: {
+                          email: checked,
+                        },
+                      });
                     }}
                   >
                     Email
                   </Checkbox>
                   <Checkbox
                     className="flex-row-reverse !px-0"
-                    name="in-app"
-                    checked
-                    onToggleCallback={() => {
-                      // TODO feat-brief save settings
-                    }}
-                  >
-                    In app
-                  </Checkbox>
-                  <Checkbox
-                    className="flex-row-reverse !px-0"
                     name="slack"
-                    checked
-                    onToggleCallback={() => {
-                      // TODO feat-brief save settings
+                    checked={!!briefDigest?.flags?.slack}
+                    onToggleCallback={(checked) => {
+                      onSubscribeDigest({
+                        flags: {
+                          slack: checked,
+                        },
+                      });
                     }}
                   >
                     Slack
                   </Checkbox>
-                  <Link href={plusUrl} passHref legacyBehavior>
-                    <Button
-                      style={{
-                        background: briefButtonBg,
-                      }}
-                      className="w-full"
-                      tag="a"
-                      type="button"
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Small}
-                      onClick={() => {
-                        // TODO feat-brief save settings
-                      }}
-                    >
-                      Save
-                    </Button>
-                  </Link>
                 </div>
               </div>
             )}
