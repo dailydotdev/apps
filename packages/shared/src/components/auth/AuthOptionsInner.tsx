@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
@@ -120,7 +119,6 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
 }: AuthOptionsProps): ReactElement {
-  const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
   const { trackSignup } = usePixelsContext();
