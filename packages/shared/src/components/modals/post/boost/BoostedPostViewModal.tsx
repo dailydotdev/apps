@@ -25,6 +25,16 @@ interface BoostedPostViewModalProps extends ModalProps {
   onBoostAgain?: (id: Post['id']) => void;
 }
 
+const promptOptions: PromptOptions = {
+  title: 'Stop this boost?',
+  description:
+    "If you stop this boost now, it will no longer be promoted. We'll credit the remaining Cores back to your balance for the unused budget",
+  okButton: {
+    title: 'Stop boost',
+    color: ButtonColor.Ketchup,
+  },
+};
+
 export function BoostedPostViewModal({
   data,
   isLoading,
@@ -38,16 +48,6 @@ export function BoostedPostViewModal({
 
   const handleBoostClick = async () => {
     if (data.campaign.status === 'ACTIVE') {
-      const promptOptions: PromptOptions = {
-        title: 'Stop this boost?',
-        description:
-          "If you stop this boost now, it will no longer be promoted. We'll credit the remaining Cores back to your balance for the unused budget",
-        okButton: {
-          title: 'Stop boost',
-          color: ButtonColor.Ketchup,
-        },
-      };
-
       if (!(await showPrompt(promptOptions))) {
         return null;
       }
