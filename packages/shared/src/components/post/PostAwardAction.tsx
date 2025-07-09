@@ -86,13 +86,15 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
           )
         }
       >
-        <InteractionCounter
-          className={classNames(
-            'tabular-nums !typo-footnote',
-            !post.numAwards && 'invisible',
-          )}
-          value={post.numAwards}
-        />
+        {post?.numAwards > 0 && (
+          <InteractionCounter
+            className={classNames(
+              'tabular-nums !typo-footnote',
+              !post.numAwards && 'invisible',
+            )}
+            value={post.numAwards}
+          />
+        )}
       </QuaternaryButton>
     </Tooltip>
   );

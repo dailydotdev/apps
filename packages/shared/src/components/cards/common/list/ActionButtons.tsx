@@ -127,13 +127,15 @@ export default function ActionButtons({
               />
             }
           >
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums',
-                !post?.numUpvotes && 'invisible',
-              )}
-              value={post?.numUpvotes}
-            />
+            {post?.numUpvotes > 0 && (
+              <InteractionCounter
+                className={classNames(
+                  'tabular-nums',
+                  !post?.numUpvotes && 'invisible',
+                )}
+                value={post?.numUpvotes}
+              />
+            )}
           </QuaternaryButton>
         </Tooltip>
         <Tooltip
@@ -175,13 +177,15 @@ export default function ActionButtons({
             }
             onClick={() => onCommentClick?.(post)}
           >
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums',
-                !post.numComments && 'invisible',
-              )}
-              value={post.numComments}
-            />
+            {post?.numComments > 0 && (
+              <InteractionCounter
+                className={classNames(
+                  'tabular-nums',
+                  !post.numComments && 'invisible',
+                )}
+                value={post.numComments}
+              />
+            )}
           </QuaternaryButton>
         </LinkWithTooltip>
         <PostAwardAction iconSize={IconSize.Medium} post={post} />

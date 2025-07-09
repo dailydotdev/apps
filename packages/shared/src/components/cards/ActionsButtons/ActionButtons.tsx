@@ -115,13 +115,15 @@ const ActionButtons = ({
               />
             }
           >
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums typo-footnote',
-                !post.numUpvotes && 'invisible',
-              )}
-              value={post.numUpvotes}
-            />
+            {post?.numUpvotes > 0 && (
+              <InteractionCounter
+                className={classNames(
+                  'tabular-nums typo-footnote',
+                  !post.numUpvotes && 'invisible',
+                )}
+                value={post.numUpvotes}
+              />
+            )}
           </QuaternaryButton>
         </Tooltip>
         <Tooltip
@@ -156,13 +158,15 @@ const ActionButtons = ({
             size={ButtonSize.Small}
             className="btn-tertiary-blueCheese"
           >
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums !typo-footnote',
-                !post.numComments && 'invisible',
-              )}
-              value={post.numComments}
-            />
+            {post?.numComments > 0 && (
+              <InteractionCounter
+                className={classNames(
+                  'tabular-nums !typo-footnote',
+                  !post.numComments && 'invisible',
+                )}
+                value={post.numComments}
+              />
+            )}
           </QuaternaryButton>
         </Tooltip>
         <PostAwardAction post={post} iconSize={IconSize.XSmall} />
