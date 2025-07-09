@@ -48,7 +48,7 @@ export default function PostMetadata({
         {!!createdAt && !boostedBy && (
           <DateFormat date={createdAt} type={TimeFormatType.Post} />
         )}
-        {!!createdAt && showReadTime && <Separator />}
+        {(!!createdAt || !!boostedBy) && showReadTime && <Separator />}
         {showReadTime && (
           <span data-testid="readTime">
             {formatReadTime(readTime)} {timeActionContent} time
