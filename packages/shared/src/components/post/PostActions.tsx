@@ -33,6 +33,8 @@ import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { Tooltip } from '../tooltip/Tooltip';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../lib/featureManagement';
 
 interface PostActionsProps {
   post: Post;
@@ -48,6 +50,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
+  const postUiExp = useFeature(featurePostUiImprovements);
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
@@ -304,8 +307,12 @@ export function PostActions({
             id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
-            className="hover:text-text-link"
-            buttonClassName="hover:bg-overlay-float-water"
+            className={classNames(
+              postUiExp ? 'hover:text-text-link' : 'btn-tertiary-cabbage',
+            )}
+            buttonClassName={
+              postUiExp ? 'hover:bg-overlay-float-water' : undefined
+            }
           >
             Copy
           </QuaternaryButton>

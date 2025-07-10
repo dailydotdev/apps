@@ -17,6 +17,9 @@ import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -38,6 +41,8 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
+  const postUiExp = useFeature(featurePostUiImprovements);
+
   return (
     <FeedItemContainer
       domProps={{
@@ -53,7 +58,14 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <CardTextContainer>
+      <ConditionalWrapper
+        condition={postUiExp}
+        wrapper={(wrapperChildren) => (
+          <CardTextContainer className="mx-4">
+            {wrapperChildren}
+          </CardTextContainer>
+        )}
+      >
         <CollectionCardHeader post={post} />
         <FreeformCardTitle
           className={classNames(
@@ -61,6 +73,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
               hasImage: !!image,
               hasHtmlContent: !!post.contentHtml,
             }),
+            !postUiExp && 'mx-2',
             'font-bold text-text-primary typo-title3',
           )}
         >
@@ -69,11 +82,14 @@ export const CollectionGrid = forwardRef(function CollectionCard(
 
         {!!post.image && <CardSpace />}
         <PostTags post={post} />
-      </CardTextContainer>
+      </ConditionalWrapper>
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
-        className={classNames('mx-4 my-2', post.image ? 'mb-0' : 'mb-4')}
+        className={classNames(
+          postUiExp ? 'mx-4 my-2' : 'm-2',
+          post.image ? 'mb-0' : 'mb-4',
+        )}
       />
       <Container>
         <WelcomePostCardFooter

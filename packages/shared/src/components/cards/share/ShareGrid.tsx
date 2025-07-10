@@ -1,5 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
+import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
@@ -24,6 +25,8 @@ import classed from '../../../lib/classed';
 import { BlockIcon, EarthIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { IconSize } from '../../Icon';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 const EmptyStateContainer = classed(
   'div',
@@ -58,6 +61,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isPrivate =
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
+  const postUiExp = useFeature(featurePostUiImprovements);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -94,11 +98,11 @@ export const ShareGrid = forwardRef(function ShareGrid(
         openNewTab={openNewTab}
         post={footerPost}
         className={{
-          image: 'px-1',
+          image: postUiExp ? 'px-1' : undefined,
         }}
       />
     );
-  }, [isDeleted, isPrivate, openNewTab, post]);
+  }, [isDeleted, isPrivate, openNewTab, post, postUiExp]);
 
   return (
     <FeedItemContainer
@@ -121,7 +125,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       />
 
       <>
-        <CardTextContainer>
+        <CardTextContainer className={classNames(postUiExp && 'mx-4')}>
           <PostCardHeader
             post={post}
             className="flex"

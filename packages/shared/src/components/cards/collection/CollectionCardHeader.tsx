@@ -9,6 +9,8 @@ import {
 import { useBookmarkProvider } from '../../../hooks';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import type { Post } from '../../../graphql/posts';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 interface CollectionCardHeaderProps {
   post: Post;
@@ -17,6 +19,7 @@ interface CollectionCardHeaderProps {
 export const CollectionCardHeader = ({
   post,
 }: CollectionCardHeaderProps): ReactElement => {
+  const postUiExp = useFeature(featurePostUiImprovements);
   const {
     collectionSources: sources,
     numCollectionSources: totalSources,
@@ -37,7 +40,7 @@ export const CollectionCardHeader = ({
       <CollectionPillSources
         className={{
           main: classNames(
-            'mb-1 mt-3',
+            postUiExp ? 'mb-1 mt-3' : 'm-2 mb-1',
             highlightBookmarkedPost && headerHiddenClassName,
           ),
         }}

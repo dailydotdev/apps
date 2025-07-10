@@ -40,7 +40,7 @@ export const FreeformCardTitle = classed(
 
 export const CardTitle = classed(Title, 'mt-2 break-words');
 
-export const CardTextContainer = classed('div', 'flex flex-col mx-4');
+export const CardTextContainer = classed('div', 'flex flex-col mx-2');
 
 export const CardImage = classed(Image, 'rounded-12 h-40 object-cover');
 export const CardSpace = classed('div', 'flex-1');
@@ -55,7 +55,7 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'snap-start relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 border border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+  'snap-start relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 border border-border-subtlest-tertiary hover:border-border-subtlest-secondary bg-background-subtle',
 );
 
 export const ChecklistCardComponent = classed(
@@ -67,7 +67,7 @@ export const ChecklistCardComponent = classed(
 export const CardHeader = classed(
   'div',
   styles.header,
-  'flex items-center h-8 my-1 mt-3 -mx-1.5',
+  'flex items-center h-8 my-1 mt-2 -mx-1.5',
 );
 
 export const ListCard = classed(
