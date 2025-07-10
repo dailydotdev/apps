@@ -7,6 +7,7 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import { Tooltip } from '../../components/tooltip/Tooltip';
+import { formatDataTileValue } from '../../lib/numberFormat';
 
 interface DataTileProps {
   label: string;
@@ -34,7 +35,7 @@ export const DataTile: React.FC<DataTileProps> = ({
       <span className="flex flex-row items-center gap-1">
         {icon}
         <Typography type={TypographyType.Title2} bold>
-          {value}
+          {formatDataTileValue(value)}
         </Typography>
       </span>
     </div>

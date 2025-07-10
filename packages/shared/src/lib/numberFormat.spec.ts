@@ -1,4 +1,4 @@
-import { getPrice, removeNonNumber } from './numberFormat';
+import { getPrice, removeNonNumber, formatDataTileValue } from './numberFormat';
 import {
   dummyPaddleProductItemBrl,
   dummyPaddleProductItemDollar,
@@ -58,5 +58,52 @@ describe('function getPrice', () => {
     dummy.totals.total = '999999900';
     const result = getPrice(dummy);
     expect(result).toEqual(9999999);
+  });
+});
+
+describe('function formatDataTileValue', () => {
+  it('should format numbers less than 10,000 with locale formatting', () => {
+    expect(formatDataTileValue(0)).toBe('0');
+    expect(formatDataTileValue(1)).toBe('1');
+    expect(formatDataTileValue(123)).toBe('123');
+    expect(formatDataTileValue(1234)).toBe('1,234');
+    expect(formatDataTileValue(9999)).toBe('9,999');
+  });
+
+  it('should format numbers 10,000 and above with large number formatting', () => {
+    expect(formatDataTileValue(10000)).toBe('10.0k');
+    expect(formatDataTileValue(15000)).toBe('15.0k');
+    expect(formatDataTileValue(99999)).toBe('100.0k');
+    expect(formatDataTileValue(100000)).toBe('100.0k');
+    expect(formatDataTileValue(123456)).toBe('123.5k');
+    expect(formatDataTileValue(1000000)).toBe('1.0M');
+    expect(formatDataTileValue(1500000)).toBe('1.5M');
+    expect(formatDataTileValue(1000000000)).toBe('1.0B');
+  });
+
+  it('should handle decimal precision correctly for large numbers', () => {
+    expect(formatDataTileValue(10500)).toBe('10.5k');
+    expect(formatDataTileValue(10050)).toBe('10.1k');
+    expect(formatDataTileValue(10001)).toBe('10.0k');
+    expect(formatDataTileValue(10049)).toBe('10.0k');
+    expect(formatDataTileValue(10050)).toBe('10.1k');
+  });
+
+  it('should handle edge cases and invalid inputs', () => {
+    expect(formatDataTileValue(NaN)).toBe('0');
+    expect(formatDataTileValue(Infinity)).toBe('0');
+    expect(formatDataTileValue(-Infinity)).toBe('0');
+    expect(formatDataTileValue(-1234)).toBe('-1,234');
+    expect(formatDataTileValue(-15000)).toBe('-15.0k');
+  });
+
+  it('should handle very large numbers', () => {
+    expect(formatDataTileValue(1000000000000)).toBe('1.0T');
+    expect(formatDataTileValue(1500000000000)).toBe('1.5T');
+  });
+
+  it('should handle numbers exactly at the threshold', () => {
+    expect(formatDataTileValue(9999)).toBe('9,999');
+    expect(formatDataTileValue(10000)).toBe('10.0k');
   });
 });

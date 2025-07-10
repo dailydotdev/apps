@@ -49,3 +49,17 @@ export const getPrice = (item: PaddleProductLineItem): number => {
 
 export const checkIsNumbersOnly = (value: string): boolean =>
   /^\d+$/.test(value);
+
+export const formatDataTileValue = (value: number): string => {
+  if (typeof value !== 'number') {
+    return '0';
+  }
+
+  // For numbers less than 10,000, use locale formatting
+  if (value < 10000) {
+    return value.toLocaleString();
+  }
+
+  // For numbers 10,000 and above, use the existing largeNumberFormat logic
+  return largeNumberFormat(value) || '0';
+};
