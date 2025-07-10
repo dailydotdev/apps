@@ -48,6 +48,7 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { BriefCardFeed } from './cards/brief/BriefCard/BriefCardFeed';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -437,6 +438,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
+            {feedName === SharedFeedPage.MyFeed && <BriefCardFeed />}
             {items.map((item, index) => (
               <FeedItemComponent
                 item={item}

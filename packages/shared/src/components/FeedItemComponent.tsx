@@ -200,11 +200,6 @@ export default function FeedItemComponent({
     postType: (item as PostItem).post?.type,
   });
 
-  // TODO feat-brief remove this
-  if (index === 0 && item.type === FeedItemType.Post) {
-    return <BriefCard />;
-  }
-
   switch (item.type) {
     case FeedItemType.Post: {
       if (
