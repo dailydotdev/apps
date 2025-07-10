@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { BriefCardDefault } from './BriefCardDefault';
 import {
   Typography,
@@ -19,6 +20,7 @@ import {
   BriefCardContextProvider,
   useBriefCardContext,
 } from './BriefCardContext';
+import { lottieAnimationQueryOptions } from '../../../../lib/lottie';
 
 export type BriefCardProps = {
   className?: string;
@@ -55,21 +57,23 @@ const loadingSteps: (Pick<BriefCardProps, 'animationSrc'> & {
 ];
 
 const getLoadingStep = (createdAt: Date): number => {
-  const targetTimeSeconds = 15;
+  const targetTimeSeconds = 18;
 
   if (!createdAt) {
-    return 0;
+    return -1;
   }
 
   const elapsedSeconds = (Date.now() - createdAt.getTime()) / 1000;
 
-  if (elapsedSeconds > targetTimeSeconds) {
-    return loadingSteps.length;
+  const loadingStep = Math.abs(
+    Math.round((elapsedSeconds / targetTimeSeconds) * loadingSteps.length),
+  );
+
+  if (loadingStep > loadingSteps.length - 1) {
+    return loadingSteps.length - 1;
   }
 
-  return Math.abs(
-    Math.ceil((elapsedSeconds / targetTimeSeconds) * loadingSteps.length),
-  );
+  return loadingStep;
 };
 
 const getLoadingProgress = ({
@@ -91,6 +95,7 @@ const getLoadingProgress = ({
 export const BriefCardInternal = (
   props: Omit<BriefCardProps, 'state' | 'post'>,
 ) => {
+  const queryClient = useQueryClient();
   const [, setLoadingIncrement] = useState(0);
   const briefCardContext = useBriefCardContext();
   let state: 'default' | 'loading' | 'ready' = 'default';
@@ -148,6 +153,21 @@ export const BriefCardInternal = (
 
   const loadingStep = getLoadingStep(briefCardContext.brief?.createdAt);
 
+  useEffect(() => {
+    const nextLoadingStep = loadingStep + 1;
+    const nextStep = loadingSteps[nextLoadingStep];
+
+    if (!nextStep?.animationSrc) {
+      return;
+    }
+
+    queryClient.prefetchQuery(
+      lottieAnimationQueryOptions({
+        src: nextStep.animationSrc,
+      }),
+    );
+  }, [loadingStep, queryClient]);
+
   if (state === 'loading') {
     const activeStep = loadingSteps[loadingStep] ?? loadingSteps[0];
 
@@ -163,7 +183,7 @@ export const BriefCardInternal = (
         title="The agent asked to quit. We said no. Tough life."
       >
         {[...loadingSteps]
-          .slice(0, loadingStep || 1)
+          .slice(0, loadingStep + 1)
           .reverse()
           .map((item) => {
             return item.text;
