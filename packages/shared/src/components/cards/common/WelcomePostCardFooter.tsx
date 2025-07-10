@@ -50,7 +50,7 @@ export const WelcomePostCardFooter = ({
           post={post}
           imageProps={{
             src: image,
-            className: postUiExp ? 'mt-2 mb-1 w-full px-1' : "'my-2 w-full'",
+            className: postUiExp ? 'mt-2 mb-1 w-full px-1' : 'my-2 w-full',
             alt: 'Post Cover image',
           }}
         />
