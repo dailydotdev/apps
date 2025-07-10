@@ -8,12 +8,12 @@ import {
 import type { Origin } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { MenuIcon, SourceIcon } from '../../icons';
+import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
 import { ContextMenuIds } from '../../../hooks/constants';
 import useContextMenu from '../../../hooks/useContextMenu';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
@@ -53,29 +53,20 @@ const SquadEntityCard = ({
       }}
       entityName={name}
       actionButtons={
-        <>
-          <Button
-            className="invisible justify-center group-hover/menu:visible"
-            variant={ButtonVariant.Option}
-            icon={<MenuIcon />}
-            onClick={onMenuClick}
-            size={ButtonSize.Small}
-          />
-          {squad && (
-            <>
-              <SquadHeaderMenu squad={squad} className="z-[9999]" />
-              <SquadActionButton
-                size={ButtonSize.Small}
-                copy={{
-                  join: 'Join',
-                  leave: 'Leave',
-                }}
-                squad={squad}
-                origin={origin}
-              />
-            </>
-          )}
-        </>
+        squad && (
+          <>
+            <SquadHeaderMenu squad={squad} />
+            <SquadActionButton
+              size={ButtonSize.Small}
+              copy={{
+                join: 'Join',
+                leave: 'Leave',
+              }}
+              squad={squad}
+              origin={origin}
+            />
+          </>
+        )
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">

@@ -3,7 +3,6 @@ import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
-import classNames from 'classnames';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions, SourceMemberRole } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -20,18 +19,26 @@ import {
   ExitIcon,
   FlagIcon,
   HashtagIcon,
+  MenuIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
 import type { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
-import useContextMenu from '../../hooks/useContextMenu';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import ConditionalWrapper from '../ConditionalWrapper';
+import Link from '../utilities/Link';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
@@ -48,12 +55,10 @@ const IconWrapper = ({
 
 interface SquadHeaderMenuProps {
   squad: Squad;
-  className?: string;
 }
 
 export default function SquadHeaderMenu({
   squad,
-  className,
 }: SquadHeaderMenuProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logAndCopyLink } = useSquadInvitation({
@@ -63,7 +68,6 @@ export default function SquadHeaderMenu({
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
-  const { isOpen } = useContextMenu({ id: ContextMenuIds.SquadMenuContext });
   const { follow, unfollow } = useContentPreference();
 
   const { onDeleteSquad } = useDeleteSquad({
@@ -193,13 +197,59 @@ export default function SquadHeaderMenu({
   ]);
 
   return (
-    <ContextMenu
-      disableBoundariesCheck
-      id={ContextMenuIds.SquadMenuContext}
-      className={classNames('menu-primary', className)}
-      animation="fade"
-      options={items}
-      isOpen={isOpen}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger tooltip={{ content: 'Squad options' }} asChild>
+        <Button
+          className="order-4 tablet:order-5"
+          variant={ButtonVariant.Float}
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {items.map(
+          ({
+            label,
+            icon,
+            action,
+            anchorProps,
+            disabled,
+            Wrapper,
+          }: MenuItemProps) => (
+            <ConditionalWrapper
+              key={label}
+              condition={!!Wrapper}
+              wrapper={(children) => <Wrapper>{children}</Wrapper>}
+            >
+              <DropdownMenuItem
+                onClick={action}
+                key={label}
+                disabled={disabled}
+              >
+                {anchorProps ? (
+                  <Link href={anchorProps.href} passHref>
+                    <a
+                      className="flex flex-1 items-center"
+                      {...anchorProps}
+                      role="menuitem"
+                    >
+                      {icon} {label}
+                    </a>
+                  </Link>
+                ) : (
+                  <button
+                    className="flex flex-1 items-center"
+                    type="button"
+                    role="menuitem"
+                  >
+                    {icon} {label}
+                  </button>
+                )}
+              </DropdownMenuItem>
+            </ConditionalWrapper>
+          ),
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
