@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import type { Squad } from '../../graphql/sources';
@@ -39,13 +38,6 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
 import Link from '../utilities/Link';
-
-const ContextMenu = dynamic(
-  () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
-  {
-    ssr: false,
-  },
-);
 
 const IconWrapper = ({
   Icon,

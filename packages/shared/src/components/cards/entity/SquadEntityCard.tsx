@@ -11,8 +11,6 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
-import { ContextMenuIds } from '../../../hooks/constants';
-import useContextMenu from '../../../hooks/useContextMenu';
 import { ButtonSize } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
@@ -33,9 +31,6 @@ const SquadEntityCard = ({
   className,
 }: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
-  const { onMenuClick } = useContextMenu({
-    id: ContextMenuIds.SquadMenuContext,
-  });
   if (!squad) {
     return null;
   }
