@@ -35,7 +35,10 @@ export const BriefCardLoading = ({
         className,
       )}
     >
-      <LottieAnimation className="-mb-6 h-20 w-20" src={animationSrc} />
+      <LottieAnimation
+        className="float-animation -mb-6 h-20 w-20"
+        src={animationSrc}
+      />
       <div className="w-20">
         <ProgressBar
           shouldShowBg
