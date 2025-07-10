@@ -40,7 +40,9 @@ export default function PostMetadata({
     >
       <TruncateText>
         {boostedBy && <strong>Boosted by @{boostedBy.username}</strong>}
-        {boostedBy && <Separator />}
+        {boostedBy && (!!description || !!createdAt || showReadTime) && (
+          <Separator />
+        )}
         {!!description && (
           <TruncateText title={description}>{description}</TruncateText>
         )}
@@ -48,7 +50,7 @@ export default function PostMetadata({
         {!!createdAt && !boostedBy && (
           <DateFormat date={createdAt} type={TimeFormatType.Post} />
         )}
-        {(!!createdAt || !!boostedBy) && showReadTime && <Separator />}
+        {!boostedBy && !!createdAt && showReadTime && <Separator />}
         {showReadTime && (
           <span data-testid="readTime">
             {formatReadTime(readTime)} {timeActionContent} time
