@@ -48,7 +48,7 @@ export const BookmarkSection = ({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BriefIcon secondary={active} />} />
       ),
-      title: 'Presidential briefing',
+      title: 'Presidential briefings',
       path: briefingUrl,
       isForcedLink: true,
       requiresLogin: true,

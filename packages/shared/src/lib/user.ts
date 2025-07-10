@@ -264,3 +264,7 @@ export const isSpecialUser = ({
 }): boolean => {
   return !!userId && ['404', loggedUserId].includes(userId);
 };
+
+export const getFirstName = (name: string): string => {
+  return name?.split?.(' ')?.[0] ?? '';
+};

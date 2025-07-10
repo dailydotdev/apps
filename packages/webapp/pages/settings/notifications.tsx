@@ -64,7 +64,7 @@ import { useQuery } from '@tanstack/react-query';
 import { sourceQueryOptions } from '@dailydotdev/shared/src/graphql/sources';
 import { BRIEFING_SOURCE } from '@dailydotdev/shared/src/types';
 import { useRouter } from 'next/router';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -437,6 +437,8 @@ const AccountNotificationsPage = (): ReactElement => {
             lzym: LazyModal.SlackIntegration,
           }),
         ),
+        introTitle: labels.integrations.briefIntro.title,
+        introDescription: labels.integrations.briefIntro.description,
       },
     });
   }, [shouldManageSlack, briefingSource, openModal, router]);
@@ -547,7 +549,7 @@ const AccountNotificationsPage = (): ReactElement => {
             heading: 'mt-0',
             container: 'flex w-full flex-1 flex-col gap-4',
           }}
-          title="Smart Digests and AI Briefings"
+          title="AI Briefings"
         />
         <Switch
           data-testid="digest_notification-switch"
@@ -601,8 +603,10 @@ const AccountNotificationsPage = (): ReactElement => {
                     color={TypographyColor.Tertiary}
                     className="text-wrap font-normal"
                   >
-                    Stay informed with daily or weekly emails tailored to your
-                    interests.
+                    Our recommendation system scans everything on daily.dev and
+                    sends you a tailored email with just the must-read posts.
+                    Choose daily or weekly delivery and set your preferred send
+                    time below.
                   </Typography>
                 </>
               ),
@@ -617,7 +621,7 @@ const AccountNotificationsPage = (): ReactElement => {
                     color={TypographyColor.Primary}
                   >
                     <span className="flex gap-2">
-                      Presidential briefing
+                      Presidential briefings
                       <PlusUser />
                     </span>
                   </Typography>
@@ -626,7 +630,12 @@ const AccountNotificationsPage = (): ReactElement => {
                     color={TypographyColor.Tertiary}
                     className="text-wrap font-normal"
                   >
-                    Receive concise, high-quality AI-generated summaries.
+                    Your AI agent scans the entire dev landscape (posts,
+                    releases, discussions) and compiles a personalized briefing
+                    of what actually matters. Each briefing is custom-built for
+                    you based on what&apos;s trending, what&apos;s shifting, and
+                    what aligns with your interests. Upgrade to get unlimited
+                    access and control when and how often you get them.
                   </Typography>
                   {!isPlus && (
                     <UpgradeToPlus
@@ -768,11 +777,14 @@ const AccountNotificationsPage = (): ReactElement => {
                                   lzym: LazyModal.SlackIntegration,
                                 }),
                               ),
+                              introTitle: labels.integrations.briefIntro.title,
+                              introDescription:
+                                labels.integrations.briefIntro.description,
                             },
                           });
                         }}
                       >
-                        Slack settings
+                        Manage integrations
                       </Button>
                     )}
                   </Checkbox>

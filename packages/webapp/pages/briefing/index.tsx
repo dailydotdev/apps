@@ -129,7 +129,7 @@ const Page = (): ReactElement => {
               />
             </Link>
             <Typography type={TypographyType.Title3} bold>
-              Presidential briefing
+              Presidential briefings
             </Typography>
             <Button
               className="ml-auto"
@@ -151,8 +151,8 @@ const Page = (): ReactElement => {
                   type={TypographyType.Callout}
                   className="w-full tablet:w-auto"
                 >
-                  Upgrade to daily.dev Plus now to access exclusive dev
-                  insights!
+                  Get unlimited access to every past and future presidential
+                  briefing with daily.dev Plus.
                 </Typography>
                 <Link href={plusUrl} passHref legacyBehavior>
                   <Button
@@ -262,7 +262,7 @@ const getBriefingLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Presidential briefing'),
+  title: getTemplatedTitle('Presidential briefings'),
   description: 'TODO feat-brief SEO description',
   nofollow: true,
   noindex: true,

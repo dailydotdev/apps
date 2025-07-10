@@ -245,26 +245,21 @@ export const plusOrganizationFeatureList: Array<PlusItem> = [
 ];
 
 export const briefFeatureList: Array<PlusItem> = [
-  // TODO feat-brief review tooltips and copy, current tooltips are just ai generated placeholders
   {
-    label: 'Presidential briefing',
+    label: 'Unlimited presidential briefings',
     status: PlusItemStatus.Ready,
-    tooltip: `Get a daily briefing of the most important posts, tailored to your interests. Stay informed without the noise.`,
   },
   {
-    label: 'Choose how often you want to get them',
+    label: 'Set your preferred schedule',
     status: PlusItemStatus.Ready,
-    tooltip: `Receive your briefing daily, weekly, or monthly. You decide how often you want to stay updated.`,
   },
   {
-    label: 'Where you want to get it? Slack, Email, etc',
+    label: 'Choose your delivery method',
     status: PlusItemStatus.Ready,
-    tooltip: `Get your briefing delivered to your preferred platform. Whether it's Slack, email, or another channel, we've got you covered.`,
   },
   {
-    label: 'All daily.dev plus features',
+    label: 'Includes all other daily.dev Plus features',
     status: PlusItemStatus.Ready,
-    tooltip: `Enjoy all the benefits of daily.dev Plus, including personalized feeds, ad-free experience, and more.`,
   },
 ];
 

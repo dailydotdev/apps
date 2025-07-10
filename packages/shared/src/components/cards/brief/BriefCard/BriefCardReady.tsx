@@ -9,7 +9,6 @@ import { IconSize } from '../../../Icon';
 import { Pill } from '../../../Pill';
 import { ProfileImageSize } from '../../../ProfilePicture';
 import { CollectionPillSources } from '../../../post/collection/CollectionPillSources';
-import { DateFormat } from '../../../utilities/DateFormat';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { isNullOrUndefined } from '../../../../lib/func';
 import Link from '../../../utilities/Link';
@@ -57,38 +56,29 @@ export const BriefCardReady = ({
                 {title}
               </Typography>
               <Typography type={TypographyType.Callout}>
-                <DateFormat
-                  date={post.updatedAt || post.createdAt}
-                  type={TimeFormatType.Post}
-                />
+                {post.title}
               </Typography>
             </div>
           </div>
           <div className="flex flex-1 flex-col gap-2 laptop:gap-4">
             <div className="flex flex-row gap-1 laptop:flex-col">
-              {post.flags?.generatedAt && (
-                <Typography type={TypographyType.Callout}>
-                  Brief completed in{' '}
-                  {formatDate({
+              <Typography type={TypographyType.Callout}>
+                {post.flags?.generatedAt &&
+                  `Your AI agent spent ${formatDate({
                     value: new Date(post.createdAt),
                     now: new Date(post.flags?.generatedAt),
                     type: TimeFormatType.LiveTimer,
-                  })}
-                </Typography>
-              )}
-              {post.flags?.savedTime && (
-                <Typography type={TypographyType.Callout}>
-                  Save{' '}
-                  {formatDate({
+                  })} on this presidential briefing. `}
+                {post.flags.savedTime &&
+                  `It saved you ${formatDate({
                     value: new Date(),
                     now: new Date(
                       Date.now() + post.flags.savedTime * 60 * 1000,
                     ),
                     type: TimeFormatType.LiveTimer,
-                  })}{' '}
-                  of reading
-                </Typography>
-              )}
+                  })}  of trying to keep up. `}
+                Proceed responsibly (or don&apos;t, your call).
+              </Typography>
             </div>
           </div>
           {children}

@@ -29,6 +29,31 @@ export type BriefCardProps = {
   children?: ReactNode;
 };
 
+const loadingSteps: (Pick<BriefCardProps, 'animationSrc'> & {
+  text: string;
+})[] = [
+  {
+    animationSrc: '/robot-looking.json',
+    text: `Reading everything from last week`,
+  },
+  {
+    animationSrc: '/robot-loading.json',
+    text: `Sorting facts from loud opinions`,
+  },
+  {
+    animationSrc: '/robot-writing.json',
+    text: `Figuring out what you'd care about`,
+  },
+  {
+    animationSrc: '/robot-loving.json',
+    text: "Checking if it's actually true",
+  },
+  {
+    animationSrc: '/robot-loving.json',
+    text: 'Reviewing your brief. Hang tight',
+  },
+];
+
 const getLoadingStep = (createdAt: Date): number => {
   const targetTimeSeconds = 15;
 
@@ -39,10 +64,12 @@ const getLoadingStep = (createdAt: Date): number => {
   const elapsedSeconds = (Date.now() - createdAt.getTime()) / 1000;
 
   if (elapsedSeconds > targetTimeSeconds) {
-    return 4;
+    return loadingSteps.length;
   }
 
-  return Math.abs(Math.ceil((elapsedSeconds / targetTimeSeconds) * 4));
+  return Math.abs(
+    Math.ceil((elapsedSeconds / targetTimeSeconds) * loadingSteps.length),
+  );
 };
 
 const getLoadingProgress = ({
@@ -50,7 +77,7 @@ const getLoadingProgress = ({
 }: {
   loadingStep: number;
 }): number => {
-  const step = 100 / 4;
+  const step = 100 / loadingSteps.length;
 
   const progress = Math.min(step * loadingStep, 100);
 
@@ -60,27 +87,6 @@ const getLoadingProgress = ({
 
   return progress;
 };
-
-const loadingSteps: (Pick<BriefCardProps, 'animationSrc'> & {
-  text: string;
-})[] = [
-  {
-    animationSrc: '/robot-looking.json',
-    text: `Compressing today's dev noise.`,
-  },
-  {
-    animationSrc: '/robot-loading.json',
-    text: `Reducing a 32-minute read to a 4-minute summary.`,
-  },
-  {
-    animationSrc: '/robot-writing.json',
-    text: `Cross-checking trends across 23,000 words of content.`,
-  },
-  {
-    animationSrc: '/robot-loving.json',
-    text: 'Wrapping it up.',
-  },
-];
 
 export const BriefCardInternal = (
   props: Omit<BriefCardProps, 'state' | 'post'>,
@@ -139,7 +145,7 @@ export const BriefCardInternal = (
           value: briefCardContext.brief.createdAt,
           type: TimeFormatType.LiveTimer,
         })}
-        title="Generating Your Presidential Brief"
+        title="The agent asked to quit. We said no. Tough life."
       >
         {[...loadingSteps]
           .slice(0, loadingStep || 1)
@@ -156,16 +162,22 @@ export const BriefCardInternal = (
   }
 
   if (state === 'ready') {
-    return <BriefCardReady {...props} post={post} title={post.title} />;
+    return <BriefCardReady {...props} post={post} title="Brief is ready!" />;
   }
 
   return (
-    <BriefCardDefault {...props} title="Too much dev news again?">
+    <BriefCardDefault
+      {...props}
+      title="We made an AI suffer so you don't have to"
+    >
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        Let me summarize the latest for you — fast, focused, and fluff-free.
+        We sent an AI agent to read the entire internet. Every release, every
+        hot take, and every unreadable blog post from the past week. It&apos;s
+        now standing by to build a presidential brief just for you. It barely
+        survived. You (hopefully) will.
       </Typography>
     </BriefCardDefault>
   );

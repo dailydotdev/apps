@@ -2,7 +2,6 @@ import React, { Fragment } from 'react';
 import type { MouseEvent, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { BriefGradientIcon } from '../icons/BriefGradient';
 import {
   Typography,
   TypographyColor,
@@ -12,7 +11,7 @@ import {
 import type { PillProps } from '../Pill';
 import { Pill } from '../Pill';
 import { IconSize } from '../Icon';
-import { LockIcon } from '../icons';
+import { BriefGradientIcon, LockIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import type { Origin } from '../../lib/log';
 import useOnPostClick from '../../hooks/useOnPostClick';
@@ -65,10 +64,10 @@ export const BriefListItem = ({
           className,
         )}
       >
-        <div className="flex items-center">
+        <div className="hidden items-center mobileXL:flex">
           <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex w-full flex-col gap-1">
           <div className="flex items-center gap-2">
             <Typography
               type={TypographyType.Title3}
@@ -94,9 +93,10 @@ export const BriefListItem = ({
           </div>
           <div className="flex">
             <Typography
-              className="flex flex-row gap-2"
+              className="gap-1"
               type={TypographyType.Subhead}
               color={TypographyColor.Tertiary}
+              truncate
             >
               {[
                 !isNullOrUndefined(readTime) && (
@@ -108,8 +108,9 @@ export const BriefListItem = ({
                     {readTime}m read time
                   </Typography>
                 ),
-                postsCount && `${postsCount} posts`,
-                sourcesCount && `${sourcesCount} sources`,
+                `Based on ${postsCount ?? 0} posts from ${
+                  sourcesCount ?? 0
+                } sources`,
               ]
                 .filter(Boolean)
                 .map((item, index) => {

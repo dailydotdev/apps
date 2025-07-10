@@ -90,7 +90,7 @@ export const BriefCardDefault = ({
           mutate();
         }}
       >
-        Generate
+        Deploy the agent
       </Button>
     </div>
   );

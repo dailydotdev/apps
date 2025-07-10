@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -20,7 +20,6 @@ import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useViewPost } from '../../../hooks/post/useViewPost';
-import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
 import { BriefPostHeaderActions } from './BriefPostHeaderActions';
 import {
@@ -57,6 +56,8 @@ import { sourceQueryOptions } from '../../../graphql/sources';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { getPathnameWithQuery } from '../../../lib/links';
 import { LazyModal } from '../../modals/common/types';
+import { getFirstName } from '../../../lib/user';
+import { labels } from '../../../lib';
 
 const BriefPostContentRaw = ({
   post,
@@ -89,7 +90,7 @@ const BriefPostContentRaw = ({
   });
 
   const { subject } = useToastNotification();
-  const { updatedAt, createdAt, contentHtml } = post;
+  const { contentHtml } = post;
   const postsCount = post?.flags?.posts || 0;
   const sourcesCount = post?.flags?.sources || 0;
 
@@ -197,9 +198,21 @@ const BriefPostContentRaw = ({
             lzym: LazyModal.SlackIntegration,
           }),
         ),
+        introTitle: labels.integrations.briefIntro.title,
+        introDescription: labels.integrations.briefIntro.description,
       },
     });
   }, [shouldManageSlack, briefingSource, openModal, router, post?.slug]);
+
+  let authorFirstName = getFirstName(post.author?.name);
+
+  if (authorFirstName) {
+    authorFirstName = `${authorFirstName}'s`;
+  }
+
+  if (!authorFirstName && post.author && user?.id === post.author.id) {
+    authorFirstName = 'Your';
+  }
 
   return (
     <PostContentContainer
@@ -258,14 +271,11 @@ const BriefPostContentRaw = ({
                 className="break-words"
                 data-testid="post-modal-title"
               >
-                {post.title}
+                {authorFirstName
+                  ? `${authorFirstName} presidential briefing`
+                  : 'Presidential briefing'}
               </Typography>
-              <Typography type={TypographyType.Title3}>
-                <DateFormat
-                  date={updatedAt || createdAt}
-                  type={TimeFormatType.Post}
-                />
-              </Typography>
+              <Typography type={TypographyType.Title3}>{post.title}</Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
@@ -290,7 +300,7 @@ const BriefPostContentRaw = ({
                   .join(' · ')}
               </Typography>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
               {!isNullOrUndefined(post.readTime) && (
                 <Pill
                   className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2"
@@ -304,7 +314,7 @@ const BriefPostContentRaw = ({
                   }
                 />
               )}
-              <div className="flex items-center gap-1">
+              <div className="flex w-full items-center gap-1">
                 {post.collectionSources?.length > 0 && (
                   <CollectionPillSources
                     alwaysShowSources
@@ -318,24 +328,13 @@ const BriefPostContentRaw = ({
                   />
                 )}
                 <Typography
-                  className="flex flex-row gap-2"
                   type={TypographyType.Subhead}
                   color={TypographyColor.Tertiary}
+                  truncate
                 >
-                  {[
-                    postsCount && `${postsCount} posts`,
-                    sourcesCount && `${sourcesCount} sources`,
-                  ]
-                    .filter(Boolean)
-                    .map((item, index) => {
-                      return (
-                        // eslint-disable-next-line react/no-array-index-key
-                        <Fragment key={index}>
-                          {index > 0 ? ' • ' : undefined}
-                          {item}
-                        </Fragment>
-                      );
-                    })}
+                  {`Based on ${postsCount ?? 0} posts from ${
+                    sourcesCount ?? 0
+                  } sources`}
                 </Typography>
               </div>
             </div>
@@ -356,8 +355,9 @@ const BriefPostContentRaw = ({
                     You just got a taste of what daily.dev Plus can do
                   </Typography>
                   <Typography type={TypographyType.Callout}>
-                    Fast, high-signal Briefs delivered straight to you by AI.
-                    Want unlimited access? Let&apos;s make it official.
+                    Fast, high-signal briefings delivered straight to you by
+                    your personal AI agent. Want unlimited access? Let&apos;s
+                    make it official.
                   </Typography>
                   <PlusList
                     className="!p-0"
@@ -396,12 +396,12 @@ const BriefPostContentRaw = ({
                   className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border-4 border-black p-6"
                 >
                   <Typography type={TypographyType.Title2} bold>
-                    Set up your briefing
+                    Customize your presidential briefing
                   </Typography>
                   <Typography type={TypographyType.Callout}>
-                    Setting up your briefing will update your current daily.dev
-                    digest preferences. Your new configuration will determine
-                    how, when, and where you receive updates going forward.
+                    Update how, when, and where you receive your briefings. This
+                    will replace your current daily.dev digest settings. You can
+                    tweak it anytime via settings.
                   </Typography>
                   <HourDropdown
                     className={{
@@ -428,7 +428,7 @@ const BriefPostContentRaw = ({
                       });
                     }}
                   >
-                    Daily
+                    Auto-generate daily
                   </RadioItem>
                   <RadioItem
                     className={{
@@ -443,7 +443,7 @@ const BriefPostContentRaw = ({
                       });
                     }}
                   >
-                    Workdays (Mon-Fri)
+                    Auto-generate on workdays
                   </RadioItem>
                   <RadioItem
                     className={{
@@ -458,7 +458,7 @@ const BriefPostContentRaw = ({
                       });
                     }}
                   >
-                    Weekly
+                    Auto-generate weekly
                   </RadioItem>
                   <Typography bold type={TypographyType.Callout}>
                     Receive via
@@ -517,11 +517,14 @@ const BriefPostContentRaw = ({
                                   lzym: LazyModal.SlackIntegration,
                                 }),
                               ),
+                              introTitle: labels.integrations.briefIntro.title,
+                              introDescription:
+                                labels.integrations.briefIntro.description,
                             },
                           });
                         }}
                       >
-                        Slack settings
+                        Manage integrations
                       </Button>
                     )}
                   </Checkbox>
