@@ -263,7 +263,8 @@ const getBriefingLayout: typeof getLayout = (...props) =>
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Presidential briefings'),
-  description: 'TODO feat-brief SEO description',
+  description:
+    'Fast, high-signal briefings delivered straight to you by your personal AI agent.',
   nofollow: true,
   noindex: true,
 };
