@@ -43,6 +43,7 @@ export const AccountSection = (): ReactElement => {
     },
   ];
 
+  // TODO: remove the isTeamMember once we go live
   if (canBuy && user?.isTeamMember) {
     items.push({
       title: 'Ads dashboard',
