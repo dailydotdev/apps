@@ -19,6 +19,8 @@ import { useEventListener } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
+import Link from '../utilities/Link';
+import type { MenuItemProps } from '../fields/ContextMenu';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -112,3 +114,53 @@ export const DropdownMenuContent = React.forwardRef<
 });
 
 DropdownMenuContent.displayName = 'DropdownMenuContent';
+
+export const DropdownMenuOptions = ({
+  options,
+}: {
+  options: MenuItemProps[];
+}) => {
+  return (
+    <>
+      {options.map(
+        ({
+          label,
+          icon,
+          action,
+          anchorProps,
+          disabled,
+          Wrapper,
+        }: MenuItemProps) => {
+          const itemProps = {
+            className: 'inline-flex flex-1 items-center gap-2',
+            role: 'menuitem',
+            ...(anchorProps && { ...anchorProps }),
+          };
+          return (
+            <ConditionalWrapper
+              key={label}
+              condition={!!Wrapper}
+              wrapper={(children) => <Wrapper>{children}</Wrapper>}
+            >
+              <DropdownMenuItem
+                onClick={action}
+                key={label}
+                disabled={disabled}
+              >
+                {anchorProps ? (
+                  <Link href={anchorProps.href} passHref {...itemProps}>
+                    {icon} {label}
+                  </Link>
+                ) : (
+                  <button type="button" {...itemProps}>
+                    {icon} {label}
+                  </button>
+                )}
+              </DropdownMenuItem>
+            </ConditionalWrapper>
+          );
+        },
+      )}
+    </>
+  );
+};
