@@ -33,6 +33,14 @@ const promptOptions: PromptOptions = {
   okButton: {
     title: 'Stop boost',
     color: ButtonColor.Ketchup,
+    className: 'flex !w-full',
+  },
+  cancelButton: {
+    className: 'flex !w-full',
+    variant: ButtonVariant.Float,
+  },
+  className: {
+    buttons: 'flex !flex-col-reverse w-full',
   },
 };
 
