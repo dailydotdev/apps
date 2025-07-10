@@ -2,11 +2,11 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import { IconSize } from '../../components/Icon';
 import { InfoIcon } from '../../components/icons';
-import { SimpleTooltip } from '../../components/tooltips';
 import {
   Typography,
   TypographyType,
 } from '../../components/typography/Typography';
+import { Tooltip } from '../../components/tooltip/Tooltip';
 
 interface DataTileProps {
   label: string;
@@ -25,9 +25,11 @@ export const DataTile: React.FC<DataTileProps> = ({
     <div className="flex flex-col gap-1 rounded-14 border border-border-subtlest-tertiary p-4">
       <span className="flex flex-row items-center gap-1">
         <Typography type={TypographyType.Footnote}>{label}</Typography>
-        <SimpleTooltip content={info}>
-          <InfoIcon size={IconSize.Size16} />
-        </SimpleTooltip>
+        <Tooltip content={info}>
+          <span className="text-text-disabled">
+            <InfoIcon size={IconSize.Size16} />
+          </span>
+        </Tooltip>
       </span>
       <span className="flex flex-row items-center gap-1">
         {icon}

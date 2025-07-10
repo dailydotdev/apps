@@ -21,6 +21,7 @@ import { getAbsoluteDifferenceInDays } from './utils';
 import type { BoostedPostData } from '../../graphql/post/boost';
 import { DateFormat } from '../../components/utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
+import { boostDashboardInfo } from '../../components/modals/post/boost/common';
 
 interface CampaignListViewProps {
   data: BoostedPostData;
@@ -47,11 +48,20 @@ export const CampaignStatsGrid = ({
     <DataTile
       label="Spend"
       value={cores}
+      info={boostDashboardInfo.spend}
       icon={<CoreIcon size={IconSize.XSmall} />}
     />
-    <DataTile label="Impressions" value={impressions} />
-    <DataTile label="Clicks" value={clicks} />
-    <DataTile label="Engagements" value={engagements} />
+    <DataTile
+      label="Impressions"
+      value={impressions}
+      info={boostDashboardInfo.impressions}
+    />
+    <DataTile label="Clicks" value={clicks} info={boostDashboardInfo.clicks} />
+    <DataTile
+      label="Engagements"
+      value={engagements}
+      info={boostDashboardInfo.engagement}
+    />
   </div>
 );
 
