@@ -53,7 +53,7 @@ export function BoostedPostViewModal({
 }: BoostedPostViewModalProps): ReactElement {
   const { showPrompt } = usePrompt();
   const { onCancelBoost, isLoadingCancel } = usePostBoostMutation({
-    onCancelSuccess: () => props.onRequestClose(null),
+    onCancelSuccess: onBack || (() => props.onRequestClose(null)),
   });
 
   const handleBoostClick = async () => {
