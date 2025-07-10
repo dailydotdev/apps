@@ -3,6 +3,30 @@ import type { Connection, RequestQueryParams } from '../common';
 import { gqlClient } from '../common';
 import type { Post } from '../posts';
 
+const BOOSTED_POST_FRAGMENT = gql`
+  fragment BoostedPostFragment on BoostedPost {
+    post {
+      id
+      title
+      image
+      shortId
+      permalink
+      engagements
+      commentsPermalink
+    }
+    campaign {
+      campaignId
+      postId
+      status
+      budget
+      currentBudget
+      impressions
+      clicks
+      startedAt
+      endedAt
+    }
+  }
+`;
 export const BOOSTED_POST_CAMPAIGNS = gql`
   query PostCampaigns($first: Int, $after: String) {
     postCampaigns(first: $first, after: $after) {
@@ -15,25 +39,7 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
       edges {
         cursor
         node {
-          post {
-            id
-            title
-            image
-            shortId
-            permalink
-            engagements
-          }
-          campaign {
-            campaignId
-            postId
-            status
-            budget
-            currentBudget
-            impressions
-            clicks
-            startedAt
-            endedAt
-          }
+          ...BoostedPostFragment
         }
       }
       stats {
@@ -44,6 +50,7 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
       }
     }
   }
+  ${BOOSTED_POST_FRAGMENT}
 `;
 
 export interface PromotedPost {
@@ -74,6 +81,7 @@ export interface BoostedPostStats
 interface CampaignBoostedPost extends Pick<Post, 'id' | 'title'> {
   image: string;
   permalink: string;
+  commentsPermalink: string;
   engagements: number;
 }
 
@@ -101,27 +109,10 @@ export const getBoostedPostCampaigns = async ({
 export const BOOSTED_POST_CAMPAIGN_BY_ID = gql`
   query PostCampaignById($id: ID!) {
     postCampaignById(id: $id) {
-      post {
-        id
-        title
-        image
-        shortId
-        permalink
-        engagements
-      }
-      campaign {
-        campaignId
-        postId
-        status
-        budget
-        currentBudget
-        impressions
-        clicks
-        startedAt
-        endedAt
-      }
+      ...BoostedPostFragment
     }
   }
+  ${BOOSTED_POST_FRAGMENT}
 `;
 
 export const getBoostedPostByCampaignId = async (
