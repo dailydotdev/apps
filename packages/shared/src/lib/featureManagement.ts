@@ -75,7 +75,7 @@ export const featureOnboardingGridVariation = new Feature(
 
 export const featurePostUiImprovements = new Feature(
   'post_ui_improvements',
-  true,
+  false,
 );
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
