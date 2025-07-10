@@ -16,12 +16,14 @@ import type { BriefCardProps } from './BriefCard';
 import { BriefGradientIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import type { ApiError, ApiErrorResult } from '../../../../graphql/common';
 import { gqlClient } from '../../../../graphql/common';
 import type { Post } from '../../../../graphql/posts';
 import { BriefingType, GENERATE_BRIEFING } from '../../../../graphql/posts';
 import { useBriefCardContext } from './BriefCardContext';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useToastNotification } from '../../../../hooks';
 
 export type BriefCardDefaultProps = BriefCardProps;
 
@@ -35,6 +37,7 @@ export const BriefCardDefault = ({
   title,
   children,
 }: BriefCardDefaultProps): ReactElement => {
+  const { displayToast } = useToastNotification();
   const queryClient = useQueryClient();
   const briefCardContext = useBriefCardContext();
   const { user } = useAuthContext();
@@ -55,6 +58,35 @@ export const BriefCardDefault = ({
       queryClient.removeQueries({
         queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
       });
+    },
+    onError: (
+      error: ApiErrorResult<{
+        code: ApiError;
+        postId: string;
+        createdAt: string;
+      }>,
+    ) => {
+      const postId = error.response?.errors?.[0]?.extensions?.postId;
+
+      if (postId) {
+        const createdAt = new Date(
+          error.response?.errors?.[0]?.extensions?.createdAt,
+        );
+
+        briefCardContext.setBrief({
+          id: postId,
+          createdAt:
+            !createdAt || Number.isNaN(createdAt.getTime())
+              ? new Date()
+              : createdAt,
+        });
+
+        return;
+      }
+
+      if (error.response?.errors?.[0]?.message) {
+        displayToast(error.response.errors[0].message);
+      }
     },
   });
 

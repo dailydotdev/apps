@@ -52,6 +52,10 @@ import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
+import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
+import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -74,7 +78,7 @@ const Page = (): ReactElement => {
   const selectedBriefId = router?.query?.pmid as string;
 
   const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
-  const { items, updatePost, fetchPage, canFetchMore } = useFeed(
+  const feedQuery = useFeed(
     feedQueryKey,
     BRIEFING_POSTS_PER_PAGE_DEFAULT,
     null,
@@ -85,6 +89,7 @@ const Page = (): ReactElement => {
       variables: {},
     },
   );
+  const { items, updatePost, fetchPage, canFetchMore, emptyFeed } = feedQuery;
 
   const {
     onOpenModal,
@@ -147,104 +152,151 @@ const Page = (): ReactElement => {
             />
           </header>
           <div className="flex flex-col px-4">
-            {isNotPlus && (
-              <div
-                style={{
-                  background: briefCardBg,
-                }}
-                className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white px-4 py-3"
-              >
-                <Typography
-                  type={TypographyType.Callout}
-                  className="w-full tablet:w-auto"
+            {isNotPlus &&
+              !!items.length &&
+              items[0]?.type !== FeedItemType.Placeholder && (
+                <div
+                  style={{
+                    background: briefCardBg,
+                  }}
+                  className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white px-4 py-3"
                 >
-                  Get unlimited access to every past and future presidential
-                  briefing with daily.dev Plus.
-                </Typography>
-                <Link href={plusUrl} passHref legacyBehavior>
-                  <Button
-                    style={{
-                      background: briefButtonBg,
-                    }}
-                    className="ml-auto w-fit text-black"
-                    tag="a"
-                    type="button"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Small}
-                    onClick={() => {
-                      logSubscriptionEvent({
-                        event_name: LogEvent.UpgradeSubscription,
-                        target_id: TargetId.Brief,
-                      });
-                    }}
+                  <Typography
+                    type={TypographyType.Callout}
+                    className="w-full tablet:w-auto"
                   >
-                    {plusCta}
-                  </Button>
-                </Link>
-              </div>
-            )}
-            <ActiveFeedContext.Provider
-              value={{ queryKey: feedQueryKey, items }}
-            >
-              {items
-                .reduce(
-                  (acc, item, index) => {
-                    if (item.type === 'post') {
-                      const previousItem = acc[acc.length - 1];
-                      const year = format(
-                        new Date(item.post.createdAt),
-                        'yyyy',
-                      );
-
-                      if (!previousItem || previousItem.title !== year) {
-                        acc.push({
-                          title: year,
-                          items: [],
+                    Get unlimited access to every past and future presidential
+                    briefing with daily.dev Plus.
+                  </Typography>
+                  <Link href={plusUrl} passHref>
+                    <Button
+                      style={{
+                        background: briefButtonBg,
+                      }}
+                      className="ml-auto w-fit text-black"
+                      tag="a"
+                      type="button"
+                      variant={ButtonVariant.Primary}
+                      size={ButtonSize.Small}
+                      onClick={() => {
+                        logSubscriptionEvent({
+                          event_name: LogEvent.UpgradeSubscription,
+                          target_id: TargetId.Brief,
                         });
-                      }
-
-                      const section = acc[acc.length - 1];
-
-                      const { post } = item;
-
-                      section.items.push(
-                        <BriefListItem
-                          key={post.id}
-                          post={post}
-                          title={post.title}
-                          pill={
-                            index === 0 && !post.read
-                              ? { label: 'Just in' }
-                              : undefined
-                          }
-                          readTime={post.readTime}
-                          isRead={post.read}
-                          postsCount={post.flags?.posts || 0}
-                          sourcesCount={post.flags?.sources || 0}
-                          onClick={onBriefClick}
-                          origin={Origin.BriefPage}
-                        />,
-                      );
+                      }}
+                    >
+                      {plusCta}
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            <InfiniteScrolling
+              isFetchingNextPage={feedQuery.isFetching}
+              canFetchMore={feedQuery.canFetchMore}
+              fetchNextPage={feedQuery.fetchPage}
+            >
+              <ActiveFeedContext.Provider
+                value={{ queryKey: feedQueryKey, items }}
+              >
+                {emptyFeed && !feedQuery.isPending && (
+                  <div className="max-w-80">
+                    <BriefCardFeed />
+                  </div>
+                )}
+                {emptyFeed &&
+                  items.map((item, index) => {
+                    if (item.type !== FeedItemType.Placeholder) {
+                      return null;
                     }
 
-                    return acc;
-                  },
-                  [] as {
-                    title: string;
-                    items: ReactElement[];
-                  }[],
-                )
-                .map((section) => {
-                  return (
-                    <BriefListSection key={section.title}>
-                      {section.title !== currentYear && (
-                        <BriefListHeading title={section.title} />
-                      )}
-                      {section.items}
-                    </BriefListSection>
-                  );
-                })}
-            </ActiveFeedContext.Provider>
+                    return (
+                      <ElementPlaceholder
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={index}
+                        className="h-10 w-full rounded-10"
+                      />
+                    );
+                  })}
+                {items
+                  .reduce(
+                    (acc, item, index) => {
+                      const previousItem = acc[acc.length - 1];
+
+                      if (item.type === 'post') {
+                        const year = format(
+                          new Date(item.post.createdAt),
+                          'yyyy',
+                        );
+
+                        if (!previousItem || previousItem.title !== year) {
+                          acc.push({
+                            title: year,
+                            items: [],
+                          });
+                        }
+
+                        const section = acc[acc.length - 1];
+
+                        const { post } = item;
+
+                        section.items.push(
+                          <BriefListItem
+                            key={post.id}
+                            post={post}
+                            title={post.title}
+                            pill={
+                              index === 0 && !post.read
+                                ? { label: 'Just in' }
+                                : undefined
+                            }
+                            readTime={post.readTime}
+                            isRead={post.read}
+                            postsCount={post.flags?.posts || 0}
+                            sourcesCount={post.flags?.sources || 0}
+                            onClick={onBriefClick}
+                            origin={Origin.BriefPage}
+                          />,
+                        );
+                      }
+
+                      if (item.type === 'placeholder') {
+                        if (!previousItem) {
+                          acc.push({
+                            title: new Date().getFullYear().toString(),
+                            items: [],
+                          });
+                        }
+
+                        const section = acc[acc.length - 1];
+
+                        section.items.push(
+                          <ElementPlaceholder
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={`placeholder-${index}`}
+                            className="h-16 w-full rounded-16 border border-border-subtlest-tertiary bg-transparent p-2"
+                          />,
+                        );
+                      }
+
+                      return acc;
+                    },
+                    [] as {
+                      title: string;
+                      items: ReactElement[];
+                    }[],
+                  )
+                  .map((section) => {
+                    return (
+                      <BriefListSection key={section.title}>
+                        {section.title !== currentYear && (
+                          <BriefListHeading title={section.title} />
+                        )}
+                        {section.items}
+                      </BriefListSection>
+                    );
+                  })}
+              </ActiveFeedContext.Provider>
+            </InfiniteScrolling>
           </div>
         </main>
       </div>

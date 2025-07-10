@@ -137,7 +137,14 @@ export const BriefCardInternal = (
     state = 'default';
   }
 
+  const loadingStep = getLoadingStep(briefCardContext.brief?.createdAt);
+
   useEffect(() => {
+    // don't re-render if loading takes a long time
+    if (loadingStep >= loadingSteps.length - 1) {
+      return undefined;
+    }
+
     if (state !== 'loading') {
       return undefined;
     }
@@ -149,9 +156,7 @@ export const BriefCardInternal = (
     return () => {
       clearInterval(interval);
     };
-  }, [state]);
-
-  const loadingStep = getLoadingStep(briefCardContext.brief?.createdAt);
+  }, [state, loadingStep]);
 
   useEffect(() => {
     const nextLoadingStep = loadingStep + 1;
