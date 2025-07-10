@@ -59,7 +59,7 @@ export const CampaignStatsGrid = ({
     />
     <DataTile label="Clicks" value={clicks} info={boostDashboardInfo.clicks} />
     <DataTile
-      label="Engagements"
+      label="Engagement"
       value={engagements}
       info={boostDashboardInfo.engagement}
     />
