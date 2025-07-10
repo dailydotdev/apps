@@ -34,7 +34,7 @@ export default function FooterWrapper({
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
 
-  const showPlusButton = !router?.pathname.startsWith('/settings');
+  const showPlusButton = !router?.pathname?.startsWith('/settings');
 
   return (
     <div

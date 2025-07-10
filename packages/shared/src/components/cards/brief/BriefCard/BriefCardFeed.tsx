@@ -16,7 +16,7 @@ export const BriefCardFeed = (): ReactElement => {
     return null;
   }
 
-  if (!user.isTeamMember && checkHasCompleted(ActionType.GeneratedBrief)) {
+  if (!user?.isTeamMember && checkHasCompleted(ActionType.GeneratedBrief)) {
     return null;
   }
 
