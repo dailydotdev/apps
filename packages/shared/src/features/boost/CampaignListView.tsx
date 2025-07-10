@@ -12,7 +12,7 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { CoreIcon, LinkIcon } from '../../components/icons';
+import { CoreIcon, OpenLinkIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { DataTile } from './DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
@@ -101,7 +101,12 @@ export function CampaignListView({
           </Typography>
         </span>
         <Image src={post.image} className="h-12 w-18 rounded-12 object-cover" />
-        <Button icon={<LinkIcon />} variant={ButtonVariant.Tertiary} />
+        <Button
+          icon={<OpenLinkIcon />}
+          variant={ButtonVariant.Tertiary}
+          tag="a"
+          href={post.commentsPermalink}
+        />
       </div>
       <div className="flex flex-col gap-1">
         <ProgressBar

@@ -34,6 +34,7 @@ import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
+import { AdPixel } from './cards/ad/common/AdPixel';
 
 const CommentPopup = dynamic(
   () =>
@@ -280,6 +281,7 @@ export default function FeedItemComponent({
             loading={isSendingComment}
           />
         )}
+        {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
       </PostTag>
     );
   }
