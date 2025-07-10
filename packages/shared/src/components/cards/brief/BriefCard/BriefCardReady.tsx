@@ -62,7 +62,7 @@ export const BriefCardReady = ({
           </div>
           <div className="flex flex-1 flex-col gap-2 laptop:gap-4">
             <div className="flex flex-row gap-1 laptop:flex-col">
-              <Typography type={TypographyType.Callout}>
+              <Typography type={TypographyType.Callout} className="w-full">
                 {post.flags?.generatedAt &&
                   `Your AI agent spent ${formatDate({
                     value: new Date(post.createdAt),
