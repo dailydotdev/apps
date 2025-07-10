@@ -640,7 +640,7 @@ const AccountNotificationsPage = (): ReactElement => {
                   {!isPlus && (
                     <UpgradeToPlus
                       className="mt-2"
-                      target={TargetId.Notifications}
+                      target={TargetId.NotificationSettings}
                       size={ButtonSize.Small}
                     />
                   )}
