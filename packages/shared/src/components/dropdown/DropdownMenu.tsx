@@ -131,9 +131,10 @@ export const DropdownMenuOptions = ({
           disabled,
           Wrapper,
         }: MenuItemProps) => {
+          const className = 'inline-flex flex-1 items-center gap-2';
           const itemProps = {
-            className: 'inline-flex flex-1 items-center gap-2',
-            role: 'menuitem',
+            className: '',
+
             ...(anchorProps && { ...anchorProps }),
           };
           return (
@@ -148,11 +149,19 @@ export const DropdownMenuOptions = ({
                 disabled={disabled}
               >
                 {anchorProps ? (
-                  <Link href={anchorProps.href} passHref {...itemProps}>
-                    {icon} {label}
+                  <Link
+                    href={anchorProps.href}
+                    passHref
+                    className={className}
+                    role="menuitem"
+                    {...anchorProps}
+                  >
+                    <a className={itemProps.className}>
+                      {icon} {label}
+                    </a>
                   </Link>
                 ) : (
-                  <button type="button" {...itemProps}>
+                  <button type="button" className={className} role="menuitem">
                     {icon} {label}
                   </button>
                 )}
