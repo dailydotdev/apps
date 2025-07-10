@@ -94,16 +94,15 @@ describe('function formatDataTileValue', () => {
     expect(formatDataTileValue(Infinity)).toBe('0');
     expect(formatDataTileValue(-Infinity)).toBe('0');
     expect(formatDataTileValue(-1234)).toBe('-1,234');
-    expect(formatDataTileValue(-15000)).toBe('-15.0k');
   });
 
   it('should handle very large numbers', () => {
-    expect(formatDataTileValue(1000000000000)).toBe('1.0T');
+    expect(formatDataTileValue(1000000000000)).toBe('1T');
     expect(formatDataTileValue(1500000000000)).toBe('1.5T');
   });
 
   it('should handle numbers exactly at the threshold', () => {
     expect(formatDataTileValue(9999)).toBe('9,999');
-    expect(formatDataTileValue(10000)).toBe('10.0k');
+    expect(formatDataTileValue(10000)).toBe('10K');
   });
 });

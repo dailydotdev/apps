@@ -51,7 +51,7 @@ export const checkIsNumbersOnly = (value: string): boolean =>
   /^\d+$/.test(value);
 
 export const formatDataTileValue = (value: number): string => {
-  if (typeof value !== 'number') {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     return '0';
   }
 
