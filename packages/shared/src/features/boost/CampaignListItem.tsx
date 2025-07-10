@@ -60,11 +60,13 @@ export const BoostStatus = ({
 
 interface CampaignListItemProps {
   data: BoostedPostData;
+  className?: string;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 export function CampaignListItem({
   data,
+  className,
   onClick,
 }: CampaignListItemProps): ReactElement {
   const { campaign, post } = data;
@@ -81,7 +83,10 @@ export function CampaignListItem({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full flex-row items-center gap-4"
+      className={classNames(
+        'flex w-full flex-row items-center gap-4 hover:bg-surface-hover',
+        className,
+      )}
     >
       <span className="flex flex-1 flex-row items-center gap-2">
         {post.image && (

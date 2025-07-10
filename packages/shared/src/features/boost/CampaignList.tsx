@@ -43,12 +43,13 @@ export function CampaignList({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="-mx-6 flex flex-col">
       {list.map((data) => (
         <CampaignListItem
           key={data.campaign.campaignId}
           data={data}
           onClick={() => onClick(data)}
+          className="px-6 py-2"
         />
       ))}
     </div>
