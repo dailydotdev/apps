@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { BriefCardDefault } from './BriefCardDefault';
 import {
@@ -91,6 +91,7 @@ const getLoadingProgress = ({
 export const BriefCardInternal = (
   props: Omit<BriefCardProps, 'state' | 'post'>,
 ) => {
+  const [, setLoadingIncrement] = useState(0);
   const briefCardContext = useBriefCardContext();
   let state: 'default' | 'loading' | 'ready' = 'default';
 
@@ -130,6 +131,20 @@ export const BriefCardInternal = (
   if (!briefCardContext.brief) {
     state = 'default';
   }
+
+  useEffect(() => {
+    if (state !== 'loading') {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      setLoadingIncrement((prev) => prev + 1);
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [state]);
 
   const loadingStep = getLoadingStep(briefCardContext.brief?.createdAt);
 
