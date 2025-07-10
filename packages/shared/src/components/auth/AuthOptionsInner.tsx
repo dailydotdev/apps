@@ -44,6 +44,7 @@ import {
   DATE_SINCE_ACTIONS_REQUIRED,
   onboardingCompletedActions,
 } from '../../hooks/auth';
+import { claimClaimableItem } from '../../graphql/users';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -205,6 +206,13 @@ function AuthOptionsInner({
     if (user.infoConfirmed) {
       logEvent({
         event_name: AuthEventNames.LoginSuccessfully,
+      });
+
+      // Check for claimable items on login (e.g., Plus subscription)
+      claimClaimableItem().then((hasClaimed) => {
+        if (hasClaimed) {
+          refetchBoot();
+        }
       });
 
       const isAlreadyOnboarded = await checkForOnboardedUser(user);

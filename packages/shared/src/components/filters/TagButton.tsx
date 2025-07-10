@@ -1,15 +1,8 @@
 import type { HTMLAttributes, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { PlusIcon, BlockIcon } from '../icons';
-import type { AllowedTags, ButtonProps } from '../buttons/Button';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
-import type { TagActionArguments } from '../../hooks/useTagAndSource';
+import type { ButtonVariant } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 
 interface GenericTagButtonProps
   extends Omit<HTMLAttributes<HTMLButtonElement>, 'color'> {
@@ -40,106 +33,3 @@ export const GenericTagButton = ({
     {showHashtag ? `#${tagItem}` : tagItem}
   </Button>
 );
-
-const UnblockTagButton = ({
-  tagItem,
-  className,
-  action,
-  ...props
-}: GenericTagButtonProps) => (
-  <GenericTagButton
-    {...props}
-    className={classNames('btn-tagBlocked', className)}
-    icon={<BlockIcon className="ml-2 text-xl transition-transform" />}
-    action={action}
-    tagItem={tagItem}
-  />
-);
-
-const UnfollowTagButton = ({
-  tagItem,
-  className,
-  action,
-  ...props
-}: GenericTagButtonProps) => (
-  <GenericTagButton
-    {...props}
-    className={className}
-    variant={ButtonVariant.Primary}
-    icon={<PlusIcon className="ml-2 rotate-45 transition-transform" />}
-    action={action}
-    tagItem={tagItem}
-  />
-);
-
-const FollowTagButton = ({
-  tagItem,
-  className,
-  action,
-  ...props
-}: GenericTagButtonProps) => (
-  <GenericTagButton
-    {...props}
-    className={classNames('btn-tag', className)}
-    icon={<PlusIcon className="ml-2 rotate-0 transition-transform" />}
-    action={action}
-    tagItem={tagItem}
-  />
-);
-
-export interface TagButtonProps {
-  tagItem: string;
-  followedTags?: Array<string>;
-  blockedTags?: Array<string>;
-  onFollowTags?: ({ tags, category }: TagActionArguments) => void;
-  onUnfollowTags?: ({ tags, category }: TagActionArguments) => void;
-  onUnblockTags?: ({ tags }: TagActionArguments) => void;
-}
-
-export default function TagButton<Tag extends AllowedTags>({
-  tagItem,
-  followedTags,
-  blockedTags,
-  onFollowTags,
-  onUnfollowTags,
-  onUnblockTags,
-  ...props
-}: ButtonProps<Tag> & TagButtonProps): ReactElement {
-  if (followedTags?.includes(tagItem)) {
-    return (
-      <UnfollowTagButton
-        {...props}
-        tagItem={tagItem}
-        action={
-          onUnfollowTags ? () => onUnfollowTags({ tags: [tagItem] }) : null
-        }
-      />
-    );
-  }
-
-  if (blockedTags?.includes(tagItem)) {
-    return (
-      <UnblockTagButton
-        {...props}
-        tagItem={tagItem}
-        action={() => onUnblockTags({ tags: [tagItem] })}
-      />
-    );
-  }
-
-  if (!onFollowTags) {
-    return (
-      <span className="flex-1 truncate text-left text-text-tertiary typo-callout">
-        {`#${tagItem}`}
-      </span>
-    );
-  }
-
-  return (
-    <FollowTagButton
-      {...props}
-      tagItem={tagItem}
-      action={onFollowTags ? () => onFollowTags({ tags: [tagItem] }) : null}
-    />
-  );
-}
