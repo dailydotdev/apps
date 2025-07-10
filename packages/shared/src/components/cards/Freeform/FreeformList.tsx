@@ -77,6 +77,28 @@ export const FreeformList = forwardRef(function SharePostCard(
     </Container>
   );
 
+  const metadata = useMemo(() => {
+    if (isUserSource) {
+      return {
+        topLabel: post.author.name,
+      };
+    }
+
+    return {
+      topLabel: enableSourceHeader ? post.source.name : post.author.name,
+      bottomLabel: enableSourceHeader
+        ? post.author.name
+        : `@${post.source.handle ?? post.sharedPost.source.handle}`,
+    };
+  }, [
+    enableSourceHeader,
+    isUserSource,
+    post?.author?.name,
+    post?.sharedPost?.source?.handle,
+    post?.source?.handle,
+    post?.source?.name,
+  ]);
+
   return (
     <FeedItemContainer
       domProps={{
@@ -95,15 +117,7 @@ export const FreeformList = forwardRef(function SharePostCard(
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader
-          post={post}
-          metadata={{
-            topLabel: enableSourceHeader ? post.source.name : post.author.name,
-            bottomLabel: enableSourceHeader
-              ? post.author.name
-              : `@${post.source.handle ?? post.sharedPost.source.handle}`,
-          }}
-        >
+        <PostCardHeader post={post} metadata={metadata}>
           {!isUserSource && (
             <SquadHeaderPicture
               source={post.source}

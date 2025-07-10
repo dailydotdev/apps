@@ -243,3 +243,5 @@ export const promisifyEventListener = <T, E = any>(
     );
   });
 };
+
+export type BooleanPromise = Promise<{ successful: boolean }>;
