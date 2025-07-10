@@ -24,6 +24,10 @@ import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
 import { PaymentContextProvider } from '../../../contexts/payment';
+import {
+  CONTENT_PREFERENCE_STATUS_QUERY,
+  ContentPreferenceType,
+} from '../../../graphql/contentPreference';
 
 const squads = [generateTestSquad()];
 const members = generateMembersList();
@@ -133,11 +137,22 @@ it('should show the admin on top of the list', async () => {
 });
 
 it('should render the component with a view squad button', async () => {
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_STATUS_QUERY,
+      variables: { id: admin.source.id, entity: ContentPreferenceType.Source },
+    },
+    result: {
+      data: { contentPreferenceStatus: null },
+    },
+  });
+
   renderComponent();
 
   await waitFor(async () => {
-    const link = await screen.findByTestId('squad-action');
-    expect(link).toHaveAttribute('href', admin.source.permalink);
+    const button = await screen.findByTestId('squad-action');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveTextContent('Leave Squad');
   });
 });
 
@@ -145,7 +160,18 @@ it('should render the component with a join squad button', async () => {
   const currentMember = { ...admin.source.currentMember };
   delete admin.source.currentMember;
 
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_STATUS_QUERY,
+      variables: { id: admin.source.id, entity: ContentPreferenceType.Source },
+    },
+    result: {
+      data: { contentPreferenceStatus: null },
+    },
+  });
+
   renderComponent();
+
   let queryCalled = false;
   mockGraphQL({
     request: {
