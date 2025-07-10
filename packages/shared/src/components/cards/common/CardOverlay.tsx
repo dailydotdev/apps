@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import { CardLink } from './Card';
 import { useFeedPreviewMode } from '../../../hooks';
@@ -8,8 +8,8 @@ import { anchorDefaultRel } from '../../../lib/strings';
 
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
-  onPostCardClick: () => void;
-  onPostCardAuxClick: () => void;
+  onPostCardClick: (event: MouseEvent<HTMLAnchorElement>) => void;
+  onPostCardAuxClick: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 const CardOverlay = ({
@@ -30,13 +30,13 @@ const CardOverlay = ({
       rel={anchorDefaultRel}
       onClick={(event) => {
         if (event.ctrlKey || event.metaKey) {
-          onPostCardAuxClick?.();
+          onPostCardAuxClick?.(event);
         } else {
           event.preventDefault();
-          onPostCardClick?.();
+          onPostCardClick?.(event);
         }
       }}
-      onAuxClick={() => onPostCardAuxClick?.()}
+      onAuxClick={(event) => onPostCardAuxClick?.(event)}
     />
   );
 };

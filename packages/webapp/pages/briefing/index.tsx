@@ -26,6 +26,8 @@ import {
 import {
   useConditionalFeature,
   usePlusSubscription,
+  useViewSizeClient,
+  ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { featurePlusCtaCopy } from '@dailydotdev/shared/src/lib/featureManagement';
 import { LogEvent, Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
@@ -56,6 +58,7 @@ import ProtectedPage from '../../components/ProtectedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const Page = (): ReactElement => {
+  const isMobile = useViewSizeClient(ViewSize.MobileL);
   const currentYear = new Date().getFullYear().toString();
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
@@ -101,6 +104,10 @@ const Page = (): ReactElement => {
   const PostModal = PostModalMap[selectedPost?.type];
 
   const onBriefClick = (post: Post, event: MouseEvent<HTMLAnchorElement>) => {
+    if (isMobile) {
+      return;
+    }
+
     const briefIndex = items.findIndex(
       (item) => item.type === 'post' && item.post.slug === post.slug,
     );

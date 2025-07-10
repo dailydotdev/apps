@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
@@ -58,6 +57,7 @@ import { getPathnameWithQuery } from '../../../lib/links';
 import { LazyModal } from '../../modals/common/types';
 import { getFirstName } from '../../../lib/user';
 import { labels } from '../../../lib';
+import Link from '../../utilities/Link';
 
 const BriefPostContentRaw = ({
   post,
@@ -364,7 +364,7 @@ const BriefPostContentRaw = ({
                     items={briefFeatureList}
                     icon={ChecklistAIcon}
                   />
-                  <Link href={plusUrl} passHref legacyBehavior>
+                  <Link href={plusUrl} passHref>
                     <Button
                       style={{
                         background: briefButtonBg,
