@@ -1,11 +1,11 @@
 import { useContext } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import type { BooleanPromise } from '../components/filters/common';
 import { AuthTriggers } from '../lib/auth';
 import { useRequestProtocol } from './useRequestProtocol';
 import { REPORT_COMMENT_MUTATION } from '../graphql/comments';
 import type { ReportReason } from '../report';
+import type { BooleanPromise } from '../lib/func';
 
 type UseReportCommentRet = {
   reportComment: (variables: {

@@ -5,7 +5,6 @@ import LogContext from '../contexts/LogContext';
 import useMutateFilters from './useMutateFilters';
 import type { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
-import type { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import useDebounceFn from './useDebounceFn';
 import { SharedFeedPage } from '../components/utilities';
@@ -13,6 +12,7 @@ import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { AuthTriggersType } from '../lib/auth';
 import { ContentPreferenceType } from '../graphql/contentPreference';
+import type { BooleanPromise } from '../lib/func';
 
 export interface TagActionArguments {
   tags: Array<string>;
