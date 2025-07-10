@@ -50,7 +50,8 @@ export function AdsDashboardModal({
         data={boosted}
         isLoading={isLoading}
         onBoostAgain={setToBoost}
-        onRequestClose={() => setBoosted(null)}
+        onBack={() => setBoosted(null)}
+        onRequestClose={props.onRequestClose}
       />
     );
   }
