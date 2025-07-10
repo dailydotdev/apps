@@ -6,7 +6,6 @@ import {
   CampaignListView,
   CampaignStatsGrid,
 } from '../../../../features/boost/CampaignListView';
-import { capitalize } from '../../../../lib/strings';
 import type { ModalProps } from '../../common/Modal';
 import { Modal } from '../../common/Modal';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
@@ -69,9 +68,7 @@ export function BoostedPostViewModal({
       <Modal.Body className="flex flex-col gap-4">
         <span className="flex flex-row items-center justify-between">
           <Modal.Subtitle>Overview</Modal.Subtitle>
-          <BoostStatus status={data.campaign.status}>
-            {capitalize(data.campaign.status)}
-          </BoostStatus>
+          <BoostStatus status={data.campaign.status} />
         </span>
         <CampaignListView
           data={data}

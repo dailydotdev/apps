@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { MouseEventHandler, PropsWithChildren, ReactElement } from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import { IconSize, iconSizeToClassName } from '../../components/Icon';
 import { ArrowIcon } from '../../components/icons';
@@ -12,6 +12,7 @@ import {
 import { Image } from '../../components/image/Image';
 import { getAbsoluteDifferenceInDays } from './utils';
 import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
+import { isNullOrUndefined } from '../../lib/func';
 
 const statusToColor: Record<PromotedPost['status'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
@@ -20,22 +21,42 @@ const statusToColor: Record<PromotedPost['status'], string> = {
 };
 
 export const BoostStatus = ({
-  children,
   status,
-}: PropsWithChildren<{
+  remainingDays,
+}: {
   status: PromotedPost['status'];
-}>) => (
-  <Typography
-    tag={TypographyTag.Span}
-    type={TypographyType.Footnote}
-    className={classNames(
-      'rounded-6 px-1',
-      statusToColor[status] ?? statusToColor.ACTIVE,
-    )}
-  >
-    {children}
-  </Typography>
-);
+  remainingDays?: number;
+}) => {
+  const copy = (() => {
+    switch (status) {
+      case 'ACTIVE':
+        if (isNullOrUndefined(remainingDays)) {
+          return 'Active';
+        }
+
+        return `${remainingDays} ${remainingDays === 1 ? 'day' : 'days'} left`;
+      case 'INACTIVE':
+        return 'Completed';
+      case 'CANCELLED':
+        return 'Stopped';
+      default:
+        return 'Unknown';
+    }
+  })();
+
+  return (
+    <Typography
+      tag={TypographyTag.Span}
+      type={TypographyType.Footnote}
+      className={classNames(
+        'rounded-6 px-1',
+        statusToColor[status] ?? statusToColor.ACTIVE,
+      )}
+    >
+      {copy}
+    </Typography>
+  );
+};
 
 interface CampaignListItemProps {
   data: BoostedPostData;
@@ -48,21 +69,12 @@ export function CampaignListItem({
 }: CampaignListItemProps): ReactElement {
   const { campaign, post } = data;
 
-  const getCaption = () => {
-    if (campaign.status === 'INACTIVE') {
-      return 'COMPLETED';
-    }
-
+  const getRemaining = () => {
     if (campaign.status !== 'ACTIVE') {
-      return campaign.status;
+      return undefined;
     }
 
-    const remainingDays = getAbsoluteDifferenceInDays(
-      new Date(campaign.endedAt),
-      new Date(),
-    );
-
-    return `${remainingDays} days left`;
+    return getAbsoluteDifferenceInDays(new Date(campaign.endedAt), new Date());
   };
 
   return (
@@ -89,7 +101,7 @@ export function CampaignListItem({
           {post.title}
         </Typography>
       </span>
-      <BoostStatus status={campaign.status}>{getCaption()}</BoostStatus>
+      <BoostStatus status={campaign.status} remainingDays={getRemaining()} />
       <ArrowIcon size={IconSize.Medium} className="rotate-90" />
     </button>
   );
