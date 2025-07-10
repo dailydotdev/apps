@@ -160,6 +160,7 @@ export const getBoostEstimatedReach = async ({
 export const START_POST_BOOST = gql`
   mutation StartPostBoost($postId: ID!, $duration: Int!, $budget: Int!) {
     startPostBoost(postId: $postId, duration: $duration, budget: $budget) {
+      referenceId
       transactionId
       balance {
         amount
@@ -173,6 +174,7 @@ export const startPostBoost = async ({
   budget,
   duration,
 }: BoostPostProps): Promise<{
+  referenceId?: string;
   transactionId: string;
   balance: { amount: number };
 }> => {

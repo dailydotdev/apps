@@ -8,7 +8,7 @@ import {
   startPostBoost,
   cancelPostBoost,
 } from '../../graphql/post/boost';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../useTransactionError';
@@ -49,7 +49,7 @@ export const usePostBoostMutation = ({
 
   const { mutateAsync: onBoostPost } = useMutation({
     mutationFn: startPostBoost,
-    onSuccess: (data) => {
+    onSuccess: (data, vars) => {
       if (data.transactionId) {
         const balance = data?.balance;
 
@@ -65,6 +65,12 @@ export const usePostBoostMutation = ({
           queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
           exact: false,
         });
+
+        if (data.referenceId) {
+          updatePostCache(client, vars.id, (post) => ({
+            flags: { ...post.flags, campaignId: data.referenceId },
+          }));
+        }
 
         onBoostSuccess?.();
       }
