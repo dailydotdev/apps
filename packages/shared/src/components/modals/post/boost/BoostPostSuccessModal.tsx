@@ -57,7 +57,7 @@ export function BoostPostSuccessModal({
         </Button>
         <Button
           variant={ButtonVariant.Tertiary}
-          className="w-full"
+          className="hidden w-full tablet:flex"
           type="button"
           onClick={props.onRequestClose}
         >
