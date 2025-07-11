@@ -156,7 +156,8 @@ export function BoostPostModal({
               Total spend
             </Typography>
             <Typography className="mt-2" type={TypographyType.Body}>
-              {estimatedReach.min} - {maxReach}
+              {largeNumberFormat(estimatedReach.min)} -{' '}
+              {largeNumberFormat(maxReach)}
             </Typography>
             <Typography
               type={TypographyType.Callout}
