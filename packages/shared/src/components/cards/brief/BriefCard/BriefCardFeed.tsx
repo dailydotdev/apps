@@ -20,3 +20,5 @@ export const BriefCardFeed = (
 
   return <BriefCard {...props} />;
 };
+
+export default BriefCardFeed;

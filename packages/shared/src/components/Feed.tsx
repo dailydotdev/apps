@@ -101,10 +101,11 @@ const BriefPostModal = dynamic(
     import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
 );
 
-const BriefCardFeed = dynamic(() =>
-  import(
-    /* webpackChunkName: "briefCardFeed" */ './cards/brief/BriefCard/BriefCardFeed'
-  ).then((mod) => mod.BriefCardFeed),
+const BriefCardFeed = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "briefCardFeed" */ './cards/brief/BriefCard/BriefCardFeed'
+    ),
 );
 
 const calculateRow = (index: number, numCards: number): number =>
