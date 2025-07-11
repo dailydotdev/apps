@@ -132,11 +132,6 @@ export const DropdownMenuOptions = ({
           Wrapper,
         }: MenuItemProps) => {
           const className = 'inline-flex flex-1 items-center gap-2';
-          const itemProps = {
-            className: '',
-
-            ...(anchorProps && { ...anchorProps }),
-          };
           return (
             <ConditionalWrapper
               key={label}
