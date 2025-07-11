@@ -13,7 +13,6 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
-import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
 import { Origin } from '../../../../lib/log';
@@ -50,19 +49,10 @@ export function BoostPostModal({
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
-  const [queryProps, setQueryProps] = React.useState({
-    coresPerDay,
-    totalDays,
-  });
-  const [debounceSet] = useDebounceFn(setQueryProps, 220);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
   const { estimatedReach, onBoostPost } = usePostBoostMutation({
-    toEstimate: {
-      duration: queryProps.totalDays,
-      budget: queryProps.coresPerDay,
-      id: post.id,
-    },
+    toEstimate: { id: post.id },
     onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
   });
   const image = usePostImage(post);
@@ -192,10 +182,6 @@ export function BoostPostModal({
             defaultValue={[coresPerDay]}
             onValueChange={([value]) => {
               setCoresPerDay(value);
-              debounceSet({
-                coresPerDay: value,
-                totalDays,
-              });
             }}
           />
           <Typography
@@ -216,10 +202,6 @@ export function BoostPostModal({
             defaultValue={[totalDays]}
             onValueChange={([value]) => {
               setTotalDays(value);
-              debounceSet({
-                coresPerDay,
-                totalDays: value,
-              });
             }}
           />
         </div>
