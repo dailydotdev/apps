@@ -166,7 +166,11 @@ const AccountNotificationsPage = (): ReactElement => {
     awardNotifications,
   } = user ?? {};
   const emailNotification =
-    acceptedMarketing || notificationEmail || followingEmail || awardEmail;
+    acceptedMarketing ||
+    notificationEmail ||
+    followingEmail ||
+    awardEmail ||
+    !!selectedDigest?.flags?.email;
 
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
@@ -199,6 +203,17 @@ const AccountNotificationsPage = (): ReactElement => {
       followingEmail: value,
       awardEmail: value,
     });
+
+    if (selectedDigest) {
+      subscribePersonalizedDigest({
+        type: selectedDigest.type,
+        sendType: selectedDigest.flags.sendType,
+        flags: {
+          ...selectedDigest.flags,
+          email: value,
+        },
+      });
+    }
   };
 
   const onLogToggle = (
