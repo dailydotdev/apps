@@ -2,12 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import type { SourceMember, Squad } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
-import useContextMenu from '../../hooks/useContextMenu';
-import SquadMemberMenu from '../squads/SquadMemberMenu';
 import { Origin } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { LinkIcon } from '../icons';
@@ -18,7 +16,6 @@ import { verifyPermission } from '../../graphql/squads';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
-import { ContextMenu } from '../../hooks/constants';
 import SquadMemberItemOptionsButton from '../squads/SquadMemberItemOptionsButton';
 import { useUsersContentPreferenceMutationSubscription } from '../../hooks/contentPreference/useUsersContentPreferenceMutationSubscription';
 
@@ -65,14 +62,6 @@ export function SquadMemberModal({
   ...props
 }: SquadMemberModalProps): ReactElement {
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
-  const [member, setMember] = useState<SourceMember>(null);
-  const {
-    onMenuClick,
-    onHide: hideMenu,
-    isOpen,
-  } = useContextMenu({
-    id: ContextMenu.SquadMemberContext,
-  });
   const [query, setQuery] = useState('');
   const [handleSearchDebounce] = useDebounceFn(
     (value: string) => setQuery(value),
@@ -90,11 +79,6 @@ export function SquadMemberModal({
     membersQueryParams: { role: roleFilter },
     membersQueryEnabled: true,
   });
-
-  const onOptionsClick = (e: React.MouseEvent, clickedMember: SourceMember) => {
-    setMember(clickedMember);
-    onMenuClick(e);
-  };
 
   useUsersContentPreferenceMutationSubscription({
     queryKey: membersQueryKey,
@@ -130,72 +114,61 @@ export function SquadMemberModal({
   }, [hasPermission]);
 
   return (
-    <>
-      <UserListModal
-        {...props}
-        kind={Modal.Kind.FixedCenter}
-        title="Squad members"
-        showSubscribe={false}
-        tabs={filteredTabs}
-        defaultView={SquadMemberTab.AllMembers}
-        header={<Modal.Header.Tabs onTabClick={onTabClick} />}
-        scrollingProps={{
-          isFetchingNextPage: queryResult.isFetchingNextPage,
-          canFetchMore: checkFetchMore(queryResult),
-          fetchNextPage: queryResult.fetchNextPage,
-          onScroll: hideMenu,
-        }}
-        userListProps={
-          hasPermission && {
-            afterContent: (user, index) => (
-              <SquadMemberItemOptionsButton
-                key={`squad_option_${user.id}`}
-                member={members[index]}
-                onUnblock={() =>
-                  onUnblock({ sourceId: squad.id, memberId: user.id })
-                }
-                onOptionsClick={(e) => {
-                  e.preventDefault();
-                  onOptionsClick(e, members[index]);
-                }}
-              />
+    <UserListModal
+      {...props}
+      kind={Modal.Kind.FixedCenter}
+      title="Squad members"
+      showSubscribe={false}
+      tabs={filteredTabs}
+      defaultView={SquadMemberTab.AllMembers}
+      header={<Modal.Header.Tabs onTabClick={onTabClick} />}
+      scrollingProps={{
+        isFetchingNextPage: queryResult.isFetchingNextPage,
+        canFetchMore: checkFetchMore(queryResult),
+        fetchNextPage: queryResult.fetchNextPage,
+      }}
+      userListProps={
+        hasPermission && {
+          afterContent: (user, index) => (
+            <SquadMemberItemOptionsButton
+              onUpdateRole={onUpdateRole}
+              squad={squad}
+              key={`squad_option_${user.id}`}
+              member={members[index]}
+              onUnblock={() =>
+                onUnblock({ sourceId: squad.id, memberId: user.id })
+              }
+            />
+          ),
+          emptyPlaceholder:
+            roleFilter === SourceMemberRole.Blocked ? (
+              <BlockedMembersPlaceholder />
+            ) : (
+              <FlexCentered className="p-10 text-text-tertiary typo-callout">
+                No{' '}
+                {roleFilter === SourceMemberRole.Moderator
+                  ? 'moderator'
+                  : 'member'}{' '}
+                found
+              </FlexCentered>
             ),
-            emptyPlaceholder:
-              roleFilter === SourceMemberRole.Blocked ? (
-                <BlockedMembersPlaceholder />
-              ) : (
-                <FlexCentered className="p-10 text-text-tertiary typo-callout">
-                  No{' '}
-                  {roleFilter === SourceMemberRole.Moderator
-                    ? 'moderator'
-                    : 'member'}{' '}
-                  found
-                </FlexCentered>
-              ),
-            isLoading: queryResult.isPending,
-            initialItem:
-              roleFilter === SourceMemberRole.Blocked ||
-              query?.length ? undefined : (
-                <InitialItem squad={squad} />
-              ),
-          }
+          isLoading: queryResult.isPending,
+          initialItem:
+            roleFilter === SourceMemberRole.Blocked ||
+            query?.length ? undefined : (
+              <InitialItem squad={squad} />
+            ),
         }
-        users={members?.map(({ user, role }) => {
-          return {
-            ...user,
-            role,
-          };
-        })}
-        onSearch={handleSearchDebounce}
-        origin={Origin.SquadMembersList}
-      />
-      <SquadMemberMenu
-        squad={squad}
-        member={member}
-        onUpdateRole={onUpdateRole}
-        isOpen={isOpen}
-      />
-    </>
+      }
+      users={members?.map(({ user, role }) => {
+        return {
+          ...user,
+          role,
+        };
+      })}
+      onSearch={handleSearchDebounce}
+      origin={Origin.SquadMembersList}
+    />
   );
 }
 
