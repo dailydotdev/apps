@@ -38,6 +38,7 @@ export interface NotificationItemProps
     | 'avatars'
     | 'attachments'
     | 'numTotalAvatars'
+    | 'referenceId'
   > {
   isUnread?: boolean;
   targetUrl: string;
