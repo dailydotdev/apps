@@ -187,10 +187,11 @@ const useOnboardingAuth = () => {
       return;
     }
 
-    // the only case for forced change is verifying the user
+    // Update the auth state only:
+    // - if it has not been initialized yet
+    // - OR if the user needs email verification
     if (!isInitialized.current || anonymous?.shouldVerify) {
       isInitialized.current = true;
-      // Initialize auth state only once when the auth is ready
       updateAuth({
         defaultDisplay: getDefaultDisplay({
           isLogin,
