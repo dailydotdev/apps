@@ -110,6 +110,10 @@ export const labels = {
     success: {
       integrationSaved: 'Integration saved successfully',
     },
+    briefIntro: {
+      title: 'Brief + Slack = 🔥',
+      description: 'Get instant updates in Slack',
+    },
   },
   cores: {
     error: {

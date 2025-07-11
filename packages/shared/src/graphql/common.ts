@@ -119,12 +119,16 @@ export interface ApiResponseError<
   extensions: TExtension;
 }
 
-interface ApiResponse {
-  errors: ApiResponseError[];
+interface ApiResponse<
+  TExtension extends ApiResponseErrorExtension = ApiResponseErrorExtension,
+> {
+  errors: ApiResponseError<TExtension>[];
 }
 
-export interface ApiErrorResult {
-  response: ApiResponse;
+export interface ApiErrorResult<
+  TExtension extends ApiResponseErrorExtension = ApiResponseErrorExtension,
+> {
+  response: ApiResponse<TExtension>;
 }
 
 export const GARMR_ERROR = 'GARMR_BROKEN_ERROR';

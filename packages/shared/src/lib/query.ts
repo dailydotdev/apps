@@ -11,7 +11,6 @@ import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
 import type { EmptyObjectLiteral } from './kratos';
 import type { LoggedUser } from './user';
-import { PostType } from '../graphql/posts';
 import type {
   FeedData,
   Post,
@@ -29,6 +28,7 @@ import type {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../graphql/contentPreference';
+import { PostType } from '../types';
 
 export enum OtherFeedPage {
   Tag = 'tag',

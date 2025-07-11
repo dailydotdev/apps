@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { ArrowIcon, BookmarkIcon, PlusIcon } from '../../icons';
+import { ArrowIcon, BookmarkIcon, BriefIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
-import { webappUrl } from '../../../lib/constants';
+import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -44,6 +44,16 @@ export const BookmarkSection = ({
   };
 
   const menuItems: SidebarMenuItem[] = [
+    {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+      ),
+      title: 'Presidential briefings',
+      path: briefingUrl,
+      isForcedLink: true,
+      requiresLogin: true,
+      rightIcon,
+    },
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />

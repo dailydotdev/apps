@@ -1,47 +1,44 @@
 import React, { Children } from 'react';
 import classNames from 'classnames';
-import type { ReactElement, ReactNode } from 'react';
-import { LottieAnimation } from '../../LottieAnimation';
+import type { ReactElement } from 'react';
+import { LottieAnimation } from '../../../LottieAnimation';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../typography/Typography';
-import { ProgressBar } from '../../fields/ProgressBar';
-import { briefCardBg, briefCardBorder } from '../../../styles/custom';
+} from '../../../typography/Typography';
+import { ProgressBar } from '../../../fields/ProgressBar';
+import { briefCardBg, briefCardBorder } from '../../../../styles/custom';
+import type { BriefCardProps } from './BriefCard';
 
-export type BriefCardProps = {
-  className?: string;
-  animationSrc: string;
-  progressPercentage?: number;
-  headnote: ReactNode;
-  title: ReactNode;
-  children?: ReactNode;
-};
+export type BriefCardLoadingProps = BriefCardProps;
 
 const rootStyle = {
   border: briefCardBorder,
   background: briefCardBg,
 };
 
-export const BriefCard = ({
+export const BriefCardLoading = ({
   className,
   animationSrc,
   progressPercentage,
   headnote,
   title,
   children,
-}: BriefCardProps): ReactElement => {
+}: BriefCardLoadingProps): ReactElement => {
   return (
     <div
       style={rootStyle}
       className={classNames(
-        'flex flex-col items-center gap-4 rounded-16 p-4 text-center',
+        'flex flex-1 flex-col items-center gap-4 rounded-16 p-4 text-center',
         'backdrop-blur-3xl',
         className,
       )}
     >
-      <LottieAnimation className="-mb-6 w-20" src={animationSrc} />
+      <LottieAnimation
+        className="float-animation -mb-6 h-20 w-20"
+        src={animationSrc}
+      />
       <div className="w-20">
         <ProgressBar
           shouldShowBg

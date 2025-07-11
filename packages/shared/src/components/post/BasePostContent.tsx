@@ -33,7 +33,7 @@ export function BasePostContent({
   isPostPage,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
-  const { onCopyPostLink } = engagementProps;
+  const { onCopyPostLink } = engagementProps ?? {};
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -54,12 +54,14 @@ export function BasePostContent({
         </GoBackHeaderMobile>
       )}
       {children}
-      <PostEngagements
-        post={post}
-        onCopyLinkClick={onCopyPostLink}
-        logOrigin={origin}
-        shouldOnboardAuthor={shouldOnboardAuthor}
-      />
+      {!!engagementProps && (
+        <PostEngagements
+          post={post}
+          onCopyLinkClick={onCopyPostLink}
+          logOrigin={origin}
+          shouldOnboardAuthor={shouldOnboardAuthor}
+        />
+      )}
     </>
   );
 }

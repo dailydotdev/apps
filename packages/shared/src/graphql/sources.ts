@@ -1,11 +1,13 @@
 import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
+import { gqlClient } from './common';
 import {
   SOURCE_CATEGORY_FRAGMENT,
   SOURCE_DIRECTORY_INFO_FRAGMENT,
 } from './fragments';
 import type { ContentPreference } from './contentPreference';
+import { RequestKey, StaleTime } from '../lib/query';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -210,3 +212,18 @@ export const SOURCE_CATEGORIES_QUERY = gql`
 export interface SourceCategoryData {
   categories: Connection<SourceCategory>;
 }
+
+export const sourceQueryOptions = ({ sourceId }: { sourceId: string }) => {
+  return {
+    queryKey: [RequestKey.Source, null, sourceId],
+    queryFn: async () => {
+      const res = await gqlClient.request<SourceData>(SOURCE_QUERY, {
+        id: sourceId,
+      });
+
+      return res.source;
+    },
+    staleTime: StaleTime.OneHour,
+    enabled: !!sourceId,
+  };
+};

@@ -32,6 +32,7 @@ import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
+import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 
 const CommentPopup = dynamic(
   () =>
@@ -110,6 +111,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformGrid,
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
+  [PostType.Brief]: BriefCard,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -119,6 +121,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
+  [PostType.Brief]: BriefCard,
 };
 
 type GetTagsProps = {

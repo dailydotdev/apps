@@ -74,6 +74,7 @@ export type FeedReturnType = {
   isFetching: boolean;
   isInitialLoading: boolean;
   isError: boolean;
+  isPending: boolean;
 };
 
 type UseFeedSettingParams = {
@@ -371,5 +372,6 @@ export default function useFeed<T>(
     isLoading: feedQuery.isLoading,
     isFetching: feedQuery.isFetching,
     isInitialLoading: feedQuery.isInitialLoading,
+    isPending: feedQuery.isPending,
   };
 }
