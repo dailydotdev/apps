@@ -57,6 +57,7 @@ export type AwardProps = {
 };
 
 export type TransactionCreated = {
+  referenceId?: string;
   transactionId: string;
   balance: LoggedUser['balance'];
 };

@@ -26,7 +26,11 @@ export function BoostPostSuccessModal({
     >
       <Modal.Body className="flex flex-col gap-3 py-1 tablet:!p-4">
         <div className="relative flex overflow-hidden rounded-16">
-          <ModalClose className="hidden tablet:flex" right="0" />
+          <ModalClose
+            className="hidden tablet:flex"
+            right="0"
+            onClick={props.onRequestClose}
+          />
           <Image src={postBoostSuccessCover} />
         </div>
         <div className="mt-2 flex flex-col gap-2">
@@ -53,7 +57,7 @@ export function BoostPostSuccessModal({
         </Button>
         <Button
           variant={ButtonVariant.Tertiary}
-          className="w-full"
+          className="hidden w-full tablet:flex"
           type="button"
           onClick={props.onRequestClose}
         >

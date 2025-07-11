@@ -21,6 +21,8 @@ import { getAbsoluteDifferenceInDays } from './utils';
 import type { BoostedPostData } from '../../graphql/post/boost';
 import { DateFormat } from '../../components/utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
+import { boostDashboardInfo } from '../../components/modals/post/boost/common';
+import { Modal } from '../../components/modals/common/Modal';
 
 interface CampaignListViewProps {
   data: BoostedPostData;
@@ -47,11 +49,20 @@ export const CampaignStatsGrid = ({
     <DataTile
       label="Spend"
       value={cores}
+      info={boostDashboardInfo.spend}
       icon={<CoreIcon size={IconSize.XSmall} />}
     />
-    <DataTile label="Impressions" value={impressions} />
-    <DataTile label="Clicks" value={clicks} />
-    <DataTile label="Engagements" value={engagements} />
+    <DataTile
+      label="Impressions"
+      value={impressions}
+      info={boostDashboardInfo.impressions}
+    />
+    <DataTile label="Clicks" value={clicks} info={boostDashboardInfo.clicks} />
+    <DataTile
+      label="Engagement"
+      value={engagements}
+      info={boostDashboardInfo.engagement}
+    />
   </div>
 );
 
@@ -61,13 +72,14 @@ export function CampaignListView({
   onBoostClick,
 }: CampaignListViewProps): ReactElement {
   const { campaign, post } = data;
+  const isActive = campaign.status === 'ACTIVE';
   const date = useMemo(() => {
     const startedAt = new Date(campaign.startedAt);
     const endedAt = new Date(campaign.endedAt);
     const totalDays = getAbsoluteDifferenceInDays(endedAt, startedAt);
 
     const getEndsIn = () => {
-      if (campaign.status === 'ACTIVE') {
+      if (isActive) {
         return getAbsoluteDifferenceInDays(endedAt, new Date());
       }
 
@@ -79,7 +91,7 @@ export function CampaignListView({
       startedIn: getAbsoluteDifferenceInDays(new Date(), startedAt),
       totalDays,
     };
-  }, [campaign]);
+  }, [campaign, isActive]);
 
   const percentage = useMemo(() => {
     if (campaign.status !== 'ACTIVE') {
@@ -122,7 +134,7 @@ export function CampaignListView({
             Started{' '}
             <DateFormat date={campaign.startedAt} type={TimeFormatType.Post} />
           </Typography>
-          {campaign.status === 'ACTIVE' && (
+          {isActive && (
             <Typography
               type={TypographyType.Subhead}
               color={TypographyColor.Secondary}
@@ -141,22 +153,28 @@ export function CampaignListView({
       </div>
       <div className="h-px w-full bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-2">
-        <Typography type={TypographyType.Body}>Summary</Typography>
-        <Typography type={TypographyType.Callout}>
-          <CoreIcon size={IconSize.Size16} /> {campaign.budget} |{' '}
-          {date.totalDays} {date.totalDays === 1 ? 'day' : 'days'}
+        <Modal.Subtitle>Summary</Modal.Subtitle>
+        <Typography
+          type={TypographyType.Callout}
+          className="flex flex-row items-center"
+        >
+          <CoreIcon className="mr-1" size={IconSize.Size16} /> {campaign.budget}{' '}
+          | {date.totalDays} {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>
       <Button
         variant={ButtonVariant.Float}
-        className="w-full"
-        color={campaign.status === 'ACTIVE' && ButtonColor.Ketchup}
-        icon={campaign.status !== 'ACTIVE' && <BeforeIcon secondary />}
+        className={classNames('w-full', {
+          'bg-action-downvote-float hover:bg-action-downvote-hover': isActive,
+        })}
+        pressed={isActive}
+        color={isActive && ButtonColor.Ketchup}
+        icon={!isActive && <BeforeIcon secondary />}
         onClick={onBoostClick}
         disabled={isLoading}
         loading={isLoading}
       >
-        {campaign.status === 'ACTIVE' ? 'Stop campaign' : 'Boost again'}
+        {isActive ? 'Stop campaign' : 'Boost again'}
       </Button>
     </div>
   );

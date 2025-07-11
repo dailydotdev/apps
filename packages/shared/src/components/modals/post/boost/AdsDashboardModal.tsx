@@ -14,6 +14,7 @@ import usePostById from '../../../../hooks/usePostById';
 import type { Post } from '../../../../graphql/posts';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
+import { boostDashboardInfo } from './common';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialBoostedPost?: BoostedPostData;
@@ -49,7 +50,8 @@ export function AdsDashboardModal({
         data={boosted}
         isLoading={isLoading}
         onBoostAgain={setToBoost}
-        onRequestClose={() => setBoosted(null)}
+        onBack={() => setBoosted(null)}
+        onRequestClose={props.onRequestClose}
       />
     );
   }
@@ -69,10 +71,23 @@ export function AdsDashboardModal({
             label="Ads cost"
             value={stats.totalSpend}
             icon={<CoreIcon size={IconSize.XSmall} />}
+            info={boostDashboardInfo.spend}
           />
-          <DataTile label="Impressions" value={stats.impressions} />
-          <DataTile label="Clicks" value={stats.clicks} />
-          <DataTile label="Engagements" value={stats.engagements} />
+          <DataTile
+            label="Impressions"
+            value={stats.impressions}
+            info={boostDashboardInfo.impressions}
+          />
+          <DataTile
+            label="Clicks"
+            value={stats.clicks}
+            info={boostDashboardInfo.clicks}
+          />
+          <DataTile
+            label="Engagement"
+            value={stats.engagements}
+            info={boostDashboardInfo.engagement}
+          />
         </div>
         <Modal.Subtitle>Active ads</Modal.Subtitle>
         {isLoading ? (

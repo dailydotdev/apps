@@ -8,7 +8,7 @@ import {
   startPostBoost,
   cancelPostBoost,
 } from '../../graphql/post/boost';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../useTransactionError';
@@ -49,36 +49,61 @@ export const usePostBoostMutation = ({
 
   const { mutateAsync: onBoostPost } = useMutation({
     mutationFn: startPostBoost,
-    onSuccess: (data) => {
-      if (data.transactionId) {
-        const balance = data?.balance;
-
-        if (!isNullOrUndefined(balance)) {
-          updateUser({ ...user, balance });
-        }
-
-        client.invalidateQueries({
-          queryKey: generateQueryKey(RequestKey.Transactions, user),
-          exact: false,
-        });
-        client.invalidateQueries({
-          queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
-          exact: false,
-        });
-
-        onBoostSuccess?.();
+    onSuccess: (data, vars) => {
+      if (!data.transactionId) {
+        return;
       }
+
+      const balance = data?.balance;
+
+      if (!isNullOrUndefined(balance)) {
+        updateUser({ ...user, balance });
+      }
+
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
+
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+        exact: false,
+      });
+
+      if (data.referenceId) {
+        updatePostCache(client, vars.id, (post) => ({
+          flags: { ...post.flags, campaignId: data.referenceId },
+        }));
+      }
+
+      onBoostSuccess?.();
     },
     onError: useTransactionError(),
   });
 
   const { mutateAsync: onCancelBoost } = useMutation({
     mutationFn: cancelPostBoost,
-    onSuccess: async () => {
-      await client.invalidateQueries({
+    onSuccess: async (data) => {
+      if (!data.transactionId) {
+        return;
+      }
+
+      const balance = data?.balance;
+
+      if (!isNullOrUndefined(balance)) {
+        updateUser({ ...user, balance });
+      }
+
+      client.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Transactions, user),
+        exact: false,
+      });
+
+      client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
         exact: false,
       });
+
       displayToast('Post boost canceled!');
 
       onCancelSuccess?.();

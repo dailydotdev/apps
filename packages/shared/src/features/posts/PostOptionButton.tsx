@@ -28,6 +28,7 @@ import {
   ShieldWarningIcon,
   TrashIcon,
   UpvoteIcon,
+  TrendingIcon,
 } from '../../components/icons';
 import {
   Button,
@@ -461,10 +462,16 @@ const PostOptionButtonContent = ({
   };
 
   if (canBoost) {
+    const isBoosted = !!post?.flags?.campaignId;
     postOptions.push({
-      icon: <MenuIcon Icon={BoostIcon} secondary={!!post?.flags?.campaignId} />,
-      label: post?.flags?.campaignId ? 'Manage ad' : 'Boost post',
-      action: post?.flags?.campaignId ? onManageBoost : onBoostPost,
+      icon: (
+        <MenuIcon
+          Icon={isBoosted ? TrendingIcon : BoostIcon}
+          secondary={isBoosted}
+        />
+      ),
+      label: isBoosted ? 'Manage ad' : 'Boost post',
+      action: isBoosted ? onManageBoost : onBoostPost,
     });
   }
 

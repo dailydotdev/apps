@@ -6,7 +6,6 @@ import {
   CampaignListView,
   CampaignStatsGrid,
 } from '../../../../features/boost/CampaignListView';
-import { capitalize } from '../../../../lib/strings';
 import type { ModalProps } from '../../common/Modal';
 import { Modal } from '../../common/Modal';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
@@ -17,11 +16,13 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { PromptOptions } from '../../../../hooks/usePrompt';
 import { usePrompt } from '../../../../hooks/usePrompt';
-import { ButtonColor } from '../../../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
+import { ArrowIcon } from '../../../icons';
 
 interface BoostedPostViewModalProps extends ModalProps {
   data: BoostedPostData;
   isLoading?: boolean;
+  onBack?: () => void;
   onBoostAgain?: (id: Post['id']) => void;
 }
 
@@ -32,6 +33,14 @@ const promptOptions: PromptOptions = {
   okButton: {
     title: 'Stop boost',
     color: ButtonColor.Ketchup,
+    className: 'flex !w-full',
+  },
+  cancelButton: {
+    className: 'flex !w-full',
+    variant: ButtonVariant.Float,
+  },
+  className: {
+    buttons: 'flex !flex-col-reverse w-full',
   },
 };
 
@@ -39,11 +48,12 @@ export function BoostedPostViewModal({
   data,
   isLoading,
   onBoostAgain,
+  onBack,
   ...props
 }: BoostedPostViewModalProps): ReactElement {
   const { showPrompt } = usePrompt();
   const { onCancelBoost, isLoadingCancel } = usePostBoostMutation({
-    onCancelSuccess: () => props.onRequestClose(null),
+    onCancelSuccess: onBack || (() => props.onRequestClose(null)),
   });
 
   const handleBoostClick = async () => {
@@ -65,13 +75,21 @@ export function BoostedPostViewModal({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Header title="Boost" showCloseButton={false} />
+      <Modal.Header className="flex flex-row gap-2">
+        {!!onBack && (
+          <Button
+            onClick={onBack}
+            className="hidden tablet:flex"
+            variant={ButtonVariant.Tertiary}
+            icon={<ArrowIcon className="-rotate-90" />}
+          />
+        )}
+        <Modal.Header.Title>Boost</Modal.Header.Title>
+      </Modal.Header>
       <Modal.Body className="flex flex-col gap-4">
         <span className="flex flex-row items-center justify-between">
           <Modal.Subtitle>Overview</Modal.Subtitle>
-          <BoostStatus status={data.campaign.status}>
-            {capitalize(data.campaign.status)}
-          </BoostStatus>
+          <BoostStatus status={data.campaign.status} />
         </span>
         <CampaignListView
           data={data}
