@@ -8,8 +8,10 @@ import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
-import { ButtonColor, ButtonVariant } from './Button';
+import { ButtonColor, ButtonIconPosition, ButtonVariant } from './Button';
+import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
+import type { IconSize } from '../Icon';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,15 +20,20 @@ import {
 } from '../dropdown/DropdownMenu';
 
 interface BookmarkButtonProps {
-  buttonProps?: QuaternaryButtonProps<'button'>;
+  buttonProps?: Omit<QuaternaryButtonProps<'button'>, 'icon'>;
+  contextMenuId?: string;
   post: Post;
   children?: ReactNode;
+  iconSize?: IconSize;
+  tooltipSide?: TooltipProps['side'];
 }
 
 export function BookmarkButton({
   buttonProps = {},
   post,
   children,
+  iconSize,
+  tooltipSide,
 }: BookmarkButtonProps): ReactElement {
   const hasReminder = !!post.bookmark?.remindAt;
   const { openModal } = useLazyModal();
@@ -65,8 +72,9 @@ export function BookmarkButton({
             variant={ButtonVariant.Tertiary}
             {...buttonPropsWithoutOnClick}
             type="button"
+            iconPosition={ButtonIconPosition.Left}
             pressed={post.bookmarked}
-            icon={<Icon secondary={post.bookmarked} />}
+            icon={<Icon secondary={post.bookmarked} size={iconSize} />}
           >
             {children}
           </QuaternaryButton>
@@ -79,15 +87,19 @@ export function BookmarkButton({
   }
 
   return (
-    <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+    <Tooltip
+      content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+      side={tooltipSide}
+    >
       <QuaternaryButton
         color={ButtonColor.Bun}
         variant={ButtonVariant.Tertiary}
         {...buttonProps}
         type="button"
         pressed={post.bookmarked}
+        iconPosition={ButtonIconPosition.Top}
         onClick={(e) => buttonProps.onClick?.(e)}
-        icon={<Icon secondary={post.bookmarked} />}
+        icon={<Icon secondary={post.bookmarked} size={iconSize} />}
       >
         {children}
       </QuaternaryButton>

@@ -10,6 +10,8 @@ import {
 } from './RaisedLabel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -36,6 +38,7 @@ function FeedItemContainer(
       ? `${trending} devs read it last hour`
       : undefined;
   const isFeedPreview = useFeedPreviewMode();
+  const postUiExp = useFeature(featurePostUiImprovements);
 
   return (
     <ConditionalWrapper
@@ -56,6 +59,7 @@ function FeedItemContainer(
         data-testid="postItem"
         ref={ref}
         className={classNames(
+          postUiExp && '!bg-background-default !p-0',
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
           highlightBookmarkedPost &&

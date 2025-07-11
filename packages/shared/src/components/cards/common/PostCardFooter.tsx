@@ -6,6 +6,8 @@ import { isVideoPost } from '../../../graphql/posts';
 import type { CommonCardCoverProps } from './common';
 import { CardCover } from './CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 interface PostCardFooterClassName {
   image?: string;
@@ -26,6 +28,9 @@ export const PostCardFooter = ({
   isHoveringCard,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
+  const postUiExp = useFeature(featurePostUiImprovements);
+
+  const videoProps = postUiExp ? 'mb-1 mt-2' : 'my-2';
 
   return (
     <>
@@ -39,12 +44,12 @@ export const PostCardFooter = ({
           className: classNames(
             'w-full',
             className.image,
-            !isVideoType && 'my-2',
+            !isVideoType && videoProps,
           ),
           ...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }),
           src: post.image,
         }}
-        videoProps={{ className: 'my-2' }}
+        videoProps={{ className: videoProps }}
       />
     </>
   );

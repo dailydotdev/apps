@@ -9,6 +9,7 @@ import {
   getPostClassNames,
   FreeformCardTitle,
   CardSpace,
+  CardTextContainer,
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
@@ -16,6 +17,9 @@ import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -37,6 +41,8 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
+  const postUiExp = useFeature(featurePostUiImprovements);
+
   return (
     <FeedItemContainer
       domProps={{
@@ -52,27 +58,39 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <CollectionCardHeader post={post} />
-      <FreeformCardTitle
-        className={classNames(
-          generateTitleClamp({
-            hasImage: !!image,
-            hasHtmlContent: !!post.contentHtml,
-          }),
-          'px-2 font-bold text-text-primary typo-title3',
+      <ConditionalWrapper
+        condition={postUiExp}
+        wrapper={(wrapperChildren) => (
+          <CardTextContainer className="mx-4">
+            {wrapperChildren}
+          </CardTextContainer>
         )}
       >
-        {post.title}
-      </FreeformCardTitle>
+        <CollectionCardHeader post={post} />
+        <FreeformCardTitle
+          className={classNames(
+            generateTitleClamp({
+              hasImage: !!image,
+              hasHtmlContent: !!post.contentHtml,
+            }),
+            !postUiExp && 'mx-2',
+            'font-bold text-text-primary typo-title3',
+          )}
+        >
+          {post.title}
+        </FreeformCardTitle>
 
-      {!!post.image && <CardSpace />}
-      <PostTags post={post} />
+        {!!post.image && <CardSpace />}
+        <PostTags post={post} />
+      </ConditionalWrapper>
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
-        className={classNames('m-2', post.image ? 'mb-0' : 'mb-4')}
+        className={classNames(
+          postUiExp ? 'mx-4 my-2' : 'm-2',
+          post.image ? 'mb-0' : 'mb-4',
+        )}
       />
-
       <Container>
         <WelcomePostCardFooter
           image={image}
