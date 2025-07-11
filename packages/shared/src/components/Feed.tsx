@@ -48,7 +48,6 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
-import { BriefCardFeed } from './cards/brief/BriefCard/BriefCardFeed';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -100,6 +99,12 @@ const CollectionPostModal = dynamic(
 const BriefPostModal = dynamic(
   () =>
     import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
+);
+
+const BriefCardFeed = dynamic(() =>
+  import(
+    /* webpackChunkName: "briefCardFeed" */ './cards/brief/BriefCard/BriefCardFeed'
+  ).then((mod) => mod.BriefCardFeed),
 );
 
 const calculateRow = (index: number, numCards: number): number =>
