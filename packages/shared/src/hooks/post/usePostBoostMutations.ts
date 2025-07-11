@@ -15,7 +15,7 @@ import { useTransactionError } from '../useTransactionError';
 import { useToastNotification } from '../useToastNotification';
 
 interface UsePostBoostMutationProps {
-  toEstimate?: BoostPostProps;
+  toEstimate?: Pick<BoostPostProps, 'id'>;
   onBoostSuccess?: () => void;
   onCancelSuccess?: () => void;
 }
