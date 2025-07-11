@@ -12,25 +12,33 @@ import {
   BlockIcon,
   FlagIcon,
   GiftIcon,
+  MenuIcon,
 } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import type { MenuItemProps } from '../fields/ContextMenu';
-import ContextMenu from '../fields/ContextMenu';
 import type { UseSquadActions } from '../../hooks';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
-import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LogEvent, TargetId } from '../../lib/log';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
   member: SourceMember;
-  isOpen?: boolean;
-  className?: string;
 }
 
 enum MenuItemTitle {
@@ -129,8 +137,6 @@ export default function SquadMemberMenu({
   squad,
   member,
   onUpdateRole,
-  isOpen,
-  className,
 }: SquadMemberMenuProps): ReactElement {
   const { openModal } = useLazyModal();
   const { user } = useContext(AuthContext);
@@ -247,11 +253,18 @@ export default function SquadMemberMenu({
   }, [member]);
 
   return (
-    <ContextMenu
-      className={className}
-      options={options}
-      isOpen={isOpen}
-      id={ContextMenuIds.SquadMemberContext}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild tooltip={{ content: 'Member options' }}>
+        <Button
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          className="z-1 m-auto ml-2 mr-0"
+          icon={<MenuIcon />}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={options} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
