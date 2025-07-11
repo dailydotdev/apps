@@ -13,10 +13,15 @@ export function largeNumberFormat(value: number): string | null {
   }
   if (suffixNum > 0) {
     const remainder = newValue % 1;
-    return (
-      newValue.toFixed(remainder >= 0 && remainder < 0.05 ? 0 : 1) +
-      suffixes[suffixNum]
-    );
+    // If the remainder is very small (< 0.05), show no decimal places
+    // If the remainder is significant, show one decimal place
+    const decimalPlaces = remainder >= 0 && remainder < 0.05 ? 0 : 1;
+    const formatted = newValue.toFixed(decimalPlaces);
+    // Remove trailing .0 if the number is a whole number
+    const cleanFormatted = formatted.endsWith('.0')
+      ? formatted.slice(0, -2)
+      : formatted;
+    return cleanFormatted + suffixes[suffixNum];
   }
   return newValue.toString();
 }
