@@ -80,13 +80,7 @@ export function PostHeaderActions({
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
       {canBoost && postById && !postById.post?.flags?.campaignId && (
-        <BoostPostButton
-          post={post}
-          buttonProps={{
-            size:
-              isFixedNavigation || !isEnlarged ? ButtonSize.Small : undefined,
-          }}
-        />
+        <BoostPostButton post={post} buttonProps={{ size: ButtonSize.Small }} />
       )}
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
