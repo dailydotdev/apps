@@ -71,22 +71,22 @@ describe('function formatDataTileValue', () => {
   });
 
   it('should format numbers 10,000 and above with large number formatting', () => {
-    expect(formatDataTileValue(10000)).toBe('10.0k');
-    expect(formatDataTileValue(15000)).toBe('15.0k');
-    expect(formatDataTileValue(99999)).toBe('100.0k');
-    expect(formatDataTileValue(100000)).toBe('100.0k');
-    expect(formatDataTileValue(123456)).toBe('123.5k');
-    expect(formatDataTileValue(1000000)).toBe('1.0M');
+    expect(formatDataTileValue(10000)).toBe('10K');
+    expect(formatDataTileValue(15000)).toBe('15K');
+    expect(formatDataTileValue(99999)).toBe('100K');
+    expect(formatDataTileValue(100000)).toBe('100K');
+    expect(formatDataTileValue(123456)).toBe('123.5K');
+    expect(formatDataTileValue(1000000)).toBe('1M');
     expect(formatDataTileValue(1500000)).toBe('1.5M');
-    expect(formatDataTileValue(1000000000)).toBe('1.0B');
+    expect(formatDataTileValue(1000000000)).toBe('1B');
   });
 
   it('should handle decimal precision correctly for large numbers', () => {
-    expect(formatDataTileValue(10500)).toBe('10.5k');
-    expect(formatDataTileValue(10050)).toBe('10.1k');
-    expect(formatDataTileValue(10001)).toBe('10.0k');
-    expect(formatDataTileValue(10049)).toBe('10.0k');
-    expect(formatDataTileValue(10050)).toBe('10.1k');
+    expect(formatDataTileValue(10500)).toBe('10.5K');
+    expect(formatDataTileValue(10050)).toBe('10.1K');
+    expect(formatDataTileValue(10001)).toBe('10K');
+    expect(formatDataTileValue(10049)).toBe('10K');
+    expect(formatDataTileValue(10050)).toBe('10.1K');
   });
 
   it('should handle edge cases and invalid inputs', () => {
