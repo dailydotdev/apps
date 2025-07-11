@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { BriefCardDefault } from './BriefCardDefault';
@@ -21,6 +21,10 @@ import {
   useBriefCardContext,
 } from './BriefCardContext';
 import { lottieAnimationQueryOptions } from '../../../../lib/lottie';
+import { useLogContext } from '../../../../contexts/LogContext';
+import type { TargetId } from '../../../../lib/log';
+import { LogEvent } from '../../../../lib/log';
+import { usePlusSubscription } from '../../../../hooks';
 
 export type BriefCardProps = {
   className?: string;
@@ -29,6 +33,7 @@ export type BriefCardProps = {
   headnote?: ReactNode;
   title?: ReactNode;
   children?: ReactNode;
+  targetId: TargetId;
 };
 
 const loadingSteps: (Pick<BriefCardProps, 'animationSrc'> & {
@@ -95,6 +100,8 @@ const getLoadingProgress = ({
 export const BriefCardInternal = (
   props: Omit<BriefCardProps, 'state' | 'post'>,
 ) => {
+  const { isPlus } = usePlusSubscription();
+  const { logEvent } = useLogContext();
   const queryClient = useQueryClient();
   const [, setLoadingIncrement] = useState(0);
   const briefCardContext = useBriefCardContext();
@@ -172,6 +179,25 @@ export const BriefCardInternal = (
       }),
     );
   }, [loadingStep, queryClient]);
+
+  const impressionRef = useRef(false);
+
+  useEffect(() => {
+    if (impressionRef.current) {
+      return;
+    }
+
+    impressionRef.current = true;
+
+    logEvent({
+      event_name: LogEvent.BriefImpression,
+      extra: JSON.stringify({
+        is_demo: !isPlus,
+        brief_date:
+          post?.createdAt || briefCardContext.brief?.createdAt || new Date(),
+      }),
+    });
+  }, [logEvent, post?.createdAt, briefCardContext?.brief?.createdAt, isPlus]);
 
   if (state === 'loading') {
     const activeStep = loadingSteps[loadingStep] ?? loadingSteps[0];

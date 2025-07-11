@@ -15,6 +15,9 @@ import Link from '../../../utilities/Link';
 import { webappUrl } from '../../../../lib/constants';
 import type { Post } from '../../../../graphql/posts';
 import { briefSourcesLimit } from '../../../../types';
+import { LogEvent } from '../../../../lib/log';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { usePlusSubscription } from '../../../../hooks';
 
 export type BriefCardReadyProps = BriefCardProps & {
   post: Post;
@@ -28,13 +31,28 @@ export const BriefCardReady = ({
   post,
   className,
   title,
+  targetId,
   children,
 }: BriefCardReadyProps): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+  const { logEvent } = useLogContext();
   const postsCount = post?.flags?.posts || 0;
   const sourcesCount = post?.flags?.sources || 0;
 
   return (
-    <Link href={`${webappUrl}posts/${post.slug}`}>
+    <Link
+      href={`${webappUrl}posts/${post.slug}`}
+      onClick={() => {
+        logEvent({
+          event_name: LogEvent.ClickBrief,
+          target_id: targetId,
+          extra: JSON.stringify({
+            is_demo: !isPlus,
+            brief_date: post.createdAt,
+          }),
+        });
+      }}
+    >
       <a
         className={classNames(
           'flex flex-1 rounded-16 border border-white bg-transparent',

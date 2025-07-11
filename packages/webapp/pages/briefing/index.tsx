@@ -200,7 +200,7 @@ const Page = (): ReactElement => {
               >
                 {emptyFeed && !feedQuery.isPending && (
                   <div className="max-w-80">
-                    <BriefCardFeed />
+                    <BriefCardFeed targetId={TargetId.List} />
                   </div>
                 )}
                 {emptyFeed &&
@@ -255,6 +255,7 @@ const Page = (): ReactElement => {
                             sourcesCount={post.flags?.sources || 0}
                             onClick={onBriefClick}
                             origin={Origin.BriefPage}
+                            targetId={TargetId.List}
                           />,
                         );
                       }

@@ -294,6 +294,10 @@ export enum LogEvent {
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
   // End Credits
+  // Start Brief
+  BriefImpression = 'brief impression',
+  ClickBrief = 'click brief',
+  // End Brief
 }
 
 export enum TargetType {
@@ -384,6 +388,7 @@ export enum TargetId {
   Account = 'account',
   Brief = 'brief',
   NotificationSettings = 'notification settings',
+  Feed = 'feed',
 }
 
 export enum NotificationChannel {

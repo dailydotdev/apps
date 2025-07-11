@@ -28,7 +28,7 @@ import LogContext from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/log';
+import { Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -438,7 +438,9 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {feedName === SharedFeedPage.MyFeed && <BriefCardFeed />}
+            {feedName === SharedFeedPage.MyFeed && (
+              <BriefCardFeed targetId={TargetId.Feed} />
+            )}
             {items.map((item, index) => (
               <FeedItemComponent
                 item={item}

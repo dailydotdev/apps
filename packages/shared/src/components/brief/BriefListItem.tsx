@@ -11,7 +11,8 @@ import type { PillProps } from '../Pill';
 import { Pill } from '../Pill';
 import { IconSize } from '../Icon';
 import { BriefGradientIcon, LockIcon } from '../icons';
-import type { Origin } from '../../lib/log';
+import type { Origin, TargetId } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import type { Post } from '../../graphql/posts';
 import { isNullOrUndefined } from '../../lib/func';
@@ -21,6 +22,8 @@ import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { combinedClicks } from '../../lib/click';
 import Link from '../utilities/Link';
+import { useLogContext } from '../../contexts/LogContext';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 export type BriefListItemProps = {
   className?: string;
@@ -34,6 +37,7 @@ export type BriefListItemProps = {
   onClick?: (post: Post, event: MouseEvent<HTMLAnchorElement>) => void;
   origin: Origin;
   post: Post;
+  targetId: TargetId;
 };
 
 export const BriefListItem = ({
@@ -48,7 +52,10 @@ export const BriefListItem = ({
   onClick,
   origin,
   post,
+  targetId,
 }: BriefListItemProps): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+  const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
 
   const onCombinedClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -57,6 +64,15 @@ export const BriefListItem = ({
     }
 
     onPostClick({ post });
+
+    logEvent({
+      event_name: LogEvent.ClickBrief,
+      target_id: targetId,
+      extra: JSON.stringify({
+        is_demo: !isPlus,
+        brief_date: post.createdAt,
+      }),
+    });
   };
 
   return (
