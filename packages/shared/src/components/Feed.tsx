@@ -33,7 +33,12 @@ import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
-import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
+import {
+  useBoot,
+  useConditionalFeature,
+  useFeedLayout,
+  useFeedVotePost,
+} from '../hooks';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
@@ -48,6 +53,7 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { briefCardFeedFeature } from '../lib/featureManagement';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -163,6 +169,12 @@ export default function Feed<T>({
   const { plusEntryFeed } = usePlusEntry();
   const showMarketingCta = !!marketingCta;
   const { isSearchPageLaptop } = useSearchResultsLayout();
+  const { value: briefCardFeatureValue } = useConditionalFeature({
+    feature: briefCardFeedFeature,
+    shouldEvaluate: feedName === SharedFeedPage.MyFeed,
+  });
+  const showBriefCard =
+    feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
 
   const {
     items,
@@ -444,9 +456,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {feedName === SharedFeedPage.MyFeed && (
-              <BriefCardFeed targetId={TargetId.Feed} />
-            )}
+            {showBriefCard && <BriefCardFeed targetId={TargetId.Feed} />}
             {items.map((item, index) => (
               <FeedItemComponent
                 item={item}

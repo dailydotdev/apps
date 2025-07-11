@@ -3,6 +3,7 @@ import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { OnboardingGridVariation } from './featureValues';
+import { isDevelopment } from './constants';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -75,3 +76,8 @@ export const featureOnboardingGridVariation = new Feature(
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };
+
+export const briefCardFeedFeature = new Feature(
+  'brief_card_feed',
+  isDevelopment,
+);
