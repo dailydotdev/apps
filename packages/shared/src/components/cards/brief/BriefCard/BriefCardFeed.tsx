@@ -8,7 +8,11 @@ import { ActionType } from '../../../../graphql/actions';
 export const BriefCardFeed = (
   props: Pick<BriefCardProps, 'targetId'>,
 ): ReactElement => {
-  const { checkHasCompleted } = useActions();
+  const { checkHasCompleted, isActionsFetched } = useActions();
+
+  if (!isActionsFetched) {
+    return null;
+  }
 
   if (checkHasCompleted(ActionType.GeneratedBrief)) {
     return null;
