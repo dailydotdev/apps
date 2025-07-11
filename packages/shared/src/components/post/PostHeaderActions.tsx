@@ -76,11 +76,21 @@ export function PostHeaderActions({
     isMobile,
   ]);
 
+  const isInternalReadTyped = isInternalReadType(post);
+
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
+      {!isInternalReadTyped && !!onReadArticle && <ButtonWithExperiment />}
       {canBoost && postById && !postById.post?.flags?.campaignId && (
-        <BoostPostButton post={post} buttonProps={{ size: ButtonSize.Small }} />
+        <BoostPostButton
+          post={post}
+          buttonProps={{
+            size:
+              isFixedNavigation || !isEnlarged || !isInternalReadTyped
+                ? ButtonSize.Small
+                : undefined,
+          }}
+        />
       )}
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
