@@ -32,12 +32,10 @@ import { IconSize } from '../Icon';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import ConditionalWrapper from '../ConditionalWrapper';
-import Link from '../utilities/Link';
 
 const IconWrapper = ({
   Icon,
@@ -199,48 +197,7 @@ export default function SquadHeaderMenu({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {items.map(
-          ({
-            label,
-            icon,
-            action,
-            anchorProps,
-            disabled,
-            Wrapper,
-          }: MenuItemProps) => (
-            <ConditionalWrapper
-              key={label}
-              condition={!!Wrapper}
-              wrapper={(children) => <Wrapper>{children}</Wrapper>}
-            >
-              <DropdownMenuItem
-                onClick={action}
-                key={label}
-                disabled={disabled}
-              >
-                {anchorProps ? (
-                  <Link href={anchorProps.href} passHref>
-                    <a
-                      className="flex flex-1 items-center"
-                      {...anchorProps}
-                      role="menuitem"
-                    >
-                      {icon} {label}
-                    </a>
-                  </Link>
-                ) : (
-                  <button
-                    className="flex flex-1 items-center"
-                    type="button"
-                    role="menuitem"
-                  >
-                    {icon} {label}
-                  </button>
-                )}
-              </DropdownMenuItem>
-            </ConditionalWrapper>
-          ),
-        )}
+        <DropdownMenuOptions options={items} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
