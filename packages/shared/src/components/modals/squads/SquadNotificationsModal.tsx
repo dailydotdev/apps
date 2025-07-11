@@ -30,6 +30,7 @@ export function SquadNotificationsModal({
     preferences,
     isPreferencesReady,
     muteNotification,
+    subscribeNotification,
     clearNotificationPreference,
     showSourceFeedPosts,
     hideSourceFeedPosts,
@@ -52,15 +53,15 @@ export function SquadNotificationsModal({
   const squadCache: Squad = client.getQueryData(
     generateQueryKey(RequestKey.Squad, user, squad?.handle),
   );
-  const { hideFeedPosts, mutedNewPosts, mutedNewMembers } = useMemo(
+  const { hideFeedPosts, subscribedNewPosts, mutedNewMembers } = useMemo(
     () => ({
       hideFeedPosts: squadCache?.currentMember?.flags?.hideFeedPosts,
-      mutedNewPosts: preferences?.some((preference) =>
+      subscribedNewPosts: preferences?.some((preference) =>
         checkHasStatusPreference(
           preference,
           NotificationType.SquadPostAdded,
           squad?.id,
-          [NotificationPreferenceStatus.Muted],
+          [NotificationPreferenceStatus.Subscribed],
         ),
       ),
       mutedNewMembers: preferences?.some((preference) =>
@@ -76,9 +77,9 @@ export function SquadNotificationsModal({
   );
 
   const onToggleNotifyNewPosts = () => {
-    const toggleAction = mutedNewPosts
+    const toggleAction = subscribedNewPosts
       ? clearNotificationPreference
-      : muteNotification;
+      : subscribeNotification;
 
     return toggleAction({
       type: NotificationType.SquadPostAdded,
@@ -128,7 +129,7 @@ export function SquadNotificationsModal({
           name="notify_new_posts"
           className="w-20"
           compact={false}
-          checked={!mutedNewPosts}
+          checked={subscribedNewPosts}
           onToggle={onToggleNotifyNewPosts}
         >
           Notify me about new posts
