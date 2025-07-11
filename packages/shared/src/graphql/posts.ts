@@ -15,6 +15,8 @@ import {
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
+import { useCanPurchaseCores } from '../hooks/useCoresFeature';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -79,6 +81,7 @@ type PostFlags = {
   showOnFeed: boolean;
   promoteToPublic: number;
   coverVideo?: string;
+  campaignId: string | null;
 };
 
 export enum UserVote {
@@ -173,6 +176,7 @@ export interface Ad {
   impressionStatus?: number;
   tagLine?: string;
   backgroundColor?: string;
+  data?: { post?: Post };
 }
 
 export type ReadHistoryPost = Pick<
@@ -953,4 +957,17 @@ export const updateSourcePostModeration = async (
   );
 
   return res.updateSourcePostModeration;
+};
+
+export const checkCanBoostByUser = (post: Post, userId: string) =>
+  (post?.author?.id && post?.author?.id === userId) ||
+  (post?.scout?.id && post?.scout?.id === userId);
+
+export const useCanBoostPost = (post: Post) => {
+  const { user } = useAuthContext();
+  const canBuy = useCanPurchaseCores();
+  const canBoost =
+    canBuy && checkCanBoostByUser(post, user?.id) && user.isTeamMember; // TODO: remove is testing check after testing
+
+  return { canBoost };
 };

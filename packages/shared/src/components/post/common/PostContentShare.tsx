@@ -1,13 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
-import { Origin } from '../../../lib/log';
+import { Origin, LogEvent } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { usePostActions } from '../../../hooks/post/usePostActions';
-import { postLogEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
 import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 import { PostContentWidget } from './PostContentWidget';
+import { useActiveFeedContext } from '../../../contexts';
+import { postLogEvent } from '../../../lib/feed';
 
 interface PostContentShareProps {
   post: Post;
@@ -17,6 +18,7 @@ export function PostContentShare({
   post,
 }: PostContentShareProps): ReactElement {
   const { onInteract, interaction } = usePostActions({ post });
+  const { logOpts } = useActiveFeedContext();
   const { isLoading, shareLink } = useGetShortUrl({
     query: {
       url: post.commentsPermalink,
@@ -38,11 +40,12 @@ export function PostContentShare({
         className={{ container: 'w-full flex-1' }}
         link={shareLink}
         onCopy={() => onInteract('none')}
-        logProps={postLogEvent('share post', post, {
+        logProps={postLogEvent(LogEvent.SharePost, post, {
           extra: {
             provider: ShareProvider.CopyLink,
             origin: Origin.PostContent,
           },
+          ...(logOpts && logOpts),
         })}
       />
     </PostContentWidget>

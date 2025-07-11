@@ -1,7 +1,12 @@
 import { useCallback, useContext } from 'react';
-import type { MutationKey } from '@tanstack/react-query';
+import type {
+  InfiniteData,
+  MutationKey,
+  QueryClient,
+  QueryKey,
+} from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Post, ReadHistoryPost } from '../graphql/posts';
+import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
@@ -10,18 +15,25 @@ import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
-import { updatePostCache } from '../lib/query';
+import {
+  updatePostCache,
+  RequestKey,
+  updateAdPostInCache,
+  createAdPostRollbackHandler,
+} from '../lib/query';
 import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { PostLogEventFnOptions } from '../lib/feed';
-import { optimisticPostUpdateInFeed, postLogEvent } from '../lib/feed';
-import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import { optimisticPostUpdateInFeed, usePostLogEvent } from '../lib/feed';
+import type { AdItem, FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
+import type { Bookmark } from '../graphql/bookmarks';
+import { useActiveFeedContext } from '../contexts';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -76,6 +88,8 @@ const useBookmarkPost = ({
   const { logEvent } = useContext(LogContext);
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
+  const postLogEvent = usePostLogEvent();
+  const { logOpts } = useActiveFeedContext();
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -139,8 +153,15 @@ const useBookmarkPost = ({
         opts,
       });
 
+      // Merge ActiveFeedContext.logOpts if available (modal context)
+      const finalLogOptions = logOpts
+        ? { ...logOptions, ...logOpts }
+        : logOptions;
+
       if (post.bookmarked) {
-        logEvent(postLogEvent(LogEvent.RemovePostBookmark, post, logOptions));
+        logEvent(
+          postLogEvent(LogEvent.RemovePostBookmark, post, finalLogOptions),
+        );
         if (disableToast) {
           return;
         }
@@ -149,7 +170,7 @@ const useBookmarkPost = ({
         return;
       }
 
-      logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
+      logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
 
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
@@ -167,7 +188,11 @@ const useBookmarkPost = ({
               listId: list?.id,
               onMoveBookmark: async () => {
                 logEvent(
-                  postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOptions),
+                  postLogEvent(
+                    LogEvent.MoveBookmarkToFolder,
+                    post,
+                    finalLogOptions,
+                  ),
                 );
               },
             },
@@ -183,6 +208,8 @@ const useBookmarkPost = ({
       removeBookmark,
       displayToast,
       openModal,
+      postLogEvent,
+      logOpts,
     ],
   );
 
@@ -195,12 +222,16 @@ type MutateBookmarkFeedPostProps = {
   id: string;
   updatePost: UpdateFeedPost;
   items: FeedItem[];
+  queryClient?: QueryClient;
+  feedQueryKey?: QueryKey;
 };
 
 export const mutateBookmarkFeedPost = ({
   id,
   items,
   updatePost,
+  queryClient,
+  feedQueryKey,
 }: MutateBookmarkFeedPostProps): ReturnType<
   UseBookmarkPostProps['onMutate']
 > => {
@@ -212,7 +243,11 @@ export const mutateBookmarkFeedPost = ({
     (item) => item.type === 'post' && item.post.id === id,
   );
 
-  if (postIndexToUpdate === -1) {
+  const adIndexToUpdate = items.findIndex(
+    (item) => item.type === 'ad' && item.ad.data?.post?.id === id,
+  );
+
+  if (postIndexToUpdate === -1 && adIndexToUpdate === -1) {
     return undefined;
   }
 
@@ -225,34 +260,84 @@ export const mutateBookmarkFeedPost = ({
     };
   };
 
-  const postItem = (items[postIndexToUpdate] as PostItem)?.post;
-  const previousBookmark = postItem?.bookmark;
-  const previousState = postItem?.bookmarked;
+  let previousBookmark: Bookmark;
+  let previousState: boolean | undefined;
+  const rollbackFunctions: (() => void)[] = [];
 
-  optimisticPostUpdateInFeed(
-    items,
-    updatePost,
-    mutationHandler,
-  )({ index: postIndexToUpdate });
-
-  return () => {
-    const postIndexToRollback = items.findIndex(
-      (item) => item.type === 'post' && item.post.id === id,
-    );
-
-    if (postIndexToRollback === -1) {
-      return;
-    }
-
-    const rollbackMutationHandler = () => ({
-      bookmarked: previousState,
-      bookmark: previousBookmark,
-    });
+  // Handle regular post update
+  if (postIndexToUpdate !== -1) {
+    const postItem = (items[postIndexToUpdate] as PostItem)?.post;
+    previousBookmark = postItem?.bookmark;
+    previousState = postItem?.bookmarked;
 
     optimisticPostUpdateInFeed(
       items,
       updatePost,
-      rollbackMutationHandler,
+      mutationHandler,
     )({ index: postIndexToUpdate });
+
+    rollbackFunctions.push(() => {
+      const postIndexToRollback = items.findIndex(
+        (item) => item.type === 'post' && item.post.id === id,
+      );
+
+      if (postIndexToRollback === -1) {
+        return;
+      }
+
+      const rollbackMutationHandler = () => ({
+        bookmarked: previousState,
+        bookmark: previousBookmark,
+      });
+
+      optimisticPostUpdateInFeed(
+        items,
+        updatePost,
+        rollbackMutationHandler,
+      )({ index: postIndexToUpdate });
+    });
+  }
+
+  // Handle Post Ad update
+  if (adIndexToUpdate !== -1 && queryClient && feedQueryKey) {
+    const adItem = items[adIndexToUpdate] as AdItem;
+    const adPost = adItem.ad.data?.post;
+
+    if (adPost) {
+      previousBookmark = adPost.bookmark;
+      previousState = adPost.bookmarked;
+
+      // Update the ad's post in the ads cache
+      const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+
+      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+        if (!currentData || !currentData.pages?.length) {
+          return currentData;
+        }
+
+        const existingAdPost = currentData.pages.find(
+          (page) => page.data?.post?.id === id,
+        )?.data?.post;
+        return updateAdPostInCache(
+          id,
+          currentData,
+          mutationHandler(existingAdPost),
+        );
+      });
+
+      rollbackFunctions.push(() => {
+        queryClient.setQueryData(
+          adsQueryKey,
+          createAdPostRollbackHandler(id, {
+            bookmarked: previousState,
+            bookmark: previousBookmark,
+          }),
+        );
+      });
+    }
+  }
+
+  return () => {
+    rollbackFunctions.forEach((rollback) => rollback());
   };
 };

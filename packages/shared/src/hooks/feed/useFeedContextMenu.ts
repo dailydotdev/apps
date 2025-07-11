@@ -9,6 +9,7 @@ export type PostLocation = {
   index: number;
   row: number;
   column: number;
+  isAd?: boolean;
 };
 
 type FeedContextMenu = {

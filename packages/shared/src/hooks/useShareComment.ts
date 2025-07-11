@@ -10,6 +10,7 @@ import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 import { useSharePost } from './useSharePost';
 import { shouldUseNativeShare } from '../lib/func';
+import { LogEvent } from '../lib/log';
 
 interface UseShareComment {
   openShareComment: (comment: Comment, post: Post) => void;
@@ -32,7 +33,7 @@ export function useShareComment(origin: Origin): UseShareComment {
             text: `${post.title}\n${shortUrl}`,
           });
           logEvent(
-            postLogEvent('share comment', post, {
+            postLogEvent(LogEvent.ShareComment, post, {
               extra: {
                 origin,
                 provider: ShareProvider.Native,

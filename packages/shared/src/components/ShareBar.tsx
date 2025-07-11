@@ -6,6 +6,7 @@ import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
 import LogContext from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
+import { ActiveFeedContext } from '../contexts';
 import { WidgetContainer } from './widgets/common';
 import { LogEvent, Origin } from '../lib/log';
 import { LazyModal } from './modals/common/types';
@@ -29,11 +30,13 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const [copying, copyLink] = useCopyPostLink();
   const { logEvent } = useContext(LogContext);
   const { openModal } = useLazyModal();
+  const { logOpts } = useContext(ActiveFeedContext);
 
   const logShareEvent = (provider: ShareProvider) =>
     logEvent(
-      postLogEvent('share post', post, {
+      postLogEvent(LogEvent.SharePost, post, {
         extra: { provider, origin: Origin.ShareBar },
+        ...(logOpts && logOpts),
       }),
     );
 

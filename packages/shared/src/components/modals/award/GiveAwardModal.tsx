@@ -27,24 +27,14 @@ import {
 } from '../../../contexts/GiveAwardModalContext';
 import { Justify } from '../../utilities';
 import MarkdownInput from '../../fields/MarkdownInput';
-import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { LazyModal, ModalKind } from '../common/types';
 import { IconSize } from '../../Icon';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
 import { BuyCoresModal } from './BuyCoresModal';
 import type { Product } from '../../../graphql/njord';
-import {
-  award,
-  getProductsQueryOptions,
-  UserTransactionStatus,
-} from '../../../graphql/njord';
-import { labels, largeNumberFormat } from '../../../lib';
-import type {
-  ApiErrorResult,
-  ApiResponseError,
-  ApiUserTransactionErrorExtension,
-} from '../../../graphql/common';
-import { ApiError } from '../../../graphql/common';
+import { award, getProductsQueryOptions } from '../../../graphql/njord';
+import { largeNumberFormat } from '../../../lib';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
@@ -53,6 +43,7 @@ import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { AnimatedAward } from '../../AnimatedAward';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { useTransactionError } from '../../../hooks/useTransactionError';
 
 const AwardItem = ({
   item,
@@ -272,7 +263,6 @@ const CommentScreen = () => {
   const { setActiveStep, type, entity, product, flags, logAwardEvent } =
     useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { displayToast } = useToastNotification();
   const [note, setNote] = useState('');
 
   const { mutate: awardMutation, isPending } = useMutation({
@@ -289,30 +279,7 @@ const CommentScreen = () => {
 
       setActiveStep({ screen: AWARD_SCREENS.SUCCESS, product });
     },
-    onError: async (data: ApiErrorResult) => {
-      if (
-        data.response.errors?.[0]?.extensions?.code ===
-        ApiError.BalanceTransactionError
-      ) {
-        const errorExtensions = data.response
-          .errors[0] as ApiResponseError<ApiUserTransactionErrorExtension>;
-
-        if (
-          errorExtensions.extensions.status ===
-            UserTransactionStatus.InsufficientFunds &&
-          errorExtensions.extensions.balance
-        ) {
-          await updateUser({
-            ...user,
-            balance: errorExtensions.extensions.balance,
-          });
-        }
-      }
-
-      displayToast(
-        data?.response?.errors?.[0]?.message || labels.error.generic,
-      );
-    },
+    onError: useTransactionError(),
   });
 
   const onAwardClick = useCallback(() => {
@@ -547,6 +514,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
           onRequestClose={onRequestClose}
           product={product}
           origin={Origin.Award}
+          onPlusClick={() => setActiveModal('BUY_CORES')}
         />
       ) : null}
     </>

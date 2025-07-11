@@ -7,7 +7,7 @@ import { UserVote } from '../../graphql/posts';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import type { PostLogEventFnOptions } from '../../lib/feed';
-import { postLogEvent } from '../../lib/feed';
+import { usePostLogEvent } from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
@@ -15,6 +15,7 @@ import {
 import type { UseVotePostProps, UseVotePost, ToggleVoteProps } from './types';
 import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';
+import { useActiveFeedContext } from '../../contexts';
 
 const prepareVotePostLogOptions = ({
   origin,
@@ -35,6 +36,8 @@ const useVotePost = ({
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useContext(LogContext);
+  const postLogEvent = usePostLogEvent();
+  const { logOpts } = useActiveFeedContext();
   const defaultOnMutate = ({ id, vote }) => {
     const mutationHandler = voteMutationHandlers[vote];
 
@@ -85,19 +88,33 @@ const useVotePost = ({
         opts,
       });
 
+      const finalLogOptions = logOpts
+        ? { ...logOptions, ...logOpts }
+        : logOptions;
+
       if (post?.userState?.vote === UserVote.Up) {
-        logEvent(postLogEvent(LogEvent.RemovePostUpvote, post, logOptions));
+        logEvent(
+          postLogEvent(LogEvent.RemovePostUpvote, post, finalLogOptions),
+        );
 
         await cancelPostVote({ id: post.id });
 
         return;
       }
 
-      logEvent(postLogEvent(LogEvent.UpvotePost, post, logOptions));
+      logEvent(postLogEvent(LogEvent.UpvotePost, post, finalLogOptions));
 
       await upvotePost({ id: post.id });
     },
-    [cancelPostVote, showLogin, logEvent, upvotePost, user],
+    [
+      cancelPostVote,
+      showLogin,
+      logEvent,
+      upvotePost,
+      user,
+      postLogEvent,
+      logOpts,
+    ],
   );
 
   const toggleDownvote: UseVotePost['toggleDownvote'] = useCallback(
@@ -118,19 +135,33 @@ const useVotePost = ({
         opts,
       });
 
+      const finalLogOptions = logOpts
+        ? { ...logOptions, ...logOpts }
+        : logOptions;
+
       if (post?.userState?.vote === UserVote.Down) {
-        logEvent(postLogEvent(LogEvent.RemovePostDownvote, post, logOptions));
+        logEvent(
+          postLogEvent(LogEvent.RemovePostDownvote, post, finalLogOptions),
+        );
 
         await cancelPostVote({ id: post.id });
 
         return;
       }
 
-      logEvent(postLogEvent(LogEvent.DownvotePost, post, logOptions));
+      logEvent(postLogEvent(LogEvent.DownvotePost, post, finalLogOptions));
 
       downvotePost({ id: post.id });
     },
-    [cancelPostVote, downvotePost, showLogin, logEvent, user],
+    [
+      cancelPostVote,
+      downvotePost,
+      showLogin,
+      logEvent,
+      user,
+      postLogEvent,
+      logOpts,
+    ],
   );
 
   return {

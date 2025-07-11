@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
+import { useActiveFeedContext } from '../../contexts';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
@@ -19,6 +20,7 @@ interface UseComments extends CommentWrite {
 
 export const useComments = (post: Post): UseComments => {
   const { logEvent } = useLogContext();
+  const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
   const [replyTo, setReplyTo] = useState<ReplyTo>(null);
 
@@ -47,6 +49,7 @@ export const useComments = (post: Post): UseComments => {
         logEvent(
           postLogEvent(LogEvent.OpenComment, post, {
             extra: { origin: Origin.PostCommentButton },
+            ...(logOpts && logOpts),
           }),
         );
       }
@@ -61,7 +64,7 @@ export const useComments = (post: Post): UseComments => {
 
       return setReplyTo(params);
     },
-    [user, showLogin, logEvent, post],
+    [user, showLogin, logEvent, post, logOpts],
   );
 
   return {

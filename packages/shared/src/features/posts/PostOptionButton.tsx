@@ -28,6 +28,7 @@ import {
   ShieldWarningIcon,
   TrashIcon,
   UpvoteIcon,
+  TrendingIcon,
 } from '../../components/icons';
 import {
   Button,
@@ -53,6 +54,8 @@ import usePostById, { invalidatePostCacheById } from '../../hooks/usePostById';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
+import { usePostLogEvent } from '../../lib/feed';
+import { useFeedCardContext } from './FeedCardContext';
 import useReportPost from '../../hooks/useReportPost';
 import { useSharePost } from '../../hooks/useSharePost';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
@@ -74,9 +77,9 @@ import {
   demotePost,
   isVideoPost,
   promotePost,
+  useCanBoostPost,
   UserVote,
 } from '../../graphql/posts';
-import { postLogEvent } from '../../lib/feed';
 import type { ReportedCallback } from '../../components/modals';
 import { labels } from '../../lib';
 import type { MenuItemProps } from '../../components/fields/ContextMenu';
@@ -93,7 +96,9 @@ import { MenuIcon } from '../../components/MenuIcon';
 import { Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
-import type { PostItem } from '../../hooks/useFeed';
+import { BoostIcon } from '../../components/icons/Boost';
+import type { FeedItem } from '../../hooks/useFeed';
+import { isBoostedPostAd } from '../../hooks/useFeed';
 
 const getBlockLabel = (
   name: string,
@@ -139,12 +144,25 @@ const PostOptionButtonContent = ({
 
   const { postIndex, prevPost, nextPost } = useMemo(() => {
     const postIndexSelect = items.findIndex(
-      (item) => item.type === 'post' && item.post.id === initialPost.id,
+      (item) =>
+        (item.type === 'post' && item.post.id === initialPost.id) ||
+        (item.type === 'ad' && item.ad.data?.post?.id === initialPost.id),
     );
+
+    const getPostFromItem = (item: FeedItem) => {
+      if (item?.type === 'post') {
+        return item.post;
+      }
+      if (isBoostedPostAd(item)) {
+        return item.ad.data.post;
+      }
+      return null;
+    };
+
     return {
       postIndex: postIndexSelect,
-      prevPost: (items[postIndexSelect - 1] as PostItem)?.post,
-      nextPost: (items[postIndexSelect + 1] as PostItem)?.post,
+      prevPost: getPostFromItem(items[postIndexSelect - 1]),
+      nextPost: getPostFromItem(items[postIndexSelect + 1]),
     };
   }, [items, initialPost.id]);
 
@@ -163,12 +181,15 @@ const PostOptionButtonContent = ({
     feedId: customFeedId,
   });
   const { logEvent } = useLogContext();
+  const postLogEvent = usePostLogEvent();
+  const { boostedBy } = useFeedCardContext();
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { canBoost } = useCanBoostPost(post);
 
   const banPostPrompt = useCallback(async () => {
     const options: PromptOptions = {
@@ -399,14 +420,14 @@ const PostOptionButtonContent = ({
     }
 
     logEvent(
-      postLogEvent('hide post', post, {
+      postLogEvent(LogEvent.HidePost, post, {
         extra: { origin: Origin.PostContextMenu },
         ...logOpts,
       }),
     );
 
     showMessageAndRemovePost(
-      '🙈 This post won’t show up on your feed anymore',
+      "🙈 This post won't show up on your feed anymore",
       postIndex,
       () => unhidePost(post.id),
     );
@@ -422,12 +443,43 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
-    {
-      icon: <MenuIcon Icon={EyeIcon} />,
-      label: 'Hide',
-      action: onHidePost,
-    },
   ];
+
+  const onBoostPost = () => {
+    openModal({
+      type: LazyModal.BoostPost,
+      props: {
+        post,
+      },
+    });
+  };
+
+  const onManageBoost = async () => {
+    openModal({
+      type: LazyModal.FetchBoostedPostView,
+      props: { campaignId: post.flags.campaignId },
+    });
+  };
+
+  if (canBoost) {
+    const isBoosted = !!post?.flags?.campaignId;
+    postOptions.push({
+      icon: (
+        <MenuIcon
+          Icon={isBoosted ? TrendingIcon : BoostIcon}
+          secondary={isBoosted}
+        />
+      ),
+      label: isBoosted ? 'Manage ad' : 'Boost post',
+      action: isBoosted ? onManageBoost : onBoostPost,
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={EyeIcon} />,
+    label: 'Hide',
+    action: onHidePost,
+  });
 
   const { shouldUseListFeedLayout } = useFeedLayout();
 
@@ -705,6 +757,7 @@ const PostOptionButtonContent = ({
           post,
           onReported: onReportedPost,
           origin: Origin.PostContextMenu,
+          isAd: !!boostedBy,
         },
       }),
   });

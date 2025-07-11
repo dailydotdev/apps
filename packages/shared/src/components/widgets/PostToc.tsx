@@ -6,8 +6,10 @@ import { UnreadIcon as TocIcon } from '../icons';
 import { Summary, SummaryArrow, TruncateText } from '../utilities';
 import LogContext from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
+import { ActiveFeedContext } from '../../contexts';
 import styles from './PostToc.module.css';
 import { WidgetContainer } from './common';
+import { LogEvent } from '../../lib/log';
 
 export type PostTocProps = {
   post: Post;
@@ -30,9 +32,15 @@ export default function PostToc({
   collapsible,
 }: PostTocProps): ReactElement {
   const { logEvent } = useContext(LogContext);
+  const { logOpts } = useContext(ActiveFeedContext);
 
   const onLinkClick = async (): Promise<void> => {
-    logEvent(postLogEvent('click', post, { extra: { origin: 'toc' } }));
+    logEvent(
+      postLogEvent(LogEvent.Click, post, {
+        extra: { origin: 'toc' },
+        ...(logOpts && logOpts),
+      }),
+    );
   };
 
   const items = (

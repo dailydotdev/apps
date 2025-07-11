@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
-import useFeed from '../hooks/useFeed';
+import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -28,7 +28,7 @@ import LogContext from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/log';
+import { Origin, LogEvent } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -48,6 +48,7 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { FeedCardContext } from '../features/posts/FeedCardContext';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -195,6 +196,22 @@ export default function Feed<T>({
   });
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    postPosition,
+    selectedPost,
+    selectedPostIsAd,
+  } = usePostModalNavigation({
+    items,
+    fetchPage,
+    updatePost,
+    canFetchMore,
+    feedName,
+  });
+
   const logOpts = useMemo(() => {
     return {
       columns: virtualizedNumCards,
@@ -204,8 +221,9 @@ export default function Feed<T>({
       column: !isNullOrUndefined(postModalIndex?.column)
         ? postModalIndex.column
         : postMenuLocation?.column,
+      is_ad: selectedPostIsAd ? true : undefined,
     };
-  }, [postMenuLocation, virtualizedNumCards, postModalIndex]);
+  }, [postMenuLocation, virtualizedNumCards, postModalIndex, selectedPostIsAd]);
 
   const onRemovePost = useCallback(
     async (removePostIndex: number) => {
@@ -227,20 +245,6 @@ export default function Feed<T>({
   }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
 
   const { ranking } = (variables as RankVariables) || {};
-  const {
-    onOpenModal,
-    onCloseModal,
-    onPrevious,
-    onNext,
-    postPosition,
-    selectedPost,
-  } = usePostModalNavigation({
-    items,
-    fetchPage,
-    updatePost,
-    canFetchMore,
-    feedName,
-  });
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
@@ -259,6 +263,7 @@ export default function Feed<T>({
     ranking,
     items,
     updatePost,
+    feedQueryKey,
   });
 
   const { toggleBookmark } = useFeedBookmarkPost({
@@ -364,13 +369,15 @@ export default function Feed<T>({
     index: number,
     row: number,
     column: number,
+    isAd?: boolean,
   ): void => {
     logEvent(
-      postLogEvent('comments click', post, {
+      postLogEvent(LogEvent.CommentsClick, post, {
         columns: virtualizedNumCards,
         column,
         row,
         ...feedLogExtra(feedName, ranking),
+        is_ad: isAd,
       }),
     );
     if (!shouldUseListFeedLayout) {
@@ -432,33 +439,41 @@ export default function Feed<T>({
         ) : (
           <>
             {items.map((item, index) => (
-              <FeedItemComponent
-                item={item}
-                index={index}
-                row={calculateRow(index, virtualizedNumCards)}
-                column={calculateColumn(index, virtualizedNumCards)}
-                columns={virtualizedNumCards}
+              <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
-                openNewTab={openNewTab}
-                postMenuIndex={postMenuIndex}
-                showCommentPopupId={showCommentPopupId}
-                setShowCommentPopupId={setShowCommentPopupId}
-                isSendingComment={isSendingComment}
-                comment={comment}
-                user={user}
-                feedName={feedName}
-                ranking={ranking}
-                toggleBookmark={toggleBookmark}
-                toggleUpvote={toggleUpvote}
-                toggleDownvote={toggleDownvote}
-                onPostClick={onPostCardClick}
-                onShare={onShareClick}
-                onMenuClick={onMenuClick}
-                onCopyLinkClick={onCopyLinkClickLogged}
-                onCommentClick={onCommentClick}
-                onAdAction={onAdAction}
-                onReadArticleClick={onReadArticleClick}
-              />
+                value={{
+                  boostedBy:
+                    isBoostedPostAd(item) &&
+                    (item.ad.data?.post?.author || item.ad.data?.post?.scout),
+                }}
+              >
+                <FeedItemComponent
+                  item={item}
+                  index={index}
+                  row={calculateRow(index, virtualizedNumCards)}
+                  column={calculateColumn(index, virtualizedNumCards)}
+                  columns={virtualizedNumCards}
+                  openNewTab={openNewTab}
+                  postMenuIndex={postMenuIndex}
+                  showCommentPopupId={showCommentPopupId}
+                  setShowCommentPopupId={setShowCommentPopupId}
+                  isSendingComment={isSendingComment}
+                  comment={comment}
+                  user={user}
+                  feedName={feedName}
+                  ranking={ranking}
+                  toggleBookmark={toggleBookmark}
+                  toggleUpvote={toggleUpvote}
+                  toggleDownvote={toggleDownvote}
+                  onPostClick={onPostCardClick}
+                  onShare={onShareClick}
+                  onMenuClick={onMenuClick}
+                  onCopyLinkClick={onCopyLinkClickLogged}
+                  onCommentClick={onCommentClick}
+                  onAdAction={onAdAction}
+                  onReadArticleClick={onReadArticleClick}
+                />
+              </FeedCardContext.Provider>
             ))}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
