@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { getIconForIntegration } from '../../lib/integrations';
 import type { UserIntegration } from '../../graphql/integrations';
-import { ContextMenuIds } from '../../hooks/constants';
 import { Button } from '../buttons/Button';
 import { ButtonSize } from '../buttons/common';
 import { IconSize } from '../Icon';
@@ -14,7 +13,6 @@ import {
   TypographyType,
   TypographyColor,
 } from '../typography/Typography';
-import useContextMenu from '../../hooks/useContextMenu';
 import { useIntegration } from '../../hooks/integrations/useIntegration';
 import {
   DropdownMenu,
@@ -40,11 +38,6 @@ export const UserIntegrationItem = ({
   isOpen,
   onToggle,
 }: UserIntegrationItemProps): ReactElement => {
-  const contextMenuId = `${ContextMenuIds.SourceIntegrationContext}-${integration.id}`;
-  const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
-    useContextMenu({
-      id: contextMenuId,
-    });
   const { removeIntegration } = useIntegration();
   const Icon = getIconForIntegration(integration.type);
 
