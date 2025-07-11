@@ -190,7 +190,7 @@ export const BriefCardInternal = (
     impressionRef.current = true;
 
     logEvent({
-      event_name: LogEvent.BriefImpression,
+      event_name: LogEvent.ImpressionBrief,
       extra: JSON.stringify({
         is_demo: !isPlus,
         brief_date:

@@ -295,7 +295,7 @@ export enum LogEvent {
   AwardSquad = 'award Squad',
   // End Credits
   // Start Brief
-  BriefImpression = 'brief impression',
+  ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
   // End Brief
 }
