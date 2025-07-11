@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, {
-  useState,
   useEffect,
+  useState,
   useCallback,
   useMemo,
   useRef,
@@ -173,7 +173,7 @@ const useOnboardingAuth = () => {
     [setAuth],
   );
 
-  // Update the Jotai auth state based on the login state and anonymous user
+  const isInitialized = useRef(false);
   useEffect(() => {
     const email = loginState?.formValues?.email || anonymous?.email;
     const shouldVerify = anonymous?.shouldVerify;
@@ -187,20 +187,26 @@ const useOnboardingAuth = () => {
       return;
     }
 
-    updateAuth({
-      defaultDisplay: getDefaultDisplay({
-        isLogin,
-        shouldVerify,
-        action,
-        wasLoggedInBefore,
-      }),
-      email,
-      isAuthenticating:
-        isRequiredAuth &&
-        (!!action || shouldVerify || wasLoggedInBefore || hasLoginState),
-      isLoading: !isAuthReady,
-      isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
-    });
+    // Update the auth state only:
+    // - if it has not been initialized yet
+    // - OR if the user needs email verification
+    if (!isInitialized.current || anonymous?.shouldVerify) {
+      isInitialized.current = true;
+      updateAuth({
+        defaultDisplay: getDefaultDisplay({
+          isLogin,
+          shouldVerify,
+          action,
+          wasLoggedInBefore,
+        }),
+        email,
+        isAuthenticating:
+          isRequiredAuth &&
+          (!!action || shouldVerify || wasLoggedInBefore || hasLoginState),
+        isLoading: !isAuthReady,
+        isLoginFlow: loginState?.isLogin || action === OnboardingActions.Login,
+      });
+    }
   }, [
     action,
     anonymous?.email,
