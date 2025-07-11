@@ -4,7 +4,6 @@ import React, { useMemo } from 'react';
 import type { AllowedTags, ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import SquadHeaderMenu from './SquadHeaderMenu';
-import useContextMenu from '../../hooks/useContextMenu';
 import type { SquadMemberShortListProps } from './SquadMemberShortList';
 import SquadMemberShortList from './SquadMemberShortList';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
@@ -12,16 +11,9 @@ import { Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import { SquadActionButton } from './SquadActionButton';
-import {
-  AddUserIcon,
-  BellIcon,
-  MenuIcon,
-  SlackIcon,
-  TimerIcon,
-} from '../icons';
+import { AddUserIcon, BellIcon, SlackIcon, TimerIcon } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { ContextMenu } from '../../hooks/constants';
 import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceIntegrationQuery';
 import { UserIntegrationType } from '../../graphql/integrations';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -184,7 +176,6 @@ export function SquadHeaderBar({
     origin: Origin.SquadPage,
   });
   const { openModal, modal } = useLazyModal();
-  const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
   const isMember = !!squad.currentMember;
   const userCanJoin = squad.public && !isMember;
   const showPendingCount = !!(
@@ -252,15 +243,6 @@ export function SquadHeaderBar({
           squad={squad}
         />
       )}
-      <Tooltip side="top" content="Squad options">
-        <Button
-          className="order-4 tablet:order-5"
-          variant={ButtonVariant.Float}
-          icon={<MenuIcon />}
-          onClick={onMenuClick}
-          size={ButtonSize.Small}
-        />
-      </Tooltip>
       <SquadHeaderMenu squad={squad} />
     </div>
   );
