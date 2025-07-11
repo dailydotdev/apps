@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import type { Connection, RequestQueryParams } from '../common';
 import { gqlClient } from '../common';
 import type { Post } from '../posts';
+import type { TransactionCreated } from '../njord';
 
 const BOOSTED_POST_FRAGMENT = gql`
   fragment BoostedPostFragment on BoostedPost {
@@ -173,11 +174,7 @@ export const startPostBoost = async ({
   id,
   budget,
   duration,
-}: BoostPostProps): Promise<{
-  referenceId?: string;
-  transactionId: string;
-  balance: { amount: number };
-}> => {
+}: BoostPostProps): Promise<TransactionCreated> => {
   const result = await gqlClient.request(START_POST_BOOST, {
     postId: id,
     budget,
@@ -190,14 +187,18 @@ export const startPostBoost = async ({
 export const CANCEL_POST_BOOST = gql`
   mutation CancelPostBoost($postId: ID!) {
     cancelPostBoost(postId: $postId) {
-      _
+      referenceId
+      transactionId
+      balance {
+        amount
+      }
     }
   }
 `;
 
 export const cancelPostBoost = async (
   id: string,
-): Promise<BoostEstimatedReach> => {
+): Promise<TransactionCreated> => {
   const result = await gqlClient.request(CANCEL_POST_BOOST, {
     postId: id,
   });
