@@ -95,6 +95,7 @@ export default function CommentModal({
   replyToCommentId,
   editCommentId,
   post,
+  initialContent: initialContentFromProps,
 }: CommentModalProps): ReactElement {
   const inputRef = useRef<HTMLFormElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -195,8 +196,18 @@ export default function CommentModal({
             : undefined,
       };
     }
-    return { submitCopy: 'Comment' };
-  }, [isEdit, isReply, comment, commentById, user?.id]);
+    return {
+      submitCopy: 'Comment',
+      initialContent: initialContentFromProps,
+    };
+  }, [
+    isEdit,
+    isReply,
+    comment,
+    commentById,
+    user?.id,
+    initialContentFromProps,
+  ]);
 
   return (
     <Modal

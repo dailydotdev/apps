@@ -87,7 +87,16 @@ export function CommentMarkdownInputComponent(
   };
 
   useEffect(() => {
-    markdownRef?.current?.textareaRef?.current?.focus();
+    const timeoutId = setTimeout(() => {
+      const textarea = markdownRef?.current?.textareaRef?.current;
+      if (textarea) {
+        textarea.focus();
+        textarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      // A small timeout to ensure the page is fully rendered and we scroll to the correct position
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
