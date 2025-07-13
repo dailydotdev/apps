@@ -37,7 +37,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../components/dropdown/DropdownMenu';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -778,13 +778,7 @@ const PostOptionButtonContent = ({
 
   return (
     <DropdownMenuContent>
-      {postOptions.map(({ label, icon, action, disabled }: MenuItemProps) => (
-        <DropdownMenuItem key={label} onClick={action} disabled={disabled}>
-          <div className="flex w-full items-center gap-2 typo-callout">
-            {icon} {label}
-          </div>
-        </DropdownMenuItem>
-      ))}
+      <DropdownMenuOptions options={postOptions} />
     </DropdownMenuContent>
   );
 };

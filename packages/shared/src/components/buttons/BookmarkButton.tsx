@@ -15,7 +15,7 @@ import type { IconSize } from '../Icon';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 
@@ -80,11 +80,7 @@ export function BookmarkButton({
           </QuaternaryButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {dropdownOptions.map(({ label, action }) => (
-            <DropdownMenuItem key={label} onClick={action}>
-              {label}
-            </DropdownMenuItem>
-          ))}
+          <DropdownMenuOptions options={dropdownOptions} />
         </DropdownMenuContent>
       </DropdownMenu>
     );

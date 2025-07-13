@@ -2,7 +2,6 @@ import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
-import { isDevelopment } from './constants';
 import { OnboardingGridVariation } from './featureValues';
 
 export class Feature<T extends JSONValue> {
@@ -81,5 +80,3 @@ export const featurePostUiImprovements = new Feature(
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };
-
-export const featureCores = new Feature('cores', isDevelopment);

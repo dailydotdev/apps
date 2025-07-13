@@ -116,11 +116,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
 
     const onSuccessfulRegistration = useCallback(
       (data: LoggedUser | AnonymousUser) => {
-        onTransition?.({
-          type: FunnelStepTransitionType.Complete,
-          details: { user: data },
-        });
-
         // Email users need to confirm their email before proceeding with funnel
         const isEmailSignup = 'infoConfirmed' in data && !data.infoConfirmed;
         if (isEmailSignup) {
@@ -130,7 +125,13 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.EmailVerification,
           }));
+          return;
         }
+
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { user: data },
+        });
       },
       [onTransition, setAuth],
     );
