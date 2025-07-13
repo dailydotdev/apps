@@ -34,6 +34,7 @@ const CommentInputOrModal = dynamic(
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
+  shouldHandleCommentQuery?: boolean;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -51,6 +52,7 @@ function NewCommentComponent(
     size = ProfileImageSize.Large,
     onCommented,
     post,
+    shouldHandleCommentQuery = false,
     ...props
   }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
@@ -81,7 +83,11 @@ function NewCommentComponent(
   const hasCommentQuery = typeof router.query.comment === 'string';
 
   useEffect(() => {
-    if (!hasCommentQuery || post.type !== PostType.Welcome) {
+    if (
+      !shouldHandleCommentQuery ||
+      !hasCommentQuery ||
+      post.type !== PostType.Welcome
+    ) {
       return;
     }
 
@@ -92,7 +98,7 @@ function NewCommentComponent(
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
-  }, [post, hasCommentQuery, onShowComment, router]);
+  }, [post, hasCommentQuery, onShowComment, router, shouldHandleCommentQuery]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {

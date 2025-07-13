@@ -22,7 +22,7 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -50,7 +50,6 @@ function PostEngagements({
   logOrigin,
   shouldOnboardAuthor,
 }: PostEngagementsProps): ReactElement {
-  const isTablet = useViewSize(ViewSize.Tablet);
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
@@ -145,14 +144,13 @@ function PostEngagements({
             : 'Oldest first'}
         </Button>
       </span>
-      {isTablet && (
-        <NewComment
-          className={{ container: 'mt-6 flex' }}
-          post={post}
-          ref={commentRef}
-          onCommented={onCommented}
-        />
-      )}
+      <NewComment
+        className={{ container: 'mt-6 flex' }}
+        post={post}
+        ref={commentRef}
+        onCommented={onCommented}
+        shouldHandleCommentQuery
+      />
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
