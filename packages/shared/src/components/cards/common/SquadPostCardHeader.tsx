@@ -51,7 +51,7 @@ export const SquadPostCardHeader = ({
       )}
       <div
         className={classNames(
-          postUiExp && 'mt-3 ',
+          postUiExp && 'mt-4 ',
           'relative m-2 flex gap-2',
           highlightBookmarkedPost && headerHiddenClassName,
         )}

@@ -95,7 +95,7 @@ export const PostCardHeader = ({
           className,
           highlightBookmarkedPost && headerHiddenClassName,
           interactiveFeedExp && 'mx-0',
-          postUiExp && 'mt-3',
+          postUiExp && 'mt-4',
         )}
       >
         {!isUserSource && (
