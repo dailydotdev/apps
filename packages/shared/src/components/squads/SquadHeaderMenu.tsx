@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions, SourceMemberRole } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -44,11 +45,15 @@ const IconWrapper = ({
 }): ReactElement => <Icon size={IconSize.Small} className="mr-2" />;
 
 interface SquadHeaderMenuProps {
+  className?: {
+    button?: string;
+  };
   squad: Squad;
 }
 
 export default function SquadHeaderMenu({
   squad,
+  className,
 }: SquadHeaderMenuProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logAndCopyLink } = useSquadInvitation({
@@ -190,7 +195,7 @@ export default function SquadHeaderMenu({
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Squad options' }} asChild>
         <Button
-          className="order-4 tablet:order-5"
+          className={classNames('order-4 tablet:order-5', className?.button)}
           variant={ButtonVariant.Float}
           icon={<MenuIcon />}
           size={ButtonSize.Small}

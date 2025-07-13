@@ -3,6 +3,7 @@ import Link from '../../utilities/Link';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import type { Origin } from '../../../lib/log';
@@ -16,6 +17,8 @@ import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type SquadEntityCardProps = {
   handle: string;
@@ -31,6 +34,11 @@ const SquadEntityCard = ({
   className,
 }: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
+  const { isLoading } = useShowFollowAction({
+    entityId: squad?.id,
+    entityType: ContentPreferenceType.Source,
+  });
+
   if (!squad) {
     return null;
   }
@@ -48,10 +56,12 @@ const SquadEntityCard = ({
       }}
       entityName={name}
       actionButtons={
-        squad && (
+        !isLoading && (
           <>
-            <SquadHeaderMenu squad={squad} />
             <SquadActionButton
+              className={{
+                button: 'order-6',
+              }}
               size={ButtonSize.Small}
               copy={{
                 join: 'Join',
@@ -60,13 +70,20 @@ const SquadEntityCard = ({
               squad={squad}
               origin={origin}
             />
+            <SquadHeaderMenu
+              squad={squad}
+              className={{
+                button: '!btn-tertiary invisible group-hover/menu:visible',
+              }}
+            />
           </>
         )
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
-        <Link href={permalink}>
+        <Link passHref href={permalink}>
           <Typography
+            tag={TypographyTag.Link}
             className="flex"
             type={TypographyType.Body}
             color={TypographyColor.Primary}
