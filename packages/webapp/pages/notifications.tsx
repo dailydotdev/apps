@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 import type { InfiniteData } from '@tanstack/react-query';
@@ -20,19 +20,14 @@ import NotificationItem from '@dailydotdev/shared/src/components/notifications/N
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import {
-  notificationMutingCopy,
-  NotificationType,
-} from '@dailydotdev/shared/src/components/notifications/utils';
+import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
-import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
@@ -46,7 +41,6 @@ const hasUnread = (data: InfiniteData<NotificationsData>) =>
     page.notifications.edges.some(({ node }) => !node.readAt),
   );
 
-const contextId = 'notifications-context-menu';
 const seo: NextSeoProps = {
   title: 'Notifications',
   noindex: true,
@@ -106,26 +100,6 @@ const Notifications = (): ReactElement => {
   useStreakRecoverModal();
   useTopReaderModal();
 
-  const { onMenuClick: showOptionsMenu, isOpen } = useContextMenu({
-    id: contextId,
-  });
-  const [notification, setNotification] = useState<Notification>();
-
-  const onOptionsClick = (e: React.MouseEvent, item: Notification) => {
-    e.preventDefault();
-
-    if (notification) {
-      const { referenceId, type } = notification;
-      const clickedSameButton =
-        referenceId === item.referenceId && type === item.type;
-      setNotification(clickedSameButton ? undefined : item);
-      return;
-    }
-
-    setNotification(item);
-    showOptionsMenu(e);
-  };
-
   return (
     <ProtectedPage>
       <main
@@ -162,11 +136,6 @@ const Notifications = (): ReactElement => {
                     type={type}
                     isUnread={!readAt}
                     onClick={() => onNotificationClick(node)}
-                    onOptionsClick={
-                      Object.keys(notificationMutingCopy).includes(type)
-                        ? (e) => onOptionsClick(e, node)
-                        : undefined
-                    }
                   />,
                 );
 
@@ -176,12 +145,6 @@ const Notifications = (): ReactElement => {
           {(!length || !hasNextPage) && isFetched && <FirstNotification />}
         </InfiniteScrolling>
       </main>
-      <NotificationPreferenceMenu
-        isOpen={isOpen}
-        contextId={contextId}
-        notification={notification}
-        onClose={() => setNotification(undefined)}
-      />
     </ProtectedPage>
   );
 };

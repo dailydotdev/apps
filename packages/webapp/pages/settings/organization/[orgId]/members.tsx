@@ -62,11 +62,9 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
-import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -163,40 +161,7 @@ const OrganizationOptionsMenu = ({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {options.map(
-          ({
-            label,
-            icon,
-            action,
-            anchorProps,
-            disabled,
-            Wrapper,
-          }: MenuItemProps) => (
-            <ConditionalWrapper
-              key={label}
-              condition={!!Wrapper}
-              wrapper={(children) => <Wrapper>{children}</Wrapper>}
-            >
-              <DropdownMenuItem
-                onClick={action}
-                key={label}
-                disabled={disabled}
-              >
-                {anchorProps ? (
-                  <Link href={anchorProps.href} passHref>
-                    <a className="flex" {...anchorProps} role="menuitem">
-                      {icon} {label}
-                    </a>
-                  </Link>
-                ) : (
-                  <button className="flex" type="button" role="menuitem">
-                    {icon} {label}
-                  </button>
-                )}
-              </DropdownMenuItem>
-            </ConditionalWrapper>
-          ),
-        )}
+        <DropdownMenuOptions options={options} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

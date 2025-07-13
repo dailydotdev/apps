@@ -4,10 +4,8 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { getIconForIntegration } from '../../lib/integrations';
 import type { UserIntegration } from '../../graphql/integrations';
-import { ContextMenuIds } from '../../hooks/constants';
 import { Button } from '../buttons/Button';
 import { ButtonSize } from '../buttons/common';
-import ContextMenu from '../fields/ContextMenu';
 import { IconSize } from '../Icon';
 import { MenuIcon, TrashIcon, ArrowIcon } from '../icons';
 import {
@@ -15,8 +13,13 @@ import {
   TypographyType,
   TypographyColor,
 } from '../typography/Typography';
-import useContextMenu from '../../hooks/useContextMenu';
 import { useIntegration } from '../../hooks/integrations/useIntegration';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 
 const UserSourceIntegrationList = dynamic(() =>
   import(
@@ -35,11 +38,6 @@ export const UserIntegrationItem = ({
   isOpen,
   onToggle,
 }: UserIntegrationItemProps): ReactElement => {
-  const contextMenuId = `${ContextMenuIds.SourceIntegrationContext}-${integration.id}`;
-  const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
-    useContextMenu({
-      id: contextMenuId,
-    });
   const { removeIntegration } = useIntegration();
   const Icon = getIconForIntegration(integration.type);
 
@@ -57,29 +55,27 @@ export const UserIntegrationItem = ({
           </Typography>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Button
-            icon={<MenuIcon />}
-            size={ButtonSize.Small}
-            onClick={showOptionsMenu}
-          />
-          <ContextMenu
-            id={contextMenuId}
-            className="menu-primary typo-callout"
-            animation="fade"
-            options={[
-              {
-                icon: <TrashIcon />,
-                label: 'Revoke access',
-                action: () => {
-                  removeIntegration({
-                    integrationId: integration.id,
-                    integrationType: integration.type,
-                  });
-                },
-              },
-            ]}
-            isOpen={isOptionsOpen}
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button icon={<MenuIcon />} size={ButtonSize.Small} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuOptions
+                options={[
+                  {
+                    icon: <TrashIcon />,
+                    label: 'Revoke access',
+                    action: () => {
+                      removeIntegration({
+                        integrationId: integration.id,
+                        integrationType: integration.type,
+                      });
+                    },
+                  },
+                ]}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
             size={ButtonSize.Small}

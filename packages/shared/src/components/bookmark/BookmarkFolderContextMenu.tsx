@@ -11,7 +11,7 @@ import { useBookmarkFolder } from '../../hooks/bookmark/useBookmarkFolder';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button } from '../buttons/Button';
@@ -75,11 +75,7 @@ export const BookmarkFolderContextMenu = ({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {options.map(({ label, icon, action }: MenuItemProps) => (
-          <DropdownMenuItem key={label} onClick={action}>
-            {icon} {label}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuOptions options={options} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

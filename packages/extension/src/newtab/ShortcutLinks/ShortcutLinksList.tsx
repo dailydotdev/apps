@@ -1,6 +1,12 @@
-import type { MouseEventHandler, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
-import { ClearIcon, MenuIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ClearIcon,
+  EyeIcon,
+  MenuIcon,
+  SettingsIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { MenuIcon as WrappingMenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
 import {
   Button,
   ButtonSize,
@@ -10,13 +16,18 @@ import {
 import classNames from 'classnames';
 
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
+import {
   ShortcutLinksItem,
   ShortcutItemPlaceholder,
 } from './ShortcutLinksItem';
 
 interface ShortcutLinksListProps {
   onLinkClick: () => void;
-  onMenuClick: MouseEventHandler<Element>;
   onOptionsOpen: () => void;
   shortcutLinks: string[];
   shouldUseListFeedLayout: boolean;
@@ -29,13 +40,25 @@ const placeholderLinks = Array.from({ length: 6 }).map((_, index) => index);
 
 export function ShortcutLinksList({
   onLinkClick,
-  onMenuClick,
   onOptionsOpen,
   toggleShowTopSites,
   shortcutLinks,
   shouldUseListFeedLayout,
 }: ShortcutLinksListProps): ReactElement {
   const hasShortcuts = shortcutLinks?.length > 0;
+
+  const options = [
+    {
+      icon: <WrappingMenuIcon Icon={EyeIcon} />,
+      label: 'Hide',
+      action: toggleShowTopSites,
+    },
+    {
+      icon: <WrappingMenuIcon Icon={SettingsIcon} />,
+      label: 'Manage',
+      action: onOptionsOpen,
+    },
+  ];
 
   return (
     <div
@@ -49,14 +72,20 @@ export function ShortcutLinksList({
           {shortcutLinks.map((url) => (
             <ShortcutLinksItem key={url} url={url} onLinkClick={onLinkClick} />
           ))}
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<MenuIcon className="rotate-90" secondary />}
-            onClick={onMenuClick}
-            className="mt-2"
-            aria-label="toggle shortcuts menu"
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<MenuIcon className="rotate-90" secondary />}
+                className="mt-2"
+                aria-label="toggle shortcuts menu"
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuOptions options={options} />
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       )}
       {!hasShortcuts && (
