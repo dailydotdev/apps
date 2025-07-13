@@ -49,7 +49,6 @@ export default function FooterWrapper({
                 'h-12 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
               ),
             }}
-            shouldHandleCommentQuery={false}
           />
         </div>
       )}
