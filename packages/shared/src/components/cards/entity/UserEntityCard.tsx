@@ -5,6 +5,7 @@ import EntityCard from './EntityCard';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import { BlockIcon, DevPlusIcon, FlagIcon, GiftIcon } from '../../icons';
@@ -150,8 +151,9 @@ const UserEntityCard = ({ user, className }: Props) => {
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">
-        <Link href={permalink}>
+        <Link passHref href={permalink}>
           <Typography
+            tag={TypographyTag.Link}
             className="flex"
             type={TypographyType.Body}
             color={TypographyColor.Primary}
@@ -164,12 +166,15 @@ const UserEntityCard = ({ user, className }: Props) => {
           </Typography>
         </Link>
         <div className="flex items-center gap-1">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            @{username}
-          </Typography>
+          <Link passHref href={permalink}>
+            <Typography
+              tag={TypographyTag.Link}
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              @{username}
+            </Typography>
+          </Link>
           <JoinedDate
             className="text-text-quaternary typo-footnote"
             date={new Date(createdAt)}

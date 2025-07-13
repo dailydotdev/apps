@@ -4,6 +4,7 @@ import EntityCard from './EntityCard';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import type { SourceTooltip } from '../../../graphql/sources';
@@ -73,8 +74,9 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
-        <Link href={permalink}>
+        <Link passHref href={permalink}>
           <Typography
+            tag={TypographyTag.Link}
             className="flex"
             type={TypographyType.Body}
             color={TypographyColor.Primary}

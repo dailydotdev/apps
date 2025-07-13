@@ -3,17 +3,16 @@ import Link from '../../utilities/Link';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import type { Origin } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { MenuIcon, SourceIcon } from '../../icons';
+import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
-import { ContextMenuIds } from '../../../hooks/constants';
-import useContextMenu from '../../../hooks/useContextMenu';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
@@ -35,9 +34,6 @@ const SquadEntityCard = ({
   className,
 }: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
-  const { onMenuClick } = useContextMenu({
-    id: ContextMenuIds.SquadMenuContext,
-  });
   const { isLoading } = useShowFollowAction({
     entityId: squad?.id,
     entityType: ContentPreferenceType.Source,
@@ -62,34 +58,32 @@ const SquadEntityCard = ({
       actionButtons={
         !isLoading && (
           <>
-            <Button
-              className="invisible justify-center group-hover/menu:visible"
-              variant={ButtonVariant.Option}
-              icon={<MenuIcon />}
-              onClick={onMenuClick}
+            <SquadActionButton
+              className={{
+                button: 'order-6',
+              }}
               size={ButtonSize.Small}
+              copy={{
+                join: 'Join',
+                leave: 'Leave',
+              }}
+              squad={squad}
+              origin={origin}
             />
-            {squad && (
-              <>
-                <SquadHeaderMenu squad={squad} className="z-[9999]" />
-                <SquadActionButton
-                  size={ButtonSize.Small}
-                  copy={{
-                    join: 'Join',
-                    leave: 'Leave',
-                  }}
-                  squad={squad}
-                  origin={origin}
-                />
-              </>
-            )}
+            <SquadHeaderMenu
+              squad={squad}
+              className={{
+                button: '!btn-tertiary invisible group-hover/menu:visible',
+              }}
+            />
           </>
         )
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
-        <Link href={permalink}>
+        <Link passHref href={permalink}>
           <Typography
+            tag={TypographyTag.Link}
             className="flex"
             type={TypographyType.Body}
             color={TypographyColor.Primary}

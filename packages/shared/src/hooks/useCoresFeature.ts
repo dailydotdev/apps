@@ -1,5 +1,3 @@
-import { useConditionalFeature } from './useConditionalFeature';
-import { featureCores } from '../lib/featureManagement';
 import { useAuthContext } from '../contexts/AuthContext';
 import { canAwardUser, hasAccessToCores } from '../lib/cores';
 import type { PropsParameters } from '../types';
@@ -12,12 +10,7 @@ import type LoggedUser from '../../__tests__/fixture/loggedUser';
 const useCoresFeature = (): boolean => {
   const { user } = useAuthContext();
 
-  const { value: hasAccess } = useConditionalFeature({
-    feature: featureCores,
-    shouldEvaluate: !!user && user.coresRole > 0,
-  });
-
-  return hasAccess;
+  return !!user && user.coresRole > 0;
 };
 
 export const useHasAccessToCores = (): boolean => {

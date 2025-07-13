@@ -1,26 +1,34 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { SourceMember } from '../../graphql/sources';
+import dynamic from 'next/dynamic';
+import type { SourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { BlockIcon, MenuIcon } from '../icons';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { BlockIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
+import type { UseSquadActions } from '../../hooks';
 import { useToastNotification } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 
-interface SquadMemberActionsProps {
+interface SquadMemberActionsProps
+  extends Pick<UseSquadActions, 'onUpdateRole'> {
+  squad: Squad;
   member: SourceMember;
   onUnblock: React.MouseEventHandler;
-  onOptionsClick: React.MouseEventHandler;
 }
 
+const SquadMemberMenu = dynamic(
+  () => import(/* webpackChunkName: "squadMemberMenu" */ './SquadMemberMenu'),
+);
+
 function SquadMemberItemOptionsButton({
+  squad,
   member,
   onUnblock,
-  onOptionsClick,
+  onUpdateRole,
 }: SquadMemberActionsProps): ReactElement {
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
@@ -69,22 +77,16 @@ function SquadMemberItemOptionsButton({
     );
   }
 
-  const option = (
-    <Tooltip content="Member options">
-      <Button
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-        className="z-1 m-auto ml-2 mr-0"
-        onClick={onOptionsClick}
-        icon={<MenuIcon />}
-      />
-    </Tooltip>
-  );
-
   const sameUser = loggedUser && loggedUser.id === user.id;
   const hideOption = sameUser || !loggedUser;
 
-  return hideOption ? null : option;
+  return hideOption ? null : (
+    <SquadMemberMenu
+      squad={squad}
+      member={member}
+      onUpdateRole={onUpdateRole}
+    />
+  );
 }
 
 export default SquadMemberItemOptionsButton;
