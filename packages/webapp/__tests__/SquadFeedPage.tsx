@@ -49,6 +49,10 @@ import {
 } from '@dailydotdev/shared/src/graphql/actions';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
+import {
+  CONTENT_PREFERENCE_STATUS_QUERY,
+  ContentPreferenceType,
+} from '@dailydotdev/shared/src/graphql/contentPreference';
 import SquadPage from '../pages/squads/[handle]';
 
 const defaultSquad: Squad = {
@@ -140,6 +144,21 @@ const createBasicSourceMembersMock = (
 ): MockedGraphQLResponse<BasicSourceMembersData> => ({
   request: { query: BASIC_SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
+});
+
+const createContentPreferenceStatusMock = (
+  id: string = defaultSquad.id,
+  entity: ContentPreferenceType = ContentPreferenceType.Source,
+): MockedGraphQLResponse => ({
+  request: {
+    query: CONTENT_PREFERENCE_STATUS_QUERY,
+    variables: { id, entity },
+  },
+  result: {
+    data: {
+      contentPreferenceStatus: null,
+    },
+  },
 });
 
 let client: QueryClient;
@@ -369,8 +388,25 @@ describe('squad header bar', () => {
   it('should show join squad button for open squad', async () => {
     requestedSquad.public = true;
     requestedSquad.currentMember = undefined;
-    renderComponent(undefined, undefined, undefined, []);
 
+    const withContentPrefStatusMock = [
+      createSourceMock(defaultSquad.handle),
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+      createContentPreferenceStatusMock(
+        defaultSquad.id,
+        ContentPreferenceType.Source,
+      ),
+    ];
+
+    renderComponent(
+      defaultSquad.handle,
+      withContentPrefStatusMock,
+      undefined,
+      [],
+    );
+
+    await waitForNock();
     expect(await screen.findByText('Join Squad')).toBeInTheDocument();
   });
 
