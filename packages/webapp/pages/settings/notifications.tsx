@@ -65,6 +65,8 @@ import { sourceQueryOptions } from '@dailydotdev/shared/src/graphql/sources';
 import { BRIEFING_SOURCE } from '@dailydotdev/shared/src/types';
 import { useRouter } from 'next/router';
 import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
+import { briefUIFeature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import AccountContentSection, {
@@ -83,6 +85,7 @@ const AccountNotificationsPage = (): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
+  const briefUIFeatureValue = useFeature(briefUIFeature);
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const { onTogglePermission } = usePushNotificationMutation();
@@ -627,7 +630,7 @@ const AccountNotificationsPage = (): ReactElement => {
               ),
               value: UserPersonalizedDigestType.Digest,
             },
-            {
+            briefUIFeatureValue && {
               label: (
                 <>
                   <Typography

@@ -16,11 +16,14 @@ import {
 } from '../../../hooks/bookmark';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { FolderIcon } from '../../icons/Folder';
+import { briefUIFeature } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 export const BookmarkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
+  const briefUIFeatureValue = useFeature(briefUIFeature);
   const { openModal, closeModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
   const { createFolder } = useCreateBookmarkFolder();
@@ -44,7 +47,7 @@ export const BookmarkSection = ({
   };
 
   const menuItems: SidebarMenuItem[] = [
-    {
+    briefUIFeatureValue && {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BriefIcon secondary={active} />} />
       ),
@@ -96,7 +99,7 @@ export const BookmarkSection = ({
       requiresLogin: true,
       action: onAddFolderClick,
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <Section

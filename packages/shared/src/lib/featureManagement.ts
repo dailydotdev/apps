@@ -86,3 +86,5 @@ export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
 );
+
+export const briefUIFeature = new Feature('brief_ui', isDevelopment);
