@@ -4,6 +4,90 @@ import { CursorType, isFalsyOrSpace } from './textarea';
 const urlText = 'url';
 const getUrlText = (content = '', url = urlText) => `[${content}](${url})`;
 
+/**
+ * Checks if the selected text is already within a markdown link structure
+ * Returns true if the selection is inside a pattern like [text](url) or [](url)
+ */
+export const isSelectionInMarkdownLink = (
+  textarea: HTMLTextAreaElement,
+  selectionStart: number,
+  selectionEnd: number,
+): boolean => {
+  const text = textarea.value;
+
+  // Look backwards from selection start to find the structure
+  let openBracketIndex = -1;
+  let closeBracketIndex = -1;
+  let openParenIndex = -1;
+
+  for (let i = selectionStart - 1; i >= 0; i -= 1) {
+    if (text[i] === '(' && openParenIndex === -1) {
+      openParenIndex = i;
+    } else if (text[i] === ']' && closeBracketIndex === -1) {
+      closeBracketIndex = i;
+    } else if (text[i] === '[' && openBracketIndex === -1) {
+      openBracketIndex = i;
+      break;
+    }
+    // If we hit a newline, stop looking
+    if (text[i] === '\n') {
+      break;
+    }
+  }
+
+  // Look forward from selection end to find closing parenthesis
+  let closeParenIndex = -1;
+  let forwardCloseBracketIndex = -1;
+  let forwardOpenParenIndex = -1;
+
+  for (let i = selectionEnd; i < text.length; i += 1) {
+    if (text[i] === ']' && forwardCloseBracketIndex === -1) {
+      forwardCloseBracketIndex = i;
+    } else if (
+      text[i] === '(' &&
+      forwardCloseBracketIndex !== -1 &&
+      forwardOpenParenIndex === -1
+    ) {
+      forwardOpenParenIndex = i;
+    } else if (text[i] === ')') {
+      closeParenIndex = i;
+      break;
+    }
+    // If we hit a newline, stop looking
+    if (text[i] === '\n') {
+      break;
+    }
+  }
+
+  // Case 1: Selection is in the text part [text](url)
+  if (
+    openBracketIndex !== -1 &&
+    forwardCloseBracketIndex !== -1 &&
+    forwardOpenParenIndex !== -1 &&
+    closeParenIndex !== -1
+  ) {
+    // Verify the brackets are adjacent: ](
+    if (forwardCloseBracketIndex + 1 === forwardOpenParenIndex) {
+      return true;
+    }
+  }
+
+  // Case 2: Selection is in the URL part [text](url)
+  if (
+    openBracketIndex !== -1 &&
+    closeBracketIndex !== -1 &&
+    openParenIndex !== -1 &&
+    closeParenIndex !== -1
+  ) {
+    // Verify the brackets are adjacent: ](
+    if (closeBracketIndex + 1 === openParenIndex) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const getLinkReplacement: GetReplacementFn = (
   type,
   { word, url, selection: [start] },
