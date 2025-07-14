@@ -23,6 +23,7 @@ import { DateFormat } from '../../components/utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { boostDashboardInfo } from '../../components/modals/post/boost/common';
 import { Modal } from '../../components/modals/common/Modal';
+import { formatDataTileValue } from '../../lib';
 
 interface CampaignListViewProps {
   data: BoostedPostData;
@@ -158,8 +159,9 @@ export function CampaignListView({
           type={TypographyType.Callout}
           className="flex flex-row items-center"
         >
-          <CoreIcon className="mr-1" size={IconSize.Size16} /> {campaign.budget}{' '}
-          | {date.totalDays} {date.totalDays === 1 ? 'day' : 'days'}
+          <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
+          {formatDataTileValue(campaign.budget)} | {date.totalDays}{' '}
+          {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>
       <Button
