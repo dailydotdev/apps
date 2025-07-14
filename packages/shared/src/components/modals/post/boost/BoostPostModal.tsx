@@ -110,8 +110,9 @@ export function BoostPostModal({
           icon={<CoreIcon />}
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}
+          onClick={() => setActiveScreen('BUY_CORES')}
         >
-          {user.balance.amount}
+          {largeNumberFormat(user.balance.amount)}
           <span className="ml-2 border-l border-border-subtlest-tertiary pl-2">
             <PlusIcon />
           </span>
