@@ -60,14 +60,6 @@ export const BriefCardReady = ({
         className,
       )}
     >
-      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
-        <CardLink
-          className="z-[1000000] cursor-pointer"
-          title={post.title}
-          rel={anchorDefaultRel}
-          {...combinedClicks(onCombinedClick)}
-        />
-      </Link>
       <div
         style={rootStyle}
         className={classNames(
@@ -154,6 +146,14 @@ export const BriefCardReady = ({
           </div>
         </div>
       </div>
+      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
+        <CardLink
+          className="cursor-pointer"
+          title={post.title}
+          rel={anchorDefaultRel}
+          {...combinedClicks(onCombinedClick)}
+        />
+      </Link>
     </div>
   );
 };

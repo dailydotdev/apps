@@ -81,14 +81,6 @@ export const BriefListItem = ({
         className,
       )}
     >
-      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
-        <CardLink
-          className="cursor-pointer"
-          title={post.title}
-          rel={anchorDefaultRel}
-          {...combinedClicks(onCombinedClick)}
-        />
-      </Link>
       <div className="hidden items-center mobileXL:flex">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
@@ -147,6 +139,14 @@ export const BriefListItem = ({
           </Typography>
         </div>
       </div>
+      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
+        <CardLink
+          className="cursor-pointer"
+          title={post.title}
+          rel={anchorDefaultRel}
+          {...combinedClicks(onCombinedClick)}
+        />
+      </Link>
     </article>
   );
 };
