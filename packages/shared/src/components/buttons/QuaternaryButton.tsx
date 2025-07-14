@@ -13,6 +13,7 @@ export type QuaternaryButtonProps<TagName extends AllowedTags> =
   ButtonProps<TagName> & {
     reverse?: boolean;
     labelClassName?: string;
+    buttonClassName?: string;
   };
 
 function QuaternaryButtonComponent<TagName extends AllowedTags>(
@@ -24,6 +25,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
     reverse,
     tag = 'button',
     labelClassName,
+    buttonClassName,
     ...props
   }: QuaternaryButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -62,7 +64,10 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
         id={id}
         tag={tag}
         ref={anchorRef}
-        className={classNames(tag === 'a' && isHovered && 'hover')}
+        className={classNames(
+          tag === 'a' && isHovered && 'hover',
+          buttonClassName,
+        )}
       />
       {children && (
         <label

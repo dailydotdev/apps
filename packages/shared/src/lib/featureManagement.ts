@@ -73,6 +73,11 @@ export const featureOnboardingGridVariation = new Feature(
   OnboardingGridVariation.Control,
 );
 
+export const featurePostUiImprovements = new Feature(
+  'post_ui_improvements',
+  false,
+);
+
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };
