@@ -16,11 +16,11 @@ import { briefSourcesLimit } from '../../../../types';
 import { LogEvent } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { usePlusSubscription } from '../../../../hooks';
-import { CardLink } from '../../common/list/ListCard';
 import { webappUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { combinedClicks } from '../../../../lib/click';
+import { CardLink } from '../../common/Card';
 
 export type BriefCardReadyProps = BriefCardProps & {
   post: Post;
