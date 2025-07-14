@@ -73,11 +73,7 @@ describe('isSelectionInMarkdownLink', () => {
   });
 
   test('should handle multiple markdown links on same line', () => {
-    const textarea = createMockTextarea(
-      '[first](url1) [second](url2)',
-      15,
-      21,
-    );
+    const textarea = createMockTextarea('[first](url1) [second](url2)', 15, 21);
     const result = isSelectionInMarkdownLink(textarea, 15, 21);
     expect(result).toBe(true);
   });
