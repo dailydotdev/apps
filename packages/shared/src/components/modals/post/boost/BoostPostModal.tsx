@@ -77,6 +77,19 @@ export function BoostPostModal({
         product={null}
         onCompletion={() => setActiveScreen(SCREENS.FORM)}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
+        amountNeededCopy={
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            You need{' '}
+            <strong>
+              {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
+              more Cores
+            </strong>{' '}
+            to boost the post.
+          </Typography>
+        }
         origin={Origin.BoostPost}
       />
     );
