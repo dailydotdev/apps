@@ -109,6 +109,7 @@ export function CampaignListView({
           <Typography
             type={TypographyType.Callout}
             className="line-clamp-3 flex-1"
+            style={{ lineBreak: 'anywhere' }}
           >
             {post.title}
           </Typography>
