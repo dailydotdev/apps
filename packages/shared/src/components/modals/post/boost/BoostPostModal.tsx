@@ -58,7 +58,7 @@ export function BoostPostModal({
   const image = usePostImage(post);
 
   const onButtonClick = () => {
-    if (user.balance.amount < totalSpendInt && !user.isTeamMember) {
+    if (user.balance.amount < totalSpendInt) {
       return setActiveScreen(SCREENS.BUY_CORES);
     }
 
