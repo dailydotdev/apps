@@ -1,5 +1,5 @@
 import { webappUrl } from './constants';
-import { checkIsExtension } from './func';
+import { checkIsExtension, isExtension } from './func';
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
@@ -96,7 +96,13 @@ export const withPrefix = (prefix: string, url?: string): string => {
 };
 
 export const fromCDN = (path: string): string => {
-  return `${process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''}${path}`;
+  let cdnPrefix = isExtension ? webappUrl : '';
+
+  if (process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX) {
+    cdnPrefix = process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX;
+  }
+
+  return `${cdnPrefix}${path}`;
 };
 
 export const getRedirectNextPath = (params: URLSearchParams): string => {

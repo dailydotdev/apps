@@ -288,7 +288,9 @@ describe('shortcut links component', () => {
     expect(shortcuts.length).toEqual(4);
 
     const edit = await screen.findByLabelText('toggle shortcuts menu');
-    fireEvent.click(edit);
+    fireEvent.keyDown(edit, {
+      key: ' ',
+    });
 
     const manage = await screen.findByText('Manage');
     fireEvent.click(manage);
@@ -352,7 +354,9 @@ describe('shortcut links component', () => {
     const link = await screen.findByAltText('http://custom1.com');
 
     const toggleMenu = await screen.findByLabelText('toggle shortcuts menu');
-    fireEvent.click(toggleMenu);
+    fireEvent.keyDown(toggleMenu, {
+      key: ' ',
+    });
 
     const hide = await screen.findByText('Hide');
     fireEvent.click(hide);

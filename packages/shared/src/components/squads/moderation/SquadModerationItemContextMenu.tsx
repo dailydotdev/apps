@@ -9,7 +9,7 @@ import type { SourcePostModeration } from '../../../graphql/squads';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import { Button } from '../../buttons/Button';
@@ -61,11 +61,7 @@ export const SquadModerationItemContextMenu = ({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {options.map(({ label, icon, action }: MenuItemProps) => (
-          <DropdownMenuItem key={label} onClick={action}>
-            {icon} {label}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuOptions options={options} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

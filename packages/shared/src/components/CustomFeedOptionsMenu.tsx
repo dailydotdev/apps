@@ -13,7 +13,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from './dropdown/DropdownMenu';
 
@@ -83,11 +83,7 @@ const CustomFeedOptionsMenu = ({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {options.map(({ label, icon, action }: MenuItemProps) => (
-          <DropdownMenuItem key={label} onClick={action}>
-            {icon} {label}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuOptions options={options} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

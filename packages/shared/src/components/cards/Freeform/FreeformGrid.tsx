@@ -18,6 +18,8 @@ import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -41,6 +43,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
+  const postUiExp = useFeature(featurePostUiImprovements);
 
   return (
     <FeedItemContainer
@@ -61,7 +64,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         post={post}
         enableSourceHeader={enableSourceHeader}
       />
-      <CardTextContainer>
+      <CardTextContainer className={classNames(postUiExp && 'mx-4')}>
         <FreeformCardTitle
           className={classNames(
             generateTitleClamp({
