@@ -42,6 +42,7 @@ export enum ActionType {
   SmartPrompt = 'smart_prompt',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
+  GeneratedBrief = 'generated_brief',
 }
 
 export interface Action {

@@ -85,7 +85,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   isFallback?: boolean;
   className?: PostContentClassName;
   navigationProps?: PostNavigationProps;
-  engagementProps: UsePostContent;
+  engagementProps?: UsePostContent;
   shouldOnboardAuthor?: boolean;
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;

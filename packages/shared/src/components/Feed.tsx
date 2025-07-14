@@ -28,12 +28,17 @@ import LogContext from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/log';
+import { Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
-import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
+import {
+  useBoot,
+  useConditionalFeature,
+  useFeedLayout,
+  useFeedVotePost,
+} from '../hooks';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
@@ -48,6 +53,7 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
+import { briefCardFeedFeature } from '../lib/featureManagement';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -96,18 +102,31 @@ const CollectionPostModal = dynamic(
     ),
 );
 
+const BriefPostModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
+);
+
+const BriefCardFeed = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "briefCardFeed" */ './cards/brief/BriefCard/BriefCardFeed'
+    ),
+);
+
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
 
-const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
+export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
   [PostType.VideoYouTube]: ArticlePostModal,
   [PostType.Collection]: CollectionPostModal,
+  [PostType.Brief]: BriefPostModal,
 };
 
 export default function Feed<T>({
@@ -150,6 +169,12 @@ export default function Feed<T>({
   const { plusEntryFeed } = usePlusEntry();
   const showMarketingCta = !!marketingCta;
   const { isSearchPageLaptop } = useSearchResultsLayout();
+  const { value: briefCardFeatureValue } = useConditionalFeature({
+    feature: briefCardFeedFeature,
+    shouldEvaluate: feedName === SharedFeedPage.MyFeed,
+  });
+  const showBriefCard =
+    feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
 
   const {
     items,
@@ -431,6 +456,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
+            {showBriefCard && <BriefCardFeed targetId={TargetId.Feed} />}
             {items.map((item, index) => (
               <FeedItemComponent
                 item={item}

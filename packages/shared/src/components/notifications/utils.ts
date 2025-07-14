@@ -55,6 +55,7 @@ export enum NotificationType {
   UserPostAdded = 'user_post_added',
   UserTopReaderBadge = 'user_given_top_reader',
   UserReceivedAward = 'user_received_award',
+  BriefingReady = 'briefing_ready',
 }
 
 export enum NotificationIconType {
@@ -134,6 +135,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserPostAdded]: 'text-brand-default',
     [NotificationType.UserTopReaderBadge]: 'text-brand-default',
     [NotificationType.UserReceivedAward]: 'text-brand-default',
+    [NotificationType.BriefingReady]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;

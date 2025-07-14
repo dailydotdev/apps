@@ -2,9 +2,10 @@ import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { LottieComponentProps } from 'lottie-react';
 import type { ReactElement } from 'react';
-import { RequestKey } from '../lib/query';
-import { disabledRefetch } from '../lib/func';
-import { fromCDN } from '../lib';
+import {
+  lottieAnimationQueryOptions,
+  lottieAssetsBasePath,
+} from '../lib/lottie';
 
 export type LottieAnimationProps = {
   className?: string;
@@ -19,35 +20,14 @@ const Lottie = lazy(
 export const LottieAnimation = ({
   className,
   src,
-  basePath = '/assets/lottie',
+  basePath = lottieAssetsBasePath,
   loop = true,
   autoplay = true,
   ...lottieProps
 }: LottieAnimationProps): ReactElement => {
-  const { data: animationData } = useQuery({
-    queryKey: [RequestKey.LottieAnimations, basePath, src],
-    queryFn: async () => {
-      const animationPath = `${basePath}${src}`;
-
-      const headers = new Headers();
-      headers.set('Accept', 'application/json');
-
-      const response = await fetch(fromCDN(animationPath), {
-        headers,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to load animation from ${animationPath}`);
-      }
-
-      const result = await response.json();
-
-      return result;
-    },
-    ...disabledRefetch,
-    staleTime: Infinity,
-    gcTime: Infinity,
-  });
+  const { data: animationData } = useQuery(
+    lottieAnimationQueryOptions({ src, basePath }),
+  );
 
   return (
     <Suspense fallback={<div className={className} />}>

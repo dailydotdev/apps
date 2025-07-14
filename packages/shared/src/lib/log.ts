@@ -73,6 +73,8 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  BriefModal = 'brief modal',
+  BriefPage = 'brief page',
 }
 
 export enum LogEvent {
@@ -292,6 +294,10 @@ export enum LogEvent {
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
   // End Credits
+  // Start Brief
+  ImpressionBrief = 'impression brief',
+  ClickBrief = 'click brief',
+  // End Brief
 }
 
 export enum TargetType {
@@ -380,6 +386,9 @@ export enum TargetId {
   ContextMenu = 'context',
   SmartPrompt = 'smart prompt',
   Account = 'account',
+  Brief = 'brief',
+  NotificationSettings = 'notification settings',
+  Feed = 'feed',
 }
 
 export enum NotificationChannel {

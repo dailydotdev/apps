@@ -20,7 +20,8 @@ const generateEventId = (now = new Date()): string => {
 export type PostOrigin =
   | Origin.ArticlePage
   | Origin.ArticleModal
-  | Origin.CollectionModal;
+  | Origin.CollectionModal
+  | Origin.BriefModal;
 
 const getGlobalSharedProps = (): Partial<LogEvent> => ({
   screen_height: window.screen?.height,

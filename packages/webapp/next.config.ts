@@ -209,6 +209,11 @@ const nextConfig: NextConfig = {
             destination: '/settings/:path*',
             permanent: true,
           },
+          {
+            source: '/sources/briefing',
+            destination: '/briefing',
+            permanent: false,
+          },
         ];
       },
       headers: async () => {
