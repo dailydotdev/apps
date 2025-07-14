@@ -25,6 +25,7 @@ interface UsePostBoostMutation {
   onBoostPost: typeof startPostBoost;
   onCancelBoost: typeof cancelPostBoost;
   isLoadingCancel: boolean;
+  isLoadingEstimate: boolean;
 }
 
 export const usePostBoostMutation = ({
@@ -35,7 +36,7 @@ export const usePostBoostMutation = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
-  const { data: estimatedReach, isPending } = useQuery({
+  const { data: estimatedReach, isPending: isLoadingEstimate } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.PostCampaigns,
       user,
@@ -81,7 +82,7 @@ export const usePostBoostMutation = ({
     onError: useTransactionError(),
   });
 
-  const { mutateAsync: onCancelBoost } = useMutation({
+  const { mutateAsync: onCancelBoost, isPending } = useMutation({
     mutationFn: cancelPostBoost,
     onSuccess: async (data) => {
       if (!data.transactionId) {
@@ -115,5 +116,6 @@ export const usePostBoostMutation = ({
     onBoostPost,
     onCancelBoost,
     isLoadingCancel: isPending,
+    isLoadingEstimate,
   };
 };

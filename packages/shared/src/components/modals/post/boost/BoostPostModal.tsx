@@ -51,10 +51,11 @@ export function BoostPostModal({
   const [totalDays, setTotalDays] = React.useState(7);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { estimatedReach, onBoostPost } = usePostBoostMutation({
-    toEstimate: { id: post.id },
-    onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
-  });
+  const { estimatedReach, onBoostPost, isLoadingEstimate } =
+    usePostBoostMutation({
+      toEstimate: { id: post.id },
+      onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
+    });
   const image = usePostImage(post);
 
   const onButtonClick = () => {
@@ -76,6 +77,19 @@ export function BoostPostModal({
         product={null}
         onCompletion={() => setActiveScreen(SCREENS.FORM)}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
+        amountNeededCopy={
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            You need{' '}
+            <strong>
+              {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
+              more Cores
+            </strong>{' '}
+            to boost the post.
+          </Typography>
+        }
         origin={Origin.BoostPost}
       />
     );
@@ -92,6 +106,17 @@ export function BoostPostModal({
 
   // just to avoid any edge case where the min, for some reason is greater than max
   const maxReach = Math.max(estimatedReach.min, estimatedReach.max);
+
+  const potentialReach = (() => {
+    if (isLoadingEstimate) {
+      return 'Calculating...';
+    }
+
+    const min = largeNumberFormat(estimatedReach.min);
+    const max = largeNumberFormat(maxReach);
+
+    return `${min} - ${max}`;
+  })();
 
   return (
     <Modal
@@ -110,8 +135,9 @@ export function BoostPostModal({
           icon={<CoreIcon />}
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}
+          onClick={() => setActiveScreen('BUY_CORES')}
         >
-          {user.balance.amount}
+          {largeNumberFormat(user.balance.amount)}
           <span className="ml-2 border-l border-border-subtlest-tertiary pl-2">
             <PlusIcon />
           </span>
@@ -146,8 +172,7 @@ export function BoostPostModal({
               Total spend
             </Typography>
             <Typography className="mt-2" type={TypographyType.Body}>
-              {largeNumberFormat(estimatedReach.min)} -{' '}
-              {largeNumberFormat(maxReach)}
+              {potentialReach}
             </Typography>
             <Typography
               type={TypographyType.Callout}

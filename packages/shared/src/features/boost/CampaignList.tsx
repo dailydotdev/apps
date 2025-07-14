@@ -43,7 +43,7 @@ export function CampaignList({
   }
 
   return (
-    <div className="-mx-6 flex flex-col">
+    <div className="-mx-6 flex flex-1 flex-col overflow-x-hidden">
       {list.map((data) => (
         <CampaignListItem
           key={data.campaign.campaignId}

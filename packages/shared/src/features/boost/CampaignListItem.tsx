@@ -98,13 +98,16 @@ export function CampaignListItem({
             )}
           />
         )}
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className="line-clamp-2 flex-1 text-left"
-        >
-          {post.title}
-        </Typography>
+        <span className="flex flex-1">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+            className="line-clamp-2 flex-1 text-left"
+            style={{ lineBreak: 'anywhere' }}
+          >
+            {post.title}
+          </Typography>
+        </span>
       </span>
       <BoostStatus status={campaign.status} remainingDays={getRemaining()} />
       <ArrowIcon size={IconSize.Medium} className="rotate-90" />
