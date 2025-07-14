@@ -68,7 +68,7 @@ export function AdsDashboardModal({
         <Modal.Subtitle>Overview all time</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
           <DataTile
-            label="Ads cost"
+            label="Spend"
             value={stats.totalSpend}
             icon={<CoreIcon size={IconSize.XSmall} />}
             info={boostDashboardInfo.spend}
