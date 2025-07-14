@@ -12,12 +12,10 @@ import { settingsUrl } from '../../../lib/constants';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import type { ProfileSectionItemProps } from '../ProfileSectionItem';
 
 export const AccountSection = (): ReactElement => {
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
   const canBuy = useCanPurchaseCores();
 
   const items: ProfileSectionItemProps[] = [
@@ -43,8 +41,7 @@ export const AccountSection = (): ReactElement => {
     },
   ];
 
-  // TODO: remove the isTeamMember once we go live
-  if (canBuy && user?.isTeamMember) {
+  if (canBuy) {
     items.push({
       title: 'Ads dashboard',
       icon: TrendingIcon,
