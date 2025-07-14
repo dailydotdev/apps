@@ -500,6 +500,7 @@ export const TRANSACTION_FRAGMENT = gql`
     }
     sourceName
     createdAt
+    referenceType
   }
   ${PRODUCT_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}

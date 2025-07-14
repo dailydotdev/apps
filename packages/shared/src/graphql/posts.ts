@@ -971,7 +971,10 @@ export const checkCanBoostByUser = (post: Post, userId: string) =>
 export const useCanBoostPost = (post: Post) => {
   const { user } = useAuthContext();
   const canBuy = useCanPurchaseCores();
-  const canBoost = canBuy && checkCanBoostByUser(post, user?.id);
+  const isValidPost =
+    !post?.private &&
+    (!!post?.tags?.length || !!post?.sharedPost?.tags?.length);
+  const canBoost = canBuy && checkCanBoostByUser(post, user?.id) && isValidPost;
 
   return { canBoost };
 };

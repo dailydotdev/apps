@@ -127,6 +127,10 @@ export const getProductsQueryOptions = () => {
   };
 };
 
+export enum UserTransactionType {
+  PostBoost = 'post_boost',
+}
+
 export enum UserTransactionStatus {
   Success = 0,
   InsufficientFunds = 1,
@@ -152,6 +156,8 @@ export type UserTransaction = {
   balance: LoggedUser['balance'];
   createdAt: Date;
   sourceName?: string;
+  referenceType?: UserTransactionType;
+  referenceId?: string;
 };
 
 export const TRANSACTION_BY_PROVIDER_QUERY = gql`
