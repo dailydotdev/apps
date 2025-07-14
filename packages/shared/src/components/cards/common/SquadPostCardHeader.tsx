@@ -14,6 +14,8 @@ import { useBookmarkProvider } from '../../../hooks';
 import type { UserShortProfile } from '../../../lib/user';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -30,6 +32,7 @@ export const SquadPostCardHeader = ({
   post,
   enableSourceHeader = false,
 }: SquadPostCardHeaderProps): ReactElement => {
+  const postUiExp = useFeature(featurePostUiImprovements);
   const { author, source, bookmarked } = post;
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked,
@@ -48,6 +51,7 @@ export const SquadPostCardHeader = ({
       )}
       <div
         className={classNames(
+          postUiExp && 'mx-4 mt-4 ',
           'relative m-2 flex gap-2',
           highlightBookmarkedPost && headerHiddenClassName,
         )}

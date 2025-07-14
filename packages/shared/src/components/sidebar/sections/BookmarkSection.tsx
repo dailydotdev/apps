@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { ArrowIcon, BookmarkIcon, PlusIcon } from '../../icons';
+import { ArrowIcon, BookmarkIcon, BriefIcon, PlusIcon } from '../../icons';
 import { Section } from '../Section';
-import { webappUrl } from '../../../lib/constants';
+import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -16,11 +16,14 @@ import {
 } from '../../../hooks/bookmark';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { FolderIcon } from '../../icons/Folder';
+import { briefUIFeature } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 export const BookmarkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
+  const briefUIFeatureValue = useFeature(briefUIFeature);
   const { openModal, closeModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
   const { createFolder } = useCreateBookmarkFolder();
@@ -44,6 +47,16 @@ export const BookmarkSection = ({
   };
 
   const menuItems: SidebarMenuItem[] = [
+    briefUIFeatureValue && {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+      ),
+      title: 'Presidential briefings',
+      path: briefingUrl,
+      isForcedLink: true,
+      requiresLogin: true,
+      rightIcon,
+    },
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
@@ -86,7 +99,7 @@ export const BookmarkSection = ({
       requiresLogin: true,
       action: onAddFolderClick,
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <Section

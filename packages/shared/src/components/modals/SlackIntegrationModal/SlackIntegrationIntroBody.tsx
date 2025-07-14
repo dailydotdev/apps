@@ -12,11 +12,15 @@ import { Modal } from '../common/Modal';
 import { Image } from '../../image/Image';
 
 export type SlackIntegrationIntroBodyProps = {
+  title?: string;
+  description?: string;
   headerImg: string;
   onConnect: () => void;
 };
 
 export const SlackIntegrationIntroBody = ({
+  title = 'Squad + Slack = 🔥',
+  description = 'Get instant updates in Slack and keep the conversation going!',
   headerImg,
   onConnect,
 }: SlackIntegrationIntroBodyProps): ReactElement => {
@@ -28,10 +32,10 @@ export const SlackIntegrationIntroBody = ({
         bold
         color={TypographyColor.Primary}
       >
-        Squad + Slack = 🔥
+        {title}
       </Typography>
       <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-        Get instant updates in Slack and keep the conversation going!
+        {description}
       </Typography>
       <Button
         className="w-full"

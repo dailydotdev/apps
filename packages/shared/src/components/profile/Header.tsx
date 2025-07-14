@@ -186,6 +186,7 @@ export function Header({
             status={contentPreference?.status}
             entityName={`@${user.username}`}
             className="flex-row-reverse"
+            alwaysShow
           />
         )}
         {isSameUser && hasCoresAccess && (

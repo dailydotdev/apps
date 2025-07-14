@@ -32,11 +32,17 @@ import { slackIntegration } from '../../../lib/constants';
 export type SlackIntegrationModalProps = Omit<ModalProps, 'children'> & {
   source: Pick<Source, 'id' | 'handle' | 'type' | 'image' | 'name'>;
   trackStart?: boolean;
+  redirectPath?: string;
+  introTitle?: string;
+  introDescription?: string;
 };
 
 const SlackIntegrationModal = ({
   source,
   trackStart,
+  redirectPath,
+  introTitle,
+  introDescription,
   ...props
 }: SlackIntegrationModalProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -56,7 +62,7 @@ const SlackIntegrationModal = ({
     onWorkspaceChange,
     onChannelChange,
     hasIntegrations,
-  } = useSlackIntegrationModal({ source });
+  } = useSlackIntegrationModal({ source, redirectPath });
 
   const isStartTracked = useRef(false);
 
@@ -130,6 +136,8 @@ const SlackIntegrationModal = ({
       )}
       {!isLoadingIntegrations && !hasIntegrations && (
         <SlackIntegrationIntroBody
+          title={introTitle}
+          description={introDescription}
           headerImg={slackIntegrationHeader}
           onConnect={onConnectNew}
         />

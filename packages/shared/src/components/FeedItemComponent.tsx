@@ -35,6 +35,7 @@ import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
+import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 
 const CommentPopup = dynamic(
   () =>
@@ -114,6 +115,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformGrid,
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
+  [PostType.Brief]: BriefCard,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -123,6 +125,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
+  [PostType.Brief]: BriefCard,
 };
 
 type GetTagsProps = {

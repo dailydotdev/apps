@@ -5,7 +5,6 @@ import type { Post } from '../../../../graphql/posts';
 import { UserVote } from '../../../../graphql/posts';
 import InteractionCounter from '../../../InteractionCounter';
 import {
-  BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
@@ -16,7 +15,6 @@ import {
   usePostActions,
   useBlockPostPanel,
 } from '../../../../hooks';
-import { combinedClicks } from '../../../../lib/click';
 import ConditionalWrapper from '../../../ConditionalWrapper';
 import { PostTagsPanel } from '../../../post/block/PostTagsPanel';
 import { IconSize } from '../../../Icon';
@@ -25,6 +23,11 @@ import type { ActionButtonsProps } from '../../ActionsButtons';
 import { UpvoteButtonIcon } from '../../ActionsButtons/UpvoteButtonIcon';
 import { BookmarkButton } from '../../../buttons';
 import { Tooltip } from '../../../tooltip/Tooltip';
+import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
+import PostAwardAction from '../../../post/PostAwardAction';
+import { useFeature } from '../../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../../lib/featureManagement';
+import { combinedClicks } from '../../../../lib/click';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -42,6 +45,7 @@ export default function ActionButtons({
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
+  const postUiExp = useFeature(featurePostUiImprovements);
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -91,6 +95,129 @@ export default function ActionButtons({
     onCopyLinkClick?.(e, post);
   };
 
+  if (postUiExp) {
+    return (
+      <ConditionalWrapper
+        condition={showTagsPanel === true}
+        wrapper={(children) => (
+          <div className="flex flex-col">
+            {children}
+            <PostTagsPanel post={post} className="pointer-events-auto mt-4" />
+          </div>
+        )}
+      >
+        <div
+          className={classNames(
+            'flex flex-row items-center justify-between',
+            className,
+          )}
+        >
+          <Tooltip
+            content={
+              post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
+            }
+          >
+            <QuaternaryButton
+              className="btn-tertiary-avocado pointer-events-auto"
+              labelClassName="!pl-0"
+              id={`post-${post.id}-upvote-btn`}
+              color={ButtonColor.Avocado}
+              pressed={post?.userState?.vote === UserVote.Up}
+              onClick={onToggleUpvote}
+              variant={ButtonVariant.Tertiary}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={post?.userState?.vote === UserVote.Up}
+                  size={IconSize.Medium}
+                />
+              }
+            >
+              {post?.numUpvotes > 0 && (
+                <InteractionCounter
+                  className={classNames(
+                    'tabular-nums',
+                    !post?.numUpvotes && 'invisible',
+                  )}
+                  value={post?.numUpvotes}
+                />
+              )}
+            </QuaternaryButton>
+          </Tooltip>
+          <Tooltip
+            content={
+              post?.userState?.vote === UserVote.Down
+                ? 'Remove downvote'
+                : 'Downvote'
+            }
+          >
+            <QuaternaryButton
+              className="pointer-events-auto"
+              id={`post-${post.id}-downvote-btn`}
+              color={ButtonColor.Ketchup}
+              icon={
+                <DownvoteIcon
+                  secondary={post?.userState?.vote === UserVote.Down}
+                />
+              }
+              pressed={post?.userState?.vote === UserVote.Down}
+              onClick={onToggleDownvote}
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+          <LinkWithTooltip
+            tooltip={{ content: 'Comment' }}
+            href={post.commentsPermalink}
+          >
+            <QuaternaryButton
+              labelClassName="!pl-0"
+              id={`post-${post.id}-comment-btn`}
+              className="btn-tertiary-blueCheese pointer-events-auto"
+              color={ButtonColor.BlueCheese}
+              tag="a"
+              href={post.commentsPermalink}
+              pressed={post.commented}
+              variant={ButtonVariant.Tertiary}
+              icon={
+                <CommentIcon
+                  secondary={post.commented}
+                  size={IconSize.Medium}
+                />
+              }
+              onClick={() => onCommentClick?.(post)}
+            >
+              {post?.numComments > 0 && (
+                <InteractionCounter
+                  className={classNames(
+                    'tabular-nums',
+                    !post.numComments && 'invisible',
+                  )}
+                  value={post.numComments}
+                />
+              )}
+            </QuaternaryButton>
+          </LinkWithTooltip>
+          <PostAwardAction iconSize={IconSize.Medium} post={post} />
+          <BookmarkButton
+            post={post}
+            buttonProps={{
+              id: `post-${post.id}-bookmark-btn`,
+              onClick: onToggleBookmark,
+              variant: ButtonVariant.Tertiary,
+              className: 'pointer-events-auto',
+            }}
+          />
+          <Tooltip content="Copy link">
+            <QuaternaryButton
+              className="pointer-events-auto hover:bg-overlay-float-water hover:text-text-link"
+              icon={<LinkIcon />}
+              onClick={onCopyLink}
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+        </div>
+      </ConditionalWrapper>
+    );
+  }
   return (
     <ConditionalWrapper
       condition={showTagsPanel === true}
@@ -181,7 +308,6 @@ export default function ActionButtons({
           post={post}
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
-            icon: <BookmarkIcon secondary={post.bookmarked} />,
             onClick: onToggleBookmark,
             variant: ButtonVariant.Tertiary,
             className: 'pointer-events-auto ml-2',

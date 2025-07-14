@@ -27,6 +27,8 @@ import { DeletedPostId } from '../../../lib/constants';
 import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import type { UserShortProfile } from '../../../lib/user';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePostUiImprovements } from '../../../lib/featureManagement';
 
 const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
@@ -65,7 +67,7 @@ export const PostCardHeader = ({
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
   const isUserSource = isSourceUserSource(post.source);
   const { interactiveFeedExp } = useInteractiveFeedContext();
-
+  const postUiExp = useFeature(featurePostUiImprovements);
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
   });
@@ -93,6 +95,7 @@ export const PostCardHeader = ({
           className,
           highlightBookmarkedPost && headerHiddenClassName,
           interactiveFeedExp && 'mx-0',
+          postUiExp && 'mt-4',
         )}
       >
         {!isUserSource && (

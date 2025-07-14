@@ -17,6 +17,8 @@ import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
 import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
+import { PostType } from '../types';
+import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -31,14 +33,8 @@ export interface SharedPost extends Post {
   image: string;
 }
 
-export enum PostType {
-  Article = 'article',
-  Share = 'share',
-  Welcome = 'welcome',
-  Freeform = 'freeform',
-  VideoYouTube = 'video:youtube',
-  Collection = 'collection',
-}
+// just re-export for old usage, type should be imported from root types.ts
+export { PostType };
 
 export const internalReadTypes: PostType[] = [
   PostType.Welcome,
@@ -82,6 +78,10 @@ type PostFlags = {
   promoteToPublic: number;
   coverVideo?: string;
   campaignId: string | null;
+  posts?: number;
+  sources?: number;
+  savedTime?: number;
+  generatedAt?: Date;
 };
 
 export enum UserVote {
@@ -182,6 +182,7 @@ export interface Ad {
 export type ReadHistoryPost = Pick<
   Post,
   | 'id'
+  | 'slug'
   | 'title'
   | 'commentsPermalink'
   | 'image'
@@ -238,6 +239,10 @@ export const POST_BY_ID_QUERY = gql`
       }
       updatedAt
       numCollectionSources
+      collectionSources {
+        handle
+        image
+      }
     }
     relatedCollectionPosts: relatedPosts(
       id: $id
@@ -970,3 +975,33 @@ export const useCanBoostPost = (post: Post) => {
 
   return { canBoost };
 };
+
+export const BRIEFING_POSTS_PER_PAGE_DEFAULT = 20;
+
+export const BRIEFING_POSTS_QUERY = gql`
+  query BriefingPosts(
+    $after: String
+    $first: Int
+    $loggedIn: Boolean! = false
+  ) {
+    page: briefingPosts(after: $after, first: $first) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export enum BriefingType {
+  Daily = 'daily',
+  Weekly = 'weekly',
+}
+
+export const GENERATE_BRIEFING = gql`
+  mutation GenerateBriefing($type: BriefingType!) {
+    generateBriefing(type: $type) {
+      id: postId
+    }
+  }
+`;
+
+export const briefRefetchIntervalMs = 4000;

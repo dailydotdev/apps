@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { OpenLinkIcon } from '../icons';
@@ -38,9 +38,7 @@ export function PostHeaderActions({
   const client = useQueryClient();
   const postById = client.getQueryData<PostData>(key);
   const { openNewTab } = useContext(SettingsContext);
-  const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
-  const isEnlarged = isFixedNavigation || isLaptop;
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const { canBoost } = useCanBoostPost(post);
@@ -80,7 +78,30 @@ export function PostHeaderActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadTyped && !!onReadArticle && <ButtonWithExperiment />}
+      {!isInternalReadType(post) && !!onReadArticle && (
+        <Tooltip
+          side="bottom"
+          content={readButtonText}
+          visible={!inlineActions}
+        >
+          <Button
+            variant={
+              isFixedNavigation || isMobile
+                ? ButtonVariant.Tertiary
+                : ButtonVariant.Secondary
+            }
+            tag="a"
+            href={post.sharedPost?.permalink ?? post.permalink}
+            target={openNewTab ? '_blank' : '_self'}
+            icon={<OpenLinkIcon />}
+            onClick={onReadArticle}
+            data-testid="postActionsRead"
+            size={ButtonSize.Small}
+          >
+            {!inlineActions ? readButtonText : null}
+          </Button>
+        </Tooltip>
+      )}
       {canBoost && postById && !postById.post?.flags?.campaignId && (
         <BoostPostButton
           post={post}
@@ -98,7 +119,6 @@ export function PostHeaderActions({
         onClose={onClose}
         inlineActions={inlineActions}
         origin={Origin.ArticleModal}
-        isEnlarged={isEnlarged}
       />
     </Container>
   );

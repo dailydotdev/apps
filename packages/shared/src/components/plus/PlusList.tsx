@@ -244,6 +244,25 @@ export const plusOrganizationFeatureList: Array<PlusItem> = [
   },
 ];
 
+export const briefFeatureList: Array<PlusItem> = [
+  {
+    label: 'Unlimited presidential briefings',
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Set your preferred schedule',
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Choose your delivery method',
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Includes all other daily.dev Plus features',
+    status: PlusItemStatus.Ready,
+  },
+];
+
 interface PlusListProps
   extends Omit<PlusListItemProps, 'item'>,
     WithClassNameProps {
