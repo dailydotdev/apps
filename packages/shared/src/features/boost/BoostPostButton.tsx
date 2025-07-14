@@ -7,6 +7,7 @@ import { ButtonVariant } from '../../components/buttons/common';
 import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { boostPostButton } from '../../styles/custom';
 
 export function BoostPostButton({
   post,
@@ -22,10 +23,7 @@ export function BoostPostButton({
       variant={ButtonVariant.Primary}
       {...buttonProps}
       icon={<BoostIcon secondary />}
-      style={{
-        background:
-          'radial-gradient(1030.79% 132.35% at 50.01% 56.13%, var(--Colors-Accent-Blue-Cheese-subtlest, #6FF1F6) 0%, var(--theme-accent-cabbage-default) 100%)',
-      }}
+      style={{ background: boostPostButton }}
       onClick={() => {
         openModal({ type: LazyModal.BoostPost, props: { post } });
       }}
