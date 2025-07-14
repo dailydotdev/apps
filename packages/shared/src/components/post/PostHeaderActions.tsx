@@ -46,7 +46,7 @@ export function PostHeaderActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadType(post) && !!onReadArticle && (
+      {!isInternalReadTyped && !!onReadArticle && (
         <Tooltip
           side="bottom"
           content={readButtonText}
@@ -74,10 +74,7 @@ export function PostHeaderActions({
         <BoostPostButton
           post={post}
           buttonProps={{
-            size:
-              isFixedNavigation || !isInternalReadTyped
-                ? ButtonSize.Small
-                : undefined,
+            size: isInternalReadTyped ? undefined : ButtonSize.Small,
           }}
         />
       )}
