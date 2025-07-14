@@ -42,38 +42,6 @@ export function PostHeaderActions({
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const { canBoost } = useCanBoostPost(post);
-  const ButtonWithExperiment = useCallback(() => {
-    return (
-      <Tooltip side="bottom" content={readButtonText} visible={!inlineActions}>
-        <Button
-          variant={
-            isFixedNavigation || isMobile
-              ? ButtonVariant.Tertiary
-              : ButtonVariant.Secondary
-          }
-          tag="a"
-          href={post.sharedPost?.permalink ?? post.permalink}
-          target={openNewTab ? '_blank' : '_self'}
-          icon={<OpenLinkIcon />}
-          onClick={onReadArticle}
-          data-testid="postActionsRead"
-          size={ButtonSize.Small}
-        >
-          {!inlineActions ? readButtonText : null}
-        </Button>
-      </Tooltip>
-    );
-  }, [
-    inlineActions,
-    onReadArticle,
-    openNewTab,
-    post.permalink,
-    post.sharedPost?.permalink,
-    readButtonText,
-    isFixedNavigation,
-    isMobile,
-  ]);
-
   const isInternalReadTyped = isInternalReadType(post);
 
   return (
@@ -107,7 +75,7 @@ export function PostHeaderActions({
           post={post}
           buttonProps={{
             size:
-              isFixedNavigation || !isEnlarged || !isInternalReadTyped
+              isFixedNavigation || !isInternalReadTyped
                 ? ButtonSize.Small
                 : undefined,
           }}
