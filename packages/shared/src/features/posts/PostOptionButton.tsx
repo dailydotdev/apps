@@ -774,9 +774,11 @@ const PostOptionButtonContent = ({
             post,
             onReported: onReportedPost,
             origin: Origin.PostContextMenu,
+            isAd: !!boostedBy,
           },
         }),
     });
+
     if (user?.id && post?.author?.id === user?.id) {
       postOptions.push({
         icon: <MenuIcon Icon={EditIcon} />,
@@ -786,6 +788,7 @@ const PostOptionButtonContent = ({
         },
       });
     }
+
     if (onConfirmDeletePost) {
       postOptions.push({
         icon: <MenuIcon Icon={TrashIcon} />,
@@ -793,40 +796,6 @@ const PostOptionButtonContent = ({
         action: onConfirmDeletePost,
       });
     }
-
-  postOptions.push({
-    icon: <MenuIcon Icon={FlagIcon} />,
-    label: 'Report',
-    action: async () =>
-      openModal({
-        type: LazyModal.ReportPost,
-        props: {
-          index: postIndex,
-          post,
-          onReported: onReportedPost,
-          origin: Origin.PostContextMenu,
-          isAd: !!boostedBy,
-        },
-      }),
-  });
-
-  if (user?.id && post?.author?.id === user?.id) {
-    postOptions.push({
-      icon: <MenuIcon Icon={EditIcon} />,
-      label: 'Edit post',
-      action: () => {
-        router.push(`${post.commentsPermalink}/edit`);
-      },
-    });
-  }
-
-  if (onConfirmDeletePost) {
-    postOptions.push({
-      icon: <MenuIcon Icon={TrashIcon} />,
-      label: 'Delete post',
-      action: onConfirmDeletePost,
-    });
-  }
 
     if (allowPin && onSwapPinnedPost) {
       if (nextPost?.pinnedAt) {
