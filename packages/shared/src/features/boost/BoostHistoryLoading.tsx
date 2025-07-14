@@ -9,7 +9,7 @@ export function BoostHistoryLoading(): React.ReactElement {
   return (
     <div className="flex flex-col items-center gap-4">
       <Typography type={TypographyType.Title3} color={TypographyColor.Tertiary}>
-        Loading...
+        Fetching campaigns...
       </Typography>
     </div>
   );
