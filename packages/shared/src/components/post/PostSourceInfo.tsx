@@ -100,7 +100,7 @@ function PostSourceInfo({
                     className={{
                       button: classNames(
                         'flex min-w-min !px-0 tablet:hidden',
-                        !squad.currentMember && 'text-text-link',
+                        !squad?.currentMember && 'text-text-link',
                       ),
                     }}
                     squad={squad}
