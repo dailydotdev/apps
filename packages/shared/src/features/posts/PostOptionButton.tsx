@@ -491,12 +491,6 @@ const PostOptionButtonContent = ({
     });
   }
 
-  postOptions.push({
-    icon: <MenuIcon Icon={EyeIcon} />,
-    label: 'Hide',
-    action: onHidePost,
-  });
-
   const { shouldUseListFeedLayout } = useFeedLayout();
 
   if (!isBriefPost && !shouldUseListFeedLayout) {
