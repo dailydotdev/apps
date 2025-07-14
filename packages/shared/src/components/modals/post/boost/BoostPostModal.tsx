@@ -51,10 +51,11 @@ export function BoostPostModal({
   const [totalDays, setTotalDays] = React.useState(7);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { estimatedReach, onBoostPost } = usePostBoostMutation({
-    toEstimate: { id: post.id },
-    onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
-  });
+  const { estimatedReach, onBoostPost, isLoadingEstimate } =
+    usePostBoostMutation({
+      toEstimate: { id: post.id },
+      onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
+    });
   const image = usePostImage(post);
 
   const onButtonClick = () => {
@@ -92,6 +93,17 @@ export function BoostPostModal({
 
   // just to avoid any edge case where the min, for some reason is greater than max
   const maxReach = Math.max(estimatedReach.min, estimatedReach.max);
+
+  const potentialReach = (() => {
+    if (isLoadingEstimate) {
+      return 'Calculating...';
+    }
+
+    const min = largeNumberFormat(estimatedReach.min);
+    const max = largeNumberFormat(maxReach);
+
+    return `${min} - ${max}`;
+  })();
 
   return (
     <Modal
@@ -147,8 +159,7 @@ export function BoostPostModal({
               Total spend
             </Typography>
             <Typography className="mt-2" type={TypographyType.Body}>
-              {largeNumberFormat(estimatedReach.min)} -{' '}
-              {largeNumberFormat(maxReach)}
+              {potentialReach}
             </Typography>
             <Typography
               type={TypographyType.Callout}
