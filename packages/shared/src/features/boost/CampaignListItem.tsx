@@ -103,6 +103,7 @@ export function CampaignListItem({
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
             className="line-clamp-2 flex-1 text-left"
+            style={{ lineBreak: 'anywhere' }}
           >
             {post.title}
           </Typography>
