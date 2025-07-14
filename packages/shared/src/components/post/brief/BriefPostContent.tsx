@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import {
   SendType,
   ToastSubject,
+  useActions,
   useConditionalFeature,
   usePersonalizedDigest,
   usePlusSubscription,
@@ -47,7 +48,7 @@ import { RadioItem } from '../../fields/RadioItem';
 import { Checkbox } from '../../fields/Checkbox';
 import { isNullOrUndefined } from '../../../lib/func';
 import type { PropsParameters } from '../../../types';
-import { BRIEFING_SOURCE, briefSourcesLimit } from '../../../types';
+import { BRIEFING_SOURCE, briefSourcesLimit, PostType } from '../../../types';
 import type { UserPersonalizedDigest } from '../../../graphql/users';
 import { UserPersonalizedDigestType } from '../../../graphql/users';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -58,6 +59,7 @@ import { LazyModal } from '../../modals/common/types';
 import { getFirstName } from '../../../lib/user';
 import { labels } from '../../../lib';
 import Link from '../../utilities/Link';
+import { ActionType } from '../../../graphql/actions';
 
 const BriefPostContentRaw = ({
   post,
@@ -76,6 +78,7 @@ const BriefPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
+  const { completeAction } = useActions();
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
@@ -203,6 +206,14 @@ const BriefPostContentRaw = ({
       },
     });
   }, [shouldManageSlack, briefingSource, openModal, router, post?.slug]);
+
+  useEffect(() => {
+    if (post?.type !== PostType.Brief) {
+      return;
+    }
+
+    completeAction(ActionType.GeneratedBrief);
+  }, [completeAction, post?.type]);
 
   let authorFirstName = getFirstName(post.author?.name);
 

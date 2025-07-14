@@ -16,7 +16,6 @@ import { LogEvent } from '../../lib/log';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import type { Post } from '../../graphql/posts';
 import { isNullOrUndefined } from '../../lib/func';
-import CardOverlay from '../cards/common/CardOverlay';
 import { CardLink } from '../cards/common/Card';
 import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -82,18 +81,6 @@ export const BriefListItem = ({
         className,
       )}
     >
-      <CardOverlay
-        post={post}
-        onPostCardClick={onCombinedClick}
-        onPostCardAuxClick={onCombinedClick}
-      />
-      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
-        <CardLink
-          title={post.title}
-          rel={anchorDefaultRel}
-          {...combinedClicks(onCombinedClick)}
-        />
-      </Link>
       <div className="hidden items-center mobileXL:flex">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
@@ -152,6 +139,14 @@ export const BriefListItem = ({
           </Typography>
         </div>
       </div>
+      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
+        <CardLink
+          className="cursor-pointer"
+          title={post.title}
+          rel={anchorDefaultRel}
+          {...combinedClicks(onCombinedClick)}
+        />
+      </Link>
     </article>
   );
 };
