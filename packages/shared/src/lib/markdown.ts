@@ -31,7 +31,7 @@ export const isSelectionInMarkdownLink = (
     }
     // If we hit a newline, stop looking
     if (text[i] === '\n') {
-      break;
+      return false;
     }
   }
 
@@ -55,7 +55,7 @@ export const isSelectionInMarkdownLink = (
     }
     // If we hit a newline, stop looking
     if (text[i] === '\n') {
-      break;
+      return false;
     }
   }
 
