@@ -77,8 +77,8 @@ export const useJoinSquad = ({
 
     return result;
   }, [
-    squad.id,
-    squad.handle,
+    squad?.id,
+    squad?.handle,
     referralToken,
     logEvent,
     addSquad,
