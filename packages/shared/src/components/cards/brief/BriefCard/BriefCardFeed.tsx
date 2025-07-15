@@ -6,7 +6,7 @@ import { BriefCard } from './BriefCard';
 import { ActionType } from '../../../../graphql/actions';
 
 export const BriefCardFeed = (
-  props: Pick<BriefCardProps, 'targetId'>,
+  props: Pick<BriefCardProps, 'targetId' | 'className'>,
 ): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
 

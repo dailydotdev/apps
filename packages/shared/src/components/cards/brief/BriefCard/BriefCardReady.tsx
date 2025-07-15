@@ -57,7 +57,7 @@ export const BriefCardReady = ({
     <div
       className={classNames(
         'relative flex flex-1 rounded-16 border border-white bg-transparent',
-        className,
+        className?.card,
       )}
     >
       <div

@@ -463,7 +463,14 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {showBriefCard && <BriefCardFeed targetId={TargetId.Feed} />}
+            {showBriefCard && (
+              <BriefCardFeed
+                targetId={TargetId.Feed}
+                className={{
+                  container: 'p-4 pt-0',
+                }}
+              />
+            )}
             {items.map((item, index) => (
               <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
