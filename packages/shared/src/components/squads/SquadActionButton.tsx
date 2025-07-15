@@ -54,6 +54,10 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   const { logEvent } = useLogContext();
 
   useEffect(() => {
+    if (!squad) {
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.SquadJoinButton,
@@ -101,7 +105,7 @@ export const SquadActionButton = ({
   ...rest
 }: SquadActionButtonProps): ReactElement => {
   const { showActionBtn } = useShowFollowAction({
-    entityId: squad.id,
+    entityId: squad?.id,
     entityType: ContentPreferenceType.Source,
   });
   const {
@@ -114,15 +118,15 @@ export const SquadActionButton = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
   const isMemberBlocked =
-    squad.currentMember?.role === SourceMemberRole.Blocked;
-  const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
+    squad?.currentMember?.role === SourceMemberRole.Blocked;
+  const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
 
   const fuzzyQueryKey = generateQueryKey(
     RequestKey.Sources,
     null,
     undefined,
     true,
-    squad.category?.id,
+    squad?.category?.id,
   );
   const fuzzyQueryMatch = queryClient.getQueriesData({
     queryKey: fuzzyQueryKey,
@@ -145,7 +149,7 @@ export const SquadActionButton = ({
             ...subEdge,
             node: {
               ...subEdge.node,
-              ...(node.id === squad.id && { currentMember: user }),
+              ...(node.id === squad?.id && { currentMember: user }),
             },
           };
         }),
