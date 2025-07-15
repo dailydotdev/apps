@@ -8,6 +8,7 @@ import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import {
   BlockIcon,
+  BriefIcon,
   CustomPromptIcon,
   FolderIcon,
   HashtagIcon,
@@ -24,6 +25,7 @@ import {
   plusShowcaseCustomFeedsImage,
   plusShowcaseCustomFeedsVideo,
   plusShowcaseKeywordImage,
+  plusShowcasePresidentialBriefImage,
   plusShowcaseShieldImage,
   plusShowcaseShieldVideo,
   plusShowcaseSmartPrompsImage,
@@ -63,6 +65,21 @@ export const defaultFeatureList: Array<PlusItem> = [
 ];
 
 export const plusFeatureList: Array<PlusItem> = [
+  {
+    id: 'presidential-briefing',
+    label: 'Unlimited presidential briefings',
+    status: PlusItemStatus.Ready,
+    tooltip: `Your AI agent scans the internet, reads the latest dev content, filters the noise, and delivers a personalized briefing of what actually matters.`,
+    icon: <BriefIcon secondary />,
+    iconClasses: 'bg-overlay-float-mustard text-accent-mustard-default',
+    modalProps: {
+      title: 'Unlimited presidential briefings',
+      description:
+        'Your AI agent scans the internet, reads the latest dev content, filters the noise, and delivers a personalized briefing of what actually matters.',
+      imageUrl: plusShowcasePresidentialBriefImage,
+      mediaType: 'image',
+    },
+  },
   {
     id: 'smart prompts',
     label: 'Run prompts on any post',
