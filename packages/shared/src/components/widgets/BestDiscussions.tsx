@@ -9,6 +9,7 @@ import { CardLink } from '../cards/common/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
+import { ActiveFeedContext } from '../../contexts';
 import LogContext from '../../contexts/LogContext';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
@@ -18,6 +19,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { LogEvent } from '../../lib/log';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -80,11 +82,13 @@ export default function BestDiscussions({
   className,
 }: BestDiscussionsProps): ReactElement {
   const { logEvent } = useContext(LogContext);
+  const { logOpts } = useContext(ActiveFeedContext);
 
   const onLinkClick = (post: Post): void => {
     logEvent(
-      postLogEvent('click', post, {
+      postLogEvent(LogEvent.Click, post, {
         extra: { origin: 'best discussions' },
+        ...(logOpts && logOpts),
       }),
     );
   };

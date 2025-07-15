@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Post } from '../../graphql/posts';
-import type { FeedItem, PostItem } from '../useFeed';
+import type { FeedItem } from '../useFeed';
+import { isBoostedPostAd } from '../useFeed';
 import useOnPostClick from '../useOnPostClick';
+import { updateFeedAndAdsCache } from '../../lib/query';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -22,7 +25,9 @@ export default function useFeedOnPostClick(
   feedName: string,
   ranking?: string,
   eventName = 'click',
+  feedQueryKey?: unknown[],
 ): FeedPostClick {
+  const queryClient = useQueryClient();
   const onPostClick = useOnPostClick({
     eventName,
     columns,
@@ -39,8 +44,14 @@ export default function useFeedOnPostClick(
           return;
         }
 
-        const item = items[index] as PostItem;
-        updatePost(item.page, item.index, { ...post, read: true });
+        const item = items[index];
+        if (item.type === 'post') {
+          updatePost(item.page, item.index, { ...post, read: true });
+        } else if (isBoostedPostAd(item) && feedQueryKey) {
+          updateFeedAndAdsCache(post.id, feedQueryKey, queryClient, {
+            read: true,
+          });
+        }
       },
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

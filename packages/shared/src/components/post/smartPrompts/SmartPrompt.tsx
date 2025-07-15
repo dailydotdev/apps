@@ -11,6 +11,7 @@ import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import { SmartPromptResponse } from './SmartPromptResponse';
 import { CustomPrompt } from './CustomPrompt';
 import { ActionType } from '../../../graphql/actions';
+import { useActiveFeedContext } from '../../../contexts';
 import { postLogEvent } from '../../../lib/feed';
 import { useLogContext } from '../../../contexts/LogContext';
 
@@ -22,6 +23,7 @@ export const SmartPrompt = ({
   isContainedView?: boolean;
 }): ReactElement => {
   const { logEvent } = useLogContext();
+  const { logOpts } = useActiveFeedContext();
   const { isPlus } = usePlusSubscription();
   const { checkHasCompleted } = useActions();
   const [activeDisplay, setActiveDisplay] = useState<PromptDisplay>(
@@ -46,6 +48,7 @@ export const SmartPrompt = ({
       logEvent(
         postLogEvent(LogEvent.SmartPrompt, post, {
           extra: { prompt },
+          ...(logOpts && logOpts),
         }),
       );
     }

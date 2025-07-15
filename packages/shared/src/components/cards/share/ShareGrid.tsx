@@ -148,7 +148,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             createdAt={post.createdAt}
             readTime={post.sharedPost.readTime}
             isVideoType={isVideoType}
-            className="mx-4"
+            className="mx-2"
           />
         </Container>
       </>

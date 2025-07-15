@@ -43,15 +43,15 @@ function PostSourceInfo({
 }: SourceInfoProps): ReactElement {
   const { source } = post;
   const { showActionBtn } = useShowFollowAction({
-    entityId: source.id,
+    entityId: source?.id,
     entityType: ContentPreferenceType.Source,
   });
-  const isUnknown = source.id === 'unknown';
+  const isUnknown = source?.id === 'unknown';
   const { squad, isLoading: isLoadingSquad } = useSquad({
-    handle: source.handle,
+    handle: source?.handle,
   });
   const { data } = useContentPreferenceStatusQuery({
-    id: source.id,
+    id: source?.id,
     entity: ContentPreferenceType.Source,
   });
 
@@ -70,9 +70,9 @@ function PostSourceInfo({
       {!isUnknown && (
         <>
           <div className="flex flex-row items-center">
-            <Link href={source.permalink}>
+            <Link href={source?.permalink}>
               <a className="text-text-secondary typo-callout">
-                {source.handle}
+                {source?.handle}
               </a>
             </Link>
             {showActionBtn && (
@@ -86,10 +86,10 @@ function PostSourceInfo({
                       'flex min-w-min !px-0 tablet:hidden',
                       !isFollowing && 'text-text-link',
                     )}
-                    entityId={source.id}
+                    entityId={source?.id}
                     status={data?.status}
                     type={ContentPreferenceType.Source}
-                    entityName={source.name}
+                    entityName={source?.name}
                     showSubscribe={false}
                   />
                 )}

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useContext } from 'react';
 import type { Comment, PostCommentsData } from '../../graphql/comments';
 import {
   COMMENT_ON_COMMENT_MUTATION,
@@ -8,6 +8,7 @@ import {
 } from '../../graphql/comments';
 import { LogEvent } from '../../lib/log';
 import { postLogEvent } from '../../lib/feed';
+import { ActiveFeedContext } from '../../contexts';
 import {
   generateQueryKey,
   getAllCommentsQuery,
@@ -65,6 +66,7 @@ export const useMutateComment = ({
   const client = useQueryClient();
   const { requestMethod, isCompanion } = useRequestProtocol();
   const { logEvent } = useLogContext();
+  const { logOpts } = useContext(ActiveFeedContext);
 
   const key = useMemo(
     () =>
@@ -152,6 +154,7 @@ export const useMutateComment = ({
       logEvent(
         postLogEvent(LogEvent.CommentPost, post, {
           extra: { commentId: parentCommentId },
+          ...(logOpts && logOpts),
         }),
       );
     }

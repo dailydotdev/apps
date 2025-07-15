@@ -39,6 +39,8 @@ export const useFeedBookmarkPost = ({
         ...(mutationVariables as UseBookmarkMutationProps),
         items,
         updatePost,
+        queryClient,
+        feedQueryKey,
       });
     },
   });
@@ -53,6 +55,8 @@ export const useFeedBookmarkPost = ({
         id,
         items,
         updatePost,
+        queryClient,
+        feedQueryKey,
       });
     },
   });

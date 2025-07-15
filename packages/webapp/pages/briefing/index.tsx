@@ -199,8 +199,13 @@ const Page = (): ReactElement => {
                 value={{ queryKey: feedQueryKey, items }}
               >
                 {emptyFeed && !feedQuery.isPending && (
-                  <div className="max-w-80">
-                    <BriefCardFeed targetId={TargetId.List} />
+                  <div className="tablet:max-w-80">
+                    <BriefCardFeed
+                      targetId={TargetId.List}
+                      className={{
+                        container: '!p-0',
+                      }}
+                    />
                   </div>
                 )}
                 {emptyFeed &&

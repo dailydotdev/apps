@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useContext } from 'react';
 import { LinkIcon, ShareIcon } from './icons';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
@@ -10,6 +10,7 @@ import {
 } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
 import { postLogEvent } from '../lib/feed';
+import { ActiveFeedContext } from '../contexts';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import type { Post } from '../graphql/posts';
@@ -33,9 +34,14 @@ export function ShareMobile({
   const [copying] = useCopyPostLink(link);
   const { openSharePost } = useSharePost(origin);
   const { logEvent } = useLogContext();
+  const { logOpts } = useContext(ActiveFeedContext);
 
   const onShare = () => {
-    logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
+    logEvent(
+      postLogEvent(LogEvent.StartShareToSquad, post, {
+        ...(logOpts && logOpts),
+      }),
+    );
     openSharePost({ post });
   };
 
