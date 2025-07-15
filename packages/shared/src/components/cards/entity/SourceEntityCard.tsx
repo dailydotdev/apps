@@ -20,7 +20,7 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 type SourceEntityCardProps = {
-  source: SourceTooltip;
+  source?: SourceTooltip;
   className?: {
     container?: string;
   };

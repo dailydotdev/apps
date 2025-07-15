@@ -34,7 +34,7 @@ import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type Props = {
-  user: UserShortProfile;
+  user?: UserShortProfile;
   className?: {
     container?: string;
   };
