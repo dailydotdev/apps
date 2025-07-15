@@ -3,6 +3,7 @@ import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { OnboardingGridVariation } from './featureValues';
+import { isDevelopment } from './constants';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -72,6 +73,24 @@ export const featureOnboardingGridVariation = new Feature(
   OnboardingGridVariation.Control,
 );
 
+export const featurePostUiImprovements = new Feature(
+  'post_ui_improvements',
+  false,
+);
+
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };
+
+export const featureCores = new Feature('cores', isDevelopment);
+
+// whether the user will see post boost ads
+// does not necessarily mean they can't boost a post if they have access to cores
+export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
+
+export const briefCardFeedFeature = new Feature(
+  'brief_card_feed',
+  isDevelopment,
+);
+
+export const briefUIFeature = new Feature('brief_ui', isDevelopment);

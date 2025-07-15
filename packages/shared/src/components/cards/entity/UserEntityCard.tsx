@@ -5,6 +5,7 @@ import EntityCard from './EntityCard';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import { BlockIcon, DevPlusIcon, FlagIcon, GiftIcon } from '../../icons';
@@ -30,9 +31,10 @@ import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useUserMenuProps from '../../../hooks/useUserMenuProps';
+import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type Props = {
-  user: UserShortProfile;
+  user?: UserShortProfile;
   className?: {
     container?: string;
   };
@@ -40,7 +42,7 @@ type Props = {
 
 const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === user.id;
+  const isSameUser = loggedUser?.id === user?.id;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -50,14 +52,19 @@ const UserEntityCard = ({ user, className }: Props) => {
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const menuProps = useUserMenuProps({ user });
+  const { isLoading } = useShowFollowAction({
+    entityId: user?.id,
+    entityType: ContentPreferenceType.User,
+  });
+
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
       openModal({
         type: LazyModal.ReportUser,
         props: {
           offendingUser: {
-            id: user.id,
-            username: user.username,
+            id: user?.id,
+            username: user?.username,
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -65,7 +72,8 @@ const UserEntityCard = ({ user, className }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } =
+    user || {};
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -107,6 +115,8 @@ const UserEntityCard = ({ user, className }: Props) => {
     });
   }
 
+  const showActionBtns = !isLoading && !isSameUser;
+
   return (
     <EntityCard
       permalink={permalink}
@@ -118,7 +128,7 @@ const UserEntityCard = ({ user, className }: Props) => {
       }}
       entityName={username}
       actionButtons={
-        !isSameUser && (
+        showActionBtns && (
           <>
             <CustomFeedOptionsMenu
               buttonVariant={ButtonVariant.Option}
@@ -142,8 +152,9 @@ const UserEntityCard = ({ user, className }: Props) => {
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">
-        <Link href={permalink}>
+        <Link passHref href={permalink}>
           <Typography
+            tag={TypographyTag.Link}
             className="flex"
             type={TypographyType.Body}
             color={TypographyColor.Primary}
@@ -156,12 +167,15 @@ const UserEntityCard = ({ user, className }: Props) => {
           </Typography>
         </Link>
         <div className="flex items-center gap-1">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            @{username}
-          </Typography>
+          <Link passHref href={permalink}>
+            <Typography
+              tag={TypographyTag.Link}
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              @{username}
+            </Typography>
+          </Link>
           <JoinedDate
             className="text-text-quaternary typo-footnote"
             date={new Date(createdAt)}
@@ -169,7 +183,7 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         <div className="flex gap-2 truncate">
-          {!!user.reputation && (
+          {!!user?.reputation && (
             <div className="rounded-8 border border-border-subtlest-tertiary px-2">
               <ReputationUserBadge
                 iconProps={{

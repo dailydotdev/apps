@@ -17,7 +17,7 @@ import { useSlackConnectSourceMutation } from '../../../hooks/integrations/slack
 
 export type UseSlackIntegrationModalProps = Pick<
   SlackIntegrationModalProps,
-  'source'
+  'source' | 'redirectPath'
 >;
 
 export type UseSlackIntegrationModal = {
@@ -41,6 +41,7 @@ export type UseSlackIntegrationModal = {
 
 export const useSlackIntegrationModal = ({
   source,
+  redirectPath,
 }: UseSlackIntegrationModalProps): UseSlackIntegrationModal => {
   const { logEvent } = useLogContext();
   const { onSave: onSaveMutation, isSaving } = useSlackConnectSourceMutation();
@@ -114,11 +115,13 @@ export const useSlackIntegrationModal = ({
     });
 
     slack.connect({
-      redirectPath: `/${
-        source.type === SourceType.Squad ? 'squads' : 'sources'
-      }/${source.handle}?lzym=${LazyModal.SlackIntegration}`,
+      redirectPath:
+        redirectPath ??
+        `/${source.type === SourceType.Squad ? 'squads' : 'sources'}/${
+          source.handle
+        }?lzym=${LazyModal.SlackIntegration}`,
     });
-  }, [slack, source, logEvent, hasIntegrations]);
+  }, [slack, source, logEvent, hasIntegrations, redirectPath]);
 
   const onSave = useCallback(async () => {
     await onSaveMutation({

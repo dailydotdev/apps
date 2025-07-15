@@ -4,7 +4,7 @@ import { useCopyPostLink } from '../useCopyPostLink';
 import LogContext from '../../contexts/LogContext';
 import type { ShareProvider } from '../../lib/share';
 import { postLogEvent } from '../../lib/feed';
-import { Origin } from '../../lib/log';
+import { Origin, LogEvent } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib';
 import { useGetShortUrl } from '../utils/useGetShortUrl';
 
@@ -29,7 +29,7 @@ export const useLoggedCopyPostLink = (
   const onCopyLink = useCallback(
     (provider: ShareProvider) => {
       logEvent(
-        postLogEvent('share post', post, {
+        postLogEvent(LogEvent.SharePost, post, {
           extra: { provider, origin },
         }),
       );

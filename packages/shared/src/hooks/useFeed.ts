@@ -18,7 +18,6 @@ import type { MarketingCta } from '../components/marketingCta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
-import { fetchAd } from '../lib/ads';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
@@ -27,16 +26,21 @@ import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
+import { useFetchAd } from '../features/monetization/useFetchAd';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
   dataUpdatedAt: number;
 }
 
-interface AdItem extends FeedItemBase<FeedItemType.Ad> {
+export interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
   index: number;
   updatedAt: number;
+}
+
+export interface AdPostItem extends AdItem {
+  ad: Ad & { data: { post?: Post } };
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -61,6 +65,9 @@ export type FeedItem =
   | FeedItemBase<FeedItemType.UserAcquisition>
   | PlusEntryItem;
 
+export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
+  item?.type === FeedItemType.Ad && !!item.ad.data?.post;
+
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
 export type FeedReturnType = {
@@ -74,6 +81,7 @@ export type FeedReturnType = {
   isFetching: boolean;
   isInitialLoading: boolean;
   isError: boolean;
+  isPending: boolean;
 };
 
 type UseFeedSettingParams = {
@@ -168,10 +176,11 @@ export default function useFeed<T>(
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
 
+  const { fetchAd } = useFetchAd();
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
-      const ad = await fetchAd(!!pageParam);
+      const ad = await fetchAd({ active: !!pageParam });
 
       if (!ad) {
         return {
@@ -256,7 +265,7 @@ export default function useFeed<T>(
         ad: nextAd,
         index: adPage,
         updatedAt: adsUpdatedAt,
-      };
+      } as AdItem;
     },
     [
       adsData,
@@ -371,5 +380,6 @@ export default function useFeed<T>(
     isLoading: feedQuery.isLoading,
     isFetching: feedQuery.isFetching,
     isInitialLoading: feedQuery.isInitialLoading,
+    isPending: feedQuery.isPending,
   };
 }

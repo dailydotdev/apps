@@ -13,3 +13,12 @@ export const briefCardBorder = '1px solid #EFD5C8';
 
 export const briefCardBg =
   'linear-gradient(180deg, rgba(239, 213, 200, 0.16) 0%, rgba(210, 233, 227, 0.16) 25.96%, rgba(198, 222, 250, 0.16) 53.37%, rgba(196, 199, 251, 0.16) 79.33%, rgba(199, 182, 250, 0.16) 100%)';
+
+export const boostPostButton =
+  'radial-gradient(1030.79% 132.35% at 50.01% 56.13%, var(--Colors-Accent-Blue-Cheese-subtlest, #6FF1F6) 0%, var(--theme-accent-cabbage-default) 100%)';
+
+export const briefButtonBg =
+  'linear-gradient(270deg, #EFD5C8 0%, #D2E9E3 25.96%, #C6DEFA 53.37%, #C4C7FB 79.33%, #C7B6FA 100%)';
+
+export const briefCardBgSecondary =
+  'linear-gradient(180deg, #EFD5C8 0%, #D2E9E3 25.96%, #C6DEFA 53.37%, #C4C7FB 79.33%, #C7B6FA 100%)';

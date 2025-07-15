@@ -226,6 +226,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numComments
     numAwards
     summary
+    flags {
+      campaignId
+    }
     bookmark {
       remindAt
     }
@@ -244,6 +247,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       contentPreference {
         status
       }
+      coresRole
     }
     type
     tags
@@ -277,6 +281,12 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     language
     translation {
       ...PostTranslateableFields
+    }
+    numAwards
+    featuredAward {
+      award {
+        image
+      }
     }
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
@@ -321,6 +331,11 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     flags {
       promoteToPublic
       coverVideo
+      campaignId
+      posts
+      sources
+      savedTime
+      generatedAt
     }
     userState {
       vote
@@ -485,6 +500,7 @@ export const TRANSACTION_FRAGMENT = gql`
     }
     sourceName
     createdAt
+    referenceType
   }
   ${PRODUCT_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
@@ -494,4 +510,49 @@ export const TRANSACTION_PUBLIC_FRAGMENT = gql`
   fragment TransactionPublicFragment on UserTransactionPublic {
     value
   }
+`;
+
+export const FEED_POST_FRAGMENT = gql`
+  fragment FeedPost on Post {
+    ...FeedPostInfo
+    sharedPost {
+      id
+      title
+      image
+      readTime
+      permalink
+      commentsPermalink
+      createdAt
+      type
+      tags
+      private
+      source {
+        id
+        handle
+        permalink
+        image
+        type
+      }
+      slug
+      clickbaitTitleDetected
+      translation {
+        ...PostTranslateableFields
+      }
+    }
+    trending
+    feedMeta
+    collectionSources {
+      handle
+      image
+    }
+    numCollectionSources
+    updatedAt
+    slug
+    flags {
+      posts
+      sources
+      savedTime
+    }
+  }
+  ${FEED_POST_INFO_FRAGMENT}
 `;

@@ -2,7 +2,6 @@ import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import Link from '../utilities/Link';
 import type { Squad } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { ButtonProps } from '../buttons/Button';
@@ -18,6 +17,8 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { UserShortProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { AuthTriggers } from '../../lib/auth';
+import useShowFollowAction from '../../hooks/useShowFollowAction';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 
 interface ClassName {
   button?: string;
@@ -37,8 +38,8 @@ interface SquadActionButtonProps extends Pick<ButtonProps<'button'>, 'size'> {
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
-  showViewSquadIfMember?: boolean;
   buttonVariants?: ButtonVariant[];
+  alwaysShow?: boolean;
 }
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
@@ -53,6 +54,10 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   const { logEvent } = useLogContext();
 
   useEffect(() => {
+    if (!squad) {
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.SquadJoinButton,
@@ -95,13 +100,16 @@ export const SquadActionButton = ({
   copy = {},
   origin,
   onSuccess,
-  showViewSquadIfMember,
   buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
+  alwaysShow = false,
   ...rest
 }: SquadActionButtonProps): ReactElement => {
+  const { showActionBtn } = useShowFollowAction({
+    entityId: squad?.id,
+    entityType: ContentPreferenceType.Source,
+  });
   const {
     join = 'Join Squad',
-    view = 'View Squad',
     leave = 'Leave Squad',
     blockedTooltip = 'You are not allowed to join the Squad',
   } = copy;
@@ -110,15 +118,15 @@ export const SquadActionButton = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
   const isMemberBlocked =
-    squad.currentMember?.role === SourceMemberRole.Blocked;
-  const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
+    squad?.currentMember?.role === SourceMemberRole.Blocked;
+  const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
 
   const fuzzyQueryKey = generateQueryKey(
     RequestKey.Sources,
     null,
     undefined,
     true,
-    squad.category?.id,
+    squad?.category?.id,
   );
   const fuzzyQueryMatch = queryClient.getQueriesData({
     queryKey: fuzzyQueryKey,
@@ -141,7 +149,7 @@ export const SquadActionButton = ({
             ...subEdge,
             node: {
               ...subEdge.node,
-              ...(node.id === squad.id && { currentMember: user }),
+              ...(node.id === squad?.id && { currentMember: user }),
             },
           };
         }),
@@ -225,20 +233,8 @@ export const SquadActionButton = ({
     }
   };
 
-  if (isCurrentMember && showViewSquadIfMember) {
-    return (
-      <Link href={squad.permalink}>
-        <Button
-          {...rest}
-          className={className?.button}
-          tag="a"
-          href={squad.permalink}
-          variant={memberVariant}
-        >
-          {view}
-        </Button>
-      </Link>
-    );
+  if (!showActionBtn && !alwaysShow) {
+    return null;
   }
 
   return (

@@ -20,6 +20,7 @@ import { fallbackImages } from '../../lib/config';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { useActiveFeedContext } from '../../contexts';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
@@ -59,6 +60,7 @@ function NewCommentComponent(
 ): ReactElement {
   const router = useRouter();
   const { logEvent } = useLogContext();
+  const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
   const [inputContent, setInputContent] = useState<string>(undefined);
 
@@ -72,12 +74,13 @@ function NewCommentComponent(
       logEvent(
         postLogEvent(LogEvent.OpenComment, post, {
           extra: { origin },
+          ...(logOpts && logOpts),
         }),
       );
 
       setInputContent(content);
     },
-    [post, logEvent, setInputContent],
+    [post, logEvent, setInputContent, logOpts],
   );
 
   const hasCommentQuery = typeof router.query.comment === 'string';

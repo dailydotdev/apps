@@ -28,6 +28,8 @@ import {
   ShieldWarningIcon,
   TrashIcon,
   UpvoteIcon,
+  TrendingIcon,
+  SettingsIcon,
 } from '../../components/icons';
 import {
   Button,
@@ -53,6 +55,8 @@ import usePostById, { invalidatePostCacheById } from '../../hooks/usePostById';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
+import { usePostLogEvent } from '../../lib/feed';
+import { useFeedCardContext } from './FeedCardContext';
 import useReportPost from '../../hooks/useReportPost';
 import { useSharePost } from '../../hooks/useSharePost';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
@@ -73,10 +77,11 @@ import {
   clickbaitPost,
   demotePost,
   isVideoPost,
+  PostType,
   promotePost,
+  useCanBoostPost,
   UserVote,
 } from '../../graphql/posts';
-import { postLogEvent } from '../../lib/feed';
 import type { ReportedCallback } from '../../components/modals';
 import { labels } from '../../lib';
 import type { MenuItemProps } from '../../components/fields/ContextMenu';
@@ -93,7 +98,9 @@ import { MenuIcon } from '../../components/MenuIcon';
 import { Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
-import type { PostItem } from '../../hooks/useFeed';
+import { BoostIcon } from '../../components/icons/Boost';
+import type { FeedItem } from '../../hooks/useFeed';
+import { isBoostedPostAd } from '../../hooks/useFeed';
 
 const getBlockLabel = (
   name: string,
@@ -139,12 +146,25 @@ const PostOptionButtonContent = ({
 
   const { postIndex, prevPost, nextPost } = useMemo(() => {
     const postIndexSelect = items.findIndex(
-      (item) => item.type === 'post' && item.post.id === initialPost.id,
+      (item) =>
+        (item.type === 'post' && item.post.id === initialPost.id) ||
+        (item.type === 'ad' && item.ad.data?.post?.id === initialPost.id),
     );
+
+    const getPostFromItem = (item: FeedItem) => {
+      if (item?.type === 'post') {
+        return item.post;
+      }
+      if (isBoostedPostAd(item)) {
+        return item.ad.data.post;
+      }
+      return null;
+    };
+
     return {
       postIndex: postIndexSelect,
-      prevPost: (items[postIndexSelect - 1] as PostItem)?.post,
-      nextPost: (items[postIndexSelect + 1] as PostItem)?.post,
+      prevPost: getPostFromItem(items[postIndexSelect - 1]),
+      nextPost: getPostFromItem(items[postIndexSelect + 1]),
     };
   }, [items, initialPost.id]);
 
@@ -152,6 +172,7 @@ const PostOptionButtonContent = ({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? (initialPost as Post);
+  const isBriefPost = post?.type === PostType.Brief;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({
@@ -163,12 +184,15 @@ const PostOptionButtonContent = ({
     feedId: customFeedId,
   });
   const { logEvent } = useLogContext();
+  const postLogEvent = usePostLogEvent();
+  const { boostedBy } = useFeedCardContext();
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { canBoost } = useCanBoostPost(post);
 
   const banPostPrompt = useCallback(async () => {
     const options: PromptOptions = {
@@ -247,7 +271,8 @@ const PostOptionButtonContent = ({
     isLoggedIn &&
     !isSourceBlocked &&
     post?.source?.type === SourceType.Machine &&
-    !isCustomFeed;
+    !isCustomFeed &&
+    !isBriefPost;
 
   const sourceSubscribe = useSourceActionsNotify({
     source: shouldShowSubscribe ? post?.source : undefined,
@@ -399,21 +424,21 @@ const PostOptionButtonContent = ({
     }
 
     logEvent(
-      postLogEvent('hide post', post, {
+      postLogEvent(LogEvent.HidePost, post, {
         extra: { origin: Origin.PostContextMenu },
         ...logOpts,
       }),
     );
 
     showMessageAndRemovePost(
-      '🙈 This post won’t show up on your feed anymore',
+      "🙈 This post won't show up on your feed anymore",
       postIndex,
       () => unhidePost(post.id),
     );
   };
 
   const postOptions: MenuItemProps[] = [
-    {
+    !isBriefPost && {
       icon: <MenuIcon Icon={ShareIcon} />,
       label: 'Share via',
       action: () =>
@@ -422,16 +447,53 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
-    {
+    !isBriefPost && {
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
       action: onHidePost,
     },
-  ];
+    isBriefPost && {
+      icon: <MenuIcon Icon={SettingsIcon} />,
+      label: 'Settings',
+      action: () => {
+        router?.push(`${settingsUrl}/notifications`);
+      },
+    },
+  ].filter(Boolean);
+
+  const onBoostPost = () => {
+    openModal({
+      type: LazyModal.BoostPost,
+      props: {
+        post,
+      },
+    });
+  };
+
+  const onManageBoost = async () => {
+    openModal({
+      type: LazyModal.FetchBoostedPostView,
+      props: { campaignId: post.flags.campaignId },
+    });
+  };
+
+  if (canBoost) {
+    const isBoosted = !!post?.flags?.campaignId;
+    postOptions.push({
+      icon: (
+        <MenuIcon
+          Icon={isBoosted ? TrendingIcon : BoostIcon}
+          secondary={isBoosted}
+        />
+      ),
+      label: isBoosted ? 'Manage ad' : 'Boost post',
+      action: isBoosted ? onManageBoost : onBoostPost,
+    });
+  }
 
   const { shouldUseListFeedLayout } = useFeedLayout();
 
-  if (!shouldUseListFeedLayout) {
+  if (!isBriefPost && !shouldUseListFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -450,7 +512,7 @@ const PostOptionButtonContent = ({
 
   const { onRemoveReminder } = useBookmarkReminder({ post });
 
-  if (isLoggedIn) {
+  if (isLoggedIn && !isBriefPost) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
 
     // Add/Edit reminder
@@ -608,7 +670,7 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (post?.source?.name && !isSourceUserSource(post?.source)) {
+  if (!isBriefPost && post?.source?.name && !isSourceUserSource(post?.source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: getBlockLabel(post.source.name, {
@@ -680,100 +742,109 @@ const PostOptionButtonContent = ({
     });
   }
 
-  post?.tags?.forEach((tag) => {
-    if (tag.length) {
-      const isBlocked = feedSettings?.blockedTags?.includes(tag);
-      if (isBlocked && isCustomFeed) {
-        return;
+  if (!isBriefPost) {
+    post?.tags?.forEach((tag) => {
+      if (tag.length) {
+        const isBlocked = feedSettings?.blockedTags?.includes(tag);
+        if (isBlocked && isCustomFeed) {
+          return;
+        }
+        postOptions.push({
+          icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
+          label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
+          action: () => onBlockTag(tag),
+        });
       }
+    });
+
+    postOptions.push({
+      icon: <MenuIcon Icon={FlagIcon} />,
+      label: 'Report',
+      action: async () =>
+        openModal({
+          type: LazyModal.ReportPost,
+          props: {
+            index: postIndex,
+            post,
+            onReported: onReportedPost,
+            origin: Origin.PostContextMenu,
+            isAd: !!boostedBy,
+          },
+        }),
+    });
+
+    if (user?.id && post?.author?.id === user?.id) {
       postOptions.push({
-        icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
-        label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
-        action: () => onBlockTag(tag),
-      });
-    }
-  });
-
-  postOptions.push({
-    icon: <MenuIcon Icon={FlagIcon} />,
-    label: 'Report',
-    action: async () =>
-      openModal({
-        type: LazyModal.ReportPost,
-        props: {
-          index: postIndex,
-          post,
-          onReported: onReportedPost,
-          origin: Origin.PostContextMenu,
+        icon: <MenuIcon Icon={EditIcon} />,
+        label: 'Edit post',
+        action: () => {
+          router.push(`${post.commentsPermalink}/edit`);
         },
-      }),
-  });
-  if (user?.id && post?.author?.id === user?.id) {
-    postOptions.push({
-      icon: <MenuIcon Icon={EditIcon} />,
-      label: 'Edit post',
-      action: () => {
-        router.push(`${post.commentsPermalink}/edit`);
-      },
-    });
-  }
-  if (onConfirmDeletePost) {
-    postOptions.push({
-      icon: <MenuIcon Icon={TrashIcon} />,
-      label: 'Delete post',
-      action: onConfirmDeletePost,
-    });
-  }
-
-  if (allowPin && onSwapPinnedPost) {
-    if (nextPost?.pinnedAt) {
-      postOptions.unshift({
-        icon: <MenuIcon Icon={SendBackwardIcon} secondary={!!post.pinnedAt} />,
-        label: 'Send backward',
-        action: () => onSwapPinnedPost({ swapWithId: nextPost.id }),
       });
     }
 
-    if (prevPost?.pinnedAt) {
-      postOptions.unshift({
-        icon: <MenuIcon Icon={BringForwardIcon} secondary={!!post.pinnedAt} />,
-        label: 'Bring forward',
-        action: () => onSwapPinnedPost({ swapWithId: prevPost.id }),
+    if (onConfirmDeletePost) {
+      postOptions.push({
+        icon: <MenuIcon Icon={TrashIcon} />,
+        label: 'Delete post',
+        action: onConfirmDeletePost,
       });
     }
-  }
 
-  if (allowPin && onPinPost) {
-    postOptions.unshift({
-      icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
-      label: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
-      action: onPinPost,
-    });
-  }
+    if (allowPin && onSwapPinnedPost) {
+      if (nextPost?.pinnedAt) {
+        postOptions.unshift({
+          icon: (
+            <MenuIcon Icon={SendBackwardIcon} secondary={!!post.pinnedAt} />
+          ),
+          label: 'Send backward',
+          action: () => onSwapPinnedPost({ swapWithId: nextPost.id }),
+        });
+      }
 
-  if (isModerator) {
-    postOptions.push({
-      icon: <MenuIcon Icon={HammerIcon} />,
-      label: 'Ban',
-      action: banPostPrompt,
-    });
-  }
-  if (isModerator) {
-    const promoteFlag = post.flags?.promoteToPublic;
-    postOptions.push({
-      icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
-      label: promoteFlag ? 'Demote' : 'Promote',
-      action: promotePostPrompt,
-    });
-  }
+      if (prevPost?.pinnedAt) {
+        postOptions.unshift({
+          icon: (
+            <MenuIcon Icon={BringForwardIcon} secondary={!!post.pinnedAt} />
+          ),
+          label: 'Bring forward',
+          action: () => onSwapPinnedPost({ swapWithId: prevPost.id }),
+        });
+      }
+    }
 
-  if (isModerator) {
-    const isClickbait = post.clickbaitTitleDetected;
-    postOptions.push({
-      icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
-      label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
-      action: clickbaitPostPrompt,
-    });
+    if (allowPin && onPinPost) {
+      postOptions.unshift({
+        icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+        label: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
+        action: onPinPost,
+      });
+    }
+
+    if (isModerator) {
+      postOptions.push({
+        icon: <MenuIcon Icon={HammerIcon} />,
+        label: 'Ban',
+        action: banPostPrompt,
+      });
+    }
+    if (isModerator) {
+      const promoteFlag = post.flags?.promoteToPublic;
+      postOptions.push({
+        icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
+        label: promoteFlag ? 'Demote' : 'Promote',
+        action: promotePostPrompt,
+      });
+    }
+
+    if (isModerator) {
+      const isClickbait = post.clickbaitTitleDetected;
+      postOptions.push({
+        icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
+        label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
+        action: clickbaitPostPrompt,
+      });
+    }
   }
 
   return (

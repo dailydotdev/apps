@@ -78,6 +78,12 @@ const PostAuthBanner = dynamic(() =>
   ).then((module) => module.PostAuthBanner),
 );
 
+const BriefPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyBriefPostContent" */ '@dailydotdev/shared/src/components/post/brief/BriefPostContent'
+  ).then((module) => module.BriefPostContent),
+);
+
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -91,6 +97,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   freeform: SquadPostContent,
   [PostType.VideoYouTube]: PostContent,
   collection: CollectionPostContent,
+  [PostType.Brief]: BriefPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {

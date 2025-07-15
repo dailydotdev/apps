@@ -4,7 +4,7 @@ import type {
   MouseEventHandler,
   ReactElement,
 } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
 import { SourceType } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
@@ -17,10 +17,11 @@ import {
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { SquadActionButton } from '../squads/SquadActionButton';
 import { Origin } from '../../lib/log';
-import { useSquad, useViewSize, ViewSize } from '../../hooks';
+import { useSquad } from '../../hooks';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import type { Post } from '../../graphql/posts';
 import { PostHeaderActions } from './PostHeaderActions';
+import useShowFollowAction from '../../hooks/useShowFollowAction';
 
 interface SourceInfoProps {
   post: Post;
@@ -41,27 +42,18 @@ function PostSourceInfo({
   showActions = true,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
-  const isMobile = useViewSize(ViewSize.MobileXL);
-  const [showActionBtn, setShowActionBtn] = useState(false);
-  const isUnknown = source.id === 'unknown';
-  const { squad, isLoading: isLoadingSquad } = useSquad({
-    handle: source.handle,
+  const { showActionBtn } = useShowFollowAction({
+    entityId: source?.id,
+    entityType: ContentPreferenceType.Source,
   });
-  const { data, status } = useContentPreferenceStatusQuery({
-    id: source.id,
+  const isUnknown = source?.id === 'unknown';
+  const { squad, isLoading: isLoadingSquad } = useSquad({
+    handle: source?.handle,
+  });
+  const { data } = useContentPreferenceStatusQuery({
+    id: source?.id,
     entity: ContentPreferenceType.Source,
   });
-
-  useEffect(() => {
-    if (isMobile && status === 'success' && !showActionBtn) {
-      setShowActionBtn(
-        ![
-          ContentPreferenceStatus.Follow,
-          ContentPreferenceStatus.Subscribed,
-        ].includes(data?.status),
-      );
-    }
-  }, [status, data?.status, showActionBtn, isMobile]);
 
   const isFollowing = [
     ContentPreferenceStatus.Follow,
@@ -78,48 +70,49 @@ function PostSourceInfo({
       {!isUnknown && (
         <>
           <div className="flex flex-row items-center">
-            <Link href={source.permalink}>
+            <Link href={source?.permalink}>
               <a className="text-text-secondary typo-callout">
-                {source.handle}
+                {source?.handle}
               </a>
             </Link>
-            {showActionBtn && <Separator />}
-            {showActionBtn && source?.type !== SourceType.Squad && (
-              <FollowButton
-                variant={ButtonVariant.Tertiary}
-                followedVariant={ButtonVariant.Tertiary}
-                buttonClassName={classNames(
-                  'min-w-min !px-0 ',
-                  !isFollowing && 'text-text-link',
+            {showActionBtn && (
+              <>
+                <Separator className="flex tablet:hidden" />
+                {source?.type !== SourceType.Squad && (
+                  <FollowButton
+                    variant={ButtonVariant.Tertiary}
+                    followedVariant={ButtonVariant.Tertiary}
+                    buttonClassName={classNames(
+                      'flex min-w-min !px-0 tablet:hidden',
+                      !isFollowing && 'text-text-link',
+                    )}
+                    entityId={source?.id}
+                    status={data?.status}
+                    type={ContentPreferenceType.Source}
+                    entityName={source?.name}
+                    showSubscribe={false}
+                  />
                 )}
-                entityId={source.id}
-                status={data?.status}
-                type={ContentPreferenceType.Source}
-                entityName={source.name}
-                showSubscribe={false}
-              />
+                {source?.type === SourceType.Squad && !isLoadingSquad && (
+                  <SquadActionButton
+                    buttonVariants={[ButtonVariant.Tertiary]}
+                    size={ButtonSize.XSmall}
+                    className={{
+                      button: classNames(
+                        'flex min-w-min !px-0 tablet:hidden',
+                        !squad?.currentMember && 'text-text-link',
+                      ),
+                    }}
+                    squad={squad}
+                    copy={{
+                      join: 'Join',
+                      leave: 'Leave',
+                    }}
+                    origin={Origin.PostContent}
+                  />
+                )}
+              </>
             )}
-            {showActionBtn &&
-              source?.type === SourceType.Squad &&
-              !isLoadingSquad && (
-                <SquadActionButton
-                  buttonVariants={[ButtonVariant.Tertiary]}
-                  size={ButtonSize.XSmall}
-                  className={{
-                    button: classNames(
-                      'min-w-min !px-0',
-                      !squad.currentMember && 'text-text-link',
-                    ),
-                  }}
-                  squad={squad}
-                  copy={{
-                    join: 'Join',
-                    leave: 'Leave',
-                  }}
-                  origin={Origin.PostContent}
-                  showViewSquadIfMember={false}
-                />
-              )}
           </div>
           {showActions && (
             <PostHeaderActions

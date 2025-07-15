@@ -9,6 +9,11 @@ import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
+import { useAuthContext } from '../contexts/AuthContext';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../graphql/contentPreference';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle'>;
@@ -22,10 +27,10 @@ export const useJoinSquad = ({
   referralToken,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
+  const { user } = useAuthContext();
   const { addSquad } = useBoot();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
-
   const joinSquad = useCallback(async () => {
     const payload: SquadInvitationProps = {
       sourceId: squad.id,
@@ -56,17 +61,30 @@ export const useJoinSquad = ({
     queryClient.invalidateQueries({
       queryKey: ['squadMembersInitial', squad.handle],
     });
+    queryClient.setQueryData(
+      generateQueryKey(RequestKey.ContentPreference, user, {
+        id: squad.id,
+        entity: ContentPreferenceType.Source,
+      }),
+      {
+        status: ContentPreferenceStatus.Subscribed,
+        referenceId: squad.id,
+        type: ContentPreferenceType.Source,
+        createdAt: new Date(),
+      },
+    );
     completeAction(ActionType.JoinSquad);
 
     return result;
   }, [
-    squad.id,
-    squad.handle,
+    squad?.id,
+    squad?.handle,
     referralToken,
     logEvent,
     addSquad,
     completeAction,
     queryClient,
+    user,
   ]);
 
   return joinSquad;

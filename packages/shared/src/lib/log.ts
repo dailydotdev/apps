@@ -68,11 +68,14 @@ export enum Origin {
   WalletPageCTA = 'wallet page cta',
   WalletPagePackage = 'wallet page package',
   Award = 'award',
+  BoostPost = 'BoostPost',
   CoresPage = 'cores page',
   AwardsList = 'awards list',
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  BriefModal = 'brief modal',
+  BriefPage = 'brief page',
 }
 
 export enum LogEvent {
@@ -80,6 +83,8 @@ export enum LogEvent {
   ReportSquad = 'report squad',
   Click = 'click',
   CommentPost = 'comment post',
+  CommentsClick = 'comments click',
+  StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
@@ -133,6 +138,7 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  ReportPost = 'report post',
   // moderation - end
   // bookmark - start
   BookmarkPost = 'bookmark post',
@@ -265,11 +271,16 @@ export enum LogEvent {
   ShareSource = 'share source',
   ShareTag = 'share tag',
   SharePost = 'share post',
+  ShareComment = 'share comment',
   // End Share
   // Start Smart Prompts
   SmartPrompt = 'smart prompt',
   ToggleSmartPrompts = 'toggle smart prompts',
   // End Smart Prompts
+  // Navigation
+  NavigatePrevious = 'navigate previous',
+  NavigateNext = 'navigate next',
+  // End Navigation
   // Start Profile
   ProfileView = 'profile view',
   UpdateProfile = 'update profile',
@@ -292,6 +303,10 @@ export enum LogEvent {
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
   // End Credits
+  // Start Brief
+  ImpressionBrief = 'impression brief',
+  ClickBrief = 'click brief',
+  // End Brief
 }
 
 export enum TargetType {
@@ -380,6 +395,9 @@ export enum TargetId {
   ContextMenu = 'context',
   SmartPrompt = 'smart prompt',
   Account = 'account',
+  Brief = 'brief',
+  NotificationSettings = 'notification settings',
+  Feed = 'feed',
 }
 
 export enum NotificationChannel {

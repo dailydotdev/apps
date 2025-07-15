@@ -899,4 +899,17 @@ meter::-webkit-meter-bar {
   .award-animation {
     animation: full-sequence 1s ease-in-out forwards;
   }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .float-animation {
+    animation: float 1.5s ease-in-out infinite;
+  }
 }

@@ -9,6 +9,7 @@ import type { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';
 import useReportPost from '../../../hooks/useReportPost';
 import { postLogEvent } from '../../../lib/feed';
+import { LogEvent } from '../../../lib/log';
 import type { Origin } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ReasonSelectionModal } from './ReasonSelectionModal';
@@ -29,6 +30,7 @@ interface Props extends ModalProps {
   origin: Origin;
   post: Post | PostBootData | ReadHistoryPost;
   onReported?: ReportedCallback;
+  isAd?: boolean;
 }
 
 const reportReasons: { value: ReportReason; label: string }[] = [
@@ -96,6 +98,7 @@ export function ReportPostModal({
   post,
   origin,
   onReported,
+  isAd,
   ...props
 }: Props): ReactElement {
   const { logEvent } = useLogContext();
@@ -152,8 +155,9 @@ export function ReportPostModal({
     }
 
     logEvent(
-      postLogEvent('report post', post, {
+      postLogEvent(LogEvent.ReportPost, post, {
         extra: { origin, reason, comment: text },
+        is_ad: isAd,
       }),
     );
 

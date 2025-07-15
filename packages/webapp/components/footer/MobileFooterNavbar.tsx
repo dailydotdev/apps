@@ -72,7 +72,7 @@ const MobileFooterNavbar = ({
 
   const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
     const centerTab = showPlusButton ? (
-      <Link href="/plus">
+      <Link key="subscribe-plus" href="/plus">
         <div className="flex flex-col items-center text-accent-avocado-default">
           <DevPlusIcon size={IconSize.Medium} />
           <Typography tag={TypographyTag.Span} type={TypographyType.Caption2}>
