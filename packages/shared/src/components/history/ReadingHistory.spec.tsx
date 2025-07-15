@@ -100,14 +100,18 @@ describe('ReadingHistoryList component', () => {
   it('should show Share article when menu is open', async () => {
     renderComponent();
     const button = await screen.findByTestId('post-item-p1');
-    fireEvent.click(button);
+    fireEvent.keyDown(button, {
+      key: ' ',
+    });
     await screen.findByText('Share post via...');
   });
 
   it('should show Save to bookmarks when menu is open', async () => {
     renderComponent();
     const button = await screen.findByTestId('post-item-p1');
-    fireEvent.click(button);
+    fireEvent.keyDown(button, {
+      key: ' ',
+    });
     await screen.findByText('Save to bookmarks');
   });
 });
@@ -169,12 +173,5 @@ describe('PostItemCard component', () => {
       postId: defaultHistory.post.id,
       timestamp: defaultHistory.timestamp,
     });
-  });
-
-  it('should call onContextMenu on menu button clicked', async () => {
-    renderCard({ onHide, onContextMenu });
-    const button = (await screen.findAllByRole('button'))[1];
-    fireEvent.click(button);
-    expect(onContextMenu).toHaveBeenCalledTimes(1);
   });
 });
