@@ -20,7 +20,7 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 type SourceEntityCardProps = {
-  source: SourceTooltip;
+  source?: SourceTooltip;
   className?: {
     container?: string;
   };
@@ -28,12 +28,12 @@ type SourceEntityCardProps = {
 
 const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   const { showActionBtn } = useShowFollowAction({
-    entityId: source.id,
+    entityId: source?.id,
     entityType: ContentPreferenceType.Source,
   });
 
   const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: source.id,
+    id: source?.id,
     entity: ContentPreferenceType.Source,
   });
   const menuProps = useSourceMenuProps({ source });
@@ -62,8 +62,8 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
           />
           {showActionBtn && (
             <FollowButton
-              entityId={source.id}
-              entityName={source.name}
+              entityId={source?.id}
+              entityName={source?.name}
               type={ContentPreferenceType.Source}
               variant={ButtonVariant.Primary}
               status={contentPreference?.status}

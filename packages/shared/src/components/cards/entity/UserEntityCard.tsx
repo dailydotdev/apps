@@ -34,7 +34,7 @@ import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 
 type Props = {
-  user: UserShortProfile;
+  user?: UserShortProfile;
   className?: {
     container?: string;
   };
@@ -42,7 +42,7 @@ type Props = {
 
 const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === user.id;
+  const isSameUser = loggedUser?.id === user?.id;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -53,7 +53,7 @@ const UserEntityCard = ({ user, className }: Props) => {
   const { logSubscriptionEvent } = usePlusSubscription();
   const menuProps = useUserMenuProps({ user });
   const { isLoading } = useShowFollowAction({
-    entityId: user.id,
+    entityId: user?.id,
     entityType: ContentPreferenceType.User,
   });
 
@@ -63,8 +63,8 @@ const UserEntityCard = ({ user, className }: Props) => {
         type: LazyModal.ReportUser,
         props: {
           offendingUser: {
-            id: user.id,
-            username: user.username,
+            id: user?.id,
+            username: user?.username,
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -72,7 +72,8 @@ const UserEntityCard = ({ user, className }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } =
+    user || {};
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -182,7 +183,7 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         <div className="flex gap-2 truncate">
-          {!!user.reputation && (
+          {!!user?.reputation && (
             <div className="rounded-8 border border-border-subtlest-tertiary px-2">
               <ReputationUserBadge
                 iconProps={{
