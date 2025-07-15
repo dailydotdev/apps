@@ -24,13 +24,18 @@ import { Tooltip } from '../../tooltip/Tooltip';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, isPlusLoading } = usePlusSubscription();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+
+  // Don't show anything while loading user's plus status
+  if (isPlusLoading) {
+    return null;
+  }
 
   if (!isPlus) {
     return (

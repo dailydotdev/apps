@@ -77,7 +77,7 @@ export const UpgradeToPlus = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isFullCTAText = !isLaptop || isLaptopXL;
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, isPlusLoading, logSubscriptionEvent } = usePlusSubscription();
   const { value: ctaCopy } = useConditionalFeature({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
@@ -104,7 +104,8 @@ export const UpgradeToPlus = ({
     [isLoggedIn, logSubscriptionEvent, showLogin, target],
   );
 
-  if (isPlus) {
+  // Don't show anything while loading user's plus status or if user is already plus
+  if (isPlusLoading || isPlus) {
     return null;
   }
 

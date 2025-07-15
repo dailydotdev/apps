@@ -16,15 +16,19 @@ type LogSubscriptionEvent = {
 
 export const usePlusSubscription = (): {
   isPlus: boolean;
+  isPlusLoading: boolean;
   plusProvider?: SubscriptionProvider;
   logSubscriptionEvent: (event: LogSubscriptionEvent) => void;
   plusHref: string | undefined;
   status?: SubscriptionStatus;
 } => {
-  const { user } = useAuthContext();
+  const { user, loadingUser, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const isPlus = user?.isPlus || false;
   const { status, provider: plusProvider } = user?.subscriptionFlags || {};
+  
+  // Plus status is loading if user is loading, auth isn't ready, or we have no user data yet
+  const isPlusLoading = loadingUser || !isAuthReady || !user;
 
   const logSubscriptionEvent = useCallback(
     ({ event_name, target_id, extra }: LogSubscriptionEvent) => {
@@ -59,6 +63,7 @@ export const usePlusSubscription = (): {
 
   return {
     isPlus,
+    isPlusLoading,
     plusProvider,
     logSubscriptionEvent,
     plusHref,

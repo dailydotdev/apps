@@ -31,7 +31,7 @@ export const ToggleClickbaitShield = ({
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, isPlusLoading } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const { flags, updateFlag } = useSettingsContext();
   const [loading, setLoading] = useState(false);
@@ -45,6 +45,11 @@ export const ToggleClickbaitShield = ({
     iconSecondaryOnHover: true,
     ...buttonProps,
   };
+
+  // Don't show anything while loading user's plus status
+  if (isPlusLoading) {
+    return null;
+  }
 
   if (!isPlus) {
     return (
