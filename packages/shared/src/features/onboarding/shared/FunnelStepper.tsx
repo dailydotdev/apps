@@ -168,7 +168,7 @@ export const FunnelStepper = ({
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: {
-          subscribed: event?.data.customer.email,
+          subscribed: event?.data?.customer?.email,
         },
       }),
     [onTransition],
