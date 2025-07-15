@@ -18,7 +18,14 @@ export const BriefCardFeed = (
     return null;
   }
 
-  return <BriefCard {...props} />;
+  return (
+    <BriefCard
+      className={{
+        container: 'p-4 pt-0',
+      }}
+      {...props}
+    />
+  );
 };
 
 export default BriefCardFeed;
