@@ -147,7 +147,7 @@ export function CampaignListView({
         </span>
         <CampaignStatsGrid
           className="mt-3"
-          cores={campaign.budget}
+          cores={campaign.spend}
           clicks={campaign.clicks}
           impressions={campaign.impressions}
           engagements={post.engagements}
@@ -161,7 +161,7 @@ export function CampaignListView({
           className="flex flex-row items-center"
         >
           <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-          {formatDataTileValue(campaign.budget)} | {date.totalDays}{' '}
+          {formatDataTileValue(campaign.spend)} | {date.totalDays}{' '}
           {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>
