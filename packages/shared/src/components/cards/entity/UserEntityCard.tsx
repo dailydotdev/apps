@@ -19,7 +19,6 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
-import type { MenuItemProps } from '../../fields/ContextMenu';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import { LazyModal } from '../../modals/common/types';
@@ -32,6 +31,7 @@ import { ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import type { MenuItemProps } from '../../dropdown/common';
 
 type Props = {
   user?: UserShortProfile;

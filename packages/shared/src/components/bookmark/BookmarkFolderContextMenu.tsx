@@ -3,7 +3,6 @@ import React from 'react';
 import type { BookmarkFolder } from '../../graphql/bookmarks';
 import { usePrompt } from '../../hooks/usePrompt';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import type { MenuItemProps } from '../fields/ContextMenu';
 import { EditIcon, MenuIcon, TrashIcon } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -15,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button } from '../buttons/Button';
+import type { MenuItemProps } from '../dropdown/common';
 
 interface BookmarkFolderContextMenuProps {
   folder: BookmarkFolder;

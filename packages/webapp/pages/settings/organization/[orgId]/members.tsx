@@ -51,10 +51,8 @@ import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import type { MenuItemProps } from '@dailydotdev/shared/src/components/fields/ContextMenu';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SeatsOverview } from '@dailydotdev/shared/src/features/organizations/components/SeatsOverview';
-import type { ContextMenuDrawerItem } from '@dailydotdev/shared/src/components/drawers/ContextMenuDrawer';
 import classNames from 'classnames';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -65,6 +63,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
+import type { MenuItemProps } from '@dailydotdev/shared/src/components/dropdown/common';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -87,7 +86,7 @@ const OrganizationOptionsMenu = ({
 
   const isCurrentUser = currentUser.id === user.id;
 
-  const options: Array<MenuItemProps | ContextMenuDrawerItem> = [];
+  const options: Array<MenuItemProps> = [];
 
   const memberHasPlusOutsideOrg =
     user.isPlus && seatType === OrganizationMemberSeatType.Free;
