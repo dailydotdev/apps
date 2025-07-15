@@ -200,7 +200,12 @@ const Page = (): ReactElement => {
               >
                 {emptyFeed && !feedQuery.isPending && (
                   <div className="tablet:max-w-80">
-                    <BriefCardFeed targetId={TargetId.List} />
+                    <BriefCardFeed
+                      targetId={TargetId.List}
+                      className={{
+                        container: '!p-0',
+                      }}
+                    />
                   </div>
                 )}
                 {emptyFeed &&

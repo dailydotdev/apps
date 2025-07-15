@@ -6,7 +6,7 @@ import { BriefCard } from './BriefCard';
 import { ActionType } from '../../../../graphql/actions';
 
 export const BriefCardFeed = (
-  props: Pick<BriefCardProps, 'targetId'>,
+  props: Pick<BriefCardProps, 'targetId' | 'className'>,
 ): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
 
@@ -18,14 +18,7 @@ export const BriefCardFeed = (
     return null;
   }
 
-  return (
-    <BriefCard
-      className={{
-        container: 'p-4 pt-0',
-      }}
-      {...props}
-    />
-  );
+  return <BriefCard {...props} />;
 };
 
 export default BriefCardFeed;
