@@ -72,7 +72,8 @@ const UserEntityCard = ({ user, className }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
+  const { username, bio, name, image, isPlus, createdAt, id, permalink } =
+    user || {};
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
