@@ -15,6 +15,8 @@ import {
 import type { Bookmark, BookmarkFolder } from './bookmarks';
 import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
+import { useCanPurchaseCores } from '../hooks/useCoresFeature';
+import { useAuthContext } from '../contexts/AuthContext';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 
@@ -75,6 +77,7 @@ type PostFlags = {
   showOnFeed: boolean;
   promoteToPublic: number;
   coverVideo?: string;
+  campaignId: string | null;
   posts?: number;
   sources?: number;
   savedTime?: number;
@@ -173,6 +176,7 @@ export interface Ad {
   impressionStatus?: number;
   tagLine?: string;
   backgroundColor?: string;
+  data?: { post?: Post };
 }
 
 export type ReadHistoryPost = Pick<
@@ -958,6 +962,21 @@ export const updateSourcePostModeration = async (
   );
 
   return res.updateSourcePostModeration;
+};
+
+export const checkCanBoostByUser = (post: Post, userId: string) =>
+  (post?.author?.id && post?.author?.id === userId) ||
+  (post?.scout?.id && post?.scout?.id === userId);
+
+export const useCanBoostPost = (post: Post) => {
+  const { user } = useAuthContext();
+  const canBuy = useCanPurchaseCores();
+  const isValidPost =
+    !post?.private &&
+    (!!post?.tags?.length || !!post?.sharedPost?.tags?.length);
+  const canBoost = canBuy && checkCanBoostByUser(post, user?.id) && isValidPost;
+
+  return { canBoost };
 };
 
 export const BRIEFING_POSTS_PER_PAGE_DEFAULT = 20;

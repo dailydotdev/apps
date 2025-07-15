@@ -9,7 +9,11 @@ import {
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
 import { formatCoresCurrency } from '../../lib/utils';
 
-export const CoreAmountNeeded = (): ReactElement => {
+export const CoreAmountNeeded = ({
+  title,
+}: {
+  title?: string;
+}): ReactElement => {
   const { amountNeeded, selectedProduct } = useBuyCoresContext();
 
   if (!amountNeeded || !selectedProduct) {
@@ -19,7 +23,7 @@ export const CoreAmountNeeded = (): ReactElement => {
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
-        Choose how many Cores to buy.
+        {title ?? 'Choose how many Cores to buy.'}
       </Typography>
     );
   }

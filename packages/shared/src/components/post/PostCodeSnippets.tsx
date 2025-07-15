@@ -43,11 +43,15 @@ export const PostCodeSnippets = ({
   const markdownContent = `~~~\n${codeSnippet.content}\n~~~`;
 
   const prevSnippet = () => {
-    logEvent(postLogEvent(LogEvent.PreviousSnippet, post, { ...logOpts }));
+    logEvent(
+      postLogEvent(LogEvent.PreviousSnippet, post, { ...(logOpts && logOpts) }),
+    );
     setActiveSnippetIndex((prevIndex) => prevIndex - 1);
   };
   const nextSnippet = () => {
-    logEvent(postLogEvent(LogEvent.NextSnippet, post, { ...logOpts }));
+    logEvent(
+      postLogEvent(LogEvent.NextSnippet, post, { ...(logOpts && logOpts) }),
+    );
     if (
       activeSnippetIndex === pagesFlat.length - 3 &&
       data.pages[data.pages.length - 1].pageInfo.hasNextPage
@@ -58,7 +62,9 @@ export const PostCodeSnippets = ({
   };
 
   const copyTracking = () => {
-    logEvent(postLogEvent(LogEvent.CopySnippet, post, { ...logOpts }));
+    logEvent(
+      postLogEvent(LogEvent.CopySnippet, post, { ...(logOpts && logOpts) }),
+    );
   };
 
   const NavigationButtons = (

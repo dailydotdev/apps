@@ -82,6 +82,12 @@ export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };
 
+export const featureCores = new Feature('cores', isDevelopment);
+
+// whether the user will see post boost ads
+// does not necessarily mean they can't boost a post if they have access to cores
+export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
