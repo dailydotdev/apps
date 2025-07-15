@@ -329,3 +329,6 @@ export const postBoostSuccessCover =
 
 export const plusShowcaseTranslateImage =
   'https://media.daily.dev/image/upload/s--eHjHLYpQ--/f_auto/v1748954125/public/auto-translate';
+
+export const plusShowcasePresidentialBriefImage =
+  'https://media.daily.dev/image/upload/s--7I74Yy6r--/f_auto/v1752495221/public/Personalized%20digest';
