@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { BriefCardDefault } from './BriefCardDefault';
 import {
   Typography,
@@ -27,7 +28,10 @@ import { LogEvent } from '../../../../lib/log';
 import { usePlusSubscription } from '../../../../hooks';
 
 export type BriefCardProps = {
-  className?: string;
+  className?: Partial<{
+    container: string;
+    card: string;
+  }>;
   animationSrc?: string;
   progressPercentage?: number;
   headnote?: ReactNode;
@@ -250,9 +254,16 @@ export const BriefCardInternal = (
 };
 
 export const BriefCard = (props: Omit<BriefCardProps, 'post' | 'state'>) => {
+  const { className } = props;
+
   return (
     <BriefCardContextProvider>
-      <div className="flex flex-1 p-2 laptop:p-0">
+      <div
+        className={classNames(
+          'flex flex-1 p-2 laptop:p-0',
+          className?.container,
+        )}
+      >
         <BriefCardInternal {...props} />
       </div>
     </BriefCardContextProvider>

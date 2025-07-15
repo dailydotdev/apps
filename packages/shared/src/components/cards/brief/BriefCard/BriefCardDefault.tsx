@@ -96,7 +96,7 @@ export const BriefCardDefault = ({
       className={classNames(
         'flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
         'backdrop-blur-3xl',
-        className,
+        className?.card,
       )}
     >
       <BriefGradientIcon secondary size={IconSize.Size48} />
