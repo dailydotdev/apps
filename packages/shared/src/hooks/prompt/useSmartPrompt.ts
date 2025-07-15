@@ -26,7 +26,7 @@ export const useSmartPrompt = ({
   prompt,
 }: {
   post: Post;
-  prompt: Prompt;
+  prompt?: Prompt;
 }): {
   executePrompt: (value: string) => Promise<void>;
   data: Search;
@@ -41,13 +41,13 @@ export const useSmartPrompt = ({
   const triedSmartPrompts = checkHasCompleted(ActionType.SmartPrompt);
 
   const queryKey = useMemo(
-    () => generateQueryKey(RequestKey.Prompts, user, post.id, prompt.id),
-    [post.id, prompt.id, user],
+    () => generateQueryKey(RequestKey.Prompts, user, post.id, prompt?.id),
+    [post.id, prompt?.id, user],
   );
 
   const { data, isPending } = useQuery<Search>({
     queryKey,
-    enabled: !!prompt.prompt,
+    enabled: !!prompt?.prompt,
     staleTime: StaleTime.OneHour,
   });
 
@@ -100,8 +100,8 @@ export const useSmartPrompt = ({
           case UseChatMessageType.Completed: {
             setSearchQuery({ completedAt: new Date() });
             sourceRef.current?.close();
-            if (lastPrompt !== prompt.id) {
-              updateFlagRemote('lastPrompt', prompt.id);
+            if (lastPrompt !== prompt?.id) {
+              updateFlagRemote('lastPrompt', prompt?.id);
             }
             if (!triedSmartPrompts) {
               completeAction(ActionType.SmartPrompt);
@@ -145,7 +145,7 @@ export const useSmartPrompt = ({
       completeAction,
       lastPrompt,
       post,
-      prompt.id,
+      prompt?.id,
       queryKey,
       triedSmartPrompts,
       updateFlagRemote,
