@@ -16,6 +16,7 @@ import type {
   Post,
   PostData,
   ReadHistoryPost,
+  Ad,
 } from '../graphql/posts';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
@@ -202,8 +203,10 @@ export enum RequestKey {
   PriceMetadata = 'price_metadata',
   Products = 'products',
   Transactions = 'transactions',
+  PostCampaigns = 'post_campaigns',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
+  PostBoostReach = 'postBoostReach',
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
 }
@@ -544,4 +547,101 @@ export const updatePostCache = (
       },
     };
   });
+};
+
+export const updateAdPostInCache = (
+  postId: string,
+  currentData: InfiniteData<Ad>,
+  update: Partial<Post>,
+): InfiniteData<Ad> => {
+  const updatedData = { ...currentData };
+
+  // Find and update the specific ad that contains the post
+  updatedData.pages = currentData.pages.map((page: Ad) => {
+    if (page.data?.post?.id === postId) {
+      return {
+        ...page,
+        data: {
+          ...page.data,
+          post: {
+            ...page.data.post,
+            ...update,
+          },
+        },
+      };
+    }
+    return page;
+  });
+
+  return updatedData;
+};
+
+export const createAdPostRollbackHandler = (
+  postId: string,
+  previousState: Partial<Post>,
+  rollbackMutationHandler?: (post: Post) => Partial<Post>,
+) => {
+  return (currentData: InfiniteData<Ad>): InfiniteData<Ad> => {
+    const updatedData = { ...currentData };
+
+    // Find and update the specific ad that contains the post
+    updatedData.pages = currentData.pages.map((page: Ad) => {
+      if (page.data?.post?.id === postId) {
+        return {
+          ...page,
+          data: {
+            ...page.data,
+            post: {
+              ...page.data.post,
+              ...(rollbackMutationHandler
+                ? rollbackMutationHandler(page.data.post)
+                : previousState),
+            },
+          },
+        };
+      }
+      return page;
+    });
+
+    return updatedData;
+  };
+};
+
+export const updateFeedAndAdsCache = (
+  postId: string,
+  feedQueryKey: QueryKey,
+  queryClient: QueryClient,
+  update: Partial<Post>,
+): void => {
+  // Update the main feed cache
+  const updateFeedPost = updateCachedPagePost(feedQueryKey, queryClient);
+  const feedData =
+    queryClient.getQueryData<InfiniteData<FeedData>>(feedQueryKey);
+
+  if (feedData) {
+    const { pageIndex, index } = findIndexOfPostInData(feedData, postId, true);
+    if (index > -1) {
+      const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+      updateFeedPost(pageIndex, index, {
+        ...currentPost,
+        ...update,
+      });
+    }
+  }
+
+  // Update the ads cache if the post exists there
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  const adsData = queryClient.getQueryData<InfiniteData<Ad>>(adsQueryKey);
+
+  if (adsData) {
+    const existingAdPost = adsData.pages.find(
+      (page) => page.data?.post?.id === postId,
+    )?.data?.post;
+
+    if (existingAdPost) {
+      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+        return updateAdPostInCache(postId, currentData, update);
+      });
+    }
+  }
 };

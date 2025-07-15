@@ -12,7 +12,8 @@ import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
 import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
-import { Origin } from '../lib/log';
+import { isBoostedPostAd } from './useFeed';
+import { Origin, LogEvent } from '../lib/log';
 import { webappUrl } from '../lib/constants';
 import { getPathnameWithQuery, objectToQueryParams } from '../lib';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
@@ -36,6 +37,7 @@ interface UsePostModalNavigation {
   isFetchingNextPage?: boolean;
   selectedPost: Post | null;
   selectedPostIndex: number;
+  selectedPostIsAd: boolean;
 }
 
 export type UsePostModalNavigationProps = {
@@ -58,6 +60,8 @@ export const usePostModalNavigation = ({
   canFetchMore,
   feedName,
 }: UsePostModalNavigationProps): UsePostModalNavigation => {
+  const isPostItem = (item: FeedItem) =>
+    item.type === 'post' || isBoostedPostAd(item);
   const router = useRouter();
   // special query params to track base pathnames and params for the post modal
   const activeFeedName = router.query?.pmcid as string;
@@ -88,6 +92,9 @@ export const usePostModalNavigation = ({
       if (item.type === 'post') {
         return item.post.slug === pmid || item.post.id === pmid;
       }
+      if (isBoostedPostAd(item)) {
+        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+      }
 
       return false;
     });
@@ -100,16 +107,47 @@ export const usePostModalNavigation = ({
   }, [items, pmid, isNavigationActive]);
 
   const getPostItem = useCallback(
-    (index: number) =>
-      index !== null && items[index]?.type === 'post'
-        ? (items[index] as PostItem)
-        : null,
+    (index: number) => {
+      if (index === null || !items[index]) {
+        return null;
+      }
+
+      const item = items[index];
+      if (item.type === 'post') {
+        return item as PostItem;
+      }
+      if (isBoostedPostAd(item)) {
+        // For Post Ads, we need to create a PostItem-like structure
+        // Note: AdItem doesn't have a page property, so we'll use -1 as default
+        return {
+          post: item.ad.data.post,
+          page: -1,
+          index: item.index,
+        } as PostItem;
+      }
+
+      return null;
+    },
     [items],
   );
 
   const getPost = useCallback(
-    (index: number) => getPostItem(index)?.post || null,
-    [getPostItem],
+    (index: number) => {
+      if (index === null || !items[index]) {
+        return null;
+      }
+
+      const item = items[index];
+      if (item.type === 'post') {
+        return item.post;
+      }
+      if (isBoostedPostAd(item)) {
+        return item.ad.data.post;
+      }
+
+      return null;
+    },
+    [items],
   );
 
   const onChangeSelected = useCallback(
@@ -159,8 +197,7 @@ export const usePostModalNavigation = ({
   };
 
   const getPostPosition = () => {
-    const isPost = (item: FeedItem) => item.type === 'post';
-    const firstPost = items.findIndex(isPost);
+    const firstPost = items.findIndex(isPostItem);
     const isLast = items.length - 1 === openedPostIndex;
     if (firstPost === openedPostIndex) {
       return items.length - 1 === openedPostIndex
@@ -193,6 +230,9 @@ export const usePostModalNavigation = ({
       if (item.type === 'post') {
         return item.post.slug === pmid || item.post.id === pmid;
       }
+      if (isBoostedPostAd(item)) {
+        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+      }
 
       return false;
     });
@@ -202,9 +242,11 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
+  const selectedPostIsAd = isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
+    selectedPostIsAd,
     onCloseModal: async () => {
       const searchParams = new URLSearchParams(window.location.search);
 
@@ -224,27 +266,28 @@ export const usePostModalNavigation = ({
     onPrevious: () => {
       let index = openedPostIndex - 1;
       // look for the first post before the current one
-      // eslint-disable-next-line no-empty
-      for (; index > 0 && items[index].type !== 'post'; index -= 1) {}
+      while (index > 0 && !isPostItem(items[index])) {
+        index -= 1;
+      }
       const item = items[index];
-      if (!item || item.type !== 'post') {
+      if (!item || !isPostItem(item)) {
         return;
       }
-      const current = items[openedPostIndex] as PostItem;
-      logEvent(
-        postLogEvent('navigate previous', current.post, {
-          extra: { origin: Origin.ArticleModal },
-        }),
-      );
+      const current = getPost(openedPostIndex);
+      if (current) {
+        logEvent(
+          postLogEvent(LogEvent.NavigatePrevious, current, {
+            extra: { origin: Origin.ArticleModal },
+            is_ad: selectedPostIsAd,
+          }),
+        );
+      }
       onChangeSelected(index);
     },
     onNext: async () => {
       let index = openedPostIndex + 1;
-      for (
-        ;
-        index < items.length && items[index].type !== 'post';
-        index += 1 // eslint-disable-next-line no-empty
-      ) {}
+      // eslint-disable-next-line no-empty
+      for (; index < items.length && !isPostItem(items[index]); index += 1) {}
       const item = items[index];
       if (index === items.length && canFetchMore) {
         if (isFetchingNextPage) {
@@ -254,20 +297,18 @@ export const usePostModalNavigation = ({
         setIsFetchingNextPage(true);
         return;
       }
-      if (!item) {
+      if (!item || !isPostItem(item)) {
         return;
       }
-      if (item.type !== 'post') {
-        return;
-      }
-      const current = items[openedPostIndex] as PostItem;
+      const current = getPost(openedPostIndex);
       if (!current) {
         return;
       }
       setIsFetchingNextPage(false);
       logEvent(
-        postLogEvent('navigate next', current.post, {
+        postLogEvent(LogEvent.NavigateNext, current, {
           extra: { origin: Origin.ArticleModal },
+          is_ad: selectedPostIsAd,
         }),
       );
       onChangeSelected(index);

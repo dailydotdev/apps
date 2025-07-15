@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type { FeedItem, PostItem } from '../hooks/useFeed';
 import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
@@ -6,6 +7,7 @@ import { Origin } from './log';
 import { SharedFeedPage } from '../components/utilities';
 import type { AllFeedPages } from './query';
 import { OtherFeedPage } from './query';
+import { useFeedCardContext } from '../features/posts/FeedCardContext';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -92,6 +94,7 @@ export interface FeedItemPosition {
 
 export type PostLogEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
+  is_ad?: boolean;
 };
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
@@ -101,8 +104,9 @@ export function postLogEvent(
   post: Post | ReadHistoryPost | PostBootData,
   opts?: PostLogEventFnOptions,
 ): PostItemLogEvent {
-  const extra = {
+  const extra: Record<string, unknown> = {
     ...opts?.extra,
+    ...(opts?.is_ad && { is_ad: true }),
   };
 
   if (typeof window !== 'undefined') {
@@ -218,3 +222,21 @@ export type FeedAdTemplate = {
   adStart: number;
   adRepeat?: number;
 };
+
+export function usePostLogEvent() {
+  const { boostedBy } = useFeedCardContext();
+
+  return useCallback(
+    (
+      eventName: string,
+      post: Post | ReadHistoryPost | PostBootData,
+      opts?: PostLogEventFnOptions,
+    ) => {
+      return postLogEvent(eventName, post, {
+        ...opts,
+        is_ad: !!boostedBy,
+      });
+    },
+    [boostedBy],
+  );
+}

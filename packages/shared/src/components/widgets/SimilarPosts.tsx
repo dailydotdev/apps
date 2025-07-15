@@ -10,6 +10,7 @@ import { CardLink } from '../cards/common/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
+import { ActiveFeedContext } from '../../contexts';
 import LogContext from '../../contexts/LogContext';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
@@ -20,6 +21,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
+import { LogEvent } from '../../lib/log';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -110,14 +112,16 @@ export default function SimilarPosts({
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
   const { logEvent } = useContext(LogContext);
+  const { logOpts } = useContext(ActiveFeedContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
   const moreButtonText = moreButtonProps?.text || 'View all';
 
   const onLinkClick = async (post: Post): Promise<void> => {
     logEvent(
-      postLogEvent('click', post, {
+      postLogEvent(LogEvent.Click, post, {
         extra: { origin: 'recommendation' },
+        ...(logOpts && logOpts),
       }),
     );
   };

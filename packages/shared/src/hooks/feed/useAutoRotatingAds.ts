@@ -14,7 +14,7 @@ import type { Ad } from '../../graphql/posts';
 import { generateAdLogEventKey } from './useLogImpression';
 import { disabledRefetch } from '../../lib/func';
 import { RequestKey } from '../../lib/query';
-import { fetchAd } from '../../lib/ads';
+import { useFetchAd } from '../../features/monetization/useFetchAd';
 
 export type InViewRef = InViewHookResponse['ref'];
 
@@ -47,13 +47,14 @@ export const useAutoRotatingAds = (
     [inViewRef, ref],
   );
 
+  const { fetchAd } = useFetchAd();
   const queryKey = useMemo(
     () => [RequestKey.Ads, ...feedQueryKey],
     [feedQueryKey],
   );
 
   const fetchNewAd = useCallback(async (): Promise<Ad> => {
-    const newAd = await fetchAd(true);
+    const newAd = await fetchAd({ active: true });
     if (!newAd) {
       return null;
     }
@@ -72,7 +73,7 @@ export const useAutoRotatingAds = (
     );
 
     return newAd;
-  }, [feedIndex, index, logEventEnd, queryClient, queryKey]);
+  }, [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey]);
 
   const { refetch, isRefetching } = useQuery<Ad>({
     queryKey: [...queryKey, index],

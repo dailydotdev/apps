@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import type { UserTransaction } from '../graphql/njord';
-import { UserTransactionStatus } from '../graphql/njord';
+import { UserTransactionStatus, UserTransactionType } from '../graphql/njord';
 import type { LoggedUser } from './user';
 import { Image } from '../components/image/Image';
 
@@ -56,6 +56,13 @@ export const getTransactionLabel = ({
 
   if (type === 'purchase') {
     return 'Purchased';
+  }
+
+  if (
+    transaction.referenceType === UserTransactionType.PostBoost &&
+    transaction.flags.note
+  ) {
+    return transaction.flags.note;
   }
 
   if (['receive', 'send'].includes(type)) {

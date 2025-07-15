@@ -32,7 +32,7 @@ export const BriefCardLoading = ({
       className={classNames(
         'flex flex-1 flex-col items-center gap-4 rounded-16 p-4 text-center',
         'backdrop-blur-3xl',
-        className,
+        className?.card,
       )}
     >
       <LottieAnimation
