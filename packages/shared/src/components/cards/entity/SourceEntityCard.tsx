@@ -63,7 +63,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
           {showActionBtn && (
             <FollowButton
               entityId={source?.id}
-              entityName={source.name}
+              entityName={source?.name}
               type={ContentPreferenceType.Source}
               variant={ButtonVariant.Primary}
               status={contentPreference?.status}
