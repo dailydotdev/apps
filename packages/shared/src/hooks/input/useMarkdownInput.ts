@@ -33,6 +33,7 @@ import {
   getLinkReplacement,
   getMentionReplacement,
   getStyleReplacement,
+  isSelectionInMarkdownLink,
 } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
 import { UploadState, useSyncUploader } from './useSyncUploader';
@@ -354,9 +355,17 @@ export const useMarkdownInput = ({
       const cursor = getCursorType(textarea);
 
       if (cursor === CursorType.Highlighted) {
-        e.preventDefault();
-        await onLinkPaste(pastedText);
-        return;
+        const isInMarkdownLink = isSelectionInMarkdownLink(
+          textarea,
+          textarea.selectionStart,
+          textarea.selectionEnd,
+        );
+
+        if (!isInMarkdownLink) {
+          e.preventDefault();
+          await onLinkPaste(pastedText);
+          return;
+        }
       }
     }
 
