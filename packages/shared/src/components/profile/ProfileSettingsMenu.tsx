@@ -40,7 +40,10 @@ import {
   walletUrl,
 } from '../../lib/constants';
 
-import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
+import type {
+  ProfileSectionItemProps,
+  ProfileSectionItemPropsWithoutHref,
+} from '../ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '../ProfileMenu/ProfileSection';
 import { LogoutReason } from '../../lib/user';
 import { logout, useAuthContext } from '../../contexts/AuthContext';
@@ -123,9 +126,8 @@ const useAccountPageItems = () => {
             adsDashboard: {
               title: 'Ads dashboard',
               icon: TrendingIcon,
-              href: walletUrl,
               onClick: () => openModal({ type: LazyModal.AdsDashboard }),
-            },
+            } as ProfileSectionItemPropsWithoutHref,
           },
         },
         feed: {
