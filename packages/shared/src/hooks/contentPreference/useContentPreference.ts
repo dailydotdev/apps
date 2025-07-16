@@ -30,6 +30,9 @@ type UseContentPreferenceProps = {
   showToastOnSuccess?: boolean;
 };
 
+const getTargetType = (entity: ContentPreferenceType): string =>
+  entity === ContentPreferenceType.Keyword ? 'tag' : entity;
+
 export const useContentPreference = ({
   showToastOnSuccess,
 }: UseContentPreferenceProps = {}): UseContentPreference => {
@@ -59,7 +62,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Follow,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -98,7 +101,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Unfollow,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -134,7 +137,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Subscribe,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -174,7 +177,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Unsubscribe,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -211,7 +214,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Block,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -255,7 +258,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Unblock,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
