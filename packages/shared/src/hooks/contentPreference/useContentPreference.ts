@@ -13,7 +13,7 @@ import type { PropsParameters } from '../../types';
 import { useToastNotification } from '../useToastNotification';
 import type { ContentPreferenceMutation } from './types';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
@@ -31,7 +31,7 @@ type UseContentPreferenceProps = {
 };
 
 const getTargetType = (entity: ContentPreferenceType): string =>
-  entity === ContentPreferenceType.Keyword ? 'tag' : entity;
+  entity === ContentPreferenceType.Keyword ? TargetType.Tag : entity;
 
 export const useContentPreference = ({
   showToastOnSuccess,
