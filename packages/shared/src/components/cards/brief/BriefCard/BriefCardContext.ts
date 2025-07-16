@@ -13,7 +13,7 @@ type BriefCardContext = {
 const [BriefCardContextProvider, useBriefCardContext] = createContextProvider(
   (): BriefCardContext => {
     const [brief, setBrief] = usePersistentState<BriefCardContext['brief']>(
-      'brief_card',
+      'brief_card_v2',
       undefined,
     );
 
