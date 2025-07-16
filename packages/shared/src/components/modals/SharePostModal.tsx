@@ -43,6 +43,7 @@ export default function PostModal({
       postPosition={postPosition}
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
+      post={post}
     >
       <EnableNotification
         source={NotificationPromptSource.SquadPostModal}

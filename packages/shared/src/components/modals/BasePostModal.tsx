@@ -5,7 +5,7 @@ import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
-import type { PostType } from '../../graphql/posts';
+import type { PostType, Post } from '../../graphql/posts';
 import type { Source } from '../../graphql/sources';
 import PostNavigation from '../post/PostNavigation';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
@@ -18,6 +18,7 @@ interface BasePostModalProps extends ModalProps {
   postPosition?: PostPosition;
   onPreviousPost?: () => void;
   onNextPost?: () => void;
+  post?: Post;
 }
 
 function BasePostModal({
@@ -30,6 +31,7 @@ function BasePostModal({
   postPosition,
   onPreviousPost,
   onNextPost,
+  post,
   ...props
 }: BasePostModalProps): ReactElement {
   return (
@@ -56,10 +58,12 @@ function BasePostModal({
           <PostNavigation
             className={{
               container: 'pl-4',
+              actions: 'tablet:hidden',
             }}
             postPosition={postPosition}
             onPreviousPost={onPreviousPost}
             onNextPost={onNextPost}
+            post={post}
           />
           {children}
         </>
