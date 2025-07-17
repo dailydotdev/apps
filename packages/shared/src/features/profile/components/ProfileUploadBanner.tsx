@@ -15,15 +15,26 @@ import {
 import { MiniCloseIcon } from '../../../components/icons';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { cvUploadBannerBg } from '../../../styles/custom';
+
+const defaultBanner = {
+  title: 'Your next job should apply to you',
+  description:
+    'Upload your CV so we quietly match you with roles you might actually want. Nothing is shared without your ok.',
+  cover: uploadCvBg,
+};
 
 interface ProfileUploadBannerProps {
   banner?: {
+    title: string;
+    description: string;
     cover?: string;
   };
 }
 
 export function ProfileUploadBanner({
   children,
+  banner = defaultBanner,
 }: PropsWithChildren<ProfileUploadBannerProps>): ReactElement {
   const { completeAction } = useActions();
   const inputRef = useRef<HTMLInputElement>();
@@ -31,22 +42,18 @@ export function ProfileUploadBanner({
   return (
     <div className="flex w-full flex-col">
       <div
-        style={{
-          background:
-            'linear-gradient(270deg, rgba(239, 213, 200, 0.16) 0%, rgba(210, 233, 227, 0.16) 25.96%, rgba(198, 222, 250, 0.16) 53.37%, rgba(196, 199, 251, 0.16) 79.33%, rgba(199, 182, 250, 0.16) 100%)',
-        }}
+        style={{ background: cvUploadBannerBg }}
         className="relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary px-4 py-3"
       >
         <div className="flex w-full max-w-[26.5rem] flex-col gap-2">
           <Typography type={TypographyType.Title2} bold>
-            Your next job should apply to you
+            {banner.title}
           </Typography>
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            Upload your CV so we quietly match you with roles you might actually
-            want. Nothing is shared without your ok.
+            {banner.description}
           </Typography>
           <DragDrop
             isCompactList
@@ -70,7 +77,7 @@ export function ProfileUploadBanner({
         </div>
         <img
           className="pointer-events-none absolute right-0 top-0 -rotate-[15] object-cover"
-          src={uploadCvBg}
+          src={banner.cover || defaultBanner.cover}
           alt="Animated money, devices, and a rubber duck"
         />
         <Button
