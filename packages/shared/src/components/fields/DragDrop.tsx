@@ -67,6 +67,7 @@ export interface DragDropProps {
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
   renameFileTo?: string;
+  hiddenInput?: boolean;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -329,6 +330,7 @@ export function DragDrop({
         variant={ButtonVariant.Secondary}
         size={ButtonSize.Small}
         onClick={() => inputRef.current.click()}
+        type="button"
       >
         Browse
       </Button>
