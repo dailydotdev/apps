@@ -55,11 +55,7 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   profile: 'Profile',
 };
 
-const MobileFooterNavbar = ({
-  isPostPage,
-}: {
-  isPostPage: boolean;
-}): ReactElement => {
+const MobileFooterNavbar = (): ReactElement => {
   const router = useRouter();
   const { user, squads, isValidRegion } = useContext(AuthContext);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });

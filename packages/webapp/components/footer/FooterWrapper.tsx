@@ -60,7 +60,7 @@ export default function FooterWrapper({
       {showNav && showPlusButton && (
         <>
           <FooterPlusButton />
-          <MobileFooterNavbar isPostPage={!!post} />
+          <MobileFooterNavbar />
         </>
       )}
     </div>
