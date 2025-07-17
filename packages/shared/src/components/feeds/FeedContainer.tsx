@@ -22,6 +22,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
+import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -34,6 +35,7 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
+  showBriefCard?: boolean;
 }
 
 const listGaps = {
@@ -135,6 +137,7 @@ export const FeedContainer = ({
   actionButtons,
   isHorizontal,
   feedContainerRef,
+  showBriefCard,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { interactiveFeedExp } = useInteractiveFeedContext();
@@ -198,6 +201,14 @@ export const FeedContainer = ({
         className,
       )}
     >
+      <div
+        className={classNames(
+          'laptop:px-0 laptop:pt-0',
+          showBriefCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
+        )}
+      >
+        <ProfileUploadBanner className={classNames({ isList: 'mb-0' })} />
+      </div>
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
