@@ -18,8 +18,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
-import { useActions, useViewSize, ViewSize } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
 
 const defaultBanner = {
@@ -36,13 +35,14 @@ interface ProfileUploadBannerProps {
     cover?: string;
   };
   className?: string;
+  onClose: () => void;
 }
 
 export function ProfileUploadBanner({
   banner = defaultBanner,
   className,
+  onClose,
 }: ProfileUploadBannerProps): ReactElement {
-  const { completeAction } = useActions();
   const inputRef = useRef<HTMLInputElement>();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -108,7 +108,7 @@ export function ProfileUploadBanner({
         variant={ButtonVariant.Tertiary}
         icon={<MiniCloseIcon />}
         size={ButtonSize.Small}
-        onClick={() => completeAction(ActionType.ClosedProfileBanner)}
+        onClick={onClose}
       />
     </div>
   );

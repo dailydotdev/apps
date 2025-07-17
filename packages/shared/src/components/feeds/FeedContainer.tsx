@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Spaciness } from '../../graphql/settings';
@@ -14,6 +14,8 @@ import {
   useViewSize,
   ViewSize,
   useFeeds,
+  useActions,
+  useBoot,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -23,6 +25,8 @@ import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
+import { ActionType } from '../../graphql/actions';
+import { MarketingCtaVariant } from '../marketingCta/common';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -189,7 +193,29 @@ export const FeedContainer = ({
     return feedNameToHeading[feedName] ?? '';
   }, [feeds, feedName, router.query.slugOrId]);
 
-  if (!loadedSettings) {
+  const { actions, isActionsFetched } = useActions();
+  const { getMarketingCta, clearMarketingCta } = useBoot();
+  const clearMarketingRef = useRef(clearMarketingCta);
+  clearMarketingRef.current = clearMarketingCta;
+  const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
+  const hasClosedBanner = useMemo(
+    () =>
+      !marketingCta ||
+      actions?.some(({ type }) => type === ActionType.UploadedCV),
+    [actions, marketingCta],
+  );
+
+  useEffect(() => {
+    if (
+      actions?.some(({ type }) => type === ActionType.UploadedCV) &&
+      marketingCta
+    ) {
+      // we need to clean this up, otherwise all other marketing ctas of similar type will be blocked if this is uncleared
+      clearMarketingRef.current(MarketingCtaVariant.FeedBanner);
+    }
+  }, [actions, marketingCta]);
+
+  if (!loadedSettings || !isActionsFetched) {
     return <></>;
   }
 
@@ -201,14 +227,19 @@ export const FeedContainer = ({
         className,
       )}
     >
-      <div
-        className={classNames(
-          'laptop:px-0 laptop:pt-0',
-          showBriefCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
-        )}
-      >
-        <ProfileUploadBanner className={classNames({ isList: 'mb-0' })} />
-      </div>
+      {!hasClosedBanner && (
+        <div
+          className={classNames(
+            'laptop:px-0 laptop:pt-0',
+            showBriefCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
+          )}
+        >
+          <ProfileUploadBanner
+            className={classNames({ isList: 'mb-0' })}
+            onClose={() => clearMarketingCta(MarketingCtaVariant.FeedBanner)}
+          />
+        </div>
+      )}
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div

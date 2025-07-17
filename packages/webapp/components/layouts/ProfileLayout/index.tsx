@@ -25,7 +25,7 @@ import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
 import { useActions } from '@dailydotdev/shared/src/hooks';
-import { cvActions } from '@dailydotdev/shared/src/graphql/actions';
+import { ActionType, cvActions } from '@dailydotdev/shared/src/graphql/actions';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -87,6 +87,7 @@ export default function ProfileLayout({
     () => actions?.some(({ type }) => cvActions.includes(type)),
     [actions],
   );
+  const { completeAction } = useActions();
 
   useEffect(() => {
     if (trackedView || !user) {
@@ -115,7 +116,10 @@ export default function ProfileLayout({
       condition={isUserSame && !hasClosedBanner}
       wrapper={(component) => (
         <div className="flex w-full flex-col p-4">
-          <ProfileUploadBanner className="!mt-0 tablet:mt-3" />
+          <ProfileUploadBanner
+            className="!mt-0 tablet:mt-3"
+            onClose={() => completeAction(ActionType.ClosedProfileBanner)}
+          />
           {component}
         </div>
       )}
