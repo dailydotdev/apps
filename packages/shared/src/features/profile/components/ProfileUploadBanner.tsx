@@ -7,14 +7,18 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DragDrop } from '../../../components/fields/DragDrop';
-import { uploadCvBg } from '../../../lib/image';
+import {
+  uploadCvBgLaptop,
+  uploadCvBgMobile,
+  uploadCvBgTablet,
+} from '../../../lib/image';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
-import { useActions } from '../../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { cvUploadBannerBg } from '../../../styles/custom';
 
@@ -22,7 +26,7 @@ const defaultBanner = {
   title: 'Your next job should apply to you',
   description:
     'Upload your CV so we quietly match you with roles you might actually want. Nothing is shared without your ok.',
-  cover: uploadCvBg,
+  cover: uploadCvBgLaptop,
 };
 
 interface ProfileUploadBannerProps {
@@ -40,6 +44,20 @@ export function ProfileUploadBanner({
 }: ProfileUploadBannerProps): ReactElement {
   const { completeAction } = useActions();
   const inputRef = useRef<HTMLInputElement>();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isTablet = useViewSize(ViewSize.Tablet);
+
+  const getImage = () => {
+    if (isLaptop) {
+      return uploadCvBgLaptop;
+    }
+
+    if (isTablet) {
+      return uploadCvBgTablet;
+    }
+
+    return uploadCvBgMobile;
+  };
 
   return (
     <div
@@ -49,8 +67,17 @@ export function ProfileUploadBanner({
         className,
       )}
     >
-      <div className="flex w-full max-w-[26.5rem] flex-col gap-2">
-        <Typography type={TypographyType.Title2} bold>
+      <img
+        className="pointer-events-none absolute -rotate-[15] object-cover tablet:absolute tablet:bottom-0 tablet:right-0 laptop:top-0"
+        src={getImage()}
+        alt="Animated money, devices, and a rubber duck"
+      />
+      <div className="mt-56 flex w-full max-w-[26.5rem] flex-col gap-2 tablet:mt-[unset]">
+        <Typography
+          type={TypographyType.Title2}
+          bold
+          className="max-w-[15.5rem] tablet:max-w-[unset]"
+        >
           {banner.title}
         </Typography>
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
@@ -76,11 +103,6 @@ export function ProfileUploadBanner({
           </button>
         </Typography>
       </div>
-      <img
-        className="pointer-events-none absolute right-0 top-0 -rotate-[15] object-cover"
-        src={banner.cover || defaultBanner.cover}
-        alt="Animated money, devices, and a rubber duck"
-      />
       <Button
         className="absolute right-2 top-2"
         variant={ButtonVariant.Tertiary}

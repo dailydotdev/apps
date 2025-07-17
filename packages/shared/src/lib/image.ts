@@ -333,5 +333,11 @@ export const plusShowcaseTranslateImage =
 export const plusShowcasePresidentialBriefImage =
   'https://media.daily.dev/image/upload/s--7I74Yy6r--/f_auto/v1752495221/public/Personalized%20digest';
 
-export const uploadCvBg =
+export const uploadCvBgLaptop =
   'https://media.daily.dev/image/upload/s--5Ttdly-p--/f_auto/v1752576001/public/job_main_web';
+
+export const uploadCvBgTablet =
+  'https://media.daily.dev/image/upload/s--1QIY44IL--/f_auto/v1752668628/public/job_main_ipad';
+
+export const uploadCvBgMobile =
+  'https://media.daily.dev/image/upload/s--Y_qhm3Tw--/f_auto/v1752576066/public/job_main_mobile';
