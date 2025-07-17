@@ -214,16 +214,19 @@ export default function ActionButtons({
           />
           <Tooltip content="Copy link">
             <QuaternaryButton
-              className="pointer-events-auto hover:bg-overlay-float-water hover:text-text-link"
+              className="pointer-events-auto"
               icon={<LinkIcon />}
               onClick={onCopyLink}
               variant={ButtonVariant.Tertiary}
+              color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
+              buttonClassName={colorExp && 'hover:text-text-link'}
             />
           </Tooltip>
         </div>
       </ConditionalWrapper>
     );
   }
+
   return (
     <ConditionalWrapper
       condition={showTagsPanel === true}

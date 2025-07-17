@@ -198,6 +198,7 @@ const ActionButtons = ({
           />
           <Tooltip content="Copy link" side="bottom">
             <QuaternaryButton
+              id="copy-post-btn"
               size={ButtonSize.Small}
               icon={<LinkIcon size={IconSize.XSmall} />}
               onClick={onCopyLink}
