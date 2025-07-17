@@ -67,10 +67,14 @@ export function PostActions({
 
   // Experiment configuration
   const config = {
-    showVoteButtonsInActions: buttonExp,
-    showVoteButtonsInCard: !buttonExp,
+    showVoteButtonsInActions: buttonExp || colorExp,
+    showVoteButtonsInCard: !buttonExp && !colorExp,
     copyButtonColor: colorExp ? ButtonColor.Water : ButtonColor.Cabbage,
-    copyButtonClassName: colorExp ? 'group-hover:text-text-link' : undefined,
+    copyButtonClassName: colorExp
+      ? 'group text-text-tertiary group-hover:text-text-link'
+      : 'btn-tertiary-cabbage',
+    cardBaseClassName:
+      'flex !flex-row gap-2 hover:border-border-subtlest-tertiary',
   };
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
@@ -239,15 +243,12 @@ export function PostActions({
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
         {config.showVoteButtonsInCard && (
           <Card
-            className={classNames(
-              'flex !flex-row gap-2 hover:border-border-subtlest-tertiary',
-              {
-                'border-accent-avocado-default hover:!border-accent-avocado-default bg-theme-overlay-float-avocado':
-                  post?.userState?.vote === UserVote.Up,
-                'border-accent-ketchup-default hover:!border-accent-ketchup-default bg-theme-overlay-float-ketchup':
-                  post?.userState?.vote === UserVote.Down,
-              },
-            )}
+            className={classNames(config.cardBaseClassName, {
+              'border-accent-avocado-default hover:!border-accent-avocado-default bg-theme-overlay-float-avocado':
+                post?.userState?.vote === UserVote.Up,
+              'border-accent-ketchup-default hover:!border-accent-ketchup-default bg-theme-overlay-float-ketchup':
+                post?.userState?.vote === UserVote.Down,
+            })}
           >
             {renderVoteButtons()}
           </Card>
@@ -325,7 +326,7 @@ export function PostActions({
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             variant={ButtonVariant.Tertiary}
-            className="group text-text-tertiary"
+            className={config.copyButtonClassName}
             color={config.copyButtonColor}
             labelClassName={config.copyButtonClassName}
           >
