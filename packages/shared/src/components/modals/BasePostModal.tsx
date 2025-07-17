@@ -57,7 +57,7 @@ function BasePostModal({
         <>
           <PostNavigation
             className={{
-              container: 'pl-4',
+              container: 'px-4',
               actions: 'tablet:hidden',
             }}
             postPosition={postPosition}
