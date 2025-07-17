@@ -111,7 +111,7 @@ export function Referral({
           />
           <img
             src={cloudinaryReferralCampaignGenericReferralAppScreenshot}
-            alt="Daily.dev app screenshot of my feed page"
+            alt="Daily.dev app screenshot of for you page"
             className="z-0 h-auto w-full object-contain laptop:h-full laptop:max-h-[25.35rem] laptop:w-auto laptopXL:max-h-[39.5rem]"
           />
           <img

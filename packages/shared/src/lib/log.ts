@@ -90,7 +90,7 @@ export enum LogEvent {
   SearchTags = 'search tags',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
-  OnboardingSkip = 'my feed onboarding skip',
+  OnboardingSkip = 'for you onboarding skip',
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
@@ -310,7 +310,7 @@ export enum LogEvent {
 }
 
 export enum TargetType {
-  MyFeedModal = 'my feed modal',
+  MyFeedModal = 'for you modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
