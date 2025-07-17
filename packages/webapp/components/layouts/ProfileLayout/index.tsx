@@ -114,7 +114,10 @@ export default function ProfileLayout({
     <ConditionalWrapper
       condition={isUserSame && !hasClosedBanner}
       wrapper={(component) => (
-        <ProfileUploadBanner>{component}</ProfileUploadBanner>
+        <div className="flex w-full flex-col">
+          <ProfileUploadBanner className="!mt-0 tablet:mt-3" />
+          {component}
+        </div>
       )}
     >
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">

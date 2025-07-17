@@ -1,5 +1,6 @@
-import type { PropsWithChildren, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -30,65 +31,63 @@ interface ProfileUploadBannerProps {
     description: string;
     cover?: string;
   };
+  className?: string;
 }
 
 export function ProfileUploadBanner({
-  children,
   banner = defaultBanner,
-}: PropsWithChildren<ProfileUploadBannerProps>): ReactElement {
+  className,
+}: ProfileUploadBannerProps): ReactElement {
   const { completeAction } = useActions();
   const inputRef = useRef<HTMLInputElement>();
 
   return (
-    <div className="flex w-full flex-col">
-      <div
-        style={{ background: cvUploadBannerBg }}
-        className="relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary px-4 py-3"
-      >
-        <div className="flex w-full max-w-[26.5rem] flex-col gap-2">
-          <Typography type={TypographyType.Title2} bold>
-            {banner.title}
-          </Typography>
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Tertiary}
-          >
-            {banner.description}
-          </Typography>
-          <DragDrop
-            isCompactList
-            inputRef={inputRef}
-            className="my-4"
-            onFilesDrop={(file) => file}
-          />
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            Feeling lazy?{' '}
-            <button
-              type="button"
-              className="underline hover:no-underline"
-              onClick={() => inputRef?.current.click()}
-            >
-              Import your CV from LinkedIn
-            </button>
-          </Typography>
-        </div>
-        <img
-          className="pointer-events-none absolute right-0 top-0 -rotate-[15] object-cover"
-          src={banner.cover || defaultBanner.cover}
-          alt="Animated money, devices, and a rubber duck"
+    <div
+      style={{ background: cvUploadBannerBg }}
+      className={classNames(
+        'relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary px-4 py-3',
+        className,
+      )}
+    >
+      <div className="flex w-full max-w-[26.5rem] flex-col gap-2">
+        <Typography type={TypographyType.Title2} bold>
+          {banner.title}
+        </Typography>
+        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
+          {banner.description}
+        </Typography>
+        <DragDrop
+          isCompactList
+          inputRef={inputRef}
+          className="my-4"
+          onFilesDrop={(file) => file}
         />
-        <Button
-          className="absolute right-2 top-2"
-          variant={ButtonVariant.Tertiary}
-          icon={<MiniCloseIcon />}
-          size={ButtonSize.Small}
-          onClick={() => completeAction(ActionType.ClosedProfileBanner)}
-        />
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Feeling lazy?{' '}
+          <button
+            type="button"
+            className="underline hover:no-underline"
+            onClick={() => inputRef?.current.click()}
+          >
+            Import your CV from LinkedIn
+          </button>
+        </Typography>
       </div>
-      {children}
+      <img
+        className="pointer-events-none absolute right-0 top-0 -rotate-[15] object-cover"
+        src={banner.cover || defaultBanner.cover}
+        alt="Animated money, devices, and a rubber duck"
+      />
+      <Button
+        className="absolute right-2 top-2"
+        variant={ButtonVariant.Tertiary}
+        icon={<MiniCloseIcon />}
+        size={ButtonSize.Small}
+        onClick={() => completeAction(ActionType.ClosedProfileBanner)}
+      />
     </div>
   );
 }
