@@ -12,10 +12,15 @@ import React, {
   useState,
 } from 'react';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { ChecklistAIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
+import { IconSize } from '../Icon';
 
 export interface DragDropValidation {
   /** Maximum file size in bytes */
@@ -60,6 +65,7 @@ export interface DragDropProps {
   children?: ReactNode;
   state?: UploadState;
   inputRef?: MutableRefObject<HTMLInputElement>;
+  isCompactList?: boolean;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -71,6 +77,58 @@ const defaultErrorMessages = {
   unknown: 'An error occurred while processing the file',
 };
 
+const getIcon = (state: UploadState) => {
+  if (state === 'loading') {
+    return <Loader />;
+  }
+
+  if (state === 'success') {
+    return <ChecklistAIcon className="text-accent-avocado-default" />;
+  }
+
+  return null;
+};
+
+interface ItemProps {
+  name: string;
+  state: UploadState;
+  uploadAt?: Date;
+}
+
+const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
+  <div className="flex w-full items-center gap-1">
+    <DocsIcon secondary size={IconSize.Size48} />
+    <div className="flex min-w-0 flex-1 flex-col">
+      <Typography className="truncate" type={TypographyType.Subhead} bold>
+        {name}
+      </Typography>
+      {uploadAt && (
+        <Typography
+          className="truncate"
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          {uploadAt.toDateString()}
+        </Typography>
+      )}
+    </div>
+    {getIcon(state)}
+  </div>
+);
+
+const CompactItem = ({ name, state }: ItemProps) => (
+  <div className="flex w-full items-center gap-1">
+    <DocsIcon secondary />
+    <div className="min-w-0 flex-1">
+      <Typography className="truncate" type={TypographyType.Footnote} bold>
+        {name}
+      </Typography>
+    </div>
+    {getIcon(state)}
+  </div>
+);
+
 export function DragDrop({
   onFilesDrop,
   validation = {},
@@ -80,6 +138,7 @@ export function DragDrop({
   children,
   state,
   inputRef: inputRefProps,
+  isCompactList,
 }: DragDropProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   useImperativeHandle(inputRefProps, () => inputRef.current);
@@ -259,18 +318,8 @@ export function DragDrop({
     </>
   );
 
-  const getIcon = () => {
-    if (state === 'loading') {
-      return <Loader />;
-    }
-
-    if (state === 'success') {
-      return <ChecklistAIcon className="text-accent-avocado-default" />;
-    }
-
-    return null;
-  };
-
+  const ListItem =
+    isCompactList || state === 'loading' ? CompactItem : LargeItem;
   const defaultContainer = (
     <div
       className={classNames(
@@ -280,21 +329,8 @@ export function DragDrop({
     >
       {!filenames?.length
         ? defaultContent
-        : filenames.map((name) => (
-            <div key={name} className="flex w-full items-center gap-1">
-              <DocsIcon secondary />
-              <div className="min-w-0 flex-1">
-                <Typography
-                  style={{ lineBreak: 'anywhere' }}
-                  className="truncate"
-                  type={TypographyType.Footnote}
-                  bold
-                >
-                  {name}
-                </Typography>
-              </div>
-              {getIcon()}
-            </div>
+        : filenames?.map((name) => (
+            <ListItem key={name} name={name} state={state} />
           ))}
     </div>
   );

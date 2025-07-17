@@ -49,6 +49,7 @@ export function ProfileUploadBanner({
             want. Nothing is shared without your ok.
           </Typography>
           <DragDrop
+            isCompactList
             inputRef={inputRef}
             className="my-4"
             onFilesDrop={(file) => file}
