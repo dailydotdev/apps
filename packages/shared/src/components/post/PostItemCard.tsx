@@ -179,9 +179,12 @@ export default function PostItemCard({
                 <ReadingHistoryOptionsMenu
                   post={post}
                   indexes={indexes}
-                  onHide={onHide ? () =>
-                    onHide({ postId: post.id, timestamp: timestampDb })
-                  : undefined}
+                  onHide={
+                    onHide
+                      ? () =>
+                          onHide({ postId: post.id, timestamp: timestampDb })
+                      : undefined
+                  }
                 />
               )}
             </div>

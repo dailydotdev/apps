@@ -135,14 +135,10 @@ export const ReadingHistoryOptionsMenu = ({
     {
       icon: <WrappingMenuIcon Icon={XIcon} />,
       label: 'Remove post',
-      action: async (e) => {
+      action: (e) => {
         e.preventDefault();
         setOpen(false);
-        try {
-          await onHide?.();
-        } catch (error) {
-          console.error('Error hiding post:', error);
-        }
+        onHide?.();
       },
     },
   ];
