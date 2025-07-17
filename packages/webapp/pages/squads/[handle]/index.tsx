@@ -200,9 +200,7 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
 
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
-      <FeedPageComponent
-        className={classNames('relative mb-4 pt-2 laptop:pt-8')}
-      >
+      <div className={classNames('relative mb-4 pt-2 laptop:pt-8')}>
         <div
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',
@@ -214,29 +212,31 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          shouldUseListMode={shouldUseListMode}
+          shouldUseListMode={false}
         />
-        <Feed
-          className={classNames(
-            'pt-14 laptop:pt-10',
-            shouldUseListFeedLayout ? 'px-0' : 'px-6',
-          )}
-          feedName={OtherFeedPage.Squad}
-          feedQueryKey={[
-            'sourceFeed',
-            user?.id ?? 'anonymous',
-            Object.values(queryVariables),
-          ]}
-          query={SOURCE_FEED_QUERY}
-          variables={queryVariables}
-          showSearch={false}
-          emptyScreen={<SquadEmptyScreen />}
-          options={{ refetchOnMount: true }}
-          header={<SquadFeedHeading squad={squad} />}
-          inlineHeader
-          allowPin
-        />
-      </FeedPageComponent>
+        <FeedPageComponent>
+          <Feed
+            className={classNames(
+              'pt-14 laptop:pt-10',
+              shouldUseListFeedLayout ? 'px-0' : 'px-6',
+            )}
+            feedName={OtherFeedPage.Squads}
+            feedQueryKey={[
+              'sourceFeed',
+              user?.id ?? 'anonymous',
+              Object.values(queryVariables),
+            ]}
+            query={SOURCE_FEED_QUERY}
+            variables={queryVariables}
+            showSearch={false}
+            emptyScreen={<SquadEmptyScreen />}
+            options={{ refetchOnMount: true }}
+            header={<SquadFeedHeading squad={squad} />}
+            inlineHeader
+            allowPin
+          />
+        </FeedPageComponent>
+      </div>
     </PageComponent>
   );
 };
