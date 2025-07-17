@@ -75,7 +75,7 @@ export const featureOnboardingGridVariation = new Feature(
 
 export const featurePostUiImprovements = new Feature(
   'post_ui_improvements',
-  true,
+  false,
 );
 
 export const featureCardUiButtons = new Feature('card_ui_buttons', false);
