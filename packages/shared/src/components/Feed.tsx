@@ -28,6 +28,8 @@ import LogContext from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
+import { useViewSize, ViewSize } from '../hooks';
+import { SourceType } from '../graphql/sources';
 import { Origin, TargetId, LogEvent } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';

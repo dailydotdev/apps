@@ -151,8 +151,8 @@ const MobileFooterNavbar = ({
       element="nav"
       className={classNames(
         'grid w-full select-none auto-cols-fr grid-flow-col items-center justify-between rounded-16',
-        !isPostPage && activeClasses,
-        !isPostPage && 'border-t border-border-subtlest-tertiary',
+        activeClasses,
+        'border-t border-border-subtlest-tertiary',
       )}
     >
       <FooterNavBarTabs activeTab={activeTab} tabs={tabs} />
