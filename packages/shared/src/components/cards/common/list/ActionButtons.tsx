@@ -26,7 +26,10 @@ import { Tooltip } from '../../../tooltip/Tooltip';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
 import PostAwardAction from '../../../post/PostAwardAction';
 import { useFeature } from '../../../GrowthBookProvider';
-import { featurePostUiImprovements } from '../../../../lib/featureManagement';
+import {
+  featureCardUiButtons,
+  featurePostUiImprovements,
+} from '../../../../lib/featureManagement';
 import { combinedClicks } from '../../../../lib/click';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
@@ -45,7 +48,8 @@ export default function ActionButtons({
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const buttonExp = useFeature(featureCardUiButtons);
+  const colorExp = useFeature(featurePostUiImprovements);
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -95,7 +99,7 @@ export default function ActionButtons({
     onCopyLinkClick?.(e, post);
   };
 
-  if (postUiExp) {
+  if (colorExp || buttonExp) {
     return (
       <ConditionalWrapper
         condition={showTagsPanel === true}
@@ -196,7 +200,9 @@ export default function ActionButtons({
               )}
             </QuaternaryButton>
           </LinkWithTooltip>
-          <PostAwardAction iconSize={IconSize.Medium} post={post} />
+          {buttonExp && (
+            <PostAwardAction iconSize={IconSize.Medium} post={post} />
+          )}
           <BookmarkButton
             post={post}
             buttonProps={{
@@ -229,7 +235,12 @@ export default function ActionButtons({
       )}
     >
       <div className={classNames('flex flex-row items-center', className)}>
-        <div className="flex flex-row items-center rounded-12 bg-surface-float">
+        <div
+          className={classNames(
+            'flex flex-row items-center rounded-12',
+            colorExp ? 'bg-transparent' : 'bg-surface-float',
+          )}
+        >
           <Tooltip
             content={
               post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
