@@ -66,6 +66,7 @@ export interface DragDropProps {
   state?: UploadState;
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
+  renameFileTo?: string;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -120,7 +121,7 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
 const CompactItem = ({ name, state }: ItemProps) => (
   <div className="flex w-full items-center gap-1">
     <DocsIcon secondary />
-    <div className="min-w-0 flex-1">
+    <div className="min-w-0 flex-1 text-left">
       <Typography className="truncate" type={TypographyType.Footnote} bold>
         {name}
       </Typography>
@@ -139,6 +140,7 @@ export function DragDrop({
   state,
   inputRef: inputRefProps,
   isCompactList,
+  renameFileTo,
 }: DragDropProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   useImperativeHandle(inputRefProps, () => inputRef.current);
@@ -158,6 +160,21 @@ export function DragDrop({
 
   const finalMaxSize = maxSize || maxSizeMB * BYTES_PER_MB;
   const finalErrorMessages = { ...defaultErrorMessages, ...errorMessages };
+
+  const getName = (file: File, index: number) => {
+    const { name } = file;
+
+    if (!renameFileTo) {
+      return name;
+    }
+
+    const chunks = name.split('.');
+    const extension = chunks.pop();
+
+    return filenames.length === 1
+      ? `${renameFileTo}.${extension}`
+      : `${renameFileTo} (${index + 1}).${extension}`;
+  };
 
   const validateFile = (file: File): DragDropError | null => {
     // Check file size
@@ -270,7 +287,7 @@ export function DragDrop({
     });
 
     // Call callback with valid files and errors
-    setFilenames(validFiles.map((file) => file.name));
+    setFilenames(validFiles.map(getName));
     onFilesDrop(validFiles, errors.length > 0 ? errors : undefined);
   };
 
@@ -338,12 +355,11 @@ export function DragDrop({
   return (
     <div
       className={classNames(
-        'flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary',
+        'relative flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary',
         {
           'bg-surface-float': !isDragOver,
           'bg-surface-hover': isDragOver && isDragValid,
-          'bg-surface-disabled': disabled,
-          'cursor-pointer': !disabled,
+          'bg-surface-disabled cursor-not-allowed': disabled,
         },
         className,
       )}

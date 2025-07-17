@@ -15,6 +15,7 @@ import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
+import { DragDrop } from '../fields/DragDrop';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -91,6 +92,14 @@ export function ProfileWidgets({
           </div>
         )}
       </div>
+      {isSameUser && (
+        <DragDrop
+          isCompactList
+          className="mx-4"
+          renameFileTo={loggedUser.name}
+          onFilesDrop={() => console.log('test')}
+        />
+      )}
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
         <div className="flex flex-col gap-3">
