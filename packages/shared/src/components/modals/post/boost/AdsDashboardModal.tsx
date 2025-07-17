@@ -64,7 +64,7 @@ export function AdsDashboardModal({
       size={Modal.Size.Small}
     >
       <Modal.Header title="Ads dashboard" showCloseButton />
-      <Modal.Body className="flex flex-col gap-4">
+      <Modal.Body className="flex flex-col gap-4 overflow-x-hidden">
         <Modal.Subtitle>Overview all time</Modal.Subtitle>
         <div className="grid grid-cols-2 gap-4">
           <DataTile

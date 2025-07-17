@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -27,6 +27,7 @@ import {
   ReputationLightningIcon,
   ExitIcon,
   OrganizationIcon,
+  TrendingIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -39,7 +40,10 @@ import {
   walletUrl,
 } from '../../lib/constants';
 
-import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
+import type {
+  ProfileSectionItemProps,
+  ProfileSectionItemPropsWithoutHref,
+} from '../ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '../ProfileMenu/ProfileSection';
 import { LogoutReason } from '../../lib/user';
 import { logout, useAuthContext } from '../../contexts/AuthContext';
@@ -51,6 +55,8 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 type MenuItems = Record<
   string,
@@ -62,164 +68,177 @@ type MenuItems = Record<
 
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
-export const accountPageItems = defineMenuItems({
-  main: {
-    title: null,
-    items: {
-      profile: {
-        title: 'Profile details',
-        icon: UserIcon,
-        href: `${settingsUrl}/profile`,
-      },
-      account: {
-        title: 'Account',
-        icon: MailIcon,
-        href: `${settingsUrl}/security`,
-      },
-      appearance: {
-        title: 'Appearance',
-        icon: NewTabIcon,
-        href: `${settingsUrl}/appearance`,
-      },
-      notifications: {
-        title: 'Notifications',
-        icon: BellIcon,
-        href: `${settingsUrl}/notifications`,
-      },
-      invite: {
-        title: 'Invite Friends',
-        icon: InviteIcon,
-        href: `${settingsUrl}/invite`,
-      },
-    },
-  },
-  billing: {
-    title: 'Billing and Monetization',
-    items: {
-      subscription: {
-        title: 'Subscriptions',
-        icon: CreditCardIcon,
-        href: `${settingsUrl}/subscription`,
-      },
-      organization: {
-        title: 'Organizations',
-        icon: OrganizationIcon,
-        href: `${settingsUrl}/organization`,
-      },
-      coreWallet: {
-        title: 'Core Wallet',
-        icon: CoinIcon,
-        href: walletUrl,
-        external: true,
-      },
-    },
-  },
-  feed: {
-    title: 'Feed Settings',
-    items: {
-      general: {
-        title: 'General',
-        icon: EditIcon,
-        href: `${settingsUrl}/feed/general`,
-      },
-      tags: {
-        title: 'Tags',
-        icon: HashtagIcon,
-        href: `${settingsUrl}/feed/tags`,
-      },
-      sources: {
-        title: 'Content sources',
-        icon: AddUserIcon,
-        href: `${settingsUrl}/feed/sources`,
-      },
-      preferences: {
-        title: 'Content preferences',
-        icon: AppIcon,
-        href: `${settingsUrl}/feed/preferences`,
-      },
-      ai: {
-        title: 'AI superpowers',
-        icon: MagicIcon,
-        href: `${settingsUrl}/feed/ai`,
-      },
-      blocked: {
-        title: 'Blocked content',
-        icon: BlockIcon,
-        href: `${settingsUrl}/feed/blocked`,
-      },
-    },
-  },
-  customization: {
-    title: 'Customization',
-    items: {
-      streaks: {
-        title: 'Streaks',
-        icon: HotIcon,
-        href: `${settingsUrl}/customization/streaks`,
-      },
-      devcard: {
-        title: 'DevCard',
-        icon: DevCardIcon,
-        href: `${settingsUrl}/customization/devcard`,
-      },
-      integrations: {
-        title: 'Integrations',
-        icon: EmbedIcon,
-        href: `${settingsUrl}/customization/integrations`,
-      },
-    },
-  },
-  help: {
-    title: 'Help center',
-    items: {
-      privacy: {
-        title: 'Privacy',
-        icon: PrivacyIcon,
-        href: `${settingsUrl}/privacy`,
-      },
-      reputation: {
-        title: 'Reputation',
-        icon: ReputationLightningIcon,
-        href: reputation,
-        external: true,
-      },
-      advertise: {
-        title: 'Advertise',
-        icon: MegaphoneIcon,
-        href: businessWebsiteUrl,
-        external: true,
-      },
-      apps: {
-        title: 'Apps',
-        icon: PhoneIcon,
-        href: appsUrl,
-        external: true,
-      },
-      docs: {
-        title: 'Docs',
-        icon: DocsIcon,
-        href: docs,
-        external: true,
-      },
-      support: {
-        title: 'Support',
-        icon: FeedbackIcon,
-        href: feedback,
-        external: true,
-      },
-    },
-  },
-  logout: {
-    title: null,
-    items: {
-      logout: {
-        title: 'Log out',
-        icon: ExitIcon,
-        onClick: () => logout(LogoutReason.ManualLogout),
-      },
-    },
-  },
-});
+const useAccountPageItems = () => {
+  const { openModal } = useLazyModal();
+
+  return useMemo(
+    () =>
+      defineMenuItems({
+        main: {
+          title: null,
+          items: {
+            profile: {
+              title: 'Profile details',
+              icon: UserIcon,
+              href: `${settingsUrl}/profile`,
+            },
+            account: {
+              title: 'Account',
+              icon: MailIcon,
+              href: `${settingsUrl}/security`,
+            },
+            appearance: {
+              title: 'Appearance',
+              icon: NewTabIcon,
+              href: `${settingsUrl}/appearance`,
+            },
+            notifications: {
+              title: 'Notifications',
+              icon: BellIcon,
+              href: `${settingsUrl}/notifications`,
+            },
+            invite: {
+              title: 'Invite Friends',
+              icon: InviteIcon,
+              href: `${settingsUrl}/invite`,
+            },
+          },
+        },
+        billing: {
+          title: 'Billing and Monetization',
+          items: {
+            subscription: {
+              title: 'Subscriptions',
+              icon: CreditCardIcon,
+              href: `${settingsUrl}/subscription`,
+            },
+            organization: {
+              title: 'Organizations',
+              icon: OrganizationIcon,
+              href: `${settingsUrl}/organization`,
+            },
+            coreWallet: {
+              title: 'Core Wallet',
+              icon: CoinIcon,
+              href: walletUrl,
+              external: true,
+            },
+            adsDashboard: {
+              title: 'Ads dashboard',
+              icon: TrendingIcon,
+              onClick: () => openModal({ type: LazyModal.AdsDashboard }),
+            } as ProfileSectionItemPropsWithoutHref,
+          },
+        },
+        feed: {
+          title: 'Feed Settings',
+          items: {
+            general: {
+              title: 'General',
+              icon: EditIcon,
+              href: `${settingsUrl}/feed/general`,
+            },
+            tags: {
+              title: 'Tags',
+              icon: HashtagIcon,
+              href: `${settingsUrl}/feed/tags`,
+            },
+            sources: {
+              title: 'Content sources',
+              icon: AddUserIcon,
+              href: `${settingsUrl}/feed/sources`,
+            },
+            preferences: {
+              title: 'Content preferences',
+              icon: AppIcon,
+              href: `${settingsUrl}/feed/preferences`,
+            },
+            ai: {
+              title: 'AI superpowers',
+              icon: MagicIcon,
+              href: `${settingsUrl}/feed/ai`,
+            },
+            blocked: {
+              title: 'Blocked content',
+              icon: BlockIcon,
+              href: `${settingsUrl}/feed/blocked`,
+            },
+          },
+        },
+        customization: {
+          title: 'Customization',
+          items: {
+            streaks: {
+              title: 'Streaks',
+              icon: HotIcon,
+              href: `${settingsUrl}/customization/streaks`,
+            },
+            devcard: {
+              title: 'DevCard',
+              icon: DevCardIcon,
+              href: `${settingsUrl}/customization/devcard`,
+            },
+            integrations: {
+              title: 'Integrations',
+              icon: EmbedIcon,
+              href: `${settingsUrl}/customization/integrations`,
+            },
+          },
+        },
+        help: {
+          title: 'Help center',
+          items: {
+            privacy: {
+              title: 'Privacy',
+              icon: PrivacyIcon,
+              href: `${settingsUrl}/privacy`,
+            },
+            reputation: {
+              title: 'Reputation',
+              icon: ReputationLightningIcon,
+              href: reputation,
+              external: true,
+            },
+            advertise: {
+              title: 'Advertise',
+              icon: MegaphoneIcon,
+              href: businessWebsiteUrl,
+              external: true,
+            },
+            apps: {
+              title: 'Apps',
+              icon: PhoneIcon,
+              href: appsUrl,
+              external: true,
+            },
+            docs: {
+              title: 'Docs',
+              icon: DocsIcon,
+              href: docs,
+              external: true,
+            },
+            support: {
+              title: 'Support',
+              icon: FeedbackIcon,
+              href: feedback,
+              external: true,
+            },
+          },
+        },
+        logout: {
+          title: null,
+          items: {
+            logout: {
+              title: 'Log out',
+              icon: ExitIcon,
+              onClick: () => logout(LogoutReason.ManualLogout),
+            },
+          },
+        },
+      }),
+    [openModal],
+  );
+};
 
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
@@ -231,6 +250,7 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
+  const accountPageItems = useAccountPageItems();
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -257,7 +277,7 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
                   ...(isMobile && {
                     typography: {
                       type: TypographyType.Body,
-                      color: TypographyColor.Primary,
+                      color: TypographyColor.Secondary,
                     },
                   }),
                 };
