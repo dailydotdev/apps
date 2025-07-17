@@ -118,7 +118,6 @@ describe('ReadingHistoryList component', () => {
 
 describe('PostItemCard component', () => {
   const onHide = jest.fn();
-  const onContextMenu = jest.fn();
 
   const createdAt = new Date('202-10-22T07:15:51.247Z');
   const defaultHistory = {
