@@ -50,7 +50,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const colorExp = useFeature(featurePostUiImprovements);
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
@@ -308,10 +308,10 @@ export function PostActions({
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             className={classNames(
-              postUiExp ? 'hover:text-text-link' : 'btn-tertiary-cabbage',
+              colorExp ? 'hover:text-text-link' : 'btn-tertiary-cabbage',
             )}
             buttonClassName={
-              postUiExp ? 'hover:bg-overlay-float-water' : undefined
+              colorExp ? 'hover:bg-overlay-float-water' : undefined
             }
           >
             Copy
