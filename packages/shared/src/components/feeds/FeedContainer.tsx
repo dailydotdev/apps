@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Spaciness } from '../../graphql/settings';
@@ -14,7 +14,6 @@ import {
   useViewSize,
   ViewSize,
   useFeeds,
-  useActions,
   useBoot,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -25,8 +24,13 @@ import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
-import { ActionType } from '../../graphql/actions';
 import { MarketingCtaVariant } from '../marketingCta/common';
+import {
+  uploadCvBgLaptop,
+  uploadCvBgTablet,
+  uploadCvBgMobile,
+} from '../../lib/image';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -193,29 +197,18 @@ export const FeedContainer = ({
     return feedNameToHeading[feedName] ?? '';
   }, [feeds, feedName, router.query.slugOrId]);
 
-  const { actions, isActionsFetched } = useActions();
+  const { user } = useAuthContext();
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const clearMarketingRef = useRef(clearMarketingCta);
   clearMarketingRef.current = clearMarketingCta;
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
-  const hasClosedBanner = useMemo(
-    () =>
-      !marketingCta ||
-      actions?.some(({ type }) => type === ActionType.UploadedCV),
-    [actions, marketingCta],
-  );
+  const shouldShowBanner = !!marketingCta && !user?.flags?.cvUploadedAt;
 
-  useEffect(() => {
-    if (
-      actions?.some(({ type }) => type === ActionType.UploadedCV) &&
-      marketingCta
-    ) {
-      // we need to clean this up, otherwise all other marketing ctas of similar type will be blocked if this is uncleared
-      clearMarketingRef.current(MarketingCtaVariant.FeedBanner);
-    }
-  }, [actions, marketingCta]);
+  if (!!marketingCta && !!user?.flags?.cvUploadedAt) {
+    clearMarketingCta(MarketingCtaVariant.FeedBanner);
+  }
 
-  if (!loadedSettings || !isActionsFetched) {
+  if (!loadedSettings) {
     return <></>;
   }
 
@@ -227,7 +220,7 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {!hasClosedBanner && (
+      {shouldShowBanner && (
         <div
           className={classNames(
             'laptop:px-0 laptop:pt-0',
@@ -235,8 +228,21 @@ export const FeedContainer = ({
           )}
         >
           <ProfileUploadBanner
-            className={classNames({ isList: 'mb-0' })}
+            className={{
+              container: classNames({ isList: 'mb-0' }),
+              image:
+                isList && 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]',
+            }}
             onClose={() => clearMarketingCta(MarketingCtaVariant.FeedBanner)}
+            banner={{
+              title: marketingCta?.flags?.title,
+              description: marketingCta?.flags?.description,
+              cover: {
+                laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
+                tablet: uploadCvBgTablet,
+                base: uploadCvBgMobile,
+              },
+            }}
           />
         </div>
       )}

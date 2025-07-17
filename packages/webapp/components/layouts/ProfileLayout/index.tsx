@@ -117,7 +117,7 @@ export default function ProfileLayout({
       wrapper={(component) => (
         <div className="flex w-full flex-col p-4">
           <ProfileUploadBanner
-            className="!mt-0 tablet:mt-3"
+            className={{ container: '!mt-0 tablet:mt-3' }}
             onClose={() => completeAction(ActionType.ClosedProfileBanner)}
           />
           {component}

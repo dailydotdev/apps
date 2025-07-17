@@ -25,22 +25,33 @@ const defaultBanner = {
   title: 'Your next job should apply to you',
   description:
     'Upload your CV so we quietly match you with roles you might actually want. Nothing is shared without your ok.',
-  cover: uploadCvBgLaptop,
+  cover: {
+    laptop: uploadCvBgLaptop,
+    tablet: uploadCvBgTablet,
+    base: uploadCvBgMobile,
+  },
 };
 
 interface ProfileUploadBannerProps {
   banner?: {
     title: string;
     description: string;
-    cover?: string;
+    cover?: {
+      laptop: string;
+      tablet: string;
+      base: string;
+    };
   };
-  className?: string;
+  className?: Partial<{
+    container: string;
+    image: string;
+  }>;
   onClose: () => void;
 }
 
 export function ProfileUploadBanner({
-  banner = defaultBanner,
   className,
+  banner = defaultBanner,
   onClose,
 }: ProfileUploadBannerProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
@@ -49,14 +60,14 @@ export function ProfileUploadBanner({
 
   const getImage = () => {
     if (isLaptop) {
-      return uploadCvBgLaptop;
+      return banner?.cover?.laptop || uploadCvBgTablet;
     }
 
     if (isTablet) {
-      return uploadCvBgTablet;
+      return banner?.cover?.tablet || uploadCvBgTablet;
     }
 
-    return uploadCvBgMobile;
+    return banner?.cover?.base || uploadCvBgMobile;
   };
 
   return (
@@ -64,11 +75,14 @@ export function ProfileUploadBanner({
       style={{ background: cvUploadBannerBg }}
       className={classNames(
         'relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary px-4 py-3',
-        className,
+        className?.container,
       )}
     >
       <img
-        className="pointer-events-none absolute -rotate-[15] object-cover tablet:absolute tablet:bottom-0 tablet:right-0 laptop:top-0"
+        className={classNames(
+          'pointer-events-none absolute -rotate-[15] object-cover tablet:absolute tablet:bottom-0 tablet:right-0 laptop:top-0',
+          className?.image,
+        )}
         src={getImage()}
         alt="Animated money, devices, and a rubber duck"
       />
@@ -78,10 +92,10 @@ export function ProfileUploadBanner({
           bold
           className="max-w-[15.5rem] tablet:max-w-[unset]"
         >
-          {banner.title}
+          {banner.title || defaultBanner.title}
         </Typography>
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-          {banner.description}
+          {banner.description || defaultBanner.description}
         </Typography>
         <DragDrop
           isCompactList
