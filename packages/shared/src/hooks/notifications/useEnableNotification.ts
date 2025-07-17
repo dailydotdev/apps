@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
 import usePersistentContext from '../usePersistentContext';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
@@ -24,6 +24,7 @@ export const useEnableNotification = ({
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
   const { logEvent } = useLogContext();
+  const hasLoggedImpression = useRef(false);
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
   const { hasPermissionCache, acceptedJustNow, onEnablePush } =
@@ -61,7 +62,7 @@ export const useEnableNotification = ({
     !isDismissed;
 
   useEffect(() => {
-    if (!shouldShowCta) {
+    if (!shouldShowCta || hasLoggedImpression.current) {
       return;
     }
 
@@ -70,6 +71,7 @@ export const useEnableNotification = ({
       target_type: TargetType.EnableNotifications,
       extra: JSON.stringify({ origin: source }),
     });
+    hasLoggedImpression.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldShowCta]);
