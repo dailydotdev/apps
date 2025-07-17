@@ -24,7 +24,9 @@ export const BlockedTagList = ({
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
   const tags = useMemo(() => {
     // If search query provided, filter sources by search query
-    const escapedSearchQuery = searchQuery ? escapeRegexCharacters(searchQuery) : '';
+    const escapedSearchQuery = searchQuery
+      ? escapeRegexCharacters(searchQuery)
+      : '';
     const regex = new RegExp(escapedSearchQuery, 'i');
     return data?.pages.reduce((acc, p) => {
       p?.edges.forEach(({ node }) => {
