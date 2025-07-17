@@ -341,3 +341,8 @@ export const uploadCvBgTablet =
 
 export const uploadCvBgMobile =
   'https://media.daily.dev/image/upload/s--Y_qhm3Tw--/f_auto/v1752576066/public/job_main_mobile';
+
+export const uploadCvSuccessMobile =
+  'https://media.daily.dev/image/upload/s--boUrIf1e--/f_auto/v1752576157/public/cv_uploaded_mobile';
+export const uploadCvSuccess =
+  'https://media.daily.dev/image/upload/s--nLoTY15O--/f_auto/v1752576263/public/CV%20uploaded%20successfully%20popover';
