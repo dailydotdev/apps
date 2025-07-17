@@ -8,6 +8,7 @@ import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
 import BlockButton from '../../../contentPreference/BlockButton';
+import { escapeRegexCharacters } from '../../../../lib/strings';
 
 type BlockedUserListProps = {
   searchQuery?: string;
@@ -26,7 +27,8 @@ export const BlockedUserList = ({
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
   const users = useMemo(() => {
     // If search query provided, filter sources by search query
-    const regex = new RegExp(searchQuery, 'i');
+    const escapedSearchQuery = searchQuery ? escapeRegexCharacters(searchQuery) : '';
+    const regex = new RegExp(escapedSearchQuery, 'i');
     return data?.pages.reduce((acc, p) => {
       p?.edges.forEach(({ node }) => {
         if (searchQuery?.length > 0 && !regex.test(node.referenceUser.name)) {

@@ -5,6 +5,7 @@ import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
 import { TagList } from '../../../profile/TagList';
+import { escapeRegexCharacters } from '../../../../lib/strings';
 
 type BlockedTagListProps = {
   searchQuery?: string;
@@ -23,7 +24,8 @@ export const BlockedTagList = ({
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
   const tags = useMemo(() => {
     // If search query provided, filter sources by search query
-    const regex = new RegExp(searchQuery, 'i');
+    const escapedSearchQuery = searchQuery ? escapeRegexCharacters(searchQuery) : '';
+    const regex = new RegExp(escapedSearchQuery, 'i');
     return data?.pages.reduce((acc, p) => {
       p?.edges.forEach(({ node }) => {
         if (regex && !regex.test(node.referenceId)) {
