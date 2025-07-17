@@ -68,6 +68,7 @@ const ActionButtons = ({
     background: colorExp ? 'bg-background-default' : 'bg-surface-float',
     iconSize: buttonExp ? IconSize.XSmall : IconSize.Small,
     buttonSize: buttonExp ? ButtonSize.Small : ButtonSize.Small,
+    buttonRowPadding: buttonExp ? ' px-1 pb-1' : '',
   };
 
   if (isFeedPreview) {
@@ -114,7 +115,8 @@ const ActionButtons = ({
     return (
       <div
         className={classNames(
-          'flex flex-row items-center justify-between px-1 pb-1',
+          'flex flex-row items-center justify-between',
+          config.buttonRowPadding,
           className,
         )}
       >
