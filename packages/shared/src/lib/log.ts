@@ -310,7 +310,7 @@ export enum LogEvent {
 }
 
 export enum TargetType {
-  MyFeedModal = 'for you modal',
+  MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
