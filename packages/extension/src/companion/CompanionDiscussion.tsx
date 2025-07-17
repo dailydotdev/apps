@@ -13,6 +13,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import CommentInputOrModal from '@dailydotdev/shared/src/components/comments/CommentInputOrModal';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
@@ -55,6 +56,7 @@ export function CompanionDiscussion({
             ...commentClasses,
             container: 'companion-new-comment-button mb-4',
           }}
+          CommentInputOrModal={CommentInputOrModal}
         />
         <PostComments
           post={post}
