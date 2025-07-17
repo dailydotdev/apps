@@ -43,7 +43,7 @@ export const PromptButtons = ({
     const filteredPrompts = data?.filter(
       (prompt) => promptFlags?.[prompt.id] !== false,
     );
-    if (filteredPrompts && lastPrompt) {
+    if (filteredPrompts?.length && lastPrompt) {
       const latPromptIndex = filteredPrompts.findIndex(
         (item) => item.id === lastPrompt,
       );

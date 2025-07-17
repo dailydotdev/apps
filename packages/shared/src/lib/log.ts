@@ -342,6 +342,7 @@ export enum TargetType {
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
   Source = 'source',
+  Tag = 'tag',
   // Settings
   Layout = 'layout',
   Theme = 'theme',
