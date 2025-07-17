@@ -11,7 +11,10 @@ import {
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { useFeature } from '../../GrowthBookProvider';
-import { featurePostUiImprovements, featureCardUiButtons } from '../../../lib/featureManagement';
+import {
+  featurePostUiImprovements,
+  featureCardUiButtons,
+} from '../../../lib/featureManagement';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;

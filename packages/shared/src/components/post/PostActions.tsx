@@ -65,6 +65,14 @@ export function PostActions({
     receivingUser: post.author as LoggedUser,
   });
 
+  // Experiment configuration
+  const config = {
+    showVoteButtonsInActions: buttonExp,
+    showVoteButtonsInCard: !buttonExp,
+    copyButtonColor: colorExp ? ButtonColor.Water : ButtonColor.Cabbage,
+    copyButtonClassName: colorExp ? 'group-hover:text-text-link' : undefined,
+  };
+
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
   const { toggleBookmark } = useBookmarkPost();
@@ -193,6 +201,31 @@ export function PostActions({
     // for labels is executed after the DOM is updated with the new state.
   }, [post?.userState?.awarded, canAward]);
 
+  const renderVoteButtons = () => (
+    <>
+      <QuaternaryButton
+        id="upvote-post-btn"
+        pressed={post?.userState?.vote === UserVote.Up}
+        onClick={onToggleUpvote}
+        icon={<UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />}
+        aria-label="Upvote"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Avocado}
+      />
+      <QuaternaryButton
+        id="downvote-post-btn"
+        pressed={post?.userState?.vote === UserVote.Down}
+        onClick={onToggleDownvote}
+        icon={
+          <DownvoteIcon secondary={post?.userState?.vote === UserVote.Down} />
+        }
+        aria-label="Downvote"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Ketchup}
+      />
+    </>
+  );
+
   return (
     <ConditionalWrapper
       condition={showTagsPanel !== undefined}
@@ -204,7 +237,7 @@ export function PostActions({
       )}
     >
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
-        {!buttonExp && (
+        {config.showVoteButtonsInCard && (
           <Card
             className={classNames(
               'flex !flex-row gap-2 hover:border-border-subtlest-tertiary',
@@ -216,66 +249,14 @@ export function PostActions({
               },
             )}
           >
-            <QuaternaryButton
-              id="upvote-post-btn"
-              pressed={post?.userState?.vote === UserVote.Up}
-              onClick={onToggleUpvote}
-              icon={
-                <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
-              }
-              aria-label="Upvote"
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Avocado}
-            />
-            <QuaternaryButton
-              id="downvote-post-btn"
-              pressed={post?.userState?.vote === UserVote.Down}
-              onClick={onToggleDownvote}
-              icon={
-                <DownvoteIcon
-                  secondary={post?.userState?.vote === UserVote.Down}
-                />
-              }
-              aria-label="Downvote"
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Ketchup}
-            />
+            {renderVoteButtons()}
           </Card>
         )}
         <div
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
-          {buttonExp && (
-            <>
-              <QuaternaryButton
-                id="upvote-post-btn"
-                pressed={post?.userState?.vote === UserVote.Up}
-                onClick={onToggleUpvote}
-                icon={
-                  <UpvoteIcon
-                    secondary={post?.userState?.vote === UserVote.Up}
-                  />
-                }
-                aria-label="Upvote"
-                variant={ButtonVariant.Tertiary}
-                color={ButtonColor.Avocado}
-              />
-              <QuaternaryButton
-                id="downvote-post-btn"
-                pressed={post?.userState?.vote === UserVote.Down}
-                onClick={onToggleDownvote}
-                icon={
-                  <DownvoteIcon
-                    secondary={post?.userState?.vote === UserVote.Down}
-                  />
-                }
-                aria-label="Downvote"
-                variant={ButtonVariant.Tertiary}
-                color={ButtonColor.Ketchup}
-              />
-            </>
-          )}
+          {config.showVoteButtonsInActions && renderVoteButtons()}
           <QuaternaryButton
             id="comment-post-btn"
             pressed={post.commented}
@@ -345,8 +326,8 @@ export function PostActions({
             icon={<LinkIcon />}
             variant={ButtonVariant.Tertiary}
             className="group text-text-tertiary"
-            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
-            labelClassName={colorExp && 'group-hover:text-text-link'}
+            color={config.copyButtonColor}
+            labelClassName={config.copyButtonClassName}
           >
             Copy
           </QuaternaryButton>
