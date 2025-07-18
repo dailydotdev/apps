@@ -65,7 +65,7 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20',
+        'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b laptop:pb-20',
         !shouldUseListMode && 'laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
