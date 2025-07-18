@@ -37,6 +37,13 @@ const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
 );
 
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ '../comments/CommentInputOrModal'
+    ),
+);
+
 interface PostEngagementsProps {
   post: Post;
   logOrigin: PostOrigin;
@@ -149,6 +156,7 @@ function PostEngagements({
         post={post}
         ref={commentRef}
         onCommented={onCommented}
+        CommentInputOrModal={CommentInputOrModal}
       />
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments

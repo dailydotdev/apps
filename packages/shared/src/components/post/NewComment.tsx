@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import {
   getProfilePictureClasses,
   ProfileImageSize,
@@ -26,15 +25,9 @@ import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 
-const CommentInputOrModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ '../comments/CommentInputOrModal'
-    ),
-);
-
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
+  CommentInputOrModal: React.ElementType;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -52,6 +45,7 @@ function NewCommentComponent(
     size = ProfileImageSize.Large,
     onCommented,
     post,
+    CommentInputOrModal,
     ...props
   }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
