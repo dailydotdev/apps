@@ -346,3 +346,8 @@ export const uploadCvSuccessMobile =
   'https://media.daily.dev/image/upload/s--boUrIf1e--/f_auto/v1752576157/public/cv_uploaded_mobile';
 export const uploadCvSuccess =
   'https://media.daily.dev/image/upload/s--nLoTY15O--/f_auto/v1752576263/public/CV%20uploaded%20successfully%20popover';
+
+export const exportLinkedInMobile =
+  'https://media.daily.dev/image/upload/s--PqONkeKS--/f_auto/v1752576240/public/linkedin_cv_mobile';
+export const exportLinkedIn =
+  'https://media.daily.dev/image/upload/s--QLl75_xQ--/f_auto/v1752576203/public/linkedin_cv_web';

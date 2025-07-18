@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import React from 'react';
 import type { AllowedTags, ButtonProps } from '../../buttons/Button';
 import { Button } from '../../buttons/Button';
-import { ButtonVariant } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import {
   Typography,
   TypographyType,
@@ -18,7 +18,8 @@ interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
   cta?: ButtonProps<T> & { copy: string };
   content: {
     title: string;
-    description: ReactNode;
+    description: string;
+    body?: ReactNode;
     cover: string;
     coverDrawer?: string;
   };
@@ -29,7 +30,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
   content,
   ...props
 }: ActionSuccessModalProps<T>): React.ReactElement {
-  const { title, description, cover, coverDrawer } = content;
+  const { title, description, body, cover, coverDrawer } = content;
   const isTablet = useViewSize(ViewSize.Tablet);
 
   return (
@@ -44,8 +45,11 @@ export function ActionSuccessModal<T extends AllowedTags>({
         <div className="relative flex overflow-hidden rounded-16">
           <ModalClose
             className="hidden tablet:flex"
-            right="0"
+            right="2"
+            top="2"
+            size={ButtonSize.Small}
             onClick={props.onRequestClose}
+            variant={ButtonVariant.Primary}
           />
           <Image src={isTablet ? cover : coverDrawer} />
         </div>
@@ -53,18 +57,17 @@ export function ActionSuccessModal<T extends AllowedTags>({
           <Typography type={TypographyType.Title2} center bold>
             {title}
           </Typography>
-          {typeof description !== 'string' ? (
-            description
-          ) : (
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Tertiary}
-              center
-            >
-              {description}
-            </Typography>
-          )}
+          <Typography
+            type={TypographyType.Body}
+            color={
+              isTablet ? TypographyColor.Secondary : TypographyColor.Tertiary
+            }
+            center
+          >
+            {description}
+          </Typography>
         </div>
+        {body}
         {cta && (
           <Button
             variant={ButtonVariant.Primary}

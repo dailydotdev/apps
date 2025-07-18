@@ -55,6 +55,7 @@ import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { DragDrop } from '@dailydotdev/shared/src/components/fields/DragDrop';
+import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -181,12 +182,16 @@ const ProfileIndex = ({
         className="my-4 max-w-[18.5rem]"
         onFilesDrop={() => console.log('test')}
       />
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Quaternary}
-      >
-        Tip: Complete your profile below to improve match quality
-      </Typography>
+      {!user?.flags?.cvUploadedAt ? (
+        <FeelingLazy />
+      ) : (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Quaternary}
+        >
+          Tip: Complete your profile below to improve match quality
+        </Typography>
+      )}
     </AccountContentSection>
   );
 

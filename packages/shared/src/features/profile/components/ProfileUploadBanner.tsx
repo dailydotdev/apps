@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -20,6 +20,7 @@ import {
 import { MiniCloseIcon } from '../../../components/icons';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
+import { FeelingLazy } from './FeelingLazy';
 
 const defaultBanner = {
   title: 'Your next job should apply to you',
@@ -54,7 +55,6 @@ export function ProfileUploadBanner({
   banner = defaultBanner,
   onClose,
 }: ProfileUploadBannerProps): ReactElement {
-  const inputRef = useRef<HTMLInputElement>();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
 
@@ -97,25 +97,8 @@ export function ProfileUploadBanner({
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
           {banner.description || defaultBanner.description}
         </Typography>
-        <DragDrop
-          isCompactList
-          inputRef={inputRef}
-          className="my-4"
-          onFilesDrop={(file) => file}
-        />
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Feeling lazy?{' '}
-          <button
-            type="button"
-            className="underline hover:no-underline"
-            onClick={() => inputRef?.current.click()}
-          >
-            Import your CV from LinkedIn
-          </button>
-        </Typography>
+        <DragDrop isCompactList className="my-4" onFilesDrop={(file) => file} />
+        <FeelingLazy />
       </div>
       <Button
         className="absolute right-2 top-2"
