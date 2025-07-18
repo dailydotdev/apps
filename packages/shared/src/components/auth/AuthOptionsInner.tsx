@@ -27,13 +27,16 @@ import useLogin from '../../hooks/useLogin';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useToastNotification, useEventListener } from '../../hooks';
+import {
+  useToastNotification,
+  useEventListener,
+  usePersistentState,
+} from '../../hooks';
 import { broadcastChannel, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
-import usePersistentState from '../../hooks/usePersistentState';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';

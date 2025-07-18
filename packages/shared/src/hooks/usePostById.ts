@@ -91,7 +91,10 @@ export const removePostComments = (
   });
 };
 
-const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
+export const usePostById = ({
+  id,
+  options = {},
+}: UsePostByIdProps): UsePostById => {
   const { initialData, ...restOptions } = options;
   const { tokenRefreshed } = useAuthContext();
   const key = getPostByIdKey(id);
@@ -161,5 +164,3 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
     [post?.post, post?.relatedCollectionPosts, isError, isPending],
   );
 };
-
-export default usePostById;

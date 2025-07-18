@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { get as getCache, set as setCache } from 'idb-keyval';
 
-export default function usePersistentState<T>(
+export function usePersistentState<T>(
   key: string,
   initialValue: T,
   valueWhenCacheEmpty?: T,

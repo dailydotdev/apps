@@ -16,7 +16,7 @@ import {
   oneMinute,
   TimeFormatType,
 } from '../../../../lib/dateFormat';
-import usePostById from '../../../../hooks/usePostById';
+import { usePlusSubscription, usePostById } from '../../../../hooks';
 import {
   BriefCardContextProvider,
   useBriefCardContext,
@@ -25,7 +25,6 @@ import { lottieAnimationQueryOptions } from '../../../../lib/lottie';
 import { useLogContext } from '../../../../contexts/LogContext';
 import type { TargetId } from '../../../../lib/log';
 import { LogEvent } from '../../../../lib/log';
-import { usePlusSubscription } from '../../../../hooks';
 
 export type BriefCardProps = {
   className?: Partial<{

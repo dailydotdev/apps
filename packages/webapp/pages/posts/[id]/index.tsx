@@ -19,17 +19,17 @@ import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import {
+  usePostById,
+  useJoinReferral,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
-import {
-  useJoinReferral,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
