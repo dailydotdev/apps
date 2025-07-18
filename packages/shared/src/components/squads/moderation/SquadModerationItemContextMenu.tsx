@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import type { MenuItemProps } from '../../fields/ContextMenu';
 import { EditIcon, MenuIcon, TrashIcon } from '../../icons';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
@@ -13,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import { Button } from '../../buttons/Button';
+import type { MenuItemProps } from '../../dropdown/common';
 
 interface SquadModerationItemContextMenuProps
   extends Pick<SourcePostModeration, 'id'> {

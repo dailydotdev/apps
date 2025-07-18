@@ -30,7 +30,6 @@ import { LogEvent, Origin, TargetId } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import type { MenuItemProps } from '../fields/ContextMenu';
 import { SourcePermissions } from '../../graphql/sources';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -59,6 +58,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
