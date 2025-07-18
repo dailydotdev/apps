@@ -13,7 +13,7 @@ import type { PropsParameters } from '../../types';
 import { useToastNotification } from '../useToastNotification';
 import type { ContentPreferenceMutation } from './types';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
@@ -29,6 +29,9 @@ export type UseContentPreference = {
 type UseContentPreferenceProps = {
   showToastOnSuccess?: boolean;
 };
+
+const getTargetType = (entity: ContentPreferenceType): string =>
+  entity === ContentPreferenceType.Keyword ? TargetType.Tag : entity;
 
 export const useContentPreference = ({
   showToastOnSuccess,
@@ -59,7 +62,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Follow,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -98,7 +101,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Unfollow,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -134,7 +137,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Subscribe,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -174,7 +177,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Unsubscribe,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -211,7 +214,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Block,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 
@@ -255,7 +258,7 @@ export const useContentPreference = ({
       logEvent({
         event_name: LogEvent.Unblock,
         target_id: id,
-        target_type: entityName,
+        target_type: getTargetType(entity),
         extra: extra || undefined,
       });
 

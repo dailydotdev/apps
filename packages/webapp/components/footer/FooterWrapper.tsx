@@ -23,6 +23,13 @@ const MobileFooterNavbar = dynamic(
     import(/* webpackChunkName: "mobileFooterNavbar" */ './MobileFooterNavbar'),
 );
 
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
+    ),
+);
+
 interface FooterNavBarProps {
   showNav?: boolean;
   post?: Post;
@@ -54,13 +61,14 @@ export default function FooterWrapper({
                 'h-12 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
               ),
             }}
+            CommentInputOrModal={CommentInputOrModal}
           />
         </div>
       )}
       {showNav && showPlusButton && (
         <>
           <FooterPlusButton />
-          <MobileFooterNavbar isPostPage={!!post} />
+          <MobileFooterNavbar />
         </>
       )}
     </div>

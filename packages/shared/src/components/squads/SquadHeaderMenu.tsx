@@ -22,7 +22,6 @@ import {
   MenuIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
-import type { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -37,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { MenuItemProps } from '../dropdown/common';
 
 const IconWrapper = ({
   Icon,

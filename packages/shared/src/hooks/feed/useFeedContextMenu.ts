@@ -1,9 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import useContextMenu from '../useContextMenu';
 import type { Post } from '../../graphql/posts';
-import { ContextMenu } from '../constants';
-import useReportPostMenu from '../useReportPostMenu';
 
 export type PostLocation = {
   index: number;
@@ -31,19 +28,9 @@ type FeedContextMenu = {
   setPostMenuIndex: (value: PostLocation | undefined) => void;
 };
 
-type FeedContextMenuProps = {
-  contextId: string;
-};
-
-export default function useFeedContextMenu({
-  contextId,
-}: FeedContextMenuProps): FeedContextMenu {
+export default function useFeedContextMenu(): FeedContextMenu {
   const [postMenuLocation, setPostMenuLocation] = useState<PostLocation>();
   const postMenuIndex = postMenuLocation?.index;
-  const { showReportMenu } = useReportPostMenu(contextId);
-  const { onMenuClick: showShareMenu } = useContextMenu({
-    id: ContextMenu.ShareContext,
-  });
 
   const onMenuClick = (
     e: React.MouseEvent,
@@ -56,7 +43,6 @@ export default function useFeedContextMenu({
       return;
     }
     setPostMenuLocation({ index, row, column });
-    showReportMenu(e);
   };
 
   const onShareMenuClick = (
@@ -71,7 +57,6 @@ export default function useFeedContextMenu({
       return;
     }
     setPostMenuLocation({ index, row, column });
-    showShareMenu(e);
   };
 
   return {
