@@ -55,7 +55,7 @@ function BasePostModal({
         <>
           <PostNavigation
             className={{
-              container: 'pl-4',
+              container: 'px-4',
             }}
             postPosition={postPosition}
             onPreviousPost={onPreviousPost}

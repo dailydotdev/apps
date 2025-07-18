@@ -34,7 +34,7 @@ export const FeedSettingsTitle = ({
           <HashtagIcon size={IconSize.Medium} />
         )}
       </span>
-      {feed.type === FeedType.Custom ? feed.flags.name : 'My feed'}
+      {feed.type === FeedType.Custom ? feed.flags.name : 'For You'}
     </Typography>
   );
 };

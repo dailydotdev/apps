@@ -27,6 +27,7 @@ import { AuthTriggers } from '../../lib/auth';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
+  shouldHandleCommentQuery?: boolean;
   CommentInputOrModal: React.ElementType;
 }
 
@@ -45,6 +46,7 @@ function NewCommentComponent(
     size = ProfileImageSize.Large,
     onCommented,
     post,
+    shouldHandleCommentQuery = false,
     CommentInputOrModal,
     ...props
   }: NewCommentProps,
@@ -78,7 +80,11 @@ function NewCommentComponent(
   const hasCommentQuery = typeof router.query.comment === 'string';
 
   useEffect(() => {
-    if (!hasCommentQuery || post.type !== PostType.Welcome) {
+    if (
+      !shouldHandleCommentQuery ||
+      !hasCommentQuery ||
+      post.type !== PostType.Welcome
+    ) {
       return;
     }
 
@@ -89,7 +95,7 @@ function NewCommentComponent(
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
-  }, [post, hasCommentQuery, onShowComment, router]);
+  }, [post, hasCommentQuery, onShowComment, router, shouldHandleCommentQuery]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {
