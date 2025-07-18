@@ -1073,7 +1073,7 @@ describe('Feed logged in', () => {
       expect(card).not.toBeInTheDocument();
     });
 
-    it('should not show the card if the feed is different than For you', async () => {
+    it('should not show the card if the feed is different than For You', async () => {
       renderComponent(undefined, undefined, SharedFeedPage.Popular);
 
       const card = screen.queryByTestId('acquisitionFormCard');

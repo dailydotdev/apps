@@ -16,7 +16,7 @@ interface CreateMyFeedButtonProps {
 
 const getLogEvent = (eventName: string, copy: string): LogEvent => ({
   event_name: eventName,
-  target_type: 'my feed  button',
+  target_type: 'my feed button',
   target_id: 'feed_top',
   feed_item_title: copy,
 });

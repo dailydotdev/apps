@@ -121,7 +121,7 @@ export function SquadNotificationsModal({
           checked={!hideFeedPosts}
           onToggle={hideFeedPosts ? showSourceFeedPosts : hideSourceFeedPosts}
         >
-          Show new posts on for you
+          Show new posts on For You
         </Switch>
         <Switch
           data-testid="notify_new_posts-switch"

@@ -77,7 +77,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             name="name"
             type="text"
             inputId="feedName"
-            label="For you"
+            label="For You"
             rightIcon={<LockIcon />}
             disabled
             readOnly
