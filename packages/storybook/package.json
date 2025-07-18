@@ -30,8 +30,6 @@
     "@storybook/addon-links": "^9.0.6",
     "@storybook/addon-themes": "^9.0.6",
     "@storybook/react-vite": "^9.0.6",
-    "@svgr/plugin-jsx": "^5.5.0",
-    "@svgr/plugin-svgo": "^5.5.0",
     "@types/node": "^22.9.1",
     "@types/react": "18.3.12",
     "@types/webextension-polyfill": "^0.10.5",

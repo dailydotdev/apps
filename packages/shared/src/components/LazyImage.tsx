@@ -99,7 +99,6 @@ const LazyVideoComponent = (
   }: LazyVideoProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
-  const src = videoSrc;
 
   return (
     <figure
@@ -118,10 +117,10 @@ const LazyVideoComponent = (
           'absolute inset-0 m-auto block h-full w-full',
           fit === 'cover' ? 'object-cover' : 'object-contain',
         )}
-        key={src}
+        key={videoSrc}
         preload={eager ? 'auto' : 'metadata'}
         poster={poster}
-        src={src}
+        src={videoSrc}
         muted
         autoPlay
         loop

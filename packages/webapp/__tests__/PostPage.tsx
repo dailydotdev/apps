@@ -58,26 +58,7 @@ import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
-// let nextCallback: (value: PostsEngaged) => unknown = null;
-//
-// jest.mock('@dailydotdev/shared/src/hooks/useSubscription', () => ({
-//   __esModule: true,
-//   default: jest
-//     .fn()
-//     .mockImplementation(
-//       (
-//         request: () => OperationOptions,
-//         { next }: SubscriptionCallbacks<PostsEngaged>,
-//       ): void => {
-//         nextCallback = next;
-//       },
-//     ),
-// }));
 
-// const resizeWindow = (x, y) => {
-//   window = Object.assign(window, { innerWidth: x, innerHeight: y });
-//   fireEvent(window, new Event('resize'));
-// };
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -246,21 +227,6 @@ it('should set href to the post permalink', async () => {
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
 });
 
-// @TODO: fix this test
-// it('should display the "read post" link on mobile resolutions', async () => {
-//   await resizeWindow(420, 768);
-//   renderPost();
-//   expect(await screen.findByText('Learn SQL')).toBeVisible();
-//   const container = await screen.findByTestId('postContainer');
-//   const el = await within(container).findByTestId('postActionsRead');
-//   expect(el).toBeInTheDocument();
-// });
-
-// @TODO: fix this test
-// it('should show post title as heading', async () => {
-//   renderPost();
-//   expect(await screen.findByText('Learn SQL')).toBeVisible();
-// });
 
 it('should show post tags', async () => {
   renderPost();
@@ -500,51 +466,6 @@ it('should show author onboarding when the query param is set', async () => {
   expect(el).toBeInTheDocument();
 });
 
-/**
- * TODO: Flaky test should be refactored
-it('should update post on subscription message', async () => {
-  renderPost();
-  await waitFor(async () => {
-    const data = await client.getQueryData([
-      'post',
-      '0e4005b2d3cf191f8c44c2718a457a1e',
-    ]);
-    expect(data).toBeTruthy();
-  });
-  await act(async () => {
-    nextCallback({
-      postsEngaged: {
-        id: '0e4005b2d3cf191f8c44c2718a457a1e',
-        numUpvotes: 15,
-        numComments: 0,
-      },
-    });
-  });
-
-  const el = await screen.findByTestId('statsBar');
-  expect(el).toHaveTextContent('15 Upvotes');
-});
-
-it('should not update post on subscription message when id is not the same', async () => {
-  renderPost();
-  await waitFor(async () => {
-    const data = await client.getQueryData([
-      'post',
-      '0e4005b2d3cf191f8c44c2718a457a1e',
-    ]);
-    expect(data).toBeTruthy();
-  });
-  nextCallback({
-    postsEngaged: {
-      id: 'asd',
-      numUpvotes: 15,
-      numComments: 0,
-    },
-  });
-  const el = screen.queryByTestId('statsBar');
-  expect(el).not.toBeInTheDocument();
-});
- */
 
 it('should send bookmark mutation from bookmark action', async () => {
   // is desktop

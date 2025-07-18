@@ -4,7 +4,6 @@ const ACTIVE = 'active';
 const PASSIVE = 'passive';
 const HIDDEN = 'hidden';
 const FROZEN = 'frozen';
-// const DISCARDED = 'discarded'; Not used but show to completeness.
 const TERMINATED = 'terminated';
 
 /**

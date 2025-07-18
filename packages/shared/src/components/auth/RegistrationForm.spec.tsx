@@ -129,39 +129,6 @@ const renderLogin = async (email: string) => {
   });
 };
 
-// NOTE: Chris turned this off needs a good re-look at
-// it('should post registration', async () => {
-//   const email = 'sshanzel@yahoo.com';
-//   await renderRegistration(email);
-//   const form = await screen.findByTestId('registration_form');
-//   const params = formToJson(form as HTMLFormElement);
-//   mockRegistrationValidationFlow(successfulRegistrationMockData, params);
-//   fireEvent.submit(form);
-//   await waitForNock();
-//   await waitFor(() => {
-//     const sentText = screen.queryByText('We just sent an email to:');
-//     expect(sentText).toBeInTheDocument();
-//     const emailText = screen.queryByText(email);
-//     expect(emailText).toBeInTheDocument();
-//   });
-// });
-
-// NOTE: Chris turned this off needs a good re-look at
-// it('should display error messages', async () => {
-//   const email = 'sshanzel@yahoo.com';
-//   const errorMessage =
-//     'The password can not be used because password length must be at least 8 characters but only got 3.';
-//   await renderRegistration(email);
-//   const form = await screen.findByTestId('registration_form');
-//   const params = formToJson(form as HTMLFormElement);
-//   mockRegistrationValidationFlow(errorRegistrationMockData, params, 400);
-//   fireEvent.submit(form);
-//   await waitForNock();
-//   await waitFor(() => {
-//     const text = screen.queryByText(errorMessage);
-//     expect(text).toBeInTheDocument();
-//   });
-// });
 
 it('should show login if email exists', async () => {
   const email = 'sshanzel@yahoo.com';
