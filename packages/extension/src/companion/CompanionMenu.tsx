@@ -14,6 +14,7 @@ import {
   DownvoteIcon,
   FlagIcon,
   EyeIcon,
+  FeedbackIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import Modal from 'react-modal';
@@ -265,7 +266,7 @@ export default function CompanionMenu({
       action: () => setReportModal(true),
     },
     {
-      icon: <WrapperMenuIcon Icon={BookmarkIcon} />,
+      icon: <WrapperMenuIcon Icon={FeedbackIcon} />,
       label: 'Give us feedback',
       anchorProps: {
         href: feedback,
