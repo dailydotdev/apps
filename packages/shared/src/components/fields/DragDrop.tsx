@@ -161,21 +161,6 @@ export function DragDrop({
   const finalMaxSize = maxSize || maxSizeMB * BYTES_PER_MB;
   const finalErrorMessages = { ...defaultErrorMessages, ...errorMessages };
 
-  const getName = (file: File, index: number) => {
-    const { name } = file;
-
-    if (!renameFileTo) {
-      return name;
-    }
-
-    const chunks = name.split('.');
-    const extension = chunks.pop();
-
-    return filenames.length === 1
-      ? `${renameFileTo}.${extension}`
-      : `${renameFileTo} (${index + 1}).${extension}`;
-  };
-
   const validateFile = (file: File): DragDropError | null => {
     // Check file size
     if (file.size > finalMaxSize) {
@@ -287,7 +272,22 @@ export function DragDrop({
     });
 
     // Call callback with valid files and errors
-    setFilenames(validFiles.map(getName));
+    setFilenames(
+      validFiles.map((file: File, index: number) => {
+        const { name } = file;
+
+        if (!renameFileTo) {
+          return name;
+        }
+
+        const chunks = name.split('.');
+        const extension = chunks.pop();
+
+        return validFiles.length === 1
+          ? `${renameFileTo}.${extension}`
+          : `${renameFileTo} (${index + 1}).${extension}`;
+      }),
+    );
     onFilesDrop(validFiles, errors.length > 0 ? errors : undefined);
   };
 
