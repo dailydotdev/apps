@@ -1,9 +1,6 @@
-import type { MouseEventHandler } from 'react';
-import { useId } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { verifyPermission } from '../../../graphql/squads';
-import useContextMenu from '../../../hooks/useContextMenu';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import type { Squad } from '../../../graphql/sources';
 import { SourcePermissions } from '../../../graphql/sources';
@@ -20,9 +17,6 @@ export interface SquadModerationItemProps {
 
 interface UseSourceModerationItem {
   context: {
-    id: string;
-    isOpen: boolean;
-    onMenuClick: MouseEventHandler;
     onDelete: (id: string) => void;
   };
   modal: {
@@ -41,8 +35,6 @@ export const useSourceModerationItem = ({
 }: SquadModerationItemProps): UseSourceModerationItem => {
   const squad = data.source as Squad;
   const searchParams = useSearchParams();
-  const contextMenuId = useId();
-  const { isOpen, onMenuClick } = useContextMenu({ id: contextMenuId });
 
   const { openModal, closeModal } = useLazyModal();
 
@@ -54,9 +46,6 @@ export const useSourceModerationItem = ({
 
   return {
     context: {
-      id: contextMenuId,
-      isOpen,
-      onMenuClick,
       onDelete,
     },
     modal: {

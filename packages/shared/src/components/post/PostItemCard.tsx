@@ -5,12 +5,7 @@ import Link from '../utilities/Link';
 import type { HidePostItemCardProps } from '../../graphql/users';
 import type { PostItem } from '../../graphql/posts';
 import { UserVote, isVideoPost } from '../../graphql/posts';
-import {
-  MiniCloseIcon as XIcon,
-  MenuIcon,
-  UpvoteIcon,
-  DownvoteIcon,
-} from '../icons';
+import { MiniCloseIcon as XIcon, UpvoteIcon, DownvoteIcon } from '../icons';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -27,15 +22,18 @@ import {
 } from '../buttons/Button';
 import { isSourceUserSource } from '../../graphql/sources';
 
+import { ReadingHistoryOptionsMenu } from '../history/ReadingHistoryOptionsMenu';
+import type { QueryIndexes } from '../../hooks/useReadingHistory';
+
 export interface PostItemCardProps {
   className?: string;
   postItem: PostItem;
   showButtons?: boolean;
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
-  onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
   showVoteActions?: boolean;
   logOrigin?: Origin;
+  indexes?: QueryIndexes;
 }
 
 const SourceShadow = classed(
@@ -49,9 +47,9 @@ export default function PostItemCard({
   clickable = true,
   onHide,
   className,
-  onContextMenu,
   showVoteActions = false,
   logOrigin = Origin.Feed,
+  indexes,
 }: PostItemCardProps): ReactElement {
   const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
@@ -178,16 +176,15 @@ export default function PostItemCard({
                 />
               )}
               {showButtons && (
-                <Button
-                  variant={ButtonVariant.Tertiary}
-                  data-testid={`post-item-${post.id}`}
-                  icon={<MenuIcon />}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    onContextMenu(event, postItem);
-                  }}
-                  size={ButtonSize.Small}
+                <ReadingHistoryOptionsMenu
+                  post={post}
+                  indexes={indexes}
+                  onHide={
+                    onHide
+                      ? () =>
+                          onHide({ postId: post.id, timestamp: timestampDb })
+                      : undefined
+                  }
                 />
               )}
             </div>

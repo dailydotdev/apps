@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { MenuItemProps } from './fields/ContextMenu';
 import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
 import { MenuIcon } from './MenuIcon';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
@@ -16,6 +15,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from './dropdown/DropdownMenu';
+import type { MenuItemProps } from './dropdown/common';
 
 type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
