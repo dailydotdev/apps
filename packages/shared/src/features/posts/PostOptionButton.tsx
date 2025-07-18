@@ -50,8 +50,9 @@ import {
   usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
+  invalidatePostCacheById,
+  usePostById,
 } from '../../hooks';
-import usePostById, { invalidatePostCacheById } from '../../hooks/usePostById';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
