@@ -20,7 +20,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
-import type { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from './common';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,

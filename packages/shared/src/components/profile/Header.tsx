@@ -32,7 +32,6 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
-import type { MenuItemProps } from '../fields/ContextMenu';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
@@ -43,6 +42,7 @@ import {
   useHasAccessToCores,
 } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
+import type { MenuItemProps } from '../dropdown/common';
 
 export interface HeaderProps {
   user: PublicProfile;
