@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Spaciness } from '../../graphql/settings';
@@ -210,9 +210,14 @@ export const FeedContainer = ({
   const justUploaded = status === 'success';
   const shouldShowBanner = !!marketingCta && (shouldShow || justUploaded);
 
-  if (!!marketingCta && shouldShow) {
-    clearMarketingCta(MarketingCtaVariant.FeedBanner);
-  }
+  const clearMarketingCtaRef = useRef(clearMarketingCta);
+  clearMarketingCtaRef.current = clearMarketingCta;
+
+  useEffect(() => {
+    if (!!marketingCta && shouldShow) {
+      clearMarketingCtaRef.current(MarketingCtaVariant.FeedBanner);
+    }
+  }, [marketingCta, shouldShow]);
 
   if (!loadedSettings) {
     return <></>;
