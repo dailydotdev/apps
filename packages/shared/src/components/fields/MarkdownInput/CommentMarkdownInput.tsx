@@ -5,10 +5,9 @@ import type {
   MutableRefObject,
   ReactElement,
 } from 'react';
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
-import type { MarkdownRef } from './index';
 import MarkdownInput from './index';
 import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
@@ -58,9 +57,9 @@ export function CommentMarkdownInputComponent(
   }: CommentMarkdownInputProps,
   ref: MutableRefObject<HTMLFormElement>,
 ): ReactElement {
+  const shouldFocus = useRef(true);
   const postId = post?.id;
   const sourceId = post?.source?.id;
-  const markdownRef = useRef<MarkdownRef>();
   const {
     mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
@@ -86,19 +85,6 @@ export function CommentMarkdownInputComponent(
     return mutateComment(content);
   };
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const textarea = markdownRef?.current?.textareaRef?.current;
-      if (textarea) {
-        textarea.focus();
-        textarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-      // A small timeout to ensure the page is fully rendered and we scroll to the correct position
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
-
   return (
     <form
       {...formProps}
@@ -109,7 +95,12 @@ export function CommentMarkdownInputComponent(
       ref={ref}
     >
       <MarkdownInput
-        ref={markdownRef}
+        ref={(markdownRef) => {
+          if (markdownRef && shouldFocus.current) {
+            markdownRef.textareaRef.current.focus();
+            shouldFocus.current = false;
+          }
+        }}
         className={{
           tab: classNames('!min-h-16', className?.tab),
           input: classNames(className?.input, replyTo && 'mt-0'),
