@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Spaciness } from '../../graphql/settings';
@@ -33,7 +33,10 @@ import {
   uploadCvBannerSuccessMobile,
   uploadCvBannerSuccessTablet,
 } from '../../lib/image';
-import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  useShowUpload,
+  useUploadCv,
+} from '../../features/profile/hooks/useUploadCv';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -200,14 +203,14 @@ export const FeedContainer = ({
     return feedNameToHeading[feedName] ?? '';
   }, [feeds, feedName, router.query.slugOrId]);
 
-  const { user } = useAuthContext();
   const { getMarketingCta, clearMarketingCta } = useBoot();
-  const clearMarketingRef = useRef(clearMarketingCta);
-  clearMarketingRef.current = clearMarketingCta;
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
-  const shouldShowBanner = !!marketingCta && !user?.flags?.cvUploadedAt;
+  const { shouldShow } = useShowUpload();
+  const { onUpload, status } = useUploadCv();
+  const justUploaded = status === 'success';
+  const shouldShowBanner = !!marketingCta && (shouldShow || justUploaded);
 
-  if (!!marketingCta && !!user?.flags?.cvUploadedAt) {
+  if (!!marketingCta && shouldShow) {
     clearMarketingCta(MarketingCtaVariant.FeedBanner);
   }
 
@@ -236,6 +239,8 @@ export const FeedContainer = ({
               image:
                 isList && 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]',
             }}
+            status={status}
+            onUpload={onUpload}
             onClose={() => clearMarketingCta(MarketingCtaVariant.FeedBanner)}
             banner={{
               title: marketingCta?.flags?.title,

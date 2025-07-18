@@ -11,6 +11,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
   Typography,
@@ -43,8 +44,6 @@ export interface DragDropError {
   file?: File;
 }
 
-type UploadState = 'loading' | 'success' | 'error';
-
 export interface DragDropProps {
   /** Callback when files are dropped/selected */
   onFilesDrop: (files: File[], errors?: DragDropError[]) => void;
@@ -63,7 +62,7 @@ export interface DragDropProps {
   className?: string;
   /** Content to show when no files are selected */
   children?: ReactNode;
-  state?: UploadState;
+  state?: MutationStatus;
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
   renameFileTo?: string;
@@ -79,8 +78,8 @@ const defaultErrorMessages = {
   unknown: 'An error occurred while processing the file',
 };
 
-const getIcon = (state: UploadState) => {
-  if (state === 'loading') {
+const getIcon = (state: MutationStatus) => {
+  if (state === 'pending') {
     return <Loader />;
   }
 
@@ -93,7 +92,7 @@ const getIcon = (state: UploadState) => {
 
 interface ItemProps {
   name: string;
-  state: UploadState;
+  state: MutationStatus;
   uploadAt?: Date;
 }
 
@@ -338,7 +337,7 @@ export function DragDrop({
   );
 
   const ListItem =
-    isCompactList || state === 'loading' ? CompactItem : LargeItem;
+    isCompactList || state === 'pending' ? CompactItem : LargeItem;
   const defaultContainer = (
     <div
       className={classNames(

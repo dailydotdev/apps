@@ -779,3 +779,14 @@ export const claimClaimableItem = async (): Promise<boolean> => {
     return false;
   }
 };
+
+const UPLOAD_CV_MUTATION = gql`
+  mutation UploadResume($resume: Upload!) {
+    uploadResume(resume: $resume) {
+      id
+    }
+  }
+`;
+
+export const uploadCv = (file: File) =>
+  gqlClient.request(UPLOAD_CV_MUTATION, { resume: file });

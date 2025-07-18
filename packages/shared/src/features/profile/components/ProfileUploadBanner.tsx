@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import type { MutationStatus } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -59,12 +60,16 @@ interface ProfileUploadBannerProps {
     image: string;
   }>;
   onClose: () => void;
+  onUpload: (file: File) => Promise<void>;
+  status: MutationStatus;
 }
 
 export function ProfileUploadBanner({
   className,
   banner = defaultBanner,
   onClose,
+  onUpload,
+  status,
 }: ProfileUploadBannerProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -108,7 +113,12 @@ export function ProfileUploadBanner({
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
           {banner.description || defaultBanner.description}
         </Typography>
-        <DragDrop isCompactList className="my-4" onFilesDrop={(file) => file} />
+        <DragDrop
+          state={status}
+          isCompactList
+          className={classNames('my-4')}
+          onFilesDrop={([file]) => onUpload(file)}
+        />
         <FeelingLazy />
       </div>
       <Button

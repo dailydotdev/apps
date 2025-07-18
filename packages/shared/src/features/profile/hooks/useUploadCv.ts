@@ -1,10 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import {
   uploadCvModalSuccess,
   uploadCvModalSuccessMobile,
 } from '../../../lib/image';
+import { uploadCv } from '../../../graphql/users';
+import { ActionType } from '../../../graphql/actions';
+import { useActions } from '../../../hooks';
 
 interface UseUploadCvProps {
   shouldShowSuccessModal?: boolean;
@@ -15,9 +19,15 @@ export const useUploadCv = ({
   shouldShowSuccessModal,
   onUploadSuccess,
 }: UseUploadCvProps = {}) => {
+  const { completeAction } = useActions();
   const { openModal } = useLazyModal();
-  const { mutateAsync: onUpload } = useMutation({
-    mutationFn: () => Promise.resolve({ a: 'b' }),
+  const {
+    mutateAsync: onUpload,
+    isSuccess,
+    isPending,
+    status,
+  } = useMutation({
+    mutationFn: uploadCv,
     onSuccess: () => {
       if (shouldShowSuccessModal) {
         openModal({
@@ -33,10 +43,25 @@ export const useUploadCv = ({
           },
         });
       }
-
+      completeAction(ActionType.UploadedCV);
       onUploadSuccess?.();
     },
   });
 
-  return { onUpload };
+  return { onUpload, status, isSuccess, isPending };
+};
+
+export const useShowUpload = () => {
+  const { actions, isActionsFetched, completeAction } = useActions();
+  const hasUploadedCv = useMemo(
+    () => actions?.some(({ type }) => type === ActionType.UploadedCV),
+    [actions],
+  );
+
+  const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
+
+  return {
+    shouldShow: isActionsFetched && !hasUploadedCv,
+    onCloseBanner,
+  };
 };

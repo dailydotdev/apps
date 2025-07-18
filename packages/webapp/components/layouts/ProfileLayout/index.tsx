@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getProfile,
@@ -24,8 +24,10 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
-import { useActions } from '@dailydotdev/shared/src/hooks';
-import { ActionType, cvActions } from '@dailydotdev/shared/src/graphql/actions';
+import {
+  useShowUpload,
+  useUploadCv,
+} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -82,12 +84,9 @@ export default function ProfileLayout({
   const { user, isUserSame } = useProfile(initialUser);
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
-  const { actions, isActionsFetched } = useActions();
-  const hasClosedBanner = useMemo(
-    () => actions?.some(({ type }) => cvActions.includes(type)),
-    [actions],
-  );
-  const { completeAction } = useActions();
+  const { shouldShow, onCloseBanner } = useShowUpload();
+  const { status, onUpload } = useUploadCv();
+  const justUploaded = status === 'success';
 
   useEffect(() => {
     if (trackedView || !user) {
@@ -105,7 +104,7 @@ export default function ProfileLayout({
     return <Custom404 />;
   }
 
-  if (!user || !isActionsFetched) {
+  if (!user) {
     return <></>;
   }
 
@@ -113,12 +112,14 @@ export default function ProfileLayout({
 
   return (
     <ConditionalWrapper
-      condition={isUserSame && !hasClosedBanner}
+      condition={isUserSame && (shouldShow || justUploaded)}
       wrapper={(component) => (
         <div className="flex w-full flex-col p-4">
           <ProfileUploadBanner
             className={{ container: '!mt-0 tablet:mt-3' }}
-            onClose={() => completeAction(ActionType.ClosedProfileBanner)}
+            onClose={onCloseBanner}
+            onUpload={onUpload}
+            status={status}
           />
           {component}
         </div>

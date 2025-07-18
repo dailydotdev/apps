@@ -4,7 +4,13 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   AtIcon,
   CameraIcon,
@@ -34,6 +40,7 @@ import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import {
+  useActions,
   useToastNotification,
   useViewSize,
   ViewSize,
@@ -56,6 +63,12 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { DragDrop } from '@dailydotdev/shared/src/components/fields/DragDrop';
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
+import {
+  useShowUpload,
+  useUploadCv,
+} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -171,6 +184,8 @@ const ProfileIndex = ({
     </span>
   );
 
+  const { onUpload } = useUploadCv({ shouldShowSuccessModal: true });
+
   const uploadSection = (
     <AccountContentSection
       className={{ heading: 'mt-0' }}
@@ -180,7 +195,7 @@ const ProfileIndex = ({
       <DragDrop
         renameFileTo={user.name}
         className="my-4 max-w-[18.5rem]"
-        onFilesDrop={() => console.log('test')}
+        onFilesDrop={([file]) => onUpload(file)}
       />
       {!user?.flags?.cvUploadedAt ? (
         <FeelingLazy />
@@ -195,9 +210,23 @@ const ProfileIndex = ({
     </AccountContentSection>
   );
 
+  const { shouldShow } = useShowUpload();
+  const { actions } = useActions();
+  const hasClosedBanner = useMemo(
+    () => actions?.some(({ type }) => type === ActionType.ClosedProfileBanner),
+    [actions],
+  );
+
   const form = (
-    <>
-      {uploadSection}
+    <ConditionalWrapper
+      condition={shouldShow && !hasClosedBanner}
+      wrapper={(component) => (
+        <>
+          {uploadSection}
+          {component}
+        </>
+      )}
+    >
       <form ref={formRef} id="submit-profile">
         <AccountContentSection
           title="Profile Picture"
@@ -421,7 +450,7 @@ const ProfileIndex = ({
           />
         </AccountContentSection>
       </form>
-    </>
+    </ConditionalWrapper>
   );
 
   if (isMobile) {

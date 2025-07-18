@@ -16,6 +16,10 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { DragDrop } from '../fields/DragDrop';
+import {
+  useShowUpload,
+  useUploadCv,
+} from '../../features/profile/hooks/useUploadCv';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -41,6 +45,9 @@ export function ProfileWidgets({
     campaignKey: ReferralCampaignKey.Generic,
     enabled: isSameUser,
   });
+
+  const { onUpload } = useUploadCv({ shouldShowSuccessModal: true });
+  const { shouldShow } = useShowUpload();
 
   return (
     <div
@@ -92,12 +99,12 @@ export function ProfileWidgets({
           </div>
         )}
       </div>
-      {isSameUser && (
+      {isSameUser && shouldShow && (
         <DragDrop
           isCompactList
           className="mx-4"
           renameFileTo={loggedUser.name}
-          onFilesDrop={() => console.log('test')}
+          onFilesDrop={([file]) => onUpload(file)}
         />
       )}
       <SocialChips links={user} />
