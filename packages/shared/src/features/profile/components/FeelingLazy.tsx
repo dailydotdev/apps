@@ -31,7 +31,7 @@ export function FeelingLazy({
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
       >
-        <Link href={`${webappUrl}profile/settings`} passHref>
+        <Link href={`${webappUrl}settings/profile`} passHref>
           <a className="underline hover:no-underline">Complete your profile</a>
         </Link>{' '}
         to improve match quality
