@@ -1,20 +1,20 @@
 import type { ReactElement } from 'react';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  UpvoteIcon,
-  DiscussIcon as CommentIcon,
-  ShareIcon,
-  MenuIcon,
   BookmarkIcon,
+  DiscussIcon as CommentIcon,
   DownvoteIcon,
-  FlagIcon,
   EyeIcon,
   FeedbackIcon,
+  FlagIcon,
+  MenuIcon,
+  ShareIcon,
+  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import Modal from 'react-modal';
@@ -251,6 +251,10 @@ export default function CompanionMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvote,
+      ariaLabel:
+        post?.userState?.vote === UserVote.Down
+          ? 'Remove downvote'
+          : 'Downvote',
     },
     {
       icon: <WrapperMenuIcon Icon={CommentIcon} />,

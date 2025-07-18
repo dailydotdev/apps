@@ -134,6 +134,7 @@ export const DropdownMenuOptions = ({
           anchorProps,
           disabled,
           Wrapper,
+          ariaLabel,
         }: MenuItemProps) => {
           const className = 'inline-flex flex-1 items-center gap-2';
           return (
@@ -146,6 +147,7 @@ export const DropdownMenuOptions = ({
                 onClick={action}
                 key={label}
                 disabled={disabled}
+                aria-label={ariaLabel}
               >
                 {anchorProps ? (
                   <Link
