@@ -213,12 +213,8 @@ export default function Feed<T>({
     },
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
-  const contextId = `post-context-${feedName}`;
-
   const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
-  const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu({
-    contextId,
-  });
+  const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const {

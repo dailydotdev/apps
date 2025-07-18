@@ -34,10 +34,11 @@ type ProfileSectionItemPropsWithHref = ProfileSectionItemPropsCommon & {
   external?: boolean;
 };
 
-type ProfileSectionItemPropsWithoutHref = ProfileSectionItemPropsCommon & {
-  href?: undefined;
-  external?: never;
-};
+export type ProfileSectionItemPropsWithoutHref =
+  ProfileSectionItemPropsCommon & {
+    href?: undefined;
+    external?: never;
+  };
 
 export type ProfileSectionItemProps =
   | ProfileSectionItemPropsWithHref

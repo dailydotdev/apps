@@ -110,7 +110,7 @@ const ProfileIndex = ({
       bluesky: values.bluesky,
       experienceLevel: values.experienceLevel,
       onUpdateSuccess: () =>
-        router.push(`/${values.username}`).then(() => {
+        router.push(`/${values.username.toLowerCase()}`).then(() => {
           router.reload();
         }),
     };

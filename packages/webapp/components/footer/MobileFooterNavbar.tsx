@@ -55,11 +55,7 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   profile: 'Profile',
 };
 
-const MobileFooterNavbar = ({
-  isPostPage,
-}: {
-  isPostPage: boolean;
-}): ReactElement => {
+const MobileFooterNavbar = (): ReactElement => {
   const router = useRouter();
   const { user, squads, isValidRegion } = useContext(AuthContext);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
@@ -151,8 +147,8 @@ const MobileFooterNavbar = ({
       element="nav"
       className={classNames(
         'grid w-full select-none auto-cols-fr grid-flow-col items-center justify-between rounded-16',
-        !isPostPage && activeClasses,
-        !isPostPage && 'border-t border-border-subtlest-tertiary',
+        activeClasses,
+        'border-t border-border-subtlest-tertiary',
       )}
     >
       <FooterNavBarTabs activeTab={activeTab} tabs={tabs} />

@@ -16,7 +16,6 @@ import {
 } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
-import type { MenuItemProps } from '../fields/ContextMenu';
 import type { UseSquadActions } from '../../hooks';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
@@ -35,6 +34,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;

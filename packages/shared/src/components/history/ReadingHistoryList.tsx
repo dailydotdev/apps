@@ -4,9 +4,6 @@ import type { HideReadHistory } from '../../hooks/useReadingHistory';
 import { isDateOnlyEqual, TimeFormatType } from '../../lib/dateFormat';
 import PostItemCard from '../post/PostItemCard';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
-import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
-import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
-import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/log';
 import { DateFormat } from '../utilities';
 import type { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
@@ -22,15 +19,6 @@ export default function ReadHistoryList({
   onHide,
   infiniteScrollRef,
 }: ReadHistoryListProps): ReactElement {
-  const {
-    readingHistoryContextItem,
-    setReadingHistoryContextItem,
-    onReadingHistoryContextOptions,
-    queryIndexes,
-  } = useReadingHistoryContextMenu();
-  const logOrigin = Origin.ReadingHistoryContextMenu;
-  const { openSharePost } = useSharePost(logOrigin);
-
   const renderList = useCallback(() => {
     let currentDate: Date;
 
@@ -57,9 +45,7 @@ export default function ReadHistoryList({
           <PostItemCard
             key={`${history.post.id}-${timestamp}`}
             postItem={history}
-            onContextMenu={(event, readingHistory) =>
-              onReadingHistoryContextOptions(event, readingHistory, indexes)
-            }
+            indexes={indexes}
             onHide={(params) => onHide({ ...params, ...indexes })}
             showVoteActions
             logOrigin={Origin.History}
@@ -77,19 +63,6 @@ export default function ReadHistoryList({
     <section className="relative flex flex-col">
       {renderList()}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-      <PostOptionsReadingHistoryMenu
-        post={readingHistoryContextItem?.post}
-        onShare={() => openSharePost({ post: readingHistoryContextItem.post })}
-        onHiddenMenu={() => setReadingHistoryContextItem(null)}
-        onHideHistoryPost={(postId) =>
-          onHide({
-            postId,
-            timestamp: readingHistoryContextItem.timestampDb,
-            ...queryIndexes,
-          })
-        }
-        indexes={queryIndexes}
-      />
     </section>
   );
 }
