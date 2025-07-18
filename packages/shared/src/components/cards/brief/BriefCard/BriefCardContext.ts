@@ -1,7 +1,7 @@
 import { createContextProvider } from '@kickass-coderz/react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Post } from '../../../../graphql/posts';
-import usePersistentState from '../../../../hooks/usePersistentState';
+import { usePersistentState } from '../../../../hooks';
 
 type BriefCardContext = {
   brief?: Pick<Post, 'id'> & {

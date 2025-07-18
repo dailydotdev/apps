@@ -1,6 +1,6 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
 import React from 'react';
-import usePostById from '../../hooks/usePostById';
+import { usePostById } from '../../hooks';
 import type { Post } from '../../graphql/posts';
 
 type WrappedComponentType<

@@ -10,7 +10,7 @@ import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoad
 import { CampaignList } from '../../../../features/boost/CampaignList';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
-import usePostById from '../../../../hooks/usePostById';
+import { usePostById } from '../../../../hooks';
 import type { Post } from '../../../../graphql/posts';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
