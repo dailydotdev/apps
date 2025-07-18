@@ -212,7 +212,7 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          shouldUseListMode={false}
+          shouldUseListMode={shouldUseListMode}
         />
         <FeedPageComponent>
           <Feed
