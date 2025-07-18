@@ -21,6 +21,8 @@ import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
 import type { MenuItemProps } from './common';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { getCompanionWrapper } from '../../lib/extension';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -99,8 +101,10 @@ export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
   DropdownMenuContentProps
 >(({ children, className, align = 'end', ...props }, forwardedRef) => {
+  const { isCompanion } = useRequestProtocol();
+  const container = isCompanion ? getCompanionWrapper() : undefined;
   return (
-    <DropdownMenuPortal>
+    <DropdownMenuPortal container={container}>
       <DropdownMenuContentRoot
         {...props}
         ref={forwardedRef}
@@ -151,7 +155,7 @@ export const DropdownMenuOptions = ({
                     role="menuitem"
                     {...anchorProps}
                   >
-                    <a className={className}>
+                    <a className={className} target={anchorProps?.target}>
                       {icon} {label}
                     </a>
                   </Link>
