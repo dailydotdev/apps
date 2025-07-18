@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { MutationStatus } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import {
   Typography,
   TypographyColor,
@@ -22,9 +23,10 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
 import { FeelingLazy } from './FeelingLazy';
+import { webappUrl } from '../../../lib/constants';
 
 const defaultBanner = {
   title: 'Your next job should apply to you',
@@ -71,19 +73,49 @@ export function ProfileUploadBanner({
   onUpload,
   status,
 }: ProfileUploadBannerProps): ReactElement {
+  const justUploaded = status === 'success';
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
+  const { displayToast } = useToastNotification();
 
   const getImage = () => {
+    const cover = justUploaded
+      ? banner?.successCover || banner?.cover
+      : banner?.cover;
+
     if (isLaptop) {
-      return banner?.cover?.laptop || uploadCvBgTablet;
+      return cover?.laptop || uploadCvBgTablet;
     }
 
     if (isTablet) {
-      return banner?.cover?.tablet || uploadCvBgTablet;
+      return cover?.tablet || uploadCvBgTablet;
     }
 
-    return banner?.cover?.base || uploadCvBgMobile;
+    return cover?.base || uploadCvBgMobile;
+  };
+
+  const props = (() => {
+    if (justUploaded) {
+      return {
+        title: "All set! We'll take it from here",
+        description:
+          "You're in. Now we'll search behind the scenes and surface only what's actually worth considering.",
+      };
+    }
+
+    return {
+      title: banner.title || defaultBanner.title,
+      description: banner.description || defaultBanner.description,
+    };
+  })();
+
+  const router = useRouter();
+  const handleClose = () => {
+    displayToast('You can upload your CV later from your profile', {
+      onUndo: () => router.push(`${webappUrl}settings/profile`),
+      undoCopy: 'Go to profile',
+    });
+    onClose();
   };
 
   return (
@@ -100,7 +132,11 @@ export function ProfileUploadBanner({
           className?.image,
         )}
         src={getImage()}
-        alt="Animated money, devices, and a rubber duck"
+        alt={
+          justUploaded
+            ? 'Animated document with a smiling face'
+            : 'Animated devices, money, and a rubber duck'
+        }
       />
       <div className="mt-56 flex w-full max-w-[26.5rem] flex-col gap-2 tablet:mt-[unset]">
         <Typography
@@ -108,10 +144,10 @@ export function ProfileUploadBanner({
           bold
           className="max-w-[15.5rem] tablet:max-w-[unset]"
         >
-          {banner.title || defaultBanner.title}
+          {props.title}
         </Typography>
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-          {banner.description || defaultBanner.description}
+          {props.description}
         </Typography>
         <DragDrop
           state={status}
@@ -119,14 +155,14 @@ export function ProfileUploadBanner({
           className={classNames('my-4')}
           onFilesDrop={([file]) => onUpload(file)}
         />
-        <FeelingLazy />
+        <FeelingLazy justUploaded={justUploaded} />
       </div>
       <Button
         className="absolute right-2 top-2"
         variant={ButtonVariant.Tertiary}
         icon={<MiniCloseIcon />}
         size={ButtonSize.Small}
-        onClick={onClose}
+        onClick={handleClose}
       />
     </div>
   );

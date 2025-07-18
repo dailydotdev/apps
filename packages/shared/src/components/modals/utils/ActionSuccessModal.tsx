@@ -79,7 +79,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
           </Button>
         )}
         <Button
-          variant={ButtonVariant.Tertiary}
+          variant={ButtonVariant.Float}
           className="hidden w-full tablet:flex"
           type="button"
           onClick={props.onRequestClose}

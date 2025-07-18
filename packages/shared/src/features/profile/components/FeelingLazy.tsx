@@ -10,9 +10,34 @@ import { exportLinkedIn, exportLinkedInMobile } from '../../../lib/image';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { OpenLinkIcon } from '../../../components/icons';
 import { ButtonIconPosition } from '../../../components/buttons/common';
+import { webappUrl } from '../../../lib/constants';
+import Link from '../../../components/utilities/Link';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
-export function FeelingLazy(): ReactElement {
+export function FeelingLazy({
+  justUploaded,
+}: {
+  justUploaded?: boolean;
+}): ReactElement {
   const { openModal } = useLazyModal();
+  const { user } = useAuthContext();
+  const linkedin = user?.linkedin
+    ? `https://linkedin.com/in/${user.linkedin}`
+    : `https://linkedin.com/`;
+
+  if (justUploaded) {
+    return (
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        <Link href={`${webappUrl}profile/settings`} passHref>
+          <a className="underline hover:no-underline">Complete your profile</a>
+        </Link>{' '}
+        to improve match quality
+      </Typography>
+    );
+  }
 
   return (
     <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
@@ -40,7 +65,7 @@ export function FeelingLazy(): ReactElement {
               cta: {
                 tag: 'a',
                 copy: 'Go to your LinkedIn profile',
-                href: 'https://www.linkedin.com/in/',
+                href: linkedin,
                 rel: 'noopener',
                 target: '_blank',
                 icon: <OpenLinkIcon />,

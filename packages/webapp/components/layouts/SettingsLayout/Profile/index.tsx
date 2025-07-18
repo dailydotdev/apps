@@ -4,13 +4,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
   AtIcon,
   CameraIcon,
@@ -40,7 +34,6 @@ import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import {
-  useActions,
   useToastNotification,
   useViewSize,
   ViewSize,
@@ -68,7 +61,6 @@ import {
   useUploadCv,
 } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -211,15 +203,10 @@ const ProfileIndex = ({
   );
 
   const { shouldShow } = useShowUpload();
-  const { actions } = useActions();
-  const hasClosedBanner = useMemo(
-    () => actions?.some(({ type }) => type === ActionType.ClosedProfileBanner),
-    [actions],
-  );
 
   const form = (
     <ConditionalWrapper
-      condition={shouldShow && !hasClosedBanner}
+      condition={shouldShow}
       wrapper={(component) => (
         <>
           {uploadSection}
@@ -229,6 +216,7 @@ const ProfileIndex = ({
     >
       <form ref={formRef} id="submit-profile">
         <AccountContentSection
+          className={{ heading: !shouldShow && 'mt-0' }}
           title="Profile Picture"
           description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"

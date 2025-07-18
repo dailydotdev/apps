@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getProfile,
@@ -28,6 +28,8 @@ import {
   useShowUpload,
   useUploadCv,
 } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useActions } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -87,6 +89,11 @@ export default function ProfileLayout({
   const { shouldShow, onCloseBanner } = useShowUpload();
   const { status, onUpload } = useUploadCv();
   const justUploaded = status === 'success';
+  const { actions } = useActions();
+  const hasClosedBanner = useMemo(
+    () => actions?.some(({ type }) => type === ActionType.ClosedProfileBanner),
+    [actions],
+  );
 
   useEffect(() => {
     if (trackedView || !user) {
@@ -112,7 +119,7 @@ export default function ProfileLayout({
 
   return (
     <ConditionalWrapper
-      condition={isUserSame && (shouldShow || justUploaded)}
+      condition={isUserSame && (shouldShow || justUploaded) && !hasClosedBanner}
       wrapper={(component) => (
         <div className="flex w-full flex-col p-4">
           <ProfileUploadBanner
