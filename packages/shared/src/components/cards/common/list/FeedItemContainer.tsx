@@ -49,8 +49,7 @@ function FeedItemContainer(
       ? `${trending} devs read it last hour`
       : undefined;
   const isFeedPreview = useFeedPreviewMode();
-  const showFlag =
-    (!!pinnedAt || !!trending) && !isFeedPreview && (description || !!pinnedAt);
+  const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;
   const showTypeLabel = !!adAttribution || !!type;
   const [focus, setFocus] = useState(false);
 
