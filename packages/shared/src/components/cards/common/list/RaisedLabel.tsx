@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Tooltip } from '../../../tooltip/Tooltip';
+import ConditionalWrapper from '../../../ConditionalWrapper';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -31,22 +32,27 @@ export function RaisedLabel({
   return (
     <div
       className={classNames(
-        'absolute right-3 flex flex-row group-hover:bg-background-subtle group-focus:-top-0.5 group-focus:bg-background-subtle',
-        !focus && '-top-px bg-background-default',
-        focus && '-top-0.5 bg-background-subtle',
+        'absolute right-3 flex flex-row group-focus:-top-0.5',
+        !focus && '-top-px',
+        focus && '-top-0.5',
         className,
       )}
     >
-      <Tooltip content={description}>
+      <ConditionalWrapper
+        condition={description?.length > 0}
+        wrapper={(children) => (
+          <Tooltip content={description}>{children}</Tooltip>
+        )}
+      >
         <div
           className={classNames(
-            'flex h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
+            'relative -top-2 flex h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
             typeToClassName[type],
           )}
         >
           {type}
         </div>
-      </Tooltip>
+      </ConditionalWrapper>
     </div>
   );
 }
