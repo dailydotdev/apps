@@ -19,7 +19,7 @@ This is a pnpm monorepo containing the daily.dev application suite with the foll
 - **Node.js v22.11** (see .nvmrc)
 - **pnpm 9.14.4** for package management
 - **TypeScript** across all packages
-- **React 18.3.1** with Next.js 15.3.3 for webapp
+- **React 18.3.1** with Next.js 15.4.1 for webapp
 - **TanStack Query v5** for state management and data fetching
 - **GraphQL** with graphql-request for API communication
 - **Tailwind CSS** with custom design system
