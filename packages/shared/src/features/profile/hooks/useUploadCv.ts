@@ -1,7 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
-import { uploadCvSuccess, uploadCvSuccessMobile } from '../../../lib/image';
+import {
+  uploadCvModalSuccess,
+  uploadCvModalSuccessMobile,
+} from '../../../lib/image';
 
 interface UseUploadCvProps {
   shouldShowSuccessModal?: boolean;
@@ -24,8 +27,8 @@ export const useUploadCv = ({
               title: 'All set! We’ll take it from here',
               description:
                 'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
-              cover: uploadCvSuccess,
-              coverDrawer: uploadCvSuccessMobile,
+              cover: uploadCvModalSuccess,
+              coverDrawer: uploadCvModalSuccessMobile,
             },
           },
         });

@@ -8,6 +8,9 @@ import {
 } from '../../../components/typography/Typography';
 import { DragDrop } from '../../../components/fields/DragDrop';
 import {
+  uploadCvBannerSuccessLaptop,
+  uploadCvBannerSuccessMobile,
+  uploadCvBannerSuccessTablet,
   uploadCvBgLaptop,
   uploadCvBgMobile,
   uploadCvBgTablet,
@@ -31,17 +34,25 @@ const defaultBanner = {
     tablet: uploadCvBgTablet,
     base: uploadCvBgMobile,
   },
+  successCover: {
+    laptop: uploadCvBannerSuccessLaptop,
+    tablet: uploadCvBannerSuccessTablet,
+    base: uploadCvBannerSuccessMobile,
+  },
 };
+
+interface Cover {
+  laptop: string;
+  tablet: string;
+  base: string;
+}
 
 interface ProfileUploadBannerProps {
   banner?: {
     title: string;
     description: string;
-    cover?: {
-      laptop: string;
-      tablet: string;
-      base: string;
-    };
+    cover?: Cover;
+    successCover?: Cover;
   };
   className?: Partial<{
     container: string;

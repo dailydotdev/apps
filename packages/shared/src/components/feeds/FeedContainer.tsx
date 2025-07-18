@@ -29,6 +29,9 @@ import {
   uploadCvBgLaptop,
   uploadCvBgTablet,
   uploadCvBgMobile,
+  uploadCvBannerSuccessLaptop,
+  uploadCvBannerSuccessMobile,
+  uploadCvBannerSuccessTablet,
 } from '../../lib/image';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -241,6 +244,13 @@ export const FeedContainer = ({
                 laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
                 tablet: uploadCvBgTablet,
                 base: uploadCvBgMobile,
+              },
+              successCover: {
+                laptop: isList
+                  ? uploadCvBannerSuccessTablet
+                  : uploadCvBannerSuccessLaptop,
+                tablet: uploadCvBannerSuccessTablet,
+                base: uploadCvBannerSuccessMobile,
               },
             }}
           />
