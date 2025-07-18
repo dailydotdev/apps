@@ -51,7 +51,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
             onClick={props.onRequestClose}
             variant={ButtonVariant.Primary}
           />
-          <Image src={isTablet ? cover : coverDrawer} />
+          <Image src={isTablet ? cover : coverDrawer || cover} />
         </div>
         <div className="mt-2 flex flex-col gap-2">
           <Typography type={TypographyType.Title2} center bold>
