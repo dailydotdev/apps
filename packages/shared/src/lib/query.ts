@@ -34,6 +34,7 @@ import { PostType } from '../types';
 export enum OtherFeedPage {
   Tag = 'tag',
   Tags = 'tags',
+  Squads = 'squads[handle]',
   Squad = 'squadsdiscover',
   SquadPage = 'squadsdiscover[id]',
   Source = 'source',
