@@ -7,6 +7,7 @@ import { Button } from '../../buttons/Button';
 export enum CopyType {
   Main = 'main',
   Custom = 'custom',
+  NiceGuy = 'niceGuy',
 }
 
 interface SourceActionsFollowProps {
@@ -32,6 +33,11 @@ const copyTypeToCopy: Record<
     follow: 'Add',
     following: 'Remove',
     unfollow: 'Remove',
+  },
+  [CopyType.NiceGuy]: {
+    follow: 'Follow back',
+    following: 'Following',
+    unfollow: 'Unfollow',
   },
 };
 

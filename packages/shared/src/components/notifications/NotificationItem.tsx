@@ -27,6 +27,7 @@ import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Loader } from '../Loader';
+import { NotificationFollowUserButton } from './NotificationFollowUserButton';
 
 export interface NotificationItemProps
   extends Pick<
@@ -138,19 +139,21 @@ const NotificationOptionsButton = ({
   );
 };
 
-function NotificationItem({
-  icon,
-  type,
-  title,
-  isUnread,
-  description,
-  avatars,
-  attachments,
-  onClick,
-  targetUrl,
-  numTotalAvatars,
-  referenceId,
-}: NotificationItemProps): ReactElement {
+function NotificationItem(props: NotificationItemProps): ReactElement {
+  const {
+    icon,
+    type,
+    title,
+    isUnread,
+    description,
+    avatars,
+    attachments,
+    onClick,
+    targetUrl,
+    numTotalAvatars,
+    referenceId,
+  } = props;
+
   const {
     isReady,
     title: memoizedTitle,
@@ -248,11 +251,14 @@ function NotificationItem({
             }}
           />
         )}
-        {attachments?.map(({ title: attachment, ...props }) => (
+        {type === NotificationType.UserFollow && (
+          <NotificationFollowUserButton {...props} />
+        )}
+        {attachments?.map(({ title: attachment, ...restAttachmentProps }) => (
           <NotificationItemAttachment
             key={attachment}
             title={attachment}
-            {...props}
+            {...restAttachmentProps}
           />
         ))}
       </div>
