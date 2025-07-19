@@ -78,6 +78,8 @@ export const featurePostUiImprovements = new Feature(
   false,
 );
 
+export const featureCardUiButtons = new Feature('card_ui_buttons', false);
+
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };

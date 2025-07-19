@@ -6,7 +6,7 @@ import { CardCover } from './CardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { useFeature } from '../../GrowthBookProvider';
-import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import { featureCardUiButtons } from '../../../lib/featureManagement';
 
 interface WelcomePostCardFooterProps {
   post: Post;
@@ -21,7 +21,7 @@ export const WelcomePostCardFooter = ({
   onShare,
   contentHtml,
 }: WelcomePostCardFooterProps): ReactElement => {
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const buttonExp = useFeature(featureCardUiButtons);
 
   const { overlay } = useCardCover({
     post,
@@ -50,7 +50,7 @@ export const WelcomePostCardFooter = ({
           post={post}
           imageProps={{
             src: image,
-            className: postUiExp ? 'mt-2 mb-1 w-full px-1' : 'my-2 w-full',
+            className: buttonExp ? 'mt-2 mb-1 w-full px-1' : 'my-2 w-full',
             alt: 'Post Cover image',
           }}
         />

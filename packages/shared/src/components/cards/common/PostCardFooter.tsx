@@ -7,7 +7,7 @@ import type { CommonCardCoverProps } from './common';
 import { CardCover } from './CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { useFeature } from '../../GrowthBookProvider';
-import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import { featureCardUiButtons } from '../../../lib/featureManagement';
 
 interface PostCardFooterClassName {
   image?: string;
@@ -28,9 +28,9 @@ export const PostCardFooter = ({
   isHoveringCard,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const buttonExp = useFeature(featureCardUiButtons);
 
-  const videoProps = postUiExp ? 'mb-1 mt-2' : 'my-2';
+  const videoProps = buttonExp ? 'mb-1 mt-2' : 'my-2';
 
   return (
     <>
