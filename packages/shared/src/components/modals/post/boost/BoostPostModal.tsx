@@ -18,10 +18,11 @@ import { IconSize } from '../../../Icon';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
 import { usePostImage } from '../../../../hooks/post/usePostImage';
-import { BoostPostSuccessModal } from './BoostPostSuccessModal';
 import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
+import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
+import { postBoostSuccessCover } from '../../../../lib/image';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -97,9 +98,18 @@ export function BoostPostModal({
 
   if (activeScreen === SCREENS.SUCCESS) {
     return (
-      <BoostPostSuccessModal
+      <ActionSuccessModal
         {...props}
-        onBackToDashboard={() => openModal({ type: LazyModal.AdsDashboard })}
+        cta={{
+          copy: 'Ads dashboard',
+          onClick: () => openModal({ type: LazyModal.AdsDashboard }),
+        }}
+        content={{
+          title: 'Post boosted successfully!',
+          description:
+            'Your post is now being promoted and will start reaching more developers shortly. You can track its performance anytime from the ads dashboard.',
+          cover: postBoostSuccessCover,
+        }}
       />
     );
   }
