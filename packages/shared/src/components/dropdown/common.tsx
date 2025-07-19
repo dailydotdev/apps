@@ -11,4 +11,5 @@ export interface MenuItemProps<
   anchorProps?: TAnchorProps;
   Wrapper?: ComponentType<{ children: ReactNode }>;
   disabled?: boolean;
+  ariaLabel?: string;
 }
