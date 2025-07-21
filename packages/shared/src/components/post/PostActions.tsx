@@ -33,11 +33,7 @@ import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useFeature } from '../GrowthBookProvider';
-import {
-  featureCardUiButtons,
-  featurePostUiImprovements,
-} from '../../lib/featureManagement';
+import { useCardExperimentConfig } from '../../hooks/useCardExperimentConfig';
 
 interface PostActionsProps {
   post: Post;
@@ -53,9 +49,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const colorExp = useFeature(featurePostUiImprovements);
   const { showLogin, user } = useAuthContext();
-  const buttonExp = useFeature(featureCardUiButtons);
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -65,17 +59,7 @@ export function PostActions({
     receivingUser: post.author as LoggedUser,
   });
 
-  // Experiment configuration
-  const config = {
-    showVoteButtonsInActions: buttonExp || colorExp,
-    showVoteButtonsInCard: !buttonExp && !colorExp,
-    copyButtonColor: colorExp ? ButtonColor.Water : ButtonColor.Cabbage,
-    copyButtonClassName: colorExp
-      ? 'group text-text-tertiary group-hover:text-text-link'
-      : 'btn-tertiary-cabbage',
-    cardBaseClassName:
-      'flex !flex-row gap-2 hover:border-border-subtlest-tertiary',
-  };
+  const config = useCardExperimentConfig('postActions');
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
 

@@ -25,11 +25,7 @@ import { BookmarkButton } from '../../../buttons';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
 import PostAwardAction from '../../../post/PostAwardAction';
-import { useFeature } from '../../../GrowthBookProvider';
-import {
-  featureCardUiButtons,
-  featurePostUiImprovements,
-} from '../../../../lib/featureManagement';
+import { useCardExperimentConfig } from '../../../../hooks/useCardExperimentConfig';
 import { combinedClicks } from '../../../../lib/click';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
@@ -48,21 +44,11 @@ export default function ActionButtons({
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
-  const buttonExp = useFeature(featureCardUiButtons);
-  const colorExp = useFeature(featurePostUiImprovements);
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
 
-  // Experiment configuration
-  const config = {
-    useNewExperience: colorExp || buttonExp,
-    showAwardAction: buttonExp,
-    copyButtonColor: colorExp ? ButtonColor.Water : ButtonColor.Cabbage,
-    copyButtonClassName: colorExp ? 'hover:text-text-link' : undefined,
-    background: colorExp ? 'bg-transparent' : 'bg-surface-float',
-    iconSize: buttonExp ? IconSize.Medium : IconSize.Medium, // Keep Medium for list view
-  };
+  const config = useCardExperimentConfig('list');
 
   if (isFeedPreview) {
     return null;

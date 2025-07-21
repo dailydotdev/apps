@@ -24,11 +24,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
 import PostAwardAction from '../../post/PostAwardAction';
-import { useFeature } from '../../GrowthBookProvider';
-import {
-  featureCardUiButtons,
-  featurePostUiImprovements,
-} from '../../../lib/featureManagement';
+import { useCardExperimentConfig } from '../../../hooks/useCardExperimentConfig';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -56,20 +52,7 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const buttonExp = useFeature(featureCardUiButtons);
-  const colorExp = useFeature(featurePostUiImprovements);
-
-  // Experiment configuration
-  const config = {
-    useNewExperience: buttonExp || colorExp,
-    showAwardAction: buttonExp,
-    copyButtonColor: colorExp ? ButtonColor.Water : ButtonColor.Cabbage,
-    copyButtonClassName: colorExp ? 'hover:text-text-link' : undefined,
-    background: colorExp ? 'bg-background-default' : 'bg-surface-float',
-    iconSize: buttonExp ? IconSize.XSmall : IconSize.Small,
-    buttonSize: buttonExp ? ButtonSize.Small : ButtonSize.Small,
-    buttonRowPadding: buttonExp ? ' px-1 pb-1' : '',
-  };
+  const config = useCardExperimentConfig('grid');
 
   if (isFeedPreview) {
     return null;
