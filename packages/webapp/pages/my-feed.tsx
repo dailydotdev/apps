@@ -8,7 +8,7 @@ import {
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'My feed',
+  title: 'For You',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };

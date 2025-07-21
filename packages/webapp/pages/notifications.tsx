@@ -32,6 +32,7 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
+import { useCampaignByIdModal } from '@dailydotdev/shared/src/hooks/notifications';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -96,6 +97,7 @@ const Notifications = (): ReactElement => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchedAfterMount]);
 
+  useCampaignByIdModal();
   usePromotionModal();
   useStreakRecoverModal();
   useTopReaderModal();
