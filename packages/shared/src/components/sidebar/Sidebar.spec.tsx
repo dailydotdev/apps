@@ -125,9 +125,9 @@ it('should show the sidebar as closed if user has this set', async () => {
   expect(section).toHaveClass('opacity-0');
 });
 
-it('should show the my feed items if the user has filters', async () => {
+it('should show the For You items if the user has filters', async () => {
   renderComponent({ filter: false });
-  const section = await screen.findByText('My feed');
+  const section = await screen.findByText('For You');
   expect(section).toBeInTheDocument();
 });
 

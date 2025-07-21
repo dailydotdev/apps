@@ -8,7 +8,11 @@ import {
 } from '@dailydotdev/shared/src/components/post/freeform';
 import type { EditPostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import {
+  usePostById,
+  useActions,
+  usePostToSquad,
+} from '@dailydotdev/shared/src/hooks';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -24,7 +28,6 @@ import {
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import { useActions, usePostToSquad } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   WriteFormTab,
