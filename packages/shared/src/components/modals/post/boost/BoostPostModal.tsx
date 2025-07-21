@@ -22,6 +22,7 @@ import { BoostPostSuccessModal } from './BoostPostSuccessModal';
 import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
+import { walletUrl } from '../../../../lib/constants';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -130,18 +131,25 @@ export function BoostPostModal({
         <Typography type={TypographyType.Title3} bold>
           Boost your post
         </Typography>
-        <Button
-          className="ml-4"
-          icon={<CoreIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Float}
-          onClick={() => setActiveScreen('BUY_CORES')}
-        >
-          {largeNumberFormat(user.balance.amount)}
-          <span className="ml-2 border-l border-border-subtlest-tertiary pl-2">
-            <PlusIcon />
-          </span>
-        </Button>
+        <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
+          <Button
+            icon={<CoreIcon />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            target="_blank"
+            href={walletUrl}
+            tag="a"
+          >
+            {largeNumberFormat(user.balance.amount)}
+          </Button>
+          <div className="my-1 border-l border-border-subtlest-tertiary" />
+          <Button
+            icon={<PlusIcon />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            onClick={() => setActiveScreen('BUY_CORES')}
+          />
+        </div>
       </Modal.Header>
       <Modal.Body className="flex flex-col !gap-6">
         <Typography
