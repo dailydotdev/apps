@@ -9,6 +9,7 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ButtonVariant } from '../buttons/Button';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
+import { Origin } from '../../lib/log';
 
 export const NotificationFollowUserButton = ({
   avatars,
@@ -52,6 +53,7 @@ export const NotificationFollowUserButton = ({
               '-ml-3.5 flex min-w-min text-text-link',
           )}
           copyType={CopyType.NiceGuy}
+          origin={Origin.Notification}
         />
       )}
     </div>
