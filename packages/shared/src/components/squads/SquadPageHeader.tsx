@@ -175,7 +175,7 @@ export function SquadPageHeader({
           className={classNames(
             'mt-5 w-full text-center',
             !shouldUseListMode && 'laptopL:text-left',
-            !shouldUseListMode && MAX_WIDTH,
+            MAX_WIDTH,
           )}
         >
           {squad.description}
@@ -213,15 +213,14 @@ export function SquadPageHeader({
       <EnableNotification
         contentName={squad.name}
         source={NotificationPromptSource.SquadPage}
-        className={classNames('w-full', !shouldUseListMode && MAX_WIDTH)}
+        className={classNames('w-full', MAX_WIDTH)}
       />
       <div
         className={classNames(
-          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0',
-          !shouldUseListMode && 'laptopL:px-0',
+          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
           allowedToPost && 'items-center justify-center',
-          allowedToPost && !shouldUseListMode && 'laptop:max-w-[41.5rem]',
-          !allowedToPost && !shouldUseListMode && 'laptop:max-w-[38.25rem]',
+          allowedToPost && 'laptop:max-w-[41.5rem]',
+          !allowedToPost && 'laptop:max-w-[38.25rem]',
         )}
       >
         <ConditionalWrapper

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import classed from '../../../lib/classed';
 import styles from './Card.module.css';
 import { Tooltip } from '../../tooltip/Tooltip';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -44,7 +45,12 @@ export function RaisedLabel({
         className,
       )}
     >
-      <Tooltip content={description}>
+      <ConditionalWrapper
+        condition={description?.length > 0}
+        wrapper={(children) => (
+          <Tooltip content={description}>{children}</Tooltip>
+        )}
+      >
         <div
           className={classNames(
             'flex items-center px-1',
@@ -59,7 +65,7 @@ export function RaisedLabel({
             {type}
           </span>
         </div>
-      </Tooltip>
+      </ConditionalWrapper>
       {!listMode && description && (
         <span className="ml-2 text-text-tertiary typo-footnote mouse:hidden">
           {description}
