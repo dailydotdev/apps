@@ -783,7 +783,7 @@ export const claimClaimableItem = async (): Promise<boolean> => {
 const UPLOAD_CV_MUTATION = gql`
   mutation UploadResume($resume: Upload!) {
     uploadResume(resume: $resume) {
-      id
+      _
     }
   }
 `;
