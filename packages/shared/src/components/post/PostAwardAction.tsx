@@ -14,12 +14,7 @@ import { Image } from '../image/Image';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import type { LoggedUser } from '../../lib/user';
-import { useMutationSubscription } from '../../hooks';
-import type { AwardProps } from '../../graphql/njord';
-import { updateCachedPagePost } from '../../lib/query';
 import { dogAwardImage } from '../../lib/image';
-import { useActiveFeedContext } from '../../contexts';
-import useFeedPostIndex from '../../hooks/post/useFeedPostIndex';
 
 export interface PostAwardActionProps {
   post: Post;
@@ -27,43 +22,12 @@ export interface PostAwardActionProps {
 }
 
 const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
-  const { queryKey } = useActiveFeedContext();
-  const { pageIndex, postIndex } = useFeedPostIndex({ postId: post.id });
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: post?.author as LoggedUser,
-  });
-
-  useMutationSubscription({
-    matcher: ({ mutation }) => {
-      const [requestKey] = Array.isArray(mutation.options.mutationKey)
-        ? mutation.options.mutationKey
-        : [];
-      return requestKey === 'awards';
-    },
-    callback: ({ variables, queryClient }) => {
-      const { entityId, type } = variables as AwardProps;
-
-      if (type === 'POST') {
-        if (entityId !== post.id) {
-          return;
-        }
-
-        const updatePost = updateCachedPagePost(queryKey, queryClient);
-
-        updatePost(pageIndex, postIndex, {
-          ...post,
-          userState: {
-            ...post.userState,
-            awarded: true,
-          },
-          numAwards: (post.numAwards || 0) + 1,
-        });
-      }
-    },
   });
 
   if (!canAward && !isSameUser) {

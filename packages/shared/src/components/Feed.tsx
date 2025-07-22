@@ -38,6 +38,7 @@ import {
   useConditionalFeature,
   useFeedLayout,
   useFeedVotePost,
+  useMutationSubscription,
 } from '../hooks';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
@@ -55,6 +56,7 @@ import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 import { briefCardFeedFeature } from '../lib/featureManagement';
+import type { AwardProps } from '../graphql/njord';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -231,6 +233,39 @@ export default function Feed<T>({
     updatePost,
     canFetchMore,
     feedName,
+  });
+
+  useMutationSubscription({
+    matcher: ({ mutation }) => {
+      const [requestKey] = Array.isArray(mutation.options.mutationKey)
+        ? mutation.options.mutationKey
+        : [];
+      return requestKey === 'awards';
+    },
+    callback: ({ variables: feedPostVars }) => {
+      const { entityId, type } = feedPostVars as AwardProps;
+
+      if (type === 'POST') {
+        const postItem = items.find(
+          (item: PostItem) => item.post.id === entityId && item.type === 'post',
+        ) as PostItem;
+
+        const currentPost = postItem?.post;
+
+        if (!!currentPost && entityId !== currentPost.id) {
+          return;
+        }
+
+        updatePost(postItem.page, postItem.index, {
+          ...currentPost,
+          userState: {
+            ...currentPost.userState,
+            awarded: true,
+          },
+          numAwards: (currentPost.numAwards || 0) + 1,
+        });
+      }
+    },
   });
 
   const logOpts = useMemo(() => {
