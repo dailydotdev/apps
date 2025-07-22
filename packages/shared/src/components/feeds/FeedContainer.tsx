@@ -210,7 +210,7 @@ export const FeedContainer = ({
     onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
   const justUploaded = status === 'success';
-  const shouldShowBanner = !!marketingCta && (shouldShow || justUploaded);
+  const shouldShowBanner = (!!marketingCta && shouldShow) || justUploaded;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
