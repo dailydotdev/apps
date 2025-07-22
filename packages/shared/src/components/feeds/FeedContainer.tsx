@@ -243,7 +243,10 @@ export const FeedContainer = ({
         >
           <ProfileUploadBanner
             className={{
-              container: classNames({ isList: 'mb-0' }),
+              container: classNames({
+                'mb-0': isList,
+                'mt-0 tablet:mt-4': !showBriefCard,
+              }),
               image:
                 isList && 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]',
             }}
