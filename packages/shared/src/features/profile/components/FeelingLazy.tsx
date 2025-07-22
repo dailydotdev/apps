@@ -40,7 +40,11 @@ export function FeelingLazy({
   }
 
   return (
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+    <Typography
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+      className="hidden laptop:flex"
+    >
       Feeling lazy?{' '}
       <button
         type="button"

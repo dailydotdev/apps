@@ -63,10 +63,10 @@ export const useUploadCv = ({
 };
 
 export const useShowUpload = () => {
-  const { actions, isActionsFetched, completeAction } = useActions();
+  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const hasUploadedCv = useMemo(
-    () => actions?.some(({ type }) => type === ActionType.UploadedCV),
-    [actions],
+    () => checkHasCompleted(ActionType.UploadedCV),
+    [checkHasCompleted],
   );
 
   const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);

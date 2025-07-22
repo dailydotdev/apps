@@ -89,10 +89,10 @@ export default function ProfileLayout({
   const { shouldShow, onCloseBanner } = useShowUpload();
   const { status, onUpload } = useUploadCv();
   const justUploaded = status === 'success';
-  const { actions } = useActions();
+  const { checkHasCompleted } = useActions();
   const hasClosedBanner = useMemo(
-    () => actions?.some(({ type }) => type === ActionType.ClosedProfileBanner),
-    [actions],
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
   );
 
   useEffect(() => {
