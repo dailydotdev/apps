@@ -332,3 +332,6 @@ export const plusShowcaseTranslateImage =
 
 export const plusShowcasePresidentialBriefImage =
   'https://media.daily.dev/image/upload/s--7I74Yy6r--/f_auto/v1752495221/public/Personalized%20digest';
+
+export const dogAwardImage =
+  'https://media.daily.dev/image/upload/s--eXw4JiHs--/f_auto/v1743664345/public/fineDog';
