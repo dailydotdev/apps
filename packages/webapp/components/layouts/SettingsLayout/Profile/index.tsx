@@ -54,6 +54,9 @@ import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import { VerifiedCompanyBadgeSection } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
+import { CVProfileSection } from '@dailydotdev/shared/src/components/profile/CVProfileSection';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureCvUploadProfile } from '@dailydotdev/shared/src/lib/featureManagement';
 
 const imageId = 'avatar_file';
 const coverId = 'cover_file';
@@ -74,6 +77,7 @@ const ProfileIndex = ({
   const [coverImage, setCoverImage] = useState(user?.cover);
   const currentCoverImage = coverImage || user?.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const cvUploadProfileFeature = useFeature(featureCvUploadProfile);
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -262,6 +266,14 @@ const ProfileIndex = ({
           value={user?.title}
         />
       </AccountContentSection>
+      {cvUploadProfileFeature && (
+        <AccountContentSection
+          title="CV/Resume"
+          description="Upload your CV to help us match you with relevant job opportunities"
+        >
+          <CVProfileSection />
+        </AccountContentSection>
+      )}
       <AccountContentSection
         title="Profile Social Links"
         description="Add your social media profiles so others can connect with you and you

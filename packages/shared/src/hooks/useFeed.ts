@@ -57,13 +57,16 @@ interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
   plusEntry: MarketingCta;
 }
 
+interface CVUploadBannerItem extends FeedItemBase<FeedItemType.CVUploadBanner> {}
+
 export type FeedItem =
   | PostItem
   | AdItem
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
-  | PlusEntryItem;
+  | PlusEntryItem
+  | CVUploadBannerItem;
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
   item?.type === FeedItemType.Ad && !!item.ad.data?.post;
@@ -91,6 +94,7 @@ type UseFeedSettingParams = {
   marketingCta?: MarketingCta;
   plusEntry?: MarketingCta;
   feedName?: string;
+  showCVUploadBanner?: boolean;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -291,7 +295,12 @@ export default function useFeed<T>(
             const withFirstIndex = (condition: boolean) =>
               pageIndex === 0 && adItem.index === 0 && condition;
 
-            if (withFirstIndex(!!settings.plusEntry)) {
+            if (withFirstIndex(settings.showCVUploadBanner)) {
+              acc.push({
+                type: FeedItemType.CVUploadBanner,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+            } else if (withFirstIndex(!!settings.plusEntry)) {
               acc.push({
                 type: FeedItemType.PlusEntry,
                 plusEntry: settings.plusEntry,
@@ -337,6 +346,7 @@ export default function useFeed<T>(
     placeholdersPerPage,
     getAd,
     settings.plusEntry,
+    settings.showCVUploadBanner,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

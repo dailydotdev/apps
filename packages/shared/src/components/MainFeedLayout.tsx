@@ -56,6 +56,9 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
+import { CVUploadBanner } from './cards/CVUploadBanner';
+import { useUserCV } from '../hooks/useUserCV';
+import { featureCvUploadBanner } from '../lib/featureManagement';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -203,6 +206,8 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { cv } = useUserCV();
+  const cvUploadBannerFeature = useFeature(featureCvUploadBanner);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
   const {
@@ -446,6 +451,17 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  
+  // Show CV upload banner on homepage when feature is enabled, user is logged in, has no CV
+  const shouldShowCVBanner = 
+    cvUploadBannerFeature && 
+    user && 
+    !cv && 
+    feedName === 'default' && 
+    !isSearchOn;
+  
+  // DEBUG: Force show banner for testing
+  const debugShowCVBanner = true;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -491,6 +507,11 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
+      {(shouldShowCVBanner || debugShowCVBanner) && (
+        <div className="mx-4 mb-4 tablet:mx-6 laptop:mx-0">
+          <CVUploadBanner />
+        </div>
+      )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed

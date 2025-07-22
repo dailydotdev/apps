@@ -75,6 +75,8 @@ export enum LazyModal {
   FetchBoostedPostView = 'fetchBoostedPostView',
   OrganizationInviteMember = 'organizationInviteMember',
   OrganizationManageSeats = 'organizationManageSeats',
+  LinkedInImport = 'linkedInImport',
+  CVUploadSuccess = 'cvUploadSuccess',
 }
 
 export type ModalTabItem = {
