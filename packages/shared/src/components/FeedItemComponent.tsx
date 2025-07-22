@@ -36,6 +36,7 @@ import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
+import { CVUploadBanner } from './cards/CVUploadBanner';
 
 const CommentPopup = dynamic(
   () =>
@@ -312,6 +313,8 @@ export default function FeedItemComponent({
       );
     case FeedItemType.PlusEntry:
       return <PlusGridTag {...item.plusEntry} />;
+    case FeedItemType.CVUploadBanner:
+      return <CVUploadBanner key="cv-upload-banner" />;
     default:
       return <PlaceholderTag />;
   }

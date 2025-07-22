@@ -94,3 +94,7 @@ export const briefCardFeedFeature = new Feature(
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
+
+export const featureCvUpload = new Feature('cv_upload', true);
+export const featureCvUploadBanner = new Feature('cv_upload_banner', true);
+export const featureCvUploadProfile = new Feature('cv_upload_profile', true);

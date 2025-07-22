@@ -80,4 +80,5 @@ export enum FeedItemType {
   Placeholder = 'placeholder',
   UserAcquisition = 'userAcquisition',
   MarketingCta = 'marketingCta',
+  CVUploadBanner = 'cvUploadBanner',
 }
