@@ -209,6 +209,7 @@ export const FeedContainer = ({
   const { onUpload, status } = useUploadCv();
   const justUploaded = status === 'success';
   const shouldShowBanner = !!marketingCta && (shouldShow || justUploaded);
+  console.log('marketing cta: ', shouldShow, marketingCta);
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
