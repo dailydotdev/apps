@@ -1,21 +1,24 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  UpvoteIcon,
+  BookmarkIcon,
   DiscussIcon as CommentIcon,
+  DownvoteIcon,
+  EyeIcon,
+  FeedbackIcon,
+  FlagIcon,
   MenuIcon,
   ShareIcon,
-  BookmarkIcon,
+  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import Modal from 'react-modal';
-import { useContextMenu } from '@dailydotdev/react-contexify';
-import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import { feedback, isTesting } from '@dailydotdev/shared/src/lib/constants';
 import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -27,14 +30,29 @@ import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
-import { useVotePost } from '@dailydotdev/shared/src/hooks';
+import {
+  useToastNotification,
+  useVotePost,
+} from '@dailydotdev/shared/src/hooks';
 import type { UpvotedPopupModalProps } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import type { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
-import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
+import type { MenuItemProps } from '@dailydotdev/shared/src/components/dropdown/common';
+import { MenuIcon as WrapperMenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import type { ReportedCallback } from '@dailydotdev/shared/src/components/modals';
+import { ReportPostModal } from '@dailydotdev/shared/src/components/modals';
+import { labels } from '@dailydotdev/shared/src/lib';
 import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
 
@@ -63,6 +81,10 @@ export default function CompanionMenu({
   const { modal, closeModal } = useLazyModal();
   const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
+  const { showPrompt } = usePrompt();
+  const [reportModal, setReportModal] = useState<boolean>();
+  const { displayToast } = useToastNotification();
+
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
     companionHelper,
@@ -130,9 +152,18 @@ export default function CompanionMenu({
 
   const onShare = () => openSharePost({ post });
 
-  const optOut = () => {
-    disableCompanion({});
-    onOptOut();
+  const optOut = async () => {
+    const options: PromptOptions = {
+      title: 'Disable the companion widget?',
+      description: 'You can always re-enable it through the customize menu.',
+      okButton: {
+        title: 'Disable',
+      },
+    };
+    if (await showPrompt(options)) {
+      disableCompanion({});
+      onOptOut();
+    }
   };
 
   const onToggleUpvote = async () => {
@@ -179,15 +210,6 @@ export default function CompanionMenu({
     }
   };
 
-  const { show: showCompanionOptionsMenu } = useContextMenu({
-    id: 'companion-options-context',
-  });
-  const onContextOptions = (event: React.MouseEvent): void => {
-    showCompanionOptionsMenu(event, {
-      position: { x: 48, y: 318 },
-    });
-  };
-
   const tooltipContainerClassName = 'shadow-2 whitespace-nowrap';
 
   const onEscape = () => {
@@ -204,114 +226,179 @@ export default function CompanionMenu({
     disabledModalOpened: true,
   });
 
-  return (
-    <div className="group relative my-6 flex w-14 flex-col gap-2 self-center rounded-l-16 border border-border-subtlest-quaternary bg-background-default p-2">
-      <CompanionToggle
-        companionState={companionState}
-        isAlertDisabled={!showCompanionHelper}
-        tooltipContainerClassName={tooltipContainerClassName}
-        onToggleCompanion={toggleCompanion}
-      />
-      <Tooltip
-        side="left"
-        content={
-          post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
-        }
-        className={tooltipContainerClassName}
-      >
-        <Button
-          icon={
-            <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
+  const onReportPost: ReportedCallback = async (
+    reportedPost,
+    { shouldBlockSource },
+  ): Promise<void> => {
+    if (shouldBlockSource) {
+      blockSource({ id: reportedPost?.source?.id });
+    }
+
+    displayToast(labels.reporting.reportFeedbackText);
+  };
+
+  const options: Array<MenuItemProps> = [
+    {
+      icon: (
+        <WrapperMenuIcon
+          Icon={DownvoteIcon}
+          className={
+            post?.userState?.vote === UserVote.Down &&
+            'text-accent-ketchup-default'
           }
-          pressed={post?.userState?.vote === UserVote.Up}
-          onClick={onToggleUpvote}
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Avocado}
+          secondary={post?.userState?.vote === UserVote.Down}
         />
-      </Tooltip>
-      <Tooltip
-        side="left"
-        content="Add comment"
-        className={tooltipContainerClassName}
-      >
-        <Button
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.BlueCheese}
-          pressed={post?.commented}
-          icon={<CommentIcon />}
-          onClick={() => {
-            setCompanionState(true);
+      ),
+      label: 'Downvote',
+      action: onToggleDownvote,
+      ariaLabel:
+        post?.userState?.vote === UserVote.Down
+          ? 'Remove downvote'
+          : 'Downvote',
+    },
+    {
+      icon: <WrapperMenuIcon Icon={CommentIcon} />,
+      label: 'View discussion',
+      anchorProps: {
+        href: post?.commentsPermalink,
+        target: '_blank',
+      },
+    },
+    {
+      icon: <WrapperMenuIcon Icon={FlagIcon} />,
+      label: 'Report',
+      action: () => setReportModal(true),
+    },
+    {
+      icon: <WrapperMenuIcon Icon={FeedbackIcon} />,
+      label: 'Give us feedback',
+      anchorProps: {
+        href: feedback,
+        target: '_blank',
+      },
+    },
+    {
+      icon: <WrapperMenuIcon Icon={EyeIcon} />,
+      label: 'Disable widget',
+      action: optOut,
+    },
+  ];
 
-            const commentBox =
-              getCompanionWrapper()?.querySelector<HTMLElement>(
-                '.companion-new-comment-button',
-              );
-
-            if (commentBox) {
-              commentBox.click();
+  return (
+    <>
+      <div className="group relative my-6 flex w-14 flex-col gap-2 self-center rounded-l-16 border border-border-subtlest-quaternary bg-background-default p-2">
+        <CompanionToggle
+          companionState={companionState}
+          isAlertDisabled={!showCompanionHelper}
+          tooltipContainerClassName={tooltipContainerClassName}
+          onToggleCompanion={toggleCompanion}
+        />
+        <Tooltip
+          side="left"
+          content={
+            post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
+          }
+          className={tooltipContainerClassName}
+        >
+          <Button
+            icon={
+              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
             }
-          }}
-        />
-      </Tooltip>
-      <Tooltip
-        side="left"
-        content={`${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`}
-        className={tooltipContainerClassName}
-      >
-        <Button
-          icon={<BookmarkIcon secondary={post?.bookmarked} />}
-          pressed={post?.bookmarked}
-          onClick={toggleBookmark}
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Bun}
-        />
-      </Tooltip>
-      <Tooltip
-        side="left"
-        content="Share post"
-        className={tooltipContainerClassName}
-      >
-        <Button
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Cabbage}
-          onClick={onShare}
-          icon={<ShareIcon />}
-        />
-      </Tooltip>
-      <Tooltip
-        side="left"
-        content="More options"
-        className={tooltipContainerClassName}
-      >
-        <Button
-          variant={ButtonVariant.Tertiary}
-          icon={<MenuIcon />}
-          onClick={onContextOptions}
-        />
-      </Tooltip>
-      <CompanionContextMenu
-        onShare={onShare}
-        postData={post}
-        onBlockSource={blockSource}
-        onDisableCompanion={optOut}
-        onDownvote={onToggleDownvote}
-      />
-      {modal?.type === LazyModal.Share && (
-        <ShareModal
-          isOpen
+            pressed={post?.userState?.vote === UserVote.Up}
+            onClick={onToggleUpvote}
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Avocado}
+          />
+        </Tooltip>
+        <Tooltip
+          side="left"
+          content="Add comment"
+          className={tooltipContainerClassName}
+        >
+          <Button
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.BlueCheese}
+            pressed={post?.commented}
+            icon={<CommentIcon />}
+            onClick={() => {
+              setCompanionState(true);
+
+              const commentBox =
+                getCompanionWrapper()?.querySelector<HTMLElement>(
+                  '.companion-new-comment-button',
+                );
+
+              if (commentBox) {
+                commentBox.click();
+              }
+            }}
+          />
+        </Tooltip>
+        <Tooltip
+          side="left"
+          content={`${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`}
+          className={tooltipContainerClassName}
+        >
+          <Button
+            icon={<BookmarkIcon secondary={post?.bookmarked} />}
+            pressed={post?.bookmarked}
+            onClick={toggleBookmark}
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Bun}
+          />
+        </Tooltip>
+        <Tooltip
+          side="left"
+          content="Share post"
+          className={tooltipContainerClassName}
+        >
+          <Button
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Cabbage}
+            onClick={onShare}
+            icon={<ShareIcon />}
+          />
+        </Tooltip>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            tooltip={{ content: 'More options', side: 'left' }}
+            asChild
+          >
+            <Button variant={ButtonVariant.Tertiary} icon={<MenuIcon />} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuOptions options={options} />
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {modal?.type === LazyModal.Share && (
+          <ShareModal
+            isOpen
+            parentSelector={getCompanionWrapper}
+            onRequestClose={closeModal}
+            {...(modal.props as ShareProps)}
+          />
+        )}
+        {modal?.type === LazyModal.UpvotedPopup && (
+          <UpvotedPopupModal
+            isOpen
+            parentSelector={getCompanionWrapper}
+            onRequestClose={closeModal}
+            {...(modal.props as UpvotedPopupModalProps)}
+          />
+        )}
+      </div>
+      {reportModal && (
+        <ReportPostModal
+          className="z-rank"
+          post={post}
           parentSelector={getCompanionWrapper}
-          onRequestClose={closeModal}
-          {...(modal.props as ShareProps)}
+          isOpen={!!reportModal}
+          index={1}
+          origin={Origin.CompanionContextMenu}
+          onReported={onReportPost}
+          onRequestClose={() => setReportModal(null)}
         />
       )}
-      {modal?.type === LazyModal.UpvotedPopup && (
-        <UpvotedPopupModal
-          isOpen
-          parentSelector={getCompanionWrapper}
-          onRequestClose={closeModal}
-          {...(modal.props as UpvotedPopupModalProps)}
-        />
-      )}
-    </div>
+    </>
   );
 }
