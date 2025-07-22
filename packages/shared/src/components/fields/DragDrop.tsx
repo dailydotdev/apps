@@ -5,12 +5,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, {
-  useCallback,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import React, { useImperativeHandle, useRef, useState } from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
@@ -247,7 +242,7 @@ export function DragDrop({
     setIsDragValid(hasFiles);
   };
 
-  const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -256,7 +251,7 @@ export function DragDrop({
       setIsDragOver(false);
       setIsDragValid(true);
     }
-  }, []);
+  };
 
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) {
@@ -265,12 +260,13 @@ export function DragDrop({
 
     const fileArray = Array.from(files);
     const { validFiles, errors } = validateFiles(fileArray);
+    const [error] = errors ?? [];
 
-    // Show toast for errors
-    errors.forEach((error) => {
+    if (error) {
       const fileName = error.file ? ` (${error.file.name})` : '';
       toast.displayToast(`${error.message}${fileName}`);
-    });
+      return;
+    }
 
     // Call callback with valid files and errors
     setFilenames(
