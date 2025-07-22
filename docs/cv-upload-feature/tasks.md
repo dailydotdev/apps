@@ -3,16 +3,18 @@
 ## Phase 1: Foundation & Components
 
 ### 1.1 Core File Upload Infrastructure
-- [ ] **Create FileUploadField component** (`packages/shared/src/components/fields/FileUploadField.tsx`)
-  - Implement HTML5 drag-and-drop API
-  - Add file type validation (PDF, DOC, DOCX)  
-  - Include progress indicators and error states
+- [ ] **Create CVFileInput component** (`packages/shared/src/components/fields/CVFileInput.tsx`)
+  - Follow existing `ImageInput` patterns from `/packages/shared/src/components/fields/ImageInput.tsx`
+  - Adapt for PDF/DOC formats instead of images (no base64 conversion, direct file handling)
+  - Implement HTML5 drag-and-drop API using `onDragOver` and `onDrop` handlers
+  - Add file type validation (PDF, DOC, DOCX) and size limits
+  - Use `useState` for local state (dragOver, uploading, error states)
   - Reference: [Figma - Default State](https://www.figma.com/file/nmfWPS7x3kzLUvYMkBx2kW/?node-id=32597%3A3874)
 
 - [ ] **Create CVUploadZone component** (`packages/shared/src/components/profile/CVUploadZone.tsx`)
-  - Drag & drop zone with visual feedback
-  - Browse files button integration
-  - Reuse existing Button component from design system
+  - Wrapper component using CVFileInput internally
+  - Browse files button integration with existing Button component
+  - Toast notifications for upload progress/errors
   - Reference: [Figma - Profile Empty State](https://www.figma.com/file/nmfWPS7x3kzLUvYMkBx2kW/?node-id=32596%3A54814)
 
 ### 1.2 GraphQL Integration  
@@ -28,8 +30,8 @@
 ### 1.3 Upload State Management
 - [ ] **Create CV upload hooks** (`packages/shared/src/hooks/useCVUpload.ts`)
   - TanStack Query integration for upload mutations
-  - Progress tracking and error handling
-  - Cache invalidation after successful uploads
+  - Simple `useState` for upload progress and error handling (no Jotai needed)
+  - Cache invalidation after successful uploads using TanStack Query patterns
 
 - [ ] **Create CV data hooks** (`packages/shared/src/hooks/useUserCV.ts`)  
   - Query hook for fetching user CV data
@@ -97,30 +99,40 @@
 
 ## Phase 4: LinkedIn Import Flow
 
-### 4.1 LinkedIn Import Modal
+### 4.1 LinkedIn Import Modal (LazyModal Integration)
 - [ ] **Create LinkedInImportModal component** (`packages/shared/src/components/modals/LinkedInImportModal.tsx`)
   - Step-by-step guidance design: [Figma - LinkedIn Import](https://www.figma.com/file/nmfWPS7x3kzLUvYMkBx2kW/?node-id=32596%3A54795)
   - External link to LinkedIn profile
   - Instructions for PDF export process
 
+- [ ] **Integrate with LazyModal system**
+  - Add `LinkedInImport` to `LazyModal` enum in `/packages/shared/src/components/modals/common/types.ts`
+  - Register in modal object in `/packages/shared/src/components/modals/common.tsx`
+  - Use dynamic import with webpack chunk name: `/* webpackChunkName: "linkedinImportModal" */`
+
 ### 4.2 Import Flow Integration  
 - [ ] **Add "Import from LinkedIn" trigger**
+  - Use `useLazyModal` hook to open modal: `openModal({ type: LazyModal.LinkedInImport })`
   - Link in upload banners and profile sections
   - "Feeling lazy?" helper text integration
-  - Modal launch functionality
 
 - [ ] **Add mobile-specific import flow**
   - Reference: [Figma - Mobile Import](https://www.figma.com/file/nmfWPS7x3kzLUvYMkBx2kW/?node-id=32596%3A56365)
-  - Touch-optimized interaction
+  - Touch-optimized interaction with `isDrawerOnMobile` modal option
 
 ## Phase 5: Success & Error States
 
-### 5.1 Success Celebrations
+### 5.1 Success Celebrations (LazyModal Integration)
 - [ ] **Create CVUploadSuccessModal component** (`packages/shared/src/components/modals/CVUploadSuccessModal.tsx`)
   - Celebratory design: [Figma - Success States](https://www.figma.com/file/nmfWPS7x3kzLUvYMkBx2kW/?node-id=32596%3A56242)
   - "All set! We'll take it from here" messaging
   - Profile completion guidance
   - Confetti or celebration animation
+
+- [ ] **Integrate success modal with LazyModal system**
+  - Add `CVUploadSuccess` to `LazyModal` enum
+  - Register in modal object with dynamic import
+  - Launch with `useLazyModal`: `openModal({ type: LazyModal.CVUploadSuccess, props: { filename } })`
 
 ### 5.2 Error Handling
 - [ ] **Implement upload error states** 
@@ -206,11 +218,16 @@
 
 ## Phase 10: Deployment & Monitoring
 
-### 10.1 Feature Flag Integration
-- [ ] **Add feature flags for gradual rollout**
-  - CV upload banner toggle
-  - Profile section toggle
-  - User segment targeting
+### 10.1 Feature Flag Integration (GrowthBook)
+- [ ] **Add CV upload feature flags** (`packages/shared/src/lib/featureManagement.ts`)
+  - Create `featureCvUpload = new Feature('cv_upload', false)` for main feature toggle
+  - Create `featureCvUploadBanner = new Feature('cv_upload_banner', false)` for homepage banner
+  - Create `featureCvUploadProfile = new Feature('cv_upload_profile', false)` for profile section
+
+- [ ] **Implement feature flag usage in components**
+  - Use `useFeatureIsOn(featureCvUpload)` for boolean checks
+  - Use `useFeature(featureCvUploadBanner)` if more complex feature config needed
+  - Conditional rendering based on feature flags
 
 ### 10.2 Monitoring & Analytics
 - [ ] **Set up upload monitoring**
@@ -229,22 +246,45 @@
 ## Reusable Components Identified
 
 ### Existing Components to Leverage
+- **ImageInput** (`packages/shared/src/components/fields/ImageInput.tsx`) - Pattern reference for drag-and-drop
 - **Button** (`packages/shared/src/components/buttons/Button.tsx`) - Upload buttons, LinkedIn links
 - **Typography** (`packages/shared/src/components/Typography.tsx`) - All text content
-- **Toast** (`packages/shared/src/components/notifications/`) - Dismissal messages  
-- **ContentModal** (`packages/shared/src/components/modals/ContentModal.tsx`) - Base for success/error modals
-- **Icon** components - File icons, success checkmarks, close buttons
+- **Toast** (`packages/shared/src/components/notifications/`) - Upload progress and dismissal messages
+- **Modal** (`packages/shared/src/components/modals/Modal.tsx`) - Base for LazyModal system
+- **useLazyModal** hook - For opening success/error modals
 
 ### New Reusable Components Created
-- **FileUploadField** - Generic drag-and-drop file upload (reusable beyond CVs)
-- **CVUploadZone** - CV-specific upload area
-- **UploadProgressIndicator** - Progress bars for file uploads
-- **FileInfoDisplay** - File name, size, date formatting
+- **CVFileInput** - CV-specific drag-and-drop upload (adapted from ImageInput patterns)
+- **CVUploadZone** - CV upload area wrapper with toast integration
+- **CVUploadSuccessModal** - LazyModal for upload success celebration
+- **LinkedInImportModal** - LazyModal for LinkedIn import guidance
 
 ## Implementation Notes
 
-- Follow existing code patterns in the monorepo
-- Use semantic design tokens from Tailwind config  
+### Architectural Patterns to Follow
+- **LazyModal System**: All modals must integrate with the centralized modal system
+  - Add to `LazyModal` enum and modal registry
+  - Use dynamic imports with webpack chunk names
+  - Launch with `useLazyModal` hook from any component
+
+- **State Management**: 
+  - Use `useState`/`useReducer` for local component state (upload progress, drag states)
+  - NO Jotai needed for simple upload functionality
+  - TanStack Query only for server state (mutations, queries)
+
+- **Feature Flags**: Use GrowthBook patterns
+  - Define flags in `packages/shared/src/lib/featureManagement.ts`
+  - Use `useFeatureIsOn` for boolean toggles
+  - Follow snake_case naming for flag IDs
+
+- **File Upload Patterns**: Follow `ImageInput` component architecture
+  - HTML5 drag-and-drop with native event handlers
+  - Direct file object handling (no base64 for CVs)
+  - Toast notifications for progress and errors
+  - Client-side validation with server-side backup
+
+### Code Quality Standards  
+- Use semantic design tokens from Tailwind config
 - Ensure TypeScript strict mode compliance
 - Implement proper error boundaries around upload components
 - Consider offline support for upload retry functionality

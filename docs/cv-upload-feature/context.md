@@ -94,40 +94,51 @@ mutation DeleteCV($cvId: ID!) {
 ### Component Architecture
 
 #### Shared Components to Create/Extend
-Based on existing design system patterns:
+Based on existing design system patterns and LazyModal architecture:
 
 1. **CVUploadBanner** (new) - Homepage feed banner
    - Location: `packages/shared/src/components/cards/`
    - Drag & drop zone with visual feedback
    - LinkedIn import link integration
+   - Local state with `useState` for upload progress
 
 2. **CVUploadSection** (new) - Profile page upload area
    - Location: `packages/shared/src/components/profile/`
-   - File management interface
-   - Upload status display
+   - File management interface leveraging existing `ImageInput` patterns
+   - Upload status display with toast notifications
 
 3. **CVUploadModal** (new) - Success/error modals
    - Location: `packages/shared/src/components/modals/`
-   - Celebration modal for successful uploads
-   - Error handling modal for failed uploads
+   - Integrated with LazyModal system
+   - Add to `LazyModal` enum and modal registry
+   - Use dynamic imports with webpack chunk names
 
-4. **FileUploadField** (new) - Reusable drag-and-drop field
+4. **CVFileInput** (new) - CV-specific file upload field
    - Location: `packages/shared/src/components/fields/`
-   - Generic file upload with customizable validation
+   - Extend patterns from existing `ImageInput` component
+   - Support PDF/DOC formats instead of images
+   - Drag-and-drop with native HTML5 APIs
 
 #### Existing Components to Leverage
+- **ImageInput** - Pattern reference for drag-and-drop file upload
 - **Button** - For browse files, LinkedIn link buttons
-- **Toast** - For dismissal feedback messages
-- **ContentModal** - Base for upload success/error modals
+- **Toast** - For dismissal feedback messages and upload progress
+- **Modal** - Base modal component for LazyModal system
 - **Typography** - Consistent text styling throughout
+- **useLazyModal** - Hook for opening modals from any component
 
 ### State Management Strategy
 
-#### Local State (Jotai)
-- Upload progress tracking
-- Drag-and-drop state
-- Modal visibility states
-- Form validation states
+#### Local State (useState/useReducer)
+- Upload progress tracking with `useState`
+- Drag-and-drop state (dragOver, isDragging)
+- File validation states and error messages
+- Upload success/error notifications
+
+#### Modal State (LazyModal System)
+- Uses TanStack Query with `MODAL_KEY = ['modal']`
+- Centralized modal registry in `packages/shared/src/components/modals/common.tsx`
+- Type-safe props via `LazyModal` enum and TypeScript types
 
 #### Server State (TanStack Query)
 - CV upload mutations
@@ -135,10 +146,10 @@ Based on existing design system patterns:
 - File deletion operations
 - Cache invalidation after uploads
 
-#### Context Integration
-- User authentication context
-- Profile completion tracking
-- Feature flag context (for gradual rollout)
+#### Feature Flags (GrowthBook)
+- Use `useFeature` hook from GrowthBookProvider
+- Feature flag naming pattern: `featureCvUpload` with snake_case ID `cv_upload`
+- Boolean flags with `useFeatureIsOn` for simple on/off toggles
 
 ### Design System Integration
 
