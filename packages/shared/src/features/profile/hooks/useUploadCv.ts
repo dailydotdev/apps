@@ -8,7 +8,8 @@ import {
 } from '../../../lib/image';
 import { uploadCv } from '../../../graphql/users';
 import { ActionType } from '../../../graphql/actions';
-import { useActions } from '../../../hooks';
+import { useActions, useToastNotification } from '../../../hooks';
+import type { ApiErrorResult } from '../../../graphql/common';
 
 interface UseUploadCvProps {
   shouldShowSuccessModal?: boolean;
@@ -19,6 +20,7 @@ export const useUploadCv = ({
   shouldShowSuccessModal,
   onUploadSuccess,
 }: UseUploadCvProps = {}) => {
+  const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
   const {
@@ -45,6 +47,10 @@ export const useUploadCv = ({
       }
       completeAction(ActionType.UploadedCV);
       onUploadSuccess?.();
+    },
+    onError: (data: ApiErrorResult) => {
+      const error = data?.response?.errors?.[0]?.message;
+      displayToast(error || 'An error occured, please try again');
     },
   });
 

@@ -148,6 +148,7 @@ export function DragDrop({
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDragValid, setIsDragValid] = useState(true);
   const toast = useToastNotification();
+  const isError = state === 'error';
 
   const {
     maxSize,
@@ -336,16 +337,18 @@ export function DragDrop({
     </>
   );
 
+  const shouldShowContent = !filenames?.length || isError;
+
   const ListItem =
     isCompactList || state === 'pending' ? CompactItem : LargeItem;
   const defaultContainer = (
     <div
       className={classNames(
         'flex w-full items-center justify-center gap-3 p-6 text-center',
-        filenames?.length ? 'flex-col' : 'flex-row',
+        !shouldShowContent ? 'flex-col' : 'flex-row',
       )}
     >
-      {!filenames?.length
+      {shouldShowContent
         ? defaultContent
         : filenames?.map((name) => (
             <ListItem key={name} name={name} state={state} />
