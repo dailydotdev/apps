@@ -18,7 +18,6 @@ import { PlusIcon } from '../icons';
 import { DragDrop } from '../fields/DragDrop';
 import {
   fileValidation,
-  useShowUpload,
   useUploadCv,
 } from '../../features/profile/hooks/useUploadCv';
 
@@ -47,8 +46,9 @@ export function ProfileWidgets({
     enabled: isSameUser,
   });
 
-  const { onUpload, status } = useUploadCv({ shouldShowSuccessModal: true });
-  const { shouldShow } = useShowUpload();
+  const { onUpload, status, shouldShow } = useUploadCv({
+    shouldShowSuccessModal: true,
+  });
 
   return (
     <div

@@ -26,7 +26,13 @@ export const useUploadCv = ({
   onUploadSuccess,
 }: UseUploadCvProps = {}) => {
   const { displayToast } = useToastNotification();
-  const { completeAction } = useActions();
+  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
+  const hasUploadedCv = useMemo(
+    () => checkHasCompleted(ActionType.UploadedCV),
+    [checkHasCompleted],
+  );
+
+  const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
   const { openModal } = useLazyModal();
   const {
     mutateAsync: onUpload,
@@ -59,19 +65,11 @@ export const useUploadCv = ({
     },
   });
 
-  return { onUpload, status, isSuccess, isPending };
-};
-
-export const useShowUpload = () => {
-  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
-  const hasUploadedCv = useMemo(
-    () => checkHasCompleted(ActionType.UploadedCV),
-    [checkHasCompleted],
-  );
-
-  const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
-
   return {
+    onUpload,
+    status,
+    isSuccess,
+    isPending,
     shouldShow: isActionsFetched && !hasUploadedCv,
     onCloseBanner,
   };

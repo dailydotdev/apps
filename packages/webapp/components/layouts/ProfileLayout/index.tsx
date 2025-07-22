@@ -24,10 +24,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
-import {
-  useShowUpload,
-  useUploadCv,
-} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
@@ -86,8 +83,7 @@ export default function ProfileLayout({
   const { user, isUserSame } = useProfile(initialUser);
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
-  const { shouldShow, onCloseBanner } = useShowUpload();
-  const { status, onUpload } = useUploadCv();
+  const { status, onUpload, shouldShow, onCloseBanner } = useUploadCv();
   const justUploaded = status === 'success';
   const { checkHasCompleted } = useActions();
   const hasClosedBanner = useMemo(

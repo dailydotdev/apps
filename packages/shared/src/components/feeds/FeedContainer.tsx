@@ -33,10 +33,7 @@ import {
   uploadCvBannerSuccessMobile,
   uploadCvBannerSuccessTablet,
 } from '../../lib/image';
-import {
-  useShowUpload,
-  useUploadCv,
-} from '../../features/profile/hooks/useUploadCv';
+import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -205,8 +202,7 @@ export const FeedContainer = ({
 
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
-  const { shouldShow } = useShowUpload();
-  const { onUpload, status } = useUploadCv({
+  const { onUpload, status, shouldShow } = useUploadCv({
     onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
   const justUploaded = status === 'success';

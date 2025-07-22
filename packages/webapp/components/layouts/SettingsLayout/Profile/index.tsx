@@ -58,7 +58,6 @@ import { DragDrop } from '@dailydotdev/shared/src/components/fields/DragDrop';
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
 import {
   fileValidation,
-  useShowUpload,
   useUploadCv,
 } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
@@ -177,7 +176,9 @@ const ProfileIndex = ({
     </span>
   );
 
-  const { onUpload, status } = useUploadCv({ shouldShowSuccessModal: true });
+  const { onUpload, status, shouldShow } = useUploadCv({
+    shouldShowSuccessModal: true,
+  });
 
   const uploadSection = (
     <AccountContentSection
@@ -204,8 +205,6 @@ const ProfileIndex = ({
       )}
     </AccountContentSection>
   );
-
-  const { shouldShow } = useShowUpload();
 
   const form = (
     <ConditionalWrapper
