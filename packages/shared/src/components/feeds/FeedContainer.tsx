@@ -206,7 +206,9 @@ export const FeedContainer = ({
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
   const { shouldShow } = useShowUpload();
-  const { onUpload, status } = useUploadCv();
+  const { onUpload, status } = useUploadCv({
+    onUploadSuccess: () => clearMarketingCta(MarketingCtaVariant.FeedBanner),
+  });
   const justUploaded = status === 'success';
   const shouldShowBanner = !!marketingCta && (shouldShow || justUploaded);
   console.log('marketing cta: ', shouldShow, marketingCta);
@@ -215,10 +217,10 @@ export const FeedContainer = ({
   clearMarketingCtaRef.current = clearMarketingCta;
 
   useEffect(() => {
-    if (!!marketingCta && shouldShow) {
+    if (!!marketingCta && !shouldShow && !justUploaded) {
       clearMarketingCtaRef.current(MarketingCtaVariant.FeedBanner);
     }
-  }, [marketingCta, shouldShow]);
+  }, [marketingCta, shouldShow, justUploaded]);
 
   if (!loadedSettings) {
     return <></>;
