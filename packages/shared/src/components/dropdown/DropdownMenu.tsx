@@ -87,7 +87,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
           props.onOpenChange?.(value);
           setOpen(value);
         }}
-        modal={false}
+        modal
         {...props}
       >
         {children}
@@ -108,7 +108,10 @@ export const DropdownMenuContent = React.forwardRef<
       <DropdownMenuContentRoot
         {...props}
         ref={forwardedRef}
-        className={classNames('DropdownMenuContent', className)}
+        className={classNames(
+          'DropdownMenuContent DropdownMenuDrawer',
+          className,
+        )}
         align={align}
       >
         {children}
