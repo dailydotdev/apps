@@ -12,7 +12,7 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { useFeature } from '../../GrowthBookProvider';
 import {
-  featurePostUiImprovements,
+  featureCardUiColors,
   featureCardUiButtons,
 } from '../../../lib/featureManagement';
 
@@ -41,7 +41,7 @@ function FeedItemContainer(
       ? `${trending} devs read it last hour`
       : undefined;
   const isFeedPreview = useFeedPreviewMode();
-  const colorExp = useFeature(featurePostUiImprovements);
+  const colorExp = useFeature(featureCardUiColors);
   const buttonExp = useFeature(featureCardUiButtons);
 
   return (

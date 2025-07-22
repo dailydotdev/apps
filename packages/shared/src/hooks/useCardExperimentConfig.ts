@@ -3,7 +3,7 @@ import { IconSize } from '../components/Icon';
 import { useFeature } from '../components/GrowthBookProvider';
 import {
   featureCardUiButtons,
-  featurePostUiImprovements,
+  featureCardUiColors,
 } from '../lib/featureManagement';
 
 export interface CardExperimentConfig {
@@ -26,7 +26,7 @@ export function useCardExperimentConfig(
   variant: CardVariant = 'grid',
 ): CardExperimentConfig {
   const buttonExp = useFeature(featureCardUiButtons);
-  const colorExp = useFeature(featurePostUiImprovements);
+  const colorExp = useFeature(featureCardUiColors);
 
   let background: string;
   if (colorExp) {

@@ -73,8 +73,8 @@ export const featureOnboardingGridVariation = new Feature(
   OnboardingGridVariation.Control,
 );
 
-export const featurePostUiImprovements = new Feature(
-  'post_ui_improvements',
+export const featureCardUiColors = new Feature(
+  'card_ui_colors',
   false,
 );
 
