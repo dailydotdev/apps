@@ -17,6 +17,7 @@ import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { DragDrop } from '../fields/DragDrop';
 import {
+  fileValidation,
   useShowUpload,
   useUploadCv,
 } from '../../features/profile/hooks/useUploadCv';
@@ -46,7 +47,7 @@ export function ProfileWidgets({
     enabled: isSameUser,
   });
 
-  const { onUpload } = useUploadCv({ shouldShowSuccessModal: true });
+  const { onUpload, status } = useUploadCv({ shouldShowSuccessModal: true });
   const { shouldShow } = useShowUpload();
 
   return (
@@ -105,6 +106,8 @@ export function ProfileWidgets({
           className="mx-4 max-w-[18.5rem]"
           renameFileTo={loggedUser.name}
           onFilesDrop={([file]) => onUpload(file)}
+          validation={fileValidation}
+          state={status}
         />
       )}
       <SocialChips links={user} />

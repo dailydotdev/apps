@@ -27,6 +27,7 @@ import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
 import { FeelingLazy } from './FeelingLazy';
 import { webappUrl } from '../../../lib/constants';
+import { fileValidation } from '../hooks/useUploadCv';
 
 const defaultBanner = {
   title: 'Your next job should apply to you',
@@ -154,6 +155,7 @@ export function ProfileUploadBanner({
           isCompactList
           className={classNames('my-4')}
           onFilesDrop={([file]) => onUpload(file)}
+          validation={fileValidation}
         />
         <FeelingLazy justUploaded={justUploaded} />
       </div>

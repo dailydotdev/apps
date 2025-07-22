@@ -57,6 +57,7 @@ import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { DragDrop } from '@dailydotdev/shared/src/components/fields/DragDrop';
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
 import {
+  fileValidation,
   useShowUpload,
   useUploadCv,
 } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
@@ -176,7 +177,7 @@ const ProfileIndex = ({
     </span>
   );
 
-  const { onUpload } = useUploadCv({ shouldShowSuccessModal: true });
+  const { onUpload, status } = useUploadCv({ shouldShowSuccessModal: true });
 
   const uploadSection = (
     <AccountContentSection
@@ -188,6 +189,8 @@ const ProfileIndex = ({
         renameFileTo={user.name}
         className="my-4 max-w-[18.5rem]"
         onFilesDrop={([file]) => onUpload(file)}
+        validation={fileValidation}
+        state={status}
       />
       {!user?.flags?.cvUploadedAt ? (
         <FeelingLazy />

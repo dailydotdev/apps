@@ -11,6 +11,11 @@ import { ActionType } from '../../../graphql/actions';
 import { useActions, useToastNotification } from '../../../hooks';
 import type { ApiErrorResult } from '../../../graphql/common';
 
+export const fileValidation = {
+  acceptedTypes: ['application/pdf'],
+  acceptedExtensions: ['pdf'],
+};
+
 interface UseUploadCvProps {
   shouldShowSuccessModal?: boolean;
   onUploadSuccess?: () => void;
