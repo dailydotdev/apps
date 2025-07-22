@@ -207,18 +207,18 @@ export const FeedContainer = ({
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
   const { shouldShow } = useShowUpload();
   const { onUpload, status } = useUploadCv({
-    onUploadSuccess: () => clearMarketingCta(MarketingCtaVariant.FeedBanner),
+    onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
   const justUploaded = status === 'success';
   const shouldShowBanner = !!marketingCta && (shouldShow || justUploaded);
-  console.log('marketing cta: ', shouldShow, marketingCta);
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
 
   useEffect(() => {
+    // when the user has uploaded their cv already, but marketing tool does not know it
     if (!!marketingCta && !shouldShow && !justUploaded) {
-      clearMarketingCtaRef.current(MarketingCtaVariant.FeedBanner);
+      clearMarketingCtaRef.current(marketingCta.campaignId);
     }
   }, [marketingCta, shouldShow, justUploaded]);
 
@@ -249,7 +249,7 @@ export const FeedContainer = ({
             }}
             status={status}
             onUpload={onUpload}
-            onClose={() => clearMarketingCta(MarketingCtaVariant.FeedBanner)}
+            onClose={() => clearMarketingCta(marketingCta.campaignId)}
             banner={{
               title: marketingCta?.flags?.title,
               description: marketingCta?.flags?.description,
