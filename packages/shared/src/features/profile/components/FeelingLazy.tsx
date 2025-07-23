@@ -25,10 +25,10 @@ export function FeelingLazy(): ReactElement {
       color={TypographyColor.Tertiary}
       className="hidden laptop:flex"
     >
-      Feeling lazy?{' '}
+      Feeling lazy?
       <button
         type="button"
-        className="underline hover:no-underline"
+        className="ml-1 underline hover:no-underline"
         onClick={() =>
           openModal({
             type: LazyModal.ActionSuccess,
