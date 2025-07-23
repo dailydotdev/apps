@@ -24,8 +24,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
 import PostAwardAction from '../../post/PostAwardAction';
-import { useFeature } from '../../GrowthBookProvider';
-import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import { useCardExperimentConfig } from '../../../hooks/useCardExperimentConfig';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -53,7 +52,7 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const config = useCardExperimentConfig('grid');
 
   if (isFeedPreview) {
     return null;
@@ -95,11 +94,12 @@ const ActionButtons = ({
     onCopyLinkClick?.(e, post);
   };
 
-  if (postUiExp) {
+  if (config.useNewExperience) {
     return (
       <div
         className={classNames(
-          'flex flex-row items-center justify-between px-1 pb-1',
+          'flex flex-row items-center justify-between',
+          config.buttonRowPadding,
           className,
         )}
       >
@@ -116,11 +116,11 @@ const ActionButtons = ({
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
+              size={config.buttonSize}
               icon={
                 <UpvoteButtonIcon
                   secondary={isUpvoteActive}
-                  size={IconSize.XSmall}
+                  size={config.iconSize}
                 />
               }
             >
@@ -146,13 +146,13 @@ const ActionButtons = ({
               icon={
                 <DownvoteIcon
                   secondary={isDownvoteActive}
-                  size={IconSize.XSmall}
+                  size={config.iconSize}
                 />
               }
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
+              size={config.buttonSize}
             />
           </Tooltip>
           <Tooltip content="Comments" side="bottom">
@@ -162,12 +162,12 @@ const ActionButtons = ({
               icon={
                 <CommentIcon
                   secondary={post.commented}
-                  size={IconSize.XSmall}
+                  size={config.iconSize}
                 />
               }
               pressed={post.commented}
               onClick={() => onCommentClick?.(post)}
-              size={ButtonSize.Small}
+              size={config.buttonSize}
               className="btn-tertiary-blueCheese"
             >
               {post?.numComments > 0 && (
@@ -181,25 +181,28 @@ const ActionButtons = ({
               )}
             </QuaternaryButton>
           </Tooltip>
-          <PostAwardAction post={post} iconSize={IconSize.XSmall} />
+          {config.showAwardAction && (
+            <PostAwardAction post={post} iconSize={IconSize.XSmall} />
+          )}
           <BookmarkButton
             tooltipSide="bottom"
             post={post}
             buttonProps={{
               id: `post-${post.id}-bookmark-btn`,
               onClick: onToggleBookmark,
-              size: ButtonSize.Small,
+              size: config.buttonSize,
             }}
-            iconSize={IconSize.XSmall}
+            iconSize={config.iconSize}
           />
           <Tooltip content="Copy link" side="bottom">
             <QuaternaryButton
-              size={ButtonSize.Small}
-              icon={<LinkIcon size={IconSize.XSmall} />}
+              id="copy-post-btn"
+              size={config.buttonSize}
+              icon={<LinkIcon size={config.iconSize} />}
               onClick={onCopyLink}
               variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Water}
-              buttonClassName="hover:text-text-link"
+              color={config.copyButtonColor}
+              buttonClassName={config.copyButtonClassName}
             />
           </Tooltip>
         </div>
@@ -214,7 +217,12 @@ const ActionButtons = ({
         className,
       )}
     >
-      <div className="flex flex-row items-center rounded-12 bg-surface-float">
+      <div
+        className={classNames(
+          'flex flex-row items-center rounded-12',
+          config.background,
+        )}
+      >
         <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
           <Button
             className="pointer-events-auto !pl-1 !pr-3"
