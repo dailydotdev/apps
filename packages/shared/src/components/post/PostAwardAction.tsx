@@ -80,7 +80,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         labelClassName="!pl-[1px]"
         color={ButtonColor.Cabbage}
         icon={
-          post.featuredAward?.award?.image ? (
+          post.userState?.awarded && post.featuredAward?.award?.image ? (
             <Image
               src={post?.featuredAward?.award?.image}
               alt={post?.featuredAward?.award?.name}
