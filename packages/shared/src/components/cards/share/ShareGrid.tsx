@@ -26,7 +26,7 @@ import { BlockIcon, EarthIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { IconSize } from '../../Icon';
 import { useFeature } from '../../GrowthBookProvider';
-import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import { featureCardUiButtons } from '../../../lib/featureManagement';
 
 const EmptyStateContainer = classed(
   'div',
@@ -61,7 +61,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isPrivate =
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const buttonExp = useFeature(featureCardUiButtons);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -98,11 +98,11 @@ export const ShareGrid = forwardRef(function ShareGrid(
         openNewTab={openNewTab}
         post={footerPost}
         className={{
-          image: postUiExp ? 'px-1' : undefined,
+          image: buttonExp ? 'px-1' : undefined,
         }}
       />
     );
-  }, [isDeleted, isPrivate, openNewTab, post, postUiExp]);
+  }, [isDeleted, isPrivate, openNewTab, post, buttonExp]);
 
   return (
     <FeedItemContainer
@@ -125,7 +125,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       />
 
       <>
-        <CardTextContainer className={classNames(postUiExp && 'mx-4')}>
+        <CardTextContainer className={classNames(buttonExp && 'mx-4')}>
           <PostCardHeader
             post={post}
             className="flex"
