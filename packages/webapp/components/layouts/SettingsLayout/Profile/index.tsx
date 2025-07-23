@@ -218,7 +218,7 @@ const ProfileIndex = ({
     >
       <form ref={formRef} id="submit-profile">
         <AccountContentSection
-          className={{ heading: !shouldShow && 'mt-0' }}
+          className={{ heading: !shouldShow ? 'mt-0' : undefined }}
           title="Profile Picture"
           description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"
