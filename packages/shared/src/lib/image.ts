@@ -359,4 +359,4 @@ export const uploadCvModalSuccess =
 export const exportLinkedInMobile =
   'https://media.daily.dev/image/upload/s--PqONkeKS--/f_auto/v1752576240/public/linkedin_cv_mobile';
 export const exportLinkedIn =
-  'https://media.daily.dev/image/upload/s--QLl75_xQ--/f_auto/v1752576203/public/linkedin_cv_web';
+  'https://media.daily.dev/image/upload/s--UpRCf8h5--/f_auto/v1753166816/public/Export%20from%20LinkedIn%20popover%20web';
