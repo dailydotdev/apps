@@ -15,9 +15,6 @@ importers:
 
   .:
     dependencies:
-      '@babel/runtime':
-        specifier: ^7.27.6
-        version: 7.27.6
       postcss-rem-to-responsive-pixel:
         specifier: ^6.0.2
         version: 6.0.2
@@ -997,9 +994,6 @@ importers:
       jest-junit:
         specifier: ^12.3.0
         version: 12.3.0
-      next-transpile-modules:
-        specifier: ^9.0.0
-        version: 9.1.0
       nock:
         specifier: ^13.2.4
         version: 13.5.6
@@ -6934,9 +6928,6 @@ packages:
       next: ^8.1.1-canary.54 || >=9.0.0
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
-
-  next-transpile-modules@9.1.0:
-    resolution: {integrity: sha512-yzJji65xDqcIqjvx5vPJcs1M+MYQTzLM1pXH/qf8Q88ohx+bwVGDc1AeV+HKr1NwvMCNTpwVPSFI7cA5WdyeWA==}
 
   next@15.4.1:
     resolution: {integrity: sha512-eNKB1q8C7o9zXF8+jgJs2CzSLIU3T6bQtX6DcTnCq1sIR1CJ0GlSyRs1BubQi3/JgCnr9Vr+rS5mOMI38FFyQw==}
@@ -16042,11 +16033,6 @@ snapshots:
       next: 15.4.1(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  next-transpile-modules@9.1.0:
-    dependencies:
-      enhanced-resolve: 5.17.1
-      escalade: 3.2.0
 
   next@15.4.1(@babel/core@7.26.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0):
     dependencies:
