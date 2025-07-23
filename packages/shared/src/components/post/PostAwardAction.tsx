@@ -14,7 +14,6 @@ import { Image } from '../image/Image';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import type { LoggedUser } from '../../lib/user';
-import { dogAwardImage } from '../../lib/image';
 
 export interface PostAwardActionProps {
   post: Post;
@@ -81,10 +80,10 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         labelClassName="!pl-[1px]"
         color={ButtonColor.Cabbage}
         icon={
-          post.userState?.awarded ? (
+          post.featuredAward?.award?.image ? (
             <Image
-              src={post?.featuredAward?.award?.image || dogAwardImage}
-              alt="Highest value award"
+              src={post?.featuredAward?.award?.image}
+              alt={post?.featuredAward?.award?.name}
               className={iconSizeToClassName[IconSize.XSmall]}
             />
           ) : (

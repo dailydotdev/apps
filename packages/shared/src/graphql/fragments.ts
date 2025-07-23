@@ -557,6 +557,7 @@ export const FEED_POST_FRAGMENT = gql`
       award {
         image
         value
+        name
       }
     }
   }
