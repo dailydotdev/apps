@@ -64,7 +64,13 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   };
 
   return (
-    <Tooltip content="Award this post">
+    <Tooltip
+      content={
+        post.userState?.awarded
+          ? 'You already awarded this post!'
+          : 'Award this post'
+      }
+    >
       <QuaternaryButton
         id={`post-${post.id}-award-btn`}
         pressed={!!post.userState?.awarded}
