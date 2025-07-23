@@ -32,7 +32,7 @@ export const PlusProductToggle = ({
   onSelect,
 }: Props): ReactElement => {
   const { priceType, setPriceType } = usePaymentContext();
-  const { query, replace } = useRouter();
+  const { query, replace, pathname } = useRouter();
   const { logSubscriptionEvent } = usePlusSubscription();
   const initialLoaded = useRef(false);
 
@@ -60,13 +60,16 @@ export const PlusProductToggle = ({
             onClick={async () => {
               setPriceType?.(option.priceType);
               onSelect?.(option);
-              await replace({
-                pathname: plusUrl,
-                query: {
-                  ...query,
-                  type: option.label.toLowerCase(),
-                },
-              });
+              const shouldReplaceParams = !pathname.includes('/onboarding');
+              if (shouldReplaceParams) {
+                await replace({
+                  pathname: plusUrl,
+                  query: {
+                    ...query,
+                    type: option.label.toLowerCase(),
+                  },
+                });
+              }
               logSubscriptionEvent({
                 event_name: LogEvent.SelectSubscriptionType,
                 target_id: option.label.toLowerCase(),

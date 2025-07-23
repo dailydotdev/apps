@@ -396,9 +396,14 @@ export const stepsWithHeader = [
   FunnelStepType.Quiz,
   FunnelStepType.BrowserExtension,
   FunnelStepType.PlusCards,
+  FunnelStepType.OrganicCheckout,
 ] as const satisfies Array<FunnelStepType>;
 export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
-  [FunnelStepType.BrowserExtension, FunnelStepType.PlusCards];
+  [
+    FunnelStepType.BrowserExtension,
+    FunnelStepType.PlusCards,
+    FunnelStepType.OrganicCheckout,
+  ];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
   FunnelStepType.EditTags,
