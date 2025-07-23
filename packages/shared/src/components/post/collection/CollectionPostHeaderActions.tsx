@@ -30,7 +30,6 @@ export const CollectionPostHeaderActions = ({
       />
       <PostMenuOptions
         post={post}
-        onClose={onClose}
         inlineActions={inlineActions}
         origin={Origin.CollectionModal}
       />

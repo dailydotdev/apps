@@ -81,7 +81,6 @@ export function PostHeaderActions({
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}
-        onClose={onClose}
         inlineActions={inlineActions}
         origin={Origin.ArticleModal}
       />

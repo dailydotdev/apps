@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon } from '../icons';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
@@ -20,7 +20,7 @@ function PostNavigation({
   return (
     <div
       className={classNames(
-        'flex h-10 w-full flex-row items-center gap-2 bg-background-subtle',
+        'flex w-full flex-row items-center gap-2 bg-background-subtle py-1',
         className?.container,
       )}
       role="navigation"
@@ -51,15 +51,27 @@ function PostNavigation({
           />
         </Tooltip>
       )}
-      {post && (
-        <PostHeaderActions
-          {...props}
-          className={classNames('ml-auto flex', className?.actions)}
-          notificationClassName="ml-4"
-          contextMenuId={contextMenuId}
-          post={post}
-        />
-      )}
+      <div className="ml-auto flex">
+        {post && (
+          <PostHeaderActions
+            {...props}
+            className={classNames('flex', className?.actions)}
+            notificationClassName="ml-4"
+            contextMenuId={contextMenuId}
+            post={post}
+          />
+        )}
+        {props?.onClose && (
+          <Tooltip side="bottom" content="Close">
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              icon={<CloseIcon />}
+              onClick={(e) => props.onClose(e)}
+            />
+          </Tooltip>
+        )}
+      </div>
     </div>
   );
 }
