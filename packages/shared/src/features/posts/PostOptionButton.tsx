@@ -50,8 +50,9 @@ import {
   usePlusSubscription,
   useSourceActionsNotify,
   useToastNotification,
+  invalidatePostCacheById,
+  usePostById,
 } from '../../hooks';
-import usePostById, { invalidatePostCacheById } from '../../hooks/usePostById';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
@@ -84,7 +85,6 @@ import {
 } from '../../graphql/posts';
 import type { ReportedCallback } from '../../components/modals';
 import { labels } from '../../lib';
-import type { MenuItemProps } from '../../components/fields/ContextMenu';
 import { useBookmarkReminder } from '../../hooks/notifications';
 import { BookmarkReminderIcon } from '../../components/icons/Bookmark/Reminder';
 import { LazyModal } from '../../components/modals/common/types';
@@ -101,6 +101,7 @@ import { usePrompt } from '../../hooks/usePrompt';
 import { BoostIcon } from '../../components/icons/Boost';
 import type { FeedItem } from '../../hooks/useFeed';
 import { isBoostedPostAd } from '../../hooks/useFeed';
+import type { MenuItemProps } from '../../components/dropdown/common';
 
 const getBlockLabel = (
   name: string,

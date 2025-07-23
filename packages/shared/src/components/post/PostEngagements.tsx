@@ -152,10 +152,11 @@ function PostEngagements({
         </Button>
       </span>
       <NewComment
-        className={{ container: 'mt-6 hidden tablet:flex' }}
+        className={{ container: 'mt-6 flex' }}
         post={post}
         ref={commentRef}
         onCommented={onCommented}
+        shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
       />
       {!isPlus && <AdAsComment postId={post.id} />}

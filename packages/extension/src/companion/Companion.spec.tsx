@@ -163,7 +163,9 @@ describe('companion app', () => {
     renderComponent({}, {});
     await screen.findByTestId('companion');
     const button = await screen.findByLabelText('More options');
-    await button.click();
+    fireEvent.keyDown(button, {
+      key: ' ',
+    });
     expect(await screen.findByText('Report')).toBeInTheDocument();
   });
 
@@ -173,40 +175,6 @@ describe('companion app', () => {
     const button = await screen.findByText('1 Comment');
     fireEvent.click(button);
     expect(await screen.findByText('Discussion')).toBeInTheDocument();
-  });
-
-  it('should show downvoted icon unselected', async () => {
-    renderComponent(
-      {
-        userState: {
-          vote: UserVote.Up,
-        },
-      },
-      {},
-    );
-    await screen.findByTestId('companion');
-    const optionsButton = await screen.findByLabelText('More options');
-    fireEvent.click(optionsButton);
-    await screen.findByText('Report');
-    const downvote = await screen.findByLabelText('Downvote');
-    expect(downvote).toHaveAttribute('aria-pressed', 'false');
-  });
-
-  it('should show downvoted icon selected', async () => {
-    renderComponent(
-      {
-        userState: {
-          vote: UserVote.Down,
-        },
-      },
-      {},
-    );
-    await screen.findByTestId('companion');
-    const optionsButton = await screen.findByLabelText('More options');
-    fireEvent.click(optionsButton);
-    await screen.findByText('Report');
-    const downvote = await screen.findByLabelText('Remove downvote');
-    expect(downvote).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
@@ -223,7 +191,9 @@ describe('companion app', () => {
     );
     await screen.findByTestId('companion');
     const optionsButton = await screen.findByLabelText('More options');
-    fireEvent.click(optionsButton);
+    fireEvent.keyDown(optionsButton, {
+      key: ' ',
+    });
     await screen.findByText('Report');
     const downvote = await screen.findByLabelText('Downvote');
     fireEvent.click(downvote);

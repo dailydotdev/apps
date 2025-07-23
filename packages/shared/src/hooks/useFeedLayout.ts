@@ -56,6 +56,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.TagPage,
   OtherFeedPage.SourcePage,
   OtherFeedPage.SquadPage,
+  OtherFeedPage.Squads,
   OtherFeedPage.Bookmarks,
   OtherFeedPage.BookmarkLater,
   OtherFeedPage.BookmarkFolder,

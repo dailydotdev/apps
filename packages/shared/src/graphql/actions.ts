@@ -43,7 +43,14 @@ export enum ActionType {
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
+  ClosedProfileBanner = 'closed_profile_banner',
+  UploadedCV = 'uploaded_cv',
 }
+
+export const cvActions = [
+  ActionType.ClosedProfileBanner,
+  ActionType.UploadedCV,
+];
 
 export interface Action {
   type: ActionType;

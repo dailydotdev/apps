@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Spaciness } from '../../graphql/settings';
@@ -14,6 +14,7 @@ import {
   useViewSize,
   ViewSize,
   useFeeds,
+  useBoot,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -22,6 +23,17 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
+import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
+import { MarketingCtaVariant } from '../marketingCta/common';
+import {
+  uploadCvBgLaptop,
+  uploadCvBgTablet,
+  uploadCvBgMobile,
+  uploadCvBannerSuccessLaptop,
+  uploadCvBannerSuccessMobile,
+  uploadCvBannerSuccessTablet,
+} from '../../lib/image';
+import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -34,6 +46,7 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
+  showBriefCard?: boolean;
 }
 
 const listGaps = {
@@ -135,6 +148,7 @@ export const FeedContainer = ({
   actionButtons,
   isHorizontal,
   feedContainerRef,
+  showBriefCard,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { interactiveFeedExp } = useInteractiveFeedContext();
@@ -186,6 +200,24 @@ export const FeedContainer = ({
     return feedNameToHeading[feedName] ?? '';
   }, [feeds, feedName, router.query.slugOrId]);
 
+  const { getMarketingCta, clearMarketingCta } = useBoot();
+  const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
+  const { onUpload, status, shouldShow } = useUploadCv({
+    onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
+  });
+  const justUploaded = status === 'success';
+  const shouldShowBanner = (!!marketingCta && shouldShow) || justUploaded;
+
+  const clearMarketingCtaRef = useRef(clearMarketingCta);
+  clearMarketingCtaRef.current = clearMarketingCta;
+
+  useEffect(() => {
+    // when the user has uploaded their cv already, but marketing tool does not know it
+    if (!!marketingCta && !shouldShow && !justUploaded) {
+      clearMarketingCtaRef.current(marketingCta.campaignId);
+    }
+  }, [marketingCta, shouldShow, justUploaded]);
+
   if (!loadedSettings) {
     return <></>;
   }
@@ -198,6 +230,44 @@ export const FeedContainer = ({
         className,
       )}
     >
+      {shouldShowBanner && (
+        <div
+          className={classNames(
+            'laptop:px-0 laptop:pt-0',
+            showBriefCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
+          )}
+        >
+          <ProfileUploadBanner
+            className={{
+              container: classNames({
+                'mb-0': isList,
+                'mt-0 tablet:mt-4': !showBriefCard,
+              }),
+              image:
+                isList && 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]',
+            }}
+            status={status}
+            onUpload={onUpload}
+            onClose={() => clearMarketingCta(marketingCta.campaignId)}
+            banner={{
+              title: marketingCta?.flags?.title,
+              description: marketingCta?.flags?.description,
+              cover: {
+                laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
+                tablet: uploadCvBgTablet,
+                base: uploadCvBgMobile,
+              },
+              successCover: {
+                laptop: isList
+                  ? uploadCvBannerSuccessTablet
+                  : uploadCvBannerSuccessLaptop,
+                tablet: uploadCvBannerSuccessTablet,
+                base: uploadCvBannerSuccessMobile,
+              },
+            }}
+          />
+        </div>
+      )}
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div

@@ -20,7 +20,9 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
-import type { MenuItemProps } from '../fields/ContextMenu';
+import type { MenuItemProps } from './common';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { getCompanionWrapper } from '../../lib/extension';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -99,8 +101,10 @@ export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
   DropdownMenuContentProps
 >(({ children, className, align = 'end', ...props }, forwardedRef) => {
+  const { isCompanion } = useRequestProtocol();
+  const container = isCompanion ? getCompanionWrapper() : undefined;
   return (
-    <DropdownMenuPortal>
+    <DropdownMenuPortal container={container}>
       <DropdownMenuContentRoot
         {...props}
         ref={forwardedRef}
@@ -130,6 +134,7 @@ export const DropdownMenuOptions = ({
           anchorProps,
           disabled,
           Wrapper,
+          ariaLabel,
         }: MenuItemProps) => {
           const className = 'inline-flex flex-1 items-center gap-2';
           return (
@@ -142,6 +147,7 @@ export const DropdownMenuOptions = ({
                 onClick={action}
                 key={label}
                 disabled={disabled}
+                aria-label={ariaLabel}
               >
                 {anchorProps ? (
                   <Link
@@ -151,7 +157,7 @@ export const DropdownMenuOptions = ({
                     role="menuitem"
                     {...anchorProps}
                   >
-                    <a className={className}>
+                    <a className={className} target={anchorProps?.target}>
                       {icon} {label}
                     </a>
                   </Link>

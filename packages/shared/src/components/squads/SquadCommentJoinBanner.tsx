@@ -7,14 +7,18 @@ import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadActionButton';
 import type { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { useJoinSquad, useViewSize, ViewSize } from '../../hooks';
+import {
+  useJoinSquad,
+  useViewSize,
+  ViewSize,
+  invalidatePostCacheById,
+} from '../../hooks';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import SourceButton from '../cards/common/SourceButton';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import type { Post } from '../../graphql/posts';
 import { ProfileImageSize } from '../ProfilePicture';
-import { invalidatePostCacheById } from '../../hooks/usePostById';
 
 export type SquadCommentJoinBannerProps = {
   className?: string;

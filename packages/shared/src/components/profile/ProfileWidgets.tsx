@@ -15,6 +15,11 @@ import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
+import { DragDrop } from '../fields/DragDrop';
+import {
+  fileValidation,
+  useUploadCv,
+} from '../../features/profile/hooks/useUploadCv';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -39,6 +44,10 @@ export function ProfileWidgets({
   const { url: referralUrl } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
     enabled: isSameUser,
+  });
+
+  const { onUpload, status, shouldShow } = useUploadCv({
+    shouldShowSuccessModal: true,
   });
 
   return (
@@ -91,6 +100,16 @@ export function ProfileWidgets({
           </div>
         )}
       </div>
+      {isSameUser && shouldShow && (
+        <DragDrop
+          isCompactList
+          className="mx-4 max-w-[18.5rem]"
+          renameFileTo={loggedUser.name}
+          onFilesDrop={([file]) => onUpload(file)}
+          validation={fileValidation}
+          state={status}
+        />
+      )}
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
         <div className="flex flex-col gap-3">
