@@ -28,11 +28,7 @@ export const CollectionPostHeaderActions = ({
             : ButtonVariant.Secondary
         }
       />
-      <PostMenuOptions
-        post={post}
-        inlineActions={inlineActions}
-        origin={Origin.CollectionModal}
-      />
+      <PostMenuOptions post={post} origin={Origin.CollectionModal} />
     </Container>
   );
 };
