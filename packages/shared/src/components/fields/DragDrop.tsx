@@ -323,12 +323,13 @@ export function DragDrop({
         Drag & Drop your CV or
       </Typography>
       <Button
-        variant={ButtonVariant.Secondary}
+        className="text-text-primary"
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         onClick={() => inputRef.current.click()}
         type="button"
       >
-        Browse
+        Upload PDF
       </Button>
     </>
   );
