@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
-
 import type { Origin } from '../../lib/log';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PostOptionButton } from '../../features/posts/PostOptionButton';

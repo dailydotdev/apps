@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
@@ -64,10 +64,9 @@ function PostNavigation({
         {props?.onClose && (
           <Tooltip side="bottom" content="Close">
             <Button
-              size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
               icon={<CloseIcon />}
-              onClick={(e) => props.onClose(e)}
+              onClick={(e) => props?.onClose(e)}
             />
           </Tooltip>
         )}
