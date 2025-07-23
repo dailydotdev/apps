@@ -10,9 +10,6 @@ import {
 } from '../../../components/typography/Typography';
 import { DragDrop } from '../../../components/fields/DragDrop';
 import {
-  uploadCvBannerSuccessLaptop,
-  uploadCvBannerSuccessMobile,
-  uploadCvBannerSuccessTablet,
   uploadCvBgLaptop,
   uploadCvBgMobile,
   uploadCvBgTablet,
@@ -38,11 +35,6 @@ const defaultBanner = {
     tablet: uploadCvBgTablet,
     base: uploadCvBgMobile,
   },
-  successCover: {
-    laptop: uploadCvBannerSuccessLaptop,
-    tablet: uploadCvBannerSuccessTablet,
-    base: uploadCvBannerSuccessMobile,
-  },
 };
 
 interface Cover {
@@ -56,7 +48,6 @@ interface ProfileUploadBannerProps {
     title: string;
     description: string;
     cover?: Cover;
-    successCover?: Cover;
   };
   className?: Partial<{
     container: string;
@@ -74,15 +65,12 @@ export function ProfileUploadBanner({
   onUpload,
   status,
 }: ProfileUploadBannerProps): ReactElement {
-  const justUploaded = status === 'success';
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const { displayToast } = useToastNotification();
 
   const getImage = () => {
-    const cover = justUploaded
-      ? banner?.successCover || banner?.cover
-      : banner?.cover;
+    const cover = banner?.cover;
 
     if (isLaptop) {
       return cover?.laptop || uploadCvBgTablet;
@@ -96,14 +84,6 @@ export function ProfileUploadBanner({
   };
 
   const props = (() => {
-    if (justUploaded) {
-      return {
-        title: "All set! We'll take it from here",
-        description:
-          "You're in. Now we'll search behind the scenes and surface only what's actually worth considering.",
-      };
-    }
-
     return {
       title: banner.title || defaultBanner.title,
       description: banner.description || defaultBanner.description,
@@ -133,11 +113,7 @@ export function ProfileUploadBanner({
           className?.image,
         )}
         src={getImage()}
-        alt={
-          justUploaded
-            ? 'Animated document with a smiling face'
-            : 'Animated devices, money, and a rubber duck'
-        }
+        alt="Animated devices, money, and a rubber duck"
       />
       <div className="mt-56 flex w-full max-w-[26.5rem] flex-col gap-2 tablet:mt-[unset]">
         <Typography
@@ -157,7 +133,7 @@ export function ProfileUploadBanner({
           onFilesDrop={([file]) => onUpload(file)}
           validation={fileValidation}
         />
-        <FeelingLazy justUploaded={justUploaded} />
+        <FeelingLazy />
       </div>
       <Button
         className="absolute right-2 top-2"
