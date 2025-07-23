@@ -342,15 +342,6 @@ export const uploadCvBgTablet =
 export const uploadCvBgMobile =
   'https://media.daily.dev/image/upload/s--Y_qhm3Tw--/f_auto/v1752576066/public/job_main_mobile';
 
-export const uploadCvBannerSuccessLaptop =
-  'https://media.daily.dev/image/upload/s--AhEYus56--/f_auto/v1752576108/public/cv_uploaded_web';
-
-export const uploadCvBannerSuccessTablet =
-  'https://media.daily.dev/image/upload/s--JRe8pylj--/f_auto/v1752576130/public/cv_uploaded_ipad';
-
-export const uploadCvBannerSuccessMobile =
-  'https://media.daily.dev/image/upload/s--boUrIf1e--/f_auto/v1752576157/public/cv_uploaded_mobile';
-
 export const uploadCvModalSuccessMobile =
   'https://media.daily.dev/image/upload/s--boUrIf1e--/f_auto/v1752576157/public/cv_uploaded_mobile';
 export const uploadCvModalSuccess =
@@ -359,4 +350,4 @@ export const uploadCvModalSuccess =
 export const exportLinkedInMobile =
   'https://media.daily.dev/image/upload/s--PqONkeKS--/f_auto/v1752576240/public/linkedin_cv_mobile';
 export const exportLinkedIn =
-  'https://media.daily.dev/image/upload/s--QLl75_xQ--/f_auto/v1752576203/public/linkedin_cv_web';
+  'https://media.daily.dev/image/upload/s--UpRCf8h5--/f_auto/v1753166816/public/Export%20from%20LinkedIn%20popover%20web';

@@ -17,14 +17,10 @@ export const fileValidation = {
 };
 
 interface UseUploadCvProps {
-  shouldShowSuccessModal?: boolean;
   onUploadSuccess?: () => void;
 }
 
-export const useUploadCv = ({
-  shouldShowSuccessModal,
-  onUploadSuccess,
-}: UseUploadCvProps = {}) => {
+export const useUploadCv = ({ onUploadSuccess }: UseUploadCvProps = {}) => {
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const hasUploadedCv = useMemo(
@@ -42,20 +38,18 @@ export const useUploadCv = ({
   } = useMutation({
     mutationFn: uploadCv,
     onSuccess: () => {
-      if (shouldShowSuccessModal) {
-        openModal({
-          type: LazyModal.ActionSuccess,
-          props: {
-            content: {
-              title: 'All set! We’ll take it from here',
-              description:
-                'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
-              cover: uploadCvModalSuccess,
-              coverDrawer: uploadCvModalSuccessMobile,
-            },
+      openModal({
+        type: LazyModal.ActionSuccess,
+        props: {
+          content: {
+            title: 'All set! We’ll take it from here',
+            description:
+              'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
+            cover: uploadCvModalSuccess,
+            coverDrawer: uploadCvModalSuccessMobile,
           },
-        });
-      }
+        },
+      });
       completeAction(ActionType.UploadedCV);
       onUploadSuccess?.();
     },

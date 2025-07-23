@@ -84,7 +84,6 @@ export default function ProfileLayout({
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
   const { status, onUpload, shouldShow, onCloseBanner } = useUploadCv();
-  const justUploaded = status === 'success';
   const { checkHasCompleted } = useActions();
   const hasClosedBanner = useMemo(
     () => checkHasCompleted(ActionType.ClosedProfileBanner),
@@ -115,7 +114,7 @@ export default function ProfileLayout({
 
   return (
     <ConditionalWrapper
-      condition={isUserSame && (shouldShow || justUploaded) && !hasClosedBanner}
+      condition={isUserSame && shouldShow && !hasClosedBanner}
       wrapper={(component) => (
         <div className="flex w-full flex-col p-4">
           <ProfileUploadBanner
