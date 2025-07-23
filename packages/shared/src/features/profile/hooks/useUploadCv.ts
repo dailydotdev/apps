@@ -10,6 +10,8 @@ import { uploadCv } from '../../../graphql/users';
 import { ActionType } from '../../../graphql/actions';
 import { useActions, useToastNotification } from '../../../hooks';
 import type { ApiErrorResult } from '../../../graphql/common';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const fileValidation = {
   acceptedTypes: ['application/pdf'],
@@ -21,6 +23,7 @@ interface UseUploadCvProps {
 }
 
 export const useUploadCv = ({ onUploadSuccess }: UseUploadCvProps = {}) => {
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const hasUploadedCv = useMemo(
@@ -51,6 +54,9 @@ export const useUploadCv = ({ onUploadSuccess }: UseUploadCvProps = {}) => {
         },
       });
       completeAction(ActionType.UploadedCV);
+      logEvent({
+        event_name: LogEvent.UploadCv,
+      });
       onUploadSuccess?.();
     },
     onError: (data: ApiErrorResult) => {

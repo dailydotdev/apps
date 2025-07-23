@@ -307,6 +307,9 @@ export enum LogEvent {
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
   // End Brief
+  // CV Upload
+  UploadCv = 'upload cv',
+  // end CV Upload
 }
 
 export enum TargetType {
@@ -357,6 +360,8 @@ export enum TargetType {
   Credits = 'credits',
   List = 'list',
   Grid = 'grid',
+  // CV
+  CvBanner = 'cv banner',
 }
 
 export enum TargetId {
@@ -399,6 +404,7 @@ export enum TargetId {
   Brief = 'brief',
   NotificationSettings = 'notification settings',
   Feed = 'feed',
+  CVWidget = 'cv widget',
 }
 
 export enum NotificationChannel {
