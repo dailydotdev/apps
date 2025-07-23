@@ -29,9 +29,6 @@ import {
   uploadCvBgLaptop,
   uploadCvBgTablet,
   uploadCvBgMobile,
-  uploadCvBannerSuccessLaptop,
-  uploadCvBannerSuccessMobile,
-  uploadCvBannerSuccessTablet,
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 
@@ -205,18 +202,17 @@ export const FeedContainer = ({
   const { onUpload, status, shouldShow } = useUploadCv({
     onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
-  const justUploaded = status === 'success';
-  const shouldShowBanner = (!!marketingCta && shouldShow) || justUploaded;
+  const shouldShowBanner = !!marketingCta && shouldShow;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
 
   useEffect(() => {
     // when the user has uploaded their cv already, but marketing tool does not know it
-    if (!!marketingCta && !shouldShow && !justUploaded) {
+    if (!!marketingCta && !shouldShow) {
       clearMarketingCtaRef.current(marketingCta.campaignId);
     }
-  }, [marketingCta, shouldShow, justUploaded]);
+  }, [marketingCta, shouldShow]);
 
   if (!loadedSettings) {
     return <></>;
@@ -256,13 +252,6 @@ export const FeedContainer = ({
                 laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
                 tablet: uploadCvBgTablet,
                 base: uploadCvBgMobile,
-              },
-              successCover: {
-                laptop: isList
-                  ? uploadCvBannerSuccessTablet
-                  : uploadCvBannerSuccessLaptop,
-                tablet: uploadCvBannerSuccessTablet,
-                base: uploadCvBannerSuccessMobile,
               },
             }}
           />
