@@ -50,16 +50,16 @@ export function ProfileWidgets({
   });
 
   const { onUpload, status, shouldShow } = useUploadCv();
-  const hasSentEvent = useRef(false);
+  const hasLoggedImpression = useRef(false);
 
   useEffect(() => {
-    if (isSameUser && shouldShow && !hasSentEvent.current) {
-      hasSentEvent.current = true;
+    if (isSameUser && shouldShow && !hasLoggedImpression.current) {
       logEvent({
         event_name: LogEvent.Impression,
         target_type: TargetType.CvBanner,
         target_id: TargetId.CVWidget,
       });
+      hasLoggedImpression.current = true;
     }
   }, [isSameUser, logEvent, shouldShow]);
 
