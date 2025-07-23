@@ -335,3 +335,21 @@ export const plusShowcasePresidentialBriefImage =
 
 export const dogAwardImage =
   'https://media.daily.dev/image/upload/s--eXw4JiHs--/f_auto/v1743664345/public/fineDog';
+export const uploadCvBgLaptop =
+  'https://media.daily.dev/image/upload/s--5Ttdly-p--/f_auto/v1752576001/public/job_main_web';
+
+export const uploadCvBgTablet =
+  'https://media.daily.dev/image/upload/s--1QIY44IL--/f_auto/v1752668628/public/job_main_ipad';
+
+export const uploadCvBgMobile =
+  'https://media.daily.dev/image/upload/s--Y_qhm3Tw--/f_auto/v1752576066/public/job_main_mobile';
+
+export const uploadCvModalSuccessMobile =
+  'https://media.daily.dev/image/upload/s--boUrIf1e--/f_auto/v1752576157/public/cv_uploaded_mobile';
+export const uploadCvModalSuccess =
+  'https://media.daily.dev/image/upload/s--nLoTY15O--/f_auto/v1752576263/public/CV%20uploaded%20successfully%20popover';
+
+export const exportLinkedInMobile =
+  'https://media.daily.dev/image/upload/s--PqONkeKS--/f_auto/v1752576240/public/linkedin_cv_mobile';
+export const exportLinkedIn =
+  'https://media.daily.dev/image/upload/s--UpRCf8h5--/f_auto/v1753166816/public/Export%20from%20LinkedIn%20popover%20web';

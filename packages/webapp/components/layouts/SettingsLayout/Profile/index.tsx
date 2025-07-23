@@ -24,6 +24,11 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { withHttps, withPrefix } from '@dailydotdev/shared/src/lib';
@@ -49,6 +54,13 @@ import {
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { DragDrop } from '@dailydotdev/shared/src/components/fields/DragDrop';
+import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
+import {
+  fileValidation,
+  useUploadCv,
+} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { AccountTextField } from '../common';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -164,231 +176,269 @@ const ProfileIndex = ({
     </span>
   );
 
+  const { onUpload, status, shouldShow } = useUploadCv();
+
+  const uploadSection = (
+    <AccountContentSection
+      className={{ heading: 'mt-0' }}
+      title="Your next job should apply to you"
+      description="Upload your CV so we can quietly start matching you with roles that actually fit your skills and interests. Nothing is ever shared without your permission, and we’ll only reach out when there’s something genuinely worth your time. No spam, no pressure."
+    >
+      <DragDrop
+        renameFileTo={user.name}
+        className="my-4 max-w-[18.5rem]"
+        onFilesDrop={([file]) => onUpload(file)}
+        validation={fileValidation}
+        state={status}
+      />
+      {!user?.flags?.cvUploadedAt ? (
+        <FeelingLazy />
+      ) : (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Quaternary}
+        >
+          Tip: Complete your profile below to improve match quality
+        </Typography>
+      )}
+    </AccountContentSection>
+  );
+
   const form = (
-    <form ref={formRef} id="submit-profile">
-      <AccountContentSection
-        className={{ heading: 'mt-0' }}
-        title="Profile Picture"
-        description="Upload a picture to make your profile stand out and let people recognize
+    <ConditionalWrapper
+      condition={shouldShow}
+      wrapper={(component) => (
+        <>
+          {uploadSection}
+          {component}
+        </>
+      )}
+    >
+      <form ref={formRef} id="submit-profile">
+        <AccountContentSection
+          className={{ heading: !shouldShow ? 'mt-0' : undefined }}
+          title="Profile Picture"
+          description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"
-      >
-        <div className="relative mt-6 flex">
-          <div className="absolute left-0 top-0 flex w-full max-w-[19.25rem]">
+        >
+          <div className="relative mt-6 flex">
+            <div className="absolute left-0 top-0 flex w-full max-w-[19.25rem]">
+              <ImageInput
+                id={coverId}
+                className={{
+                  root: 'w-full',
+                  container:
+                    'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
+                  img: 'object-cover',
+                }}
+                size="cover"
+                initialValue={currentCoverImage}
+                fallbackImage={null}
+                alwaysShowHover={!currentCoverImage}
+                hoverIcon={<CoverHoverIcon />}
+                fileSizeLimitMB={5}
+                onChange={(fileName, file) =>
+                  onImageInputChange(file, fileName, true)
+                }
+                closeable
+              />
+            </div>
             <ImageInput
-              id={coverId}
+              id={imageId}
               className={{
-                root: 'w-full',
-                container:
-                  'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
                 img: 'object-cover',
+                container:
+                  'border-4 !border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest',
               }}
-              size="cover"
-              initialValue={currentCoverImage}
-              fallbackImage={null}
-              alwaysShowHover={!currentCoverImage}
-              hoverIcon={<CoverHoverIcon />}
-              fileSizeLimitMB={5}
-              onChange={(fileName, file) =>
-                onImageInputChange(file, fileName, true)
-              }
+              initialValue={user?.image}
+              alwaysShowHover={!user?.image}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              onChange={(_, file) => onImageInputChange(file)}
               closeable
             />
           </div>
-          <ImageInput
-            id={imageId}
-            className={{
-              img: 'object-cover',
-              container:
-                'border-4 !border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest',
-            }}
-            initialValue={user?.image}
-            alwaysShowHover={!user?.image}
-            hoverIcon={<CameraIcon size={IconSize.Large} />}
-            onChange={(_, file) => onImageInputChange(file)}
-            closeable
+        </AccountContentSection>
+        <AccountContentSection title="Account Information">
+          <AccountTextField
+            label="Name"
+            inputId="name"
+            name="name"
+            hint={hint.name}
+            valid={!hint.name}
+            leftIcon={<UserIcon />}
+            value={user?.name}
           />
-        </div>
-      </AccountContentSection>
-      <AccountContentSection title="Account Information">
-        <AccountTextField
-          label="Name"
-          inputId="name"
-          name="name"
-          hint={hint.name}
-          valid={!hint.name}
-          leftIcon={<UserIcon />}
-          value={user?.name}
-        />
-        <AccountTextField
-          label="Username"
-          inputId="username"
-          hint={hint.username}
-          valid={!hint.username}
-          name="username"
-          leftIcon={<AtIcon />}
-          value={user?.username}
-        />
-        <ExperienceLevelDropdown
-          defaultValue={user?.experienceLevel}
-          name="experienceLevel"
-          className={{
-            container: 'mt-6 max-w-sm tablet:relative',
-            button:
-              'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
-            menu: 'absolute !left-0 !right-0 !top-[3.5rem] transform-none',
-          }}
-        />
-      </AccountContentSection>
-      <VerifiedCompanyBadgeSection {...props} />
-      <AccountContentSection title="About">
-        <Textarea
-          label="Bio"
-          inputId="bio"
-          name="bio"
-          rows={5}
-          value={user?.bio}
-          className={{ container: 'mt-6 max-w-sm' }}
-        />
-        <AccountTextField
-          label="Company"
-          inputId="company"
-          name="company"
-          value={user?.company}
-        />
-        <AccountTextField
-          label="Job Title"
-          inputId="title"
-          name="title"
-          value={user?.title}
-        />
-      </AccountContentSection>
-      <AccountContentSection
-        title="Profile Social Links"
-        description="Add your social media profiles so others can connect with you and you
+          <AccountTextField
+            label="Username"
+            inputId="username"
+            hint={hint.username}
+            valid={!hint.username}
+            name="username"
+            leftIcon={<AtIcon />}
+            value={user?.username}
+          />
+          <ExperienceLevelDropdown
+            defaultValue={user?.experienceLevel}
+            name="experienceLevel"
+            className={{
+              container: 'mt-6 max-w-sm tablet:relative',
+              button:
+                'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
+              menu: 'absolute !left-0 !right-0 !top-[3.5rem] transform-none',
+            }}
+          />
+        </AccountContentSection>
+        <VerifiedCompanyBadgeSection {...props} />
+        <AccountContentSection title="About">
+          <Textarea
+            label="Bio"
+            inputId="bio"
+            name="bio"
+            rows={5}
+            value={user?.bio}
+            className={{ container: 'mt-6 max-w-sm' }}
+          />
+          <AccountTextField
+            label="Company"
+            inputId="company"
+            name="company"
+            value={user?.company}
+          />
+          <AccountTextField
+            label="Job Title"
+            inputId="title"
+            name="title"
+            value={user?.title}
+          />
+        </AccountContentSection>
+        <AccountContentSection
+          title="Profile Social Links"
+          description="Add your social media profiles so others can connect with you and you
         can grow your network!"
-      >
-        <AccountTextField
-          leftIcon={<GitHubIcon />}
-          label="GitHub"
-          inputId="github"
-          hint={hint.github}
-          valid={!hint.github}
-          name="github"
-          value={user?.github}
-          placeholder="Username or URL"
-        />
-        <AccountTextField
-          leftIcon={<LinkedInIcon />}
-          label="LinkedIn"
-          inputId="linkedin"
-          hint={hint.linkedin}
-          valid={!hint.linkedin}
-          name="linkedin"
-          value={user?.linkedin}
-          placeholder="Username or URL"
-        />
-        <AccountTextField
-          leftIcon={<LinkIcon />}
-          label="Your Website"
-          inputId="portfolio"
-          hint={hint.portfolio}
-          valid={!hint.portfolio}
-          name="portfolio"
-          value={user?.portfolio}
-          placeholder="example.com"
-        />
-        <AccountTextField
-          leftIcon={<TwitterIcon />}
-          label="X"
-          inputId="twitter"
-          hint={hint.twitter}
-          valid={!hint.twitter}
-          name="twitter"
-          value={user?.twitter}
-          placeholder="Handle or URL"
-        />
-        <AccountTextField
-          leftIcon={<YoutubeIcon />}
-          label="YouTube"
-          inputId="youtube"
-          hint={hint.youtube}
-          valid={!hint.youtube}
-          name="youtube"
-          value={user?.youtube}
-          placeholder="Username or URL"
-        />
-        <AccountTextField
-          leftIcon={<StackOverflowIcon />}
-          label="Stack Overflow"
-          inputId="stackoverflow"
-          hint={hint.stackoverflow}
-          valid={!hint.stackoverflow}
-          name="stackoverflow"
-          value={withPrefix('stackoverflow.com/users/', user?.stackoverflow)}
-          placeholder="stackoverflow.com/users/999999/username"
-        />
-        <AccountTextField
-          leftIcon={<RedditIcon />}
-          label="Reddit"
-          inputId="reddit"
-          hint={hint.reddit}
-          valid={!hint.reddit}
-          name="reddit"
-          value={user?.reddit}
-          placeholder="Username or URL"
-        />
-        <AccountTextField
-          leftIcon={<RoadmapIcon />}
-          label="Roadmap.sh"
-          inputId="roadmap"
-          hint={hint.roadmap}
-          valid={!hint.roadmap}
-          name="roadmap"
-          value={user?.roadmap}
-          placeholder="Username or URL"
-        />
-        <AccountTextField
-          leftIcon={<CodePenIcon />}
-          label="CodePen"
-          inputId="codepen"
-          hint={hint.codepen}
-          valid={!hint.codepen}
-          name="codepen"
-          value={user?.codepen}
-          placeholder="Username or URL"
-        />
-        <AccountTextField
-          leftIcon={<MastodonIcon />}
-          label="Mastodon"
-          inputId="mastodon"
-          hint={hint.mastodon}
-          valid={!hint.mastodon}
-          name="mastodon"
-          value={user?.mastodon}
-          placeholder="mastodon.social/@username"
-        />
-        <AccountTextField
-          leftIcon={<BlueskyIcon />}
-          label="Bluesky"
-          inputId="bluesky"
-          hint={hint.bluesky}
-          valid={!hint.bluesky}
-          name="bluesky"
-          value={user?.bluesky}
-          placeholder="bsky.app/profile/username"
-        />
-        <AccountTextField
-          leftIcon={<ThreadsIcon />}
-          label="Threads"
-          inputId="threads"
-          hint={hint.threads}
-          valid={!hint.threads}
-          name="threads"
-          value={user?.threads}
-          placeholder="Handle or URL"
-        />
-      </AccountContentSection>
-    </form>
+        >
+          <AccountTextField
+            leftIcon={<GitHubIcon />}
+            label="GitHub"
+            inputId="github"
+            hint={hint.github}
+            valid={!hint.github}
+            name="github"
+            value={user?.github}
+            placeholder="Username or URL"
+          />
+          <AccountTextField
+            leftIcon={<LinkedInIcon />}
+            label="LinkedIn"
+            inputId="linkedin"
+            hint={hint.linkedin}
+            valid={!hint.linkedin}
+            name="linkedin"
+            value={user?.linkedin}
+            placeholder="Username or URL"
+          />
+          <AccountTextField
+            leftIcon={<LinkIcon />}
+            label="Your Website"
+            inputId="portfolio"
+            hint={hint.portfolio}
+            valid={!hint.portfolio}
+            name="portfolio"
+            value={user?.portfolio}
+            placeholder="example.com"
+          />
+          <AccountTextField
+            leftIcon={<TwitterIcon />}
+            label="X"
+            inputId="twitter"
+            hint={hint.twitter}
+            valid={!hint.twitter}
+            name="twitter"
+            value={user?.twitter}
+            placeholder="Handle or URL"
+          />
+          <AccountTextField
+            leftIcon={<YoutubeIcon />}
+            label="YouTube"
+            inputId="youtube"
+            hint={hint.youtube}
+            valid={!hint.youtube}
+            name="youtube"
+            value={user?.youtube}
+            placeholder="Username or URL"
+          />
+          <AccountTextField
+            leftIcon={<StackOverflowIcon />}
+            label="Stack Overflow"
+            inputId="stackoverflow"
+            hint={hint.stackoverflow}
+            valid={!hint.stackoverflow}
+            name="stackoverflow"
+            value={withPrefix('stackoverflow.com/users/', user?.stackoverflow)}
+            placeholder="stackoverflow.com/users/999999/username"
+          />
+          <AccountTextField
+            leftIcon={<RedditIcon />}
+            label="Reddit"
+            inputId="reddit"
+            hint={hint.reddit}
+            valid={!hint.reddit}
+            name="reddit"
+            value={user?.reddit}
+            placeholder="Username or URL"
+          />
+          <AccountTextField
+            leftIcon={<RoadmapIcon />}
+            label="Roadmap.sh"
+            inputId="roadmap"
+            hint={hint.roadmap}
+            valid={!hint.roadmap}
+            name="roadmap"
+            value={user?.roadmap}
+            placeholder="Username or URL"
+          />
+          <AccountTextField
+            leftIcon={<CodePenIcon />}
+            label="CodePen"
+            inputId="codepen"
+            hint={hint.codepen}
+            valid={!hint.codepen}
+            name="codepen"
+            value={user?.codepen}
+            placeholder="Username or URL"
+          />
+          <AccountTextField
+            leftIcon={<MastodonIcon />}
+            label="Mastodon"
+            inputId="mastodon"
+            hint={hint.mastodon}
+            valid={!hint.mastodon}
+            name="mastodon"
+            value={user?.mastodon}
+            placeholder="mastodon.social/@username"
+          />
+          <AccountTextField
+            leftIcon={<BlueskyIcon />}
+            label="Bluesky"
+            inputId="bluesky"
+            hint={hint.bluesky}
+            valid={!hint.bluesky}
+            name="bluesky"
+            value={user?.bluesky}
+            placeholder="bsky.app/profile/username"
+          />
+          <AccountTextField
+            leftIcon={<ThreadsIcon />}
+            label="Threads"
+            inputId="threads"
+            hint={hint.threads}
+            valid={!hint.threads}
+            name="threads"
+            value={user?.threads}
+            placeholder="Handle or URL"
+          />
+        </AccountContentSection>
+      </form>
+    </ConditionalWrapper>
   );
 
   if (isMobile) {

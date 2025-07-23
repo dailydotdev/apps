@@ -308,6 +308,12 @@ const OrganizationManageSeatsModal = dynamic(() =>
   ).then((mod) => mod.ManageSeatsModal),
 );
 
+const ActionSuccessModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "actionSuccessModal" */ './utils/ActionSuccessModal'
+  ).then((mod) => mod.ActionSuccessModal),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -359,6 +365,7 @@ export const modals = {
   [LazyModal.FetchBoostedPostView]: FetchBoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
+  [LazyModal.ActionSuccess]: ActionSuccessModal,
 };
 
 type GetComponentProps<T> = T extends

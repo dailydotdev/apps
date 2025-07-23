@@ -8,6 +8,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 export function useProfile(initialUser?: PublicProfile): {
   user: PublicProfile;
   userQueryKey: unknown[];
+  isUserSame: boolean;
 } {
   const { user: loggedUser } = useAuthContext();
   const userQueryKey = generateQueryKey(RequestKey.Profile, initialUser, {
@@ -25,5 +26,6 @@ export function useProfile(initialUser?: PublicProfile): {
   return {
     user,
     userQueryKey,
+    isUserSame: loggedUser && loggedUser?.id === initialUser?.id,
   };
 }

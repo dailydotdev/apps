@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getProfile,
@@ -22,6 +22,11 @@ import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
+import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
+import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useActions } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -75,9 +80,15 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
-  const { user } = useProfile(initialUser);
+  const { user, isUserSame } = useProfile(initialUser);
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
+  const { status, onUpload, shouldShow, onCloseBanner } = useUploadCv();
+  const { checkHasCompleted } = useActions();
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
 
   useEffect(() => {
     if (trackedView || !user) {
@@ -102,30 +113,45 @@ export default function ProfileLayout({
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   return (
-    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
-      <Head>
-        <link rel="preload" as="image" href={user.image} />
-      </Head>
-      <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-        <ProfileWidgets
-          user={user}
-          userStats={userStats}
-          sources={sources}
-          enableSticky
-          className="laptop:hidden"
-        />
-        <NavBar selectedTab={selectedTab} profile={user} />
-        {children}
-      </main>
-      <PageWidgets className="hidden !px-0 laptop:flex">
-        <ProfileWidgets
-          user={user}
-          userStats={userStats}
-          sources={sources}
-          className="w-full"
-        />
-      </PageWidgets>
-    </div>
+    <ConditionalWrapper
+      condition={isUserSame && shouldShow && !hasClosedBanner}
+      wrapper={(component) => (
+        <div className="flex w-full flex-col p-4">
+          <ProfileUploadBanner
+            className={{ container: '!mt-0 tablet:mt-3' }}
+            onClose={onCloseBanner}
+            onUpload={onUpload}
+            status={status}
+          />
+          {component}
+        </div>
+      )}
+    >
+      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
+        <Head>
+          <link rel="preload" as="image" href={user.image} />
+        </Head>
+        <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
+          <ProfileWidgets
+            user={user}
+            userStats={userStats}
+            sources={sources}
+            enableSticky
+            className="laptop:hidden"
+          />
+          <NavBar selectedTab={selectedTab} profile={user} />
+          {children}
+        </main>
+        <PageWidgets className="hidden !px-0 laptop:flex">
+          <ProfileWidgets
+            user={user}
+            userStats={userStats}
+            sources={sources}
+            className="w-full"
+          />
+        </PageWidgets>
+      </div>
+    </ConditionalWrapper>
   );
 }
 
