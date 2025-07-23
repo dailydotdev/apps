@@ -124,6 +124,7 @@ function PostSourceInfo({
               onReadArticle={onReadArticle}
               className="ml-auto hidden tablet:flex"
               contextMenuId="post-widgets-context"
+              buttonSize={ButtonSize.Small}
             />
           )}
         </>

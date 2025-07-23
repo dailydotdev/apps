@@ -11,7 +11,7 @@ import {
   useCanBoostPost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -32,6 +32,7 @@ export function PostHeaderActions({
   className,
   notificationClassName,
   isFixedNavigation,
+  buttonSize,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const key = getPostByIdKey(post?.id);
@@ -64,25 +65,20 @@ export function PostHeaderActions({
             icon={<OpenLinkIcon />}
             onClick={onReadArticle}
             data-testid="postActionsRead"
-            size={ButtonSize.Small}
+            size={buttonSize}
           >
             {!inlineActions ? readButtonText : null}
           </Button>
         </Tooltip>
       )}
       {canBoost && postById && !postById.post?.flags?.campaignId && (
-        <BoostPostButton
-          post={post}
-          buttonProps={{
-            size: isInternalReadTyped ? undefined : ButtonSize.Small,
-          }}
-        />
+        <BoostPostButton post={post} buttonProps={{ size: buttonSize }} />
       )}
       {isCollection && <CollectionSubscribeButton post={post} />}
       <PostMenuOptions
         post={post}
-        inlineActions={inlineActions}
         origin={Origin.ArticleModal}
+        buttonSize={buttonSize}
       />
     </Container>
   );
