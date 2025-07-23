@@ -176,9 +176,7 @@ const ProfileIndex = ({
     </span>
   );
 
-  const { onUpload, status, shouldShow } = useUploadCv({
-    shouldShowSuccessModal: true,
-  });
+  const { onUpload, status, shouldShow } = useUploadCv();
 
   const uploadSection = (
     <AccountContentSection

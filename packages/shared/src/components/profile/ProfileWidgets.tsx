@@ -46,9 +46,7 @@ export function ProfileWidgets({
     enabled: isSameUser,
   });
 
-  const { onUpload, status, shouldShow } = useUploadCv({
-    shouldShowSuccessModal: true,
-  });
+  const { onUpload, status, shouldShow } = useUploadCv();
 
   return (
     <div

@@ -29,7 +29,7 @@ import useInteractiveFeed from '../../../hooks/feed/useInteractiveFeed';
 import RelevancyTag from '../../tags/RelevancyTag';
 import InteractiveFeedTagOverlay from '../../post/tags/InteractiveFeedTagOverlay';
 import { useFeature } from '../../GrowthBookProvider';
-import { featurePostUiImprovements } from '../../../lib/featureManagement';
+import { featureCardUiButtons } from '../../../lib/featureManagement';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -50,7 +50,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const postUiExp = useFeature(featurePostUiImprovements);
+  const buttonExp = useFeature(featureCardUiButtons);
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
@@ -98,7 +98,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           post,
           classNames(
             className,
-            (showFeedback || postUiExp) && '!p-0',
+            (showFeedback || buttonExp) && '!p-0',
             postRelevant &&
               '!border-status-success !bg-action-upvote-float text-action-upvote-default',
             postIrrelevant &&
@@ -138,7 +138,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           showFeedback && styles.read,
         )}
       >
-        <CardTextContainer className={classNames(postUiExp && 'mx-4')}>
+        <CardTextContainer className={classNames(buttonExp && 'mx-4')}>
           <PostCardHeader
             post={post}
             className={showFeedback ? '!hidden' : 'flex'}
@@ -161,7 +161,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             <div
               className={classNames(
                 'flex items-center',
-                postUiExp ? 'mx-4 ' : 'mx-2',
+                buttonExp ? 'mx-4 ' : 'mx-2',
               )}
             >
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
@@ -185,7 +185,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             isHoveringCard={isHovering}
             className={{
               image: classNames(
-                postUiExp && 'px-1',
+                buttonExp && 'px-1',
                 showFeedback && 'mb-0',
                 smallCard && ' !my-0 !h-26',
               ),
