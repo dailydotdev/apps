@@ -553,6 +553,12 @@ export const FEED_POST_FRAGMENT = gql`
       sources
       savedTime
     }
+    featuredAward {
+      award {
+        image
+        value
+      }
+    }
   }
   ${FEED_POST_INFO_FRAGMENT}
 `;

@@ -57,6 +57,8 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 import { briefCardFeedFeature } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
+import { getProductsQueryOptions } from '../graphql/njord';
+import { useUpdateQuery } from '../hooks/useUpdateQuery';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -178,6 +180,7 @@ export default function Feed<T>({
   });
   const showBriefCard =
     feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
+  const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
   const {
     items,
@@ -243,7 +246,7 @@ export default function Feed<T>({
       return requestKey === 'awards';
     },
     callback: ({ variables: feedPostVars }) => {
-      const { entityId, type } = feedPostVars as AwardProps;
+      const { entityId, type, productId } = feedPostVars as AwardProps;
 
       if (type === 'POST') {
         const postItem = items.find(
@@ -256,6 +259,10 @@ export default function Feed<T>({
           return;
         }
 
+        const awardProduct = getProducts()?.edges.find(
+          (item) => item.node.id === productId,
+        )?.node;
+
         updatePost(postItem.page, postItem.index, {
           ...currentPost,
           userState: {
@@ -263,6 +270,13 @@ export default function Feed<T>({
             awarded: true,
           },
           numAwards: (currentPost.numAwards || 0) + 1,
+          featuredAward:
+            !currentPost.featuredAward?.award?.value ||
+            awardProduct?.value > currentPost.featuredAward?.award?.value
+              ? {
+                  award: awardProduct,
+                }
+              : currentPost.featuredAward,
         });
       }
     },

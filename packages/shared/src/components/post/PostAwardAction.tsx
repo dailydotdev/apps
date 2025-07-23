@@ -83,8 +83,8 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         icon={
           post.userState?.awarded ? (
             <Image
-              src={dogAwardImage}
-              alt="Icon of the burning dog award"
+              src={post?.featuredAward?.award?.image || dogAwardImage}
+              alt="Highest value award"
               className={iconSizeToClassName[IconSize.XSmall]}
             />
           ) : (
