@@ -26,6 +26,7 @@ export enum MarketingCtaVariant {
   PlusForYouTab = 'plus_for_you_tab',
   PlusBookmarkTab = 'plus_bookmark_tab',
   PlusAnnouncementBar = 'plus_announcement_bar',
+  FeedBanner = 'feed_banner',
 }
 
 export interface MarketingCta {

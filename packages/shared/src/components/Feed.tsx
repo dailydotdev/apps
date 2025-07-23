@@ -450,6 +450,7 @@ export default function Feed<T>({
         actionButtons,
         isHorizontal,
         feedContainerRef,
+        showBriefCard,
       };
 
   return (
