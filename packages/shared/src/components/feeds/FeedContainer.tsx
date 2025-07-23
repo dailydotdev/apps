@@ -31,6 +31,7 @@ import {
   uploadCvBgMobile,
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
+import { TargetId } from '../../lib/log';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -254,6 +255,7 @@ export const FeedContainer = ({
                 base: uploadCvBgMobile,
               },
             }}
+            targetId={TargetId.Feed}
           />
         </div>
       )}

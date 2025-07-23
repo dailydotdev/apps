@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
 import classNames from 'classnames';
 import { Header } from './Header';
 import { HeroImage } from './HeroImage';
@@ -20,6 +20,8 @@ import {
   fileValidation,
   useUploadCv,
 } from '../../features/profile/hooks/useUploadCv';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -33,6 +35,7 @@ export function ProfileWidgets({
   className,
   enableSticky,
 }: ProfileWidgetsProps): ReactElement {
+  const { logEvent } = useLogContext();
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
@@ -47,6 +50,18 @@ export function ProfileWidgets({
   });
 
   const { onUpload, status, shouldShow } = useUploadCv();
+  const hasLoggedImpression = useRef(false);
+
+  useEffect(() => {
+    if (isSameUser && shouldShow && !hasLoggedImpression.current) {
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.CvBanner,
+        target_id: TargetId.CVWidget,
+      });
+      hasLoggedImpression.current = true;
+    }
+  }, [isSameUser, logEvent, shouldShow]);
 
   return (
     <div
