@@ -32,7 +32,6 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   if (!canAward && !isSameUser) {
     return null;
   }
-
   const awardEntity = {
     id: post.id,
     receiver: post.author,
@@ -44,7 +43,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
       return showLogin({ trigger: AuthTriggers.GiveAward });
     }
 
-    if (isSameUser) {
+    if (isSameUser || post.userState?.awarded) {
       return openModal({
         type: LazyModal.ListAwards,
         props: {
@@ -64,7 +63,13 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   };
 
   return (
-    <Tooltip content="Award this post">
+    <Tooltip
+      content={
+        post.userState?.awarded
+          ? 'You already awarded this post!'
+          : 'Award this post'
+      }
+    >
       <QuaternaryButton
         id={`post-${post.id}-award-btn`}
         pressed={!!post.userState?.awarded}
@@ -75,7 +80,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         labelClassName="!pl-[1px]"
         color={ButtonColor.Cabbage}
         icon={
-          post.featuredAward?.award?.image ? (
+          post.userState?.awarded && post.featuredAward?.award?.image ? (
             <Image
               src={post?.featuredAward?.award?.image}
               alt={post?.featuredAward?.award?.name}
