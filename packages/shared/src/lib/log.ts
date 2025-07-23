@@ -307,6 +307,9 @@ export enum LogEvent {
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
   // End Brief
+  // CV Upload
+  UploadCv = 'upload cv',
+  // end CV Upload
 }
 
 export enum TargetType {
