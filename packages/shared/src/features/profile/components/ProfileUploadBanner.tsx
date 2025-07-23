@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -25,6 +25,8 @@ import { cvUploadBannerBg } from '../../../styles/custom';
 import { FeelingLazy } from './FeelingLazy';
 import { webappUrl } from '../../../lib/constants';
 import { fileValidation } from '../hooks/useUploadCv';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 
 const defaultBanner = {
   title: 'Your next job should apply to you',
@@ -56,6 +58,7 @@ interface ProfileUploadBannerProps {
   onClose: () => void;
   onUpload: (file: File) => Promise<void>;
   status: MutationStatus;
+  targetId?: TargetId;
 }
 
 export function ProfileUploadBanner({
@@ -64,10 +67,12 @@ export function ProfileUploadBanner({
   onClose,
   onUpload,
   status,
+  targetId = TargetId.MyProfile,
 }: ProfileUploadBannerProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const getImage = () => {
     const cover = banner?.cover;
@@ -98,6 +103,14 @@ export function ProfileUploadBanner({
     });
     onClose();
   };
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.CvBanner,
+      target_id: targetId,
+    });
+  }, [logEvent, targetId]);
 
   return (
     <div
