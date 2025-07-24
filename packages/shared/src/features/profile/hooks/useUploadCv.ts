@@ -16,10 +16,10 @@ import { LogEvent } from '../../../lib/log';
 export const fileValidation = {
   acceptedTypes: [
     'application/pdf',
-    'application/msword', // doc file
+    'application/docx', // docx file
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx file
   ],
-  acceptedExtensions: ['pdf', 'doc', 'docx'],
+  acceptedExtensions: ['pdf', 'docx'],
 };
 
 interface UseUploadCvProps {
