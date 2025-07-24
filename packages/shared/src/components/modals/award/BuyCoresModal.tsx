@@ -354,6 +354,18 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
     }
   }, [openCheckout, selectedProduct, paddle]);
 
+  if (iOSSupportsCoresPurchase()) {
+    return (
+      <ModalBody
+        className={classNames(
+          'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
+        )}
+      >
+        <CoreOptions amountNeededCopy={amountNeededCopy} />
+      </ModalBody>
+    );
+  }
+
   return (
     <ModalBody
       className={classNames(
