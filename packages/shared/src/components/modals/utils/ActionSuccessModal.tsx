@@ -10,9 +10,9 @@ import {
 } from '../../typography/Typography';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { Image } from '../../image/Image';
 import { ModalClose } from '../common/ModalClose';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { Image } from '../../image/Image';
 
 interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
   cta?: ButtonProps<T> & { copy: string };
@@ -42,7 +42,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
       isDrawerOnMobile
     >
       <Modal.Body className="flex flex-col gap-3 py-1 tablet:!p-4">
-        <div className="relative flex overflow-hidden rounded-16">
+        <div className="relative flex flex-row overflow-hidden rounded-16">
           <ModalClose
             className="hidden tablet:flex"
             right="2"
@@ -51,10 +51,13 @@ export function ActionSuccessModal<T extends AllowedTags>({
             onClick={props.onRequestClose}
             variant={ButtonVariant.Primary}
           />
-          <Image
-            className="min-h-52 w-full"
-            src={isTablet ? cover : coverDrawer || cover}
-          />
+          <div className="relative h-full max-h-56 min-h-52 w-full">
+            <Image
+              className="absolute"
+              src={isTablet ? cover : coverDrawer || cover}
+              alt="Success"
+            />
+          </div>
         </div>
         <div className="mt-2 flex flex-col gap-2">
           <Typography type={TypographyType.Title2} center bold>

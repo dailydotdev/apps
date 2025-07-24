@@ -8,7 +8,12 @@ import {
   startPostBoost,
   cancelPostBoost,
 } from '../../graphql/post/boost';
-import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
+import {
+  generateQueryKey,
+  RequestKey,
+  StaleTime,
+  updatePostCache,
+} from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../useTransactionError';
@@ -41,11 +46,12 @@ export const usePostBoostMutation = ({
       RequestKey.PostCampaigns,
       user,
       'estimate',
-      toEstimate,
+      toEstimate?.id,
     ),
     queryFn: () => getBoostEstimatedReach(toEstimate),
     enabled: !!toEstimate,
     initialData: { min: 0, max: 0 },
+    staleTime: StaleTime.Default,
   });
 
   const { mutateAsync: onBoostPost } = useMutation({

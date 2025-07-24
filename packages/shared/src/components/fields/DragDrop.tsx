@@ -1,10 +1,5 @@
 import classNames from 'classnames';
-import type {
-  DragEvent,
-  MutableRefObject,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import type { DragEvent, MutableRefObject, ReactElement } from 'react';
 import React, { useImperativeHandle, useRef, useState } from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -17,6 +12,8 @@ import { ChecklistAIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
+import { useViewSize, ViewSize } from '../../hooks';
+import { UploadIcon } from '../icons/Upload';
 
 export interface DragDropValidation {
   /** Maximum file size in bytes */
@@ -55,12 +52,9 @@ export interface DragDropProps {
   disabled?: boolean;
   /** Custom className for the drop zone */
   className?: string;
-  /** Content to show when no files are selected */
-  children?: ReactNode;
   state?: MutationStatus;
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
-  renameFileTo?: string;
   hiddenInput?: boolean;
 }
 
@@ -89,6 +83,7 @@ interface ItemProps {
   name: string;
   state: MutationStatus;
   uploadAt?: Date;
+  className?: string;
 }
 
 const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
@@ -113,8 +108,8 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
   </div>
 );
 
-const CompactItem = ({ name, state }: ItemProps) => (
-  <div className="flex w-full items-center gap-1">
+const CompactItem = ({ name, state, className }: ItemProps) => (
+  <div className={classNames('flex w-full items-center gap-1', className)}>
     <DocsIcon secondary />
     <div className="min-w-0 flex-1 text-left">
       <Typography className="truncate" type={TypographyType.Footnote} bold>
@@ -131,12 +126,11 @@ export function DragDrop({
   errorMessages = {},
   disabled = false,
   className,
-  children,
   state,
   inputRef: inputRefProps,
   isCompactList,
-  renameFileTo,
 }: DragDropProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
   useImperativeHandle(inputRefProps, () => inputRef.current);
   const [filenames, setFilenames] = useState<string[]>([]);
@@ -269,22 +263,7 @@ export function DragDrop({
     }
 
     // Call callback with valid files and errors
-    setFilenames(
-      validFiles.map((file: File, index: number) => {
-        const { name } = file;
-
-        if (!renameFileTo) {
-          return name;
-        }
-
-        const chunks = name.split('.');
-        const extension = chunks.pop();
-
-        return validFiles.length === 1
-          ? `${renameFileTo}.${extension}`
-          : `${renameFileTo} (${index + 1}).${extension}`;
-      }),
-    );
+    setFilenames(validFiles.map(({ name }: File) => name));
     onFilesDrop(validFiles, errors.length > 0 ? errors : undefined);
   };
 
@@ -312,6 +291,45 @@ export function DragDrop({
     }, 0);
   };
 
+  const input = (
+    <input
+      type="file"
+      hidden
+      ref={inputRef}
+      onChange={handleFileInput}
+      accept={acceptedTypes.join(',')}
+      multiple={multiple}
+      disabled={disabled}
+    />
+  );
+
+  if (!isLaptop) {
+    const isProcessed = !isError && filenames?.length;
+
+    return (
+      <div className="flex flex-row">
+        {input}
+        {isProcessed ? (
+          <CompactItem
+            name={filenames[0]}
+            state={state}
+            className={classNames(className, 'h-10')}
+          />
+        ) : (
+          <Button
+            type="button"
+            className={classNames('w-fit', className)}
+            variant={ButtonVariant.Primary}
+            onClick={() => inputRef.current.click()}
+            icon={<UploadIcon />}
+          >
+            Upload PDF
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   const defaultContent = (
     <>
       <Typography
@@ -323,12 +341,13 @@ export function DragDrop({
         Drag & Drop your CV or
       </Typography>
       <Button
-        variant={ButtonVariant.Secondary}
+        className="text-text-primary"
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         onClick={() => inputRef.current.click()}
         type="button"
       >
-        Browse
+        Upload PDF
       </Button>
     </>
   );
@@ -337,20 +356,6 @@ export function DragDrop({
 
   const ListItem =
     isCompactList || state === 'pending' ? CompactItem : LargeItem;
-  const defaultContainer = (
-    <div
-      className={classNames(
-        'flex w-full items-center justify-center gap-3 p-6 text-center',
-        !shouldShowContent ? 'flex-col' : 'flex-row',
-      )}
-    >
-      {shouldShowContent
-        ? defaultContent
-        : filenames?.map((name) => (
-            <ListItem key={name} name={name} state={state} />
-          ))}
-    </div>
-  );
 
   return (
     <div
@@ -367,16 +372,19 @@ export function DragDrop({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {children || defaultContainer}
-      <input
-        type="file"
-        hidden
-        ref={inputRef}
-        onChange={handleFileInput}
-        accept={acceptedTypes.join(',')}
-        multiple={multiple}
-        disabled={disabled}
-      />
+      <div
+        className={classNames(
+          'flex w-full items-center justify-center gap-3 p-6 text-center',
+          !shouldShowContent ? 'flex-col' : 'flex-row',
+        )}
+      >
+        {shouldShowContent
+          ? defaultContent
+          : filenames?.map((name) => (
+              <ListItem key={name} name={name} state={state} />
+            ))}
+      </div>
+      {input}
     </div>
   );
 }

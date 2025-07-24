@@ -142,7 +142,7 @@ export function ProfileUploadBanner({
         <DragDrop
           state={status}
           isCompactList
-          className={classNames('my-4')}
+          className={classNames('mb-0 mt-4 laptop:mb-4')}
           onFilesDrop={([file]) => onUpload(file)}
           validation={fileValidation}
         />

@@ -116,8 +116,7 @@ export function ProfileWidgets({
       {isSameUser && shouldShow && (
         <DragDrop
           isCompactList
-          className="mx-4 max-w-[18.5rem]"
-          renameFileTo={loggedUser.name}
+          className="mx-4 max-w-80"
           onFilesDrop={([file]) => onUpload(file)}
           validation={fileValidation}
           state={status}

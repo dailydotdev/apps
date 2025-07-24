@@ -14,8 +14,12 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
 export const fileValidation = {
-  acceptedTypes: ['application/pdf'],
-  acceptedExtensions: ['pdf'],
+  acceptedTypes: [
+    'application/pdf',
+    'application/msword', // doc file
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx file
+  ],
+  acceptedExtensions: ['pdf', 'doc', 'docx'],
 };
 
 interface UseUploadCvProps {
