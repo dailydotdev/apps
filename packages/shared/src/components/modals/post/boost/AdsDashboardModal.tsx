@@ -7,7 +7,6 @@ import { IconSize } from '../../../Icon';
 import { usePostBoost } from '../../../../hooks/post/usePostBoost';
 import { DataTile } from '../../../../features/boost/DataTile';
 import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
-import { CampaignList } from '../../../../features/boost/CampaignList';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
 import { usePostById } from '../../../../hooks';
@@ -15,6 +14,7 @@ import type { Post } from '../../../../graphql/posts';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
 import { boostDashboardInfo } from './common';
+import { CampaignList } from '../../../../features/boost/CampaignList';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialBoostedPost?: BoostedPostData;
@@ -25,7 +25,7 @@ export function AdsDashboardModal({
   ...props
 }: AdsDashboardModalProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { data, isLoading, stats } = usePostBoost();
+  const { data, isLoading, stats, infiniteScrollingProps } = usePostBoost();
   const [toBoost, setToBoost] = useState<Post['id']>();
   const { post } = usePostById({ id: toBoost });
   const [boosted, setBoosted] = useState<BoostedPostData>(initialBoostedPost);
@@ -93,7 +93,11 @@ export function AdsDashboardModal({
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
-          <CampaignList list={list} onClick={setBoosted} />
+          <CampaignList
+            list={list}
+            onClick={setBoosted}
+            infiniteScrollingProps={infiniteScrollingProps}
+          />
         )}
       </Modal.Body>
     </Modal>
