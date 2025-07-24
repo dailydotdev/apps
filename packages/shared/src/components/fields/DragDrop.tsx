@@ -356,20 +356,6 @@ export function DragDrop({
 
   const ListItem =
     isCompactList || state === 'pending' ? CompactItem : LargeItem;
-  const defaultContainer = (
-    <div
-      className={classNames(
-        'flex w-full items-center justify-center gap-3 p-6 text-center',
-        !shouldShowContent ? 'flex-col' : 'flex-row',
-      )}
-    >
-      {shouldShowContent
-        ? defaultContent
-        : filenames?.map((name) => (
-            <ListItem key={name} name={name} state={state} />
-          ))}
-    </div>
-  );
 
   return (
     <div
@@ -386,7 +372,18 @@ export function DragDrop({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {defaultContainer}
+      <div
+        className={classNames(
+          'flex w-full items-center justify-center gap-3 p-6 text-center',
+          !shouldShowContent ? 'flex-col' : 'flex-row',
+        )}
+      >
+        {shouldShowContent
+          ? defaultContent
+          : filenames?.map((name) => (
+              <ListItem key={name} name={name} state={state} />
+            ))}
+      </div>
       {input}
     </div>
   );
