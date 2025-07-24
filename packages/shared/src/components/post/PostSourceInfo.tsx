@@ -6,7 +6,7 @@ import type {
 } from 'react';
 import React from 'react';
 import Link from '../utilities/Link';
-import { SourceType } from '../../graphql/sources';
+import { isSourceUserSource, SourceType } from '../../graphql/sources';
 import { Separator } from '../cards/common/common';
 import type { ProfileImageSize } from '../ProfilePicture';
 import { FollowButton } from '../contentPreference/FollowButton';
@@ -54,6 +54,7 @@ function PostSourceInfo({
     id: source?.id,
     entity: ContentPreferenceType.Source,
   });
+  const isUserSource = isSourceUserSource(post?.source);
 
   const isFollowing = [
     ContentPreferenceStatus.Follow,
@@ -70,14 +71,16 @@ function PostSourceInfo({
       {!isUnknown && (
         <>
           <div className="flex flex-row items-center">
-            <Link href={source?.permalink}>
-              <a className="text-text-secondary typo-callout">
-                {source?.handle}
-              </a>
-            </Link>
+            {!isUserSource && (
+              <Link href={source?.permalink}>
+                <a className="text-text-secondary typo-callout">
+                  {source?.handle}
+                </a>
+              </Link>
+            )}
             {showActionBtn && (
               <>
-                <Separator className="flex tablet:hidden" />
+                {!isUserSource && <Separator className="flex tablet:hidden" />}
                 {source?.type !== SourceType.Squad && (
                   <FollowButton
                     variant={ButtonVariant.Tertiary}
@@ -121,6 +124,7 @@ function PostSourceInfo({
               onReadArticle={onReadArticle}
               className="ml-auto hidden tablet:flex"
               contextMenuId="post-widgets-context"
+              buttonSize={ButtonSize.Small}
             />
           )}
         </>

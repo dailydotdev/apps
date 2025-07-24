@@ -12,6 +12,7 @@ import type {
   UsePostContent,
   UsePostContentProps,
 } from '../../hooks/usePostContent';
+import type { ButtonSize } from '../buttons/common';
 
 export interface PostContentClassName {
   container?: string;
@@ -41,6 +42,7 @@ export interface PostNavigationProps extends Omit<PostActions, 'post'> {
   isBannerVisible?: boolean;
   contextMenuId?: string;
   post?: Post;
+  buttonSize?: ButtonSize;
 }
 
 export type PassedPostNavigationProps = Pick<
@@ -58,6 +60,7 @@ export interface PostHeaderActionsProps {
   notificationClassName?: string;
   contextMenuId: string;
   isFixedNavigation?: boolean;
+  buttonSize?: ButtonSize;
 }
 
 export interface PostContentProps

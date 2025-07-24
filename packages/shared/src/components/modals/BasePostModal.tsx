@@ -60,6 +60,7 @@ function BasePostModal({
             postPosition={postPosition}
             onPreviousPost={onPreviousPost}
             onNextPost={onNextPost}
+            onClose={props?.onRequestClose}
           />
           {children}
         </>
