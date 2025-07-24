@@ -33,6 +33,8 @@ interface UsePostBoostMutation {
   isLoadingEstimate: boolean;
 }
 
+const placeholderData = { min: 0, max: 0 };
+
 export const usePostBoostMutation = ({
   toEstimate,
   onBoostSuccess,
@@ -50,7 +52,7 @@ export const usePostBoostMutation = ({
     ),
     queryFn: () => getBoostEstimatedReach(toEstimate),
     enabled: !!toEstimate,
-    placeholderData: { min: 0, max: 0 },
+    placeholderData,
     staleTime: StaleTime.Default,
   });
 
@@ -118,7 +120,7 @@ export const usePostBoostMutation = ({
   });
 
   return {
-    estimatedReach,
+    estimatedReach: estimatedReach ?? placeholderData,
     onBoostPost,
     onCancelBoost,
     isLoadingCancel: isPending,
