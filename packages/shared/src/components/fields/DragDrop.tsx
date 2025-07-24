@@ -1,10 +1,5 @@
 import classNames from 'classnames';
-import type {
-  DragEvent,
-  MutableRefObject,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import type { DragEvent, MutableRefObject, ReactElement } from 'react';
 import React, { useImperativeHandle, useRef, useState } from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -57,12 +52,9 @@ export interface DragDropProps {
   disabled?: boolean;
   /** Custom className for the drop zone */
   className?: string;
-  /** Content to show when no files are selected */
-  children?: ReactNode;
   state?: MutationStatus;
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
-  renameFileTo?: string;
   hiddenInput?: boolean;
 }
 
@@ -134,11 +126,9 @@ export function DragDrop({
   errorMessages = {},
   disabled = false,
   className,
-  children,
   state,
   inputRef: inputRefProps,
   isCompactList,
-  renameFileTo,
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
@@ -273,22 +263,7 @@ export function DragDrop({
     }
 
     // Call callback with valid files and errors
-    setFilenames(
-      validFiles.map((file: File, index: number) => {
-        const { name } = file;
-
-        if (!renameFileTo) {
-          return name;
-        }
-
-        const chunks = name.split('.');
-        const extension = chunks.pop();
-
-        return validFiles.length === 1
-          ? `${renameFileTo}.${extension}`
-          : `${renameFileTo} (${index + 1}).${extension}`;
-      }),
-    );
+    setFilenames(validFiles.map(({ name }: File) => name));
     onFilesDrop(validFiles, errors.length > 0 ? errors : undefined);
   };
 
@@ -411,7 +386,7 @@ export function DragDrop({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {children || defaultContainer}
+      {defaultContainer}
       {input}
     </div>
   );
