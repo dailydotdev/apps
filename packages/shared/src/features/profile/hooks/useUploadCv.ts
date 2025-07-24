@@ -16,6 +16,7 @@ import { LogEvent } from '../../../lib/log';
 export const fileValidation = {
   acceptedTypes: [
     'application/pdf',
+    'application/docx', // docx file
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx file
   ],
   acceptedExtensions: ['pdf', 'docx'],
