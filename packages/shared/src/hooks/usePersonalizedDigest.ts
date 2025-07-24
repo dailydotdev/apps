@@ -120,8 +120,8 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         ...(type && { type }),
         flags: {
           ...existingData?.flags,
-          ...(sendType && { sendType }),
           ...flags,
+          ...(sendType && { sendType }),
         },
       };
       queryClient.setQueryData(
