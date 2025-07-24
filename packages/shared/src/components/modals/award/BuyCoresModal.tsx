@@ -43,6 +43,7 @@ import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
+import { iOSSupportsCoresPurchase } from '../../../lib/ios';
 
 export type CoreOptionsProps = {
   className?: string;
@@ -344,7 +345,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
   const { selectedProduct, openCheckout, paddle } = useBuyCoresContext();
 
   useEffect(() => {
-    if (!paddle) {
+    if (!paddle && !iOSSupportsCoresPurchase()) {
       return;
     }
 
