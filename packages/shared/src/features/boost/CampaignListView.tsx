@@ -161,7 +161,7 @@ export function CampaignListView({
           className="flex flex-row items-center"
         >
           <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-          {formatDataTileValue(campaign.spend)} | {date.totalDays}{' '}
+          {formatDataTileValue(campaign.budget)} | {date.totalDays}{' '}
           {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>

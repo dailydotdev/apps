@@ -712,6 +712,7 @@ const AccountNotificationsPage = (): ReactElement => {
                 onSubscribeDigest({
                   type: selectedDigest.type,
                   sendType,
+                  flags: selectedDigest.flags,
                 });
               }}
             />

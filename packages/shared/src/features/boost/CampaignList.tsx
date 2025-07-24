@@ -9,15 +9,20 @@ import { IconSize } from '../../components/Icon';
 import { BoostIcon } from '../../components/icons/Boost';
 import { CampaignListItem } from './CampaignListItem';
 import type { BoostedPostData } from '../../graphql/post/boost';
+import type { InfiniteScrollingQueryProps } from '../../components/containers/InfiniteScrolling';
+import InfiniteScrolling from '../../components/containers/InfiniteScrolling';
+import { BoostHistoryLoading } from './BoostHistoryLoading';
 
 interface CampaignListProps {
   list: BoostedPostData[];
   onClick?: (campaign: BoostedPostData) => void;
+  infiniteScrollingProps: InfiniteScrollingQueryProps;
 }
 
 export function CampaignList({
   list,
   onClick,
+  infiniteScrollingProps,
 }: CampaignListProps): ReactElement {
   if (!list?.length) {
     return (
@@ -43,7 +48,11 @@ export function CampaignList({
   }
 
   return (
-    <div className="-mx-6 flex flex-1 flex-col overflow-x-hidden">
+    <InfiniteScrolling
+      {...infiniteScrollingProps}
+      placeholder={<BoostHistoryLoading />}
+      className="-mx-6 flex-1 overflow-x-hidden"
+    >
       {list.map((data) => (
         <CampaignListItem
           key={data.campaign.campaignId}
@@ -52,6 +61,6 @@ export function CampaignList({
           className="px-6 py-2"
         />
       ))}
-    </div>
+    </InfiniteScrolling>
   );
 }
