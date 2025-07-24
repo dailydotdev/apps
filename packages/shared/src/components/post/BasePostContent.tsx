@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
+import { ButtonSize } from '../buttons/common';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -50,6 +51,7 @@ export function BasePostContent({
             className="ml-auto"
             contextMenuId="post-page-header-actions"
             onReadArticle={navigationProps.onReadArticle}
+            buttonSize={ButtonSize.Small}
           />
         </GoBackHeaderMobile>
       )}
