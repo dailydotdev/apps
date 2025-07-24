@@ -17,6 +17,8 @@ import { ChecklistAIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
+import { useViewSize, ViewSize } from '../../hooks';
+import { UploadIcon } from '../icons/Upload';
 
 export interface DragDropValidation {
   /** Maximum file size in bytes */
@@ -89,6 +91,7 @@ interface ItemProps {
   name: string;
   state: MutationStatus;
   uploadAt?: Date;
+  className?: string;
 }
 
 const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
@@ -113,8 +116,8 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
   </div>
 );
 
-const CompactItem = ({ name, state }: ItemProps) => (
-  <div className="flex w-full items-center gap-1">
+const CompactItem = ({ name, state, className }: ItemProps) => (
+  <div className={classNames('flex w-full items-center gap-1', className)}>
     <DocsIcon secondary />
     <div className="min-w-0 flex-1 text-left">
       <Typography className="truncate" type={TypographyType.Footnote} bold>
@@ -137,6 +140,7 @@ export function DragDrop({
   isCompactList,
   renameFileTo,
 }: DragDropProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
   useImperativeHandle(inputRefProps, () => inputRef.current);
   const [filenames, setFilenames] = useState<string[]>([]);
@@ -312,6 +316,45 @@ export function DragDrop({
     }, 0);
   };
 
+  const input = (
+    <input
+      type="file"
+      hidden
+      ref={inputRef}
+      onChange={handleFileInput}
+      accept={acceptedTypes.join(',')}
+      multiple={multiple}
+      disabled={disabled}
+    />
+  );
+
+  if (!isLaptop) {
+    const isProcessed = !isError && filenames?.length;
+
+    return (
+      <div className="flex flex-row">
+        {input}
+        {isProcessed ? (
+          <CompactItem
+            name={filenames[0]}
+            state={state}
+            className={classNames(className, 'h-10')}
+          />
+        ) : (
+          <Button
+            type="button"
+            className={classNames('w-fit', className)}
+            variant={ButtonVariant.Primary}
+            onClick={() => inputRef.current.click()}
+            icon={<UploadIcon />}
+          >
+            Upload PDF
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   const defaultContent = (
     <>
       <Typography
@@ -369,15 +412,7 @@ export function DragDrop({
       onDrop={handleDrop}
     >
       {children || defaultContainer}
-      <input
-        type="file"
-        hidden
-        ref={inputRef}
-        onChange={handleFileInput}
-        accept={acceptedTypes.join(',')}
-        multiple={multiple}
-        disabled={disabled}
-      />
+      {input}
     </div>
   );
 }
