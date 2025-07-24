@@ -185,7 +185,6 @@ const ProfileIndex = ({
       description="Upload your CV so we can quietly start matching you with roles that actually fit your skills and interests. Nothing is ever shared without your permission, and we’ll only reach out when there’s something genuinely worth your time. No spam, no pressure."
     >
       <DragDrop
-        renameFileTo={user.name}
         className="my-4 max-w-80"
         onFilesDrop={([file]) => onUpload(file)}
         validation={fileValidation}
