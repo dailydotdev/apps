@@ -186,7 +186,7 @@ const ProfileIndex = ({
     >
       <DragDrop
         renameFileTo={user.name}
-        className="my-4 max-w-[18.5rem]"
+        className="my-4 max-w-80"
         onFilesDrop={([file]) => onUpload(file)}
         validation={fileValidation}
         state={status}
