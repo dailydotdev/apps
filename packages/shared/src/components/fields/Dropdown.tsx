@@ -36,7 +36,6 @@ export interface DropdownClassName {
 export interface DropdownProps {
   icon?: ReactNode;
   shouldIndicateSelected?: boolean;
-  dynamicMenuWidth?: boolean;
   className?: DropdownClassName;
   style?: CSSProperties;
   selectedIndex: number;
@@ -61,7 +60,6 @@ export function Dropdown({
   options,
   onChange,
   onOpenChange,
-  dynamicMenuWidth,
   shouldIndicateSelected,
   buttonSize = ButtonSize.Large,
   buttonVariant = ButtonVariant.Float,
@@ -88,6 +86,35 @@ export function Dropdown({
     setVisibility(!isVisible);
   };
 
+  const handleChange = ({ value, index }: SelectParams): void => {
+    onChange(value, index);
+  };
+
+  const handleKeyboard = (event: React.KeyboardEvent): void => {
+    switch (event.key) {
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        setVisibility(!isVisible);
+        break;
+      case 'Escape':
+        if (isVisible) {
+          setVisibility(false);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  const fullScreen = openFullScreen ?? isMobile;
+
+  useLayoutEffect(() => {
+    if (wasVisible === 'true' && !isVisible) {
+      triggerRef?.current?.focus?.();
+    }
+  }, [isVisible, wasVisible]);
+
   const renderButton = () => (
     <Button
       type="button"
@@ -101,10 +128,16 @@ export function Dropdown({
         iconOnly && 'items-center justify-center',
       )}
       onClick={fullScreen ? handleMenuTrigger : undefined}
+      onKeyDown={handleKeyboard}
       tabIndex={0}
       aria-haspopup="true"
       aria-expanded={isVisible}
-      aria-controls={id}
+      aria-controls={(() => {
+        if (!isVisible) {
+          return undefined;
+        }
+        return fullScreen ? id : `${id}-content`;
+      })()}
       icon={
         icon &&
         React.cloneElement(icon as ReactElement<IconProps>, {
@@ -134,18 +167,6 @@ export function Dropdown({
       )}
     </Button>
   );
-
-  const handleChange = ({ value, index }: SelectParams): void => {
-    onChange(value, index);
-  };
-
-  const fullScreen = openFullScreen ?? isMobile;
-
-  useLayoutEffect(() => {
-    if (wasVisible === 'true' && !isVisible) {
-      triggerRef?.current?.focus?.();
-    }
-  }, [isVisible, wasVisible]);
 
   return (
     <div
@@ -189,6 +210,7 @@ export function Dropdown({
         <DropdownMenu open={isVisible} onOpenChange={setVisibility}>
           <DropdownMenuTrigger asChild>{renderButton()}</DropdownMenuTrigger>
           <DropdownMenuContent
+            id={`${id}-content`}
             className={classNames(className.menu || 'menu-primary', {
               scrollable,
             })}
@@ -196,9 +218,15 @@ export function Dropdown({
             {options.map((option, index) => (
               <DropdownMenuItem
                 key={option}
-                onClick={() =>
-                  handleChange({ value: option, index, event: null })
-                }
+                onClick={(event) => {
+                  const buttonEvent =
+                    event as unknown as React.MouseEvent<HTMLButtonElement>;
+                  handleChange({
+                    value: option,
+                    index,
+                    event: buttonEvent,
+                  });
+                }}
                 className={classNames(styles.item, className?.item)}
               >
                 <div className="inline-flex flex-1 items-center gap-2">

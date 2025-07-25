@@ -79,7 +79,6 @@ export const SearchControlHeader = ({
       button: '!px-1',
       container: 'flex',
     },
-    dynamicMenuWidth: true,
     shouldIndicateSelected: true,
     buttonSize: isMobile ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
