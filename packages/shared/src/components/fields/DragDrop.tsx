@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import type { DragEvent, MutableRefObject, ReactElement } from 'react';
+import type {
+  DragEvent,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useImperativeHandle, useRef, useState } from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -56,6 +61,8 @@ export interface DragDropProps {
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
   ctaSize?: ButtonSize;
+  renderCta?: (onBrowseFile: () => void) => ReactNode;
+  isCopyBold?: boolean;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -133,6 +140,8 @@ export function DragDrop({
   inputRef: inputRefProps,
   isCompactList,
   ctaSize,
+  renderCta,
+  isCopyBold,
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
@@ -307,8 +316,22 @@ export function DragDrop({
     />
   );
 
+  const onClickCta = () => inputRef.current.click();
+
   if (!isLaptop) {
     const isProcessed = !isError && filenames?.length;
+    const cta = renderCta?.(onClickCta) ?? (
+      <Button
+        type="button"
+        className={classNames('w-fit', className)}
+        variant={ButtonVariant.Primary}
+        onClick={onClickCta}
+        icon={<UploadIcon />}
+        size={ctaSize}
+      >
+        Upload PDF
+      </Button>
+    );
 
     return (
       <div className="flex flex-row">
@@ -320,41 +343,34 @@ export function DragDrop({
             className={classNames(className, 'h-10')}
           />
         ) : (
-          <Button
-            type="button"
-            className={classNames('w-fit', className)}
-            variant={ButtonVariant.Primary}
-            onClick={() => inputRef.current.click()}
-            icon={<UploadIcon />}
-            size={ctaSize}
-          >
-            Upload PDF
-          </Button>
+          cta
         )}
       </div>
     );
   }
 
   const defaultContent = (
-    <>
+    <span className="flex flex-row items-center gap-1">
       <Typography
-        className="flex flex-row gap-1"
+        className="flex flex-row items-center gap-1"
         type={TypographyType.Footnote}
-        bold
+        bold={isCopyBold}
       >
         <DocsIcon secondary />
         Drag & Drop your CV or
       </Typography>
-      <Button
-        className="text-text-primary"
-        variant={ButtonVariant.Subtle}
-        size={ButtonSize.Small}
-        onClick={() => inputRef.current.click()}
-        type="button"
-      >
-        Upload PDF
-      </Button>
-    </>
+      {renderCta?.(onClickCta) ?? (
+        <Button
+          className="text-text-primary"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          onClick={() => inputRef.current.click()}
+          type="button"
+        >
+          Upload PDF
+        </Button>
+      )}
+    </span>
   );
 
   const shouldShowContent = !filenames?.length || isError;

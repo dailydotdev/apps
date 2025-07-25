@@ -35,6 +35,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { FeelingLazy } from '../../features/profile/components/FeelingLazy';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -134,39 +135,54 @@ export function ProfileWidgets({
         )}
       </div>
       {shouldShowUpload && (
-        <ConditionalWrapper
-          condition={isTouchDevice}
-          wrapper={(component) => (
-            <div
-              className={classNames(
-                dragDropClasses,
-                'tablet mx-4 flex max-w-80 flex-col gap-1 bg-surface-float p-3 tablet:max-w-96',
-              )}
-            >
-              <Typography bold type={TypographyType.Callout}>
-                Your next job should apply to you
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="mb-2"
+        <div className="mx-4 flex max-w-80 flex-col gap-2 tablet:max-w-96">
+          <ConditionalWrapper
+            condition={isTouchDevice}
+            wrapper={(component) => (
+              <div
+                className={classNames(
+                  dragDropClasses,
+                  'tablet flex-col gap-1 bg-surface-float p-3',
+                )}
               >
-                Upload your CV so we can quietly start matching you with roles
-                that actually fit your skills and interests.
-              </Typography>
-              {component}
-            </div>
-          )}
-        >
-          <DragDrop
-            isCompactList
-            className="laptop:mx-4"
-            onFilesDrop={([file]) => onUpload(file)}
-            validation={fileValidation}
-            state={status}
-            ctaSize={isTouchDevice ? ButtonSize.Small : undefined}
-          />
-        </ConditionalWrapper>
+                <Typography bold type={TypographyType.Callout}>
+                  Your next job should apply to you
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="mb-2"
+                >
+                  Upload your CV so we can quietly start matching you with roles
+                  that actually fit your skills and interests.
+                </Typography>
+                {component}
+              </div>
+            )}
+          >
+            <DragDrop
+              isCompactList
+              onFilesDrop={([file]) => onUpload(file)}
+              validation={fileValidation}
+              state={status}
+              ctaSize={isTouchDevice ? ButtonSize.Small : undefined}
+              renderCta={
+                isTouchDevice
+                  ? undefined
+                  : (onBrowseFile) => (
+                      <button
+                        type="button"
+                        onClick={onBrowseFile}
+                        className="underline typo-footnote hover:no-underline"
+                      >
+                        Upload PDF
+                      </button>
+                    )
+              }
+            />
+          </ConditionalWrapper>
+          <FeelingLazy />
+        </div>
       )}
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
