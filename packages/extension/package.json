@@ -14,7 +14,6 @@
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
-    "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "workspace:*",
     "@kickass-coderz/react": "^0.0.4",
     "@tanstack/react-query": "^5.80.5",

@@ -31,7 +31,6 @@ export function MobileExploreHeader({
       {withDateRange.includes(path as OtherFeedPage) && (
         <Dropdown
           iconOnly
-          dynamicMenuWidth
           shouldIndicateSelected
           icon={<CalendarIcon size={IconSize.Medium} />}
           selectedIndex={period}

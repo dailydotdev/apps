@@ -15,7 +15,7 @@ import {
   DropdownMenuItem as DropdownMenuItemRoot,
 } from '@radix-ui/react-dropdown-menu';
 import classed from '../../lib/classed';
-import { useEventListener } from '../../hooks';
+import { useEventListener } from '../../hooks/useEventListener';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
