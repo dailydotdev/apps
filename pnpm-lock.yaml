@@ -79,9 +79,6 @@ importers:
 
   packages/extension:
     dependencies:
-      '@dailydotdev/react-contexify':
-        specifier: ^5.0.2
-        version: 5.0.2
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
@@ -798,9 +795,6 @@ importers:
 
   packages/webapp:
     dependencies:
-      '@dailydotdev/react-contexify':
-        specifier: ^5.0.2
-        version: 5.0.2
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared

@@ -7,8 +7,12 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import type { TriggerEvent } from '@dailydotdev/react-contexify';
-import { Item, Menu, useContextMenu } from '@dailydotdev/react-contexify';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
 import { usePrevious, useViewSize, ViewSize } from '../../hooks';
@@ -73,48 +77,63 @@ export function Dropdown({
   const id = useId();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isVisible, setVisibility] = useState(false);
-  const [menuWidth, setMenuWidth] = useState<number>();
   const wasVisible = usePrevious(`${isVisible}`);
   const triggerRef = useRef<HTMLButtonElement>();
-  const { show, hideAll } = useContextMenu({ id });
 
   useEffect(() => {
     onOpenChange?.(isVisible);
   }, [isVisible, onOpenChange]);
 
-  const showMenu = (event: TriggerEvent): void => {
-    const { right, bottom, width } = triggerRef.current.getBoundingClientRect();
-    setMenuWidth(width);
-    setVisibility(true);
-    show(event, {
-      position: { x: right, y: bottom + 8 },
-    });
+  const handleMenuTrigger = (): void => {
+    setVisibility(!isVisible);
   };
 
-  const handleMenuTrigger = (event: React.MouseEvent): void => {
-    if (isVisible) {
-      setVisibility(false);
-      hideAll();
-      return;
-    }
-    showMenu(event);
-  };
-
-  const handleKeyboard = (event: React.KeyboardEvent): void => {
-    switch (event.key) {
-      case 'Enter':
-        showMenu(event);
-        break;
-      case 'Escape':
-        if (isVisible) {
-          setVisibility(false);
-          hideAll();
-        }
-        break;
-      default:
-        break;
-    }
-  };
+  const renderButton = () => (
+    <Button
+      type="button"
+      ref={triggerRef}
+      variant={buttonVariant}
+      size={buttonSize}
+      disabled={disabled}
+      className={classNames(
+        'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
+        className?.button,
+        iconOnly && 'items-center justify-center',
+      )}
+      onClick={fullScreen ? handleMenuTrigger : undefined}
+      tabIndex={0}
+      aria-haspopup="true"
+      aria-expanded={isVisible}
+      aria-controls={id}
+      icon={
+        icon &&
+        React.cloneElement(icon as ReactElement<IconProps>, {
+          'aria-hidden': true,
+          role: 'presentation',
+          secondary:
+            (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
+        })
+      }
+    >
+      {iconOnly ? null : (
+        <>
+          <span
+            className={classNames('mr-1 flex flex-1 truncate', className.label)}
+          >
+            {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
+          </span>
+          <ArrowIcon
+            className={classNames(
+              'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+              isVisible ? 'rotate-0' : 'rotate-180',
+              styles.chevron,
+              className.chevron,
+            )}
+          />
+        </>
+      )}
+    </Button>
+  );
 
   const handleChange = ({ value, index }: SelectParams): void => {
     onChange(value, index);
@@ -137,108 +156,64 @@ export function Dropdown({
       )}
       {...props}
     >
-      <Button
-        type="button"
-        ref={triggerRef}
-        variant={buttonVariant}
-        size={buttonSize}
-        disabled={disabled}
-        className={classNames(
-          'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
-          className?.button,
-          iconOnly && 'items-center justify-center',
-        )}
-        onClick={handleMenuTrigger}
-        onKeyDown={handleKeyboard}
-        tabIndex={0}
-        aria-haspopup="true"
-        aria-expanded={isVisible}
-        aria-controls={id}
-        icon={
-          icon &&
-          React.cloneElement(icon as ReactElement<IconProps>, {
-            'aria-hidden': true,
-            role: 'presentation',
-            secondary:
-              (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
-          })
-        }
-      >
-        {iconOnly ? null : (
-          <>
-            <span
-              className={classNames(
-                'mr-1 flex flex-1 truncate',
-                className.label,
-              )}
-            >
-              {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
-            </span>
-            <ArrowIcon
-              className={classNames(
-                'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
-                isVisible ? 'rotate-0' : 'rotate-180',
-                styles.chevron,
-                className.chevron,
-              )}
-            />
-          </>
-        )}
-      </Button>
       {fullScreen ? (
-        <RootPortal>
-          <ListDrawer
-            drawerProps={{
-              ...drawerProps,
-              isOpen: isVisible,
-              onClose: () => setVisibility(false),
-              title: drawerProps?.title ? (
-                <>
-                  <Button
-                    size={ButtonSize.Small}
-                    className="mr-2"
-                    icon={<ArrowIcon className="-rotate-90" secondary />}
-                    onClick={handleMenuTrigger}
-                  />
-                  {drawerProps.title}
-                </>
-              ) : null,
-            }}
-            options={options}
-            customItem={renderItem}
-            selected={selectedIndex}
-            onSelectedChange={handleChange}
-            shouldIndicateSelected={shouldIndicateSelected}
-          />
-        </RootPortal>
+        <>
+          {renderButton()}
+          <RootPortal>
+            <ListDrawer
+              drawerProps={{
+                ...drawerProps,
+                isOpen: isVisible,
+                onClose: () => setVisibility(false),
+                title: drawerProps?.title ? (
+                  <>
+                    <Button
+                      size={ButtonSize.Small}
+                      className="mr-2"
+                      icon={<ArrowIcon className="-rotate-90" secondary />}
+                      onClick={handleMenuTrigger}
+                    />
+                    {drawerProps.title}
+                  </>
+                ) : null,
+              }}
+              options={options}
+              customItem={renderItem}
+              selected={selectedIndex}
+              onSelectedChange={handleChange}
+              shouldIndicateSelected={shouldIndicateSelected}
+            />
+          </RootPortal>
+        </>
       ) : (
-        <Menu
-          disableBoundariesCheck
-          id={id}
-          className={classNames(className.menu || 'menu-primary', {
-            scrollable,
-          })}
-          animation="fade"
-          onHidden={() => setVisibility(false)}
-          style={{ width: !dynamicMenuWidth && menuWidth }}
-        >
-          {options.map((option, index) => (
-            <Item
-              key={option}
-              onClick={({ data, event }) => handleChange({ event, ...data })}
-              data={{ value: option, index }}
-              className={classNames(styles.item, className?.item)}
-            >
-              {renderItem ? renderItem(option, index) : option}
-              {shouldIndicateSelected && selectedIndex === index && (
-                <VIcon
-                  className={classNames('ml-auto', className.indicator)}
-                  secondary
-                />
-              )}
-            </Item>
-          ))}
-        </Menu>
+        <DropdownMenu open={isVisible} onOpenChange={setVisibility}>
+          <DropdownMenuTrigger asChild>{renderButton()}</DropdownMenuTrigger>
+          <DropdownMenuContent
+            className={classNames(className.menu || 'menu-primary', {
+              scrollable,
+            })}
+          >
+            {options.map((option, index) => (
+              <DropdownMenuItem
+                key={option}
+                onClick={() =>
+                  handleChange({ value: option, index, event: null })
+                }
+                className={classNames(styles.item, className?.item)}
+              >
+                <div className="inline-flex flex-1 items-center gap-2">
+                  {renderItem ? renderItem(option, index) : option}
+                  {shouldIndicateSelected && selectedIndex === index && (
+                    <VIcon
+                      className={classNames('ml-auto', className.indicator)}
+                      secondary
+                    />
+                  )}
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </div>
   );
