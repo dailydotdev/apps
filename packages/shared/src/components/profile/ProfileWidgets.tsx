@@ -142,7 +142,7 @@ export function ProfileWidgets({
               <div
                 className={classNames(
                   dragDropClasses,
-                  'tablet flex-col gap-1 bg-surface-float p-3',
+                  'flex-col gap-1 bg-surface-float p-3',
                 )}
               >
                 <Typography bold type={TypographyType.Callout}>
