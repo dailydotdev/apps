@@ -14,12 +14,14 @@ import {
   ReferralCampaignKey,
   useActions,
   useReferralCampaign,
+  useViewSize,
+  ViewSize,
 } from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
-import { DragDrop } from '../fields/DragDrop';
+import { DragDrop, dragDropClasses } from '../fields/DragDrop';
 import {
   fileValidation,
   useUploadCv,
@@ -27,6 +29,12 @@ import {
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -44,6 +52,7 @@ export function ProfileWidgets({
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
+  const isTouchDevice = !useViewSize(ViewSize.Laptop);
 
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(enableSticky);
@@ -125,13 +134,39 @@ export function ProfileWidgets({
         )}
       </div>
       {shouldShowUpload && (
-        <DragDrop
-          isCompactList
-          className="mx-4 max-w-80"
-          onFilesDrop={([file]) => onUpload(file)}
-          validation={fileValidation}
-          state={status}
-        />
+        <ConditionalWrapper
+          condition={isTouchDevice}
+          wrapper={(component) => (
+            <div
+              className={classNames(
+                dragDropClasses,
+                'tablet mx-4 flex max-w-80 flex-col gap-1 bg-surface-float p-3 tablet:max-w-96',
+              )}
+            >
+              <Typography bold type={TypographyType.Callout}>
+                Your next job should apply to you
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="mb-2"
+              >
+                Upload your CV so we can quietly start matching you with roles
+                that actually fit your skills and interests.
+              </Typography>
+              {component}
+            </div>
+          )}
+        >
+          <DragDrop
+            isCompactList
+            className="laptop:mx-4"
+            onFilesDrop={([file]) => onUpload(file)}
+            validation={fileValidation}
+            state={status}
+            ctaSize={isTouchDevice ? ButtonSize.Small : undefined}
+          />
+        </ConditionalWrapper>
       )}
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (

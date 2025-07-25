@@ -55,7 +55,7 @@ export interface DragDropProps {
   state?: MutationStatus;
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
-  hiddenInput?: boolean;
+  ctaSize?: ButtonSize;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -120,6 +120,9 @@ const CompactItem = ({ name, state, className }: ItemProps) => (
   </div>
 );
 
+export const dragDropClasses =
+  'relative flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary';
+
 export function DragDrop({
   onFilesDrop,
   validation = {},
@@ -129,6 +132,7 @@ export function DragDrop({
   state,
   inputRef: inputRefProps,
   isCompactList,
+  ctaSize,
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
@@ -322,6 +326,7 @@ export function DragDrop({
             variant={ButtonVariant.Primary}
             onClick={() => inputRef.current.click()}
             icon={<UploadIcon />}
+            size={ctaSize}
           >
             Upload PDF
           </Button>
@@ -360,7 +365,7 @@ export function DragDrop({
   return (
     <div
       className={classNames(
-        'relative flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary',
+        dragDropClasses,
         {
           'bg-surface-float': !isDragOver,
           'bg-surface-hover': isDragOver && isDragValid,
