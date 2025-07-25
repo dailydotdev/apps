@@ -119,7 +119,7 @@ function SquadPostContentRaw({
           <div
             className={
               isUserSource
-                ? 'flex flex-row-reverse items-center justify-between'
+                ? 'flex flex-row-reverse items-center justify-between truncate'
                 : undefined
             }
           >
@@ -133,7 +133,9 @@ function SquadPostContentRaw({
               author={post?.author}
               role={role}
               date={post.createdAt}
-              className={{ container: !isUserSource && 'mt-3' }}
+              className={{
+                container: !isUserSource ? 'mt-3' : 'shrink truncate',
+              }}
               isUserSource={isUserSource}
               size={ProfileImageSize.Large}
             />

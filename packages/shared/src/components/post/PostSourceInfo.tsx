@@ -81,7 +81,7 @@ function PostSourceInfo({
             {showActionBtn && (
               <>
                 {!isUserSource && <Separator className="flex tablet:hidden" />}
-                {source?.type !== SourceType.Squad && (
+                {source?.type !== SourceType.Squad && !isUserSource && (
                   <FollowButton
                     variant={ButtonVariant.Tertiary}
                     followedVariant={ButtonVariant.Tertiary}
