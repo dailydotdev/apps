@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useEffect, useContext } from 'react';
+import React, { useRef, useEffect, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { Header } from './Header';
 import { HeroImage } from './HeroImage';
@@ -10,7 +10,11 @@ import { SquadsList } from './SquadsList';
 import { useDynamicHeader } from '../../useDynamicHeader';
 import AuthContext from '../../contexts/AuthContext';
 import type { ProfileV2 } from '../../graphql/users';
-import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
+import {
+  ReferralCampaignKey,
+  useActions,
+  useReferralCampaign,
+} from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
@@ -22,6 +26,7 @@ import {
 } from '../../features/profile/hooks/useUploadCv';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { ActionType } from '../../graphql/actions';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -49,11 +54,17 @@ export function ProfileWidgets({
     enabled: isSameUser,
   });
 
+  const { checkHasCompleted } = useActions();
   const { onUpload, status, shouldShow } = useUploadCv();
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
   const hasLoggedImpression = useRef(false);
+  const shouldShowUpload = isSameUser && hasClosedBanner && shouldShow;
 
   useEffect(() => {
-    if (isSameUser && shouldShow && !hasLoggedImpression.current) {
+    if (shouldShowUpload && !hasLoggedImpression.current) {
       logEvent({
         event_name: LogEvent.Impression,
         target_type: TargetType.CvBanner,
@@ -61,7 +72,7 @@ export function ProfileWidgets({
       });
       hasLoggedImpression.current = true;
     }
-  }, [isSameUser, logEvent, shouldShow]);
+  }, [shouldShowUpload, logEvent]);
 
   return (
     <div
@@ -113,7 +124,7 @@ export function ProfileWidgets({
           </div>
         )}
       </div>
-      {isSameUser && shouldShow && (
+      {shouldShowUpload && (
         <DragDrop
           isCompactList
           className="mx-4 max-w-80"
