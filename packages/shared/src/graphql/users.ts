@@ -12,6 +12,7 @@ import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
+import type { NotificationSettings } from '../components/notifications/utils';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -806,7 +807,7 @@ const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
 `;
 
 export const updateNotificationSettings = async (
-  notificationFlags: JSON,
+  notificationFlags: NotificationSettings,
 ): Promise<void> => {
   await gqlClient.request(UPDATE_NOTIFICATION_SETTINGS_MUTATION, {
     notificationFlags,

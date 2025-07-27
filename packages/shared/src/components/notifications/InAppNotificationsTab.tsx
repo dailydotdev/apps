@@ -9,6 +9,7 @@ import {
 import { Switch } from '../fields/Switch';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import type { NotificationSettings } from './utils';
 import {
   ACHIEVEMENT_KEYS,
   FOLLOWING_KEYS,
@@ -22,7 +23,12 @@ import {
 
 import { Checkbox } from '../fields/Checkbox';
 
-const getNotifGroupStatus = (keys: string[], ns: any) => {
+// Only need this because we are grouping independent settings together.
+// If we make a backend script to update the settings, we can remove this.
+const getNotifGroupStatus = (
+  keys: string[],
+  ns: NotificationSettings | undefined,
+) => {
   return keys.some(
     (key) => ns?.[key]?.inApp === NotificationPreferenceStatus.Subscribed,
   );
@@ -46,9 +52,9 @@ const InAppNotificationsTab = (): ReactElement => {
   const squadRoles = getNotifGroupStatus(SQUAD_ROLE_KEYS, ns);
 
   return (
-    <section className="flex flex-col gap-6">
+    <section className="flex flex-col gap-6 py-4">
       <div className="flex flex-row justify-between">
-        <div className="flex flex-col">
+        <div className="flex flex-1 flex-col">
           <Typography type={TypographyType.Body} bold>
             Push notifications
           </Typography>
@@ -185,7 +191,7 @@ const InAppNotificationsTab = (): ReactElement => {
         </Typography>
         <NotificationList>
           <li>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Body} bold>
                 Following
               </Typography>
@@ -283,7 +289,7 @@ const InAppNotificationsTab = (): ReactElement => {
       <NotificationSection>
         <NotificationList>
           <li>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Body} bold>
                 Streaks
               </Typography>
@@ -334,7 +340,7 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
           <li>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Body} bold>
                 Achievements
               </Typography>
@@ -428,7 +434,7 @@ const InAppNotificationsTab = (): ReactElement => {
           From daily.dev
         </Typography>
         <div className="flex flex-row justify-between">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-1 flex-col gap-3">
             <Typography type={TypographyType.Body} bold>
               Product tips
             </Typography>

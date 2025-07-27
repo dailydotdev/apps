@@ -233,3 +233,100 @@ export const NotificationList = classed(
 );
 
 export const NotificationSection = classed('section', 'flex flex-col gap-6');
+
+export interface NotificationChannelSetting {
+  email: 'subscribed' | 'muted';
+  inApp: 'subscribed' | 'muted';
+}
+
+export interface NotificationSettings {
+  [key: string]: NotificationChannelSetting;
+}
+
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  article_new_comment: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  comment_reply: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  article_upvote_milestone: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  comment_upvote_milestone: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  post_mention: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  comment_mention: {
+    email: 'muted', // TODO: Currently missing. Check if  should be added.
+    inApp: 'muted',
+  },
+  cores_and_awards_received: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  article_report_approved: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  streak_reset_restore: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  streak_reminder: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  restore_broken_streak: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  user_given_top_reader: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  dev_card_unlocked: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  source_post_added: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  squad_post_added: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  user_post_added: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  collection_updated: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  post_bookmark_reminder: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  promoted_to_admin: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  promoted_to_moderator: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  // TODO: Might have its own notification settings
+  // read_it_later_reminder: {
+  //   email: 'Muted',
+  //   inApp: 'Muted',
+  // },
+};

@@ -13,7 +13,7 @@ import {
   NotificationType,
 } from '../../components/notifications/utils';
 
-const useNotificationSettings = () => {
+const useEmailNotificationSettings = () => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const nsKey = generateQueryKey(RequestKey.NotificationSettings, {
@@ -47,65 +47,65 @@ const useNotificationSettings = () => {
     },
   });
 
-  const toggleSetting = (key: string) => {
-    const currentValue = ns[key]?.inApp;
+  const toggleEmailSetting = (key: string) => {
+    const currentValue = ns[key]?.email;
     const newValue =
       currentValue === NotificationPreferenceStatus.Subscribed
-        ? 'muted'
-        : 'subscribed';
+        ? NotificationPreferenceStatus.Muted
+        : NotificationPreferenceStatus.Subscribed;
 
     const updatedSettings = {
       ...ns,
       [key]: {
         ...ns[key],
-        inApp: newValue,
+        email: newValue,
       },
     };
 
     mutate(updatedSettings);
   };
 
-  const toggleMentions = (value: boolean) => {
-    const newStatus = value ? 'subscribed' : 'muted';
+  const toggleEmailMentions = (value: boolean) => {
+    const newStatus = value
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
 
     const updatedSettings = {
       ...ns,
       [NotificationType.PostMention]: {
         ...ns[NotificationType.PostMention],
-        inApp: newStatus,
+        email: newStatus,
       },
       [NotificationType.CommentMention]: {
         ...ns[NotificationType.CommentMention],
-        inApp: newStatus,
+        email: newStatus,
       },
     };
 
     mutate(updatedSettings);
   };
 
-  const toggleAchievements = (value: boolean) => {
-    const newStatus = value ? 'subscribed' : 'muted';
+  const toggleEmailAchievements = (value: boolean) => {
+    const newStatus = value
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
 
     const updatedSettings = {
       ...ns,
       [NotificationType.UserTopReaderBadge]: {
         ...ns[NotificationType.UserTopReaderBadge],
-        inApp: newStatus,
+        email: newStatus,
       },
       [NotificationType.DevCardUnlocked]: {
         ...ns[NotificationType.DevCardUnlocked],
-        inApp: newStatus,
+        email: newStatus,
       },
     };
 
     mutate(updatedSettings);
   };
 
-  const toggleFollowing = (value: boolean) => {
-    // const { newStatus, newValue } = getNewValues(
-    //   'following',
-    //   notificationSettings,
-    // );
+  const toggleEmailFollowing = (value: boolean) => {
     const newStatus = value
       ? NotificationPreferenceStatus.Subscribed
       : NotificationPreferenceStatus.Muted;
@@ -114,30 +114,26 @@ const useNotificationSettings = () => {
       ...ns,
       [NotificationType.SourcePostAdded]: {
         ...ns[NotificationType.SourcePostAdded],
-        inApp: newStatus,
+        email: newStatus,
       },
       [NotificationType.SquadPostAdded]: {
         ...ns[NotificationType.SquadPostAdded],
-        inApp: newStatus,
+        email: newStatus,
       },
       [NotificationType.UserPostAdded]: {
         ...ns[NotificationType.UserPostAdded],
-        inApp: newStatus,
+        email: newStatus,
       },
       [NotificationType.CollectionUpdated]: {
         ...ns[NotificationType.CollectionUpdated],
-        inApp: newStatus,
-      },
-      [NotificationType.PostBookmarkReminder]: {
-        ...ns[NotificationType.PostBookmarkReminder],
-        inApp: newStatus,
+        email: newStatus,
       },
     };
 
     mutate(updatedSettings);
   };
 
-  const toggleStreak = (value: boolean) => {
+  const toggleEmailStreak = (value: boolean) => {
     const newStatus = value
       ? NotificationPreferenceStatus.Subscribed
       : NotificationPreferenceStatus.Muted;
@@ -146,46 +142,60 @@ const useNotificationSettings = () => {
       ...ns,
       [NotificationType.StreakReminder]: {
         ...ns[NotificationType.StreakReminder],
-        inApp: newStatus,
+        email: newStatus,
       },
       [NotificationType.StreakResetRestore]: {
         ...ns[NotificationType.StreakResetRestore],
-        inApp: newStatus,
+        email: newStatus,
       },
     };
     mutate(updatedSettings);
   };
 
-  const toggleSquadRole = (value: boolean) => {
+  const toggleEmailCreatorUpdates = (value: boolean) => {
     const newStatus = value
       ? NotificationPreferenceStatus.Subscribed
       : NotificationPreferenceStatus.Muted;
 
     const updatedSettings = {
       ...ns,
-      [NotificationType.PromotedToAdmin]: {
-        ...ns[NotificationType.PromotedToAdmin],
-        inApp: newStatus,
-      },
-      [NotificationType.PromotedToModerator]: {
-        ...ns[NotificationType.PromotedToModerator],
-        inApp: newStatus,
+      [NotificationType.SourcePostApproved]: {
+        ...ns[NotificationType.SourcePostApproved],
+        email: newStatus,
       },
     };
 
     mutate(updatedSettings);
   };
 
+  const unsubscribeAll = () => {
+    const updatedSettings: NotificationSettings = Object.keys(ns).reduce(
+      (acc, key) => {
+        acc[key] = {
+          ...ns[key],
+          email: NotificationPreferenceStatus.Muted,
+        };
+        return acc;
+      },
+      {},
+    );
+    mutate(updatedSettings);
+  };
+
   return {
     isLoadingPreferences,
-    toggleSetting,
+    toggleEmailSetting,
     notificationSettings: ns,
-    toggleMentions,
-    toggleAchievements,
-    toggleFollowing,
-    toggleStreak,
-    toggleSquadRole,
+    toggleEmailMentions,
+    toggleEmailAchievements,
+    toggleEmailFollowing,
+    toggleEmailStreak,
+    toggleEmailCreatorUpdates,
+    unsubscribeAll,
+    emailsEnabled: Object.values(ns as NotificationSettings).some(
+      (setting) => setting.email === 'subscribed',
+    ),
   };
 };
 
-export default useNotificationSettings;
+export default useEmailNotificationSettings;
