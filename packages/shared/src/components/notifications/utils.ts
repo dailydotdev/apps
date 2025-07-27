@@ -57,6 +57,16 @@ export enum NotificationType {
   UserReceivedAward = 'user_received_award',
   BriefingReady = 'briefing_ready',
   UserFollow = 'user_follow',
+  ArticleUpvoteMilestone = 'article_upvote_milestone',
+  CommentUpvoteMilestone = 'comment_upvote_milestone',
+  ArticleReportApproved = 'article_report_approved',
+  PostBookmarkReminder = 'post_bookmark_reminder',
+  StreakReminder = 'streak_reminder',
+  StreakResetRestore = 'streak_reset_restore',
+  SourcePostApproved = 'source_post_approved',
+  DevCardUnlocked = 'dev_card_unlocked',
+  PostMention = 'post_mention',
+  CommentMention = 'comment_mention',
 }
 
 export enum NotificationIconType {
@@ -138,6 +148,16 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserReceivedAward]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
+    [NotificationType.ArticleUpvoteMilestone]: 'text-brand-default',
+    [NotificationType.CommentUpvoteMilestone]: 'text-brand-default',
+    [NotificationType.ArticleReportApproved]: 'text-brand-default',
+    [NotificationType.PostBookmarkReminder]: 'text-brand-default',
+    [NotificationType.StreakReminder]: 'text-brand-default',
+    [NotificationType.StreakResetRestore]: 'text-brand-default',
+    [NotificationType.SourcePostApproved]: 'text-brand-default',
+    [NotificationType.DevCardUnlocked]: 'text-brand-default',
+    [NotificationType.PostMention]: 'text-brand-default',
+    [NotificationType.CommentMention]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;
@@ -182,3 +202,34 @@ export type SubscriptionCallback = (
   source?: NotificationPromptSource,
   existing_permission?: boolean,
 ) => unknown;
+
+export const FOLLOWING_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.SquadPostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.PostBookmarkReminder,
+];
+export const ACHIEVEMENT_KEYS = [
+  NotificationType.UserTopReaderBadge,
+  NotificationType.DevCardUnlocked,
+];
+export const MENTION_KEYS = [
+  NotificationType.PostMention,
+  NotificationType.CommentMention,
+];
+export const STREAK_KEYS = [
+  NotificationType.StreakReminder,
+  NotificationType.StreakResetRestore,
+];
+export const SQUAD_ROLE_KEYS = [
+  NotificationType.PromotedToAdmin,
+  NotificationType.PromotedToModerator,
+];
+
+export const NotificationList = classed(
+  'ul',
+  'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:justify-between',
+);
+
+export const NotificationSection = classed('section', 'flex flex-col gap-6');
