@@ -209,7 +209,6 @@ function FeedNav(): ReactElement {
                   chevron: 'hidden',
                   button: '!px-1',
                 }}
-                dynamicMenuWidth
                 shouldIndicateSelected
                 buttonSize={ButtonSize.Small}
                 buttonVariant={ButtonVariant.Tertiary}

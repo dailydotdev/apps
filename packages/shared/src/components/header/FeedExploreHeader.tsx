@@ -126,7 +126,6 @@ export function FeedExploreHeader({
             {shouldShowDropdown && (
               <Dropdown
                 iconOnly
-                dynamicMenuWidth
                 shouldIndicateSelected
                 icon={<CalendarIcon size={IconSize.Medium} />}
                 selectedIndex={period}
