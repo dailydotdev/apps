@@ -27,6 +27,9 @@ import { ArrowIcon } from '../icons';
 import { Button } from '../buttons/Button';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { usePushNotificationMutation } from '../../hooks/notifications';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { NotificationPromptSource } from '../../lib/log';
 
 // Only need this because we are grouping independent settings together.
 // If we make a backend script to update the settings, we can remove this.
@@ -40,6 +43,9 @@ const getNotifGroupStatus = (
 };
 
 const InAppNotificationsTab = (): ReactElement => {
+  const { onTogglePermission } = usePushNotificationMutation();
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
   const { openModal } = useLazyModal();
   const {
     notificationSettings: ns,
@@ -50,6 +56,15 @@ const InAppNotificationsTab = (): ReactElement => {
     toggleStreak,
     toggleSquadRole,
   } = useNotificationSettings();
+
+  const onTogglePush = async () => {
+    // onLogToggle(
+    //   !isSubscribed,
+    //   NotificationChannel.Web,
+    //   NotificationCategory.Product,
+    // );
+    return onTogglePermission(NotificationPromptSource.NotificationsPage);
+  };
 
   const mentions = getNotifGroupStatus(MENTION_KEYS, ns);
   const following = getNotifGroupStatus(FOLLOWING_KEYS, ns);
@@ -71,11 +86,14 @@ const InAppNotificationsTab = (): ReactElement => {
           </Typography>
         </div>
         <Switch
-          inputId="push-notifications"
-          name="push-notifications"
-          checked
-          onChange={() => {}}
+          data-testid="push_notification-switch"
+          inputId="push_notification-switch"
+          name="push_notification"
+          className="w-20 justify-end"
           compact={false}
+          checked={isSubscribed}
+          onToggle={onTogglePush}
+          disabled={!isInitialized}
         />
       </div>
       <div className="flex flex-row justify-between gap-4">
