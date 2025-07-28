@@ -22,6 +22,11 @@ import {
 } from './utils';
 
 import { Checkbox } from '../fields/Checkbox';
+import { ButtonVariant } from '../buttons/common';
+import { ArrowIcon } from '../icons';
+import { Button } from '../buttons/Button';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 // Only need this because we are grouping independent settings together.
 // If we make a backend script to update the settings, we can remove this.
@@ -35,6 +40,7 @@ const getNotifGroupStatus = (
 };
 
 const InAppNotificationsTab = (): ReactElement => {
+  const { openModal } = useLazyModal();
   const {
     notificationSettings: ns,
     toggleSetting,
@@ -53,8 +59,8 @@ const InAppNotificationsTab = (): ReactElement => {
 
   return (
     <section className="flex flex-col gap-6 py-4">
-      <div className="flex flex-row justify-between">
-        <div className="flex flex-1 flex-col">
+      <div className="flex flex-row justify-between gap-4">
+        <div className="flex flex-1 flex-col gap-1">
           <Typography type={TypographyType.Body} bold>
             Push notifications
           </Typography>
@@ -72,6 +78,24 @@ const InAppNotificationsTab = (): ReactElement => {
           compact={false}
         />
       </div>
+      <div className="flex flex-row justify-between gap-4">
+        <div className="flex flex-1 flex-col gap-1">
+          <Typography type={TypographyType.Body} bold>
+            Squad notifications
+          </Typography>
+          <Typography type={TypographyType.Footnote}>
+            Control notifications for new posts in squads you’ve joined. Scroll
+            down for moderation notification settings.
+          </Typography>
+        </div>
+        <Button
+          icon={<ArrowIcon className="m-auto rotate-90" />}
+          variant={ButtonVariant.Option}
+          onClick={() =>
+            openModal({ type: LazyModal.SquadNotificationSettings })
+          }
+        />
+      </div>
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Activity
@@ -82,8 +106,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Comments on your post
             </Typography>
             <Switch
-              inputId="article_new_comment"
-              name="article_new_comment"
+              inputId={NotificationType.ArticleNewComment}
+              name={NotificationType.ArticleNewComment}
               checked={
                 ns?.article_new_comment?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -97,8 +121,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Replies to your comment
             </Typography>
             <Switch
-              inputId="comment_reply"
-              name="comment_reply"
+              inputId={NotificationType.CommentReply}
+              name={NotificationType.CommentReply}
               checked={
                 ns?.comment_reply?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -112,8 +136,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Upvotes on your post
             </Typography>
             <Switch
-              inputId="article_upvote_milestone"
-              name="article_upvote_milestone"
+              inputId={NotificationType.ArticleUpvoteMilestone}
+              name={NotificationType.ArticleUpvoteMilestone}
               checked={
                 ns?.article_upvote_milestone?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -129,8 +153,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Upvotes on your comment
             </Typography>
             <Switch
-              inputId="comment_upvote_milestone"
-              name="comment_upvote_milestone"
+              inputId={NotificationType.CommentUpvoteMilestone}
+              name={NotificationType.CommentUpvoteMilestone}
               checked={
                 ns?.comment_upvote_milestone?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -170,8 +194,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Report updates
             </Typography>
             <Switch
-              inputId="article_report_approved"
-              name="article_report_approved"
+              inputId={NotificationType.ArticleReportApproved}
+              name={NotificationType.ArticleReportApproved}
               checked={
                 ns?.article_report_approved?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -216,7 +240,7 @@ const InAppNotificationsTab = (): ReactElement => {
               Source new post
             </Typography>
             <Checkbox
-              name="source_post_added"
+              name={NotificationType.SourcePostAdded}
               checked={
                 ns?.source_post_added?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -231,7 +255,7 @@ const InAppNotificationsTab = (): ReactElement => {
               Squad new post
             </Typography>
             <Checkbox
-              name="squad_post_added"
+              name={NotificationType.SquadPostAdded}
               checked={
                 ns?.squad_post_added?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -246,7 +270,7 @@ const InAppNotificationsTab = (): ReactElement => {
               User new posts
             </Typography>
             <Checkbox
-              name="user_post_added"
+              name={NotificationType.UserPostAdded}
               checked={
                 ns?.user_post_added?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -261,7 +285,7 @@ const InAppNotificationsTab = (): ReactElement => {
               Collections you follow
             </Typography>
             <Checkbox
-              name="collection_updated"
+              name={NotificationType.CollectionUpdated}
               checked={
                 ns?.collection_updated?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -274,7 +298,7 @@ const InAppNotificationsTab = (): ReactElement => {
           <li>
             <Typography type={TypographyType.Callout}>Read it later</Typography>
             <Checkbox
-              name="post_bookmark_reminder"
+              name={NotificationType.PostBookmarkReminder}
               checked={
                 ns?.post_bookmark_reminder?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -302,8 +326,8 @@ const InAppNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Switch
-              inputId="streaks"
-              name="streaks"
+              inputId={NotificationType.StreakReminder}
+              name={NotificationType.StreakReminder}
               checked={streaks}
               onToggle={() => toggleStreak(!streaks)}
               compact={false}
@@ -314,7 +338,7 @@ const InAppNotificationsTab = (): ReactElement => {
               Notify me before my streak expires
             </Typography>
             <Checkbox
-              name="streak_reminder"
+              name={NotificationType.StreakReminder}
               checked={
                 ns?.streak_reminder?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -329,7 +353,7 @@ const InAppNotificationsTab = (): ReactElement => {
               Restore broken streak
             </Typography>
             <Checkbox
-              name="streak_reset_restore"
+              name={NotificationType.StreakResetRestore}
               checked={
                 ns?.streak_reset_restore?.inApp ===
                 NotificationPreferenceStatus.Subscribed
@@ -402,7 +426,7 @@ const InAppNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Checkbox
-              name="source_post_approved"
+              name={NotificationType.SourcePostApproved}
               checked={false}
               onToggleCallback={() =>
                 toggleSetting(NotificationType.SourcePostApproved)

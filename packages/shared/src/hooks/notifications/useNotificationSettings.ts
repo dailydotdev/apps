@@ -179,7 +179,7 @@ const useNotificationSettings = () => {
   return {
     isLoadingPreferences,
     toggleSetting,
-    notificationSettings: ns,
+    notificationSettings: ns as NotificationSettings,
     toggleMentions,
     toggleAchievements,
     toggleFollowing,
