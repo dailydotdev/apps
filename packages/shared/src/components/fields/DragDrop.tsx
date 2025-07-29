@@ -17,6 +17,8 @@ import { ChecklistAIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
+import { useViewSize, ViewSize } from '../../hooks';
+import { UploadIcon } from '../icons/Upload';
 
 export interface DragDropValidation {
   /** Maximum file size in bytes */
@@ -55,13 +57,12 @@ export interface DragDropProps {
   disabled?: boolean;
   /** Custom className for the drop zone */
   className?: string;
-  /** Content to show when no files are selected */
-  children?: ReactNode;
   state?: MutationStatus;
   inputRef?: MutableRefObject<HTMLInputElement>;
   isCompactList?: boolean;
-  renameFileTo?: string;
-  hiddenInput?: boolean;
+  ctaSize?: ButtonSize;
+  renderCta?: (onBrowseFile: () => void) => ReactNode;
+  isCopyBold?: boolean;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -89,6 +90,7 @@ interface ItemProps {
   name: string;
   state: MutationStatus;
   uploadAt?: Date;
+  className?: string;
 }
 
 const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
@@ -113,8 +115,8 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
   </div>
 );
 
-const CompactItem = ({ name, state }: ItemProps) => (
-  <div className="flex w-full items-center gap-1">
+const CompactItem = ({ name, state, className }: ItemProps) => (
+  <div className={classNames('flex w-full items-center gap-1', className)}>
     <DocsIcon secondary />
     <div className="min-w-0 flex-1 text-left">
       <Typography className="truncate" type={TypographyType.Footnote} bold>
@@ -125,18 +127,23 @@ const CompactItem = ({ name, state }: ItemProps) => (
   </div>
 );
 
+export const dragDropClasses =
+  'relative flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary';
+
 export function DragDrop({
   onFilesDrop,
   validation = {},
   errorMessages = {},
   disabled = false,
   className,
-  children,
   state,
   inputRef: inputRefProps,
   isCompactList,
-  renameFileTo,
+  ctaSize,
+  renderCta,
+  isCopyBold,
 }: DragDropProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
   useImperativeHandle(inputRefProps, () => inputRef.current);
   const [filenames, setFilenames] = useState<string[]>([]);
@@ -269,22 +276,7 @@ export function DragDrop({
     }
 
     // Call callback with valid files and errors
-    setFilenames(
-      validFiles.map((file: File, index: number) => {
-        const { name } = file;
-
-        if (!renameFileTo) {
-          return name;
-        }
-
-        const chunks = name.split('.');
-        const extension = chunks.pop();
-
-        return validFiles.length === 1
-          ? `${renameFileTo}.${extension}`
-          : `${renameFileTo} (${index + 1}).${extension}`;
-      }),
-    );
+    setFilenames(validFiles.map(({ name }: File) => name));
     onFilesDrop(validFiles, errors.length > 0 ? errors : undefined);
   };
 
@@ -312,50 +304,84 @@ export function DragDrop({
     }, 0);
   };
 
+  const input = (
+    <input
+      type="file"
+      hidden
+      ref={inputRef}
+      onChange={handleFileInput}
+      accept={acceptedTypes.join(',')}
+      multiple={multiple}
+      disabled={disabled}
+    />
+  );
+
+  const onClickCta = () => inputRef.current.click();
+
+  if (!isLaptop) {
+    const isProcessed = !isError && filenames?.length;
+    const cta = renderCta?.(onClickCta) ?? (
+      <Button
+        type="button"
+        className={classNames('w-fit', className)}
+        variant={ButtonVariant.Primary}
+        onClick={onClickCta}
+        icon={<UploadIcon />}
+        size={ctaSize}
+      >
+        Upload PDF
+      </Button>
+    );
+
+    return (
+      <div className="flex flex-row">
+        {input}
+        {isProcessed ? (
+          <CompactItem
+            name={filenames[0]}
+            state={state}
+            className={classNames(className, 'h-10')}
+          />
+        ) : (
+          cta
+        )}
+      </div>
+    );
+  }
+
   const defaultContent = (
-    <>
+    <span className="flex flex-row items-center gap-1">
       <Typography
-        className="flex flex-row gap-1"
+        className="flex flex-row items-center gap-1"
         type={TypographyType.Footnote}
-        bold
+        bold={isCopyBold}
       >
         <DocsIcon secondary />
         Drag & Drop your CV or
       </Typography>
-      <Button
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Small}
-        onClick={() => inputRef.current.click()}
-        type="button"
-      >
-        Browse
-      </Button>
-    </>
+      {renderCta?.(onClickCta) ?? (
+        <Button
+          className="text-text-primary"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          onClick={() => inputRef.current.click()}
+          type="button"
+        >
+          Upload PDF
+        </Button>
+      )}
+    </span>
   );
 
   const shouldShowContent = !filenames?.length || isError;
 
   const ListItem =
     isCompactList || state === 'pending' ? CompactItem : LargeItem;
-  const defaultContainer = (
-    <div
-      className={classNames(
-        'flex w-full items-center justify-center gap-3 p-6 text-center',
-        !shouldShowContent ? 'flex-col' : 'flex-row',
-      )}
-    >
-      {shouldShowContent
-        ? defaultContent
-        : filenames?.map((name) => (
-            <ListItem key={name} name={name} state={state} />
-          ))}
-    </div>
-  );
 
   return (
     <div
       className={classNames(
-        'relative flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary',
+        dragDropClasses,
         {
           'bg-surface-float': !isDragOver,
           'bg-surface-hover': isDragOver && isDragValid,
@@ -367,16 +393,19 @@ export function DragDrop({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {children || defaultContainer}
-      <input
-        type="file"
-        hidden
-        ref={inputRef}
-        onChange={handleFileInput}
-        accept={acceptedTypes.join(',')}
-        multiple={multiple}
-        disabled={disabled}
-      />
+      <div
+        className={classNames(
+          'flex w-full items-center justify-center gap-3 p-6 text-center',
+          !shouldShowContent ? 'flex-col' : 'flex-row',
+        )}
+      >
+        {shouldShowContent
+          ? defaultContent
+          : filenames?.map((name) => (
+              <ListItem key={name} name={name} state={state} />
+            ))}
+      </div>
+      {input}
     </div>
   );
 }

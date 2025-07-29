@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import PostNavigation from './PostNavigation';
 import type { PostNavigationProps } from './common';
+import { ButtonSize } from '../buttons/Button';
 
 function FixedPostNavigation({
   onPreviousPost,
@@ -22,7 +23,7 @@ function FixedPostNavigation({
       contextMenuId="fixed-post-navigation-context"
       className={{
         container: classNames(
-          'fixed z-postNavigation ml-0 w-full border border-border-subtlest-tertiary bg-background-subtle px-6 py-4',
+          'fixed z-postNavigation ml-0 w-full border border-border-subtlest-tertiary bg-background-subtle px-6 py-1',
           'max-w-full laptop:left-[unset]',
           isBannerVisible ? 'top-14' : 'top-0',
           className?.container,
@@ -32,6 +33,7 @@ function FixedPostNavigation({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
       postPosition={postPosition}
+      buttonSize={ButtonSize.Medium}
     />
   );
 }

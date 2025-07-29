@@ -17,6 +17,11 @@ export interface InfiniteScrollingProps
   fetchNextPage: () => Promise<unknown>;
 }
 
+export type InfiniteScrollingQueryProps = Pick<
+  InfiniteScrollingProps,
+  'canFetchMore' | 'isFetchingNextPage' | 'fetchNextPage' | 'placeholder'
+>;
+
 export const checkFetchMore = (
   // (Specific since we don't know inferred type)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

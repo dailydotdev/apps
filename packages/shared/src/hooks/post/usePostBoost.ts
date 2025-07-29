@@ -12,11 +12,14 @@ import {
   getNextPageParam,
   StaleTime,
 } from '../../lib/query';
+import type { InfiniteScrollingQueryProps } from '../../components/containers/InfiniteScrolling';
+import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
 
 interface UsePostBoost {
   stats: BoostedPostStats;
   data?: InfiniteData<BoostedPostConnection>;
   isLoading: boolean;
+  infiniteScrollingProps: InfiniteScrollingQueryProps;
 }
 
 const FIRST_DEFAULT_VALUE = 20;
@@ -32,11 +35,7 @@ export const usePostBoost = (): UsePostBoost => {
   const key = generateQueryKey(RequestKey.PostCampaigns, user, {
     first: FIRST_DEFAULT_VALUE,
   });
-  const {
-    data: campaigns,
-    isPending,
-    isFetched,
-  } = useInfiniteQuery({
+  const queryResult = useInfiniteQuery({
     queryKey: key,
     queryFn: ({ pageParam }) =>
       getBoostedPostCampaigns({
@@ -57,9 +56,22 @@ export const usePostBoost = (): UsePostBoost => {
     staleTime: StaleTime.Default,
   });
 
+  const {
+    data: campaigns,
+    isPending,
+    isFetched,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = queryResult;
+
   return {
     data: campaigns,
     stats: campaigns?.pages?.[0]?.stats ?? defaultStats,
     isLoading: isPending && !isFetched,
+    infiniteScrollingProps: {
+      isFetchingNextPage,
+      fetchNextPage,
+      canFetchMore: checkFetchMore(queryResult),
+    },
   };
 };

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useEffect, useContext } from 'react';
+import React, { useRef, useEffect, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { Header } from './Header';
 import { HeroImage } from './HeroImage';
@@ -10,18 +10,32 @@ import { SquadsList } from './SquadsList';
 import { useDynamicHeader } from '../../useDynamicHeader';
 import AuthContext from '../../contexts/AuthContext';
 import type { ProfileV2 } from '../../graphql/users';
-import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
+import {
+  ReferralCampaignKey,
+  useActions,
+  useReferralCampaign,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
-import { DragDrop } from '../fields/DragDrop';
+import { DragDrop, dragDropClasses } from '../fields/DragDrop';
 import {
   fileValidation,
   useUploadCv,
 } from '../../features/profile/hooks/useUploadCv';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { ActionType } from '../../graphql/actions';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { FeelingLazy } from '../../features/profile/components/FeelingLazy';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -39,6 +53,7 @@ export function ProfileWidgets({
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
+  const isTouchDevice = !useViewSize(ViewSize.Laptop);
 
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(enableSticky);
@@ -49,11 +64,17 @@ export function ProfileWidgets({
     enabled: isSameUser,
   });
 
+  const { checkHasCompleted } = useActions();
   const { onUpload, status, shouldShow } = useUploadCv();
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
   const hasLoggedImpression = useRef(false);
+  const shouldShowUpload = isSameUser && hasClosedBanner && shouldShow;
 
   useEffect(() => {
-    if (isSameUser && shouldShow && !hasLoggedImpression.current) {
+    if (shouldShowUpload && !hasLoggedImpression.current) {
       logEvent({
         event_name: LogEvent.Impression,
         target_type: TargetType.CvBanner,
@@ -61,7 +82,7 @@ export function ProfileWidgets({
       });
       hasLoggedImpression.current = true;
     }
-  }, [isSameUser, logEvent, shouldShow]);
+  }, [shouldShowUpload, logEvent]);
 
   return (
     <div
@@ -113,15 +134,55 @@ export function ProfileWidgets({
           </div>
         )}
       </div>
-      {isSameUser && shouldShow && (
-        <DragDrop
-          isCompactList
-          className="mx-4 max-w-[18.5rem]"
-          renameFileTo={loggedUser.name}
-          onFilesDrop={([file]) => onUpload(file)}
-          validation={fileValidation}
-          state={status}
-        />
+      {shouldShowUpload && (
+        <div className="mx-4 flex max-w-80 flex-col gap-2 tablet:max-w-96">
+          <ConditionalWrapper
+            condition={isTouchDevice}
+            wrapper={(component) => (
+              <div
+                className={classNames(
+                  dragDropClasses,
+                  'flex-col gap-1 bg-surface-float p-3',
+                )}
+              >
+                <Typography bold type={TypographyType.Callout}>
+                  Your next job should apply to you
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="mb-2"
+                >
+                  Upload your CV so we can quietly start matching you with roles
+                  that actually fit your skills and interests.
+                </Typography>
+                {component}
+              </div>
+            )}
+          >
+            <DragDrop
+              isCompactList
+              onFilesDrop={([file]) => onUpload(file)}
+              validation={fileValidation}
+              state={status}
+              ctaSize={isTouchDevice ? ButtonSize.Small : undefined}
+              renderCta={
+                isTouchDevice
+                  ? undefined
+                  : (onBrowseFile) => (
+                      <button
+                        type="button"
+                        onClick={onBrowseFile}
+                        className="underline typo-footnote hover:no-underline"
+                      >
+                        Upload PDF
+                      </button>
+                    )
+              }
+            />
+          </ConditionalWrapper>
+          <FeelingLazy />
+        </div>
       )}
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (

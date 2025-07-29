@@ -203,7 +203,8 @@ export const FeedContainer = ({
   const { onUpload, status, shouldShow } = useUploadCv({
     onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
-  const shouldShowBanner = !!marketingCta && shouldShow;
+  const shouldShowBanner =
+    !!marketingCta && shouldShow && feedName === SharedFeedPage.MyFeed;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;

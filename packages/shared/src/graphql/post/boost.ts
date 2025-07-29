@@ -20,6 +20,7 @@ const BOOSTED_POST_FRAGMENT = gql`
       postId
       status
       spend
+      budget
       impressions
       clicks
       startedAt
@@ -58,6 +59,7 @@ export interface PromotedPost {
   postId: string;
   status: 'INACTIVE' | 'CANCELLED' | 'ACTIVE';
   spend: number;
+  budget: number;
   startedAt: Date;
   endedAt: Date;
   impressions: number;

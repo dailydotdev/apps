@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
-import { PostType, isVideoPost } from '../../graphql/posts';
+import { isVideoPost, PostType } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
@@ -17,6 +17,7 @@ import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
 import { isSourceUserSource } from '../../graphql/sources';
+import { ProfileImageSize } from '../ProfilePicture';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -115,21 +116,30 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
-          {!isUserSource && (
+          <div
+            className={
+              isUserSource
+                ? 'flex flex-row-reverse items-center justify-between truncate'
+                : undefined
+            }
+          >
             <PostSourceInfo
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
               className="mb-6"
             />
-          )}
-          <SquadPostAuthor
-            author={post?.author}
-            role={role}
-            date={post.createdAt}
-            className={{ container: 'mt-3' }}
-            isUserSource={isUserSource}
-          />
+            <SquadPostAuthor
+              author={post?.author}
+              role={role}
+              date={post.createdAt}
+              className={{
+                container: !isUserSource ? 'mt-3' : 'shrink truncate',
+              }}
+              isUserSource={isUserSource}
+              size={ProfileImageSize.Large}
+            />
+          </div>
           <Content post={post} onReadArticle={onReadArticle} />
         </BasePostContent>
       </div>
