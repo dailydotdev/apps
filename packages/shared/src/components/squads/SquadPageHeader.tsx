@@ -149,11 +149,7 @@ export function SquadPageHeader({
           tag={TypographyTag.P}
           color={TypographyColor.Secondary}
           type={TypographyType.Callout}
-          className={classNames(
-            'mt-5 w-full text-center',
-            !shouldUseListMode && 'laptopL:text-left',
-            MAX_WIDTH,
-          )}
+          className={classNames('mt-5 w-full', MAX_WIDTH)}
         >
           {squad.description}
         </Typography>
