@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import {
@@ -12,7 +12,10 @@ import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
-import { getPostById } from '../../../../graphql/posts';
+import {
+  briefRefetchIntervalMs,
+  defautRefetchMs,
+} from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
@@ -27,7 +30,8 @@ import { postBoostSuccessCover } from '../../../../lib/image';
 import { walletUrl } from '../../../../lib/constants';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { Loader } from '../../../Loader';
-import { usePolling } from '../../../../hooks/usePolling';
+import { usePostById } from '../../../../hooks';
+import { oneMinute } from '../../../../lib/dateFormat';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -47,10 +51,10 @@ const SCREENS = {
 export type Screens = keyof typeof SCREENS;
 
 export function BoostPostModal({
-  post: _post,
+  post: postFromProps,
   ...props
 }: BoostPostModalProps): ReactElement {
-  const [post, setPost] = useState(_post);
+  const [post, setPost] = useState(postFromProps);
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
@@ -74,28 +78,36 @@ export function BoostPostModal({
     });
   const image = usePostImage(post);
 
-  const [fetchPostByIdPolling] = usePolling(
-    async () => {
-      const request = await getPostById(post.id);
+  usePostById({
+    id: post.id,
+    options: {
+      enabled: !hasTags && !post.yggdrasilId,
+      refetchInterval: (query) => {
+        const retries = Math.max(
+          query.state.dataUpdateCount,
+          query.state.fetchFailureCount,
+        );
 
-      if (!request?.post?.yggdrasilId) {
-        return { shouldResend: true };
-      }
+        // 30 seconds is an ample time to process yggdrasil
+        const oneMinuteMs = oneMinute * 1000;
+        const maxRetries = oneMinuteMs / 2 / defautRefetchMs;
 
-      setPost(request.post);
+        if (retries > maxRetries) {
+          return false;
+        }
 
-      return { shouldResend: false };
+        const { data } = query.state;
+
+        // in case of query error keep refetching until maxRetries is reached
+        if (data.post.yggdrasilId) {
+          setPost(data.post);
+          return false;
+        }
+
+        return briefRefetchIntervalMs;
+      },
     },
-    { retries: 3, intervalMs: 5000 },
-  );
-
-  useEffect(() => {
-    if (hasTags || post.yggdrasilId) {
-      return;
-    }
-
-    fetchPostByIdPolling();
-  }, [hasTags, post, fetchPostByIdPolling]);
+  });
 
   const onButtonClick = () => {
     if (user.balance.amount < totalSpendInt) {

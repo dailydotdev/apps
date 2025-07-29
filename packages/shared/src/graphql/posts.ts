@@ -1009,4 +1009,5 @@ export const GENERATE_BRIEFING = gql`
   }
 `;
 
-export const briefRefetchIntervalMs = 4000;
+export const defautRefetchMs = 4000;
+export const briefRefetchIntervalMs = defautRefetchMs;
