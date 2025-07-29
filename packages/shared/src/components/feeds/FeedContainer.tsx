@@ -20,7 +20,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import type { OtherFeedPage } from '../../lib/query';
+import { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
@@ -135,6 +135,14 @@ const feedNameToHeading: Record<
   bookmarks: 'Bookmarks',
 };
 
+const feedWithBanner = [
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  SharedFeedPage.Upvoted,
+  OtherFeedPage.Discussed,
+  OtherFeedPage.Bookmarks,
+];
+
 export const FeedContainer = ({
   children,
   header,
@@ -203,7 +211,8 @@ export const FeedContainer = ({
   const { onUpload, status, shouldShow } = useUploadCv({
     onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
-  const shouldShowBanner = !!marketingCta && shouldShow;
+  const shouldShowBanner =
+    !!marketingCta && shouldShow && feedWithBanner.includes(feedName);
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
