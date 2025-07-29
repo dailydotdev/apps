@@ -135,13 +135,6 @@ const feedNameToHeading: Record<
   bookmarks: 'Bookmarks',
 };
 
-const feedWithBanner = [
-  SharedFeedPage.MyFeed,
-  SharedFeedPage.Popular,
-  SharedFeedPage.Upvoted,
-  OtherFeedPage.Discussed,
-];
-
 export const FeedContainer = ({
   children,
   header,
@@ -211,7 +204,7 @@ export const FeedContainer = ({
     onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
   });
   const shouldShowBanner =
-    !!marketingCta && shouldShow && feedWithBanner.includes(feedName);
+    !!marketingCta && shouldShow && feedName === SharedFeedPage.MyFeed;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
