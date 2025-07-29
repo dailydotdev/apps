@@ -48,7 +48,7 @@ export const usePostBoostMutation = ({
       RequestKey.PostCampaigns,
       user,
       'estimate',
-      [toEstimate?.id, toEstimate?.budget, toEstimate?.duration].join(':'),
+      toEstimate ? Object.values(toEstimate).join(':') : undefined,
     ),
     queryFn: () => getBoostEstimatedReach(toEstimate),
     enabled: !!toEstimate,
