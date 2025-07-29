@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import {
@@ -12,6 +12,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
+import { getPostById } from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
@@ -24,6 +25,8 @@ import { LazyModal } from '../../common/types';
 import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
 import { postBoostSuccessCover } from '../../../../lib/image';
 import { walletUrl } from '../../../../lib/constants';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
+import { Loader } from '../../../Loader';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -43,22 +46,50 @@ const SCREENS = {
 export type Screens = keyof typeof SCREENS;
 
 export function BoostPostModal({
-  post,
+  post: _post,
   ...props
 }: BoostPostModalProps): ReactElement {
+  const [post, setPost] = useState(_post);
+  const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
+  const [queryProps, setQueryProps] = useState({ coresPerDay, totalDays });
+  const [updateQueryProps] = useDebounceFn(setQueryProps, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
   const { estimatedReach, onBoostPost, isLoadingEstimate } =
     usePostBoostMutation({
-      toEstimate: { id: post.id },
+      toEstimate: hasTags
+        ? {
+            id: post.id,
+            budget: queryProps.coresPerDay,
+            duration: queryProps.totalDays,
+          }
+        : undefined,
       onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
     });
   const image = usePostImage(post);
+
+  const [debouncedPostById] = useDebounceFn(async () => {
+    const request = await getPostById(post.id);
+
+    if (!request?.post?.yggdrasilId) {
+      return debouncedPostById(post.id);
+    }
+
+    return setPost(request.post);
+  }, 5000);
+
+  useEffect(() => {
+    if (hasTags || post.yggdrasilId) {
+      return;
+    }
+
+    debouncedPostById(post.id);
+  }, [hasTags, post, debouncedPostById]);
 
   const onButtonClick = () => {
     if (user.balance.amount < totalSpendInt) {
@@ -119,8 +150,8 @@ export function BoostPostModal({
   const maxReach = Math.max(estimatedReach.min, estimatedReach.max);
 
   const potentialReach = (() => {
-    if (isLoadingEstimate) {
-      return 'Calculating...';
+    if (isLoadingEstimate || !hasTags) {
+      return <Loader />;
     }
 
     const min = largeNumberFormat(estimatedReach.min);
@@ -196,7 +227,7 @@ export function BoostPostModal({
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Potential reach
+              Estimated daily reach
             </Typography>
           </div>
         </div>
@@ -224,6 +255,7 @@ export function BoostPostModal({
             step={1000}
             defaultValue={[coresPerDay]}
             onValueChange={([value]) => {
+              updateQueryProps((state) => ({ ...state, coresPerDay: value }));
               setCoresPerDay(value);
             }}
           />
@@ -244,6 +276,7 @@ export function BoostPostModal({
             step={1}
             defaultValue={[totalDays]}
             onValueChange={([value]) => {
+              updateQueryProps((state) => ({ ...state, coresPerDay: value }));
               setTotalDays(value);
             }}
           />
@@ -255,6 +288,7 @@ export function BoostPostModal({
           className="w-full"
           type="button"
           onClick={onButtonClick}
+          disabled={!hasTags || isLoadingEstimate}
         >
           Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
         </Button>

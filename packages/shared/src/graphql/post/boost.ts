@@ -146,9 +146,13 @@ export interface BoostEstimatedReach {
 
 export const getBoostEstimatedReach = async ({
   id,
-}: Pick<BoostPostProps, 'id'>): Promise<BoostEstimatedReach> => {
+  budget,
+  duration,
+}: BoostPostProps): Promise<BoostEstimatedReach> => {
   const result = await gqlClient.request(BOOST_ESTIMATED_REACH, {
     postId: id,
+    budget,
+    duration,
   });
 
   return result.boostEstimatedReach;

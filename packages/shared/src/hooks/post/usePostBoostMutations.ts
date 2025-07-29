@@ -20,7 +20,7 @@ import { useTransactionError } from '../useTransactionError';
 import { useToastNotification } from '../useToastNotification';
 
 interface UsePostBoostMutationProps {
-  toEstimate?: Pick<BoostPostProps, 'id'>;
+  toEstimate?: BoostPostProps;
   onBoostSuccess?: () => void;
   onCancelSuccess?: () => void;
 }
@@ -48,7 +48,7 @@ export const usePostBoostMutation = ({
       RequestKey.PostCampaigns,
       user,
       'estimate',
-      toEstimate?.id,
+      [toEstimate?.id, toEstimate?.budget, toEstimate?.duration].join(':'),
     ),
     queryFn: () => getBoostEstimatedReach(toEstimate),
     enabled: !!toEstimate,

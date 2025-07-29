@@ -150,6 +150,7 @@ export interface Post {
   clickbaitTitleDetected?: boolean;
   translation?: PostTranslation;
   language?: string;
+  yggdrasilId?: string;
   featuredAward?: {
     award?: FeaturedAward;
   };
@@ -263,6 +264,9 @@ export const POST_BY_ID_QUERY = gql`
   ${SHARED_POST_INFO_FRAGMENT}
   ${RELATED_POST_FRAGMENT}
 `;
+
+export const getPostById = (id: string) =>
+  gqlClient.request<PostData>(POST_BY_ID_QUERY, { id });
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
   ${USER_AUTHOR_FRAGMENT}
@@ -971,10 +975,8 @@ export const checkCanBoostByUser = (post: Post, userId: string) =>
 export const useCanBoostPost = (post: Post) => {
   const { user } = useAuthContext();
   const canBuy = useCanPurchaseCores();
-  const isValidPost =
-    !post?.private &&
-    (!!post?.tags?.length || !!post?.sharedPost?.tags?.length);
-  const canBoost = canBuy && checkCanBoostByUser(post, user?.id) && isValidPost;
+  const canBoost =
+    canBuy && checkCanBoostByUser(post, user?.id) && !post?.private;
 
   return { canBoost };
 };
