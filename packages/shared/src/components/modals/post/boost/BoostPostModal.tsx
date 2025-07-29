@@ -27,6 +27,7 @@ import { postBoostSuccessCover } from '../../../../lib/image';
 import { walletUrl } from '../../../../lib/constants';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { Loader } from '../../../Loader';
+import { usePolling } from '../../../../hooks/usePolling';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -73,23 +74,28 @@ export function BoostPostModal({
     });
   const image = usePostImage(post);
 
-  const [debouncedPostById] = useDebounceFn(async () => {
-    const request = await getPostById(post.id);
+  const [fetchPostByIdPolling] = usePolling(
+    async () => {
+      const request = await getPostById(post.id);
 
-    if (!request?.post?.yggdrasilId) {
-      return debouncedPostById(post.id);
-    }
+      if (!request?.post?.yggdrasilId) {
+        return { shouldResend: true };
+      }
 
-    return setPost(request.post);
-  }, 5000);
+      setPost(request.post);
+
+      return { shouldResend: false };
+    },
+    { retries: 3, intervalMs: 5000 },
+  );
 
   useEffect(() => {
     if (hasTags || post.yggdrasilId) {
       return;
     }
 
-    debouncedPostById(post.id);
-  }, [hasTags, post, debouncedPostById]);
+    fetchPostByIdPolling();
+  }, [hasTags, post, fetchPostByIdPolling]);
 
   const onButtonClick = () => {
     if (user.balance.amount < totalSpendInt) {
@@ -276,7 +282,7 @@ export function BoostPostModal({
             step={1}
             defaultValue={[totalDays]}
             onValueChange={([value]) => {
-              updateQueryProps((state) => ({ ...state, coresPerDay: value }));
+              updateQueryProps((state) => ({ ...state, totalDays: value }));
               setTotalDays(value);
             }}
           />
