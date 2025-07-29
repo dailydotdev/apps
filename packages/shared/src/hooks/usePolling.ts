@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import useDebounceFn from './useDebounceFn';
 
 interface UsePollingOptions {
@@ -12,6 +12,10 @@ export const usePolling = (
 ) => {
   const retriesRef = useRef(0);
   const [sendRequest, cancelPolling] = useDebounceFn(async () => {
+    if (retriesRef.current >= retries) {
+      return;
+    }
+
     const result = await request();
 
     if (result?.shouldResend) {
@@ -21,14 +25,5 @@ export const usePolling = (
     }
   }, intervalMs);
 
-  return [
-    useCallback(() => {
-      if (retriesRef.current >= retries) {
-        return;
-      }
-
-      sendRequest();
-    }, [retries, sendRequest]),
-    cancelPolling,
-  ];
+  return [sendRequest, cancelPolling];
 };
