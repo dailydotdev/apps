@@ -65,32 +65,16 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20',
-        !shouldUseListMode && 'laptopL:items-start laptopL:px-18 laptopL:pb-14',
+        'relative mb-6 mt-3 min-h-20 w-full items-start border-border-subtlest-tertiary px-6 tablet:mb-16 tablet:border-b tablet:pb-16 laptop:mb-6',
+        shouldUseListMode
+          ? 'laptop:!mx-auto laptop:!max-w-[42.5rem] laptop:!px-0'
+          : 'laptopL:px-18',
       )}
     >
-      <div
-        className={classNames(
-          !shouldUseListMode && 'laptopL:flex-row',
-          'flex flex-col items-center',
-        )}
-      >
+      <div className="flex flex-col items-start gap-6 tablet:flex-row tablet:items-center">
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
-        <FlexCol
-          className={classNames(
-            'mt-4',
-            !shouldUseListMode && 'laptopL:ml-6 laptopL:mt-0',
-          )}
-        >
-          <Typography
-            tag={TypographyTag.H1}
-            bold
-            type={TypographyType.Title2}
-            className={classNames(
-              'text-center',
-              !shouldUseListMode && 'laptopL:text-left',
-            )}
-          >
+        <FlexCol>
+          <Typography tag={TypographyTag.H1} bold type={TypographyType.Title2}>
             {squad.name}
           </Typography>
           <div
@@ -99,14 +83,7 @@ export function SquadPageHeader({
               !shouldUseListMode && 'laptopL:justify-start',
             )}
           >
-            <Typography
-              tag={TypographyTag.H2}
-              color={TypographyColor.Tertiary}
-              className={classNames(
-                'text-center',
-                !shouldUseListMode && 'laptopL:text-left',
-              )}
-            >
+            <Typography tag={TypographyTag.H2} color={TypographyColor.Tertiary}>
               @{squad.handle}
             </Typography>
             {createdAt && (
@@ -129,7 +106,7 @@ export function SquadPageHeader({
               </>
             )}
           </div>
-          <div className="mt-4 flex flex-col items-center gap-2 tablet:flex-row">
+          <div className="mt-4 flex flex-col items-start gap-2 tablet:flex-row tablet:items-center">
             <SquadPrivacyState
               isPublic={squad?.public}
               isFeatured={squad?.flags?.featured}
@@ -191,7 +168,7 @@ export function SquadPageHeader({
       >
         Moderated by
       </Typography>
-      <div className="mt-2 flex flex-row items-center gap-3 laptop:mb-6">
+      <div className="mt-2 flex flex-row items-center gap-3">
         {squad.privilegedMembers?.slice(0, listMax).map((member) => (
           <PrivilegedMemberItem key={member.user.id} member={member} />
         ))}
