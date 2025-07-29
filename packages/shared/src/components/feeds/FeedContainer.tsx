@@ -20,7 +20,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { OtherFeedPage } from '../../lib/query';
+import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
