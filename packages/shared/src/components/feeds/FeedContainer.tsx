@@ -140,7 +140,6 @@ const feedWithBanner = [
   SharedFeedPage.Popular,
   SharedFeedPage.Upvoted,
   OtherFeedPage.Discussed,
-  OtherFeedPage.Bookmarks,
 ];
 
 export const FeedContainer = ({
