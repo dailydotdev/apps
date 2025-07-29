@@ -30,6 +30,8 @@ import { LazyModal } from '../modals/common/types';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { NotificationPromptSource } from '../../lib/log';
+import { HorizontalSeparator } from '../utilities';
+import PersonalizedDigest from './PersonalizedDigest';
 
 // Only need this because we are grouping independent settings together.
 // If we make a backend script to update the settings, we can remove this.
@@ -44,8 +46,7 @@ const getNotifGroupStatus = (
 
 const InAppNotificationsTab = (): ReactElement => {
   const { onTogglePermission } = usePushNotificationMutation();
-  const { isSubscribed, isInitialized, isPushSupported } =
-    usePushNotificationContext();
+  const { isSubscribed, isInitialized } = usePushNotificationContext();
   const { openModal } = useLazyModal();
   const {
     notificationSettings: ns,
@@ -328,6 +329,12 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
+      <HorizontalSeparator />
+      <NotificationSection>
+        <PersonalizedDigest />
+      </NotificationSection>
+      <HorizontalSeparator />
+
       <NotificationSection>
         <NotificationList>
           <li>
