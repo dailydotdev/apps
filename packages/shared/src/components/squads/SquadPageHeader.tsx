@@ -65,10 +65,10 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative mb-6 mt-3 min-h-20 w-full items-start border-border-subtlest-tertiary px-6 tablet:mb-16 tablet:border-b tablet:pb-16 laptop:mb-6',
+        'relative mb-6 mt-3 min-h-20 w-full items-start border-border-subtlest-tertiary px-6 tablet:mb-12 tablet:border-b tablet:pb-16',
         shouldUseListMode
-          ? 'laptop:!mx-auto laptop:!max-w-[42.5rem] laptop:!px-0'
-          : 'laptopL:px-18',
+          ? 'laptop:!mx-auto laptop:mb-6 laptop:!max-w-[42.5rem] laptop:!px-0'
+          : 'laptop:mb-12 laptopL:px-18',
       )}
     >
       <div className="flex flex-col items-start gap-6 tablet:flex-row tablet:items-center">
