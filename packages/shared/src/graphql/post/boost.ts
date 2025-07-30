@@ -133,7 +133,26 @@ export const BOOST_ESTIMATED_REACH = gql`
   }
 `;
 
+export const BOOST_ESTIMATED_REACH_DAILY = gql`
+  query BoostEstimatedReachDaily($postId: ID!, $budget: Int!, $duration: Int!) {
+    boostEstimatedReachDaily(
+      postId: $postId
+      budget: $budget
+      duration: $duration
+    ) {
+      min
+      max
+    }
+  }
+`;
+
 export interface BoostPostProps {
+  id: string;
+  budget: number;
+  duration: number;
+}
+
+export interface EstimatedReachProps {
   id: string;
   budget: number;
   duration: number;
@@ -146,12 +165,26 @@ export interface BoostEstimatedReach {
 
 export const getBoostEstimatedReach = async ({
   id,
-}: Pick<BoostPostProps, 'id'>): Promise<BoostEstimatedReach> => {
+}: Pick<EstimatedReachProps, 'id'>): Promise<BoostEstimatedReach> => {
   const result = await gqlClient.request(BOOST_ESTIMATED_REACH, {
     postId: id,
   });
 
   return result.boostEstimatedReach;
+};
+
+export const getBoostEstimatedReachDaily = async ({
+  id,
+  budget,
+  duration,
+}: EstimatedReachProps): Promise<BoostEstimatedReach> => {
+  const result = await gqlClient.request(BOOST_ESTIMATED_REACH_DAILY, {
+    postId: id,
+    budget,
+    duration,
+  });
+
+  return result.boostEstimatedReachDaily;
 };
 
 export const START_POST_BOOST = gql`

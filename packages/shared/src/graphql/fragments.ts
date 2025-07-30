@@ -226,6 +226,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numComments
     numAwards
     summary
+    yggdrasilId
     flags {
       campaignId
     }
@@ -312,6 +313,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     numComments
     numAwards
     videoId
+    yggdrasilId
     bookmark {
       remindAt
     }
@@ -526,6 +528,7 @@ export const FEED_POST_FRAGMENT = gql`
       type
       tags
       private
+      yggdrasilId
       source {
         id
         handle
