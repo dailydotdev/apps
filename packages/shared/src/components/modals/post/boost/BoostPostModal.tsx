@@ -244,7 +244,10 @@ export function BoostPostModal({
             >
               Total spend
             </Typography>
-            <Typography className="mt-2 min-h-4" type={TypographyType.Body}>
+            <Typography
+              className="mt-2 min-h-[1.375rem]"
+              type={TypographyType.Body}
+            >
               {potentialReach}
             </Typography>
             <Typography
