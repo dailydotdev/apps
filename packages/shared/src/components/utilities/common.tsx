@@ -63,7 +63,7 @@ export const TruncateText = classed('span', truncateTextClassNames);
 
 const RawPageWidgets = classed(
   'aside',
-  'flex flex-col gap-6 px-4 w-full max-w-full',
+  'flex flex-col gap-6 px-4 tablet:px-6 laptop:px-4 w-full max-w-full',
 );
 
 interface PageWidgetsProps {

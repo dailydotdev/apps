@@ -80,7 +80,7 @@ export const modalSizeToClassName: Record<ModalSize, string> = {
   [ModalSize.Small]: 'tablet:w-[26.25rem]',
   [ModalSize.Medium]: 'tablet:w-[35rem]',
   [ModalSize.Large]: 'tablet:w-[42.5rem]',
-  [ModalSize.XLarge]: 'tablet:w-[63.75rem]',
+  [ModalSize.XLarge]: 'tablet:w-[69.25rem]',
 };
 
 export function Modal({
