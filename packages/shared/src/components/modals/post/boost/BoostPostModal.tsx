@@ -99,7 +99,7 @@ export function BoostPostModal({
         const { data } = query.state;
 
         // in case of query error keep refetching until maxRetries is reached
-        if (data.post.yggdrasilId) {
+        if (data?.post.yggdrasilId) {
           setPost(data.post);
           return false;
         }
