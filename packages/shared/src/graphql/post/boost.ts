@@ -240,3 +240,6 @@ export const cancelPostBoost = async (
 
   return result.cancelPostBoost;
 };
+
+export const DEFAULT_CORES_PER_DAY = 5000;
+export const DEFAULT_DURATION_DAYS = 7;

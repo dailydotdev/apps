@@ -127,7 +127,7 @@ function SquadPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className="mb-6"
+              className={!isUserSource && 'mb-6'}
             />
             <SquadPostAuthor
               author={post?.author}
