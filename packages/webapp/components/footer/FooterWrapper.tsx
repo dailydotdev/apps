@@ -41,7 +41,9 @@ export default function FooterWrapper({
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
 
-  const showPlusButton = !router?.pathname?.startsWith('/settings');
+  const showPlusButton =
+    !router?.pathname?.startsWith('/settings') &&
+    !router?.pathname?.startsWith('/posts/');
 
   return (
     <div
@@ -65,9 +67,9 @@ export default function FooterWrapper({
           />
         </div>
       )}
-      {showNav && showPlusButton && (
+      {showNav && (
         <>
-          <FooterPlusButton />
+          {showPlusButton && <FooterPlusButton />}
           <MobileFooterNavbar />
         </>
       )}
