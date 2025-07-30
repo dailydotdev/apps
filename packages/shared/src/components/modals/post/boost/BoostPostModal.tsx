@@ -62,8 +62,8 @@ export function BoostPostModal({
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
-  const [queryProps, setQueryProps] = useState({ coresPerDay, totalDays });
-  const [updateQueryProps] = useDebounceFn(setQueryProps, 400);
+  const [estimate, setEstimate] = useState({ coresPerDay, totalDays });
+  const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
   const getEstimationProps = () => {
@@ -73,8 +73,8 @@ export function BoostPostModal({
 
     return {
       id: post.id,
-      budget: queryProps.coresPerDay,
-      duration: queryProps.totalDays,
+      budget: estimate.coresPerDay,
+      duration: estimate.totalDays,
     };
   };
   const { estimatedReach, onBoostPost, isLoadingEstimate } =
@@ -282,7 +282,7 @@ export function BoostPostModal({
             step={1000}
             defaultValue={[coresPerDay]}
             onValueChange={([value]) => {
-              updateQueryProps((state) => ({ ...state, coresPerDay: value }));
+              updateEstimate((state) => ({ ...state, coresPerDay: value }));
               setCoresPerDay(value);
             }}
           />
@@ -302,10 +302,7 @@ export function BoostPostModal({
             max={30}
             step={1}
             defaultValue={[totalDays]}
-            onValueChange={([value]) => {
-              updateQueryProps((state) => ({ ...state, totalDays: value }));
-              setTotalDays(value);
-            }}
+            onValueChange={([value]) => setTotalDays(value)}
           />
         </div>
       </Modal.Body>
