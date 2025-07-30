@@ -186,7 +186,7 @@ export function SquadHeaderBar({
     <div
       {...props}
       className={classNames(
-        'flex h-fit w-full flex-row flex-wrap justify-center gap-3 tablet:w-auto',
+        'flex h-fit w-auto flex-row flex-wrap gap-3 ',
         className,
       )}
       data-testid="squad-header-bar"
