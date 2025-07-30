@@ -44,7 +44,11 @@ export const usePostBoostMutation = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
-  const { data: estimatedReach, isPending: isLoadingEstimate } = useQuery({
+  const {
+    data: estimatedReach,
+    isPending: isLoadingEstimate,
+    isRefetching,
+  } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.PostCampaigns,
       user,
@@ -131,6 +135,6 @@ export const usePostBoostMutation = ({
     onBoostPost,
     onCancelBoost,
     isLoadingCancel: isPending,
-    isLoadingEstimate,
+    isLoadingEstimate: isLoadingEstimate || isRefetching,
   };
 };
