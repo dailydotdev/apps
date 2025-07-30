@@ -56,6 +56,7 @@ export function BoostPostModal({
 }: BoostPostModalProps): ReactElement {
   const [post, setPost] = useState(postFromProps);
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
+  const canBoost = hasTags || post.yggdrasilId;
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
@@ -65,15 +66,20 @@ export function BoostPostModal({
   const [updateQueryProps] = useDebounceFn(setQueryProps, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
+  const getEstimationProps = () => {
+    if (!hasTags) {
+      return post.yggdrasilId ? { id: post.id } : undefined;
+    }
+
+    return {
+      id: post.id,
+      budget: queryProps.coresPerDay,
+      duration: queryProps.totalDays,
+    };
+  };
   const { estimatedReach, onBoostPost, isLoadingEstimate } =
     usePostBoostMutation({
-      toEstimate: hasTags
-        ? {
-            id: post.id,
-            budget: queryProps.coresPerDay,
-            duration: queryProps.totalDays,
-          }
-        : undefined,
+      toEstimate: getEstimationProps(),
       onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
     });
   const image = usePostImage(post);
@@ -81,7 +87,7 @@ export function BoostPostModal({
   usePostById({
     id: post.id,
     options: {
-      enabled: !hasTags && !post.yggdrasilId,
+      enabled: !canBoost,
       refetchInterval: (query) => {
         const retries = Math.max(
           query.state.dataUpdateCount,
@@ -168,7 +174,7 @@ export function BoostPostModal({
   const maxReach = Math.max(estimatedReach.min, estimatedReach.max);
 
   const potentialReach = (() => {
-    if (isLoadingEstimate || !hasTags) {
+    if (isLoadingEstimate || !canBoost) {
       return <Loader />;
     }
 
@@ -306,7 +312,7 @@ export function BoostPostModal({
           className="w-full"
           type="button"
           onClick={onButtonClick}
-          disabled={!hasTags || isLoadingEstimate}
+          disabled={!canBoost || isLoadingEstimate}
         >
           Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
         </Button>

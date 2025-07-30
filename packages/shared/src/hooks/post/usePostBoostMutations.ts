@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   BoostEstimatedReach,
-  BoostPostProps,
+  EstimatedReachProps,
 } from '../../graphql/post/boost';
 import {
   getBoostEstimatedReach,
   startPostBoost,
   cancelPostBoost,
+  getBoostEstimatedReachDaily,
 } from '../../graphql/post/boost';
 import {
   generateQueryKey,
@@ -20,7 +21,7 @@ import { useTransactionError } from '../useTransactionError';
 import { useToastNotification } from '../useToastNotification';
 
 interface UsePostBoostMutationProps {
-  toEstimate?: BoostPostProps;
+  toEstimate?: Pick<EstimatedReachProps, 'id'> | EstimatedReachProps;
   onBoostSuccess?: () => void;
   onCancelSuccess?: () => void;
 }
@@ -50,7 +51,13 @@ export const usePostBoostMutation = ({
       'estimate',
       toEstimate ? Object.values(toEstimate).join(':') : undefined,
     ),
-    queryFn: () => getBoostEstimatedReach(toEstimate),
+    queryFn: () => {
+      if ('budget' in toEstimate) {
+        return getBoostEstimatedReachDaily(toEstimate);
+      }
+
+      return getBoostEstimatedReach(toEstimate);
+    },
     enabled: !!toEstimate,
     placeholderData,
     staleTime: StaleTime.Default,
