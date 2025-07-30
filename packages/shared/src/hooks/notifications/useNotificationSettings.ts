@@ -176,6 +176,26 @@ const useNotificationSettings = () => {
     mutate(updatedSettings);
   };
 
+  const toggleSourceSubmission = (value: boolean) => {
+    const newStatus = value
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
+
+    const updatedSettings = {
+      ...ns,
+      [NotificationType.SourceApproved]: {
+        ...ns[NotificationType.SourceApproved],
+        inApp: newStatus,
+      },
+      [NotificationType.SourceRejected]: {
+        ...ns[NotificationType.SourceRejected],
+        inApp: newStatus,
+      },
+    };
+
+    mutate(updatedSettings);
+  };
+
   return {
     isLoadingPreferences,
     toggleSetting,
@@ -185,6 +205,7 @@ const useNotificationSettings = () => {
     toggleFollowing,
     toggleStreak,
     toggleSquadRole,
+    toggleSourceSubmission,
   };
 };
 

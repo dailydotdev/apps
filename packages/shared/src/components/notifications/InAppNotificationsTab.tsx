@@ -17,6 +17,7 @@ import {
   NotificationList,
   NotificationSection,
   NotificationType,
+  SOURCE_SUBMISSION_KEYS,
   SQUAD_ROLE_KEYS,
   STREAK_KEYS,
 } from './utils';
@@ -56,6 +57,7 @@ const InAppNotificationsTab = (): ReactElement => {
     toggleFollowing,
     toggleStreak,
     toggleSquadRole,
+    toggleSourceSubmission,
   } = useNotificationSettings();
 
   const onTogglePush = async () => {
@@ -72,6 +74,7 @@ const InAppNotificationsTab = (): ReactElement => {
   const achievements = getNotifGroupStatus(ACHIEVEMENT_KEYS, ns);
   const streaks = getNotifGroupStatus(STREAK_KEYS, ns);
   const squadRoles = getNotifGroupStatus(SQUAD_ROLE_KEYS, ns);
+  const sourceSubmission = getNotifGroupStatus(SOURCE_SUBMISSION_KEYS, ns);
 
   return (
     <section className="flex flex-col gap-6 py-4">
@@ -331,7 +334,7 @@ const InAppNotificationsTab = (): ReactElement => {
       </NotificationSection>
       <HorizontalSeparator />
       <NotificationSection>
-        <PersonalizedDigest />
+        <PersonalizedDigest channel="inApp" />
       </NotificationSection>
       <HorizontalSeparator />
 
@@ -421,7 +424,7 @@ const InAppNotificationsTab = (): ReactElement => {
           <li>
             <div className="flex flex-col gap-2">
               <Typography type={TypographyType.Callout}>
-                Source suggestions (TODO)
+                Source suggestions
               </Typography>
               <Typography
                 color={TypographyColor.Tertiary}
@@ -431,10 +434,12 @@ const InAppNotificationsTab = (): ReactElement => {
                 outcomes.
               </Typography>
             </div>
-            <Checkbox
+            <Switch
+              inputId="source_suggestions"
               name="source_suggestions"
-              checked={false}
-              onToggleCallback={() => {}}
+              checked={sourceSubmission}
+              onToggle={() => toggleSourceSubmission(!sourceSubmission)}
+              compact={false}
             />
           </li>
           <li>
@@ -450,12 +455,17 @@ const InAppNotificationsTab = (): ReactElement => {
                 Squad moderator.
               </Typography>
             </div>
-            <Checkbox
+            <Switch
+              inputId={NotificationType.SourcePostApproved}
               name={NotificationType.SourcePostApproved}
-              checked={false}
-              onToggleCallback={() =>
+              checked={
+                ns?.source_post_approved?.inApp ===
+                NotificationPreferenceStatus.Subscribed
+              }
+              onToggle={() =>
                 toggleSetting(NotificationType.SourcePostApproved)
               }
+              compact={false}
             />
           </li>
           <li>
@@ -469,16 +479,19 @@ const InAppNotificationsTab = (): ReactElement => {
                 moderator or admin.
               </Typography>
             </div>
-            <Checkbox
+            <Switch
+              inputId="squad_roles"
               name="squad_roles"
               checked={squadRoles}
-              onToggleCallback={() => toggleSquadRole(!squadRoles)}
+              onToggle={() => toggleSquadRole(!squadRoles)}
+              compact={false}
             />
           </li>
         </NotificationList>
       </NotificationSection>
       <Separator />
-      <NotificationSection>
+      {/* At the time of creating this, we don't have a product tips notification */}
+      {/* <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           From daily.dev
         </Typography>
@@ -503,7 +516,7 @@ const InAppNotificationsTab = (): ReactElement => {
             compact={false}
           />
         </div>
-      </NotificationSection>
+      </NotificationSection> */}
     </section>
   );
 };

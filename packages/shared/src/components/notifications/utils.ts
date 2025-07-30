@@ -67,6 +67,8 @@ export enum NotificationType {
   DevCardUnlocked = 'dev_card_unlocked',
   PostMention = 'post_mention',
   CommentMention = 'comment_mention',
+  SourceApproved = 'source_approved',
+  SourceRejected = 'source_rejected',
 }
 
 export enum NotificationIconType {
@@ -227,6 +229,11 @@ export const SQUAD_ROLE_KEYS = [
   NotificationType.PromotedToModerator,
 ];
 
+export const SOURCE_SUBMISSION_KEYS = [
+  NotificationType.SourceApproved,
+  NotificationType.SourceRejected,
+];
+
 export const NotificationList = classed(
   'ul',
   'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:justify-between',
@@ -321,6 +328,14 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     inApp: 'muted',
   },
   promoted_to_moderator: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  source_approved: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  source_rejected: {
     email: 'muted',
     inApp: 'muted',
   },

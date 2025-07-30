@@ -28,12 +28,7 @@ import {
 import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
 import { LazyModal } from '../modals/common/types';
-import {
-  LogEvent,
-  NotificationCategory,
-  NotificationChannel,
-  TargetId,
-} from '../../lib/log';
+import { LogEvent, NotificationCategory, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -43,7 +38,7 @@ import { UpgradeToPlus } from '../UpgradeToPlus';
 import { HourDropdown } from '../fields/HourDropdown';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
-const PersonalizedDigest = () => {
+const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
   const { isPushSupported } = usePushNotificationContext();
@@ -79,11 +74,7 @@ const PersonalizedDigest = () => {
     return null;
   }, [getPersonalizedDigest, isLoading]);
 
-  const onLogToggle = (
-    isEnabled: boolean,
-    channel: NotificationChannel,
-    category: NotificationCategory,
-  ) => {
+  const onLogToggle = (isEnabled: boolean, category: NotificationCategory) => {
     const baseLogProps = {
       extra: JSON.stringify({ channel, category }),
     };
@@ -144,7 +135,7 @@ const PersonalizedDigest = () => {
     flags?: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
     preferredHour?: number;
   }): Promise<void> => {
-    onLogToggle(true, NotificationChannel.Email, NotificationCategory.Digest);
+    onLogToggle(true, NotificationCategory.Digest);
 
     logEvent({
       event_name: LogEvent.ScheduleDigest,
