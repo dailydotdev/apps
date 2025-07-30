@@ -200,15 +200,7 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
 
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
-      <div className={classNames('relative mb-4 pt-2 laptop:pt-8')}>
-        <div
-          className={classNames(
-            'squad-background-fade absolute top-0 h-full w-full',
-            sidebarRendered &&
-              !shouldUseListMode &&
-              '-left-full translate-x-[60%]',
-          )}
-        />
+      <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
@@ -216,10 +208,7 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
         />
         <FeedPageComponent>
           <Feed
-            className={classNames(
-              'pt-14 laptop:pt-10',
-              shouldUseListFeedLayout ? 'px-0' : 'px-6',
-            )}
+            className={classNames(shouldUseListFeedLayout ? 'px-0' : 'px-6')}
             feedName={OtherFeedPage.Squads}
             feedQueryKey={[
               'sourceFeed',
