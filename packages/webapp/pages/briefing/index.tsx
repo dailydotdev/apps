@@ -128,7 +128,7 @@ const Page = (): ReactElement => {
 
   return (
     <ProtectedPage>
-      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-4">
+      <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
         <main className="relative flex flex-1 flex-col gap-6">
           <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
             <Link href={`${webappUrl}bookmarks`}>

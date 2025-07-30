@@ -132,7 +132,7 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   });
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
-    'mb-16 min-h-page max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
+    'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
     featureTheme && 'bg-transparent',
   );
