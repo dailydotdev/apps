@@ -27,7 +27,7 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
 import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
 import { postBoostSuccessCover } from '../../../../lib/image';
-import { walletUrl } from '../../../../lib/constants';
+import { boostPostDocsLink, walletUrl } from '../../../../lib/constants';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { Loader } from '../../../Loader';
 import { usePostById } from '../../../../hooks';
@@ -160,6 +160,12 @@ export function BoostPostModal({
           copy: 'Ads dashboard',
           onClick: () => openModal({ type: LazyModal.AdsDashboard }),
         }}
+        secondaryCta={{
+          copy: 'Learn more about boosting',
+          tag: 'a',
+          href: boostPostDocsLink,
+          target: '_blank',
+        }}
         content={{
           title: 'Post boosted successfully!',
           description:
@@ -223,6 +229,13 @@ export function BoostPostModal({
         >
           Give your content the spotlight it deserves. Our auto-targeting engine
           ensures your post gets shown to the developers most likely to care.
+          <a
+            href={boostPostDocsLink}
+            className="text-text-link"
+            target="_blank"
+          >
+            Learn more
+          </a>
         </Typography>
         <div className="rounded-16 bg-surface-float">
           <div className="flex flex-row items-center gap-5 p-2">

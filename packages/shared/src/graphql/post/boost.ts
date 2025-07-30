@@ -23,6 +23,7 @@ const BOOSTED_POST_FRAGMENT = gql`
       budget
       impressions
       clicks
+      users
       startedAt
       endedAt
     }
@@ -64,18 +65,23 @@ export interface PromotedPost {
   endedAt: Date;
   impressions: number;
   clicks: number;
+  users: number;
 }
 
 export interface PromotedPostList {
   promotedPosts: PromotedPost[];
   impressions: number;
   clicks: number;
+  users: number;
   totalSpend: number;
   postIds: string[];
 }
 
 export interface BoostedPostStats
-  extends Pick<PromotedPostList, 'clicks' | 'impressions' | 'totalSpend'> {
+  extends Pick<
+    PromotedPostList,
+    'clicks' | 'users' | 'impressions' | 'totalSpend'
+  > {
   engagements: number;
 }
 

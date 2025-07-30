@@ -2,10 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
-import { CoreIcon } from '../../../icons';
-import { IconSize } from '../../../Icon';
 import { usePostBoost } from '../../../../hooks/post/usePostBoost';
-import { DataTile } from '../../../../features/boost/DataTile';
 import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
@@ -13,8 +10,14 @@ import { usePostById } from '../../../../hooks';
 import type { Post } from '../../../../graphql/posts';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
-import { boostDashboardInfo } from './common';
 import { CampaignList } from '../../../../features/boost/CampaignList';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../typography/Typography';
+import { boostPostDocsLink } from '../../../../lib/constants';
+import { CampaignStatsGrid } from '../../../../features/boost/CampaignListView';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialBoostedPost?: BoostedPostData;
@@ -66,30 +69,28 @@ export function AdsDashboardModal({
       <Modal.Header title="Ads dashboard" showCloseButton />
       <Modal.Body className="flex flex-col gap-4 overflow-x-hidden">
         <Modal.Subtitle>Overview all time</Modal.Subtitle>
-        <div className="grid grid-cols-2 gap-4">
-          <DataTile
-            label="Spend"
-            value={stats.totalSpend}
-            icon={<CoreIcon size={IconSize.XSmall} />}
-            info={boostDashboardInfo.spend}
-          />
-          <DataTile
-            label="Impressions"
-            value={stats.impressions}
-            info={boostDashboardInfo.impressions}
-          />
-          <DataTile
-            label="Clicks"
-            value={stats.clicks}
-            info={boostDashboardInfo.clicks}
-          />
-          <DataTile
-            label="Engagement"
-            value={stats.engagements}
-            info={boostDashboardInfo.engagement}
-          />
-        </div>
+        <CampaignStatsGrid
+          spend={stats.totalSpend}
+          impressions={stats.impressions}
+          users={stats.users}
+        />
         <Modal.Subtitle>Active ads</Modal.Subtitle>
+        <div className="flex flex-col gap-1">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            Learn how boosting works and launch your first campaign to get
+            discovered by more developers.
+          </Typography>
+          <a
+            href={boostPostDocsLink}
+            className="text-text-link typo-callout"
+            target="_blank"
+          >
+            Learn more about boosting
+          </a>
+        </div>
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
