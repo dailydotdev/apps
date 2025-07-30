@@ -175,7 +175,7 @@ export function BoostPostModal({
 
   const potentialReach = (() => {
     if (isLoadingEstimate || !canBoost) {
-      return <Loader />;
+      return <Loader data-testid="loader" />;
     }
 
     const min = largeNumberFormat(estimatedReach.min);
