@@ -77,12 +77,7 @@ export function SquadPageHeader({
           <Typography tag={TypographyTag.H1} bold type={TypographyType.Title2}>
             {squad.name}
           </Typography>
-          <div
-            className={classNames(
-              'mt-1 flex flex-row items-center justify-center text-text-quaternary typo-subhead tablet:mt-1',
-              !shouldUseListMode && 'laptopL:justify-start',
-            )}
-          >
+          <div className="mt-1 flex flex-row items-center text-text-quaternary typo-subhead">
             <Typography tag={TypographyTag.H2} color={TypographyColor.Tertiary}>
               @{squad.handle}
             </Typography>
