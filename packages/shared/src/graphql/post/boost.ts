@@ -170,7 +170,7 @@ export const getBoostEstimatedReach = async ({
     postId: id,
   });
 
-  return result.boostEstimatedReachDaily;
+  return result.boostEstimatedReach;
 };
 
 export const getBoostEstimatedReachDaily = async ({
@@ -184,7 +184,7 @@ export const getBoostEstimatedReachDaily = async ({
     duration,
   });
 
-  return result.boostEstimatedReach;
+  return result.boostEstimatedReachDaily;
 };
 
 export const START_POST_BOOST = gql`
