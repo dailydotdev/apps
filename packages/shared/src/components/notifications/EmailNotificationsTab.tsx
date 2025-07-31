@@ -7,7 +7,6 @@ import {
 } from '../typography/Typography';
 import { Switch } from '../fields/Switch';
 import { Checkbox } from '../fields/Checkbox';
-// import { Radio } from '../fields/Radio';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
@@ -58,8 +57,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Replies to your comments
             </Typography>
             <Switch
-              inputId="email_comment_reply"
-              name="email_comment_reply"
+              inputId={NotificationType.CommentReply}
+              name={NotificationType.CommentReply}
               checked={
                 ns?.[NotificationType.CommentReply]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -75,8 +74,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Upvotes on your posts
             </Typography>
             <Switch
-              inputId="email_article_upvote_milestone"
-              name="email_article_upvote_milestone"
+              inputId={NotificationType.ArticleUpvoteMilestone}
+              name={NotificationType.ArticleUpvoteMilestone}
               checked={
                 ns?.[NotificationType.ArticleUpvoteMilestone]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -92,8 +91,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Upvotes on your comments
             </Typography>
             <Switch
-              inputId="email_comment_upvote_milestone"
-              name="email_comment_upvote_milestone"
+              inputId={NotificationType.CommentUpvoteMilestone}
+              name={NotificationType.CommentUpvoteMilestone}
               checked={
                 ns?.[NotificationType.CommentUpvoteMilestone]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -109,8 +108,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Mentions of your username
             </Typography>
             <Switch
-              inputId="email_username_mention"
-              name="email_username_mention"
+              inputId="username_mention"
+              name="username_mention"
               checked={getGroupStatus('mentions', 'email')}
               onToggle={() =>
                 toggleGroup(
@@ -144,8 +143,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Report updates
             </Typography>
             <Switch
-              inputId="email_article_report_approved"
-              name="email_article_report_approved"
+              inputId={NotificationType.ArticleReportApproved}
+              name={NotificationType.ArticleReportApproved}
               checked={
                 ns?.[NotificationType.ArticleReportApproved]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -169,8 +168,8 @@ const EmailNotificationsTab = (): ReactElement => {
               <Typography type={TypographyType.Callout}>Following</Typography>
             </div>
             <Switch
-              inputId="email_following"
-              name="email_following"
+              inputId="following"
+              name="following"
               checked={getGroupStatus('following', 'email')}
               onToggle={() =>
                 toggleGroup(
@@ -194,7 +193,7 @@ const EmailNotificationsTab = (): ReactElement => {
             <Checkbox
               className="!px-0"
               checkmarkClassName="!mr-0"
-              name="email_source_post_added"
+              name={NotificationType.SourcePostAdded}
               checked={
                 ns?.[NotificationType.SourcePostAdded]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -214,7 +213,7 @@ const EmailNotificationsTab = (): ReactElement => {
             <Checkbox
               className="!px-0"
               checkmarkClassName="!mr-0"
-              name="email_user_post_added"
+              name={NotificationType.UserPostAdded}
               checked={
                 ns?.[NotificationType.UserPostAdded]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -234,7 +233,7 @@ const EmailNotificationsTab = (): ReactElement => {
             <Checkbox
               className="!px-0"
               checkmarkClassName="!mr-0"
-              name="email_squad_post_added"
+              name={NotificationType.SquadPostAdded}
               checked={
                 ns?.[NotificationType.SquadPostAdded]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -254,7 +253,7 @@ const EmailNotificationsTab = (): ReactElement => {
             <Checkbox
               className="!px-0"
               checkmarkClassName="!mr-0"
-              name="email_collection_updated"
+              name={NotificationType.CollectionUpdated}
               checked={
                 ns?.[NotificationType.CollectionUpdated]?.email ===
                 NotificationPreferenceStatus.Subscribed
@@ -278,8 +277,8 @@ const EmailNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Switch
-              inputId="email_streaks"
-              name="email_streaks"
+              inputId="streaks"
+              name="streaks"
               checked={getGroupStatus('streaks', 'email')}
               onToggle={() =>
                 toggleGroup(
@@ -307,8 +306,8 @@ const EmailNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Switch
-              inputId="email_achievements"
-              name="email_achievements"
+              inputId="achievements"
+              name="achievements"
               checked={getGroupStatus('achievements', 'email')}
               onToggle={() =>
                 toggleGroup(
@@ -336,8 +335,8 @@ const EmailNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Switch
-              inputId="email_creator_updates"
-              name="email_creator_updates"
+              inputId="creator_updates"
+              name="creator_updates"
               checked={false}
               onToggle={() =>
                 toggleSetting(NotificationType.SourcePostApproved, 'email')
