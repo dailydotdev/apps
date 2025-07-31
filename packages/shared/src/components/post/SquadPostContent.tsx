@@ -18,6 +18,10 @@ import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
 import { isSourceUserSource } from '../../graphql/sources';
 import { ProfileImageSize } from '../ProfilePicture';
+import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
+import { useActions } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
+import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -42,7 +46,14 @@ function SquadPostContentRaw({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
+  const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
+  const { checkHasCompleted, isActionsFetched } = useActions();
+  const hasClosedBanner = checkHasCompleted(
+    ActionType.ClosedNewPostBoostBanner,
+  );
+  const shouldShowBanner =
+    isActionsFetched && !hasClosedBanner && isPostPage && isBoostButtonVisible;
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
@@ -129,6 +140,7 @@ function SquadPostContentRaw({
               onReadArticle={onReadArticle}
               className={!isUserSource && 'mb-6'}
             />
+            {shouldShowBanner && !isUserSource && <BoostNewPostStrip />}
             <SquadPostAuthor
               author={post?.author}
               role={role}
@@ -140,6 +152,9 @@ function SquadPostContentRaw({
               size={ProfileImageSize.Large}
             />
           </div>
+          {shouldShowBanner && isUserSource && (
+            <BoostNewPostStrip className="mt-2" />
+          )}
           <Content post={post} onReadArticle={onReadArticle} />
         </BasePostContent>
       </div>
