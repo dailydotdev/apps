@@ -75,22 +75,24 @@ export function AdsDashboardModal({
           users={stats.users}
         />
         <Modal.Subtitle>Active ads</Modal.Subtitle>
-        <div className="flex flex-col gap-1">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            Learn how boosting works and launch your first campaign to get
-            discovered by more developers.
-          </Typography>
-          <a
-            href={boostPostDocsLink}
-            className="text-text-link typo-callout"
-            target="_blank"
-          >
-            Learn more about boosting
-          </a>
-        </div>
+        {!isLoading && !!list?.length && (
+          <div className="flex flex-col gap-1">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              Learn how boosting works and launch your first campaign to get
+              discovered by more developers.
+            </Typography>
+            <a
+              href={boostPostDocsLink}
+              className="text-text-link typo-callout"
+              target="_blank"
+            >
+              Learn more about boosting
+            </a>
+          </div>
+        )}
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
