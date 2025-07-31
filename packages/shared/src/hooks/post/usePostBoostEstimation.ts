@@ -25,7 +25,7 @@ export const usePostBoostEstimation = ({
 }: UsePostBoostEstimationProps) => {
   const [post, setPost] = useState(postFromProps);
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
-  const canBoost = hasTags || post.yggdrasilId;
+  const canBoost = hasTags || !!post.yggdrasilId;
   const {
     data: estimatedReach,
     isPending,
