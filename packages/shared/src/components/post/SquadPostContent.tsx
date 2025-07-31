@@ -19,7 +19,7 @@ import PostSourceInfo from './PostSourceInfo';
 import { isSourceUserSource } from '../../graphql/sources';
 import { ProfileImageSize } from '../ProfilePicture';
 import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
-import { useActions } from '../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 
@@ -54,6 +54,7 @@ function SquadPostContentRaw({
   );
   const shouldShowBanner =
     isActionsFetched && !hasClosedBanner && isPostPage && isBoostButtonVisible;
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
@@ -127,6 +128,9 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
+          {shouldShowBanner && !isLaptop && (
+            <BoostNewPostStrip className="-mt-2 mb-4" />
+          )}
           <div
             className={
               isUserSource
@@ -138,9 +142,14 @@ function SquadPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className={!isUserSource && 'mb-6'}
+              className={
+                !isUserSource &&
+                (shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6')
+              }
             />
-            {shouldShowBanner && !isUserSource && <BoostNewPostStrip />}
+            {shouldShowBanner && !isUserSource && isLaptop && (
+              <BoostNewPostStrip />
+            )}
             <SquadPostAuthor
               author={post?.author}
               role={role}
@@ -152,7 +161,7 @@ function SquadPostContentRaw({
               size={ProfileImageSize.Large}
             />
           </div>
-          {shouldShowBanner && isUserSource && (
+          {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />
           )}
           <Content post={post} onReadArticle={onReadArticle} />
