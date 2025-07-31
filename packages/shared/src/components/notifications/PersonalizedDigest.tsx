@@ -18,16 +18,7 @@ import {
   usePersonalizedDigest,
   usePlusSubscription,
 } from '../../hooks';
-import { Checkbox } from '../fields/Checkbox';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
-import { getPathnameWithQuery, labels } from '../../lib';
-import { OpenLinkIcon } from '../icons';
-import { LazyModal } from '../modals/common/types';
+import { ButtonSize } from '../buttons/Button';
 import { LogEvent, NotificationCategory, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useLogContext } from '../../contexts/LogContext';
@@ -37,8 +28,12 @@ import { sourceQueryOptions } from '../../graphql/sources';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { HourDropdown } from '../fields/HourDropdown';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
+import { Switch } from '../fields/Switch';
+import { NotificationType } from './utils';
 
 const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
+  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
   const { isPushSupported } = usePushNotificationContext();
@@ -124,6 +119,18 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
     setHour(preferredHour);
   };
 
+  const isChecked = ns?.briefing_ready?.[channel] === 'subscribed';
+
+  const onToggleBriefing = () => {
+    toggleSetting('briefing_ready', channel);
+
+    if (isChecked) {
+      unsubscribePersonalizedDigest({
+        type: selectedDigest?.type,
+      });
+    }
+  };
+
   const onSubscribeDigest = async ({
     type,
     sendType,
@@ -161,104 +168,158 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
   });
 
   return (
-    <div className="mt-6 flex w-full flex-col gap-4">
-      <Radio
-        name="personalizedDigest"
-        options={[
-          {
-            label: (
-              <>
-                <Typography
-                  bold
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                >
-                  Personalized digest
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                  className="text-wrap font-normal"
-                >
-                  Our recommendation system scans everything on daily.dev and
-                  sends you a tailored email with just the must-read posts.
-                  Choose daily or weekly delivery and set your preferred send
-                  time below.
-                </Typography>
-              </>
-            ),
-            value: UserPersonalizedDigestType.Digest,
-          },
-          briefUIFeatureValue && {
-            label: (
-              <>
-                <Typography
-                  bold
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                >
-                  <span className="flex gap-2">
-                    Presidential briefings
-                    <PlusUser />
-                  </span>
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                  className="text-wrap font-normal"
-                >
-                  Your AI agent scans the entire dev landscape (posts, releases,
-                  discussions) and compiles a personalized briefing of what
-                  actually matters. Each briefing is custom-built for you based
-                  on what&apos;s trending, what&apos;s shifting, and what aligns
-                  with your interests. Upgrade to get unlimited access and
-                  control when and how often you get them.
-                </Typography>
-                {!isPlus && (
-                  <UpgradeToPlus
-                    className="mt-2"
-                    target={TargetId.NotificationSettings}
-                    size={ButtonSize.Small}
-                  />
-                )}
-              </>
-            ),
-            value: UserPersonalizedDigestType.Brief,
-            disabled: !isPlus,
-          },
-        ].filter(Boolean)}
-        value={selectedDigest?.type ?? null}
-        onChange={async (type) => {
-          if (type === UserPersonalizedDigestType.Brief) {
-            await onSubscribeDigest({
-              type: UserPersonalizedDigestType.Brief,
-              sendType: SendType.Daily,
-              flags: {
-                email: true,
-              },
-            });
-            await unsubscribePersonalizedDigest({
-              type: UserPersonalizedDigestType.Digest,
-            });
-          } else {
-            await onSubscribeDigest({
-              type: UserPersonalizedDigestType.Digest,
-              sendType: SendType.Workdays,
-            });
-            await unsubscribePersonalizedDigest({
-              type: UserPersonalizedDigestType.Brief,
-            });
-          }
-        }}
-        reverse
-        className={{
-          label: 'w-[calc(100%-2.4rem)]',
-          content: 'w-full !pr-0',
-          container: 'gap-4',
-        }}
-      />
-      {!!selectedDigest && (
+    <div className="flex w-full flex-col gap-4">
+      <div className="flex flex-row justify-between gap-4">
+        <div className="flex flex-1 flex-col gap-1">
+          <Typography type={TypographyType.Body} bold>
+            AI Briefings
+          </Typography>
+        </div>
+        <Switch
+          inputId={NotificationType.BriefingReady}
+          name={NotificationType.BriefingReady}
+          className="w-20 justify-end"
+          compact={false}
+          checked={isChecked}
+          onToggle={onToggleBriefing}
+        />
+      </div>
+      <div className="flex flex-col">
+        <Radio
+          disabled={!isChecked}
+          name="personalizedDigest"
+          options={[
+            {
+              label: (
+                <>
+                  <Typography
+                    bold
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                  >
+                    Personalized digest
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    className="text-wrap font-normal"
+                  >
+                    Our recommendation system scans everything on daily.dev and
+                    sends you a tailored email with just the must-read posts.
+                    Choose daily or weekly delivery and set your preferred send
+                    time below.
+                  </Typography>
+                </>
+              ),
+              value: UserPersonalizedDigestType.Digest,
+            },
+            briefUIFeatureValue && {
+              label: (
+                <>
+                  <Typography
+                    bold
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                  >
+                    <span className="flex gap-2">
+                      Presidential briefings
+                      <PlusUser />
+                    </span>
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    className="text-wrap font-normal"
+                  >
+                    Your AI agent scans the entire dev landscape (posts,
+                    releases, discussions) and compiles a personalized briefing
+                    of what actually matters. Each briefing is custom-built for
+                    you based on what&apos;s trending, what&apos;s shifting, and
+                    what aligns with your interests. Upgrade to get unlimited
+                    access and control when and how often you get them.
+                  </Typography>
+                  {!isPlus && (
+                    <UpgradeToPlus
+                      className="mt-2"
+                      target={TargetId.NotificationSettings}
+                      size={ButtonSize.Small}
+                    />
+                  )}
+                </>
+              ),
+              value: UserPersonalizedDigestType.Brief,
+              disabled: !isPlus,
+            },
+          ].filter(Boolean)}
+          value={selectedDigest?.type ?? null}
+          onChange={async (type) => {
+            if (type === UserPersonalizedDigestType.Brief) {
+              await onSubscribeDigest({
+                type: UserPersonalizedDigestType.Brief,
+                sendType: SendType.Daily,
+                flags: {
+                  email: true,
+                },
+              });
+              await unsubscribePersonalizedDigest({
+                type: UserPersonalizedDigestType.Digest,
+              });
+            } else {
+              await onSubscribeDigest({
+                type: UserPersonalizedDigestType.Digest,
+                sendType: SendType.Workdays,
+              });
+              await unsubscribePersonalizedDigest({
+                type: UserPersonalizedDigestType.Brief,
+              });
+            }
+          }}
+          reverse
+          className={{
+            label: 'w-[calc(100%-2.4rem)]',
+            content: 'w-full !pr-0',
+            container: 'gap-4',
+          }}
+        />
+        {/* {!selectedDigest.flags.slack && isChecked && (
+          <button
+            type="button"
+            className="flex flex-row items-center gap-1 text-text-link typo-footnote"
+            onClick={() => {
+              openModal({
+                type: LazyModal.SlackIntegration,
+                props: {
+                  source: briefingSource,
+                  redirectPath: getPathnameWithQuery(
+                    router?.pathname,
+                    new URLSearchParams({
+                      lzym: LazyModal.SlackIntegration,
+                    }),
+                  ),
+                  introTitle: labels.integrations.briefIntro.title,
+                  introDescription: labels.integrations.briefIntro.description,
+                },
+              });
+            }}
+          >
+            Manage integrations
+            <OpenLinkIcon />
+          </button>
+        )} */}
+      </div>
+      {!!selectedDigest && isChecked && (
         <>
+          <h3 className="font-bold typo-callout">When to send</h3>
+          <HourDropdown
+            className={{
+              container: 'w-40',
+              ...(!isPushSupported && { menu: '-translate-y-[19rem]' }),
+            }}
+            hourIndex={digestTimeIndex}
+            setHourIndex={(hour) =>
+              setCustomTime(selectedDigest.type, hour, setDigestTimeIndex)
+            }
+          />
           <Radio
             name="personalizedDigestSendType"
             value={selectedDigest?.flags?.sendType ?? null}
@@ -275,100 +336,6 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
               });
             }}
           />
-          <>
-            <h3 className="font-bold typo-callout">When to send?</h3>
-            <HourDropdown
-              className={{
-                container: 'w-40',
-                ...(!isPushSupported && { menu: '-translate-y-[19rem]' }),
-              }}
-              hourIndex={digestTimeIndex}
-              setHourIndex={(hour) =>
-                setCustomTime(selectedDigest.type, hour, setDigestTimeIndex)
-              }
-            />
-          </>
-          {selectedDigest.type === UserPersonalizedDigestType.Brief && (
-            <>
-              <h3 className="font-bold typo-callout">Receive via</h3>
-              <div className="grid grid-cols-1 gap-2">
-                <Checkbox
-                  name="inAppDigest"
-                  className="flex-row-reverse"
-                  checkmarkClassName="!mr-0"
-                  checked
-                  disabled
-                >
-                  In app (always active)
-                </Checkbox>
-                <Checkbox
-                  name="emailDigest"
-                  className="flex-row-reverse"
-                  checkmarkClassName="!mr-0"
-                  checked={selectedDigest.flags.email ?? false}
-                  onToggleCallback={(value) => {
-                    onSubscribeDigest({
-                      type: selectedDigest.type,
-                      sendType: selectedDigest.flags.sendType,
-                      flags: {
-                        ...selectedDigest.flags,
-                        email: value,
-                      },
-                    });
-                  }}
-                >
-                  Email
-                </Checkbox>
-                <Checkbox
-                  name="slackDigest"
-                  className="flex-row-reverse"
-                  checkmarkClassName="!mr-0"
-                  checked={selectedDigest.flags.slack ?? false}
-                  onToggleCallback={(value) => {
-                    onSubscribeDigest({
-                      type: selectedDigest.type,
-                      sendType: selectedDigest.flags.sendType,
-                      flags: {
-                        ...selectedDigest.flags,
-                        slack: value,
-                      },
-                    });
-                  }}
-                >
-                  Slack
-                  {!!selectedDigest.flags.slack && !!briefingSource && (
-                    <Button
-                      className="absolute bottom-0 right-12 top-0"
-                      type="text"
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Subtle}
-                      iconPosition={ButtonIconPosition.Right}
-                      icon={<OpenLinkIcon />}
-                      onClick={() => {
-                        openModal({
-                          type: LazyModal.SlackIntegration,
-                          props: {
-                            source: briefingSource,
-                            redirectPath: getPathnameWithQuery(
-                              router?.pathname,
-                              new URLSearchParams({
-                                lzym: LazyModal.SlackIntegration,
-                              }),
-                            ),
-                            introTitle: labels.integrations.briefIntro.title,
-                            introDescription:
-                              labels.integrations.briefIntro.description,
-                          },
-                        });
-                      }}
-                    >
-                      Manage integrations
-                    </Button>
-                  )}
-                </Checkbox>
-              </div>
-            </>
-          )}
         </>
       )}
     </div>
