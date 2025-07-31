@@ -12,6 +12,10 @@ import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../../icons';
 import type { Post } from '../../../../graphql/posts';
+import {
+  briefRefetchIntervalMs,
+  defautRefetchMs,
+} from '../../../../graphql/posts';
 import { Image } from '../../../image/Image';
 import { largeNumberFormat } from '../../../../lib';
 import { IconSize } from '../../../Icon';
@@ -24,6 +28,10 @@ import { LazyModal } from '../../common/types';
 import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
 import { postBoostSuccessCover } from '../../../../lib/image';
 import { walletUrl } from '../../../../lib/constants';
+import useDebounceFn from '../../../../hooks/useDebounceFn';
+import { Loader } from '../../../Loader';
+import { usePostById } from '../../../../hooks';
+import { oneMinute } from '../../../../lib/dateFormat';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -43,22 +51,69 @@ const SCREENS = {
 export type Screens = keyof typeof SCREENS;
 
 export function BoostPostModal({
-  post,
+  post: postFromProps,
   ...props
 }: BoostPostModalProps): ReactElement {
+  const [post, setPost] = useState(postFromProps);
+  const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
+  const canBoost = hasTags || post.yggdrasilId;
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(5000);
   const [totalDays, setTotalDays] = React.useState(7);
+  const [estimate, setEstimate] = useState({ coresPerDay, totalDays });
+  const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
+  const getEstimationProps = () => {
+    if (!hasTags) {
+      return post.yggdrasilId ? { id: post.id } : undefined;
+    }
+
+    return {
+      id: post.id,
+      budget: estimate.coresPerDay,
+      duration: estimate.totalDays,
+    };
+  };
   const { estimatedReach, onBoostPost, isLoadingEstimate } =
     usePostBoostMutation({
-      toEstimate: { id: post.id },
+      toEstimate: getEstimationProps(),
       onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
     });
   const image = usePostImage(post);
+
+  usePostById({
+    id: post.id,
+    options: {
+      enabled: !canBoost,
+      refetchInterval: (query) => {
+        const retries = Math.max(
+          query.state.dataUpdateCount,
+          query.state.fetchFailureCount,
+        );
+
+        // 30 seconds is an ample time to process yggdrasil
+        const oneMinuteMs = oneMinute * 1000;
+        const maxRetries = oneMinuteMs / 2 / defautRefetchMs;
+
+        if (retries > maxRetries) {
+          return false;
+        }
+
+        const { data } = query.state;
+
+        // in case of query error keep refetching until maxRetries is reached
+        if (data?.post.yggdrasilId) {
+          setPost(data.post);
+          return false;
+        }
+
+        return briefRefetchIntervalMs;
+      },
+    },
+  });
 
   const onButtonClick = () => {
     if (user.balance.amount < totalSpendInt) {
@@ -119,8 +174,8 @@ export function BoostPostModal({
   const maxReach = Math.max(estimatedReach.min, estimatedReach.max);
 
   const potentialReach = (() => {
-    if (isLoadingEstimate) {
-      return 'Calculating...';
+    if (isLoadingEstimate || !canBoost) {
+      return <Loader data-testid="loader" />;
     }
 
     const min = largeNumberFormat(estimatedReach.min);
@@ -189,14 +244,17 @@ export function BoostPostModal({
             >
               Total spend
             </Typography>
-            <Typography className="mt-2" type={TypographyType.Body}>
+            <Typography
+              className="mt-2 min-h-[1.375rem]"
+              type={TypographyType.Body}
+            >
               {potentialReach}
             </Typography>
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Potential reach
+              Estimated daily reach
             </Typography>
           </div>
         </div>
@@ -224,6 +282,7 @@ export function BoostPostModal({
             step={1000}
             defaultValue={[coresPerDay]}
             onValueChange={([value]) => {
+              updateEstimate((state) => ({ ...state, coresPerDay: value }));
               setCoresPerDay(value);
             }}
           />
@@ -243,9 +302,7 @@ export function BoostPostModal({
             max={30}
             step={1}
             defaultValue={[totalDays]}
-            onValueChange={([value]) => {
-              setTotalDays(value);
-            }}
+            onValueChange={([value]) => setTotalDays(value)}
           />
         </div>
       </Modal.Body>
@@ -255,6 +312,7 @@ export function BoostPostModal({
           className="w-full"
           type="button"
           onClick={onButtonClick}
+          disabled={!canBoost || isLoadingEstimate}
         >
           Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
         </Button>

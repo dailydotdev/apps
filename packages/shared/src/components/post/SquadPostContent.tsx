@@ -93,7 +93,7 @@ function SquadPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
           className?.content,
         )}
       >

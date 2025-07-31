@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   BoostEstimatedReach,
-  BoostPostProps,
+  EstimatedReachProps,
 } from '../../graphql/post/boost';
 import {
   getBoostEstimatedReach,
   startPostBoost,
   cancelPostBoost,
+  getBoostEstimatedReachDaily,
 } from '../../graphql/post/boost';
 import {
   generateQueryKey,
@@ -20,7 +21,7 @@ import { useTransactionError } from '../useTransactionError';
 import { useToastNotification } from '../useToastNotification';
 
 interface UsePostBoostMutationProps {
-  toEstimate?: Pick<BoostPostProps, 'id'>;
+  toEstimate?: Pick<EstimatedReachProps, 'id'> | EstimatedReachProps;
   onBoostSuccess?: () => void;
   onCancelSuccess?: () => void;
 }
@@ -43,14 +44,24 @@ export const usePostBoostMutation = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
-  const { data: estimatedReach, isPending: isLoadingEstimate } = useQuery({
+  const {
+    data: estimatedReach,
+    isPending: isLoadingEstimate,
+    isRefetching,
+  } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.PostCampaigns,
       user,
       'estimate',
-      toEstimate?.id,
+      toEstimate ? Object.values(toEstimate).join(':') : undefined,
     ),
-    queryFn: () => getBoostEstimatedReach(toEstimate),
+    queryFn: () => {
+      if ('budget' in toEstimate) {
+        return getBoostEstimatedReachDaily(toEstimate);
+      }
+
+      return getBoostEstimatedReach(toEstimate);
+    },
     enabled: !!toEstimate,
     placeholderData,
     staleTime: StaleTime.Default,
@@ -124,6 +135,6 @@ export const usePostBoostMutation = ({
     onBoostPost,
     onCancelBoost,
     isLoadingCancel: isPending,
-    isLoadingEstimate,
+    isLoadingEstimate: isLoadingEstimate || isRefetching,
   };
 };
