@@ -192,6 +192,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Source new post
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name="email_source_post_added"
               checked={
                 ns?.[NotificationType.SourcePostAdded]?.email ===
@@ -210,6 +212,8 @@ const EmailNotificationsTab = (): ReactElement => {
               User new post
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name="email_user_post_added"
               checked={
                 ns?.[NotificationType.UserPostAdded]?.email ===
@@ -228,6 +232,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Squad new post
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name="email_squad_post_added"
               checked={
                 ns?.[NotificationType.SquadPostAdded]?.email ===
@@ -246,6 +252,8 @@ const EmailNotificationsTab = (): ReactElement => {
               Collections you follow
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name="email_collection_updated"
               checked={
                 ns?.[NotificationType.CollectionUpdated]?.email ===

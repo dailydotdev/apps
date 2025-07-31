@@ -37,7 +37,8 @@ const SubscriptionCheckbox = ({
 
   return (
     <Checkbox
-      className="!p-0"
+      className="!px-0"
+      checkmarkClassName="!mr-0"
       name={squadId}
       checked={subscribed}
       disabled={disabled}
@@ -64,7 +65,11 @@ const SquadNotificationSettingsModal = ({
   ...props
 }: ModalProps): ReactElement => {
   const { squads } = useAuthContext();
-  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
+  const {
+    notificationSettings: ns,
+    toggleGroup,
+    getGroupStatus,
+  } = useNotificationSettings();
   const disabled =
     ns?.[NotificationType.SquadPostAdded]?.inApp !==
     NotificationPreferenceStatus.Subscribed;
@@ -93,7 +98,11 @@ const SquadNotificationSettingsModal = ({
               NotificationPreferenceStatus.Subscribed
             }
             onToggle={() => {
-              toggleSetting(NotificationType.SquadPostAdded, 'inApp');
+              toggleGroup(
+                'squadNotifications',
+                !getGroupStatus('squadNotifications', 'inApp'),
+                'inApp',
+              );
             }}
             compact={false}
           />

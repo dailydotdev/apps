@@ -72,6 +72,10 @@ export enum NotificationType {
   SquadPostSubmitted = 'source_post_submitted',
   SquadPostApproved = 'source_post_approved',
   SquadPostRejected = 'source_post_rejected',
+  ArticlePicked = 'article_picked',
+  ArticleAnalytics = 'article_analytics',
+  SourcePostSubmitted = 'source_post_submitted',
+  SquadNewPost = 'squad_new_post',
 }
 
 export enum NotificationIconType {
@@ -218,6 +222,7 @@ export const FOLLOWING_KEYS = [
 export const ACHIEVEMENT_KEYS = [
   NotificationType.UserTopReaderBadge,
   NotificationType.DevCardUnlocked,
+  NotificationType.ArticleAnalytics,
 ];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
@@ -230,6 +235,8 @@ export const STREAK_KEYS = [
 export const SQUAD_ROLE_KEYS = [
   NotificationType.PromotedToAdmin,
   NotificationType.PromotedToModerator,
+  NotificationType.SquadBlocked,
+  NotificationType.DemotedToMember,
 ];
 
 export const SOURCE_SUBMISSION_KEYS = [
@@ -248,11 +255,19 @@ export const SQUAD_POST_SUBMISSION_KEYS = [
   NotificationType.SquadPostSubmitted,
   NotificationType.SquadPostApproved,
   NotificationType.SquadPostRejected,
+  NotificationType.ArticlePicked,
+];
+
+export const SQUAD_KEYS = [
+  NotificationType.SquadPostAdded,
+  NotificationType.SquadMemberJoined,
+  NotificationType.SourcePostSubmitted,
 ];
 
 export const COMMENT_KEYS = [
   NotificationType.ArticleNewComment,
   NotificationType.SquadNewComment,
+  NotificationType.SquadReply,
 ];
 
 export const NotificationList = classed(
@@ -384,10 +399,28 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     email: 'muted',
     inApp: 'muted',
   },
-
-  // TODO: Might have its own notification settings
-  // read_it_later_reminder: {
-  //   email: 'Muted',
-  //   inApp: 'Muted',
-  // },
+  article_picked: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  article_analytics: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  squad_member_joined: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  squad_reply: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  squad_blocked: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  demoted_to_member: {
+    email: 'muted',
+    inApp: 'muted',
+  },
 };

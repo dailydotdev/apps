@@ -254,6 +254,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Source new post
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.SourcePostAdded}
               checked={
                 ns?.source_post_added?.inApp ===
@@ -269,6 +271,8 @@ const InAppNotificationsTab = (): ReactElement => {
               User new posts
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.UserPostAdded}
               checked={
                 ns?.user_post_added?.inApp ===
@@ -284,6 +288,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Collections you follow
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.CollectionUpdated}
               checked={
                 ns?.collection_updated?.inApp ===
@@ -299,6 +305,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Squad new post
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.SquadPostAdded}
               checked={
                 ns?.squad_post_added?.inApp ===
@@ -313,6 +321,8 @@ const InAppNotificationsTab = (): ReactElement => {
           <li>
             <Typography type={TypographyType.Callout}>Read it later</Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.PostBookmarkReminder}
               checked={
                 ns?.post_bookmark_reminder?.inApp ===
@@ -360,6 +370,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Notify me before my streak expires
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.StreakReminder}
               checked={
                 ns?.streak_reminder?.inApp ===
@@ -375,6 +387,8 @@ const InAppNotificationsTab = (): ReactElement => {
               Restore broken streak
             </Typography>
             <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
               name={NotificationType.StreakResetRestore}
               checked={
                 ns?.streak_reset_restore?.inApp ===
@@ -413,11 +427,10 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
         </NotificationList>
-        <HorizontalSeparator />
       </NotificationSection>
       <HorizontalSeparator />
       <NotificationSection>
-        <PersonalizedDigest channel="web" />
+        <PersonalizedDigest channel="inApp" />
       </NotificationSection>
       <HorizontalSeparator />
       <NotificationSection>
@@ -506,37 +519,6 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <HorizontalSeparator />
-      {/* At the time of creating this, we don't have a product tips notification */}
-      {/* <NotificationSection>
-        <SquadModNotifications />
-      </NotificationSection> */}
-      {/* <NotificationSection>
-        <Typography type={TypographyType.Body} bold>
-          From daily.dev
-        </Typography>
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-1 flex-col gap-3">
-            <Typography type={TypographyType.Body} bold>
-              Product tips
-            </Typography>
-            <Typography
-              color={TypographyColor.Tertiary}
-              type={TypographyType.Footnote}
-            >
-              Get occasional tips to help you discover features, save time, and
-              get more out of daily.dev. (TODO)
-            </Typography>
-          </div>
-          <Switch
-            inputId="product_tips"
-            name="product_tips"
-            checked={false}
-            onToggle={() => {}}
-            compact={false}
-          />
-        </div>
-      </NotificationSection> */}
     </section>
   );
 };
