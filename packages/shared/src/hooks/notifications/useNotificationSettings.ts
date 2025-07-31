@@ -1,7 +1,30 @@
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type { NotificationSettings } from '../../components/notifications/utils';
-import { NotificationType } from '../../components/notifications/utils';
+import {
+  MENTION_KEYS,
+  ACHIEVEMENT_KEYS,
+  FOLLOWING_KEYS,
+  STREAK_KEYS,
+  SQUAD_ROLE_KEYS,
+  SOURCE_SUBMISSION_KEYS,
+  SQUAD_POST_SUBMISSION_KEYS,
+  COMMENT_KEYS,
+} from '../../components/notifications/utils';
 import useNotificationSettingsQuery from './useNotificationSettingsQuery';
+
+const NOTIFICATION_GROUPS = {
+  mentions: MENTION_KEYS,
+  achievements: ACHIEVEMENT_KEYS,
+  following: FOLLOWING_KEYS,
+  streaks: STREAK_KEYS,
+  squadRoles: SQUAD_ROLE_KEYS,
+  sourceSubmission: SOURCE_SUBMISSION_KEYS,
+  squadPostSubmission: SQUAD_POST_SUBMISSION_KEYS,
+  comments: COMMENT_KEYS,
+} as const;
+
+type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;
+type NotificationChannel = 'inApp' | 'email';
 
 const useNotificationSettings = () => {
   const {
@@ -10,209 +33,89 @@ const useNotificationSettings = () => {
     mutate,
   } = useNotificationSettingsQuery();
 
-  const toggleSetting = (key: string) => {
-    const currentValue = ns[key]?.inApp;
+  const toggleSetting = (key: string, channel: NotificationChannel) => {
+    const currentValue = ns[key]?.[channel];
     const newValue =
       currentValue === NotificationPreferenceStatus.Subscribed
-        ? 'muted'
-        : 'subscribed';
+        ? NotificationPreferenceStatus.Muted
+        : NotificationPreferenceStatus.Subscribed;
 
     const updatedSettings = {
       ...ns,
       [key]: {
         ...ns[key],
-        inApp: newValue,
+        [channel]: newValue,
       },
     };
 
     mutate(updatedSettings);
   };
 
-  const toggleMentions = (value: boolean) => {
-    const newStatus = value ? 'subscribed' : 'muted';
-
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.PostMention]: {
-        ...ns[NotificationType.PostMention],
-        inApp: newStatus,
-      },
-      [NotificationType.CommentMention]: {
-        ...ns[NotificationType.CommentMention],
-        inApp: newStatus,
-      },
-    };
-
-    mutate(updatedSettings);
-  };
-
-  const toggleAchievements = (value: boolean) => {
-    const newStatus = value ? 'subscribed' : 'muted';
-
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.UserTopReaderBadge]: {
-        ...ns[NotificationType.UserTopReaderBadge],
-        inApp: newStatus,
-      },
-      [NotificationType.DevCardUnlocked]: {
-        ...ns[NotificationType.DevCardUnlocked],
-        inApp: newStatus,
-      },
-    };
-
-    mutate(updatedSettings);
-  };
-
-  const toggleFollowing = (value: boolean) => {
-    // const { newStatus, newValue } = getNewValues(
-    //   'following',
-    //   notificationSettings,
-    // );
+  const toggleGroup = (
+    groupName: NotificationGroup,
+    value: boolean,
+    channel: NotificationChannel,
+  ) => {
+    const keys = NOTIFICATION_GROUPS[groupName];
     const newStatus = value
       ? NotificationPreferenceStatus.Subscribed
       : NotificationPreferenceStatus.Muted;
 
     const updatedSettings = {
       ...ns,
-      [NotificationType.SourcePostAdded]: {
-        ...ns[NotificationType.SourcePostAdded],
-        inApp: newStatus,
-      },
-      [NotificationType.SquadPostAdded]: {
-        ...ns[NotificationType.SquadPostAdded],
-        inApp: newStatus,
-      },
-      [NotificationType.UserPostAdded]: {
-        ...ns[NotificationType.UserPostAdded],
-        inApp: newStatus,
-      },
-      [NotificationType.CollectionUpdated]: {
-        ...ns[NotificationType.CollectionUpdated],
-        inApp: newStatus,
-      },
-      [NotificationType.PostBookmarkReminder]: {
-        ...ns[NotificationType.PostBookmarkReminder],
-        inApp: newStatus,
-      },
+      ...keys.reduce(
+        (acc, key) => ({
+          ...acc,
+          [key]: {
+            ...ns[key],
+            [channel]: newStatus,
+          },
+        }),
+        {},
+      ),
     };
 
     mutate(updatedSettings);
   };
 
-  const toggleStreak = (value: boolean) => {
-    const newStatus = value
-      ? NotificationPreferenceStatus.Subscribed
-      : NotificationPreferenceStatus.Muted;
+  const getGroupStatus = (
+    groupName: NotificationGroup,
+    channel: NotificationChannel,
+  ) => {
+    const keys = NOTIFICATION_GROUPS[groupName];
+    return keys.some(
+      (key) => ns?.[key]?.[channel] === NotificationPreferenceStatus.Subscribed,
+    );
+  };
 
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.StreakReminder]: {
-        ...ns[NotificationType.StreakReminder],
-        inApp: newStatus,
+  const unsubscribeAllEmail = () => {
+    const updatedSettings: NotificationSettings = Object.keys(ns).reduce(
+      (acc, key) => {
+        acc[key] = {
+          ...ns[key],
+          email: NotificationPreferenceStatus.Muted,
+        };
+        return acc;
       },
-      [NotificationType.StreakResetRestore]: {
-        ...ns[NotificationType.StreakResetRestore],
-        inApp: newStatus,
-      },
-    };
+      {},
+    );
     mutate(updatedSettings);
   };
 
-  const toggleSquadRole = (value: boolean) => {
-    const newStatus = value
-      ? NotificationPreferenceStatus.Subscribed
-      : NotificationPreferenceStatus.Muted;
-
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.PromotedToAdmin]: {
-        ...ns[NotificationType.PromotedToAdmin],
-        inApp: newStatus,
-      },
-      [NotificationType.PromotedToModerator]: {
-        ...ns[NotificationType.PromotedToModerator],
-        inApp: newStatus,
-      },
-    };
-
-    mutate(updatedSettings);
-  };
-
-  const toggleSourceSubmission = (value: boolean) => {
-    const newStatus = value
-      ? NotificationPreferenceStatus.Subscribed
-      : NotificationPreferenceStatus.Muted;
-
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.SourceApproved]: {
-        ...ns[NotificationType.SourceApproved],
-        inApp: newStatus,
-      },
-      [NotificationType.SourceRejected]: {
-        ...ns[NotificationType.SourceRejected],
-        inApp: newStatus,
-      },
-    };
-
-    mutate(updatedSettings);
-  };
-
-  const toggleSquadPostSubmission = (value: boolean) => {
-    const newStatus = value
-      ? NotificationPreferenceStatus.Subscribed
-      : NotificationPreferenceStatus.Muted;
-
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.SquadPostSubmitted]: {
-        ...ns[NotificationType.SquadPostSubmitted],
-        inApp: newStatus,
-      },
-      [NotificationType.SquadPostApproved]: {
-        ...ns[NotificationType.SquadPostApproved],
-        inApp: newStatus,
-      },
-      [NotificationType.SquadPostRejected]: {
-        ...ns[NotificationType.SquadPostRejected],
-        inApp: newStatus,
-      },
-    };
-
-    mutate(updatedSettings);
-  };
-
-  const toggleComments = (value: boolean) => {
-    const newStatus = value ? 'subscribed' : 'muted';
-
-    const updatedSettings = {
-      ...ns,
-      [NotificationType.ArticleNewComment]: {
-        ...ns[NotificationType.ArticleNewComment],
-        inApp: newStatus,
-      },
-      [NotificationType.SquadNewComment]: {
-        ...ns[NotificationType.SquadNewComment],
-        inApp: newStatus,
-      },
-    };
-
-    mutate(updatedSettings);
-  };
+  const emailsEnabled = ns
+    ? Object.values(ns as NotificationSettings).some(
+        (setting) => setting.email === NotificationPreferenceStatus.Subscribed,
+      )
+    : false;
 
   return {
-    isLoadingPreferences,
     toggleSetting,
+    toggleGroup,
+    getGroupStatus,
+    unsubscribeAllEmail,
+    emailsEnabled,
     notificationSettings: ns as NotificationSettings,
-    toggleMentions,
-    toggleAchievements,
-    toggleFollowing,
-    toggleStreak,
-    toggleSquadRole,
-    toggleSourceSubmission,
-    toggleSquadPostSubmission,
-    toggleComments,
+    isLoadingPreferences,
   };
 };
 

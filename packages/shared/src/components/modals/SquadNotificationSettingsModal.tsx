@@ -93,7 +93,7 @@ const SquadNotificationSettingsModal = ({
               NotificationPreferenceStatus.Subscribed
             }
             onToggle={() => {
-              toggleSetting(NotificationType.SquadPostAdded);
+              toggleSetting(NotificationType.SquadPostAdded, 'inApp');
             }}
             compact={false}
           />

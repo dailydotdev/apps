@@ -8,19 +8,10 @@ import {
 import { Switch } from '../fields/Switch';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import type { NotificationSettings } from './utils';
 import {
-  ACHIEVEMENT_KEYS,
-  COMMENT_KEYS,
-  FOLLOWING_KEYS,
-  MENTION_KEYS,
   NotificationList,
   NotificationSection,
   NotificationType,
-  SOURCE_SUBMISSION_KEYS,
-  SQUAD_POST_SUBMISSION_KEYS,
-  SQUAD_ROLE_KEYS,
-  STREAK_KEYS,
 } from './utils';
 
 import { Checkbox } from '../fields/Checkbox';
@@ -35,17 +26,6 @@ import { NotificationPromptSource } from '../../lib/log';
 import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
 
-// Only need this because we are grouping independent settings together.
-// If we make a backend script to update the settings, we can remove this.
-const getNotifGroupStatus = (
-  keys: string[],
-  ns: NotificationSettings | undefined,
-) => {
-  return keys.some(
-    (key) => ns?.[key]?.inApp === NotificationPreferenceStatus.Subscribed,
-  );
-};
-
 const InAppNotificationsTab = (): ReactElement => {
   const { onTogglePermission } = usePushNotificationMutation();
   const { isSubscribed, isInitialized } = usePushNotificationContext();
@@ -53,14 +33,8 @@ const InAppNotificationsTab = (): ReactElement => {
   const {
     notificationSettings: ns,
     toggleSetting,
-    toggleMentions,
-    toggleAchievements,
-    toggleFollowing,
-    toggleStreak,
-    toggleSquadRole,
-    toggleSourceSubmission,
-    toggleSquadPostSubmission,
-    toggleComments,
+    toggleGroup,
+    getGroupStatus,
   } = useNotificationSettings();
 
   const onTogglePush = async () => {
@@ -71,18 +45,6 @@ const InAppNotificationsTab = (): ReactElement => {
     // );
     return onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
-
-  const comments = getNotifGroupStatus(COMMENT_KEYS, ns);
-  const mentions = getNotifGroupStatus(MENTION_KEYS, ns);
-  const following = getNotifGroupStatus(FOLLOWING_KEYS, ns);
-  const achievements = getNotifGroupStatus(ACHIEVEMENT_KEYS, ns);
-  const streaks = getNotifGroupStatus(STREAK_KEYS, ns);
-  const squadRoles = getNotifGroupStatus(SQUAD_ROLE_KEYS, ns);
-  const sourceSubmission = getNotifGroupStatus(SOURCE_SUBMISSION_KEYS, ns);
-  const squadPostSubmission = getNotifGroupStatus(
-    SQUAD_POST_SUBMISSION_KEYS,
-    ns,
-  );
 
   return (
     <section className="flex flex-col gap-6 py-4">
@@ -138,8 +100,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="comments"
               name="comments"
-              checked={comments}
-              onToggle={() => toggleComments(!comments)}
+              checked={getGroupStatus('comments', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'comments',
+                  !getGroupStatus('comments', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -154,7 +122,9 @@ const InAppNotificationsTab = (): ReactElement => {
                 ns?.comment_reply?.inApp ===
                 NotificationPreferenceStatus.Subscribed
               }
-              onToggle={() => toggleSetting(NotificationType.CommentReply)}
+              onToggle={() =>
+                toggleSetting(NotificationType.CommentReply, 'inApp')
+              }
               compact={false}
             />
           </li>
@@ -170,7 +140,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleSetting(NotificationType.ArticleUpvoteMilestone)
+                toggleSetting(NotificationType.ArticleUpvoteMilestone, 'inApp')
               }
               compact={false}
             />
@@ -187,7 +157,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleSetting(NotificationType.CommentUpvoteMilestone)
+                toggleSetting(NotificationType.CommentUpvoteMilestone, 'inApp')
               }
               compact={false}
             />
@@ -199,8 +169,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="username_mention"
               name="username_mention"
-              checked={mentions}
-              onToggle={() => toggleMentions(!mentions)}
+              checked={getGroupStatus('mentions', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'mentions',
+                  !getGroupStatus('mentions', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -215,7 +191,9 @@ const InAppNotificationsTab = (): ReactElement => {
                 ns?.[NotificationType.UserReceivedAward]?.inApp ===
                 NotificationPreferenceStatus.Subscribed
               }
-              onToggle={() => toggleSetting(NotificationType.UserReceivedAward)}
+              onToggle={() =>
+                toggleSetting(NotificationType.UserReceivedAward, 'inApp')
+              }
               compact={false}
             />
           </li>
@@ -231,7 +209,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleSetting(NotificationType.ArticleReportApproved)
+                toggleSetting(NotificationType.ArticleReportApproved, 'inApp')
               }
               compact={false}
             />
@@ -260,8 +238,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="following"
               name="following"
-              checked={following}
-              onToggle={() => toggleFollowing(!following)}
+              checked={getGroupStatus('following', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'following',
+                  !getGroupStatus('following', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -276,7 +260,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.SourcePostAdded)
+                toggleSetting(NotificationType.SourcePostAdded, 'inApp')
               }
             />
           </li>
@@ -291,7 +275,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.UserPostAdded)
+                toggleSetting(NotificationType.UserPostAdded, 'inApp')
               }
             />
           </li>
@@ -306,7 +290,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.CollectionUpdated)
+                toggleSetting(NotificationType.CollectionUpdated, 'inApp')
               }
             />
           </li>
@@ -321,7 +305,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.SquadPostAdded)
+                toggleSetting(NotificationType.SquadPostAdded, 'inApp')
               }
             />
           </li>
@@ -335,7 +319,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.PostBookmarkReminder)
+                toggleSetting(NotificationType.PostBookmarkReminder, 'inApp')
               }
             />
           </li>
@@ -360,8 +344,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId={NotificationType.StreakReminder}
               name={NotificationType.StreakReminder}
-              checked={streaks}
-              onToggle={() => toggleStreak(!streaks)}
+              checked={getGroupStatus('streaks', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'streaks',
+                  !getGroupStatus('streaks', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -376,7 +366,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.StreakReminder)
+                toggleSetting(NotificationType.StreakReminder, 'inApp')
               }
             />
           </li>
@@ -391,7 +381,7 @@ const InAppNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleSetting(NotificationType.StreakResetRestore)
+                toggleSetting(NotificationType.StreakResetRestore, 'inApp')
               }
             />
           </li>
@@ -411,8 +401,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="achievements"
               name="achievements"
-              checked={achievements}
-              onToggle={() => toggleAchievements(!achievements)}
+              checked={getGroupStatus('achievements', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'achievements',
+                  !getGroupStatus('achievements', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -445,8 +441,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="source_suggestions"
               name="source_suggestions"
-              checked={sourceSubmission}
-              onToggle={() => toggleSourceSubmission(!sourceSubmission)}
+              checked={getGroupStatus('sourceSubmission', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'sourceSubmission',
+                  !getGroupStatus('sourceSubmission', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -466,8 +468,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="submitted_post"
               name="submitted_post"
-              checked={squadPostSubmission}
-              onToggle={() => toggleSquadPostSubmission(!squadPostSubmission)}
+              checked={getGroupStatus('squadPostSubmission', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'squadPostSubmission',
+                  !getGroupStatus('squadPostSubmission', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>
@@ -485,8 +493,14 @@ const InAppNotificationsTab = (): ReactElement => {
             <Switch
               inputId="squad_roles"
               name="squad_roles"
-              checked={squadRoles}
-              onToggle={() => toggleSquadRole(!squadRoles)}
+              checked={getGroupStatus('squadRoles', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'squadRoles',
+                  !getGroupStatus('squadRoles', 'inApp'),
+                  'inApp',
+                )
+              }
               compact={false}
             />
           </li>

@@ -8,46 +8,25 @@ import {
 import { Switch } from '../fields/Switch';
 import { Checkbox } from '../fields/Checkbox';
 // import { Radio } from '../fields/Radio';
-import useEmailNotificationSettings from '../../hooks/notifications/useEmailNotificationSettings';
+import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import type { NotificationSettings } from './utils';
 import {
-  ACHIEVEMENT_KEYS,
-  COMMENT_KEYS,
-  FOLLOWING_KEYS,
-  MENTION_KEYS,
   NotificationList,
   NotificationSection,
   NotificationType,
-  STREAK_KEYS,
 } from './utils';
 import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
 
-const getEmailNotifGroupStatus = (keys: string[], ns: NotificationSettings) => {
-  return keys.some(
-    (key) => ns?.[key]?.email === NotificationPreferenceStatus.Subscribed,
-  );
-};
-
 const EmailNotificationsTab = (): ReactElement => {
   const {
     notificationSettings: ns,
-    toggleEmailSetting,
-    toggleEmailMentions,
-    toggleEmailAchievements,
-    toggleEmailFollowing,
-    toggleEmailStreak,
-    unsubscribeAll,
+    toggleSetting,
+    toggleGroup,
+    getGroupStatus,
+    unsubscribeAllEmail,
     emailsEnabled,
-    toggleEmailComments,
-  } = useEmailNotificationSettings();
-
-  const mentions = getEmailNotifGroupStatus(MENTION_KEYS, ns);
-  const following = getEmailNotifGroupStatus(FOLLOWING_KEYS, ns);
-  const achievements = getEmailNotifGroupStatus(ACHIEVEMENT_KEYS, ns);
-  const streaks = getEmailNotifGroupStatus(STREAK_KEYS, ns);
-  const comments = getEmailNotifGroupStatus(COMMENT_KEYS, ns);
+  } = useNotificationSettings();
 
   return (
     <section className="flex flex-col gap-6 py-4">
@@ -63,8 +42,14 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="comments"
               name="comments"
-              checked={comments}
-              onToggle={() => toggleEmailComments(!comments)}
+              checked={getGroupStatus('comments', 'email')}
+              onToggle={() =>
+                toggleGroup(
+                  'comments',
+                  !getGroupStatus('comments', 'email'),
+                  'email',
+                )
+              }
               compact={false}
             />
           </li>
@@ -79,7 +64,9 @@ const EmailNotificationsTab = (): ReactElement => {
                 ns?.[NotificationType.CommentReply]?.email ===
                 NotificationPreferenceStatus.Subscribed
               }
-              onToggle={() => toggleEmailSetting(NotificationType.CommentReply)}
+              onToggle={() =>
+                toggleSetting(NotificationType.CommentReply, 'email')
+              }
               compact={false}
             />
           </li>
@@ -95,7 +82,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleEmailSetting(NotificationType.ArticleUpvoteMilestone)
+                toggleSetting(NotificationType.ArticleUpvoteMilestone, 'email')
               }
               compact={false}
             />
@@ -112,7 +99,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleEmailSetting(NotificationType.CommentUpvoteMilestone)
+                toggleSetting(NotificationType.CommentUpvoteMilestone, 'email')
               }
               compact={false}
             />
@@ -124,8 +111,14 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="email_username_mention"
               name="email_username_mention"
-              checked={mentions}
-              onToggle={() => toggleEmailMentions(!mentions)}
+              checked={getGroupStatus('mentions', 'email')}
+              onToggle={() =>
+                toggleGroup(
+                  'mentions',
+                  !getGroupStatus('mentions', 'email'),
+                  'email',
+                )
+              }
               compact={false}
             />
           </li>
@@ -141,7 +134,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleEmailSetting(NotificationType.UserReceivedAward)
+                toggleSetting(NotificationType.UserReceivedAward, 'email')
               }
               compact={false}
             />
@@ -158,7 +151,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleEmailSetting(NotificationType.ArticleReportApproved)
+                toggleSetting(NotificationType.ArticleReportApproved, 'email')
               }
               compact={false}
             />
@@ -178,8 +171,14 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="email_following"
               name="email_following"
-              checked={following}
-              onToggle={() => toggleEmailFollowing(!following)}
+              checked={getGroupStatus('following', 'email')}
+              onToggle={() =>
+                toggleGroup(
+                  'following',
+                  !getGroupStatus('following', 'email'),
+                  'email',
+                )
+              }
               compact={false}
             />
           </li>
@@ -199,7 +198,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleEmailSetting(NotificationType.SourcePostAdded)
+                toggleSetting(NotificationType.SourcePostAdded, 'email')
               }
             />
           </div>
@@ -217,7 +216,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleEmailSetting(NotificationType.UserPostAdded)
+                toggleSetting(NotificationType.UserPostAdded, 'email')
               }
             />
           </div>
@@ -235,7 +234,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleEmailSetting(NotificationType.SquadPostAdded)
+                toggleSetting(NotificationType.SquadPostAdded, 'email')
               }
             />
           </div>
@@ -253,7 +252,7 @@ const EmailNotificationsTab = (): ReactElement => {
                 NotificationPreferenceStatus.Subscribed
               }
               onToggleCallback={() =>
-                toggleEmailSetting(NotificationType.CollectionUpdated)
+                toggleSetting(NotificationType.CollectionUpdated, 'email')
               }
             />
           </div>
@@ -273,8 +272,14 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="email_streaks"
               name="email_streaks"
-              checked={streaks}
-              onToggle={() => toggleEmailStreak(!streaks)}
+              checked={getGroupStatus('streaks', 'email')}
+              onToggle={() =>
+                toggleGroup(
+                  'streaks',
+                  !getGroupStatus('streaks', 'email'),
+                  'email',
+                )
+              }
               compact={false}
             />
           </div>
@@ -296,8 +301,14 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="email_achievements"
               name="email_achievements"
-              checked={achievements}
-              onToggle={() => toggleEmailAchievements(!achievements)}
+              checked={getGroupStatus('achievements', 'email')}
+              onToggle={() =>
+                toggleGroup(
+                  'achievements',
+                  !getGroupStatus('achievements', 'email'),
+                  'email',
+                )
+              }
               compact={false}
             />
           </div>
@@ -320,7 +331,9 @@ const EmailNotificationsTab = (): ReactElement => {
               inputId="email_creator_updates"
               name="email_creator_updates"
               checked={false}
-              onToggle={() => toggleEmailCreatorUpdates(true)}
+              onToggle={() =>
+                toggleSetting(NotificationType.SourcePostApproved, 'email')
+              }
               compact={false}
             />
           </div>
@@ -343,7 +356,7 @@ const EmailNotificationsTab = (): ReactElement => {
             inputId="unsubscribe_all"
             name="unsubscribe_all"
             checked={emailsEnabled}
-            onToggle={unsubscribeAll}
+            onToggle={unsubscribeAllEmail}
             compact={false}
           />
         </div>
