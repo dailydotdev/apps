@@ -1,51 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  GET_NOTIFICATION_SETTINGS,
-  updateNotificationSettings,
-} from '../../graphql/users';
-import { gqlClient } from '../../graphql/common';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 import type { NotificationSettings } from '../../components/notifications/utils';
-import {
-  DEFAULT_NOTIFICATION_SETTINGS,
-  NotificationType,
-} from '../../components/notifications/utils';
+import { NotificationType } from '../../components/notifications/utils';
+import useNotificationSettingsQuery from './useNotificationSettingsQuery';
 
 const useNotificationSettings = () => {
-  const { user } = useAuthContext();
-  const queryClient = useQueryClient();
-  const nsKey = generateQueryKey(RequestKey.NotificationSettings, {
-    id: user?.id,
-  });
-  const { data: ns, isLoading: isLoadingPreferences } = useQuery({
-    queryKey: nsKey,
-    queryFn: async () => await gqlClient.request(GET_NOTIFICATION_SETTINGS),
-    select: (data) => {
-      return {
-        ...DEFAULT_NOTIFICATION_SETTINGS,
-        ...data.notificationSettings,
-      };
-    },
-  });
-  const { mutate } = useMutation({
-    onMutate: (notificationFlags) => {
-      const oldData = queryClient.getQueryData(nsKey);
-
-      queryClient.setQueryData(nsKey, {
-        notificationSettings: notificationFlags,
-      });
-
-      return { oldData };
-    },
-    onError: (err, _, { oldData }) => {
-      queryClient.setQueryData(nsKey, oldData);
-    },
-    mutationFn: (notificationFlags: NotificationSettings) => {
-      return updateNotificationSettings(notificationFlags);
-    },
-  });
+  const {
+    notificationSettings: ns,
+    isLoading: isLoadingPreferences,
+    mutate,
+  } = useNotificationSettingsQuery();
 
   const toggleSetting = (key: string) => {
     const currentValue = ns[key]?.inApp;
@@ -196,6 +159,48 @@ const useNotificationSettings = () => {
     mutate(updatedSettings);
   };
 
+  const toggleSquadPostSubmission = (value: boolean) => {
+    const newStatus = value
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
+
+    const updatedSettings = {
+      ...ns,
+      [NotificationType.SquadPostSubmitted]: {
+        ...ns[NotificationType.SquadPostSubmitted],
+        inApp: newStatus,
+      },
+      [NotificationType.SquadPostApproved]: {
+        ...ns[NotificationType.SquadPostApproved],
+        inApp: newStatus,
+      },
+      [NotificationType.SquadPostRejected]: {
+        ...ns[NotificationType.SquadPostRejected],
+        inApp: newStatus,
+      },
+    };
+
+    mutate(updatedSettings);
+  };
+
+  const toggleComments = (value: boolean) => {
+    const newStatus = value ? 'subscribed' : 'muted';
+
+    const updatedSettings = {
+      ...ns,
+      [NotificationType.ArticleNewComment]: {
+        ...ns[NotificationType.ArticleNewComment],
+        inApp: newStatus,
+      },
+      [NotificationType.SquadNewComment]: {
+        ...ns[NotificationType.SquadNewComment],
+        inApp: newStatus,
+      },
+    };
+
+    mutate(updatedSettings);
+  };
+
   return {
     isLoadingPreferences,
     toggleSetting,
@@ -206,6 +211,8 @@ const useNotificationSettings = () => {
     toggleStreak,
     toggleSquadRole,
     toggleSourceSubmission,
+    toggleSquadPostSubmission,
+    toggleComments,
   };
 };
 

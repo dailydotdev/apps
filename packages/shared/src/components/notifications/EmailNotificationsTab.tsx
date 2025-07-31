@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 import {
   Typography,
   TypographyColor,
@@ -14,6 +13,7 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type { NotificationSettings } from './utils';
 import {
   ACHIEVEMENT_KEYS,
+  COMMENT_KEYS,
   FOLLOWING_KEYS,
   MENTION_KEYS,
   NotificationList,
@@ -21,6 +21,8 @@ import {
   NotificationType,
   STREAK_KEYS,
 } from './utils';
+import { HorizontalSeparator } from '../utilities';
+import PersonalizedDigest from './PersonalizedDigest';
 
 const getEmailNotifGroupStatus = (keys: string[], ns: NotificationSettings) => {
   return keys.some(
@@ -36,15 +38,16 @@ const EmailNotificationsTab = (): ReactElement => {
     toggleEmailAchievements,
     toggleEmailFollowing,
     toggleEmailStreak,
-    toggleEmailCreatorUpdates,
     unsubscribeAll,
     emailsEnabled,
+    toggleEmailComments,
   } = useEmailNotificationSettings();
 
   const mentions = getEmailNotifGroupStatus(MENTION_KEYS, ns);
   const following = getEmailNotifGroupStatus(FOLLOWING_KEYS, ns);
   const achievements = getEmailNotifGroupStatus(ACHIEVEMENT_KEYS, ns);
   const streaks = getEmailNotifGroupStatus(STREAK_KEYS, ns);
+  const comments = getEmailNotifGroupStatus(COMMENT_KEYS, ns);
 
   return (
     <section className="flex flex-col gap-6 py-4">
@@ -58,15 +61,10 @@ const EmailNotificationsTab = (): ReactElement => {
               Comments on your posts
             </Typography>
             <Switch
-              inputId="email_article_new_comment"
-              name="email_article_new_comment"
-              checked={
-                ns?.[NotificationType.ArticleNewComment]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleEmailSetting(NotificationType.ArticleNewComment)
-              }
+              inputId="comments"
+              name="comments"
+              checked={comments}
+              onToggle={() => toggleEmailComments(!comments)}
               compact={false}
             />
           </li>
@@ -136,10 +134,15 @@ const EmailNotificationsTab = (): ReactElement => {
               Cores & Awards you receive
             </Typography>
             <Switch
-              inputId="email_cores_and_awards_received"
-              name="email_cores_and_awards_received"
-              checked={false}
-              onToggle={() => {}}
+              inputId={NotificationType.UserReceivedAward}
+              name={NotificationType.UserReceivedAward}
+              checked={
+                ns?.[NotificationType.UserReceivedAward]?.email ===
+                NotificationPreferenceStatus.Subscribed
+              }
+              onToggle={() =>
+                toggleEmailSetting(NotificationType.UserReceivedAward)
+              }
               compact={false}
             />
           </li>
@@ -162,7 +165,7 @@ const EmailNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <Separator />
+      <HorizontalSeparator />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Updates
@@ -323,213 +326,11 @@ const EmailNotificationsTab = (): ReactElement => {
           </div>
         </div>
       </NotificationSection>
-      {/* <Separator />
+      <HorizontalSeparator />
       <NotificationSection>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-row items-start justify-between">
-            <div className="flex flex-1 flex-col gap-1">
-              <Typography type={TypographyType.Body} bold>
-                Personalized digest
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Our recommendation system scans everything on daily.dev and
-                sends you a tailored email with just the must-read posts. Choose
-                daily or weekly delivery and set your preferred send time below.
-              </Typography>
-            </div>
-            <Switch
-              inputId="personalized_digest"
-              name="personalized_digest"
-              checked
-              onChange={() => {}}
-              compact={false}
-            />
-          </div>
-          <div className="w-40">
-            <select className="w-full rounded-10 bg-surface-float px-3 py-1 text-text-tertiary typo-body">
-              <option>09:00</option>
-              <option>10:00</option>
-              <option>11:00</option>
-            </select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-center justify-between">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Daily
-              </Typography>
-              <Radio
-                name="digest_frequency"
-                id="daily"
-                value="daily"
-                checked
-                onChange={() => {}}
-              />
-            </div>
-            <div className="flex flex-row items-center justify-between">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Weekly
-              </Typography>
-              <Radio
-                name="digest_frequency"
-                id="weekly"
-                value="weekly"
-                checked={false}
-                onChange={() => {}}
-              />
-            </div>
-            <div className="flex flex-row items-center justify-between">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Off
-              </Typography>
-              <Radio
-                name="digest_frequency"
-                id="off"
-                value="off"
-                checked={false}
-                onChange={() => {}}
-              />
-            </div>
-          </div>
-        </div>
+        <PersonalizedDigest channel="email" />
       </NotificationSection>
-      <Separator />
-      <NotificationSection>
-        <Typography type={TypographyType.Body} bold>
-          Billing
-        </Typography>
-        <NotificationList>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              In-app purchases
-            </Typography>
-            <Switch
-              inputId="billing_in_app_purchases"
-              name="billing_in_app_purchases"
-              checked
-              onChange={() => {}}
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Paid subscriptions
-            </Typography>
-            <Switch
-              inputId="billing_paid_subscriptions"
-              name="billing_paid_subscriptions"
-              checked
-              onChange={() => {}}
-              compact={false}
-            />
-          </li>
-        </NotificationList>
-      </NotificationSection>
-      <Separator />
-      <NotificationSection>
-        <Typography type={TypographyType.Body} bold>
-          From daily.dev
-        </Typography>
-        <NotificationList>
-          <li>
-            <div className="flex flex-col gap-2">
-              <Typography type={TypographyType.Callout}>
-                New user welcome
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get helpful tips and guidance as you get started with daily.dev.
-              </Typography>
-            </div>
-            <Switch
-              inputId="new_user_welcome"
-              name="new_user_welcome"
-              checked
-              onChange={() => {}}
-              compact={false}
-            />
-          </li>
-          <li>
-            <div className="flex flex-col gap-2">
-              <Typography type={TypographyType.Callout}>
-                Major announcements
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get notified about big product changes, launches, and important
-                company news from daily.dev.
-              </Typography>
-            </div>
-            <Switch
-              inputId="major_announcements"
-              name="major_announcements"
-              checked
-              onChange={() => {}}
-              compact={false}
-            />
-          </li>
-          <li>
-            <div className="flex flex-col gap-2">
-              <Typography type={TypographyType.Callout}>
-                Community & Marketing
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get emails about product news, events, giveaways, and highlights
-                from the daily.dev community.
-              </Typography>
-            </div>
-            <Switch
-              inputId="community_marketing"
-              name="community_marketing"
-              checked
-              onChange={() => {}}
-              compact={false}
-            />
-          </li>
-          <li>
-            <div className="flex flex-col gap-2">
-              <Typography type={TypographyType.Callout}>
-                Critical system alerts
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get important emails about account security, privacy updates,
-                and critical system issues.
-              </Typography>
-            </div>
-            <Switch
-              inputId="critical_system_alerts"
-              name="critical_system_alerts"
-              checked
-              disabled
-              onChange={() => {}}
-              compact={false}
-            />
-          </li>
-        </NotificationList>
-      </NotificationSection>
-      */}
-      <Separator />
+      <HorizontalSeparator />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Advanced

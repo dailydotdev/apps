@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 import {
   Typography,
   TypographyColor,
@@ -12,12 +11,14 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type { NotificationSettings } from './utils';
 import {
   ACHIEVEMENT_KEYS,
+  COMMENT_KEYS,
   FOLLOWING_KEYS,
   MENTION_KEYS,
   NotificationList,
   NotificationSection,
   NotificationType,
   SOURCE_SUBMISSION_KEYS,
+  SQUAD_POST_SUBMISSION_KEYS,
   SQUAD_ROLE_KEYS,
   STREAK_KEYS,
 } from './utils';
@@ -58,6 +59,8 @@ const InAppNotificationsTab = (): ReactElement => {
     toggleStreak,
     toggleSquadRole,
     toggleSourceSubmission,
+    toggleSquadPostSubmission,
+    toggleComments,
   } = useNotificationSettings();
 
   const onTogglePush = async () => {
@@ -69,12 +72,17 @@ const InAppNotificationsTab = (): ReactElement => {
     return onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
 
+  const comments = getNotifGroupStatus(COMMENT_KEYS, ns);
   const mentions = getNotifGroupStatus(MENTION_KEYS, ns);
   const following = getNotifGroupStatus(FOLLOWING_KEYS, ns);
   const achievements = getNotifGroupStatus(ACHIEVEMENT_KEYS, ns);
   const streaks = getNotifGroupStatus(STREAK_KEYS, ns);
   const squadRoles = getNotifGroupStatus(SQUAD_ROLE_KEYS, ns);
   const sourceSubmission = getNotifGroupStatus(SOURCE_SUBMISSION_KEYS, ns);
+  const squadPostSubmission = getNotifGroupStatus(
+    SQUAD_POST_SUBMISSION_KEYS,
+    ns,
+  );
 
   return (
     <section className="flex flex-col gap-6 py-4">
@@ -128,13 +136,10 @@ const InAppNotificationsTab = (): ReactElement => {
               Comments on your post
             </Typography>
             <Switch
-              inputId={NotificationType.ArticleNewComment}
-              name={NotificationType.ArticleNewComment}
-              checked={
-                ns?.article_new_comment?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() => toggleSetting(NotificationType.ArticleNewComment)}
+              inputId="comments"
+              name="comments"
+              checked={comments}
+              onToggle={() => toggleComments(!comments)}
               compact={false}
             />
           </li>
@@ -199,18 +204,21 @@ const InAppNotificationsTab = (): ReactElement => {
               compact={false}
             />
           </li>
-          {/* <li>
-            <Typography type={TypographyType.Callout} >
-              Cores and awards you receive
+          <li>
+            <Typography type={TypographyType.Callout}>
+              Cores & Awards you receive
             </Typography>
             <Switch
-              inputId="cores_and_awards_received"
-              name="cores_and_awards_received"
-              checked={ns?.cores_and_awards_received}
-              onToggle={toggle}
+              inputId={NotificationType.UserReceivedAward}
+              name={NotificationType.UserReceivedAward}
+              checked={
+                ns?.[NotificationType.UserReceivedAward]?.inApp ===
+                NotificationPreferenceStatus.Subscribed
+              }
+              onToggle={() => toggleSetting(NotificationType.UserReceivedAward)}
               compact={false}
             />
-          </li> */}
+          </li>
           <li>
             <Typography type={TypographyType.Callout}>
               Report updates
@@ -230,7 +238,7 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <Separator />
+      <HorizontalSeparator />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Updates
@@ -274,21 +282,6 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
           <li>
             <Typography type={TypographyType.Callout}>
-              Squad new post
-            </Typography>
-            <Checkbox
-              name={NotificationType.SquadPostAdded}
-              checked={
-                ns?.squad_post_added?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.SquadPostAdded)
-              }
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
               User new posts
             </Typography>
             <Checkbox
@@ -318,6 +311,22 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
           <li>
+            <Typography type={TypographyType.Callout}>
+              Squad new post
+            </Typography>
+            <Checkbox
+              name={NotificationType.SquadPostAdded}
+              checked={
+                ns?.squad_post_added?.inApp ===
+                NotificationPreferenceStatus.Subscribed
+              }
+              onToggleCallback={() =>
+                toggleSetting(NotificationType.SquadPostAdded)
+              }
+            />
+          </li>
+
+          <li>
             <Typography type={TypographyType.Callout}>Read it later</Typography>
             <Checkbox
               name={NotificationType.PostBookmarkReminder}
@@ -333,11 +342,6 @@ const InAppNotificationsTab = (): ReactElement => {
         </NotificationList>
       </NotificationSection>
       <HorizontalSeparator />
-      <NotificationSection>
-        <PersonalizedDigest channel="inApp" />
-      </NotificationSection>
-      <HorizontalSeparator />
-
       <NotificationSection>
         <NotificationList>
           <li>
@@ -413,9 +417,13 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
         </NotificationList>
-        <Separator />
+        <HorizontalSeparator />
       </NotificationSection>
-      <Separator />
+      <HorizontalSeparator />
+      <NotificationSection>
+        <PersonalizedDigest channel="web" />
+      </NotificationSection>
+      <HorizontalSeparator />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Creators
@@ -456,15 +464,10 @@ const InAppNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Switch
-              inputId={NotificationType.SourcePostApproved}
-              name={NotificationType.SourcePostApproved}
-              checked={
-                ns?.source_post_approved?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.SourcePostApproved)
-              }
+              inputId="submitted_post"
+              name="submitted_post"
+              checked={squadPostSubmission}
+              onToggle={() => toggleSquadPostSubmission(!squadPostSubmission)}
               compact={false}
             />
           </li>
@@ -489,8 +492,11 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <Separator />
+      <HorizontalSeparator />
       {/* At the time of creating this, we don't have a product tips notification */}
+      {/* <NotificationSection>
+        <SquadModNotifications />
+      </NotificationSection> */}
       {/* <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           From daily.dev

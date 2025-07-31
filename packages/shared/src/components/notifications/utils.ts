@@ -69,6 +69,9 @@ export enum NotificationType {
   CommentMention = 'comment_mention',
   SourceApproved = 'source_approved',
   SourceRejected = 'source_rejected',
+  SquadPostSubmitted = 'source_post_submitted',
+  SquadPostApproved = 'source_post_approved',
+  SquadPostRejected = 'source_post_rejected',
 }
 
 export enum NotificationIconType {
@@ -234,6 +237,24 @@ export const SOURCE_SUBMISSION_KEYS = [
   NotificationType.SourceRejected,
 ];
 
+export const SQUAD_MODERATION_KEYS = [
+  NotificationType.SquadMemberJoined,
+  NotificationType.SquadBlocked,
+  NotificationType.SourceApproved,
+  NotificationType.SourceRejected,
+];
+
+export const SQUAD_POST_SUBMISSION_KEYS = [
+  NotificationType.SquadPostSubmitted,
+  NotificationType.SquadPostApproved,
+  NotificationType.SquadPostRejected,
+];
+
+export const COMMENT_KEYS = [
+  NotificationType.ArticleNewComment,
+  NotificationType.SquadNewComment,
+];
+
 export const NotificationList = classed(
   'ul',
   'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:justify-between',
@@ -275,7 +296,11 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     email: 'muted', // TODO: Currently missing. Check if  should be added.
     inApp: 'muted',
   },
-  cores_and_awards_received: {
+  squad_new_comment: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  user_received_award: {
     email: 'muted',
     inApp: 'muted',
   },
@@ -339,6 +364,27 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     email: 'muted',
     inApp: 'muted',
   },
+  cores_and_awards_received: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  source_post_submitted: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  source_post_approved: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  source_post_rejected: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+  briefing_ready: {
+    email: 'muted',
+    inApp: 'muted',
+  },
+
   // TODO: Might have its own notification settings
   // read_it_later_reminder: {
   //   email: 'Muted',

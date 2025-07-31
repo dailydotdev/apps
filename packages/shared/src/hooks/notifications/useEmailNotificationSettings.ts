@@ -1,52 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  GET_NOTIFICATION_SETTINGS,
-  updateNotificationSettings,
-} from '../../graphql/users';
-import { gqlClient } from '../../graphql/common';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 import type { NotificationSettings } from '../../components/notifications/utils';
-import {
-  DEFAULT_NOTIFICATION_SETTINGS,
-  NotificationType,
-} from '../../components/notifications/utils';
+import { NotificationType } from '../../components/notifications/utils';
+import useNotificationSettingsQuery from './useNotificationSettingsQuery';
 
 const useEmailNotificationSettings = () => {
-  const { user } = useAuthContext();
-  const queryClient = useQueryClient();
-  const nsKey = generateQueryKey(RequestKey.NotificationSettings, {
-    id: user?.id,
-  });
-  const { data: ns, isLoading: isLoadingPreferences } = useQuery({
-    queryKey: nsKey,
-    queryFn: async () => await gqlClient.request(GET_NOTIFICATION_SETTINGS),
-    select: (data) => {
-      return {
-        ...DEFAULT_NOTIFICATION_SETTINGS,
-        ...data.notificationSettings,
-      };
-    },
-  });
-  const { mutate } = useMutation({
-    onMutate: (notificationFlags) => {
-      const oldData = queryClient.getQueryData(nsKey);
-
-      queryClient.setQueryData(nsKey, {
-        notificationSettings: notificationFlags,
-      });
-
-      return { oldData };
-    },
-    onError: (err, _, { oldData }) => {
-      queryClient.setQueryData(nsKey, oldData);
-    },
-    mutationFn: (notificationFlags: NotificationSettings) => {
-      return updateNotificationSettings(notificationFlags);
-    },
-  });
-
+  const {
+    notificationSettings: ns,
+    isLoading: isLoadingPreferences,
+    mutate,
+  } = useNotificationSettingsQuery();
   const toggleEmailSetting = (key: string) => {
     const currentValue = ns[key]?.email;
     const newValue =
@@ -168,6 +130,26 @@ const useEmailNotificationSettings = () => {
     mutate(updatedSettings);
   };
 
+  const toggleEmailComments = (value: boolean) => {
+    const newStatus = value
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
+
+    const updatedSettings = {
+      ...ns,
+      [NotificationType.ArticleNewComment]: {
+        ...ns[NotificationType.ArticleNewComment],
+        email: newStatus,
+      },
+      [NotificationType.SquadNewComment]: {
+        ...ns[NotificationType.SquadNewComment],
+        email: newStatus,
+      },
+    };
+
+    mutate(updatedSettings);
+  };
+
   const unsubscribeAll = () => {
     const updatedSettings: NotificationSettings = Object.keys(ns).reduce(
       (acc, key) => {
@@ -191,6 +173,7 @@ const useEmailNotificationSettings = () => {
     toggleEmailFollowing,
     toggleEmailStreak,
     toggleEmailCreatorUpdates,
+    toggleEmailComments,
     unsubscribeAll,
     emailsEnabled: Object.values(ns as NotificationSettings).some(
       (setting) => setting.email === 'subscribed',
