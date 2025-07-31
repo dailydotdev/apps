@@ -73,18 +73,18 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   role="button"
                   className="!underline hover:!bg-transparent"
                   onClick={async () => {
-                    if (hasUsedFreeTrial) {
-                      if (isMobile) {
-                        openModal({
-                          type: LazyModal.ClickbaitShield,
-                        });
-                      } else {
-                        router.push(
-                          `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
-                        );
-                      }
+                    if (!hasUsedFreeTrial) {
+                      return await fetchSmartTitle();
+                    }
+
+                    if (isMobile) {
+                      openModal({
+                        type: LazyModal.ClickbaitShield,
+                      });
                     } else {
-                      await fetchSmartTitle();
+                      router.push(
+                        `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+                      );
                     }
                   }}
                 >
