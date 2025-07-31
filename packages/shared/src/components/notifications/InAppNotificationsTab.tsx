@@ -439,7 +439,7 @@ const InAppNotificationsTab = (): ReactElement => {
         </Typography>
         <NotificationList>
           <li>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Callout}>
                 Source suggestions
               </Typography>
@@ -466,7 +466,7 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
           <li>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Callout}>
                 Submitted post
               </Typography>
@@ -493,7 +493,7 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
           <li>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Callout}>Squad roles</Typography>
               <Typography
                 color={TypographyColor.Tertiary}

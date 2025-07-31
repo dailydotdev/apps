@@ -272,7 +272,7 @@ export const COMMENT_KEYS = [
 
 export const NotificationList = classed(
   'ul',
-  'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:justify-between',
+  'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:gap-1 [&>li]:justify-between',
 );
 
 export const NotificationSection = classed('section', 'flex flex-col gap-6');
@@ -331,10 +331,6 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     email: 'muted',
     inApp: 'muted',
   },
-  restore_broken_streak: {
-    email: 'muted',
-    inApp: 'muted',
-  },
   user_given_top_reader: {
     email: 'muted',
     inApp: 'muted',
@@ -376,10 +372,6 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
     inApp: 'muted',
   },
   source_rejected: {
-    email: 'muted',
-    inApp: 'muted',
-  },
-  cores_and_awards_received: {
     email: 'muted',
     inApp: 'muted',
   },
