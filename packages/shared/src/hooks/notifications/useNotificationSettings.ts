@@ -9,8 +9,11 @@ import {
   SOURCE_SUBMISSION_KEYS,
   SQUAD_POST_SUBMISSION_KEYS,
   COMMENT_KEYS,
+  SQUAD_KEYS,
 } from '../../components/notifications/utils';
 import useNotificationSettingsQuery from './useNotificationSettingsQuery';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, NotificationCategory } from '../../lib/log';
 
 const NOTIFICATION_GROUPS = {
   mentions: MENTION_KEYS,
@@ -21,12 +24,21 @@ const NOTIFICATION_GROUPS = {
   sourceSubmission: SOURCE_SUBMISSION_KEYS,
   squadPostSubmission: SQUAD_POST_SUBMISSION_KEYS,
   comments: COMMENT_KEYS,
+  squadNotifications: SQUAD_KEYS,
 } as const;
 
 type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;
 type NotificationChannel = 'inApp' | 'email';
 
+const defaultEmailLogProps = {
+  extra: JSON.stringify({
+    channel: 'email',
+    category: [NotificationCategory.Product, NotificationCategory.Marketing],
+  }),
+};
+
 const useNotificationSettings = () => {
+  const { logEvent } = useLogContext();
   const {
     notificationSettings: ns,
     isLoading: isLoadingPreferences,
@@ -47,6 +59,18 @@ const useNotificationSettings = () => {
         [channel]: newValue,
       },
     };
+
+    if (newValue === NotificationPreferenceStatus.Subscribed) {
+      logEvent({
+        event_name: LogEvent.EnableNotification,
+        ...(channel === 'email' ? defaultEmailLogProps : {}),
+      });
+    } else {
+      logEvent({
+        event_name: LogEvent.DisableNotification,
+        ...(channel === 'email' ? defaultEmailLogProps : {}),
+      });
+    }
 
     mutate(updatedSettings);
   };
@@ -74,6 +98,18 @@ const useNotificationSettings = () => {
         {},
       ),
     };
+
+    if (newStatus === NotificationPreferenceStatus.Subscribed) {
+      logEvent({
+        event_name: LogEvent.EnableNotification,
+        ...(channel === 'email' ? defaultEmailLogProps : {}),
+      });
+    } else {
+      logEvent({
+        event_name: LogEvent.DisableNotification,
+        ...(channel === 'email' ? defaultEmailLogProps : {}),
+      });
+    }
 
     mutate(updatedSettings);
   };

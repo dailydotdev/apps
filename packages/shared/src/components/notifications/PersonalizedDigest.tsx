@@ -31,6 +31,9 @@ import { usePushNotificationContext } from '../../contexts/PushNotificationConte
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { Switch } from '../fields/Switch';
 import { NotificationType } from './utils';
+import { LazyModal } from '../modals/common/types';
+import { getPathnameWithQuery, labels } from '../../lib';
+import { OpenLinkIcon } from '../icons';
 
 const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
   const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
@@ -281,7 +284,7 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
             container: 'gap-4',
           }}
         />
-        {/* {!selectedDigest.flags.slack && isChecked && (
+        {!selectedDigest.flags.slack && isChecked && (
           <button
             type="button"
             className="flex flex-row items-center gap-1 text-text-link typo-footnote"
@@ -305,7 +308,7 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
             Manage integrations
             <OpenLinkIcon />
           </button>
-        )} */}
+        )}
       </div>
       {!!selectedDigest && isChecked && (
         <>

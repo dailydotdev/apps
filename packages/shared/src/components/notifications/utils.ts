@@ -69,9 +69,7 @@ export enum NotificationType {
   CommentMention = 'comment_mention',
   SourceApproved = 'source_approved',
   SourceRejected = 'source_rejected',
-  SquadPostSubmitted = 'source_post_submitted',
-  SquadPostApproved = 'source_post_approved',
-  SquadPostRejected = 'source_post_rejected',
+  SourcePostRejected = 'source_post_rejected',
   ArticlePicked = 'article_picked',
   ArticleAnalytics = 'article_analytics',
   SourcePostSubmitted = 'source_post_submitted',
@@ -252,9 +250,9 @@ export const SQUAD_MODERATION_KEYS = [
 ];
 
 export const SQUAD_POST_SUBMISSION_KEYS = [
-  NotificationType.SquadPostSubmitted,
-  NotificationType.SquadPostApproved,
-  NotificationType.SquadPostRejected,
+  NotificationType.SourcePostSubmitted,
+  NotificationType.SourcePostApproved,
+  NotificationType.SourcePostRejected,
   NotificationType.ArticlePicked,
 ];
 
@@ -285,134 +283,133 @@ export interface NotificationChannelSetting {
 export interface NotificationSettings {
   [key: string]: NotificationChannelSetting;
 }
-
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
-  article_new_comment: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.ArticleNewComment]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  comment_reply: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.CommentReply]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  article_upvote_milestone: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.ArticleUpvoteMilestone]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  comment_upvote_milestone: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.CommentUpvoteMilestone]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  post_mention: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.PostMention]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  comment_mention: {
-    email: 'muted', // TODO: Currently missing. Check if  should be added.
-    inApp: 'muted',
+  [NotificationType.CommentMention]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  squad_new_comment: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SquadNewComment]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  user_received_award: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.UserReceivedAward]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  article_report_approved: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.ArticleReportApproved]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  streak_reset_restore: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.StreakResetRestore]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  streak_reminder: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.StreakReminder]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  user_given_top_reader: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.UserTopReaderBadge]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  dev_card_unlocked: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.DevCardUnlocked]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  source_post_added: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SourcePostAdded]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  squad_post_added: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SquadPostAdded]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  user_post_added: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.UserPostAdded]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  collection_updated: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.CollectionUpdated]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  post_bookmark_reminder: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.PostBookmarkReminder]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  promoted_to_admin: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.PromotedToAdmin]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  promoted_to_moderator: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.PromotedToModerator]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  source_approved: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SourceApproved]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  source_rejected: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SourceRejected]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  source_post_submitted: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SourcePostSubmitted]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  source_post_approved: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SourcePostApproved]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  source_post_rejected: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SourcePostRejected]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  briefing_ready: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.BriefingReady]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  article_picked: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.ArticlePicked]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  article_analytics: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.ArticleAnalytics]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  squad_member_joined: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SquadMemberJoined]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  squad_reply: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SquadReply]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  squad_blocked: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.SquadBlocked]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
-  demoted_to_member: {
-    email: 'muted',
-    inApp: 'muted',
+  [NotificationType.DemotedToMember]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
   },
 };
