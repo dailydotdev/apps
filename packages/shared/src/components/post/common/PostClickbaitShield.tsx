@@ -74,7 +74,8 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   className="!underline hover:!bg-transparent"
                   onClick={async () => {
                     if (!hasUsedFreeTrial) {
-                      return await fetchSmartTitle();
+                      await fetchSmartTitle();
+                      return;
                     }
 
                     if (isMobile) {
