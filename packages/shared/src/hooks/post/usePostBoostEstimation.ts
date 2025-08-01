@@ -23,23 +23,26 @@ export const usePostBoostEstimation = ({
   post: postFromProps,
   query,
 }: UsePostBoostEstimationProps) => {
+  const [retriesExhausted, setRetriesExhausted] = useState(false);
   const [post, setPost] = useState(postFromProps);
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
-  const canBoost = hasTags || !!post.yggdrasilId;
+  const queryWithBudget = query && hasTags;
+  const queryKey = generateQueryKey(
+    RequestKey.PostCampaigns,
+    user,
+    'estimate',
+    post.id,
+    queryWithBudget ? Object.values(query).join(':') : undefined,
+  );
+  const canBoost = hasTags || !!post.yggdrasilId || retriesExhausted;
   const {
     data: estimatedReach,
     isPending,
     isRefetching,
   } = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.PostCampaigns,
-      user,
-      'estimate',
-      post.id,
-      query && hasTags ? Object.values(query).join(':') : undefined,
-    ),
+    queryKey,
     queryFn: () => {
-      if (query && hasTags) {
+      if (queryWithBudget) {
         return getBoostEstimatedReachDaily({
           id: post.id,
           budget: query.budget,
@@ -69,6 +72,7 @@ export const usePostBoostEstimation = ({
         const maxRetries = oneMinuteMs / 2 / defautRefetchMs;
 
         if (retries > maxRetries) {
+          setRetriesExhausted(true);
           return false;
         }
 
