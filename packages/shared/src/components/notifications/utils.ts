@@ -155,16 +155,6 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserReceivedAward]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
-    [NotificationType.ArticleUpvoteMilestone]: 'text-brand-default',
-    [NotificationType.CommentUpvoteMilestone]: 'text-brand-default',
-    [NotificationType.ArticleReportApproved]: 'text-brand-default',
-    [NotificationType.PostBookmarkReminder]: 'text-brand-default',
-    [NotificationType.StreakReminder]: 'text-brand-default',
-    [NotificationType.StreakResetRestore]: 'text-brand-default',
-    [NotificationType.SourcePostApproved]: 'text-brand-default',
-    [NotificationType.DevCardUnlocked]: 'text-brand-default',
-    [NotificationType.PostMention]: 'text-brand-default',
-    [NotificationType.CommentMention]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;
