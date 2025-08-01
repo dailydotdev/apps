@@ -7,6 +7,8 @@ jobs:
   log:
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - env:
+          CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: |
           echo "Deployment successful"
-          echo ${{ toJSON(github.event.client_payload) }}
+          echo $CLIENT_PAYLOAD
