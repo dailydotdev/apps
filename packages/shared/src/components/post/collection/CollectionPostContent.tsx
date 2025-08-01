@@ -90,7 +90,7 @@ const CollectionPostContentRaw = ({
                 ...className?.fixedNavigation,
                 container: classNames(
                   className?.fixedNavigation?.container,
-                  'tablet:max-w-[calc(100%-4rem)]',
+                  isPostPage && 'tablet:max-w-[calc(100%-4rem)]',
                 ),
               },
             }
