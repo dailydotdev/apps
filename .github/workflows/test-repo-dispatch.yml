@@ -1,0 +1,12 @@
+on:
+  repository_dispatch:
+    types:
+      - 'vercel.deployment.success'
+
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Deployment successful"
+          echo ${{ github.event.client_payload }}
