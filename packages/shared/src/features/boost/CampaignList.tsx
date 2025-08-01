@@ -12,6 +12,7 @@ import type { BoostedPostData } from '../../graphql/post/boost';
 import type { InfiniteScrollingQueryProps } from '../../components/containers/InfiniteScrolling';
 import InfiniteScrolling from '../../components/containers/InfiniteScrolling';
 import { BoostHistoryLoading } from './BoostHistoryLoading';
+import { boostPostDocsLink } from '../../lib/constants';
 
 interface CampaignListProps {
   list: BoostedPostData[];
@@ -33,16 +34,23 @@ export function CampaignList({
           size={IconSize.XXLarge}
         />
         <Typography type={TypographyType.Title2} bold>
-          Ads dashboard
+          No running ads yet
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}
           type={TypographyType.Callout}
           className="text-center"
         >
-          Once you boost a post, you’ll see real-time insights here—like views,
-          clicks, and engagement metrics.
+          Learn how boosting works and launch your first campaign to get
+          discovered by more developers.
         </Typography>
+        <a
+          href={boostPostDocsLink}
+          className="mt-3 text-text-link typo-callout"
+          target="_blank"
+        >
+          Learn more about boosting
+        </a>
       </div>
     );
   }

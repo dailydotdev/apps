@@ -1,14 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { useQueryClient } from '@tanstack/react-query';
 import { OpenLinkIcon } from '../icons';
-import type { PostData } from '../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
   PostType,
-  useCanBoostPost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -20,7 +17,7 @@ import { CollectionSubscribeButton } from './collection/CollectionSubscribeButto
 import { useViewSizeClient, ViewSize } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostPostButton';
 import { Tooltip } from '../tooltip/Tooltip';
-import { getPostByIdKey } from '../../lib/query';
+import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -35,15 +32,12 @@ export function PostHeaderActions({
   buttonSize,
   ...props
 }: PostHeaderActionsProps): ReactElement {
-  const key = getPostByIdKey(post?.id);
-  const client = useQueryClient();
-  const postById = client.getQueryData<PostData>(key);
   const { openNewTab } = useContext(SettingsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
-  const { canBoost } = useCanBoostPost(post);
   const isInternalReadTyped = isInternalReadType(post);
+  const isBoostButtonVisible = useShowBoostButton({ post });
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -71,7 +65,7 @@ export function PostHeaderActions({
           </Button>
         </Tooltip>
       )}
-      {canBoost && postById && !postById.post?.flags?.campaignId && (
+      {isBoostButtonVisible && (
         <BoostPostButton post={post} buttonProps={{ size: buttonSize }} />
       )}
       {isCollection && <CollectionSubscribeButton post={post} />}

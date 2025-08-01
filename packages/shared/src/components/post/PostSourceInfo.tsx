@@ -122,7 +122,7 @@ function PostSourceInfo({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className="ml-auto hidden tablet:flex"
+              className="ml-auto hidden laptop:flex"
               contextMenuId="post-widgets-context"
               buttonSize={ButtonSize.Small}
             />
