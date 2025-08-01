@@ -9,4 +9,4 @@ jobs:
     steps:
       - run: |
           echo "Deployment successful"
-          echo ${{ github.event.client_payload }}
+          echo ${{ toJSON(github.event.client_payload) }}
