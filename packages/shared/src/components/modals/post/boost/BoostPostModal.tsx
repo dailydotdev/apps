@@ -188,7 +188,7 @@ export function BoostPostModal({
           ensures your post gets shown to the developers most likely to care.
           <a
             href={boostPostDocsLink}
-            className="text-text-link"
+            className="ml-1 text-text-link"
             target="_blank"
           >
             Learn more
