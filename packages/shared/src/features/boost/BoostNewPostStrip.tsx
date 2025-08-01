@@ -38,7 +38,7 @@ export function BoostNewPostStrip({
         className="absolute inset-0 z-0 hidden h-full w-full tablet:flex"
       />
       <div className="z-1 flex w-full flex-row items-center gap-1 tablet:justify-end">
-        <TooltipArrow className="absolute -top-2 right-18 text-accent-blueCheese-default" />
+        <TooltipArrow className="absolute -top-2 right-18 fill-accent-blueCheese-default" />
         <TrendingIcon size={IconSize.Medium} />
         <Typography tag={TypographyTag.Span} type={TypographyType.Callout}>
           <span>Boost to reach</span>
