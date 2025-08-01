@@ -26,7 +26,7 @@ const AccountNotificationsPage = (): ReactElement => {
     return <div>Loading...</div>;
   }
   return (
-    <AccountPageContent className="px-4">
+    <AccountPageContent>
       <TabContainer>
         <Tab label="Notifications">
           <InAppNotificationsTab />

@@ -262,7 +262,10 @@ export const NotificationList = classed(
   'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:gap-1 [&>li]:justify-between',
 );
 
-export const NotificationSection = classed('section', 'flex flex-col gap-6');
+export const NotificationSection = classed(
+  'section',
+  'flex flex-col gap-6 px-4',
+);
 
 export interface NotificationChannelSetting {
   email: 'subscribed' | 'muted';

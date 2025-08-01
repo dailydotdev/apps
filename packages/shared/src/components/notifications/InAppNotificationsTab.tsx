@@ -48,7 +48,7 @@ const InAppNotificationsTab = (): ReactElement => {
 
   return (
     <section className="flex flex-col gap-6 py-4">
-      <div className="flex flex-row justify-between gap-4">
+      <div className="flex flex-row justify-between gap-4 px-4">
         <div className="flex flex-1 flex-col gap-1">
           <Typography type={TypographyType.Body} bold>
             Push notifications
@@ -70,7 +70,7 @@ const InAppNotificationsTab = (): ReactElement => {
           disabled={!isInitialized}
         />
       </div>
-      <div className="flex flex-row justify-between gap-4">
+      <div className="flex flex-row justify-between gap-4 px-4">
         <div className="flex flex-1 flex-col gap-1">
           <Typography type={TypographyType.Body} bold>
             Squad notifications
@@ -216,7 +216,7 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <HorizontalSeparator />
+      <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Updates
@@ -317,7 +317,7 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <HorizontalSeparator />
+      <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <NotificationList>
           <li>
@@ -410,11 +410,11 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
-      <HorizontalSeparator />
+      <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <PersonalizedDigest channel="inApp" />
       </NotificationSection>
-      <HorizontalSeparator />
+      <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Creators
