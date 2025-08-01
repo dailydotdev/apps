@@ -202,7 +202,6 @@ export type SubscriptionCallback = (
 
 export const FOLLOWING_KEYS = [
   NotificationType.SourcePostAdded,
-  NotificationType.SquadPostAdded,
   NotificationType.UserPostAdded,
   NotificationType.CollectionUpdated,
   NotificationType.PostBookmarkReminder,

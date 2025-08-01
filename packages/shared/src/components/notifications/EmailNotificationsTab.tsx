@@ -228,26 +228,6 @@ const EmailNotificationsTab = (): ReactElement => {
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
             >
-              Squad new post
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.SquadPostAdded}
-              checked={
-                ns?.[NotificationType.SquadPostAdded]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.SquadPostAdded, 'email')
-              }
-            />
-          </div>
-          <div className="flex flex-row items-center justify-between">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
               Collections you follow
             </Typography>
             <Checkbox

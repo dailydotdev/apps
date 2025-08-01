@@ -301,24 +301,6 @@ const InAppNotificationsTab = (): ReactElement => {
             />
           </li>
           <li>
-            <Typography type={TypographyType.Callout}>
-              Squad new post
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.SquadPostAdded}
-              checked={
-                ns?.squad_post_added?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.SquadPostAdded, 'inApp')
-              }
-            />
-          </li>
-
-          <li>
             <Typography type={TypographyType.Callout}>Read it later</Typography>
             <Checkbox
               className="!px-0"
