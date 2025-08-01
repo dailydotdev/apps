@@ -18,13 +18,11 @@ export function PostMenuOptions({
   buttonSize,
 }: PostMenuOptionsProps): ReactElement {
   return (
-    <>
-      <PostOptionButton
-        post={post}
-        size={buttonSize}
-        variant={ButtonVariant.Tertiary}
-        origin={origin}
-      />
-    </>
+    <PostOptionButton
+      post={post}
+      size={buttonSize}
+      variant={ButtonVariant.Tertiary}
+      origin={origin}
+    />
   );
 }
