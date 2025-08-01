@@ -1,11 +1,14 @@
 name: E2E Tests
 
 on:
-  push:
-    branches: [ main ]
+  deployment_status:
+    repository_dispatch:
+      types:
+        - 'vercel.deployment.success'
 
 jobs:
   e2e-tests:
+    if: github.event_name == 'repository_dispatch' && github.event.client_payload.url == 'https://app.daily.dev'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
