@@ -8,7 +8,7 @@ on:
 
 jobs:
   e2e-tests:
-    if: github.event_name == 'repository_dispatch' && github.event.client_payload.url == 'https://app.daily.dev'
+    if: github.event_name == 'repository_dispatch' && github.event.client_payload.git.ref == 'main'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
