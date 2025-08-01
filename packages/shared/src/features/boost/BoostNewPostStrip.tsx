@@ -19,14 +19,11 @@ import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { TooltipArrow } from '../../svg/TooltipArrow';
 import { Image } from '../../components/image/Image';
-
-interface BoostNewPostStripProps {
-  className?: string;
-}
+import type { WithClassNameProps } from '../../components/utilities';
 
 export function BoostNewPostStrip({
   className,
-}: BoostNewPostStripProps): ReactElement {
+}: WithClassNameProps): ReactElement {
   const { completeAction } = useActions();
 
   return (
