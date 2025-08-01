@@ -56,7 +56,7 @@ export const CampaignStatsGrid = ({
       value={impressions}
       info={boostDashboardInfo.impressions}
     />
-    <DataTile label="Clicks" value={users} info={boostDashboardInfo.users} />
+    <DataTile label="Users" value={users} info={boostDashboardInfo.users} />
   </div>
 );
 
