@@ -12,6 +12,7 @@ import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
+import type { NotificationSettings } from '../components/notifications/utils';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -702,6 +703,12 @@ export const TOP_READER_BADGE_BY_ID = gql`
   ${TOP_READER_BADGE_FRAGMENT}
 `;
 
+export const GET_NOTIFICATION_SETTINGS = gql`
+  query User {
+    notificationSettings
+  }
+`;
+
 export const getBasicUserInfo = async (
   userId: string,
 ): Promise<UserShortProfile> => {
@@ -790,3 +797,19 @@ const UPLOAD_CV_MUTATION = gql`
 
 export const uploadCv = (file: File) =>
   gqlClient.request(UPLOAD_CV_MUTATION, { resume: file });
+
+const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
+  mutation UpdateNotificationSettings($notificationFlags: JSON!) {
+    updateNotificationSettings(notificationFlags: $notificationFlags) {
+      _
+    }
+  }
+`;
+
+export const updateNotificationSettings = async (
+  notificationFlags: NotificationSettings,
+): Promise<void> => {
+  await gqlClient.request(UPDATE_NOTIFICATION_SETTINGS_MUTATION, {
+    notificationFlags,
+  });
+};

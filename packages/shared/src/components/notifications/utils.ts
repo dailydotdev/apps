@@ -57,6 +57,23 @@ export enum NotificationType {
   UserReceivedAward = 'user_received_award',
   BriefingReady = 'briefing_ready',
   UserFollow = 'user_follow',
+  ArticleUpvoteMilestone = 'article_upvote_milestone',
+  CommentUpvoteMilestone = 'comment_upvote_milestone',
+  ArticleReportApproved = 'article_report_approved',
+  PostBookmarkReminder = 'post_bookmark_reminder',
+  StreakReminder = 'streak_reminder',
+  StreakResetRestore = 'streak_reset_restore',
+  SourcePostApproved = 'source_post_approved',
+  DevCardUnlocked = 'dev_card_unlocked',
+  PostMention = 'post_mention',
+  CommentMention = 'comment_mention',
+  SourceApproved = 'source_approved',
+  SourceRejected = 'source_rejected',
+  SourcePostRejected = 'source_post_rejected',
+  ArticlePicked = 'article_picked',
+  ArticleAnalytics = 'article_analytics',
+  SourcePostSubmitted = 'source_post_submitted',
+  SquadNewPost = 'squad_new_post',
 }
 
 export enum NotificationIconType {
@@ -182,3 +199,209 @@ export type SubscriptionCallback = (
   source?: NotificationPromptSource,
   existing_permission?: boolean,
 ) => unknown;
+
+export const FOLLOWING_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.PostBookmarkReminder,
+];
+export const ACHIEVEMENT_KEYS = [
+  NotificationType.UserTopReaderBadge,
+  NotificationType.DevCardUnlocked,
+  NotificationType.ArticleAnalytics,
+];
+export const MENTION_KEYS = [
+  NotificationType.PostMention,
+  NotificationType.CommentMention,
+];
+export const STREAK_KEYS = [
+  NotificationType.StreakReminder,
+  NotificationType.StreakResetRestore,
+];
+export const SQUAD_ROLE_KEYS = [
+  NotificationType.PromotedToAdmin,
+  NotificationType.PromotedToModerator,
+  NotificationType.SquadBlocked,
+  NotificationType.DemotedToMember,
+];
+
+export const SOURCE_SUBMISSION_KEYS = [
+  NotificationType.SourceApproved,
+  NotificationType.SourceRejected,
+];
+
+export const SQUAD_MODERATION_KEYS = [
+  NotificationType.SquadMemberJoined,
+  NotificationType.SquadBlocked,
+  NotificationType.SourceApproved,
+  NotificationType.SourceRejected,
+];
+
+export const SQUAD_POST_SUBMISSION_KEYS = [
+  NotificationType.SourcePostSubmitted,
+  NotificationType.SourcePostApproved,
+  NotificationType.SourcePostRejected,
+  NotificationType.ArticlePicked,
+];
+
+export const SQUAD_KEYS = [
+  NotificationType.SquadPostAdded,
+  NotificationType.SquadMemberJoined,
+  NotificationType.SourcePostSubmitted,
+];
+
+export const COMMENT_KEYS = [
+  NotificationType.ArticleNewComment,
+  NotificationType.SquadNewComment,
+  NotificationType.SquadReply,
+];
+
+export const NotificationList = classed(
+  'ul',
+  'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:gap-1 [&>li]:justify-between',
+);
+
+export const NotificationSection = classed(
+  'section',
+  'flex flex-col gap-6 px-4',
+);
+
+export interface NotificationChannelSetting {
+  email: 'subscribed' | 'muted';
+  inApp: 'subscribed' | 'muted';
+}
+
+export interface NotificationSettings {
+  [key: string]: NotificationChannelSetting;
+}
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  [NotificationType.ArticleNewComment]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.CommentReply]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.ArticleUpvoteMilestone]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.CommentUpvoteMilestone]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.PostMention]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.CommentMention]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SquadNewComment]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.UserReceivedAward]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.ArticleReportApproved]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.StreakResetRestore]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.StreakReminder]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.UserTopReaderBadge]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.DevCardUnlocked]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SourcePostAdded]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SquadPostAdded]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.UserPostAdded]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.CollectionUpdated]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.PostBookmarkReminder]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.PromotedToAdmin]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.PromotedToModerator]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SourceApproved]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SourceRejected]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SourcePostSubmitted]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SourcePostApproved]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SourcePostRejected]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.BriefingReady]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.ArticlePicked]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.ArticleAnalytics]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SquadMemberJoined]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SquadReply]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.SquadBlocked]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+  [NotificationType.DemotedToMember]: {
+    email: 'subscribed',
+    inApp: 'subscribed',
+  },
+};
