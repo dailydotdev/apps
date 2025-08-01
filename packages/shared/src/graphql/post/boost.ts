@@ -49,6 +49,7 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
         clicks
         totalSpend
         engagements
+        users
       }
     }
   }
