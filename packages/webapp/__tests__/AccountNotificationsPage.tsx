@@ -156,7 +156,6 @@ const defaultLoggedUser: LoggedUser = {
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: false,
-  notificationEmail: false,
 };
 const defaultVisit: Visit = {
   sessionId: 'sample session id',

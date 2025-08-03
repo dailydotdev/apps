@@ -88,16 +88,11 @@ export interface UserProfile {
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;
-  notificationEmail?: boolean;
   timezone?: string;
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   language?: string;
-  followingEmail?: boolean;
-  followNotifications?: boolean;
   defaultFeedId?: string;
-  awardEmail?: boolean;
-  awardNotifications?: boolean;
 }
 
 export interface UserShortProfile
