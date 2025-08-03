@@ -6,7 +6,10 @@
   },
   "scripts": {
     "prepare": "corepack enable || true",
-    "pnpm-version": "pnpm -v"
+    "pnpm-version": "pnpm -v",
+    "test:e2e": "pnpm --filter playwright test",
+    "test:e2e:headed": "pnpm --filter playwright test:headed",
+    "test:e2e:ui": "pnpm --filter playwright test:ui"
   },
   "packageManager": "pnpm@9.14.4",
   "pnpm": {

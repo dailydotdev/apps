@@ -33,23 +33,21 @@ interface CampaignListViewProps {
 
 interface CampaignStatsGridProps {
   impressions: number;
-  engagements: number;
-  clicks: number;
-  cores: number;
+  users: number;
+  spend: number;
   className?: string;
 }
 
 export const CampaignStatsGrid = ({
   className,
-  cores,
-  clicks,
-  engagements,
+  spend,
+  users,
   impressions,
 }: CampaignStatsGridProps) => (
   <div className={classNames('grid grid-cols-2 gap-4', className)}>
     <DataTile
       label="Spend"
-      value={cores}
+      value={spend}
       info={boostDashboardInfo.spend}
       icon={<CoreIcon size={IconSize.XSmall} />}
     />
@@ -58,12 +56,7 @@ export const CampaignStatsGrid = ({
       value={impressions}
       info={boostDashboardInfo.impressions}
     />
-    <DataTile label="Clicks" value={clicks} info={boostDashboardInfo.clicks} />
-    <DataTile
-      label="Engagement"
-      value={engagements}
-      info={boostDashboardInfo.engagement}
-    />
+    <DataTile label="Users" value={users} info={boostDashboardInfo.users} />
   </div>
 );
 
@@ -147,10 +140,9 @@ export function CampaignListView({
         </span>
         <CampaignStatsGrid
           className="mt-3"
-          cores={campaign.spend}
-          clicks={campaign.clicks}
+          spend={campaign.spend}
+          users={campaign.users}
           impressions={campaign.impressions}
-          engagements={post.engagements}
         />
       </div>
       <div className="h-px w-full bg-border-subtlest-tertiary" />
