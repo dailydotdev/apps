@@ -18,6 +18,10 @@ import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
 import { isSourceUserSource } from '../../graphql/sources';
 import { ProfileImageSize } from '../ProfilePicture';
+import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
+import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -42,7 +46,15 @@ function SquadPostContentRaw({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
+  const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
+  const { checkHasCompleted, isActionsFetched } = useActions();
+  const hasClosedBanner = checkHasCompleted(
+    ActionType.ClosedNewPostBoostBanner,
+  );
+  const shouldShowBanner =
+    isActionsFetched && !hasClosedBanner && isPostPage && isBoostButtonVisible;
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
@@ -116,6 +128,9 @@ function SquadPostContentRaw({
           origin={origin}
           post={post}
         >
+          {shouldShowBanner && !isLaptop && (
+            <BoostNewPostStrip className="-mt-2 mb-4" />
+          )}
           <div
             className={
               isUserSource
@@ -127,8 +142,14 @@ function SquadPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className="mb-6"
+              className={
+                !isUserSource &&
+                (shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6')
+              }
             />
+            {shouldShowBanner && !isUserSource && isLaptop && (
+              <BoostNewPostStrip />
+            )}
             <SquadPostAuthor
               author={post?.author}
               role={role}
@@ -140,6 +161,9 @@ function SquadPostContentRaw({
               size={ProfileImageSize.Large}
             />
           </div>
+          {shouldShowBanner && isUserSource && isLaptop && (
+            <BoostNewPostStrip className="mt-2" />
+          )}
           <Content post={post} onReadArticle={onReadArticle} />
         </BasePostContent>
       </div>

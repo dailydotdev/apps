@@ -23,6 +23,7 @@ const BOOSTED_POST_FRAGMENT = gql`
       budget
       impressions
       clicks
+      users
       startedAt
       endedAt
     }
@@ -48,6 +49,7 @@ export const BOOSTED_POST_CAMPAIGNS = gql`
         clicks
         totalSpend
         engagements
+        users
       }
     }
   }
@@ -64,18 +66,23 @@ export interface PromotedPost {
   endedAt: Date;
   impressions: number;
   clicks: number;
+  users: number;
 }
 
 export interface PromotedPostList {
   promotedPosts: PromotedPost[];
   impressions: number;
   clicks: number;
+  users: number;
   totalSpend: number;
   postIds: string[];
 }
 
 export interface BoostedPostStats
-  extends Pick<PromotedPostList, 'clicks' | 'impressions' | 'totalSpend'> {
+  extends Pick<
+    PromotedPostList,
+    'clicks' | 'users' | 'impressions' | 'totalSpend'
+  > {
   engagements: number;
 }
 
@@ -234,3 +241,6 @@ export const cancelPostBoost = async (
 
   return result.cancelPostBoost;
 };
+
+export const DEFAULT_CORES_PER_DAY = 5000;
+export const DEFAULT_DURATION_DAYS = 7;

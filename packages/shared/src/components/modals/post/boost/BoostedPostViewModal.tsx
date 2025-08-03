@@ -128,12 +128,7 @@ export function FetchBoostedViewModal({
           <span className="text-text-quaternary typo-caption1">
             Fetching data, please hold...
           </span>
-          <CampaignStatsGrid
-            clicks={0}
-            cores={0}
-            engagements={0}
-            impressions={0}
-          />
+          <CampaignStatsGrid users={0} spend={0} impressions={0} />
         </div>
       </Modal>
     );
@@ -152,12 +147,7 @@ export function FetchBoostedViewModal({
           <span className="text-text-quaternary typo-caption1">
             No campaign found
           </span>
-          <CampaignStatsGrid
-            clicks={0}
-            cores={0}
-            engagements={0}
-            impressions={0}
-          />
+          <CampaignStatsGrid users={0} spend={0} impressions={0} />
         </div>
       </Modal>
     );

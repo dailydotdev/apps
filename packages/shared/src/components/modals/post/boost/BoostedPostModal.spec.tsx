@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { BoostPostModal } from './BoostPostModal';
 import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
+import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
 import { usePostById } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
@@ -12,6 +13,7 @@ import type { Post } from '../../../../graphql/posts';
 
 // Mock the hooks
 jest.mock('../../../../hooks/post/usePostBoostMutations');
+jest.mock('../../../../hooks/post/usePostBoostEstimation');
 jest.mock('../../../../hooks');
 jest.mock('../../../../hooks/useLazyModal');
 jest.mock('../../../../hooks/post/usePostImage');
@@ -21,6 +23,8 @@ jest.mock('next/dynamic', () => () => 'div');
 const mockUsePostBoostMutation = usePostBoostMutation as jest.MockedFunction<
   typeof usePostBoostMutation
 >;
+const mockUsePostBoostEstimation =
+  usePostBoostEstimation as jest.MockedFunction<typeof usePostBoostEstimation>;
 const mockUsePostById = usePostById as jest.MockedFunction<typeof usePostById>;
 const mockUseLazyModal = useLazyModal as jest.MockedFunction<
   typeof useLazyModal
@@ -53,12 +57,18 @@ const createMockUser = (balance = 50000) => ({
 });
 
 const defaultMockBoostMutation = {
-  estimatedReach: { min: 1000, max: 5000 },
   onBoostPost: jest.fn(),
   onCancelBoost: jest.fn(),
-  isLoadingEstimate: false,
   isLoadingCancel: false,
 };
+
+type UsePostBoostEstimation = ReturnType<typeof usePostBoostEstimation>;
+
+const defaultMockBoostEstimation = {
+  estimatedReach: { min: 1000, max: 5000 },
+  isLoading: false,
+  canBoost: true,
+} as UsePostBoostEstimation;
 
 const renderBoostPostModal = (post: Post, user = createMockUser()) => {
   const queryClient = new QueryClient({
@@ -90,15 +100,17 @@ describe('BoostPostModal', () => {
       isLoading: false,
       isError: false,
     });
+    mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+    mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
   });
 
   describe('Loading States', () => {
-    it('should show loader when isLoadingEstimate is true', () => {
+    it('should show loader when isLoading is true', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostMutation.mockReturnValue({
-        ...defaultMockBoostMutation,
-        isLoadingEstimate: true,
-      });
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
+        isLoading: true,
+      } as UsePostBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -107,7 +119,10 @@ describe('BoostPostModal', () => {
 
     it('should show loader when post cannot be boosted (no tags and no yggdrasilId)', () => {
       const post = createMockPost(); // No tags, no yggdrasilId
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
+        canBoost: false,
+      } as UsePostBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -116,7 +131,7 @@ describe('BoostPostModal', () => {
 
     it('should show reach estimation when not loading and post can be boosted with tags', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -126,7 +141,7 @@ describe('BoostPostModal', () => {
 
     it('should show reach estimation when yggdrasilId is present but no tags', () => {
       const post = createMockPost({ yggdrasilId: 'yggdrasil-123' }); // No tags, but has yggdrasilId
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -136,50 +151,42 @@ describe('BoostPostModal', () => {
   });
 
   describe('Estimation Parameters', () => {
-    it('should send budget and duration parameters when tags are present', () => {
+    it('should call usePostBoostEstimation with post and query when tags are present', () => {
       const post = createMockPost({ tags: ['javascript', 'react'] });
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostBoostMutation).toHaveBeenCalledWith({
-        toEstimate: {
-          id: 'post-1',
-          budget: 5000, // default coresPerDay
-          duration: 7, // default totalDays
-        },
-        onBoostSuccess: expect.any(Function),
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
 
-    it('should send budget and duration parameters when sharedPost has tags', () => {
+    it('should call usePostBoostEstimation with post and query when sharedPost has tags', () => {
       const post = createMockPost({
         sharedPost: { tags: ['typescript'] },
       });
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostBoostMutation).toHaveBeenCalledWith({
-        toEstimate: {
-          id: 'post-1',
-          budget: 5000,
-          duration: 7,
-        },
-        onBoostSuccess: expect.any(Function),
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
 
-    it('should send only id parameter when yggdrasilId is present but no tags', () => {
+    it('should call usePostBoostEstimation with post and query when yggdrasilId is present', () => {
       const post = createMockPost({ yggdrasilId: 'yggdrasil-123' });
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostBoostMutation).toHaveBeenCalledWith({
-        toEstimate: { id: 'post-1' },
-        onBoostSuccess: expect.any(Function),
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
 
-    it('should prioritize tags over yggdrasilId - send budget and duration when both are present', () => {
+    it('should call usePostBoostEstimation with post and query when both tags and yggdrasilId are present', () => {
       const post = createMockPost({
         tags: ['javascript'],
         yggdrasilId: 'yggdrasil-123',
@@ -187,24 +194,20 @@ describe('BoostPostModal', () => {
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostBoostMutation).toHaveBeenCalledWith({
-        toEstimate: {
-          id: 'post-1',
-          budget: 5000,
-          duration: 7,
-        },
-        onBoostSuccess: expect.any(Function),
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
 
-    it('should send undefined parameters when neither tags nor yggdrasilId are present', () => {
+    it('should call usePostBoostEstimation with post and query when neither tags nor yggdrasilId are present', () => {
       const post = createMockPost(); // No tags, no yggdrasilId
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostBoostMutation).toHaveBeenCalledWith({
-        toEstimate: undefined,
-        onBoostSuccess: expect.any(Function),
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
   });
@@ -217,6 +220,7 @@ describe('BoostPostModal', () => {
         ...defaultMockBoostMutation,
         onBoostPost: mockOnBoostPost,
       });
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -241,6 +245,7 @@ describe('BoostPostModal', () => {
         ...defaultMockBoostMutation,
         onBoostPost: mockOnBoostPost,
       });
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(postWithYggdrasil);
 
@@ -266,6 +271,7 @@ describe('BoostPostModal', () => {
         ...defaultMockBoostMutation,
         onBoostPost: mockOnBoostPost,
       });
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post, userWithLowBalance);
 
@@ -280,31 +286,35 @@ describe('BoostPostModal', () => {
   });
 
   describe('Post Refetching', () => {
-    it('should enable refetching when post cannot be boosted', () => {
+    it('should handle refetching logic within usePostBoostEstimation when post cannot be boosted', () => {
       const post = createMockPost(); // No tags, no yggdrasilId
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
+        canBoost: false,
+      } as UsePostBoostEstimation);
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostById).toHaveBeenCalledWith({
-        id: 'post-1',
-        options: {
-          enabled: true, // !canBoost = true
-          refetchInterval: expect.any(Function),
-        },
+      // The refetching logic is now handled inside usePostBoostEstimation
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
 
-    it('should disable refetching when post can be boosted', () => {
+    it('should handle refetching logic within usePostBoostEstimation when post can be boosted', () => {
       const post = createMockPost({ tags: ['javascript'] });
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
+        canBoost: true,
+      });
 
       renderBoostPostModal(post);
 
-      expect(mockUsePostById).toHaveBeenCalledWith({
-        id: 'post-1',
-        options: {
-          enabled: false, // !canBoost = false
-          refetchInterval: expect.any(Function),
-        },
+      // The refetching logic is now handled inside usePostBoostEstimation
+      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
+        post,
+        query: { budget: 5000, duration: 7 },
       });
     });
   });
@@ -312,7 +322,10 @@ describe('BoostPostModal', () => {
   describe('Boost Button State', () => {
     it('should disable boost button when post cannot be boosted', () => {
       const post = createMockPost(); // No tags, no yggdrasilId
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
+        canBoost: false,
+      } as UsePostBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -324,10 +337,10 @@ describe('BoostPostModal', () => {
 
     it('should disable boost button when loading estimate', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostMutation.mockReturnValue({
-        ...defaultMockBoostMutation,
-        isLoadingEstimate: true,
-      });
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
+        isLoading: true,
+      } as UsePostBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -339,7 +352,7 @@ describe('BoostPostModal', () => {
 
     it('should enable boost button when post can be boosted and not loading', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -353,10 +366,10 @@ describe('BoostPostModal', () => {
   describe('Edge Cases', () => {
     it('should handle max reach being smaller than min reach', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostMutation.mockReturnValue({
-        ...defaultMockBoostMutation,
+      mockUsePostBoostEstimation.mockReturnValue({
+        ...defaultMockBoostEstimation,
         estimatedReach: { min: 5000, max: 3000 }, // max < min
-      });
+      } as UsePostBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -369,7 +382,7 @@ describe('BoostPostModal', () => {
         title: null,
         sharedPost: { title: 'Shared Post Title', tags: ['javascript'] },
       });
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post);
 
@@ -378,7 +391,7 @@ describe('BoostPostModal', () => {
 
     it('should show correct total spend calculation', () => {
       const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostMutation.mockReturnValue(defaultMockBoostMutation);
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
       renderBoostPostModal(post);
 

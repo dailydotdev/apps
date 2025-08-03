@@ -28,6 +28,7 @@ const defaultStats = {
   clicks: 0,
   impressions: 0,
   engagements: 0,
+  users: 0,
 };
 
 export const usePostBoost = (): UsePostBoost => {

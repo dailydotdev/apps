@@ -16,6 +16,7 @@ export enum ActionType {
   HideBlockPanel = 'hide_block_panel',
   ExistingAnonymousBanner = 'existingAnonymousBanner',
   AcceptedSearch = 'accepted_search',
+  ClosedNewPostBoostBanner = 'closed_new_post_boost_banner',
   UsedSearch = 'used_search',
   CollectionsIntro = 'collections_intro',
   DevCardGenerate = 'dev_card_generate',

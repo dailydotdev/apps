@@ -16,6 +16,7 @@ import { Image } from '../../image/Image';
 
 interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
   cta?: ButtonProps<T> & { copy: string };
+  secondaryCta?: ButtonProps<T> & { copy: string };
   content: {
     title: string;
     description: string;
@@ -27,6 +28,7 @@ interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
 
 export function ActionSuccessModal<T extends AllowedTags>({
   cta,
+  secondaryCta,
   content,
   ...props
 }: ActionSuccessModalProps<T>): React.ReactElement {
@@ -82,6 +84,16 @@ export function ActionSuccessModal<T extends AllowedTags>({
             {...cta}
           >
             {cta.copy}
+          </Button>
+        )}
+        {secondaryCta && (
+          <Button
+            variant={ButtonVariant.Float}
+            className="w-full"
+            type="button"
+            {...secondaryCta}
+          >
+            {secondaryCta.copy}
           </Button>
         )}
         <Button
