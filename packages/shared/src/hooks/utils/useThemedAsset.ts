@@ -14,9 +14,12 @@ import {
   cloudinaryIntegrationsSlackHeaderDark,
   cloudinaryGenericErrorLight,
   cloudinaryGenericErrorDark,
+  boostNewPostBanner,
+  boostNewPostBannerLight,
 } from '../../lib/image';
 
 interface UseAsset {
+  postBoostStrip: string;
   onboardingIntroduction: string;
   scrollBlock: string;
   notFound: string;
@@ -43,6 +46,7 @@ export const useThemedAsset = (): UseAsset => {
   const isLight = useIsLightTheme();
 
   return {
+    postBoostStrip: isLight ? boostNewPostBannerLight : boostNewPostBanner,
     onboardingIntroduction: isLight
       ? cloudinaryFeedFiltersYourFeedLight
       : cloudinaryFeedFiltersYourFeedDark,

@@ -8,8 +8,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { boostNewPostBanner } from '../../lib/image';
-
 import {
   Button,
   ButtonSize,
@@ -20,11 +18,13 @@ import { ActionType } from '../../graphql/actions';
 import { TooltipArrow } from '../../svg/TooltipArrow';
 import { Image } from '../../components/image/Image';
 import type { WithClassNameProps } from '../../components/utilities';
+import { useThemedAsset } from '../../hooks/utils';
 
 export function BoostNewPostStrip({
   className,
 }: WithClassNameProps): ReactElement {
   const { completeAction } = useActions();
+  const { postBoostStrip } = useThemedAsset();
 
   return (
     <div
@@ -34,7 +34,7 @@ export function BoostNewPostStrip({
       )}
     >
       <Image
-        src={boostNewPostBanner}
+        src={postBoostStrip}
         className="absolute inset-0 z-0 hidden h-full w-full tablet:flex"
       />
       <div className="z-1 flex w-full flex-row items-center gap-1 tablet:justify-end">

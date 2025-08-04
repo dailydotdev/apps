@@ -354,3 +354,6 @@ export const exportLinkedIn =
 
 export const boostNewPostBanner =
   'https://media.daily.dev/image/upload/s--_UEbmtDg--/f_auto/v1753703398/public/booststrip';
+
+export const boostNewPostBannerLight =
+  'https://media.daily.dev/image/upload/s--7CGTLpY_--/f_auto/v1754295928/public/boost-wv';
