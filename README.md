@@ -15,7 +15,7 @@
     <img src="http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat" alt="StackShare">
   </a>
   <a href="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml">
-    <img src="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml/badge.svg" alt="E2E Tests">
+    <img src="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml/badge.svg?branch=main" alt="E2E Tests">
   </a>
 </p>
 
