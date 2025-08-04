@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import user from '../../../__tests__/fixture/loggedUser';
 import type { EstimatedReachProps } from '../../graphql/post/boost';
 import { getBoostEstimatedReachDaily } from '../../graphql/post/boost';
@@ -20,6 +20,12 @@ export const usePostBoostEstimation = ({
   post: postFromProps,
   query,
 }: UsePostBoostEstimationProps) => {
+  const isOldPost = useMemo(() => {
+    const postDate = new Date(postFromProps.createdAt);
+    const fiveMinutes = oneMinute * 5;
+    const currentDate = new Date();
+    return postDate.getTime() < currentDate.getTime() - fiveMinutes; // 5 minutes old
+  }, [postFromProps.createdAt]);
   const [retriesExhausted, setRetriesExhausted] = useState(false);
   const [post, setPost] = useState(postFromProps);
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
@@ -30,7 +36,8 @@ export const usePostBoostEstimation = ({
     post.id,
     Object.values(query).join(':'),
   );
-  const canBoost = hasTags || !!post.yggdrasilId || retriesExhausted;
+  const canBoost =
+    isOldPost || hasTags || !!post.yggdrasilId || retriesExhausted;
   const {
     data: estimatedReach,
     isPending,
