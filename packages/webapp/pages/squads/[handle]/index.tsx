@@ -34,6 +34,7 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import {
+  useConditionalFeature,
   useFeedLayout,
   useJoinReferral,
   useSquad,
@@ -49,8 +50,8 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { showSquadUnreadPosts } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
@@ -106,7 +107,12 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const { squad, isLoading, isFetched, isForbidden, clearUnreadPosts } =
     useSquad({ handle });
   const squadId = squad?.id;
-  const showUnreadPosts = useFeature(showSquadUnreadPosts);
+
+  const { sidebarExpanded } = useSettingsContext();
+  const { value: showUnreadPosts } = useConditionalFeature({
+    feature: showSquadUnreadPosts,
+    shouldEvaluate: sidebarExpanded,
+  });
 
   useEffect(() => {
     if (loggedImpression || !squadId) {
