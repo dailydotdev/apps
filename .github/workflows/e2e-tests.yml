@@ -43,6 +43,9 @@ jobs:
       run: pnpm --filter playwright install-deps
 
     - name: Run Playwright tests
+      env:
+        USER_NAME: ${{ secrets.USER_NAME }}
+        PASSWORD: ${{ secrets.PASSWORD }}
       run: pnpm test:e2e
 
     - name: Upload Playwright Report
