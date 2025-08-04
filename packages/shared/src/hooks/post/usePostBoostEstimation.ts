@@ -6,7 +6,7 @@ import { getBoostEstimatedReachDaily } from '../../graphql/post/boost';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
 import { briefRefetchIntervalMs, defautRefetchMs } from '../../graphql/posts';
-import { oneMinute } from '../../lib/dateFormat';
+import { getTodayTz, oneMinute } from '../../lib/dateFormat';
 import { usePostById } from '../usePostById';
 
 interface UsePostBoostEstimationProps {
@@ -21,9 +21,9 @@ export const usePostBoostEstimation = ({
   query,
 }: UsePostBoostEstimationProps) => {
   const isOldPost = useMemo(() => {
-    const postDate = new Date(postFromProps.createdAt);
+    const postDate = new Date(postFromProps.createdAt); // server time is UTC
     const fiveMinutes = oneMinute * 5;
-    const currentDate = new Date();
+    const currentDate = getTodayTz('UTC', new Date());
     return postDate.getTime() < currentDate.getTime() - fiveMinutes; // 5 minutes old
   }, [postFromProps.createdAt]);
   const [retriesExhausted, setRetriesExhausted] = useState(false);
@@ -69,7 +69,7 @@ export const usePostBoostEstimation = ({
         const oneMinuteMs = oneMinute * 1000;
         const maxRetries = oneMinuteMs / 2 / defautRefetchMs;
 
-        if (retries > maxRetries || isOldPost) {
+        if (retries > maxRetries) {
           setRetriesExhausted(true);
           return false;
         }
