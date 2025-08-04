@@ -22,6 +22,12 @@
   </a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml">
+    <img src="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml/badge.svg" alt="E2E Tests">
+  </a>
+</p>
+
 This monorepo contains daily.dev's application suite. The repo includes the web app and the extension, along with shared components for the two.
 By using a monorepo approach, we can easily share code and maintain consistency across the different parts of the application suite.
 The decision was made to allow faster iterations and to keep features parity in both platforms.
