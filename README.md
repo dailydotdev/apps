@@ -14,17 +14,14 @@
   <a href="https://stackshare.io/daily/daily">
     <img src="http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat" alt="StackShare">
   </a>
+  <a href="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml">
+    <img src="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml/badge.svg" alt="E2E Tests">
+  </a>
 </p>
 
 <p align="center">
   <a href="https://gitpod.io/#https://github.com/dailydotdev/apps/">
     <img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod">
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml">
-    <img src="https://github.com/dailydotdev/apps/actions/workflows/e2e-tests.yml/badge.svg" alt="E2E Tests">
   </a>
 </p>
 
