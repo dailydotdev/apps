@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
@@ -49,6 +49,8 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { showSquadUnreadPosts } from '@dailydotdev/shared/src/lib/featureManagement';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
@@ -101,8 +103,10 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
+  const { squad, isLoading, isFetched, isForbidden, clearUnreadPosts } =
+    useSquad({ handle });
   const squadId = squad?.id;
+  const showUnreadPosts = useFeature(showSquadUnreadPosts);
 
   useEffect(() => {
     if (loggedImpression || !squadId) {
@@ -117,6 +121,14 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, loggedImpression]);
+
+  useEffect(() => {
+    if (!showUnreadPosts || !squad?.currentMember?.flags?.hasUnreadPosts) {
+      return;
+    }
+
+    clearUnreadPosts();
+  }, [clearUnreadPosts, showUnreadPosts, squad]);
 
   const { data: squadMembers } = useQuery<BasicSourceMember[]>({
     queryKey: ['squadMembersInitial', handle],
