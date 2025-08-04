@@ -4,7 +4,7 @@ test.describe('Daily.dev Homepage', () => {
   test('should load the homepage successfully', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'Accept all' }).click();
+    await (page.getByRole('button', { name: 'Accept all' }).or(page.getByRole('button', {name: 'I understand'})).click());
     await page.getByRole('button', { name: 'Log in' }).click();
     await page.getByRole('textbox', { name: 'Email' }).click();
     await page.getByRole('textbox', { name: 'Email' }).fill(process.env.USER_NAME);
