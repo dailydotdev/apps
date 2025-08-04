@@ -19,6 +19,8 @@ import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
+import { useFeature } from '../../GrowthBookProvider';
+import { showSquadUnreadPosts } from '../../../lib/featureManagement';
 
 export const NetworkSection = ({
   isItemsButton,
@@ -30,10 +32,12 @@ export const NetworkSection = ({
     status: [SourcePostModerationStatus.Pending],
   });
 
+  const showUnreadPosts = useFeature(showSquadUnreadPosts);
+
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const squadItems =
       squads?.map((squad) => {
-        const { name, image, handle } = squad;
+        const { name, image, handle, hasUnreadPosts } = squad;
         return {
           icon: () =>
             image ? (
@@ -43,6 +47,12 @@ export const NetworkSection = ({
             ),
           title: name,
           path: `${webappUrl}squads/${handle}`,
+          className: {
+            text:
+              showUnreadPosts && hasUnreadPosts
+                ? 'font-bold text-text-primary'
+                : '',
+          },
         };
       }) ?? [];
     return [
@@ -77,7 +87,7 @@ export const NetworkSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [openNewSquad, squads, count, isModeratorInAnySquad]);
+  }, [squads, isModeratorInAnySquad, count, showUnreadPosts, openNewSquad]);
 
   return (
     <Section

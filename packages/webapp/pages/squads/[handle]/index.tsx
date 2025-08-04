@@ -8,7 +8,7 @@ import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
@@ -29,7 +29,7 @@ import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
@@ -96,10 +96,10 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   useJoinReferral();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
-  const { user, isFetched: isBootFetched } = useContext(AuthContext);
+  const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
