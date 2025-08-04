@@ -34,7 +34,7 @@ export const usePostBoostEstimation = ({
     user,
     'estimate',
     post.id,
-    Object.values(query).join(':'),
+    query,
   );
   const canBoost =
     isOldPost || hasTags || !!post.yggdrasilId || retriesExhausted;
@@ -64,6 +64,10 @@ export const usePostBoostEstimation = ({
           cache.state.dataUpdateCount,
           cache.state.fetchFailureCount,
         );
+
+        if (retries === 0 && !canBoost) {
+          return 1; // initial fetch
+        }
 
         // 30 seconds is an ample time to process yggdrasil
         const oneMinuteMs = oneMinute * 1000;
