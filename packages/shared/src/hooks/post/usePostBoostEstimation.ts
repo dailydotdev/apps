@@ -69,7 +69,7 @@ export const usePostBoostEstimation = ({
         const oneMinuteMs = oneMinute * 1000;
         const maxRetries = oneMinuteMs / 2 / defautRefetchMs;
 
-        if (retries > maxRetries) {
+        if (retries > maxRetries || isOldPost) {
           setRetriesExhausted(true);
           return false;
         }
