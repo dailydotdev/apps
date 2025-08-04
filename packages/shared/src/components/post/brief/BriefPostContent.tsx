@@ -287,29 +287,20 @@ const BriefPostContentRaw = ({
                   : 'Presidential briefing'}
               </Typography>
               <Typography type={TypographyType.Title3}>{post.title}</Typography>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-              >
-                {[
-                  post.flags?.generatedAt &&
-                    `Brief completed in ${formatDate({
-                      value: new Date(post.createdAt),
-                      now: new Date(post.flags?.generatedAt),
-                      type: TimeFormatType.LiveTimer,
-                    })}`,
-                  !!post.flags?.savedTime &&
-                    `Save ${formatDate({
-                      value: new Date(),
-                      now: new Date(
-                        Date.now() + post.flags.savedTime * 60 * 1000,
-                      ),
-                      type: TimeFormatType.LiveTimer,
-                    })} of reading`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </Typography>
+              {!!post.flags?.savedTime && (
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  {`Save ${formatDate({
+                    value: new Date(),
+                    now: new Date(
+                      Date.now() + post.flags.savedTime * 60 * 1000,
+                    ),
+                    type: TimeFormatType.LiveTimer,
+                  })} of reading`}
+                </Typography>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
               {!isNullOrUndefined(post.readTime) && (
