@@ -10,6 +10,7 @@ import {
   SQUAD_POST_SUBMISSION_KEYS,
   COMMENT_KEYS,
   SQUAD_KEYS,
+  CREATOR_UPDATES_EMAIL_KEYS,
 } from '../../components/notifications/utils';
 import useNotificationSettingsQuery from './useNotificationSettingsQuery';
 import { useLogContext } from '../../contexts/LogContext';
@@ -25,6 +26,7 @@ const NOTIFICATION_GROUPS = {
   squadPostSubmission: SQUAD_POST_SUBMISSION_KEYS,
   comments: COMMENT_KEYS,
   squadNotifications: SQUAD_KEYS,
+  creatorUpdatesEmail: CREATOR_UPDATES_EMAIL_KEYS,
 } as const;
 
 type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;

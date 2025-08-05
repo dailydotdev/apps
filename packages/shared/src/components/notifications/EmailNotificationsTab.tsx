@@ -317,9 +317,13 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="creator_updates"
               name="creator_updates"
-              checked={false}
+              checked={getGroupStatus('creatorUpdatesEmail', 'email')}
               onToggle={() =>
-                toggleSetting(NotificationType.SourcePostApproved, 'email')
+                toggleGroup(
+                  'creatorUpdatesEmail',
+                  !getGroupStatus('creatorUpdatesEmail', 'email'),
+                  'email',
+                )
               }
               compact={false}
             />

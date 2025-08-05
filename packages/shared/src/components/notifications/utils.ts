@@ -257,6 +257,11 @@ export const COMMENT_KEYS = [
   NotificationType.SquadReply,
 ];
 
+export const CREATOR_UPDATES_EMAIL_KEYS = [
+  NotificationType.SourcePostApproved,
+  NotificationType.ArticlePicked,
+];
+
 export const NotificationList = classed(
   'ul',
   'flex flex-col gap-6 [&>li]:flex [&>li]:flex-row [&>li]:gap-1 [&>li]:justify-between',
