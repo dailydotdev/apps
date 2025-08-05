@@ -170,11 +170,11 @@ const EmailNotificationsTab = (): ReactElement => {
             <Switch
               inputId="following"
               name="following"
-              checked={getGroupStatus('following', 'email')}
+              checked={getGroupStatus('followingEmail', 'email')}
               onToggle={() =>
                 toggleGroup(
-                  'following',
-                  !getGroupStatus('following', 'email'),
+                  'followingEmail',
+                  !getGroupStatus('followingEmail', 'email'),
                   'email',
                 )
               }
@@ -220,6 +220,26 @@ const EmailNotificationsTab = (): ReactElement => {
               }
               onToggleCallback={() =>
                 toggleSetting(NotificationType.UserPostAdded, 'email')
+              }
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              Squad new post
+            </Typography>
+            <Checkbox
+              className="!px-0"
+              checkmarkClassName="!mr-0"
+              name={NotificationType.SquadPostAdded}
+              checked={
+                ns?.[NotificationType.SquadPostAdded]?.email ===
+                NotificationPreferenceStatus.Subscribed
+              }
+              onToggleCallback={() =>
+                toggleSetting(NotificationType.SquadPostAdded, 'email')
               }
             />
           </div>

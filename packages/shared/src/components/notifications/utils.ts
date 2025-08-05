@@ -74,7 +74,6 @@ export enum NotificationType {
   ArticlePicked = 'article_picked',
   ArticleAnalytics = 'article_analytics',
   SourcePostSubmitted = 'source_post_submitted',
-  SquadNewPost = 'squad_new_post',
 }
 
 export enum NotificationIconType {
@@ -261,6 +260,13 @@ export const COMMENT_KEYS = [
 export const CREATOR_UPDATES_EMAIL_KEYS = [
   NotificationType.SourcePostApproved,
   NotificationType.ArticlePicked,
+];
+
+export const FOLLOWING_EMAIL_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.SquadPostAdded,
 ];
 
 export const NotificationList = classed(

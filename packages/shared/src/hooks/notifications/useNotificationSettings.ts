@@ -11,6 +11,7 @@ import {
   COMMENT_KEYS,
   SQUAD_KEYS,
   CREATOR_UPDATES_EMAIL_KEYS,
+  FOLLOWING_EMAIL_KEYS,
 } from '../../components/notifications/utils';
 import useNotificationSettingsQuery from './useNotificationSettingsQuery';
 import { useLogContext } from '../../contexts/LogContext';
@@ -20,6 +21,7 @@ const NOTIFICATION_GROUPS = {
   mentions: MENTION_KEYS,
   achievements: ACHIEVEMENT_KEYS,
   following: FOLLOWING_KEYS,
+  followingEmail: FOLLOWING_EMAIL_KEYS,
   streaks: STREAK_KEYS,
   squadRoles: SQUAD_ROLE_KEYS,
   sourceSubmission: SOURCE_SUBMISSION_KEYS,
