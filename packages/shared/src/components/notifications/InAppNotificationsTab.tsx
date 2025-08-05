@@ -22,11 +22,18 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { NotificationPromptSource } from '../../lib/log';
+import {
+  LogEvent,
+  NotificationCategory,
+  NotificationChannel,
+  NotificationPromptSource,
+} from '../../lib/log';
 import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
+import { useLogContext } from '../../contexts/LogContext';
 
 const InAppNotificationsTab = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { onTogglePermission } = usePushNotificationMutation();
   const { isSubscribed, isInitialized } = usePushNotificationContext();
   const { openModal } = useLazyModal();
@@ -38,11 +45,15 @@ const InAppNotificationsTab = (): ReactElement => {
   } = useNotificationSettings();
 
   const onTogglePush = async () => {
-    // onLogToggle(
-    //   !isSubscribed,
-    //   NotificationChannel.Web,
-    //   NotificationCategory.Product,
-    // );
+    logEvent({
+      event_name: isSubscribed
+        ? LogEvent.DisableNotification
+        : LogEvent.EnableNotification,
+      extra: JSON.stringify({
+        channel: NotificationChannel.Web,
+        category: NotificationCategory.Product,
+      }),
+    });
     return onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
 
