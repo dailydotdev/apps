@@ -1,14 +1,14 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import {
@@ -29,11 +29,12 @@ import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import {
+  useConditionalFeature,
   useFeedLayout,
   useJoinReferral,
   useSquad,
@@ -49,6 +50,8 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { showSquadUnreadPosts } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
@@ -96,13 +99,20 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   useJoinReferral();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
-  const { user, isFetched: isBootFetched } = useContext(AuthContext);
+  const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
+  const { squad, isLoading, isFetched, isForbidden, clearUnreadPosts } =
+    useSquad({ handle });
   const squadId = squad?.id;
+
+  const { sidebarExpanded } = useSettingsContext();
+  const { value: showUnreadPosts } = useConditionalFeature({
+    feature: showSquadUnreadPosts,
+    shouldEvaluate: sidebarExpanded,
+  });
 
   useEffect(() => {
     if (loggedImpression || !squadId) {
@@ -117,6 +127,18 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, loggedImpression]);
+
+  useEffect(() => {
+    if (!showUnreadPosts || !squad?.currentMember?.flags?.hasUnreadPosts) {
+      return;
+    }
+
+    clearUnreadPosts();
+  }, [
+    clearUnreadPosts,
+    showUnreadPosts,
+    squad?.currentMember?.flags?.hasUnreadPosts,
+  ]);
 
   const { data: squadMembers } = useQuery<BasicSourceMember[]>({
     queryKey: ['squadMembersInitial', handle],

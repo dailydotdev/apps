@@ -50,6 +50,7 @@ export const generateDefaultSquad = (username: string): Squad => ({
   memberInviteRole: SourceMemberRole.Member,
   moderationPostCount: 0,
   moderationRequired: false,
+  hasUnreadPosts: false,
 });
 
 export const generateUserSourceAsSquad = (user: LoggedUser): Squad => ({
