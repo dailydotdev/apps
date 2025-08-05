@@ -134,7 +134,11 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
     }
 
     clearUnreadPosts();
-  }, [clearUnreadPosts, showUnreadPosts, squad]);
+  }, [
+    clearUnreadPosts,
+    showUnreadPosts,
+    squad?.currentMember?.flags?.hasUnreadPosts,
+  ]);
 
   const { data: squadMembers } = useQuery<BasicSourceMember[]>({
     queryKey: ['squadMembersInitial', handle],
