@@ -23,8 +23,9 @@ const AccountNotificationsPage = (): ReactElement => {
   const { isLoadingPreferences } = useNotificationSettings();
 
   if (isLoadingPreferences) {
-    return <div>Loading...</div>;
+    return <div className="w-full" />;
   }
+
   return (
     <AccountPageContent>
       <TabContainer>
