@@ -446,12 +446,12 @@ export async function getSquad(handle: string): Promise<Squad> {
 }
 
 export const clearSquadUnreadPosts = async (
-  sourceId: string,
+  handle: string,
 ): Promise<boolean> => {
   const res = await gqlClient.request<{ clearUnreadPosts: { _: boolean } }>(
     CLEAR_SQUAD_UNREAD_POSTS_MUTATION,
     {
-      sourceId: sourceId.toLowerCase(),
+      sourceId: handle.toLowerCase(),
     },
   );
 
