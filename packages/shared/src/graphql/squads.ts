@@ -249,13 +249,11 @@ export const SQUAD_QUERY = gql`
 `;
 
 export const CLEAR_SQUAD_UNREAD_POSTS_MUTATION = gql`
-  mutation ClearSquadUnreadPosts($handle: ID!) {
-    source: clearUnreadPosts(sourceId: $handle) {
-      ...SquadBaseInfo
-      moderationPostCount
+  mutation ClearSquadUnreadPosts($sourceId: ID!) {
+    clearUnreadPosts(sourceId: $sourceId) {
+      _
     }
   }
-  ${SQUAD_BASE_FRAGMENT}
 `;
 
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
@@ -447,15 +445,17 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export const clearSquadUnreadPosts = async (handle: string): Promise<Squad> => {
-  const res = await gqlClient.request<SquadData>(
+export const clearSquadUnreadPosts = async (
+  sourceId: string,
+): Promise<boolean> => {
+  const res = await gqlClient.request<{ clearUnreadPosts: { _: boolean } }>(
     CLEAR_SQUAD_UNREAD_POSTS_MUTATION,
     {
-      handle: handle.toLowerCase(),
+      sourceId: sourceId.toLowerCase(),
     },
   );
 
-  return res.source;
+  return res.clearUnreadPosts._;
 };
 
 export async function getSquadMembers(

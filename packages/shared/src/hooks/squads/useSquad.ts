@@ -18,7 +18,7 @@ interface UseSquad {
   isForbidden: boolean;
   isLoading: boolean;
   isFetched: boolean;
-  clearUnreadPosts: UseMutateFunction<Squad, Error, void, unknown>;
+  clearUnreadPosts: UseMutateFunction<boolean, Error, void, unknown>;
 }
 
 export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
@@ -45,7 +45,22 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
   const { mutate: clearUnreadPosts } = useMutation({
     mutationFn: () => clearSquadUnreadPosts(handle),
     onSuccess: (res) => {
-      queryClient.setQueryData<Squad>(queryKey, () => res);
+      if (!res) {
+        return;
+      }
+
+      queryClient.setQueryData<Squad>(queryKey, (currentSquad) => {
+        return {
+          ...currentSquad,
+          currentMember: {
+            ...currentSquad.currentMember,
+            flags: {
+              ...currentSquad.currentMember.flags,
+              hasUnreadPosts: false,
+            },
+          },
+        };
+      });
 
       updateSquads(
         squads.map((squadItem) => {
