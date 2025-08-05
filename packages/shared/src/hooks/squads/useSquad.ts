@@ -50,15 +50,16 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
       }
 
       queryClient.setQueryData<Squad>(queryKey, (currentSquad) => {
-        if (!currentSquad) {
+        if (!currentSquad || !currentSquad?.currentMember) {
           return currentSquad;
         }
+
         return {
           ...currentSquad,
           currentMember: {
             ...currentSquad.currentMember,
             flags: {
-              ...currentSquad.currentMember.flags,
+              ...(currentSquad.currentMember.flags ?? {}),
               hasUnreadPosts: false,
             },
           },
