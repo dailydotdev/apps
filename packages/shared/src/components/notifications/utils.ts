@@ -18,6 +18,7 @@ import {
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import type { NotificationPreferenceStatus } from '../../graphql/notifications';
 
 export const NotifContainer = classed(
   'div',
@@ -273,8 +274,8 @@ export const NotificationSection = classed(
 );
 
 export interface NotificationChannelSetting {
-  email: 'subscribed' | 'muted';
-  inApp: 'subscribed' | 'muted';
+  email: NotificationPreferenceStatus;
+  inApp: NotificationPreferenceStatus;
 }
 
 export interface NotificationSettings {

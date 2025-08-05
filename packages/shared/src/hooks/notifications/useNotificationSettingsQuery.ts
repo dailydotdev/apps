@@ -8,16 +8,19 @@ import {
   updateNotificationSettings,
 } from '../../graphql/users';
 
+interface NotificationSettingsResponse {
+  notificationSettings: NotificationSettings;
+}
+
 const useNotificationSettingsQuery = () => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const nsKey = generateQueryKey(RequestKey.NotificationSettings, {
     id: user?.id,
   });
-  const { data: notificationSettings, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<NotificationSettingsResponse>({
     queryKey: nsKey,
-    queryFn: async () => await gqlClient.request(GET_NOTIFICATION_SETTINGS),
-    select: (data) => data.notificationSettings,
+    queryFn: () => gqlClient.request(GET_NOTIFICATION_SETTINGS),
   });
   const { mutate } = useMutation({
     onMutate: (notificationFlags) => {
@@ -38,7 +41,7 @@ const useNotificationSettingsQuery = () => {
   });
 
   return {
-    notificationSettings,
+    notificationSettings: data?.notificationSettings,
     isLoading,
     mutate,
   };

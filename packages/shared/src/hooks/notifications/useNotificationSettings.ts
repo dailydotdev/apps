@@ -42,22 +42,22 @@ const defaultEmailLogProps = {
 const useNotificationSettings = () => {
   const { logEvent } = useLogContext();
   const {
-    notificationSettings: ns,
+    notificationSettings,
     isLoading: isLoadingPreferences,
     mutate,
   } = useNotificationSettingsQuery();
 
   const toggleSetting = (key: string, channel: NotificationChannel) => {
-    const currentValue = ns[key]?.[channel];
+    const currentValue = notificationSettings[key]?.[channel];
     const newValue =
       currentValue === NotificationPreferenceStatus.Subscribed
         ? NotificationPreferenceStatus.Muted
         : NotificationPreferenceStatus.Subscribed;
 
-    const updatedSettings = {
-      ...ns,
+    const updatedSettings: NotificationSettings = {
+      ...notificationSettings,
       [key]: {
-        ...ns[key],
+        ...notificationSettings[key],
         [channel]: newValue,
       },
     };
@@ -87,13 +87,13 @@ const useNotificationSettings = () => {
       ? NotificationPreferenceStatus.Subscribed
       : NotificationPreferenceStatus.Muted;
 
-    const updatedSettings = {
-      ...ns,
+    const updatedSettings: NotificationSettings = {
+      ...notificationSettings,
       ...keys.reduce(
         (acc, key) => ({
           ...acc,
           [key]: {
-            ...ns[key],
+            ...notificationSettings[key],
             [channel]: newStatus,
           },
         }),
@@ -122,26 +122,27 @@ const useNotificationSettings = () => {
   ) => {
     const keys = NOTIFICATION_GROUPS[groupName];
     return keys.some(
-      (key) => ns?.[key]?.[channel] === NotificationPreferenceStatus.Subscribed,
+      (key) =>
+        notificationSettings?.[key]?.[channel] ===
+        NotificationPreferenceStatus.Subscribed,
     );
   };
 
   const unsubscribeAllEmail = () => {
-    const updatedSettings: NotificationSettings = Object.keys(ns).reduce(
-      (acc, key) => {
-        acc[key] = {
-          ...ns[key],
-          email: NotificationPreferenceStatus.Muted,
-        };
-        return acc;
-      },
-      {},
-    );
+    const updatedSettings: NotificationSettings = Object.keys(
+      notificationSettings || {},
+    ).reduce((acc, key) => {
+      acc[key] = {
+        ...notificationSettings[key],
+        email: NotificationPreferenceStatus.Muted,
+      };
+      return acc;
+    }, {});
     mutate(updatedSettings);
   };
 
-  const emailsEnabled = ns
-    ? Object.values(ns as NotificationSettings).some(
+  const emailsEnabled = notificationSettings
+    ? Object.values(notificationSettings).some(
         (setting) => setting.email === NotificationPreferenceStatus.Subscribed,
       )
     : false;
@@ -152,7 +153,7 @@ const useNotificationSettings = () => {
     getGroupStatus,
     unsubscribeAllEmail,
     emailsEnabled,
-    notificationSettings: ns as NotificationSettings,
+    notificationSettings,
     isLoadingPreferences,
   };
 };
