@@ -50,6 +50,9 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
       }
 
       queryClient.setQueryData<Squad>(queryKey, (currentSquad) => {
+        if (!currentSquad) {
+          return currentSquad;
+        }
         return {
           ...currentSquad,
           currentMember: {
