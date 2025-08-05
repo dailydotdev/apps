@@ -66,14 +66,16 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
         };
       });
 
-      updateSquads(
-        squads.map((squadItem) => {
-          if (squadItem.handle === handle) {
-            return { ...squadItem, hasUnreadPosts: false };
-          }
-          return squadItem;
-        }),
-      );
+      if (squads?.length > 0) {
+        updateSquads(
+          squads.map((squadItem) => {
+            if (squadItem.handle === handle) {
+              return { ...squadItem, hasUnreadPosts: false };
+            }
+            return squadItem;
+          }),
+        );
+      }
     },
   });
 
