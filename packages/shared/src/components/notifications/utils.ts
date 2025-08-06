@@ -75,6 +75,9 @@ export enum NotificationType {
   ArticleAnalytics = 'article_analytics',
   SourcePostSubmitted = 'source_post_submitted',
   SquadFeatured = 'squad_featured',
+  Marketing = 'marketing',
+  Announcements = 'announcements',
+  NewUserWelcome = 'new_user_welcome',
 }
 
 export enum NotificationIconType {
