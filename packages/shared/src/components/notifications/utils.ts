@@ -74,6 +74,7 @@ export enum NotificationType {
   ArticlePicked = 'article_picked',
   ArticleAnalytics = 'article_analytics',
   SourcePostSubmitted = 'source_post_submitted',
+  SquadFeatured = 'squad_featured',
 }
 
 export enum NotificationIconType {
@@ -232,14 +233,12 @@ export const SOURCE_SUBMISSION_KEYS = [
 ];
 
 export const SQUAD_MODERATION_KEYS = [
+  NotificationType.SourcePostSubmitted,
   NotificationType.SquadMemberJoined,
-  NotificationType.SquadBlocked,
-  NotificationType.SourceApproved,
-  NotificationType.SourceRejected,
+  NotificationType.SquadFeatured,
 ];
 
-export const SQUAD_POST_SUBMISSION_KEYS = [
-  NotificationType.SourcePostSubmitted,
+export const SQUAD_POST_REVIEW_KEYS = [
   NotificationType.SourcePostApproved,
   NotificationType.SourcePostRejected,
   NotificationType.ArticlePicked,

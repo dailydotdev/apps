@@ -31,6 +31,7 @@ import {
 import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
 import { useLogContext } from '../../contexts/LogContext';
+import SquadModNotifications from './SquadModNotifications';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -472,13 +473,13 @@ const InAppNotificationsTab = (): ReactElement => {
               </Typography>
             </div>
             <Switch
-              inputId="submitted_post"
-              name="submitted_post"
-              checked={getGroupStatus('squadPostSubmission', 'inApp')}
+              inputId="squad_post_review"
+              name="squad_post_review"
+              checked={getGroupStatus('squadPostReview', 'inApp')}
               onToggle={() =>
                 toggleGroup(
-                  'squadPostSubmission',
-                  !getGroupStatus('squadPostSubmission', 'inApp'),
+                  'squadPostReview',
+                  !getGroupStatus('squadPostReview', 'inApp'),
                   'inApp',
                 )
               }
@@ -512,6 +513,8 @@ const InAppNotificationsTab = (): ReactElement => {
           </li>
         </NotificationList>
       </NotificationSection>
+      <HorizontalSeparator className="mx-4" />
+      <SquadModNotifications />
     </section>
   );
 };
