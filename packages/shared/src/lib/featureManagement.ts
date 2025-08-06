@@ -93,3 +93,8 @@ export const briefCardFeedFeature = new Feature(
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
+
+export const showSquadUnreadPosts = new Feature(
+  'show_squad_unread_posts',
+  isDevelopment,
+);
