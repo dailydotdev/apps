@@ -131,15 +131,6 @@ export const getBoostedPostByCampaignId = async (
   return result.postCampaignById;
 };
 
-export const BOOST_ESTIMATED_REACH = gql`
-  query BoostEstimatedReach($postId: ID!) {
-    boostEstimatedReach(postId: $postId) {
-      min
-      max
-    }
-  }
-`;
-
 export const BOOST_ESTIMATED_REACH_DAILY = gql`
   query BoostEstimatedReachDaily($postId: ID!, $budget: Int!, $duration: Int!) {
     boostEstimatedReachDaily(
@@ -169,16 +160,6 @@ export interface BoostEstimatedReach {
   min: number;
   max: number;
 }
-
-export const getBoostEstimatedReach = async ({
-  id,
-}: Pick<EstimatedReachProps, 'id'>): Promise<BoostEstimatedReach> => {
-  const result = await gqlClient.request(BOOST_ESTIMATED_REACH, {
-    postId: id,
-  });
-
-  return result.boostEstimatedReach;
-};
 
 export const getBoostEstimatedReachDaily = async ({
   id,
