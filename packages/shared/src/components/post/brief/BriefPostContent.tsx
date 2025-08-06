@@ -273,6 +273,7 @@ const BriefPostContentRaw = ({
             <BriefPostHeaderActions
               post={post}
               onClose={onClose}
+              origin={origin}
               contextMenuId="post-widgets-context"
             />
             <div className="flex flex-col gap-1">
