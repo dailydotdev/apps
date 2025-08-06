@@ -214,7 +214,7 @@ const BriefPostContentRaw = ({
     }
 
     completeAction(ActionType.GeneratedBrief);
-  }, [completeAction, post?.type]);
+  }, [completeAction, post?.type, isAuthor]);
 
   let authorFirstName = getFirstName(post.author?.name);
 
