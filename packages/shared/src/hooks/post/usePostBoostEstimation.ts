@@ -65,10 +65,6 @@ export const usePostBoostEstimation = ({
           cache.state.fetchFailureCount,
         );
 
-        if (retries === 0 && !canBoost) {
-          return 1; // initial fetch
-        }
-
         // 30 seconds is an ample time to process yggdrasil
         const oneMinuteMs = oneMinute * 1000;
         const maxRetries = oneMinuteMs / 2 / defautRefetchMs;
