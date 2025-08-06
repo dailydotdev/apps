@@ -21,10 +21,7 @@ import { Checkbox } from '../fields/Checkbox';
 import { ButtonVariant } from '../buttons/common';
 import { ArrowIcon } from '../icons';
 import { Button } from '../buttons/Button';
-import {
-  checkHasStatusPreference,
-  useNotificationPreference,
-} from '../../hooks/notifications';
+import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Image } from '../image/Image';
 import { HorizontalSeparator } from '../utilities';
@@ -40,7 +37,7 @@ const SquadModerationItem = ({
   expandedSquadId,
   onToggleExpanded,
 }: SquadModerationItemProps): ReactElement | null => {
-  const { preferences, subscribeNotification, clearNotificationPreference } =
+  const { preferences, subscribeNotification, muteNotification } =
     useNotificationPreference({
       params: SQUAD_MODERATION_KEYS.map((notificationType) => ({
         referenceId: squad.id,
@@ -56,11 +53,13 @@ const SquadModerationItem = ({
     allowNotifications,
   } = useMemo(() => {
     const isNotificationSubscribed = (notificationType: NotificationType) => {
-      return !!preferences.find((preference) =>
-        checkHasStatusPreference(preference, notificationType, squad.id, [
-          NotificationPreferenceStatus.Subscribed,
-        ]),
+      const pref = preferences.find(
+        (preference) =>
+          preference.notificationType === notificationType &&
+          preference.referenceId === squad.id,
       );
+
+      return !pref || pref.status === NotificationPreferenceStatus.Subscribed;
     };
 
     return {
@@ -77,10 +76,9 @@ const SquadModerationItem = ({
 
   const isExpanded = expandedSquadId === squad.id;
 
-  // Toggle functions
   const onTogglePostsWaitingForReview = () => {
     const toggleAction = SourcePostSubmitted
-      ? clearNotificationPreference
+      ? muteNotification
       : subscribeNotification;
 
     return toggleAction({
@@ -91,7 +89,7 @@ const SquadModerationItem = ({
 
   const onToggleNewMemberJoined = () => {
     const toggleAction = SquadMemberJoined
-      ? clearNotificationPreference
+      ? muteNotification
       : subscribeNotification;
 
     return toggleAction({
@@ -102,7 +100,7 @@ const SquadModerationItem = ({
 
   const onToggleMilestonesAndAchievements = () => {
     const toggleAction = SquadFeatured
-      ? clearNotificationPreference
+      ? muteNotification
       : subscribeNotification;
 
     return toggleAction({
@@ -113,7 +111,7 @@ const SquadModerationItem = ({
 
   const onToggleAllowNotifications = () => {
     const toggleAction = allowNotifications
-      ? clearNotificationPreference
+      ? muteNotification
       : subscribeNotification;
 
     Promise.all(
