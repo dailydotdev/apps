@@ -6,7 +6,9 @@ import type { PostHeaderActionsProps } from '../common';
 import Link from '../../utilities/Link';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { settingsUrl } from '../../../lib/constants';
-import { SettingsIcon } from '../../icons';
+import { LinkIcon, SettingsIcon } from '../../icons';
+import { useSharePost } from '../../../hooks/useSharePost';
+import type { Origin } from '../../../lib/log';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -17,18 +19,25 @@ export const BriefPostHeaderActions = ({
   className,
   notificationClassName,
   isFixedNavigation,
+  origin,
   ...props
-}: PostHeaderActionsProps): ReactElement => {
+}: PostHeaderActionsProps & {
+  origin: Origin;
+}): ReactElement => {
+  const { copyLink } = useSharePost(origin);
+
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <Link passHref href={`${settingsUrl}/notifications`}>
+      <div className="absolute right-4 top-4 hidden laptop:block">
         <Button
-          className="absolute right-4 top-4 hidden laptop:block"
-          icon={<SettingsIcon />}
-          tag="a"
+          icon={<LinkIcon />}
           size={ButtonSize.Medium}
+          onClick={() => copyLink({ post })}
         />
-      </Link>
+        <Link passHref href={`${settingsUrl}/notifications`}>
+          <Button icon={<SettingsIcon />} tag="a" size={ButtonSize.Medium} />
+        </Link>
+      </div>
     </Container>
   );
 };
