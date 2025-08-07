@@ -21,47 +21,52 @@ type PostReferrerContext = {
 };
 
 const [PostReferrerContextProvider, usePostReferrerContextHook] =
-  createContextProvider((): PostReferrerContext => {
-    const [navigationCount, setNavigationCount] = useState(0);
-    const [referrerPost, setReferrerPost] =
-      useState<PostReferrerContext['referrerPost']>();
-    const router = useRouter();
-    const currentPathname = router?.asPath || router?.pathname;
+  createContextProvider(
+    (): PostReferrerContext => {
+      const [navigationCount, setNavigationCount] = useState(0);
+      const [referrerPost, setReferrerPost] =
+        useState<PostReferrerContext['referrerPost']>();
+      const router = useRouter();
+      const currentPathname = router?.asPath || router?.pathname;
 
-    useEffect(() => {
-      setNavigationCount((prev) => prev + 1);
-    }, [currentPathname]);
+      useEffect(() => {
+        setNavigationCount((prev) => prev + 1);
+      }, [currentPathname]);
 
-    useEffect(() => {
-      if (navigationCount > 1) {
-        setNavigationCount(0);
-        setReferrerPost(undefined);
-      }
-    }, [navigationCount]);
-
-    return {
-      referrerPost,
-      setReferrerPost: useCallback(
-        (post) => {
+      useEffect(() => {
+        if (navigationCount > 1) {
           setNavigationCount(0);
+          setReferrerPost(undefined);
+        }
+      }, [navigationCount]);
 
-          return setReferrerPost(post);
-        },
-        [setReferrerPost],
-      ),
-      usePostReferrer: useCallback(({ post }) => {
-        useEffect(() => {
-          if (!post) {
-            return;
-          }
+      return {
+        referrerPost,
+        setReferrerPost: useCallback(
+          (post) => {
+            setNavigationCount(0);
 
-          setNavigationCount(0);
+            return setReferrerPost(post);
+          },
+          [setReferrerPost],
+        ),
+        usePostReferrer: useCallback(({ post }) => {
+          useEffect(() => {
+            if (!post) {
+              return;
+            }
 
-          setReferrerPost(post);
-        }, [post]);
-      }, []),
-    };
-  });
+            setNavigationCount(0);
+
+            setReferrerPost(post);
+          }, [post]);
+        }, []),
+      };
+    },
+    {
+      errorMessage: 'ContextNotFound',
+    },
+  );
 
 const usePostReferrerContext = safeContextHookExport(
   usePostReferrerContextHook,
