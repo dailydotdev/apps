@@ -354,7 +354,8 @@ const EmailNotificationsTab = (): ReactElement => {
       <NotificationSection>
         <PersonalizedDigest channel="email" />
       </NotificationSection>
-      <HorizontalSeparator className="mx-4" />
+      {/* TODO: Will be added in phase 2 */}
+      {/* <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           From daily.dev
@@ -469,7 +470,7 @@ const EmailNotificationsTab = (): ReactElement => {
             </div>
           </div>
         </NotificationList>
-      </NotificationSection>
+      </NotificationSection> */}
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
