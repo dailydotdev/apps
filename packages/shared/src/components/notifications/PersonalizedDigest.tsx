@@ -284,7 +284,7 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
             container: 'gap-4',
           }}
         />
-        {!selectedDigest?.flags.slack && isChecked && (
+        {!selectedDigest?.flags.slack && isChecked && isPlus && (
           <button
             type="button"
             className="flex flex-row items-center gap-1 text-text-link typo-footnote"
