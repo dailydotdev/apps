@@ -1,21 +1,19 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { Switch } from '../fields/Switch';
-import { Checkbox } from '../fields/Checkbox';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
-  NotificationList,
+  ACTIVITY_NOTIFICATIONS,
+  FOLLOWING_NOTIFICATIONS,
+  NotificationContainer,
   NotificationSection,
-  NotificationType,
 } from './utils';
 import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
+import NotificationCheckbox from './NotificationCheckbox';
+import NotificationSwitch from './NotificationSwitch';
 
 const EmailNotificationsTab = (): ReactElement => {
   const {
@@ -33,322 +31,101 @@ const EmailNotificationsTab = (): ReactElement => {
         <Typography type={TypographyType.Body} bold>
           Activity
         </Typography>
-        <NotificationList>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Comments on your posts
-            </Typography>
-            <Switch
-              inputId="comments"
-              name="comments"
-              checked={getGroupStatus('comments', 'email')}
-              onToggle={() =>
-                toggleGroup(
-                  'comments',
-                  !getGroupStatus('comments', 'email'),
-                  'email',
-                )
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Replies to your comments
-            </Typography>
-            <Switch
-              inputId={NotificationType.CommentReply}
-              name={NotificationType.CommentReply}
+        <NotificationContainer>
+          {ACTIVITY_NOTIFICATIONS.map((item) => (
+            <NotificationSwitch
+              key={item.id}
+              id={item.id}
+              label={item.label}
               checked={
-                ns?.[NotificationType.CommentReply]?.email ===
-                NotificationPreferenceStatus.Subscribed
+                item.group
+                  ? getGroupStatus(item.id, 'email')
+                  : ns?.[item.id]?.email ===
+                    NotificationPreferenceStatus.Subscribed
               }
               onToggle={() =>
-                toggleSetting(NotificationType.CommentReply, 'email')
+                item.group
+                  ? toggleGroup(
+                      item.id,
+                      !getGroupStatus(item.id, 'email'),
+                      'email',
+                    )
+                  : toggleSetting(item.id, 'email')
               }
-              compact={false}
             />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Upvotes on your posts
-            </Typography>
-            <Switch
-              inputId={NotificationType.ArticleUpvoteMilestone}
-              name={NotificationType.ArticleUpvoteMilestone}
-              checked={
-                ns?.[NotificationType.ArticleUpvoteMilestone]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.ArticleUpvoteMilestone, 'email')
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Upvotes on your comments
-            </Typography>
-            <Switch
-              inputId={NotificationType.CommentUpvoteMilestone}
-              name={NotificationType.CommentUpvoteMilestone}
-              checked={
-                ns?.[NotificationType.CommentUpvoteMilestone]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.CommentUpvoteMilestone, 'email')
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Mentions of your username
-            </Typography>
-            <Switch
-              inputId="username_mention"
-              name="username_mention"
-              checked={getGroupStatus('mentions', 'email')}
-              onToggle={() =>
-                toggleGroup(
-                  'mentions',
-                  !getGroupStatus('mentions', 'email'),
-                  'email',
-                )
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Cores & Awards you receive
-            </Typography>
-            <Switch
-              inputId={NotificationType.UserReceivedAward}
-              name={NotificationType.UserReceivedAward}
-              checked={
-                ns?.[NotificationType.UserReceivedAward]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.UserReceivedAward, 'email')
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Report updates
-            </Typography>
-            <Switch
-              inputId={NotificationType.ArticleReportApproved}
-              name={NotificationType.ArticleReportApproved}
-              checked={
-                ns?.[NotificationType.ArticleReportApproved]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.ArticleReportApproved, 'email')
-              }
-              compact={false}
-            />
-          </li>
-        </NotificationList>
+          ))}
+        </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Updates
         </Typography>
-        <NotificationList>
-          <li>
-            <div className="flex flex-col gap-2">
-              <Typography type={TypographyType.Callout}>Following</Typography>
-            </div>
-            <Switch
-              inputId="following"
-              name="following"
-              checked={getGroupStatus('followingEmail', 'email')}
-              onToggle={() =>
-                toggleGroup(
-                  'followingEmail',
-                  !getGroupStatus('followingEmail', 'email'),
-                  'email',
-                )
-              }
-              compact={false}
-            />
-          </li>
-        </NotificationList>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row items-center justify-between">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              Source new post
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.SourcePostAdded}
+        <NotificationContainer>
+          <NotificationSwitch
+            id="following"
+            label="Following"
+            description="Get notified when sources, users, collections, or threads you follow are updated. You can manage each below."
+            checked={getGroupStatus('following', 'email')}
+            onToggle={() =>
+              toggleGroup(
+                'following',
+                !getGroupStatus('following', 'email'),
+                'email',
+              )
+            }
+          />
+          {FOLLOWING_NOTIFICATIONS.map((item) => (
+            <NotificationCheckbox
+              key={item.id}
+              id={item.id}
+              label={item.label}
               checked={
-                ns?.[NotificationType.SourcePostAdded]?.email ===
-                NotificationPreferenceStatus.Subscribed
+                ns?.[item.id]?.email === NotificationPreferenceStatus.Subscribed
               }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.SourcePostAdded, 'email')
-              }
+              onToggle={() => toggleSetting(item.id, 'email')}
             />
-          </div>
-          <div className="flex flex-row items-center justify-between">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              User new post
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.UserPostAdded}
-              checked={
-                ns?.[NotificationType.UserPostAdded]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.UserPostAdded, 'email')
-              }
-            />
-          </div>
-          <div className="flex flex-row items-center justify-between">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              Squad new post
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.SquadPostAdded}
-              checked={
-                ns?.[NotificationType.SquadPostAdded]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.SquadPostAdded, 'email')
-              }
-            />
-          </div>
-          <div className="flex flex-row items-center justify-between">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              Collections you follow
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.CollectionUpdated}
-              checked={
-                ns?.[NotificationType.CollectionUpdated]?.email ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.CollectionUpdated, 'email')
-              }
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row items-start justify-between">
-            <div className="flex flex-1 flex-col gap-2">
-              <Typography type={TypographyType.Callout}>Streaks</Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get an email when you break your streak and have a chance to
-                restore it.
-              </Typography>
-            </div>
-            <Switch
-              inputId="streaks"
-              name="streaks"
-              checked={getGroupStatus('streaks', 'email')}
-              onToggle={() =>
-                toggleGroup(
-                  'streaks',
-                  !getGroupStatus('streaks', 'email'),
-                  'email',
-                )
-              }
-              compact={false}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row items-start justify-between">
-            <div className="flex flex-1 flex-col gap-2">
-              <Typography type={TypographyType.Callout}>
-                Achievements
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get email updates when you unlock new badges, milestones, or
-                features.
-              </Typography>
-            </div>
-            <Switch
-              inputId="achievements"
-              name="achievements"
-              checked={getGroupStatus('achievements', 'email')}
-              onToggle={() =>
-                toggleGroup(
-                  'achievements',
-                  !getGroupStatus('achievements', 'email'),
-                  'email',
-                )
-              }
-              compact={false}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row items-start justify-between">
-            <div className="flex flex-1 flex-col gap-2">
-              <Typography type={TypographyType.Callout}>
-                Creator updates
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get email notifications about your posts, source suggestions,
-                analytics, and other creator activity on daily.dev.
-              </Typography>
-            </div>
-            <Switch
-              inputId="creator_updates"
-              name="creator_updates"
-              checked={getGroupStatus('creatorUpdatesEmail', 'email')}
-              onToggle={() =>
-                toggleGroup(
-                  'creatorUpdatesEmail',
-                  !getGroupStatus('creatorUpdatesEmail', 'email'),
-                  'email',
-                )
-              }
-              compact={false}
-            />
-          </div>
-        </div>
+          ))}
+          <NotificationSwitch
+            id="streaks"
+            label="Streaks"
+            description="Get an email when you break your streak and have a chance to restore it."
+            checked={getGroupStatus('streaks', 'email')}
+            onToggle={() =>
+              toggleGroup(
+                'streaks',
+                !getGroupStatus('streaks', 'email'),
+                'email',
+              )
+            }
+          />
+          <NotificationSwitch
+            id="achievements"
+            label="Achievements"
+            description="Get email updates when you unlock new badges, milestones, or features."
+            checked={getGroupStatus('achievements', 'email')}
+            onToggle={() =>
+              toggleGroup(
+                'achievements',
+                !getGroupStatus('achievements', 'email'),
+                'email',
+              )
+            }
+          />
+          <NotificationSwitch
+            id="creator_updates"
+            label="Creator updates"
+            description="Get email notifications about your posts, source suggestions, analytics, and other creator activity on daily.dev."
+            checked={getGroupStatus('creatorUpdatesEmail', 'email')}
+            onToggle={() =>
+              toggleGroup(
+                'creatorUpdatesEmail',
+                !getGroupStatus('creatorUpdatesEmail', 'email'),
+                'email',
+              )
+            }
+          />
+        </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>

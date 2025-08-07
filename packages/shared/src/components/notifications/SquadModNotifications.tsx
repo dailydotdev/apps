@@ -252,7 +252,10 @@ const SquadModNotifications = (): ReactElement => {
           <Typography type={TypographyType.Body} bold>
             Squad moderation
           </Typography>
-          <Typography type={TypographyType.Footnote}>
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Footnote}
+          >
             Turn this on to get moderation-related notifications for all squads
             you moderate. You can fine-tune settings per squad below.
           </Typography>

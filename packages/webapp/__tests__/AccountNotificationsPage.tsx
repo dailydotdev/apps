@@ -232,7 +232,7 @@ it('should show email tab content when clicked', async () => {
 it('should render comments switch', async () => {
   renderComponent();
 
-  const commentsText = await screen.findByText('Comments on your post');
+  const commentsText = await screen.findByText('Comments on your posts');
   expect(commentsText).toBeInTheDocument();
 });
 
@@ -389,7 +389,7 @@ it('should render source suggestions section', async () => {
 it('should render submitted post section', async () => {
   renderComponent();
 
-  const submittedText = await screen.findByText('Submitted post');
+  const submittedText = await screen.findByText('Submitted post review');
   expect(submittedText).toBeInTheDocument();
 });
 

@@ -9,12 +9,15 @@ import { Switch } from '../fields/Switch';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
-  NotificationList,
+  ACTIVITY_NOTIFICATIONS,
+  CREATORS_NOTIFICATIONS,
+  FOLLOWING_NOTIFICATIONS,
+  NotificationContainer,
   NotificationSection,
   NotificationType,
+  STREAK_NOTIFICATIONS,
 } from './utils';
 
-import { Checkbox } from '../fields/Checkbox';
 import { ButtonVariant } from '../buttons/common';
 import { ArrowIcon } from '../icons';
 import { Button } from '../buttons/Button';
@@ -32,6 +35,8 @@ import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
+import NotificationCheckbox from './NotificationCheckbox';
+import NotificationSwitch from './NotificationSwitch';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -104,137 +109,30 @@ const InAppNotificationsTab = (): ReactElement => {
         <Typography type={TypographyType.Body} bold>
           Activity
         </Typography>
-        <NotificationList>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Comments on your post
-            </Typography>
-            <Switch
-              inputId="comments"
-              name="comments"
-              checked={getGroupStatus('comments', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'comments',
-                  !getGroupStatus('comments', 'inApp'),
-                  'inApp',
-                )
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Replies to your comment
-            </Typography>
-            <Switch
-              inputId={NotificationType.CommentReply}
-              name={NotificationType.CommentReply}
+        <NotificationContainer>
+          {ACTIVITY_NOTIFICATIONS.map((item) => (
+            <NotificationSwitch
+              key={item.id}
+              id={item.id}
+              label={item.label}
               checked={
-                ns?.comment_reply?.inApp ===
-                NotificationPreferenceStatus.Subscribed
+                item.group
+                  ? getGroupStatus(item.id, 'inApp')
+                  : ns?.[item.id]?.inApp ===
+                    NotificationPreferenceStatus.Subscribed
               }
-              onToggle={() =>
-                toggleSetting(NotificationType.CommentReply, 'inApp')
-              }
-              compact={false}
+              onToggle={() => toggleSetting(item.id, 'inApp')}
             />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Upvotes on your post
-            </Typography>
-            <Switch
-              inputId={NotificationType.ArticleUpvoteMilestone}
-              name={NotificationType.ArticleUpvoteMilestone}
-              checked={
-                ns?.article_upvote_milestone?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.ArticleUpvoteMilestone, 'inApp')
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Upvotes on your comment
-            </Typography>
-            <Switch
-              inputId={NotificationType.CommentUpvoteMilestone}
-              name={NotificationType.CommentUpvoteMilestone}
-              checked={
-                ns?.comment_upvote_milestone?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.CommentUpvoteMilestone, 'inApp')
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Mentions of your username
-            </Typography>
-            <Switch
-              inputId="username_mention"
-              name="username_mention"
-              checked={getGroupStatus('mentions', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'mentions',
-                  !getGroupStatus('mentions', 'inApp'),
-                  'inApp',
-                )
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Cores & Awards you receive
-            </Typography>
-            <Switch
-              inputId={NotificationType.UserReceivedAward}
-              name={NotificationType.UserReceivedAward}
-              checked={
-                ns?.[NotificationType.UserReceivedAward]?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.UserReceivedAward, 'inApp')
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Report updates
-            </Typography>
-            <Switch
-              inputId={NotificationType.ArticleReportApproved}
-              name={NotificationType.ArticleReportApproved}
-              checked={
-                ns?.article_report_approved?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() =>
-                toggleSetting(NotificationType.ArticleReportApproved, 'inApp')
-              }
-              compact={false}
-            />
-          </li>
-        </NotificationList>
+          ))}
+        </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Updates
         </Typography>
-        <NotificationList>
-          <li>
+        <NotificationContainer>
+          <div className="flex flex-row justify-between gap-1">
             <div className="flex flex-1 flex-col gap-3">
               <Typography type={TypographyType.Body} bold>
                 Following
@@ -260,167 +158,61 @@ const InAppNotificationsTab = (): ReactElement => {
               }
               compact={false}
             />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Source new post
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.SourcePostAdded}
+          </div>
+          {FOLLOWING_NOTIFICATIONS.map((item) => (
+            <NotificationCheckbox
+              key={item.id}
+              id={item.id}
+              label={item.label}
               checked={
-                ns?.source_post_added?.inApp ===
-                NotificationPreferenceStatus.Subscribed
+                ns?.[item.id]?.inApp === NotificationPreferenceStatus.Subscribed
               }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.SourcePostAdded, 'inApp')
-              }
+              onToggle={() => toggleSetting(item.id, 'inApp')}
             />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              User new posts
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.UserPostAdded}
-              checked={
-                ns?.user_post_added?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.UserPostAdded, 'inApp')
-              }
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Collections you follow
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.CollectionUpdated}
-              checked={
-                ns?.collection_updated?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.CollectionUpdated, 'inApp')
-              }
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>Read it later</Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.PostBookmarkReminder}
-              checked={
-                ns?.post_bookmark_reminder?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.PostBookmarkReminder, 'inApp')
-              }
-            />
-          </li>
-        </NotificationList>
+          ))}
+        </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
-        <NotificationList>
-          <li>
-            <div className="flex flex-1 flex-col gap-3">
-              <Typography type={TypographyType.Body} bold>
-                Streaks
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Stay on track and never miss a reading day. Get reminders to
-                protect your streak or bring it back when it breaks.
-              </Typography>
-            </div>
-            <Switch
-              inputId={NotificationType.StreakReminder}
-              name={NotificationType.StreakReminder}
-              checked={getGroupStatus('streaks', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'streaks',
-                  !getGroupStatus('streaks', 'inApp'),
-                  'inApp',
-                )
-              }
-              compact={false}
-            />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Notify me before my streak expires
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.StreakReminder}
+        <NotificationContainer>
+          <NotificationSwitch
+            id={NotificationType.StreakReminder}
+            label="Streaks"
+            description="Stay on track and never miss a reading day. Get reminders to protect your streak or bring it back when it breaks."
+            checked={getGroupStatus('streaks', 'inApp')}
+            onToggle={() =>
+              toggleGroup(
+                'streaks',
+                !getGroupStatus('streaks', 'inApp'),
+                'inApp',
+              )
+            }
+          />
+          {STREAK_NOTIFICATIONS.map((item) => (
+            <NotificationCheckbox
+              key={item.id}
+              id={item.id}
+              label={item.label}
               checked={
-                ns?.streak_reminder?.inApp ===
-                NotificationPreferenceStatus.Subscribed
+                ns?.[item.id]?.inApp === NotificationPreferenceStatus.Subscribed
               }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.StreakReminder, 'inApp')
-              }
+              onToggle={() => toggleSetting(item.id, 'inApp')}
             />
-          </li>
-          <li>
-            <Typography type={TypographyType.Callout}>
-              Restore broken streak
-            </Typography>
-            <Checkbox
-              className="!px-0"
-              checkmarkClassName="!mr-0"
-              name={NotificationType.StreakResetRestore}
-              checked={
-                ns?.streak_reset_restore?.inApp ===
-                NotificationPreferenceStatus.Subscribed
-              }
-              onToggleCallback={() =>
-                toggleSetting(NotificationType.StreakResetRestore, 'inApp')
-              }
-            />
-          </li>
-          <li>
-            <div className="flex flex-1 flex-col gap-3">
-              <Typography type={TypographyType.Body} bold>
-                Achievements
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get notified when you unlock new milestones, badges, or
-                features.
-              </Typography>
-            </div>
-            <Switch
-              inputId="achievements"
-              name="achievements"
-              checked={getGroupStatus('achievements', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'achievements',
-                  !getGroupStatus('achievements', 'inApp'),
-                  'inApp',
-                )
-              }
-              compact={false}
-            />
-          </li>
-        </NotificationList>
+          ))}
+          <NotificationSwitch
+            id="achievements"
+            label="Achievements"
+            description="Get notified when you unlock new milestones, badges, or features."
+            checked={getGroupStatus('achievements', 'inApp')}
+            onToggle={() =>
+              toggleGroup(
+                'achievements',
+                !getGroupStatus('achievements', 'inApp'),
+                'inApp',
+              )
+            }
+          />
+        </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
@@ -431,87 +223,31 @@ const InAppNotificationsTab = (): ReactElement => {
         <Typography type={TypographyType.Body} bold>
           Creators
         </Typography>
-        <NotificationList>
-          <li>
-            <div className="flex flex-1 flex-col gap-3">
-              <Typography type={TypographyType.Callout}>
-                Source suggestions
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get notified on suggested sources, including review progress and
-                outcomes.
-              </Typography>
-            </div>
-            <Switch
-              inputId="source_suggestions"
-              name="source_suggestions"
-              checked={getGroupStatus('sourceSubmission', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'sourceSubmission',
-                  !getGroupStatus('sourceSubmission', 'inApp'),
-                  'inApp',
-                )
+        <NotificationContainer>
+          {CREATORS_NOTIFICATIONS.map((item) => (
+            <NotificationSwitch
+              key={item.id}
+              description={item.description}
+              id={item.id}
+              label={item.label}
+              checked={
+                item.group
+                  ? getGroupStatus(item.id, 'inApp')
+                  : ns?.[item.id]?.inApp ===
+                    NotificationPreferenceStatus.Subscribed
               }
-              compact={false}
-            />
-          </li>
-          <li>
-            <div className="flex flex-1 flex-col gap-3">
-              <Typography type={TypographyType.Callout}>
-                Submitted post
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get notified when your submitted post has been reviewed by a
-                Squad moderator.
-              </Typography>
-            </div>
-            <Switch
-              inputId="squad_post_review"
-              name="squad_post_review"
-              checked={getGroupStatus('squadPostReview', 'inApp')}
               onToggle={() =>
-                toggleGroup(
-                  'squadPostReview',
-                  !getGroupStatus('squadPostReview', 'inApp'),
-                  'inApp',
-                )
+                item.group
+                  ? toggleGroup(
+                      item.id,
+                      !getGroupStatus(item.id, 'inApp'),
+                      'inApp',
+                    )
+                  : toggleSetting(item.id, 'inApp')
               }
-              compact={false}
             />
-          </li>
-          <li>
-            <div className="flex flex-1 flex-col gap-3">
-              <Typography type={TypographyType.Callout}>Squad roles</Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get notified when your squad role changes, like becoming a
-                moderator or admin.
-              </Typography>
-            </div>
-            <Switch
-              inputId="squad_roles"
-              name="squad_roles"
-              checked={getGroupStatus('squadRoles', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'squadRoles',
-                  !getGroupStatus('squadRoles', 'inApp'),
-                  'inApp',
-                )
-              }
-              compact={false}
-            />
-          </li>
-        </NotificationList>
+          ))}
+        </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <SquadModNotifications />

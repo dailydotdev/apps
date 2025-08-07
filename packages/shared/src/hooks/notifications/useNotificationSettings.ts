@@ -33,7 +33,7 @@ const NOTIFICATION_GROUPS = {
   creatorUpdatesEmail: CREATOR_UPDATES_EMAIL_KEYS,
 } as const;
 
-type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;
+export type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;
 type NotificationChannel = 'inApp' | 'email';
 
 const defaultEmailLogProps = {
