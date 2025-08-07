@@ -57,8 +57,6 @@ export const useContentPreference = ({
               ...opts?.extra,
               feedId,
               ...(!!referrerPost && {
-                referrer_target_id: referrerPost.id,
-                referrer_target_type: TargetType.Post,
                 author:
                   entity === ContentPreferenceType.User &&
                   referrerPost.author?.id === id

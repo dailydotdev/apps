@@ -18,7 +18,7 @@ import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
   usePostById,
   useJoinReferral,
@@ -36,6 +36,7 @@ import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuth
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
+import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -173,31 +174,41 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
 
   return (
     <ActivePostContextProvider post={post}>
-      <FooterNavBarLayout post={post}>
-        <Head>
-          <link rel="preload" as="image" href={post?.image} />
-        </Head>
-        <PostSEOSchema post={post} />
-        <Content
-          position={position}
-          isPostPage
-          post={post}
-          isFallback={isFallback}
-          backToSquad={!!router?.query?.squad}
-          shouldOnboardAuthor={!!router.query?.author}
-          origin={Origin.ArticlePage}
-          isBannerVisible={shouldShowAuthBanner && !isLaptop}
-          className={{
-            container: containerClass,
-            fixedNavigation: { container: 'flex laptop:hidden' },
-            navigation: {
-              container: 'flex tablet:hidden',
-              actions: 'flex-1 justify-between',
-            },
-          }}
-        />
-        {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
-      </FooterNavBarLayout>
+      <LogExtraContextProvider
+        data={post}
+        selector={(data: typeof post) => {
+          return {
+            referrer_target_id: data?.id,
+            referrer_target_type: data?.id ? TargetType.Post : undefined,
+          };
+        }}
+      >
+        <FooterNavBarLayout post={post}>
+          <Head>
+            <link rel="preload" as="image" href={post?.image} />
+          </Head>
+          <PostSEOSchema post={post} />
+          <Content
+            position={position}
+            isPostPage
+            post={post}
+            isFallback={isFallback}
+            backToSquad={!!router?.query?.squad}
+            shouldOnboardAuthor={!!router.query?.author}
+            origin={Origin.ArticlePage}
+            isBannerVisible={shouldShowAuthBanner && !isLaptop}
+            className={{
+              container: containerClass,
+              fixedNavigation: { container: 'flex laptop:hidden' },
+              navigation: {
+                container: 'flex tablet:hidden',
+                actions: 'flex-1 justify-between',
+              },
+            }}
+          />
+          {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+        </FooterNavBarLayout>
+      </LogExtraContextProvider>
     </ActivePostContextProvider>
   );
 };
