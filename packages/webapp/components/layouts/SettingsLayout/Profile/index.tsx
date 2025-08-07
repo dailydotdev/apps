@@ -280,10 +280,9 @@ const ProfileIndex = ({
             defaultValue={user?.experienceLevel}
             name="experienceLevel"
             className={{
-              container: 'mt-6 max-w-sm tablet:relative',
+              container: 'mt-6 w-full max-w-sm',
               button:
                 'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
-              menu: 'absolute !left-0 !right-0 !top-[3.5rem] transform-none',
             }}
           />
         </AccountContentSection>

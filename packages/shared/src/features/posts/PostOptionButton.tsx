@@ -439,7 +439,7 @@ const PostOptionButtonContent = ({
   };
 
   const postOptions: MenuItemProps[] = [
-    !isBriefPost && {
+    {
       icon: <MenuIcon Icon={ShareIcon} />,
       label: 'Share via',
       action: () =>

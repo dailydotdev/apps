@@ -1,20 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import user from '../../../__tests__/fixture/loggedUser';
 import type { EstimatedReachProps } from '../../graphql/post/boost';
-import {
-  getBoostEstimatedReachDaily,
-  getBoostEstimatedReach,
-} from '../../graphql/post/boost';
+import { getBoostEstimatedReachDaily } from '../../graphql/post/boost';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
 import { briefRefetchIntervalMs, defautRefetchMs } from '../../graphql/posts';
-import { oneMinute } from '../../lib/dateFormat';
+import { getTodayTz, oneMinute } from '../../lib/dateFormat';
 import { usePostById } from '../usePostById';
 
 interface UsePostBoostEstimationProps {
   post: Post;
-  query?: Omit<EstimatedReachProps, 'id'>;
+  query: Omit<EstimatedReachProps, 'id'>;
 }
 
 const placeholderData = { min: 0, max: 0 };
@@ -23,35 +20,36 @@ export const usePostBoostEstimation = ({
   post: postFromProps,
   query,
 }: UsePostBoostEstimationProps) => {
+  const isOldPost = useMemo(() => {
+    const postDate = new Date(postFromProps.createdAt); // server time is UTC
+    const fiveMinutes = oneMinute * 5;
+    const currentDate = getTodayTz('UTC', new Date());
+    return postDate.getTime() < currentDate.getTime() - fiveMinutes; // 5 minutes old
+  }, [postFromProps.createdAt]);
   const [retriesExhausted, setRetriesExhausted] = useState(false);
   const [post, setPost] = useState(postFromProps);
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
-  const queryWithBudget = query && hasTags;
   const queryKey = generateQueryKey(
     RequestKey.PostCampaigns,
     user,
     'estimate',
     post.id,
-    queryWithBudget ? Object.values(query).join(':') : undefined,
+    query,
   );
-  const canBoost = hasTags || !!post.yggdrasilId || retriesExhausted;
+  const canBoost =
+    isOldPost || hasTags || !!post.yggdrasilId || retriesExhausted;
   const {
     data: estimatedReach,
     isPending,
     isRefetching,
   } = useQuery({
     queryKey,
-    queryFn: () => {
-      if (queryWithBudget) {
-        return getBoostEstimatedReachDaily({
-          id: post.id,
-          budget: query.budget,
-          duration: query.duration,
-        });
-      }
-
-      return getBoostEstimatedReach({ id: post.id });
-    },
+    queryFn: () =>
+      getBoostEstimatedReachDaily({
+        id: post.id,
+        budget: query.budget,
+        duration: query.duration,
+      }),
     enabled: !!canBoost,
     placeholderData,
     staleTime: StaleTime.Default,
