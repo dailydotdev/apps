@@ -1,10 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { Switch } from '../fields/Switch';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -14,7 +10,6 @@ import {
   FOLLOWING_NOTIFICATIONS,
   NotificationContainer,
   NotificationSection,
-  NotificationType,
   STREAK_NOTIFICATIONS,
 } from './utils';
 
@@ -132,73 +127,69 @@ const InAppNotificationsTab = (): ReactElement => {
           Updates
         </Typography>
         <NotificationContainer>
-          <div className="flex flex-row justify-between gap-1">
-            <div className="flex flex-1 flex-col gap-3">
-              <Typography type={TypographyType.Body} bold>
-                Following
-              </Typography>
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                Get notified when sources, users, collections, or threads you
-                follow are updated. You can manage each below.
-              </Typography>
-            </div>
-            <Switch
-              inputId="following"
-              name="following"
-              checked={getGroupStatus('following', 'inApp')}
-              onToggle={() =>
-                toggleGroup(
-                  'following',
-                  !getGroupStatus('following', 'inApp'),
-                  'inApp',
-                )
-              }
-              compact={false}
-            />
-          </div>
-          {FOLLOWING_NOTIFICATIONS.map((item) => (
-            <NotificationCheckbox
-              key={item.id}
-              id={item.id}
-              label={item.label}
-              checked={
-                ns?.[item.id]?.inApp === NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() => toggleSetting(item.id, 'inApp')}
-            />
-          ))}
+          {FOLLOWING_NOTIFICATIONS.map((item) =>
+            item.group ? (
+              <NotificationSwitch
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                description={item.description}
+                checked={getGroupStatus(item.id, 'inApp')}
+                onToggle={() =>
+                  toggleGroup(
+                    'following',
+                    !getGroupStatus('following', 'inApp'),
+                    'inApp',
+                  )
+                }
+              />
+            ) : (
+              <NotificationCheckbox
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                checked={
+                  ns?.[item.id]?.inApp ===
+                  NotificationPreferenceStatus.Subscribed
+                }
+                onToggle={() => toggleSetting(item.id, 'inApp')}
+              />
+            ),
+          )}
         </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <NotificationContainer>
-          <NotificationSwitch
-            id={NotificationType.StreakReminder}
-            label="Streaks"
-            description="Stay on track and never miss a reading day. Get reminders to protect your streak or bring it back when it breaks."
-            checked={getGroupStatus('streaks', 'inApp')}
-            onToggle={() =>
-              toggleGroup(
-                'streaks',
-                !getGroupStatus('streaks', 'inApp'),
-                'inApp',
-              )
-            }
-          />
-          {STREAK_NOTIFICATIONS.map((item) => (
-            <NotificationCheckbox
-              key={item.id}
-              id={item.id}
-              label={item.label}
-              checked={
-                ns?.[item.id]?.inApp === NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() => toggleSetting(item.id, 'inApp')}
-            />
-          ))}
+          {STREAK_NOTIFICATIONS.map((item) =>
+            item.group ? (
+              <NotificationSwitch
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                description={item.description}
+                checked={getGroupStatus(item.id, 'inApp')}
+                onToggle={() =>
+                  toggleGroup(
+                    'streaks',
+                    !getGroupStatus('streaks', 'inApp'),
+                    'inApp',
+                  )
+                }
+              />
+            ) : (
+              <NotificationCheckbox
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                checked={
+                  ns?.[item.id]?.inApp ===
+                  NotificationPreferenceStatus.Subscribed
+                }
+                onToggle={() => toggleSetting(item.id, 'inApp')}
+              />
+            ),
+          )}
           <NotificationSwitch
             id="achievements"
             label="Achievements"

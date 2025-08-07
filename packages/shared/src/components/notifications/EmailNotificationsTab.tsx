@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Typography, TypographyType } from '../typography/Typography';
-import { Switch } from '../fields/Switch';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
@@ -62,30 +61,35 @@ const EmailNotificationsTab = (): ReactElement => {
           Updates
         </Typography>
         <NotificationContainer>
-          <NotificationSwitch
-            id="following"
-            label="Following"
-            description="Get notified when sources, users, collections, or threads you follow are updated. You can manage each below."
-            checked={getGroupStatus('following', 'email')}
-            onToggle={() =>
-              toggleGroup(
-                'following',
-                !getGroupStatus('following', 'email'),
-                'email',
-              )
-            }
-          />
-          {FOLLOWING_NOTIFICATIONS.map((item) => (
-            <NotificationCheckbox
-              key={item.id}
-              id={item.id}
-              label={item.label}
-              checked={
-                ns?.[item.id]?.email === NotificationPreferenceStatus.Subscribed
-              }
-              onToggle={() => toggleSetting(item.id, 'email')}
-            />
-          ))}
+          {FOLLOWING_NOTIFICATIONS.map((item) =>
+            item.group ? (
+              <NotificationSwitch
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                description={item.description}
+                checked={getGroupStatus(item.id, 'email')}
+                onToggle={() =>
+                  toggleGroup(
+                    'following',
+                    !getGroupStatus('following', 'email'),
+                    'email',
+                  )
+                }
+              />
+            ) : (
+              <NotificationCheckbox
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                checked={
+                  ns?.[item.id]?.email ===
+                  NotificationPreferenceStatus.Subscribed
+                }
+                onToggle={() => toggleSetting(item.id, 'email')}
+              />
+            ),
+          )}
           <NotificationSwitch
             id="streaks"
             label="Streaks"
@@ -253,18 +257,12 @@ const EmailNotificationsTab = (): ReactElement => {
         <Typography type={TypographyType.Body} bold>
           Advanced
         </Typography>
-        <div className="flex flex-row items-center justify-between">
-          <Typography type={TypographyType.Callout}>
-            Unsubscribe from all email notifications
-          </Typography>
-          <Switch
-            inputId="unsubscribe_all"
-            name="unsubscribe_all"
-            checked={emailsEnabled}
-            onToggle={unsubscribeAllEmail}
-            compact={false}
-          />
-        </div>
+        <NotificationSwitch
+          id="unsubscribe_all"
+          label="Unsubscribe from all email notifications"
+          checked={emailsEnabled}
+          onToggle={unsubscribeAllEmail}
+        />
       </NotificationSection>
     </section>
   );

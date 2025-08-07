@@ -342,6 +342,13 @@ export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
 
 export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [
   {
+    id: 'following',
+    label: 'Following',
+    description:
+      'Get notified when sources, users, collections, or threads you follow are updated. You can manage each below.',
+    group: true,
+  },
+  {
     id: NotificationType.SourcePostAdded,
     label: 'Source new post',
     group: false,
@@ -364,6 +371,13 @@ export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [
 ];
 
 export const STREAK_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'streaks',
+    label: 'Streaks',
+    description:
+      'Stay on track and never miss a reading day. Get reminders to protect your streak or bring it back when it breaks.',
+    group: true,
+  },
   {
     id: NotificationType.StreakReminder,
     label: 'Notify me before my streak expires',
