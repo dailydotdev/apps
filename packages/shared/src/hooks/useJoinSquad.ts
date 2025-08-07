@@ -4,7 +4,7 @@ import type { SquadInvitationProps } from '../graphql/squads';
 import { joinSquadInvitation } from '../graphql/squads';
 import { useLogContext } from '../contexts/LogContext';
 import type { Squad } from '../graphql/sources';
-import { LogEvent, TargetType } from '../lib/log';
+import { LogEvent } from '../lib/log';
 import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
@@ -50,8 +50,6 @@ export const useJoinSquad = ({
         inviter: user.id,
         squad: squad.id,
         ...(!!referrerPost && {
-          referrer_target_id: referrerPost.id,
-          referrer_target_type: TargetType.Post,
           author: squad.privilegedMembers?.some(
             (squadMember) =>
               squadMember.user?.id &&

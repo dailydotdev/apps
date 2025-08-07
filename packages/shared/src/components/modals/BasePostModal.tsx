@@ -11,6 +11,8 @@ import PostNavigation from '../post/PostNavigation';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
 import { usePostReferrerContext } from '../../contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
+import { LogExtraContextProvider } from '../../contexts/LogExtraContext';
+import { TargetType } from '../../lib/log';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -42,39 +44,49 @@ function BasePostModal({
 
   return (
     <ActivePostContextProvider post={post}>
-      <Modal
-        size={Modal.Size.XLarge}
-        kind={Modal.Kind.FlexibleTop}
-        portalClassName={styles.postModal}
-        id="post-modal"
-        {...props}
-        overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
-        className={classNames(
-          className,
-          'laptop: mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:h-auto laptop:overflow-hidden',
-        )}
+      <LogExtraContextProvider
+        data={post}
+        selector={(data: typeof post) => {
+          return {
+            referrer_target_id: data?.id,
+            referrer_target_type: data?.id ? TargetType.Post : undefined,
+          };
+        }}
       >
-        {isLoading ? (
-          <PostLoadingSkeleton
-            hasNavigation
-            type={postType}
-            className={loadingClassName}
-          />
-        ) : (
-          <>
-            <PostNavigation
-              className={{
-                container: 'px-4',
-              }}
-              postPosition={postPosition}
-              onPreviousPost={onPreviousPost}
-              onNextPost={onNextPost}
-              onClose={props?.onRequestClose}
+        <Modal
+          size={Modal.Size.XLarge}
+          kind={Modal.Kind.FlexibleTop}
+          portalClassName={styles.postModal}
+          id="post-modal"
+          {...props}
+          overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
+          className={classNames(
+            className,
+            'laptop: mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:h-auto laptop:overflow-hidden',
+          )}
+        >
+          {isLoading ? (
+            <PostLoadingSkeleton
+              hasNavigation
+              type={postType}
+              className={loadingClassName}
             />
-            {children}
-          </>
-        )}
-      </Modal>
+          ) : (
+            <>
+              <PostNavigation
+                className={{
+                  container: 'px-4',
+                }}
+                postPosition={postPosition}
+                onPreviousPost={onPreviousPost}
+                onNextPost={onNextPost}
+                onClose={props?.onRequestClose}
+              />
+              {children}
+            </>
+          )}
+        </Modal>
+      </LogExtraContextProvider>
     </ActivePostContextProvider>
   );
 }
