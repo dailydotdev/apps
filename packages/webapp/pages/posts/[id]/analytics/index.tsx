@@ -31,30 +31,21 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { usePostById } from '@dailydotdev/shared/src/hooks';
 import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analytics/AnalyticsNumbersList';
+import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import classed from '@dailydotdev/shared/src/lib/classed';
+import { PostShortInfo } from '@dailydotdev/shared/src/components/post/analytics/PostShortInfo';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import type { SharePostPageProps } from '../share';
+import type { AnalyticsNumberList } from '../../../../../shared/src/components/analytics/common';
 
 interface SectionHeaderProps {
   children: React.ReactNode;
 }
-
-const SectionHeader = ({ children }: SectionHeaderProps): ReactElement => {
-  return (
-    <Typography
-      type={TypographyType.Body}
-      bold
-      tag={TypographyTag.H2}
-      color={TypographyColor.Primary}
-    >
-      {children}
-    </Typography>
-  );
-};
-
 export type PostAnalyticsPageProps = Props;
 
 export const getServerSideProps: GetServerSideProps<
@@ -113,6 +104,19 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 const dividerClassName = 'bg-border-subtlest-tertiary';
+const SectionContainer = classed('div', 'flex flex-col gap-4');
+const SectionHeader = ({ children }: SectionHeaderProps): ReactElement => {
+  return (
+    <Typography
+      type={TypographyType.Body}
+      bold
+      tag={TypographyTag.H2}
+      color={TypographyColor.Primary}
+    >
+      {children}
+    </Typography>
+  );
+};
 
 const PostAnalyticsPage = ({
   id,
@@ -125,6 +129,25 @@ const PostAnalyticsPage = ({
       retry: false,
     },
   });
+
+  const profileActivityList: AnalyticsNumberList = [
+    {
+      icon: <ArrowIcon />,
+      label: 'Upvotes',
+      value: 149,
+    },
+    {
+      icon: <ArrowIcon />,
+      label: 'Downvotes',
+      value: 300,
+    },
+    {
+      icon: <ArrowIcon />,
+      label: 'Upvotes ratio',
+      value: '12%',
+    },
+  ];
+
   return (
     <div className="mx-auto w-full max-w-[48rem]">
       <LayoutHeader
@@ -146,18 +169,35 @@ const PostAnalyticsPage = ({
         <BoostPostButton post={post} buttonProps={{ size: ButtonSize.Small }} />
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
-        <div>
-          <p>Section with post data</p>
-        </div>
+        <SectionContainer>
+          <PostShortInfo post={post} />
+        </SectionContainer>
         <Divider className={dividerClassName} />
-        <div>
+        <SectionContainer>
           <SectionHeader>Discovery</SectionHeader>
-        </div>
+          <div className="flex gap-4">
+            <DataTile
+              label="Total impressions"
+              value={7124}
+              info="TODO: Put the right info here"
+              className={{
+                container: 'flex-1',
+              }}
+            />
+            <DataTile
+              label="Total impressions"
+              value={7124}
+              info="TODO: Put the right info here"
+              className={{
+                container: 'flex-1',
+              }}
+            />
+          </div>
+        </SectionContainer>
         <Divider className={dividerClassName} />
-        <div>
+        <SectionContainer>
           <SectionHeader>Boost your post</SectionHeader>
           <Typography
-            className="mt-2"
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
@@ -165,7 +205,6 @@ const PostAnalyticsPage = ({
             engine gets your post in front of developers most likely to care.
           </Typography>
           <Typography
-            className="my-4"
             type={TypographyType.Footnote}
             color={TypographyColor.Boost}
           >
@@ -173,19 +212,25 @@ const PostAnalyticsPage = ({
           </Typography>
           <BoostPostButton
             post={post}
-            buttonProps={{ size: ButtonSize.Small }}
+            buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
           />
-        </div>
+        </SectionContainer>
         <Divider className={dividerClassName} />
-        <div>
-          <SectionHeader>Profile activity</SectionHeader>
-          <AnalyticsNumbersList />
-        </div>
+        <SectionContainer>
+          <div className="flex justify-between">
+            <SectionHeader>Profile activity</SectionHeader>
+            <ClickableText tag="a">
+              <ArrowIcon />
+              Profile analytics
+            </ClickableText>
+          </div>
+          <AnalyticsNumbersList data={profileActivityList} />
+        </SectionContainer>
         <Divider className={dividerClassName} />
-        <div>
+        <SectionContainer>
           <SectionHeader>Engagement</SectionHeader>
-          <AnalyticsNumbersList />
-        </div>
+          <AnalyticsNumbersList data={profileActivityList} />
+        </SectionContainer>
       </ResponsivePageContainer>
     </div>
   );
