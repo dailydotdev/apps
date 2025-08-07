@@ -97,6 +97,7 @@ const BriefPostContentRaw = ({
   const postsCount = post?.flags?.posts || 0;
   const sourcesCount = post?.flags?.sources || 0;
 
+  const isAuthor = user?.id === post?.author?.id;
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
     '!max-w-3xl laptop:flex-row laptop:pb-0',
@@ -208,12 +209,12 @@ const BriefPostContentRaw = ({
   }, [shouldManageSlack, briefingSource, openModal, router, post?.slug]);
 
   useEffect(() => {
-    if (post?.type !== PostType.Brief) {
+    if (post?.type !== PostType.Brief || !isAuthor) {
       return;
     }
 
     completeAction(ActionType.GeneratedBrief);
-  }, [completeAction, post?.type]);
+  }, [completeAction, post?.type, isAuthor]);
 
   let authorFirstName = getFirstName(post.author?.name);
 
@@ -273,6 +274,7 @@ const BriefPostContentRaw = ({
             <BriefPostHeaderActions
               post={post}
               onClose={onClose}
+              origin={origin}
               contextMenuId="post-widgets-context"
             />
             <div className="flex flex-col gap-1">
