@@ -34,6 +34,8 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
+import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
+import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -147,6 +149,10 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 
+  const { usePostReferrer } = usePostReferrerContext();
+
+  usePostReferrer({ post });
+
   if (isLoading || isFallback || privateSourceJoin.isActive) {
     return (
       <>
@@ -166,31 +172,33 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   }
 
   return (
-    <FooterNavBarLayout post={post}>
-      <Head>
-        <link rel="preload" as="image" href={post?.image} />
-      </Head>
-      <PostSEOSchema post={post} />
-      <Content
-        position={position}
-        isPostPage
-        post={post}
-        isFallback={isFallback}
-        backToSquad={!!router?.query?.squad}
-        shouldOnboardAuthor={!!router.query?.author}
-        origin={Origin.ArticlePage}
-        isBannerVisible={shouldShowAuthBanner && !isLaptop}
-        className={{
-          container: containerClass,
-          fixedNavigation: { container: 'flex laptop:hidden' },
-          navigation: {
-            container: 'flex tablet:hidden',
-            actions: 'flex-1 justify-between',
-          },
-        }}
-      />
-      {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
-    </FooterNavBarLayout>
+    <ActivePostContextProvider post={post}>
+      <FooterNavBarLayout post={post}>
+        <Head>
+          <link rel="preload" as="image" href={post?.image} />
+        </Head>
+        <PostSEOSchema post={post} />
+        <Content
+          position={position}
+          isPostPage
+          post={post}
+          isFallback={isFallback}
+          backToSquad={!!router?.query?.squad}
+          shouldOnboardAuthor={!!router.query?.author}
+          origin={Origin.ArticlePage}
+          isBannerVisible={shouldShowAuthBanner && !isLaptop}
+          className={{
+            container: containerClass,
+            fixedNavigation: { container: 'flex laptop:hidden' },
+            navigation: {
+              container: 'flex tablet:hidden',
+              actions: 'flex-1 justify-between',
+            },
+          }}
+        />
+        {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+      </FooterNavBarLayout>
+    </ActivePostContextProvider>
   );
 };
 

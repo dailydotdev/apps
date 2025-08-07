@@ -245,3 +245,23 @@ export const promisifyEventListener = <T, E = any>(
 };
 
 export type BooleanPromise = Promise<{ successful: boolean }>;
+
+type SafeContextHook<T> = T | undefined;
+
+export const safeContextHookExport = <Args extends unknown[], R>(
+  hook: (...props: Args) => R,
+  errorMessage: string,
+  defaultReturn?: SafeContextHook<R>,
+): ((...props: Args) => SafeContextHook<R>) => {
+  return function useSafeContextHook(...props: Args): SafeContextHook<R> {
+    try {
+      return hook(...props) as SafeContextHook<R>;
+    } catch (error) {
+      if (errorMessage === error.message) {
+        return defaultReturn;
+      }
+
+      throw error;
+    }
+  };
+};

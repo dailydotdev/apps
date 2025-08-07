@@ -16,6 +16,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useActivePostContext } from '../../contexts/ActivePostContext';
 
 export type UseContentPreference = {
   follow: ContentPreferenceMutation;
@@ -39,6 +40,7 @@ export const useContentPreference = ({
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { activePost: referrerPost } = useActivePostContext();
 
   const { mutateAsync: follow } = useMutation({
     mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
@@ -50,8 +52,20 @@ export const useContentPreference = ({
       opts,
     }: PropsParameters<UseContentPreference['follow']>) => {
       const extra =
-        opts?.extra || feedId
-          ? JSON.stringify({ ...opts?.extra, feedId })
+        opts?.extra || feedId || referrerPost
+          ? JSON.stringify({
+              ...opts?.extra,
+              feedId,
+              ...(!!referrerPost && {
+                referrer_target_id: referrerPost.id,
+                referrer_target_type: TargetType.Post,
+                author:
+                  entity === ContentPreferenceType.User &&
+                  referrerPost.author?.id === id
+                    ? 1
+                    : 0,
+              }),
+            })
           : undefined;
       if (!user) {
         showLogin({ trigger: AuthTriggers.Follow });
