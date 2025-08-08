@@ -19,8 +19,8 @@ export const AnalyticsNumbersList = ({
         return (
           <li className="flex h-8 items-center gap-2" key={label}>
             {React.cloneElement(icon, {
-              secondary: true,
               size: IconSize.Small,
+              className: 'text-text-secondary',
             })}
             <Typography
               type={TypographyType.Callout}

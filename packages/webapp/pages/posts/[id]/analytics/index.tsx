@@ -16,7 +16,21 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
-import { ArrowIcon, CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  AddUserIcon,
+  ArrowIcon,
+  BookmarkIcon,
+  CoreFlatIcon,
+  CoreIcon,
+  DiscussIcon,
+  MedalBadgeIcon,
+  MergeIcon,
+  ReputationIcon,
+  ShareIcon,
+  SquadIcon,
+  UpvoteIcon,
+  UserIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonColor,
@@ -142,19 +156,64 @@ const PostAnalyticsPage = ({
 
   const profileActivityList: AnalyticsNumberList = [
     {
-      icon: <ArrowIcon />,
+      icon: <ReputationIcon secondary />,
+      label: 'Reputation earned',
+      value: 149,
+    },
+    {
+      icon: <CoreFlatIcon />,
+      label: 'Cores earned',
+      value: 300,
+    },
+    {
+      icon: <UserIcon />,
+      label: 'Profile viewers',
+      value: '12%',
+    },
+
+    {
+      icon: <AddUserIcon secondary={false} />,
+      label: 'Followers gained',
+      value: '10',
+    },
+    {
+      icon: <SquadIcon />,
+      label: 'Squad members gained',
+      value: '9',
+    },
+  ];
+
+  const engagementActivityList: AnalyticsNumberList = [
+    {
+      icon: <UpvoteIcon />,
       label: 'Upvotes',
       value: 149,
     },
     {
-      icon: <ArrowIcon />,
-      label: 'Downvotes',
-      value: 300,
-    },
-    {
-      icon: <ArrowIcon />,
+      icon: <MergeIcon />,
       label: 'Upvotes ratio',
       value: '12%',
+    },
+    {
+      icon: <DiscussIcon />,
+      label: 'Comments',
+      value: '300',
+    },
+
+    {
+      icon: <BookmarkIcon />,
+      label: 'Followers gained',
+      value: '10',
+    },
+    {
+      icon: <MedalBadgeIcon secondary />,
+      label: 'Squad members gained',
+      value: '9',
+    },
+    {
+      icon: <ShareIcon />,
+      label: 'Shares',
+      value: '9',
     },
   ];
 
@@ -379,7 +438,7 @@ const PostAnalyticsPage = ({
         <Divider className={dividerClassName} />
         <SectionContainer>
           <SectionHeader>Engagement</SectionHeader>
-          <AnalyticsNumbersList data={profileActivityList} />
+          <AnalyticsNumbersList data={engagementActivityList} />
         </SectionContainer>
       </ResponsivePageContainer>
     </div>
