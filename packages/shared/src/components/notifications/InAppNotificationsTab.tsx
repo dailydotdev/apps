@@ -126,7 +126,15 @@ const InAppNotificationsTab = (): ReactElement => {
                   : ns?.[item.id]?.inApp ===
                     NotificationPreferenceStatus.Subscribed
               }
-              onToggle={() => toggleSetting(item.id, 'inApp')}
+              onToggle={() =>
+                item.group
+                  ? toggleGroup(
+                      item.id,
+                      !getGroupStatus(item.id, 'inApp'),
+                      'inApp',
+                    )
+                  : toggleSetting(item.id, 'inApp')
+              }
             />
           ))}
         </NotificationContainer>
