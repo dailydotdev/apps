@@ -76,17 +76,12 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
     const baseLogProps = {
       extra: JSON.stringify({ channel, category }),
     };
-    if (isEnabled) {
-      logEvent({
-        event_name: LogEvent.EnableNotification,
-        ...baseLogProps,
-      });
-    } else {
-      logEvent({
-        event_name: LogEvent.DisableNotification,
-        ...baseLogProps,
-      });
-    }
+    logEvent({
+      event_name: isEnabled
+        ? LogEvent.EnableNotification
+        : LogEvent.DisableNotification,
+      ...baseLogProps,
+    });
   };
 
   const setCustomTime = (
