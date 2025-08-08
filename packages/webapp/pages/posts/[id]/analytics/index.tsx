@@ -159,6 +159,8 @@ const PostAnalyticsPage = ({
       icon: <ReputationIcon secondary />,
       label: 'Reputation earned',
       value: 149,
+      tooltip:
+        'The number of reputation points you gained from this post. Reputation increases your standing in the community.',
     },
     {
       icon: <CoreFlatIcon />,
