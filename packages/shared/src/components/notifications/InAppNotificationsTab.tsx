@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { Switch } from '../fields/Switch';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -65,7 +69,10 @@ const InAppNotificationsTab = (): ReactElement => {
           <Typography type={TypographyType.Body} bold>
             Push notifications
           </Typography>
-          <Typography type={TypographyType.Footnote}>
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Footnote}
+          >
             Turn this on to get real-time updates on your device. You’ll still
             see in-app notifications even if this is off. Requires additional
             device permissions.
@@ -87,7 +94,10 @@ const InAppNotificationsTab = (): ReactElement => {
           <Typography type={TypographyType.Body} bold>
             Squad notifications
           </Typography>
-          <Typography type={TypographyType.Footnote}>
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Footnote}
+          >
             Control notifications for new posts in squads you’ve joined. Scroll
             down for moderation notification settings.
           </Typography>
