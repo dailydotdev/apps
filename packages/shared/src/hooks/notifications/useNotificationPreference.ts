@@ -72,14 +72,7 @@ export const useNotificationPreference = ({
           status: NotificationPreferenceStatus.Muted,
         };
 
-        const filteredData = oldData.filter(
-          (pref) =>
-            !(
-              pref.notificationType === type && pref.referenceId === referenceId
-            ),
-        );
-
-        return [...filteredData, preference];
+        return [...oldData, preference];
       });
     },
   });
@@ -115,15 +108,7 @@ export const useNotificationPreference = ({
           status: NotificationPreferenceStatus.Subscribed,
         };
 
-        // Remove any existing preference for this notification type and reference ID
-        const filteredData = oldData.filter(
-          (pref) =>
-            !(
-              pref.notificationType === type && pref.referenceId === referenceId
-            ),
-        );
-
-        return [...filteredData, preference];
+        return [...oldData, preference];
       });
     },
   });

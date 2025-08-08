@@ -3,28 +3,34 @@ import nock from 'nock';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import type { Visit } from '@dailydotdev/shared/src/lib/boot';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import type { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UPDATE_USER_PROFILE_MUTATION,
   UserPersonalizedDigestType,
-  GET_NOTIFICATION_SETTINGS,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { SendType } from '@dailydotdev/shared/src/hooks';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
-import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
-import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import ProfileNotificationsPage from '../pages/settings/notifications';
 
 jest.mock('next/router', () => ({
@@ -37,79 +43,7 @@ jest.mock('next/router', () => ({
 
 let client: QueryClient;
 let personalizedDigestMock: MockedGraphQLResponse;
-let notificationSettingsMock: MockedGraphQLResponse;
 const logEvent = jest.fn();
-
-const defaultNotificationSettings = {
-  [NotificationType.CommentReply]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.ArticleUpvoteMilestone]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.CommentUpvoteMilestone]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.UserReceivedAward]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.ArticleReportApproved]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.SourcePostAdded]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.UserPostAdded]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.CollectionUpdated]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.PostBookmarkReminder]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.StreakReminder]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.StreakResetRestore]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.BriefingReady]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.ArticleNewComment]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.SquadNewComment]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.SquadReply]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.PostMention]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-  [NotificationType.CommentMention]: {
-    email: NotificationPreferenceStatus.Subscribed,
-    inApp: NotificationPreferenceStatus.Subscribed,
-  },
-};
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -134,15 +68,6 @@ beforeEach(() => {
       ],
     },
   };
-
-  notificationSettingsMock = {
-    request: { query: GET_NOTIFICATION_SETTINGS },
-    result: {
-      data: {
-        notificationSettings: defaultNotificationSettings,
-      },
-    },
-  };
 });
 
 afterEach(() => {
@@ -156,6 +81,7 @@ const defaultLoggedUser: LoggedUser = {
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: false,
+  notificationEmail: false,
 };
 const defaultVisit: Visit = {
   sessionId: 'sample session id',
@@ -163,6 +89,12 @@ const defaultVisit: Visit = {
 };
 
 const updateUser = jest.fn();
+const updateProfileMock = (
+  data: UpdateProfileParameters,
+): MockedGraphQLResponse => ({
+  request: { query: UPDATE_USER_PROFILE_MUTATION, variables: { data } },
+  result: { data: { id: '' } },
+});
 
 globalThis.Notification = {
   requestPermission: jest.fn(),
@@ -173,19 +105,8 @@ jest
   .spyOn(window.Notification, 'requestPermission')
   .mockResolvedValueOnce('granted');
 
-const renderComponent = (
-  user = defaultLoggedUser,
-  customNotificationSettings = defaultNotificationSettings,
-): RenderResult => {
+const renderComponent = (user = defaultLoggedUser): RenderResult => {
   mockGraphQL(personalizedDigestMock);
-  mockGraphQL({
-    ...notificationSettingsMock,
-    result: {
-      data: {
-        notificationSettings: customNotificationSettings,
-      },
-    },
-  });
 
   return render(
     <QueryClientProvider client={client}>
@@ -205,11 +126,9 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <PushNotificationContextProvider>
-              <NotificationsContextProvider app={BootApp.Webapp}>
-                <ProfileNotificationsPage />
-              </NotificationsContextProvider>
-            </PushNotificationContextProvider>
+            <NotificationsContextProvider app={BootApp.Webapp}>
+              <ProfileNotificationsPage />
+            </NotificationsContextProvider>
           </SettingsContext.Provider>
         </LogContext.Provider>
       </AuthContextProvider>
@@ -217,61 +136,266 @@ const renderComponent = (
   );
 };
 
-it('should show email tab content when clicked', async () => {
+it('should change user all email subscription', async () => {
   renderComponent();
+  const data: UpdateProfileParameters = {
+    acceptedMarketing: true,
+    notificationEmail: true,
+    followingEmail: true,
+    awardEmail: true,
+  };
+  mockGraphQL(updateProfileMock(data));
+  let personalizedDigestMutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 8,
+        type: UserPersonalizedDigestType.Digest,
+        sendType: SendType.Weekly,
+      },
+    },
+    result: () => {
+      personalizedDigestMutationCalled = true;
 
-  const emailTab = await screen.findByText('Email');
-  fireEvent.click(emailTab);
+      return {
+        data: {
+          subscribePersonalizedDigest: {
+            preferredDay: 1,
+            preferredHour: 9,
+          },
+        },
+      };
+    },
+  });
+  const subscription = await screen.findByTestId('email_notification-switch');
+  expect(subscription).not.toBeChecked();
+  fireEvent.click(subscription);
+  await waitFor(() => {
+    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+    expect(personalizedDigestMutationCalled).toBe(false);
+  });
 
-  const unsubscribeAllSection = await screen.findByText(
-    'Unsubscribe from all email notifications',
-  );
-  expect(unsubscribeAllSection).toBeInTheDocument();
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: ['product', 'marketing'],
+    }),
+  });
 });
 
-it('should render comments switch', async () => {
-  renderComponent();
+it('should unsubscribe from all email campaigns', async () => {
+  renderComponent({
+    ...defaultLoggedUser,
+    acceptedMarketing: true,
+    notificationEmail: true,
+    followingEmail: true,
+    awardEmail: true,
+  });
 
-  const commentsText = await screen.findByText('Comments on your posts');
-  expect(commentsText).toBeInTheDocument();
+  const data: UpdateProfileParameters = {
+    acceptedMarketing: false,
+    notificationEmail: false,
+    followingEmail: false,
+    awardEmail: false,
+  };
+  mockGraphQL(updateProfileMock(data));
+
+  const subscription = await screen.findByTestId('email_notification-switch');
+  expect(subscription).toBeChecked();
+  fireEvent.click(subscription);
+
+  mockGraphQL({
+    request: {
+      query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: { type: UserPersonalizedDigestType.Digest },
+    },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
+
+  await waitFor(() => {
+    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+  });
+
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: ['product', 'marketing'],
+    }),
+  });
 });
 
-it('should render reply switch', async () => {
+it('should subscribe to user email marketing subscription', async () => {
   renderComponent();
+  const data = { acceptedMarketing: true };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('marketing-switch');
+  expect(subscription).not.toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 
-  const replyText = await screen.findByText('Replies to your comment');
-  expect(replyText).toBeInTheDocument();
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'marketing',
+    }),
+  });
 });
 
-it('should render following switch', async () => {
-  renderComponent();
+it('should unsubscribe to user email marketing subscription', async () => {
+  renderComponent({ ...defaultLoggedUser, acceptedMarketing: true });
+  const data = { acceptedMarketing: false };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('marketing-switch');
+  expect(subscription).toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 
-  const followingText = await screen.findByText('Following');
-  expect(followingText).toBeInTheDocument();
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'marketing',
+    }),
+  });
 });
 
-it('should render upvotes switch', async () => {
+it('should change user notification email subscription', async () => {
   renderComponent();
-
-  const upvotesText = await screen.findByText('Upvotes on your post');
-  expect(upvotesText).toBeInTheDocument();
+  const data = { notificationEmail: true };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('new_activity-switch');
+  expect(subscription).not.toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 });
 
-it('should render AI briefings switch', async () => {
+it('should subscribe to personalized digest subscription', async () => {
   renderComponent();
 
-  const aiBriefingsText = await screen.findByText('AI Briefings');
-  expect(aiBriefingsText).toBeInTheDocument();
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 8,
+        type: UserPersonalizedDigestType.Digest,
+        sendType: SendType.Workdays,
+      },
+    },
+    result: {
+      data: {
+        subscribePersonalizedDigest: {
+          preferredDay: 1,
+          preferredHour: 9,
+          type: UserPersonalizedDigestType.Digest,
+          flags: {
+            sendType: SendType.Workdays,
+          },
+        },
+      },
+    },
+  });
+
+  const subscription = await screen.findByTestId('digest_notification-switch');
+  expect(subscription).not.toBeChecked();
+
+  fireEvent.click(subscription);
+  await waitForNock();
+
+  expect(subscription).toBeChecked();
+
+  expect(logEvent).toHaveBeenCalledTimes(2);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'digest',
+    }),
+  });
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'schedule digest',
+    extra: JSON.stringify({ hour: 8, frequency: 'workdays', type: 'digest' }),
+  });
 });
 
-it('should render notification categories', async () => {
+it('should unsubscribe from personalized digest subscription', async () => {
+  personalizedDigestMock = {
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      data: {
+        personalizedDigest: [
+          {
+            preferredDay: 1,
+            preferredHour: 9,
+            type: UserPersonalizedDigestType.Digest,
+            flags: {
+              sendType: SendType.Workdays,
+            },
+          },
+        ],
+      },
+    },
+  };
+
   renderComponent();
 
-  const activitySection = await screen.findByText('Activity');
-  expect(activitySection).toBeInTheDocument();
+  mockGraphQL({
+    request: {
+      query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: { type: UserPersonalizedDigestType.Digest },
+    },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
+  mockGraphQL({
+    request: {
+      query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: { type: UserPersonalizedDigestType.Brief },
+    },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
+
+  const subscription = await screen.findByTestId('digest_notification-switch');
+  await waitFor(() => expect(subscription).toBeChecked());
+
+  fireEvent.click(subscription);
+  await waitForNock();
+
+  expect(subscription).not.toBeChecked();
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({ channel: 'email', category: 'digest' }),
+  });
 });
 
-it('should change hour for AI briefings', async () => {
+it('should change hour for personalized digest subscription', async () => {
   personalizedDigestMock = {
     request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
     result: {
@@ -324,78 +448,51 @@ it('should change hour for AI briefings', async () => {
   const selectedHour = await screen.findByText('00:00');
   fireEvent.click(selectedHour);
 
+  expect(logEvent).toHaveBeenCalledTimes(1);
   expect(logEvent).toHaveBeenCalledWith({
     event_name: 'schedule digest',
     extra: JSON.stringify({ hour: 0, frequency: 'weekly' }),
   });
 });
 
-it('should render streaks section', async () => {
+it('should subscribe to user email following subscription', async () => {
   renderComponent();
+  const data = { followingEmail: true };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('following-switch');
+  expect(subscription).not.toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 
-  const streaksSection = await screen.findByText('Streaks');
-  expect(streaksSection).toBeInTheDocument();
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'following',
+    }),
+  });
 });
 
-it('should render achievements section', async () => {
-  renderComponent();
+it('should unsubscribe to user email following subscription', async () => {
+  renderComponent({ ...defaultLoggedUser, followingEmail: true });
+  const data = { followingEmail: false };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('following-switch');
+  expect(subscription).toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 
-  const achievementsSection = await screen.findByText('Achievements');
-  expect(achievementsSection).toBeInTheDocument();
-});
-
-it('should render push notifications switch', async () => {
-  renderComponent();
-
-  const pushSwitch = await screen.findByTestId('push_notification-switch');
-  expect(pushSwitch).toBeInTheDocument();
-});
-
-it('should render squad notifications section', async () => {
-  renderComponent();
-
-  const squadText = await screen.findByText('Squad notifications');
-  expect(squadText).toBeInTheDocument();
-});
-
-it('should render mentions switch', async () => {
-  renderComponent();
-
-  const mentionsText = await screen.findByText('Mentions of your username');
-  expect(mentionsText).toBeInTheDocument();
-});
-
-it('should render upvote comments switch', async () => {
-  renderComponent();
-
-  const upvoteText = await screen.findByText('Upvotes on your comment');
-  expect(upvoteText).toBeInTheDocument();
-});
-
-it('should render cores and awards switch', async () => {
-  renderComponent();
-
-  const awardsText = await screen.findByText('Cores & Awards you receive');
-  expect(awardsText).toBeInTheDocument();
-});
-
-it('should render source suggestions section', async () => {
-  renderComponent();
-
-  const sourceText = await screen.findByText('Source suggestions');
-  expect(sourceText).toBeInTheDocument();
-});
-
-it('should render submitted post section', async () => {
-  renderComponent();
-
-  const submittedText = await screen.findByText('Submitted post review');
-  expect(submittedText).toBeInTheDocument();
-});
-
-it('should render squad roles section', async () => {
-  renderComponent();
-
-  const rolesText = await screen.findByText('Squad roles');
-  expect(rolesText).toBeInTheDocument();
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'following',
+    }),
+  });
 });

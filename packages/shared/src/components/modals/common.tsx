@@ -314,13 +314,6 @@ const ActionSuccessModal = dynamic(() =>
   ).then((mod) => mod.ActionSuccessModal),
 );
 
-const SquadNotificationSettingsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "squadNotificationSettingsModal" */ './SquadNotificationSettingsModal'
-    ),
-);
-
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -373,7 +366,6 @@ export const modals = {
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
   [LazyModal.ActionSuccess]: ActionSuccessModal,
-  [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
 };
 
 type GetComponentProps<T> = T extends
