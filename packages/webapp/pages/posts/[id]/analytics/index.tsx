@@ -42,6 +42,7 @@ import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import type { SharePostPageProps } from '../share';
 import type { AnalyticsNumberList } from '../../../../../shared/src/components/analytics/common';
+import { ImpressionsChart } from '../../../../../shared/src/components/analytics/ImpressionsChart';
 
 interface SectionHeaderProps {
   children: React.ReactNode;
@@ -193,6 +194,22 @@ const PostAnalyticsPage = ({
               }}
             />
           </div>
+          <div className="flex items-center">
+            <Typography type={TypographyType.Footnote} bold>
+              Impressions in the last 45 days
+            </Typography>
+            <div className="ml-auto flex gap-2">
+              <div className="flex items-center gap-1">
+                <div className="size-2 rounded-full bg-brand-default" />{' '}
+                <Typography type={TypographyType.Footnote}>Organic</Typography>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
+                <Typography type={TypographyType.Footnote}>Boosted</Typography>
+              </div>
+            </div>
+          </div>
+          <ImpressionsChart />
         </SectionContainer>
         <Divider className={dividerClassName} />
         <SectionContainer>
