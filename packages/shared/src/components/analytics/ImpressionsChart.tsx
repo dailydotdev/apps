@@ -16,6 +16,7 @@ const generateData = () => {
   const data = [];
   const today = new Date();
 
+  // eslint-disable-next-line no-plusplus
   for (let i = 44; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
