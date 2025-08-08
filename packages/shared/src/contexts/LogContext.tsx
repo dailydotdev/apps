@@ -8,7 +8,6 @@ import useLogContextData from '../hooks/log/useLogContextData';
 import useBackfillPendingLogs from '../hooks/log/useBackfillPendingLogs';
 import useLogLifecycleEvents from '../hooks/log/useLogLifecycleEvents';
 import type { BootApp } from '../lib/boot';
-import { mergeContextExtra } from '../lib/func';
 import { useLogExtraContext } from './LogExtraContext';
 
 const LogContext = createContext<LogContextData>({
@@ -76,28 +75,27 @@ export const LogContextProvider = ({
 
 export const useLogContext = (): LogContextData => {
   const logContext = useContext(LogContext);
-  const { extra: contextExtra } = useLogExtraContext();
+  const logContextRef = useRef(logContext);
+  logContextRef.current = logContext;
+
+  const logExtraContext = useLogExtraContext();
+  const logExtraContextRef = useRef(logExtraContext);
+  logExtraContextRef.current = logExtraContext;
 
   return useMemo(() => {
     return {
-      ...logContext,
+      ...logContextRef.current,
       logEvent: (event) => {
-        logContext.logEvent(
-          mergeContextExtra({
-            event,
-            data: contextExtra,
-          }),
+        logContextRef.current.logEvent(
+          logExtraContextRef.current.selectorRef.current({ event }),
         );
       },
       logEventStart: (id, event) => {
-        logContext.logEventStart(
+        logContextRef.current.logEventStart(
           id,
-          mergeContextExtra({
-            event,
-            data: contextExtra,
-          }),
+          logExtraContextRef.current.selectorRef.current({ event }),
         );
       },
     };
-  }, [logContext, contextExtra]);
+  }, []);
 };

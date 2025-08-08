@@ -175,11 +175,10 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
-        data={post}
-        selector={(data: typeof post) => {
+        selector={() => {
           return {
-            referrer_target_id: data?.id,
-            referrer_target_type: data?.id ? TargetType.Post : undefined,
+            referrer_target_id: post?.id,
+            referrer_target_type: post?.id ? TargetType.Post : undefined,
           };
         }}
       >

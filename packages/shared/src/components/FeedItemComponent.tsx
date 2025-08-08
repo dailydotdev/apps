@@ -221,11 +221,10 @@ export default function FeedItemComponent({
     return (
       <ActivePostContextProvider post={itemPost}>
         <LogExtraContextProvider
-          data={itemPost}
-          selector={(data: typeof itemPost) => {
+          selector={() => {
             return {
-              referrer_target_id: data?.id,
-              referrer_target_type: data?.id ? TargetType.Post : undefined,
+              referrer_target_id: itemPost?.id,
+              referrer_target_type: itemPost?.id ? TargetType.Post : undefined,
             };
           }}
         >

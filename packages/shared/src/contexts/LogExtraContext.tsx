@@ -1,28 +1,34 @@
 import { createContextProvider } from '@kickass-coderz/react';
-import type { ReactNode } from 'react';
+import type { MutableRefObject, ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
-import { safeContextHookExport } from '../lib/func';
+import { mergeContextExtra, safeContextHookExport } from '../lib/func';
+import type { LogEvent } from '../hooks/log/useLogQueue';
 
 export type LogExtraContextProps = {
-  data?: unknown;
-  selector?: (data: unknown) => Record<string, unknown>;
+  selector?: () => Record<string, unknown>;
   children?: ReactNode;
 };
 
 export type LogExtraContext = {
-  extra?: Record<string, unknown>;
+  selectorRef: MutableRefObject<(props: { event: LogEvent }) => LogEvent>;
 };
 
 const [LogExtraContextProvider, useLogExtraContextHook] = createContextProvider(
-  ({ data, selector }: LogExtraContextProps): LogExtraContext => {
-    const selectorRef = useRef(selector);
-    selectorRef.current = selector;
+  ({ selector }: LogExtraContextProps): LogExtraContext => {
+    const extraSelector = ({ event }: { event: LogEvent }): LogEvent => {
+      const data = selector?.();
+
+      return mergeContextExtra({ event, data });
+    };
+
+    const selectorRef = useRef(extraSelector);
+    selectorRef.current = extraSelector;
 
     return useMemo(() => {
       return {
-        extra: selectorRef.current ? selectorRef.current(data) : undefined,
+        selectorRef,
       };
-    }, [data]);
+    }, []);
   },
   {
     errorMessage: 'ContextNotFound',
@@ -32,7 +38,9 @@ const [LogExtraContextProvider, useLogExtraContextHook] = createContextProvider(
 const useLogExtraContext = safeContextHookExport(
   useLogExtraContextHook,
   'ContextNotFound',
-  {},
+  {
+    selectorRef: { current: ({ event }) => event },
+  },
 );
 
 export { LogExtraContextProvider, useLogExtraContext };
