@@ -22,9 +22,11 @@ import { NotificationType } from '../notifications/utils';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 
 const SubscriptionCheckbox = ({
+  handle,
   squadId,
   disabled,
 }: {
+  handle: string;
   squadId: string;
   disabled: boolean;
 }) => {
@@ -47,13 +49,13 @@ const SubscriptionCheckbox = ({
           unsubscribe({
             id: squadId,
             entity: ContentPreferenceType.Source,
-            entityName: squadId,
+            entityName: handle,
           });
         } else {
           subscribe({
             id: squadId,
             entity: ContentPreferenceType.Source,
-            entityName: squadId,
+            entityName: handle,
           });
         }
       }}
@@ -128,7 +130,11 @@ const SquadNotificationSettingsModal = ({
                   </Typography>
                 </div>
               </div>
-              <SubscriptionCheckbox squadId={squad.id} disabled={disabled} />
+              <SubscriptionCheckbox
+                handle={squad.handle}
+                squadId={squad.id}
+                disabled={disabled}
+              />
             </li>
           ))}
         </ul>
