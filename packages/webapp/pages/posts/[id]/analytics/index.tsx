@@ -5,7 +5,9 @@ import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import {
+  DateFormat,
   Divider,
+  FlexRow,
   pageBorders,
   ResponsivePageContainer,
 } from '@dailydotdev/shared/src/components/utilities';
@@ -14,8 +16,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ArrowIcon, CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  Button,
+  ButtonColor,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
   TypographyColor,
@@ -35,6 +40,10 @@ import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { PostShortInfo } from '@dailydotdev/shared/src/components/post/analytics/PostShortInfo';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { formatDataTileValue } from '@dailydotdev/shared/src/lib';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
+import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -184,6 +193,16 @@ const PostAnalyticsPage = ({
               className={{
                 container: 'flex-1',
               }}
+              subtitle={
+                <Typography
+                  type={TypographyType.Caption2}
+                  bold
+                  color={TypographyColor.Boost}
+                  className="flex items-center gap-0.5"
+                >
+                  <ArrowIcon size={IconSize.XXSmall} /> +3,089 boosted
+                </Typography>
+              }
             />
             <DataTile
               label="Total impressions"
@@ -231,6 +250,120 @@ const PostAnalyticsPage = ({
             post={post}
             buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
           />
+        </SectionContainer>
+        <Divider className={dividerClassName} />
+        <SectionContainer>
+          <SectionHeader>Boosting in progress</SectionHeader>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Your post is actively being promoted to developers who are most
+            likely to engage based on our targeting engine. We’re making sure it
+            gets prime placement where it matters most, so you can focus on
+            creating while we drive the visibility.
+          </Typography>
+          <div>
+            <Typography
+              type={TypographyType.Callout}
+              className="mb-1.5 flex flex-row items-center"
+            >
+              <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
+              {formatDataTileValue(6000)} | 6 days
+            </Typography>
+            <div className="flex flex-col gap-1">
+              <ProgressBar
+                percentage={20}
+                shouldShowBg
+                className={{ wrapper: 'h-2 rounded-6' }}
+              />
+              <span className="flex flex-row justify-between">
+                <Typography
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Secondary}
+                >
+                  Started{' '}
+                  <DateFormat date={new Date()} type={TimeFormatType.Post} />
+                </Typography>
+                <Typography
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Secondary}
+                >
+                  Ends in 7 days
+                </Typography>
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-2 laptop:grid-cols-2">
+            <FlexRow className="order-1 gap-1">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                Start date:
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                color={TypographyColor.Primary}
+              >
+                June 23, 2025
+              </Typography>
+            </FlexRow>
+            <FlexRow className="order-3 gap-1 laptop:order-2">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                Spend so far:
+              </Typography>
+              <CoreIcon />
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                color={TypographyColor.Primary}
+              >
+                {formatDataTileValue(2148)}
+              </Typography>
+            </FlexRow>
+            <FlexRow className="order-2 gap-1 laptop:order-3">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                End date:
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                color={TypographyColor.Primary}
+              >
+                June 31, 2025
+              </Typography>
+            </FlexRow>
+            <FlexRow className="order-4 gap-1">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                Estimated daily reach:
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                color={TypographyColor.Primary}
+              >
+                {formatDataTileValue(5500)} - {formatDataTileValue(15000)}
+              </Typography>
+            </FlexRow>
+          </div>
+          <Button
+            variant={ButtonVariant.Float}
+            className="mr-auto bg-action-downvote-float hover:bg-action-downvote-hover"
+            color={ButtonColor.Ketchup}
+          >
+            Stop boost
+          </Button>
         </SectionContainer>
         <Divider className={dividerClassName} />
         <SectionContainer>

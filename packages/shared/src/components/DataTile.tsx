@@ -12,6 +12,7 @@ interface DataTileProps {
   value: number;
   info?: string;
   icon?: ReactNode;
+  subtitle?: ReactNode;
   className?: {
     container?: string;
   };
@@ -22,6 +23,7 @@ export const DataTile: React.FC<DataTileProps> = ({
   value,
   info,
   icon,
+  subtitle,
   className,
 }) => {
   return (
@@ -45,6 +47,7 @@ export const DataTile: React.FC<DataTileProps> = ({
           {formatDataTileValue(value)}
         </Typography>
       </span>
+      {subtitle}
     </div>
   );
 };

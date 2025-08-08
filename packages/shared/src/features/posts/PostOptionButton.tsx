@@ -448,6 +448,13 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
+    canBoost && {
+      icon: <MenuIcon Icon={BoostIcon} />,
+      label: 'Post analytics',
+      anchorProps: {
+        href: `${webappUrl}posts/${post.slug}/analytics`,
+      },
+    },
     !isBriefPost && {
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
