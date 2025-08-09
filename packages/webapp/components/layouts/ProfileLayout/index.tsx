@@ -21,12 +21,13 @@ import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import ConditionalWrapper from '@dailydotdev/shared/src/components/ConditionalWrapper';
 import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
+import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -89,6 +90,7 @@ export default function ProfileLayout({
     () => checkHasCompleted(ActionType.ClosedProfileBanner),
     [checkHasCompleted],
   );
+  const { referrerPost } = usePostReferrerContext();
 
   useEffect(() => {
     if (trackedView || !user) {
@@ -98,9 +100,16 @@ export default function ProfileLayout({
     logEvent({
       event_name: LogEvent.ProfileView,
       target_id: user.id,
+      ...(!!referrerPost && {
+        extra: JSON.stringify({
+          referrer_target_id: referrerPost.id,
+          referrer_target_type: TargetType.Post,
+          author: user?.id && referrerPost.author?.id === user.id ? 1 : 0,
+        }),
+      }),
     });
     setTrackedView(true);
-  }, [user, trackedView, logEvent]);
+  }, [user, trackedView, logEvent, referrerPost]);
 
   if (!isFallback && !user) {
     return <Custom404 />;

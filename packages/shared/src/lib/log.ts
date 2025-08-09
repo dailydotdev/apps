@@ -362,6 +362,7 @@ export enum TargetType {
   Grid = 'grid',
   // CV
   CvBanner = 'cv banner',
+  Post = 'post',
 }
 
 export enum TargetId {

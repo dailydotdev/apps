@@ -14,9 +14,10 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../graphql/contentPreference';
+import { useActivePostContext } from '../contexts/ActivePostContext';
 
 type UseJoinSquadProps = {
-  squad: Pick<Squad, 'id' | 'handle'>;
+  squad: Pick<Squad, 'id' | 'handle' | 'privilegedMembers'>;
   referralToken?: string;
 };
 
@@ -31,6 +32,7 @@ export const useJoinSquad = ({
   const { addSquad } = useBoot();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
+  const { activePost: referrerPost } = useActivePostContext();
   const joinSquad = useCallback(async () => {
     const payload: SquadInvitationProps = {
       sourceId: squad.id,
@@ -45,8 +47,17 @@ export const useJoinSquad = ({
     logEvent({
       event_name: LogEvent.CompleteJoiningSquad,
       extra: JSON.stringify({
-        inviter: result.currentMember.user.id,
-        squad: result.id,
+        inviter: user.id,
+        squad: squad.id,
+        ...(!!referrerPost && {
+          author: squad.privilegedMembers?.some(
+            (squadMember) =>
+              squadMember.user?.id &&
+              squadMember.user.id === referrerPost.author?.id,
+          )
+            ? 1
+            : 0,
+        }),
       }),
     });
 
@@ -85,6 +96,8 @@ export const useJoinSquad = ({
     completeAction,
     queryClient,
     user,
+    squad?.privilegedMembers,
+    referrerPost,
   ]);
 
   return joinSquad;
