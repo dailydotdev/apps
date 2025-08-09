@@ -107,6 +107,7 @@ export function PostContentRaw({
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
+      isNavigationOutside
       className={containerClass}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
       navigationProps={

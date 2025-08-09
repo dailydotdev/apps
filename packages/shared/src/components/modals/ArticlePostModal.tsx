@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from './common/Modal';
-import { Modal, modalSizeToClassName } from './common/Modal';
 import { PostContent } from '../post/PostContent';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
@@ -52,7 +51,7 @@ export default function ArticlePostModal({
           onboarding: 'mt-8',
           navigation: { actions: 'ml-auto tablet:hidden' },
           fixedNavigation: {
-            container: modalSizeToClassName[Modal.Size.XLarge],
+            container: '!w-[inherit]',
             actions: 'ml-auto',
           },
         }}
