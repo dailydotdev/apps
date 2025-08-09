@@ -1,19 +1,21 @@
 import React from 'react';
 import type { ReactNode } from 'react';
-import { IconSize } from '../../components/Icon';
-import { InfoIcon } from '../../components/icons';
-import {
-  Typography,
-  TypographyType,
-} from '../../components/typography/Typography';
-import { Tooltip } from '../../components/tooltip/Tooltip';
-import { formatDataTileValue } from '../../lib/numberFormat';
+import classNames from 'classnames';
+import { IconSize } from './Icon';
+import { InfoIcon } from './icons';
+import { Typography, TypographyType } from './typography/Typography';
+import { Tooltip } from './tooltip/Tooltip';
+import { formatDataTileValue } from '../lib/numberFormat';
 
 interface DataTileProps {
   label: string;
   value: number;
   info?: string;
   icon?: ReactNode;
+  subtitle?: ReactNode;
+  className?: {
+    container?: string;
+  };
 }
 
 export const DataTile: React.FC<DataTileProps> = ({
@@ -21,9 +23,16 @@ export const DataTile: React.FC<DataTileProps> = ({
   value,
   info,
   icon,
+  subtitle,
+  className,
 }) => {
   return (
-    <div className="flex flex-col gap-1 rounded-14 border border-border-subtlest-tertiary p-4">
+    <div
+      className={classNames(
+        'flex flex-col gap-1 rounded-14 border border-border-subtlest-tertiary p-4',
+        className?.container,
+      )}
+    >
       <span className="flex flex-row items-center gap-1">
         <Typography type={TypographyType.Footnote}>{label}</Typography>
         <Tooltip content={info}>
@@ -38,6 +47,7 @@ export const DataTile: React.FC<DataTileProps> = ({
           {formatDataTileValue(value)}
         </Typography>
       </span>
+      {subtitle}
     </div>
   );
 };

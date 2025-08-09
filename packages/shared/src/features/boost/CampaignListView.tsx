@@ -14,7 +14,7 @@ import {
 } from '../../components/buttons/Button';
 import { CoreIcon, OpenLinkIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { DataTile } from './DataTile';
+import { DataTile } from '../../components/DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
