@@ -274,6 +274,10 @@ export const mergeContextExtra = <TData>({
   event: LogEvent;
   data?: TData;
 }): LogEvent => {
+  if (!data) {
+    return event;
+  }
+
   let extra: Record<string, unknown> | undefined;
 
   if (event.extra) {
