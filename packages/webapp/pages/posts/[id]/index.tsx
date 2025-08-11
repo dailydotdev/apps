@@ -108,14 +108,18 @@ export interface PostParams extends ParsedUrlQuery {
 }
 
 export const seoTitle = (post: Post): string | undefined => {
-  if (post?.type === PostType.Share && post?.title === null) {
-    const sourceName = isSourceUserSource(post?.source)
-      ? `by ${post?.author?.username}`
-      : `at ${post?.source?.name}`;
-    return `Shared post ${sourceName}`;
+  if (post?.title) {
+    return post.title;
   }
 
-  return post?.title;
+  if (post?.sharedPost?.title) {
+    return post.sharedPost.title;
+  }
+
+  const sourceName = isSourceUserSource(post?.source)
+    ? `by ${post?.author?.username}`
+    : `at ${post?.source?.name}`;
+  return `Shared post ${sourceName}`;
 };
 
 export const PostPage = ({ id, initialData, error }: Props): ReactElement => {

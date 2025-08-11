@@ -7,6 +7,11 @@ export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
     return post?.summary;
   }
+
+  if (post?.sharedPost?.summary) {
+    return post.sharedPost.summary;
+  }
+
   if (post?.description) {
     return post?.description;
   }
