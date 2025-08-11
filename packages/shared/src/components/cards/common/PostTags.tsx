@@ -22,8 +22,7 @@ export default function PostTags({
 }: PostTagsProps): ReactElement {
   const [width, setWidth] = useState(0);
   const { isListMode } = useFeedLayout();
-  // const tags = post?.tags || [];
-  const tags = ['c', 'sql', 'gpu', 'cuda', 'duckdb'];
+  const tags = post?.tags || [];
   const elementRef = useRef<HTMLDivElement>(null);
   const list = useFeedTags({
     tags,
