@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Post } from '../graphql/posts';
 import type { Origin } from '../lib/log';
 import { safeContextHookExport } from '../lib/func';
+import { usePrevious } from '../hooks';
 
 type ReferredPost = {
   id: Post['id'];
@@ -23,29 +24,24 @@ type PostReferrerContext = {
 const [PostReferrerContextProvider, usePostReferrerContextHook] =
   createContextProvider(
     (): PostReferrerContext => {
-      const [navigationCount, setNavigationCount] = useState(0);
       const [referrerPost, setReferrerPost] =
         useState<PostReferrerContext['referrerPost']>();
       const router = useRouter();
       const currentPathname = router?.asPath || router?.pathname;
+      const previousPathname = usePrevious(currentPathname);
+
+      const isLastPagePost = !!previousPathname?.startsWith('/posts/');
 
       useEffect(() => {
-        setNavigationCount((prev) => prev + 1);
-      }, [currentPathname]);
-
-      useEffect(() => {
-        if (navigationCount > 1) {
-          setNavigationCount(0);
+        if (!isLastPagePost) {
           setReferrerPost(undefined);
         }
-      }, [navigationCount]);
+      }, [isLastPagePost]);
 
       return {
         referrerPost,
         setReferrerPost: useCallback(
           (post) => {
-            setNavigationCount(0);
-
             return setReferrerPost(post);
           },
           [setReferrerPost],
@@ -55,8 +51,6 @@ const [PostReferrerContextProvider, usePostReferrerContextHook] =
             if (!post) {
               return;
             }
-
-            setNavigationCount(0);
 
             setReferrerPost(post);
           }, [post]);
