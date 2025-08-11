@@ -2,6 +2,7 @@ import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
 import type { EmptyObjectLiteral } from './kratos';
 import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
+import type { LogEvent } from '../hooks/log/useLogQueue';
 
 export type EmptyPromise = () => Promise<void>;
 
@@ -245,3 +246,57 @@ export const promisifyEventListener = <T, E = any>(
 };
 
 export type BooleanPromise = Promise<{ successful: boolean }>;
+
+type SafeContextHook<T> = T | undefined;
+
+export const safeContextHookExport = <Args extends unknown[], R>(
+  hook: (...props: Args) => R,
+  errorMessage: string,
+  defaultReturn?: SafeContextHook<R>,
+): ((...props: Args) => SafeContextHook<R>) => {
+  return function useSafeContextHook(...props: Args): SafeContextHook<R> {
+    try {
+      return hook(...props) as SafeContextHook<R>;
+    } catch (error) {
+      if (errorMessage === error.message) {
+        return defaultReturn;
+      }
+
+      throw error;
+    }
+  };
+};
+
+export const mergeContextExtra = <TData>({
+  event,
+  data,
+}: {
+  event: LogEvent;
+  data?: TData;
+}): LogEvent => {
+  if (!data) {
+    return event;
+  }
+
+  let extra: Record<string, unknown> | undefined;
+
+  if (event.extra) {
+    try {
+      extra = JSON.parse(event.extra);
+    } catch {
+      // If parsing fails, we keep extra as is
+    }
+  }
+
+  const mergedExtra = {
+    ...extra,
+    ...data,
+  };
+
+  return {
+    ...event,
+    extra: Object.keys(mergedExtra).length
+      ? JSON.stringify(mergedExtra)
+      : undefined,
+  };
+};

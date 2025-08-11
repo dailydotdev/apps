@@ -18,6 +18,7 @@ import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
@@ -272,7 +273,9 @@ export default function App(props: AppProps): ReactElement {
           <PixelsProvider>
             <PushNotificationContextProvider>
               <SubscriptionContextProvider>
-                <InternalApp {...props} />
+                <PostReferrerContextProvider>
+                  <InternalApp {...props} />
+                </PostReferrerContextProvider>
               </SubscriptionContextProvider>
             </PushNotificationContextProvider>
           </PixelsProvider>
