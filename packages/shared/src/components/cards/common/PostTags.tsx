@@ -28,7 +28,7 @@ export default function PostTags({
     tags,
     width,
     offset: isListMode ? 0 : 8,
-    baseTagWidth: 16,
+    baseTagWidth: 20,
   });
   const tagsCount = tags?.length || 0;
   const remainingTags = tagsCount - list.length;
@@ -50,7 +50,7 @@ export default function PostTags({
   return (
     <div
       className={classNames(
-        'flex min-h-px flex-1 items-center gap-2',
+        'flex min-h-px w-full min-w-0 items-center gap-2 overflow-hidden',
         className,
       )}
       ref={elementRef}
