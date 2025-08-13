@@ -26,7 +26,6 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
-import { briefCardBg } from '@dailydotdev/shared/src/styles/custom';
 import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
@@ -41,20 +40,19 @@ import {
   BRIEFING_POSTS_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { useRouter } from 'next/router';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { BriefPlusUpgradeCTA } from '@dailydotdev/shared/src/features/briefing/components/BriefPlusUpgradeCTA';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
-import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 
 const Page = (): ReactElement => {
   const isMobile = useViewSizeClient(ViewSize.MobileL);
@@ -127,6 +125,14 @@ const Page = (): ReactElement => {
     return null;
   }
 
+  const firstBrief = items.at(0);
+  const todayTime = set(new Date(), {
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  }).getTime();
+  const hasTodayBrief = firstBrief && firstBrief.dataUpdatedAt < todayTime;
+
   return (
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
@@ -154,10 +160,15 @@ const Page = (): ReactElement => {
           </header>
           <div className="flex flex-col px-4">
             {isNotPlus &&
-              !!items.length &&
-              items[0]?.type !== FeedItemType.Placeholder && (
+              !!firstBrief &&
+              firstBrief?.type !== FeedItemType.Placeholder && (
                 <BriefUpgradeAlert />
               )}
+            {isNotPlus && !hasTodayBrief && (
+              <Button onClick={() => router.push('/briefing/generate')}>
+                Generate a new brief
+              </Button>
+            )}
             <InfiniteScrolling
               isFetchingNextPage={feedQuery.isFetching}
               canFetchMore={feedQuery.canFetchMore}
