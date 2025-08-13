@@ -1,4 +1,4 @@
-import type { type MouseEvent, type ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
