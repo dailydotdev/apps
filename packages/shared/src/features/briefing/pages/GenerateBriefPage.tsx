@@ -12,6 +12,7 @@ import {
   MagicIcon,
   StraightArrowIcon,
   TimerIcon,
+  TLDRIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
@@ -40,7 +41,7 @@ const MockPresidentialBrief = () => (
   </div>
 );
 
-export const GenerateBriefForFreeUserPage = () => {
+export const GenerateBriefPage = () => {
   const { isPlus } = usePlusSubscription();
   const { isAuthReady, user } = useAuthContext();
 
@@ -48,7 +49,20 @@ export const GenerateBriefForFreeUserPage = () => {
     () => ({
       dateLabel: format(new Date(), 'MMMM dd, yyyy'),
       heading: `${user?.name || user?.username}'s Presidential Briefing`,
-      saved: `Save 3.5h of reading`,
+      stats: [
+        {
+          Icon: TimerIcon,
+          label: '3.5h of reading saved',
+        },
+        {
+          Icon: TimerIcon,
+          label: '847 posts analyzed',
+        },
+        {
+          Icon: TLDRIcon,
+          label: 'Brief completed in 8s',
+        },
+      ],
     }),
     [user.name, user.username],
   );
@@ -75,7 +89,14 @@ export const GenerateBriefForFreeUserPage = () => {
           type={TypographyType.Footnote}
           className="flex gap-1"
         >
-          <TimerIcon size={IconSize.Size16} aria-hidden /> {headerContent.saved}
+          {headerContent.stats.map(({ Icon, label }) => (
+            <span
+              className="flex items-center gap-1 whitespace-nowrap"
+              key={label}
+            >
+              <Icon size={IconSize.Size16} aria-hidden /> {label}
+            </span>
+          ))}
         </Typography>
       </div>
       {/* Unlock this Presidential Briefing */}

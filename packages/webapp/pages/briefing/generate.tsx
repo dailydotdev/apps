@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { GenerateBriefForFreeUserPage } from '@dailydotdev/shared/src/features/briefing/pages/GenerateBriefForFreeUserPage';
+import { GenerateBriefPage } from '@dailydotdev/shared/src/features/briefing/pages/GenerateBriefPage';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
@@ -37,7 +37,7 @@ function Page() {
   return (
     <ProtectedPage>
       <Container>
-        <GenerateBriefForFreeUserPage />
+        <GenerateBriefPage />
       </Container>
     </ProtectedPage>
   );
