@@ -3,7 +3,7 @@
 }
 
 .card {
-  & > * {
+  &:not(:global(.clickable)) > * {
     pointer-events: none;
   }
 
