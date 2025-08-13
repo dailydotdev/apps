@@ -54,6 +54,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 
 const Page = (): ReactElement => {
   const isMobile = useViewSizeClient(ViewSize.MobileL);
@@ -155,21 +156,7 @@ const Page = (): ReactElement => {
             {isNotPlus &&
               !!items.length &&
               items[0]?.type !== FeedItemType.Placeholder && (
-                <div
-                  style={{
-                    background: briefCardBg,
-                  }}
-                  className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white px-4 py-3"
-                >
-                  <Typography
-                    type={TypographyType.Callout}
-                    className="w-full tablet:w-auto"
-                  >
-                    Get unlimited access to every past and future presidential
-                    briefing with daily.dev Plus.
-                  </Typography>
-                  <BriefPlusUpgradeCTA />
-                </div>
+                <BriefUpgradeAlert />
               )}
             <InfiniteScrolling
               isFetchingNextPage={feedQuery.isFetching}

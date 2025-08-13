@@ -15,8 +15,8 @@ import {
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
-import { PayForBriefCard } from './PayForBriefCard';
-import { BriefPlusAdvantagesCard } from './BriefPlusAdvantagesCard';
+import { PayForBriefCard } from '../components/PayForBriefCard';
+import { BriefPlusAdvantagesCard } from '../components/BriefPlusAdvantagesCard';
 
 const MockPresidentialBrief = () => (
   <div

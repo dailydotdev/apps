@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { GenerateBriefForFreeUserPage } from '@dailydotdev/shared/src/features/briefing/components/GenerateBriefForFreeUserPage';
+import { GenerateBriefForFreeUserPage } from '@dailydotdev/shared/src/features/briefing/pages/GenerateBriefForFreeUserPage';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
+import { PostContainer } from '@dailydotdev/shared/src/components/post/common';
+import { PageBodyContainer } from '@dailydotdev/shared/src/components/post/PostContentContainer';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -25,9 +27,11 @@ function Page() {
 
   return (
     <ProtectedPage>
-      <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
-        <GenerateBriefForFreeUserPage />
-      </div>
+      <PostContainer>
+        <PageBodyContainer>
+          <GenerateBriefForFreeUserPage />
+        </PageBodyContainer>
+      </PostContainer>
     </ProtectedPage>
   );
 }
