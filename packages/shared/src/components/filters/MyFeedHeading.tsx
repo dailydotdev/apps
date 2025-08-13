@@ -17,6 +17,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { JobOpportunityButton } from '../jobs/JobOpportunityButton';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters?: () => void;
@@ -55,6 +56,7 @@ function MyFeedHeading({
 
   return (
     <>
+      {!isMobile && <JobOpportunityButton />}
       <FeedSettingsButton
         onClick={onClick}
         size={ButtonSize.Medium}

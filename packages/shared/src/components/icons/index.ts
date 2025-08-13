@@ -69,6 +69,7 @@ export * from './Image';
 export * from './Info';
 export * from './Invite';
 export * from './JetBrains';
+export * from './Job';
 export * from './Key';
 export * from './Label';
 export * from './Language';
