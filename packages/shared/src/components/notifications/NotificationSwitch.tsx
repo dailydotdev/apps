@@ -12,6 +12,7 @@ interface NotificationSwitchProps {
   description?: string;
   checked: boolean;
   onToggle: () => void;
+  disabled?: boolean;
 }
 
 const NotificationSwitch = ({
@@ -20,6 +21,7 @@ const NotificationSwitch = ({
   description,
   checked,
   onToggle,
+  disabled,
 }: NotificationSwitchProps) => {
   return (
     <div className="flex flex-row justify-between gap-1">
@@ -40,6 +42,7 @@ const NotificationSwitch = ({
         checked={checked}
         onToggle={onToggle}
         compact={false}
+        disabled={disabled}
       />
     </div>
   );

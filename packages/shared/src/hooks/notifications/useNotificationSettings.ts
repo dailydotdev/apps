@@ -145,18 +145,18 @@ const useNotificationSettings = () => {
     mutate(updatedSettings);
   };
 
-  const emailsEnabled = notificationSettings
-    ? Object.values(notificationSettings).some(
+  const emailsDisabled = notificationSettings
+    ? !Object.values(notificationSettings).some(
         (setting) => setting.email === NotificationPreferenceStatus.Subscribed,
       )
-    : false;
+    : true;
 
   return {
     toggleSetting,
     toggleGroup,
     getGroupStatus,
     unsubscribeAllEmail,
-    emailsEnabled,
+    emailsDisabled,
     notificationSettings,
     isLoadingPreferences,
   };
