@@ -15,7 +15,7 @@ import {
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
-import { PayForBriefCard } from '../components/PayForBriefCard';
+import { BriefPayForGenerateCard } from '../components/BriefPayForGenerateCard';
 import { BriefPlusAdvantagesCard } from '../components/BriefPlusAdvantagesCard';
 
 const MockPresidentialBrief = () => (
@@ -123,7 +123,7 @@ export const GenerateBriefForFreeUserPage = () => {
           {/*  Cards */}
           <div className="flex grid-cols-2 flex-col gap-4 tablet:grid">
             <BriefPlusAdvantagesCard />
-            <PayForBriefCard />
+            <BriefPayForGenerateCard />
           </div>
           {/* Skip and go home */}
           <div className="text-center">

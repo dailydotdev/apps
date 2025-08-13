@@ -24,7 +24,7 @@ const briefPricesByType = {
   [BriefingType.Weekly]: 500,
 };
 
-export const PayForBriefCard = () => {
+export const BriefPayForGenerateCard = () => {
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const router = useRouter();
@@ -41,7 +41,7 @@ export const PayForBriefCard = () => {
       displayToast(`Your Presidential's Briefing is being generated ✅`);
       await Promise.all([
         completeAction(ActionType.GeneratedBrief),
-        router.push('/'),
+        router.push('/briefing'),
       ]);
     },
     onError: () => {
