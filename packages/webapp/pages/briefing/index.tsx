@@ -1,5 +1,5 @@
-import type { MouseEvent, ReactElement } from 'react';
-import React from 'react';
+import type { type MouseEvent, type ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -18,23 +18,15 @@ import {
   ArrowIcon,
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  plusUrl,
-  settingsUrl,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
-import {
-  useConditionalFeature,
+  useActions,
   usePlusSubscription,
   useViewSizeClient,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { featurePlusCtaCopy } from '@dailydotdev/shared/src/lib/featureManagement';
-import { LogEvent, Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
-import {
-  briefButtonBg,
-  briefCardBg,
-} from '@dailydotdev/shared/src/styles/custom';
+import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { briefCardBg } from '@dailydotdev/shared/src/styles/custom';
 import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
@@ -56,6 +48,8 @@ import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/Inf
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { BriefPlusUpgradeCTA } from '@dailydotdev/shared/src/features/briefing/components/BriefPlusUpgradeCTA';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -66,14 +60,9 @@ const Page = (): ReactElement => {
   const currentYear = new Date().getFullYear().toString();
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
+  const { isActionsFetched, checkHasCompleted } = useActions();
   const isNotPlus = !isPlus && isAuthReady;
-  const {
-    value: { full: plusCta },
-  } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
-    shouldEvaluate: isNotPlus,
-  });
 
   const selectedBriefId = router?.query?.pmid as string;
 
@@ -126,6 +115,17 @@ const Page = (): ReactElement => {
     onOpenModal(briefIndex);
   };
 
+  useEffect(() => {
+    const hasGeneratedBrief = checkHasCompleted(ActionType.GeneratedBrief);
+    if (isAuthReady && isActionsFetched && !hasGeneratedBrief) {
+      router.push(`${webappUrl}/briefing/generate`);
+    }
+  }, [isAuthReady, checkHasCompleted, isActionsFetched, router]);
+
+  if (!isActionsFetched) {
+    return null;
+  }
+
   return (
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
@@ -168,26 +168,7 @@ const Page = (): ReactElement => {
                     Get unlimited access to every past and future presidential
                     briefing with daily.dev Plus.
                   </Typography>
-                  <Link href={plusUrl} passHref>
-                    <Button
-                      style={{
-                        background: briefButtonBg,
-                      }}
-                      className="ml-auto w-fit text-black"
-                      tag="a"
-                      type="button"
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Small}
-                      onClick={() => {
-                        logSubscriptionEvent({
-                          event_name: LogEvent.UpgradeSubscription,
-                          target_id: TargetId.Brief,
-                        });
-                      }}
-                    >
-                      {plusCta}
-                    </Button>
-                  </Link>
+                  <BriefPlusUpgradeCTA />
                 </div>
               )}
             <InfiniteScrolling
