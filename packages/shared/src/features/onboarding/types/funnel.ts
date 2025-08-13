@@ -30,6 +30,7 @@ export enum FunnelStepType {
   OrganicSignup = 'organicRegistration',
   OrganicCheckout = 'organicCheckout',
   BrowserExtension = 'browserExtension',
+  UploadCv = 'uploadCv',
 }
 
 export enum FunnelBackgroundVariant {
@@ -347,6 +348,19 @@ export interface FunnelStepBrowserExtension
   }>;
 }
 
+export interface FunnelStepUploadCv
+  extends FunnelStepCommon<{
+    headline: string;
+    description: string;
+    cta1: string;
+    cta2: string;
+    cta3: string;
+    image: string;
+  }> {
+  type: FunnelStepType.UploadCv;
+  onTransition: FunnelStepTransitionCallback;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -366,7 +380,8 @@ export type FunnelStep =
   | FunnelStepOrganicSignup
   | FunnelStepOrganicCheckout
   | FunnelStepBrowserExtension
-  | FunnelStepPlusCards;
+  | FunnelStepPlusCards
+  | FunnelStepUploadCv;
 
 export type FunnelPosition = {
   chapter: number;
