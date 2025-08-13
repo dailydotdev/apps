@@ -11,7 +11,7 @@ import { CoreIcon } from '../../../components/icons';
 import { BriefingType } from '../../../graphql/posts';
 import { ActionType } from '../../../graphql/actions';
 import { useGenerateBrief } from '../hooks/useGenerateBrief';
-import { Card } from '../../../components/cards/common/Card';
+import { ClickableCard } from '../../../components/cards/common/Card';
 import { Radio } from '../../../components/fields/Radio';
 import {
   Button,
@@ -77,7 +77,7 @@ export const PayForBriefCard = () => {
   ]);
 
   return (
-    <Card className="clickable flex flex-col gap-3 p-4">
+    <ClickableCard className="flex flex-col gap-3 p-4">
       <div>
         <Typography type={TypographyType.Callout} bold>
           Want just this one?
@@ -117,6 +117,6 @@ export const PayForBriefCard = () => {
           </>
         )}
       </Button>
-    </Card>
+    </ClickableCard>
   );
 };

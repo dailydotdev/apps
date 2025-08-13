@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from '../../../components/cards/common/Card';
 import {
   Typography,
   TypographyType,
@@ -8,9 +7,10 @@ import { PlusList } from '../../../components/plus/PlusList';
 import { IconSize } from '../../../components/Icon';
 import { BriefPlusUpgradeCTA } from './BriefPlusUpgradeCTA';
 import { ButtonSize } from '../../../components/buttons/common';
-import type { type PlusItem } from '../../../components/plus/PlusListItem';
+import type { PlusItem } from '../../../components/plus/PlusListItem';
 import { PlusItemStatus } from '../../../components/plus/PlusListItem';
 import { DevPlusIcon } from '../../../components/icons';
+import { ClickableCard } from '../../../components/cards/common/Card';
 
 const briefingListItems: Array<PlusItem> = [
   {
@@ -40,7 +40,7 @@ const briefingListItems: Array<PlusItem> = [
 
 export const BriefPlusAdvantagesCard = () => {
   return (
-    <Card className="clickable flex flex-col !border-action-upvote-active !bg-action-upvote-float p-4">
+    <ClickableCard className="flex flex-col !border-action-upvote-active !bg-action-upvote-float p-4">
       <Typography type={TypographyType.Callout} bold>
         Want unlimited briefings?
       </Typography>
@@ -56,6 +56,6 @@ export const BriefPlusAdvantagesCard = () => {
         }}
       />
       <BriefPlusUpgradeCTA size={ButtonSize.Medium} className="w-full" />
-    </Card>
+    </ClickableCard>
   );
 };
