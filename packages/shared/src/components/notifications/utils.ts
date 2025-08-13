@@ -413,3 +413,27 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     group: true,
   },
 ];
+
+export const DAILY_DEV_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.NewUserWelcome,
+    label: 'New user welcome',
+    description:
+      'Get helpful tips and guidance as you get started with daily.dev.',
+    group: false,
+  },
+  {
+    id: NotificationType.Announcements,
+    label: 'Major announcements',
+    description:
+      'Get notified about big product changes, launches, and important company news from daily.dev.',
+    group: false,
+  },
+  {
+    id: NotificationType.Marketing,
+    label: 'Community & Marketing',
+    description:
+      'Get emails about product news, events, giveaways, and highlights from the daily.dev community.',
+    group: false,
+  },
+];

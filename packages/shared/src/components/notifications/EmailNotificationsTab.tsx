@@ -5,9 +5,11 @@ import useNotificationSettings from '../../hooks/notifications/useNotificationSe
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
   ACTIVITY_NOTIFICATIONS,
+  DAILY_DEV_NOTIFICATIONS,
   FOLLOWING_NOTIFICATIONS,
   NotificationContainer,
   NotificationSection,
+  NotificationType,
 } from './utils';
 import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
@@ -135,123 +137,35 @@ const EmailNotificationsTab = (): ReactElement => {
       <NotificationSection>
         <PersonalizedDigest channel="email" />
       </NotificationSection>
-      {/* TODO: Will be added in phase 2 */}
-      {/* <HorizontalSeparator className="mx-4" />
+      <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           From daily.dev
         </Typography>
-        <NotificationList>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-start justify-between">
-              <div className="flex flex-1 flex-col gap-2">
-                <Typography type={TypographyType.Callout}>
-                  New user welcome
-                </Typography>
-                <Typography
-                  color={TypographyColor.Tertiary}
-                  type={TypographyType.Footnote}
-                >
-                  Get helpful tips and guidance as you get started with
-                  daily.dev.
-                </Typography>
-              </div>
-              <Switch
-                inputId={NotificationType.NewUserWelcome}
-                name={NotificationType.NewUserWelcome}
-                checked={
-                  ns?.[NotificationType.NewUserWelcome]?.email ===
-                  NotificationPreferenceStatus.Subscribed
-                }
-                onToggle={() =>
-                  toggleSetting(NotificationType.NewUserWelcome, 'email')
-                }
-                compact={false}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-start justify-between">
-              <div className="flex flex-1 flex-col gap-2">
-                <Typography type={TypographyType.Callout}>
-                  Major announcements
-                </Typography>
-                <Typography
-                  color={TypographyColor.Tertiary}
-                  type={TypographyType.Footnote}
-                >
-                  Get notified about big product changes, launches, and
-                  important company news from daily.dev.
-                </Typography>
-              </div>
-              <Switch
-                inputId={NotificationType.Announcements}
-                name={NotificationType.Announcements}
-                checked={
-                  ns?.[NotificationType.Announcements]?.email ===
-                  NotificationPreferenceStatus.Subscribed
-                }
-                onToggle={() =>
-                  toggleSetting(NotificationType.Announcements, 'email')
-                }
-                compact={false}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-start justify-between">
-              <div className="flex flex-1 flex-col gap-2">
-                <Typography type={TypographyType.Callout}>
-                  Community & Marketing
-                </Typography>
-                <Typography
-                  color={TypographyColor.Tertiary}
-                  type={TypographyType.Footnote}
-                >
-                  Get emails about product news, events, giveaways, and
-                  highlights from the daily.dev community.
-                </Typography>
-              </div>
-              <Switch
-                inputId={NotificationType.Marketing}
-                name={NotificationType.Marketing}
-                checked={
-                  ns?.[NotificationType.Marketing]?.email ===
-                  NotificationPreferenceStatus.Subscribed
-                }
-                onToggle={() =>
-                  toggleSetting(NotificationType.Marketing, 'email')
-                }
-                compact={false}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-start justify-between">
-              <div className="flex flex-1 flex-col gap-2">
-                <Typography type={TypographyType.Callout}>
-                  Critical system alerts{' '}
-                </Typography>
-                <Typography
-                  color={TypographyColor.Tertiary}
-                  type={TypographyType.Footnote}
-                >
-                  Get important emails about account security, privacy updates,
-                  and critical system issues.
-                </Typography>
-              </div>
-              <Switch
-                inputId={NotificationType.System}
-                name={NotificationType.System}
-                checked
-                disabled
-                onToggle={() => {}} // Not toggleable, always checked
-                compact={false}
-              />
-            </div>
-          </div>
-        </NotificationList>
-      </NotificationSection> */}
+        <NotificationContainer>
+          {DAILY_DEV_NOTIFICATIONS.map((item) => (
+            <NotificationSwitch
+              key={item.id}
+              id={item.id}
+              label={item.label}
+              description={item.description}
+              disabled={item.id === NotificationType.System}
+              checked={
+                ns?.[item.id]?.email === NotificationPreferenceStatus.Subscribed
+              }
+              onToggle={() => toggleSetting(item.id, 'email')}
+            />
+          ))}
+          <NotificationSwitch
+            id="system"
+            label="Critical system alerts"
+            description="Get important emails about account security, privacy updates, and critical system issues."
+            checked
+            disabled
+            onToggle={() => {}}
+          />
+        </NotificationContainer>
+      </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
