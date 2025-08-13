@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useActions, useToastNotification } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -18,11 +18,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-
-const briefPricesByType = {
-  [BriefingType.Daily]: 300,
-  [BriefingType.Weekly]: 500,
-};
+import { BuyCoresModal } from '../../../components/modals/award/BuyCoresModal';
+import { useToggle } from '../../../hooks/useToggle';
+import { Origin } from '../../../lib/log';
+import type { Product } from '../../../graphql/njord';
+import { useFeature } from '../../../components/GrowthBookProvider';
+import { briefGeneratePricing } from '../../../lib/featureManagement';
 
 export const BriefPayForGenerateCard = () => {
   const { user } = useAuthContext();
@@ -32,7 +33,9 @@ export const BriefPayForGenerateCard = () => {
   const [selected, setSelected] = React.useState<BriefingType>(
     BriefingType.Daily,
   );
-  const price = briefPricesByType[selected];
+  const [showBuyCores, setShowBuyCores] = useToggle(false);
+  const briefPrices = useFeature(briefGeneratePricing);
+  const price = briefPrices[selected];
   const isFirstBrief =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
 
@@ -64,59 +67,90 @@ export const BriefPayForGenerateCard = () => {
 
     if (hasEnoughCores && !isGenerating) {
       generateBrief({ type: selected });
-    } else {
-      // Handle insufficient cores case, e.g., show a message or redirect to purchase
+      return;
     }
+
+    // Open Buy Cores modal
+    setShowBuyCores(true);
   }, [
     generateBrief,
     isFirstBrief,
     isGenerating,
     price,
     selected,
+    setShowBuyCores,
     user?.balance?.amount,
   ]);
 
+  const buyCoresProduct = useMemo(
+    () =>
+      ({
+        id: `brief-${selected}`,
+        name: 'Briefing',
+        value: price,
+      } as Product),
+    [price, selected],
+  );
+
+  const handleBuyCoresCompleted = useCallback(() => {
+    setShowBuyCores(false);
+    if (!isGenerating) {
+      generateBrief({ type: selected });
+    }
+  }, [generateBrief, isGenerating, selected, setShowBuyCores]);
+
   return (
-    <ClickableCard className="flex flex-col gap-3 p-4">
-      <div>
-        <Typography type={TypographyType.Callout} bold>
-          Want just this one?
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="mt-2 text-balance"
+    <>
+      <ClickableCard className="flex flex-col gap-3 p-4">
+        <div>
+          <Typography type={TypographyType.Callout} bold>
+            Want just this one?
+          </Typography>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="mt-2 text-balance"
+          >
+            Generate a one-off Presidential Briefing based on the past day or
+            week. No commitment. Yours now.
+          </Typography>
+        </div>
+        <div className="flex-1">
+          <Radio
+            name="brief-type"
+            onChange={(value) => setSelected(value)}
+            options={[
+              { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
+              { value: BriefingType.Weekly, label: 'Weekly - last 7 days' },
+            ]}
+            value={selected}
+          />
+        </div>
+        <Button
+          disabled={!isActionsFetched}
+          onClick={() => onClickGenerate()}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Secondary}
         >
-          Generate a one-off Presidential Briefing based on the past day or
-          week. No commitment. Yours now.
-        </Typography>
-      </div>
-      <div className="flex-1">
-        <Radio
-          name="brief-type"
-          onChange={(value) => setSelected(value)}
-          options={[
-            { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
-            { value: BriefingType.Weekly, label: 'Weekly - last 7 days' },
-          ]}
-          value={selected}
+          Generate for
+          {isFirstBrief ? (
+            ' free'
+          ) : (
+            <>
+              <CoreIcon className="mx-1" aria-hidden /> {price}
+            </>
+          )}
+        </Button>
+      </ClickableCard>
+      {showBuyCores && (
+        <BuyCoresModal
+          isOpen={showBuyCores}
+          onRequestClose={() => setShowBuyCores(false)}
+          onCompletion={handleBuyCoresCompleted}
+          product={buyCoresProduct}
+          origin={Origin.BriefPage}
         />
-      </div>
-      <Button
-        disabled={!isActionsFetched}
-        onClick={() => onClickGenerate()}
-        size={ButtonSize.Medium}
-        variant={ButtonVariant.Secondary}
-      >
-        Generate for
-        {isFirstBrief ? (
-          ' free'
-        ) : (
-          <>
-            <CoreIcon className="mx-1" aria-hidden /> {price}
-          </>
-        )}
-      </Button>
-    </ClickableCard>
+      )}
+    </>
   );
 };
