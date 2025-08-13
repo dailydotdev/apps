@@ -8,6 +8,7 @@ import { briefButtonBg } from '../../styles/custom';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { webappUrl } from '../../lib/constants';
 import Link from '../../components/utilities/Link';
+import { useViewSize, ViewSize } from '../../hooks';
 
 type JobOpportunityButtonProps = {
   className?: string;
@@ -16,6 +17,8 @@ type JobOpportunityButtonProps = {
 export const JobOpportunityButton = ({
   className,
 }: JobOpportunityButtonProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
+
   return (
     <Tooltip
       content="A personalized job opportunity was matched to your profile. Click to review it privately"
@@ -25,7 +28,7 @@ export const JobOpportunityButton = ({
         <Button
           icon={<JobIcon />}
           variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
+          size={isMobile ? ButtonSize.Small : ButtonSize.Medium}
           style={{
             background: briefButtonBg,
           }}
