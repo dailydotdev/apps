@@ -31,7 +31,7 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
-import { JobOpportunityButton } from '../jobs/JobOpportunityButton';
+import { JobOpportunityButton } from '../../features/jobs/JobOpportunityButton';
 
 enum FeedNavTab {
   ForYou = 'For you',

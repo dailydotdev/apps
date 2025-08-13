@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
-import { JobIcon } from '../icons';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { Button } from '../../components/buttons/Button';
+import { JobIcon } from '../../components/icons';
+import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { briefButtonBg } from '../../styles/custom';
-import { Tooltip } from '../tooltip/Tooltip';
+import { Tooltip } from '../../components/tooltip/Tooltip';
 import { webappUrl } from '../../lib/constants';
-import Link from '../utilities/Link';
+import Link from '../../components/utilities/Link';
 
 type JobOpportunityButtonProps = {
   className?: string;
