@@ -6,7 +6,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
 const seo: NextSeoProps = {
-  title: 'test',
+  title: defaultSeoTitle,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
   nofollow: true,
