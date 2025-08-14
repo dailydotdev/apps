@@ -6,32 +6,24 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { FunnelStepCtaWrapper } from '../shared';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { UploadCv } from '../../../components/onboarding';
+import { useUploadCv } from '../../profile/hooks/useUploadCv';
 
 function FunnelUploadCvComponent({
   parameters,
   onTransition,
 }: FunnelStepUploadCv): ReactElement | null {
   const { user } = useAuthContext();
-
-  const handleUploadSuccess = () => {
-    onTransition({
-      type: FunnelStepTransitionType.Complete,
-      details: {
-        tags: [],
-      },
-    });
-  };
+  const { onUpload, status, isSuccess } = useUploadCv({
+    shouldOpenModal: false,
+  });
 
   const handleComplete = () => {
     onTransition({
       type: FunnelStepTransitionType.Complete,
-      details: {
-        tags: [],
-      },
     });
   };
 
-  const isDisabled = true;
+  const isDisabled = !isSuccess;
 
   if (!user) {
     return null;
@@ -43,9 +35,12 @@ function FunnelUploadCvComponent({
       onClick={handleComplete}
       containerClassName="flex w-full flex-1 flex-col items-center justify-center overflow-hidden"
     >
-      <div className="laptop:max-w-screen-laptop flex w-full flex-col items-center gap-6 p-6 pt-10">
-        <UploadCv {...parameters} onUploadSuccess={handleUploadSuccess} />
-      </div>
+      <UploadCv
+        {...parameters}
+        onFilesDrop={([file]) => onUpload(file)}
+        status={status}
+        showLinkedInExport
+      />
     </FunnelStepCtaWrapper>
   );
 }

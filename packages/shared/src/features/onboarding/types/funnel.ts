@@ -351,11 +351,17 @@ export interface FunnelStepBrowserExtension
 export interface FunnelStepUploadCv
   extends FunnelStepCommon<{
     headline: string;
-    description: string;
-    cta1: string;
-    cta2: string;
-    cta3: string;
-    image: string;
+    description?: string;
+    dragDropDescription: string;
+    ctaDesktop: string;
+    ctaMobile: string;
+    linkedin?: {
+      cta?: string;
+      image?: string;
+      headline?: string;
+      explainer?: string;
+      steps?: string[];
+    };
   }> {
   type: FunnelStepType.UploadCv;
   onTransition: FunnelStepTransitionCallback;
@@ -412,12 +418,14 @@ export const stepsWithHeader = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.PlusCards,
   FunnelStepType.OrganicCheckout,
+  FunnelStepType.UploadCv,
 ] as const satisfies Array<FunnelStepType>;
 export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
   [
     FunnelStepType.BrowserExtension,
     FunnelStepType.PlusCards,
     FunnelStepType.OrganicCheckout,
+    FunnelStepType.UploadCv,
   ];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
@@ -427,4 +435,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicCheckout,
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
+  FunnelStepType.UploadCv,
 ];

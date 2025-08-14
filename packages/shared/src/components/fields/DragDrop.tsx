@@ -64,7 +64,8 @@ export interface DragDropProps {
   renderCta?: (onBrowseFile: () => void) => ReactNode;
   isCopyBold?: boolean;
   dragDropDescription?: string;
-  ctaLabel?: string;
+  ctaLabelDesktop?: string;
+  ctaLabelMobile?: string;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -145,7 +146,8 @@ export function DragDrop({
   renderCta,
   isCopyBold,
   dragDropDescription = 'Drag & Drop your CV or',
-  ctaLabel = 'Upload PDF',
+  ctaLabelDesktop = 'Upload PDF',
+  ctaLabelMobile = 'Upload PDF',
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
@@ -333,7 +335,7 @@ export function DragDrop({
         icon={<UploadIcon />}
         size={ctaSize}
       >
-        {ctaLabel}
+        {ctaLabelMobile}
       </Button>
     );
 
@@ -371,7 +373,7 @@ export function DragDrop({
           onClick={() => inputRef.current.click()}
           type="button"
         >
-          {ctaLabel}
+          {ctaLabelDesktop}
         </Button>
       )}
     </span>
