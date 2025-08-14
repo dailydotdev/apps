@@ -2,12 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
 const seo: NextSeoProps = {
-  title: defaultSeoTitle,
+  title: 'test',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
   nofollow: true,
@@ -22,13 +21,7 @@ const JobsWelcomePage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...props) =>
-  getFooterNavBarLayout(getLayout(...props));
-
-JobsWelcomePage.getLayout = getPageLayout;
-JobsWelcomePage.layoutProps = {
-  screenCentered: true,
-  seo,
-};
+JobsWelcomePage.getLayout = getLayout;
+JobsWelcomePage.layoutProps = { screenCentered: true, seo };
 
 export default JobsWelcomePage;
