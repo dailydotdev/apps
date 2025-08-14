@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import the component
 import { FunnelUploadCv } from './FunnelUploadCv';
-import { FunnelStepTransitionType } from '../types/funnel';
+import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
@@ -18,9 +18,19 @@ jest.mock('../../../contexts/AuthContext');
 
 // Mock the UploadCv component to make testing easier
 jest.mock('../../../components/onboarding/UploadCv', () => ({
-  UploadCv: ({ showLinkedInExport, onFilesDrop, status }: any) => (
+  UploadCv: ({
+    showLinkedInExport,
+    onFilesDrop,
+    status,
+  }: {
+    showLinkedInExport: boolean;
+    onFilesDrop: (files: File[]) => void;
+    status: string;
+  }) => (
     <div data-testid="upload-cv-mock">
-      <div data-testid="show-linkedin-export">{showLinkedInExport.toString()}</div>
+      <div data-testid="show-linkedin-export">
+        {showLinkedInExport.toString()}
+      </div>
       <div data-testid="status">{status}</div>
       <button
         type="button"
@@ -35,7 +45,15 @@ jest.mock('../../../components/onboarding/UploadCv', () => ({
 
 // Mock the FunnelStepCtaWrapper
 jest.mock('../shared/FunnelStepCtaWrapper', () => ({
-  FunnelStepCtaWrapper: ({ children, disabled, onClick }: any) => (
+  FunnelStepCtaWrapper: ({
+    children,
+    disabled,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    disabled: boolean;
+    onClick: () => void;
+  }) => (
     <div data-testid="cta-wrapper">
       <div data-testid="disabled-state">{disabled.toString()}</div>
       <button
@@ -53,7 +71,7 @@ jest.mock('../shared/FunnelStepCtaWrapper', () => ({
 
 // Mock the withIsActiveGuard HOC to just return the component
 jest.mock('../shared/withActiveGuard', () => ({
-  withIsActiveGuard: (Component: any) => Component,
+  withIsActiveGuard: <T,>(Component: T): T => Component,
 }));
 
 const createQueryClient = () =>
@@ -61,12 +79,36 @@ const createQueryClient = () =>
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
 
-const renderComponent = (parameters: any, onTransition = jest.fn()) => {
+interface TestParameters {
+  headline: string;
+  description?: string;
+  dragDropDescription: string;
+  ctaDesktop: string;
+  ctaMobile: string;
+  linkedin?: {
+    cta?: string;
+    image?: string;
+    headline?: string;
+    explainer?: string;
+    steps?: string[];
+  };
+}
+
+const renderComponent = (
+  parameters: TestParameters,
+  onTransition = jest.fn(),
+) => {
   const queryClient = createQueryClient();
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <FunnelUploadCv parameters={parameters} onTransition={onTransition} />
+      <FunnelUploadCv
+        parameters={parameters}
+        onTransition={onTransition}
+        type={FunnelStepType.UploadCv}
+        id="test-id"
+        transitions={[]}
+      />
     </QueryClientProvider>,
   );
 };
@@ -74,9 +116,13 @@ const renderComponent = (parameters: any, onTransition = jest.fn()) => {
 describe('FunnelUploadCv', () => {
   const mockOnTransition = jest.fn();
   const mockOnUpload = jest.fn();
-  
-  const mockUseUploadCv = useUploadCv as jest.MockedFunction<typeof useUploadCv>;
-  const mockUseAuthContext = useAuthContext as jest.MockedFunction<typeof useAuthContext>;
+
+  const mockUseUploadCv = useUploadCv as jest.MockedFunction<
+    typeof useUploadCv
+  >;
+  const mockUseAuthContext = useAuthContext as jest.MockedFunction<
+    typeof useAuthContext
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -84,12 +130,23 @@ describe('FunnelUploadCv', () => {
       onUpload: mockOnUpload,
       status: 'idle',
       isSuccess: false,
+      isPending: false,
+      shouldShow: false,
+      onCloseBanner: undefined,
     });
     mockUseAuthContext.mockReturnValue({
       user: {
         id: 'test-user',
         name: 'Test User',
         linkedin: 'test-linkedin-profile',
+        image: '',
+        providers: [],
+        createdAt: '',
+        permalink: '',
+        username: '',
+        balance: {
+          amount: 0,
+        },
       },
     });
   });
@@ -173,7 +230,10 @@ describe('FunnelUploadCv', () => {
     it('should return null when no user', () => {
       mockUseAuthContext.mockReturnValue({ user: null });
 
-      const { container } = renderComponent(defaultParameters, mockOnTransition);
+      const { container } = renderComponent(
+        defaultParameters,
+        mockOnTransition,
+      );
 
       expect(container).toBeEmptyDOMElement();
     });
@@ -192,7 +252,9 @@ describe('FunnelUploadCv', () => {
 
       renderComponent(parametersWithLinkedIn, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('true');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'true',
+      );
     });
 
     it('should hide LinkedIn export when linkedin data is empty', () => {
@@ -209,13 +271,17 @@ describe('FunnelUploadCv', () => {
 
       renderComponent(parametersWithEmptyLinkedIn, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('false');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'false',
+      );
     });
 
     it('should hide LinkedIn export when no linkedin data provided', () => {
       renderComponent(defaultParameters, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('false');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'false',
+      );
     });
 
     it('should show LinkedIn export with partial linkedin data', () => {
@@ -229,7 +295,9 @@ describe('FunnelUploadCv', () => {
 
       renderComponent(parametersWithPartialLinkedIn, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('true');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'true',
+      );
     });
 
     it('should detect content when cta is provided', () => {
@@ -240,7 +308,9 @@ describe('FunnelUploadCv', () => {
 
       renderComponent(parameters, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('true');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'true',
+      );
     });
 
     it('should detect content when image is provided', () => {
@@ -251,7 +321,9 @@ describe('FunnelUploadCv', () => {
 
       renderComponent(parameters, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('true');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'true',
+      );
     });
 
     it('should detect content when steps are provided', () => {
@@ -262,7 +334,9 @@ describe('FunnelUploadCv', () => {
 
       renderComponent(parameters, mockOnTransition);
 
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent('true');
+      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
+        'true',
+      );
     });
   });
 
@@ -286,7 +360,10 @@ describe('FunnelUploadCv', () => {
           isSuccess: status === 'success',
         });
 
-        const { unmount } = renderComponent(defaultParameters, mockOnTransition);
+        const { unmount } = renderComponent(
+          defaultParameters,
+          mockOnTransition,
+        );
 
         expect(screen.getByTestId('status')).toHaveTextContent(status);
         expect(screen.getByTestId('disabled-state')).toHaveTextContent(
