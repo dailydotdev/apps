@@ -60,6 +60,7 @@ import { getFirstName } from '../../../lib/user';
 import { labels } from '../../../lib';
 import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
+import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
 
 const BriefPostContentRaw = ({
   post,
@@ -245,6 +246,7 @@ const BriefPostContentRaw = ({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
+        {!!user && !user?.isPlus && <BriefUpgradeAlert className="mt-20" />}
         <BasePostContent
           className={{
             ...className,

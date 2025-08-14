@@ -24,6 +24,7 @@
 
   & .link {
     z-index: unset;
+
     &:focus:focus-visible {
       border-radius: 1rem;
     }

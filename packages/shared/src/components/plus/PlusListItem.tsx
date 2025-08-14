@@ -60,7 +60,6 @@ export const PlusListItem = ({
         <Tooltip
           className="!tablet:max-w-72 !max-w-full text-center"
           content={item.tooltip}
-          delayDuration={0}
           enableMobileClick
         >
           {component}

@@ -19,7 +19,7 @@ const BodyContainer = classed(
   'flex flex-col w-full pb-6 bg-background-default',
 );
 
-const PageBodyContainer = classed(
+export const PageBodyContainer = classed(
   BodyContainer,
   'm-auto w-full laptop:border-x laptop:border-border-subtlest-tertiary',
 );
