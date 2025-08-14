@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
 const seo: NextSeoProps = {
