@@ -18,7 +18,7 @@ import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
   usePostById,
   useJoinReferral,
@@ -34,6 +34,9 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
+import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
+import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
+import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -105,14 +108,18 @@ export interface PostParams extends ParsedUrlQuery {
 }
 
 export const seoTitle = (post: Post): string | undefined => {
-  if (post?.type === PostType.Share && post?.title === null) {
-    const sourceName = isSourceUserSource(post?.source)
-      ? `by ${post?.author?.username}`
-      : `at ${post?.source?.name}`;
-    return `Shared post ${sourceName}`;
+  if (post?.title) {
+    return post.title;
   }
 
-  return post?.title;
+  if (post?.sharedPost?.title) {
+    return post.sharedPost.title;
+  }
+
+  const sourceName = isSourceUserSource(post?.source)
+    ? `by ${post?.author?.username}`
+    : `at ${post?.source?.name}`;
+  return `Shared post ${sourceName}`;
 };
 
 export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
@@ -147,6 +154,10 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 
+  const { usePostReferrer } = usePostReferrerContext();
+
+  usePostReferrer({ post });
+
   if (isLoading || isFallback || privateSourceJoin.isActive) {
     return (
       <>
@@ -166,31 +177,42 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   }
 
   return (
-    <FooterNavBarLayout post={post}>
-      <Head>
-        <link rel="preload" as="image" href={post?.image} />
-      </Head>
-      <PostSEOSchema post={post} />
-      <Content
-        position={position}
-        isPostPage
-        post={post}
-        isFallback={isFallback}
-        backToSquad={!!router?.query?.squad}
-        shouldOnboardAuthor={!!router.query?.author}
-        origin={Origin.ArticlePage}
-        isBannerVisible={shouldShowAuthBanner && !isLaptop}
-        className={{
-          container: containerClass,
-          fixedNavigation: { container: 'flex laptop:hidden' },
-          navigation: {
-            container: 'flex tablet:hidden',
-            actions: 'flex-1 justify-between',
-          },
+    <ActivePostContextProvider post={post}>
+      <LogExtraContextProvider
+        selector={() => {
+          return {
+            referrer_target_id: post?.id,
+            referrer_target_type: post?.id ? TargetType.Post : undefined,
+          };
         }}
-      />
-      {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
-    </FooterNavBarLayout>
+      >
+        <FooterNavBarLayout post={post}>
+          <Head>
+            <link rel="preload" as="image" href={post?.image} />
+          </Head>
+          <PostSEOSchema post={post} />
+          <Content
+            position={position}
+            isPostPage
+            post={post}
+            isFallback={isFallback}
+            backToSquad={!!router?.query?.squad}
+            shouldOnboardAuthor={!!router.query?.author}
+            origin={Origin.ArticlePage}
+            isBannerVisible={shouldShowAuthBanner && !isLaptop}
+            className={{
+              container: containerClass,
+              fixedNavigation: { container: 'flex laptop:hidden' },
+              navigation: {
+                container: 'flex tablet:hidden',
+                actions: 'flex-1 justify-between',
+              },
+            }}
+          />
+          {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+        </FooterNavBarLayout>
+      </LogExtraContextProvider>
+    </ActivePostContextProvider>
   );
 };
 
