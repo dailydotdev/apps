@@ -50,16 +50,16 @@ export const UploadCv = ({
 
   return (
     <div className="flex w-full max-w-[49rem] flex-col items-center gap-6 p-6">
-      <h2 className="typo-large-title text-center font-bold">{headline}</h2>
+      <h2 className="text-center font-bold typo-large-title">{headline}</h2>
       {description && (
-        <p className="text-text-secondary typo-title3 laptop:px-14 text-center">
+        <p className="text-center text-text-secondary typo-title3 laptop:px-14">
           {description}
         </p>
       )}
       <DragDrop
         state={status}
         isCompactList
-        className="laptop:min-h-32 my-2 w-full"
+        className="my-2 w-full laptop:min-h-32"
         onFilesDrop={onFilesDrop}
         validation={fileValidation}
         isCopyBold
@@ -68,10 +68,10 @@ export const UploadCv = ({
         ctaLabelMobile={ctaMobile}
       />
       {showLinkedInExport && linkedin && (
-        <div className="laptop:flex hidden w-full items-start gap-6 p-6">
+        <div className="hidden w-full items-start gap-6 p-6 laptop:flex">
           <div className="flex flex-1 flex-col gap-2">
             {linkedin.headline && (
-              <h3 className="typo-title3 font-bold">{linkedin.headline}</h3>
+              <h3 className="font-bold typo-title3">{linkedin.headline}</h3>
             )}
             {linkedin.explainer && (
               <p className="text-text-tertiary typo-callout">
@@ -79,7 +79,7 @@ export const UploadCv = ({
               </p>
             )}
             {linkedin.steps && linkedin.steps.length > 0 && (
-              <ol className="text-text-secondary typo-body mt-2 flex flex-col gap-2">
+              <ol className="mt-2 flex flex-col gap-2 text-text-secondary typo-body">
                 {linkedin.steps.map((step) => (
                   <li key={step}>{step}</li>
                 ))}
@@ -105,7 +105,7 @@ export const UploadCv = ({
             <img
               src={linkedin.image}
               alt={linkedin.headline}
-              className="rounded-10 h-[11.375rem] w-[21.4375rem] flex-shrink-0 self-start object-cover shadow-sm"
+              className="shadow-sm h-[11.375rem] w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
             />
           )}
         </div>
