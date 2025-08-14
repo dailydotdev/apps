@@ -34,6 +34,7 @@ export default function PostModal({
   return (
     <BasePostModal
       {...props}
+      post={post}
       onAfterOpen={onLoad}
       size={Modal.Size.XLarge}
       onRequestClose={onRequestClose}
