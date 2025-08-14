@@ -35,6 +35,7 @@ export default function CollectionPostModal({
   return (
     <BasePostModal
       {...props}
+      post={post}
       onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       postType={PostType.Collection}

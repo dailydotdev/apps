@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useRef, useContext } from 'react';
+import React, { createContext, useRef, useContext, useMemo } from 'react';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import useLogQueue from '../hooks/log/useLogQueue';
 import useLogSharedProps from '../hooks/log/useLogSharedProps';
@@ -8,6 +8,7 @@ import useLogContextData from '../hooks/log/useLogContextData';
 import useBackfillPendingLogs from '../hooks/log/useBackfillPendingLogs';
 import useLogLifecycleEvents from '../hooks/log/useLogLifecycleEvents';
 import type { BootApp } from '../lib/boot';
+import { useLogExtraContext } from './LogExtraContext';
 
 const LogContext = createContext<LogContextData>({
   logEvent: () => {},
@@ -72,4 +73,29 @@ export const LogContextProvider = ({
   );
 };
 
-export const useLogContext = (): LogContextData => useContext(LogContext);
+export const useLogContext = (): LogContextData => {
+  const logContext = useContext(LogContext);
+  const logContextRef = useRef(logContext);
+  logContextRef.current = logContext;
+
+  const logExtraContext = useLogExtraContext();
+  const logExtraContextRef = useRef(logExtraContext);
+  logExtraContextRef.current = logExtraContext;
+
+  return useMemo(() => {
+    return {
+      ...logContextRef.current,
+      logEvent: (event) => {
+        logContextRef.current.logEvent(
+          logExtraContextRef.current.selectorRef.current({ event }),
+        );
+      },
+      logEventStart: (id, event) => {
+        logContextRef.current.logEventStart(
+          id,
+          logExtraContextRef.current.selectorRef.current({ event }),
+        );
+      },
+    };
+  }, []);
+};
