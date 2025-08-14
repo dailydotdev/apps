@@ -30,6 +30,7 @@ export * from './Cookie';
 export * from './Copy';
 export * from './Core';
 export * from './CreditCard';
+export * from './Crunchbase';
 export * from './CustomPrompt';
 export * from './DailyIcon';
 export * from './DefaultSquad';
