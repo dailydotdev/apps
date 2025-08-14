@@ -25,6 +25,16 @@ function FunnelUploadCvComponent({
 
   const isDisabled = !isSuccess;
 
+  const { linkedin } = parameters;
+
+  const hasLinkedInContent =
+    linkedin &&
+    (linkedin.cta ||
+      linkedin.image ||
+      linkedin.headline ||
+      linkedin.explainer ||
+      (linkedin.steps && linkedin.steps.length > 0));
+
   if (!user) {
     return null;
   }
@@ -39,7 +49,7 @@ function FunnelUploadCvComponent({
         {...parameters}
         onFilesDrop={([file]) => onUpload(file)}
         status={status}
-        showLinkedInExport
+        showLinkedInExport={!!hasLinkedInContent}
       />
     </FunnelStepCtaWrapper>
   );
