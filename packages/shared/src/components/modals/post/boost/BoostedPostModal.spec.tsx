@@ -12,7 +12,7 @@ import postFixture from '../../../../../__tests__/fixture/post';
 import type { Post } from '../../../../graphql/posts';
 
 // Mock the hooks
-jest.mock('../../../../hooks/post/usePostBoostMutations');
+jest.mock('../../../../hooks/post/useCampaignMutation');
 jest.mock('../../../../hooks/post/usePostBoostEstimation');
 jest.mock('../../../../hooks');
 jest.mock('../../../../hooks/useLazyModal');
