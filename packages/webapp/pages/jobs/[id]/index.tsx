@@ -397,7 +397,7 @@ const JobPage = (): ReactElement => {
   return (
     <>
       {!hasCompleted && <JobPageIntro />}
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 laptop:flex-row">
+      <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
         <div className="h-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
