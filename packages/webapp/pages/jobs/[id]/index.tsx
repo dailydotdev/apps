@@ -449,6 +449,7 @@ const JobPage = (): ReactElement => {
 
               <div className="flex flex-col">
                 <Typography
+                  bold
                   type={TypographyType.Callout}
                   color={TypographyColor.Primary}
                 >
@@ -764,6 +765,7 @@ const JobPage = (): ReactElement => {
 
                   <div className="flex flex-col">
                     <Typography
+                      bold
                       type={TypographyType.Callout}
                       color={TypographyColor.Primary}
                     >
