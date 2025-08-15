@@ -420,7 +420,7 @@ const JobPage = (): ReactElement => {
               </Typography>
             </div>
 
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto hidden gap-2 tablet:flex">
               <Button
                 size={ButtonSize.Small}
                 icon={<MiniCloseIcon />}
