@@ -11,7 +11,6 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source';
-import type { UserImageProps } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -330,16 +329,10 @@ const faq = [
   },
 ];
 
-const source = {
+const company = {
   handle: 'Linear',
   image: null,
   website: 'https://vg.no',
-};
-
-const user: UserImageProps & { title: string } = {
-  image: null,
-  name: 'Rachel Brown',
-  title: 'Lead Talent Acquisition',
 };
 
 const socialMediaLinks = [
@@ -347,6 +340,53 @@ const socialMediaLinks = [
   { key: 'twitter', href: '#', icon: <TwitterIcon /> },
   { key: 'github', href: '#', icon: <GitHubIcon /> },
   { key: 'crunchbase', href: '#', icon: <CrunchbaseIcon /> },
+];
+
+const resourcesLinks = [
+  { key: 'engineering_blog', href: '#', label: 'Engineering Blog' },
+  { key: 'public_github', href: '#', label: 'Public GitHub / OSS Links' },
+  { key: 'workplace_policy', href: '#', label: 'Workplace Policy' },
+  { key: 'culture_deck', href: '#', label: 'Culture Deck' },
+];
+
+const featuredPressLinks = [
+  {
+    key: 'openai_aws',
+    href: '#',
+    label: 'For the first time, OpenAI models are available on AWS',
+    source: company,
+  },
+  {
+    key: 'google_gemini',
+    href: '#',
+    label: "Google's Gemini CLI Agent Comes to GitHub",
+    source: company,
+  },
+];
+
+const recruiters = [
+  {
+    key: 'rachel_brown',
+    user: {
+      image: null,
+      name: 'Rachel Brown',
+      title: 'Lead Talent Acquisition',
+    },
+    description:
+      'Rachel specializes in connecting top-tier frontend talent with innovative startups. She values clear communication and a genuine interest in product development.',
+    agency: false,
+  },
+  {
+    key: 'mark_davis',
+    user: {
+      image: null,
+      name: 'Mark Davis',
+      title: 'Senior Recruiter',
+    },
+    description:
+      'Mark partners with leading tech companies to identify and attract engineers passionate about building scalable solutions. He has a keen eye for detail and a knack for finding great culture fits.',
+    agency: true,
+  },
 ];
 
 const JobPage = (): ReactElement => {
@@ -362,14 +402,14 @@ const JobPage = (): ReactElement => {
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
             <div className="flex items-center">
-              <SourceAvatar source={source} size={ProfileImageSize.Medium} />
+              <SourceAvatar source={company} size={ProfileImageSize.Medium} />
 
               <Typography
                 bold
                 type={TypographyType.Callout}
                 color={TypographyColor.Primary}
               >
-                {source.handle}{' '}
+                {company.handle}{' '}
                 <Typography
                   tag={TypographyTag.Span}
                   color={TypographyColor.Tertiary}
@@ -402,20 +442,23 @@ const JobPage = (): ReactElement => {
           <div className="flex flex-col gap-4 px-8 py-6">
             {/* Recruiter */}
             <div className="flex items-center gap-2">
-              <ProfilePicture user={user} size={ProfileImageSize.Large} />
+              <ProfilePicture
+                user={recruiters[0].user}
+                size={ProfileImageSize.Large}
+              />
 
               <div className="flex flex-col">
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Primary}
                 >
-                  {user.name}
+                  {recruiters[0].user.name}
                 </Typography>
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  {user.title}
+                  {recruiters[0].user.title}
                 </Typography>
               </div>
             </div>
@@ -541,7 +584,7 @@ const JobPage = (): ReactElement => {
                 Company
               </Typography>
 
-              <Link href={source.website} passHref>
+              <Link href={company.website} passHref>
                 <Button
                   tag="a"
                   target="_blank"
@@ -557,14 +600,14 @@ const JobPage = (): ReactElement => {
             </div>
             {/* Comapny information */}
             <div className="flex px-4">
-              <SourceAvatar source={source} size={ProfileImageSize.Large} />
+              <SourceAvatar source={company} size={ProfileImageSize.Large} />
 
               <div className="flex flex-col">
                 <Typography
                   type={TypographyType.Body}
                   color={TypographyColor.Primary}
                 >
-                  {source.handle}
+                  {company.handle}
                 </Typography>
                 <Typography
                   type={TypographyType.Footnote}
@@ -650,90 +693,50 @@ const JobPage = (): ReactElement => {
                 }
               >
                 <FlexCol className="gap-4">
+                  {/* Resources */}
                   <div className="flex flex-col gap-2">
                     <Typography bold type={TypographyType.Callout}>
                       Resources
                     </Typography>
 
-                    <Link href="#" passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
-                      >
-                        Engineering Blog
-                      </Button>
-                    </Link>
-                    <Link href="#" passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
-                      >
-                        Public GitHub / OSS Links
-                      </Button>
-                    </Link>
-                    <Link href="#" passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
-                      >
-                        Workplace Policy
-                      </Button>
-                    </Link>
-                    <Link href="#" passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
-                      >
-                        Culture Deck
-                      </Button>
-                    </Link>
+                    {resourcesLinks.map(({ key, href, label }) => (
+                      <Link key={key} href={href} passHref>
+                        <Button
+                          variant={ButtonVariant.Subtle}
+                          icon={<OpenLinkIcon />}
+                          iconPosition={ButtonIconPosition.Right}
+                          className="justify-between !pl-2 !pr-3"
+                        >
+                          {label}
+                        </Button>
+                      </Link>
+                    ))}
                   </div>
 
+                  {/* Featured press */}
                   <div className="flex flex-col gap-2 pb-2">
                     <Typography bold type={TypographyType.Callout}>
                       Featured press
                     </Typography>
 
-                    <Link href="#" passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
-                      >
-                        <SourceAvatar
-                          source={source}
-                          size={ProfileImageSize.Small}
-                        />
-                        <span className="flex-1 truncate text-left">
-                          For the first time, OpenAI models are available on AWS
-                        </span>
-                      </Button>
-                    </Link>
-                    <Link href="#" passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
-                      >
-                        <SourceAvatar
-                          source={source}
-                          size={ProfileImageSize.Small}
-                        />
-                        <span className="flex-1 truncate text-left">
-                          Google&apos;s Gemini CLI Agent Comes to GitHub
-                        </span>
-                      </Button>
-                    </Link>
+                    {featuredPressLinks.map(({ key, href, label, source }) => (
+                      <Link key={key} href={href} passHref>
+                        <Button
+                          variant={ButtonVariant.Subtle}
+                          icon={<OpenLinkIcon />}
+                          iconPosition={ButtonIconPosition.Right}
+                          className="justify-between !pl-2 !pr-3"
+                        >
+                          <SourceAvatar
+                            source={source}
+                            size={ProfileImageSize.Small}
+                          />
+                          <span className="flex-1 truncate text-left">
+                            {label}
+                          </span>
+                        </Button>
+                      </Link>
+                    ))}
                   </div>
                 </FlexCol>
               </Accordion>
@@ -753,75 +756,43 @@ const JobPage = (): ReactElement => {
               </Typography>
             </div>
 
-            {/* Recruiter */}
-            <FlexCol className="gap-4 px-4 pb-4">
-              <div className="flex items-center gap-2">
-                <ProfilePicture user={user} size={ProfileImageSize.Large} />
+            {/* Recruiters */}
+            {recruiters.map(({ key, user, description, agency }) => (
+              <FlexCol key={key} className="gap-4 px-4 pb-4">
+                <div className="flex items-center gap-2">
+                  <ProfilePicture user={user} size={ProfileImageSize.Large} />
 
-                <div className="flex flex-col">
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                  >
-                    {user.name}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                    className="flex items-center gap-1"
-                  >
-                    {user.title}{' '}
-                    <Chip className="!my-0 border-none bg-surface-float text-text-tertiary">
-                      Agency
-                    </Chip>
-                  </Typography>
+                  <div className="flex flex-col">
+                    <Typography
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                    >
+                      {user.name}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                      className="flex items-center gap-1"
+                    >
+                      {user.title}{' '}
+                      {agency && (
+                        <Chip className="!my-0 border-none bg-surface-float text-text-tertiary">
+                          Agency
+                        </Chip>
+                      )}
+                    </Typography>
+                  </div>
                 </div>
-              </div>
 
-              {/* Description */}
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Linear is building the future of issue tracking and project
-                management. Used by companies like Vercel, Stripe, and Coinbase,
-                Linear combines speed, simplicity, and powerful functionality in
-                a beautiful interface.
-              </Typography>
-            </FlexCol>
-
-            {/* Recruiter */}
-            <FlexCol className="gap-4 px-4 pb-4">
-              <div className="flex items-center gap-2">
-                <ProfilePicture user={user} size={ProfileImageSize.Large} />
-
-                <div className="flex flex-col">
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                  >
-                    {user.name}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {user.title}
-                  </Typography>
-                </div>
-              </div>
-
-              {/* Description */}
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Linear is building the future of issue tracking and project
-                management. Used by companies like Vercel, Stripe, and Coinbase,
-                Linear combines speed, simplicity, and powerful functionality in
-                a beautiful interface.
-              </Typography>
-            </FlexCol>
+                {/* Description */}
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  {description}
+                </Typography>
+              </FlexCol>
+            ))}
           </FlexCol>
         </FlexCol>
       </div>
