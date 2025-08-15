@@ -18,6 +18,7 @@ import {
   TypographyColor,
 } from '../typography/Typography';
 import { Image } from '../image/Image';
+import { anchorDefaultRel } from '../../lib/strings';
 
 interface UploadCvProps {
   headline: string;
