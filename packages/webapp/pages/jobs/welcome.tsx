@@ -68,7 +68,7 @@ const HeaderSection = (): ReactElement => {
         style={{
           background: briefButtonBg,
         }}
-        className="mt-4 gap-2 !px-16 text-black"
+        className="mt-4 gap-2 border-none !px-16 text-black"
       >
         <ProfilePicture
           size={ProfileImageSize.Small}
@@ -157,16 +157,25 @@ const HowItWorksSection = (): ReactElement => (
       How it works
     </Typography>
     <div className="flex flex-col gap-4 text-left tablet:flex-row">
-      {howItWorks.map(({ image, title, description }) => (
+      {howItWorks.map(({ image, title, description }, index) => (
         <div
           className="flex flex-1 flex-row gap-4 tablet:flex-col tablet:gap-1"
           key={title}
         >
-          <img
-            src={image}
-            alt={title}
-            className="mb-3 h-24 w-24 rounded-16 object-cover tablet:w-full"
-          />
+          <div className="relative mb-3">
+            <img
+              src={image}
+              alt={title}
+              className="h-24 w-24 rounded-16 object-cover tablet:w-full"
+            />
+            <div className="absolute bottom-[0.625rem] left-[0.625rem] size-[1.875rem] rounded-10 bg-surface-invert">
+              <div className="flex size-full items-center justify-center">
+                <Typography type={TypographyType.Body} bold>
+                  {index + 1}
+                </Typography>
+              </div>
+            </div>
+          </div>
           <div className="flex flex-shrink flex-col gap-1">
             <Typography type={TypographyType.Callout} bold>
               {title}
