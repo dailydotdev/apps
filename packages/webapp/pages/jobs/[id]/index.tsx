@@ -652,7 +652,7 @@ const JobPage = (): ReactElement => {
                 <FlexCol className="gap-4">
                   <div className="flex flex-col gap-2">
                     <Typography bold type={TypographyType.Callout}>
-                      Perks & Benefits
+                      Resources
                     </Typography>
 
                     <Link href="#" passHref>
