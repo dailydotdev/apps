@@ -132,11 +132,17 @@ export const getBoostedPostByCampaignId = async (
 };
 
 export const BOOST_ESTIMATED_REACH_DAILY = gql`
-  query BoostEstimatedReachDaily($postId: ID!, $budget: Int!, $duration: Int!) {
-    boostEstimatedReachDaily(
-      postId: $postId
-      budget: $budget
+  query DailyCampaignReachEstimate(
+    $type: CampaignType!
+    $value: ID!
+    $budget: Int!
+    $duration: Int!
+  ) {
+    dailyCampaignReachEstimate(
+      type: $type
+      value: $value
       duration: $duration
+      budget: $budget
     ) {
       min
       max
@@ -144,16 +150,16 @@ export const BOOST_ESTIMATED_REACH_DAILY = gql`
   }
 `;
 
-export interface BoostPostProps {
-  id: string;
-  budget: number;
-  duration: number;
+export enum CampaignType {
+  Post = 'post',
+  Source = 'source',
 }
 
-export interface EstimatedReachProps {
-  id: string;
+export interface StartCampaignProps {
+  value: string;
   budget: number;
   duration: number;
+  type: CampaignType;
 }
 
 export interface BoostEstimatedReach {
@@ -162,24 +168,36 @@ export interface BoostEstimatedReach {
 }
 
 export const getBoostEstimatedReachDaily = async ({
-  id,
+  type,
+  value,
   budget,
   duration,
-}: EstimatedReachProps): Promise<BoostEstimatedReach> => {
+}: StartCampaignProps): Promise<BoostEstimatedReach> => {
   const result = await gqlClient.request(BOOST_ESTIMATED_REACH_DAILY, {
-    postId: id,
+    type,
+    value,
     budget,
     duration,
   });
 
-  return result.boostEstimatedReachDaily;
+  return result.dailyCampaignReachEstimate;
 };
 
-export const START_POST_BOOST = gql`
-  mutation StartPostBoost($postId: ID!, $duration: Int!, $budget: Int!) {
-    startPostBoost(postId: $postId, duration: $duration, budget: $budget) {
-      referenceId
+export const START_CAMPAIGN = gql`
+  mutation StartCampaign(
+    $type: CampaignType!
+    $value: ID!
+    $budget: Int!
+    $duration: Int!
+  ) {
+    startCampaign(
+      type: $type
+      value: $value
+      duration: $duration
+      budget: $budget
+    ) {
       transactionId
+      referenceId
       balance {
         amount
       }
@@ -187,25 +205,27 @@ export const START_POST_BOOST = gql`
   }
 `;
 
-export const startPostBoost = async ({
-  id,
+export const startCampaign = async ({
+  type,
+  value,
   budget,
   duration,
-}: BoostPostProps): Promise<TransactionCreated> => {
-  const result = await gqlClient.request(START_POST_BOOST, {
-    postId: id,
+}: StartCampaignProps): Promise<TransactionCreated> => {
+  const result = await gqlClient.request(START_CAMPAIGN, {
+    type,
+    value,
     budget,
     duration,
   });
 
-  return result.startPostBoost;
+  return result.startCampaign;
 };
 
-export const CANCEL_POST_BOOST = gql`
-  mutation CancelPostBoost($postId: ID!) {
-    cancelPostBoost(postId: $postId) {
-      referenceId
+export const STOP_CAMPAIGN = gql`
+  mutation StopCampaign($campaignId: ID!) {
+    stopCampaign(campaignId: $campaignId) {
       transactionId
+      referenceId
       balance {
         amount
       }
@@ -216,11 +236,11 @@ export const CANCEL_POST_BOOST = gql`
 export const cancelPostBoost = async (
   id: string,
 ): Promise<TransactionCreated> => {
-  const result = await gqlClient.request(CANCEL_POST_BOOST, {
+  const result = await gqlClient.request(STOP_CAMPAIGN, {
     postId: id,
   });
 
-  return result.cancelPostBoost;
+  return result.stopCampaign;
 };
 
 export const DEFAULT_CORES_PER_DAY = 5000;

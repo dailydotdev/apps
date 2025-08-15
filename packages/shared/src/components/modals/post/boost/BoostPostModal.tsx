@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
 import {
@@ -19,7 +20,7 @@ import { IconSize } from '../../../Icon';
 import { Origin } from '../../../../lib/log';
 import { BuyCoresModal } from '../../award/BuyCoresModal';
 import { usePostImage } from '../../../../hooks/post/usePostImage';
-import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
+import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
 import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
@@ -28,10 +29,12 @@ import { boostPostDocsLink, walletUrl } from '../../../../lib/constants';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { Loader } from '../../../Loader';
 import {
+  CampaignType,
   DEFAULT_CORES_PER_DAY,
   DEFAULT_DURATION_DAYS,
 } from '../../../../graphql/post/boost';
 import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
+import { updatePostCache } from '../../../../lib/query';
 
 const Slider = dynamic(
   () => import('../../../fields/Slider').then((mod) => mod.Slider),
@@ -56,6 +59,7 @@ export function BoostPostModal({
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
+  const client = useQueryClient();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(DEFAULT_CORES_PER_DAY);
   const [totalDays, setTotalDays] = React.useState(DEFAULT_DURATION_DAYS);
@@ -67,8 +71,16 @@ export function BoostPostModal({
     post,
     query: { budget: estimate.coresPerDay, duration: estimate.totalDays },
   });
-  const { onBoostPost } = usePostBoostMutation({
-    onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
+  const { onBoostPost } = useCampaignMutation({
+    onBoostSuccess: (data, vars) => {
+      if (data.referenceId) {
+        updatePostCache(client, vars.value, (old) => ({
+          flags: { ...old.flags, campaignId: data.referenceId },
+        }));
+      }
+
+      setActiveScreen(SCREENS.SUCCESS);
+    },
   });
   const image = usePostImage(post);
 
@@ -80,7 +92,8 @@ export function BoostPostModal({
     return onBoostPost({
       duration: totalDays,
       budget: coresPerDay,
-      id: post.id,
+      value: post.id,
+      type: CampaignType.Post,
     });
   };
 

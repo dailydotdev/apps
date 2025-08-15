@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { BoostPostModal } from './BoostPostModal';
-import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
+import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
 import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
 import { usePostById } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
@@ -20,8 +20,8 @@ jest.mock('../../../../hooks/post/usePostImage');
 jest.mock('../../../../hooks/useDebounceFn');
 jest.mock('next/dynamic', () => () => 'div');
 
-const mockUsePostBoostMutation = usePostBoostMutation as jest.MockedFunction<
-  typeof usePostBoostMutation
+const mockUsePostBoostMutation = useCampaignMutation as jest.MockedFunction<
+  typeof useCampaignMutation
 >;
 const mockUsePostBoostEstimation =
   usePostBoostEstimation as jest.MockedFunction<typeof usePostBoostEstimation>;

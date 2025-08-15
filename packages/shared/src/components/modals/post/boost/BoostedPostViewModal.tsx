@@ -10,7 +10,7 @@ import type { ModalProps } from '../../common/Modal';
 import { Modal } from '../../common/Modal';
 import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { getBoostedPostByCampaignId } from '../../../../graphql/post/boost';
-import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
+import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
 import type { Post } from '../../../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -52,7 +52,7 @@ export function BoostedPostViewModal({
   ...props
 }: BoostedPostViewModalProps): ReactElement {
   const { showPrompt } = usePrompt();
-  const { onCancelBoost, isLoadingCancel } = usePostBoostMutation({
+  const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
     onCancelSuccess: onBack || (() => props.onRequestClose(null)),
   });
 
