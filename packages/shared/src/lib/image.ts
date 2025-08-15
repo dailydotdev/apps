@@ -364,8 +364,8 @@ export const jobsWelcomeLightMode =
   'https://media.daily.dev/image/upload/s--OwPStCCF--/f_auto/v1754903896/public/lightbg-Super%20Career%20Connector-1';
 
 export const jobsHowItWorksOne =
-  'https://media.daily.dev/image/upload/s--pyB5IXYP--/f_auto/v1754913490/public/1%20Review%20the%20opportunity';
+  'https://media.daily.dev/image/upload/s--oBG_2HMq--/f_auto/v1755256487/public/recruiting%20system-landing%20page-1';
 export const jobsHowItWorksTwo =
-  'https://media.daily.dev/image/upload/s--eJXmHvKN--/f_auto/v1754913490/public/2%20We%E2%80%99ll%20check%20mutual%20interest';
+  'https://media.daily.dev/image/upload/s--1iphOt2P--/f_auto/v1755256487/public/recruiting%20system-landing%20page-2';
 export const jobsHowItWorksThree =
-  'https://media.daily.dev/image/upload/s--MevqcEKj--/f_auto/v1754913490/public/3%20We%20make%20a%20warm%20intro';
+  'https://media.daily.dev/image/upload/s--470GU2QS--/f_auto/v1755256487/public/recruiting%20system-landing%20page-3';
