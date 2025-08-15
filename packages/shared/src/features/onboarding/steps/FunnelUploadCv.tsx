@@ -31,9 +31,11 @@ function FunnelUploadCvComponent({
 
   const { linkedin } = parameters;
 
-  const hasLinkedInContent = Object.values(linkedin).some((val) =>
-    Array.isArray(val) ? val.length > 0 : val,
-  );
+  const hasLinkedInContent =
+    linkedin &&
+    Object.values(linkedin).some((val) =>
+      Array.isArray(val) ? val.length > 0 : val,
+    );
 
   return (
     <FunnelStepCtaWrapper
