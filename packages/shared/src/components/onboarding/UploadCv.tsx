@@ -11,7 +11,6 @@ import {
   ButtonSize,
 } from '../buttons/Button';
 import { OpenLinkIcon } from '../icons';
-import { useAuthContext } from '../../contexts/AuthContext';
 import {
   Typography,
   TypographyTag,
@@ -49,11 +48,6 @@ export const UploadCv = ({
   status,
   showLinkedInExport = true,
 }: UploadCvProps): ReactElement => {
-  const { user } = useAuthContext();
-
-  const userLinkedIn = user?.linkedin
-    ? `https://linkedin.com/in/${user.linkedin}`
-    : `https://linkedin.com/`;
 
   return (
     <div className="flex w-full max-w-[48.75rem] flex-col items-center gap-6 p-6">
@@ -121,7 +115,7 @@ export const UploadCv = ({
             {linkedin.cta && (
               <Button
                 tag="a"
-                href={userLinkedIn}
+                href="https://linkedin.com/"
                 target="_blank"
                 rel="noopener"
                 variant={ButtonVariant.Secondary}

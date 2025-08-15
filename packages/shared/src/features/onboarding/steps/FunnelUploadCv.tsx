@@ -17,6 +17,10 @@ function FunnelUploadCvComponent({
     shouldOpenModal: false,
   });
 
+  if (!user) {
+    return null;
+  }
+
   const handleComplete = () => {
     onTransition({
       type: FunnelStepTransitionType.Complete,
@@ -27,17 +31,9 @@ function FunnelUploadCvComponent({
 
   const { linkedin } = parameters;
 
-  const hasLinkedInContent =
-    linkedin &&
-    (linkedin.cta ||
-      linkedin.image ||
-      linkedin.headline ||
-      linkedin.explainer ||
-      (linkedin.steps && linkedin.steps.length > 0));
-
-  if (!user) {
-    return null;
-  }
+  const hasLinkedInContent = Object.values(linkedin).some((val) =>
+    Array.isArray(val) ? val.length > 0 : val,
+  );
 
   return (
     <FunnelStepCtaWrapper
