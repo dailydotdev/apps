@@ -33,7 +33,7 @@ export const JobOpportunityButton = ({
             background: briefButtonBg,
           }}
           tag="a"
-          className={classNames(className, 'text-black')}
+          className={classNames(className, 'border-none text-black')}
         >
           One opportunity is waiting for you here
         </Button>
