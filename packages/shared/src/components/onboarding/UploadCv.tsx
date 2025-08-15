@@ -12,6 +12,13 @@ import {
 } from '../buttons/Button';
 import { OpenLinkIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+  TypographyColor,
+} from '../typography/Typography';
+import { Image } from '../image/Image';
 
 interface UploadCvProps {
   headline: string;
@@ -49,12 +56,24 @@ export const UploadCv = ({
     : `https://linkedin.com/`;
 
   return (
-    <div className="flex w-full max-w-[49rem] flex-col items-center gap-6 p-6">
-      <h2 className="text-center font-bold typo-large-title">{headline}</h2>
+    <div className="flex w-full max-w-[48.75rem] flex-col items-center gap-6 p-6">
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.LargeTitle}
+        bold
+        center
+      >
+        {headline}
+      </Typography>
       {description && (
-        <p className="text-center text-text-secondary typo-title3 laptop:px-14">
+        <Typography
+          type={TypographyType.Title3}
+          color={TypographyColor.Secondary}
+          center
+          className="laptop:px-14"
+        >
           {description}
-        </p>
+        </Typography>
       )}
       <DragDrop
         state={status}
@@ -71,19 +90,33 @@ export const UploadCv = ({
         <div className="hidden w-full items-start gap-6 p-6 laptop:flex">
           <div className="flex flex-1 flex-col gap-2">
             {linkedin.headline && (
-              <h3 className="font-bold typo-title3">{linkedin.headline}</h3>
+              <Typography
+                tag={TypographyTag.H3}
+                type={TypographyType.Title3}
+                bold
+              >
+                {linkedin.headline}
+              </Typography>
             )}
             {linkedin.explainer && (
-              <p className="text-text-tertiary typo-callout">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
                 {linkedin.explainer}
-              </p>
+              </Typography>
             )}
             {linkedin.steps && linkedin.steps.length > 0 && (
-              <ol className="mt-2 flex flex-col gap-2 text-text-secondary typo-body">
+              <Typography
+                tag={TypographyTag.Ol}
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+                className="mt-2 flex flex-col gap-2"
+              >
                 {linkedin.steps.map((step) => (
                   <li key={step}>{step}</li>
                 ))}
-              </ol>
+              </Typography>
             )}
             {linkedin.cta && (
               <Button
@@ -102,10 +135,10 @@ export const UploadCv = ({
             )}
           </div>
           {linkedin.image && (
-            <img
+            <Image
               src={linkedin.image}
               alt={linkedin.headline}
-              className="shadow-sm h-[11.375rem] w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
+              className="shadow-sm aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
             />
           )}
         </div>
