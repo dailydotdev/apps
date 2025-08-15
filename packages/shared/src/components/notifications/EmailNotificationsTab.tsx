@@ -21,7 +21,7 @@ const EmailNotificationsTab = (): ReactElement => {
     toggleGroup,
     getGroupStatus,
     unsubscribeAllEmail,
-    emailsEnabled,
+    emailsDisabled,
   } = useNotificationSettings();
 
   return (
@@ -260,7 +260,8 @@ const EmailNotificationsTab = (): ReactElement => {
         <NotificationSwitch
           id="unsubscribe_all"
           label="Unsubscribe from all email notifications"
-          checked={emailsEnabled}
+          disabled={emailsDisabled}
+          checked={emailsDisabled}
           onToggle={unsubscribeAllEmail}
         />
       </NotificationSection>
