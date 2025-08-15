@@ -806,7 +806,7 @@ const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
 
 JobPage.getLayout = getPageLayout;
 JobPage.layoutProps = {
-  className: 'gap-10 laptop:pt-10',
+  className: 'gap-10 laptop:pt-10 pb-10',
   screenCentered: true,
   seo,
 };
