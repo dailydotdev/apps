@@ -273,10 +273,10 @@ const JobsWelcomePage = (): ReactElement => {
       <img
         src={jobsWelcome}
         alt="Jobs welcome"
-        className="fixed left-1/2 z-0 max-w-[60rem] -translate-x-1/2 transform"
+        className="fixed left-1/2 top-12 z-0 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
       />
-      <div className="relative mx-4 mt-10 max-w-[47.875rem] laptop:mx-auto">
-        <FlexCol className="gap-8">
+      <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
+        <FlexCol className="gap-8 tablet:mx-4 laptop:mx-0">
           <HeaderSection />
           <BenefitSection />
           <HowItWorksSection />
