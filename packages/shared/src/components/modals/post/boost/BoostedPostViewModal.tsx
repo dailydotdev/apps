@@ -104,7 +104,7 @@ export function BoostedPostViewModal({
 export function FetchBoostedViewModal({
   campaignId,
   ...props
-}: Omit<BoostedPostViewModalProps, 'data'> & {
+}: Omit<BoostedPostViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
   const { user } = useAuthContext();
