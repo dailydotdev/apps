@@ -232,7 +232,8 @@ describe('BoostPostModal', () => {
       expect(mockOnBoostPost).toHaveBeenCalledWith({
         duration: 7, // default totalDays
         budget: 5000, // default coresPerDay
-        id: 'post-1',
+        type: 'post',
+        value: 'post-1',
       });
     });
 
@@ -259,7 +260,8 @@ describe('BoostPostModal', () => {
       expect(mockOnBoostPost).toHaveBeenCalledWith({
         duration: 7,
         budget: 5000,
-        id: 'post-1',
+        type: 'post',
+        value: 'post-1',
       });
     });
 
