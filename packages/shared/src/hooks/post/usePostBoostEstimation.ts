@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { StartCampaignProps } from '../../graphql/post/boost';
-import { CampaignType } from '../../graphql/post/boost';
+import type { StartCampaignProps } from '../../graphql/campaigns';
+import { CampaignType } from '../../graphql/campaigns';
 import type { Post } from '../../graphql/posts';
 import { briefRefetchIntervalMs, defautRefetchMs } from '../../graphql/posts';
 import { oneMinute } from '../../lib/dateFormat';

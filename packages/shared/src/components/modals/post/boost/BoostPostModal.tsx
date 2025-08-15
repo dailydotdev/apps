@@ -32,7 +32,7 @@ import {
   CampaignType,
   DEFAULT_CORES_PER_DAY,
   DEFAULT_DURATION_DAYS,
-} from '../../../../graphql/post/boost';
+} from '../../../../graphql/campaigns';
 import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
 import { updatePostCache } from '../../../../lib/query';
 

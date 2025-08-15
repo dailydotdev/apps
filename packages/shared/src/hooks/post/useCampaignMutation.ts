@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { StartCampaignProps } from '../../graphql/post/boost';
-import { startCampaign, cancelPostBoost } from '../../graphql/post/boost';
+import type { StartCampaignProps } from '../../graphql/campaigns';
+import { startCampaign, stopCampaign } from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
@@ -15,7 +15,7 @@ interface UseCampaignMutationProps {
 
 interface UseCampaignMutation {
   onBoostPost: typeof startCampaign;
-  onCancelBoost: typeof cancelPostBoost;
+  onCancelBoost: typeof stopCampaign;
   isLoadingCancel: boolean;
 }
 
@@ -56,7 +56,7 @@ export const useCampaignMutation = ({
   });
 
   const { mutateAsync: onCancelBoost, isPending } = useMutation({
-    mutationFn: cancelPostBoost,
+    mutationFn: stopCampaign,
     onSuccess: async (data) => {
       if (!data.transactionId) {
         return;

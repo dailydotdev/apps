@@ -207,7 +207,7 @@ export enum RequestKey {
   PostCampaigns = 'post_campaigns',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
-  PostBoostReach = 'postBoostReach',
+  CampaignReach = 'campaignReach',
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
   NotificationSettings = 'notification_settings',

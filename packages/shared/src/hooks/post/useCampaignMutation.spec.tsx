@@ -5,10 +5,10 @@ import nock from 'nock';
 import { useCampaignMutation } from './useCampaignMutation';
 import {
   BOOST_ESTIMATED_REACH,
-  BOOST_ESTIMATED_REACH_DAILY,
+  DAILY_CAMPAIGN_REACH_ESTIMATE,
   START_CAMPAIGN,
   STOP_CAMPAIGN,
-} from '../../graphql/post/boost';
+} from '../../graphql/campaigns';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
@@ -135,7 +135,7 @@ describe('usePostBoostMutation hook', () => {
     // Add delay to the mock to test loading state
     nock('http://localhost:3000')
       .post('/graphql', {
-        query: BOOST_ESTIMATED_REACH_DAILY,
+        query: DAILY_CAMPAIGN_REACH_ESTIMATE,
         variables: { postId: 'post1', budget: 100, duration: 7 },
       })
       .delay(100)
@@ -563,7 +563,7 @@ describe('usePostBoostMutation hook', () => {
     // Mock the GraphQL request for daily estimated reach
     nock('http://localhost:3000')
       .post('/graphql', {
-        query: BOOST_ESTIMATED_REACH_DAILY,
+        query: DAILY_CAMPAIGN_REACH_ESTIMATE,
         variables: { postId: 'post1', budget: 100, duration: 7 },
       })
       .reply(200, {

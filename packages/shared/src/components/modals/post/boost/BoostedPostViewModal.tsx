@@ -8,8 +8,8 @@ import {
 } from '../../../../features/boost/CampaignListView';
 import type { ModalProps } from '../../common/Modal';
 import { Modal } from '../../common/Modal';
-import type { BoostedPostData } from '../../../../graphql/post/boost';
-import { getBoostedPostByCampaignId } from '../../../../graphql/post/boost';
+import type { Campaign } from '../../../../graphql/campaigns';
+import { getCampaignById } from '../../../../graphql/campaigns';
 import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
 import type { Post } from '../../../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
@@ -20,7 +20,7 @@ import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
 import { ArrowIcon } from '../../../icons';
 
 interface BoostedPostViewModalProps extends ModalProps {
-  data: BoostedPostData;
+  campaign: Campaign;
   isLoading?: boolean;
   onBack?: () => void;
   onBoostAgain?: (id: Post['id']) => void;
@@ -45,7 +45,7 @@ const promptOptions: PromptOptions = {
 };
 
 export function BoostedPostViewModal({
-  data,
+  campaign,
   isLoading,
   onBoostAgain,
   onBack,
@@ -57,15 +57,15 @@ export function BoostedPostViewModal({
   });
 
   const handleBoostClick = async () => {
-    if (data.campaign.status === 'ACTIVE') {
+    if (campaign.state === 'ACTIVE') {
       if (!(await showPrompt(promptOptions))) {
         return null;
       }
 
-      return onCancelBoost(data.post.id);
+      return onCancelBoost(campaign.post.id);
     }
 
-    return onBoostAgain(data.post.id);
+    return onBoostAgain(campaign.post.id);
   };
 
   return (
@@ -89,10 +89,10 @@ export function BoostedPostViewModal({
       <Modal.Body className="flex flex-col gap-4">
         <span className="flex flex-row items-center justify-between">
           <Modal.Subtitle>Overview</Modal.Subtitle>
-          <BoostStatus status={data.campaign.status} />
+          <BoostStatus status={campaign.state} />
         </span>
         <CampaignListView
-          data={data}
+          campaign={campaign}
           isLoading={isLoading || isLoadingCancel}
           onBoostClick={handleBoostClick}
         />
@@ -110,7 +110,7 @@ export function FetchBoostedViewModal({
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(RequestKey.PostCampaigns, user, campaignId),
-    queryFn: () => getBoostedPostByCampaignId(campaignId),
+    queryFn: () => getCampaignById(campaignId),
     staleTime: StaleTime.Default,
     enabled: !!campaignId && !!user,
   });
@@ -153,5 +153,5 @@ export function FetchBoostedViewModal({
     );
   }
 
-  return <BoostedPostViewModal {...props} data={data} />;
+  return <BoostedPostViewModal {...props} campaign={data} />;
 }

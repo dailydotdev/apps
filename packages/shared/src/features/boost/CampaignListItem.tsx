@@ -11,10 +11,10 @@ import {
 } from '../../components/typography/Typography';
 import { Image } from '../../components/image/Image';
 import { getAbsoluteDifferenceInDays } from './utils';
-import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
+import type { Campaign } from '../../graphql/campaigns';
 import { isNullOrUndefined } from '../../lib/func';
 
-const statusToColor: Record<PromotedPost['status'], string> = {
+const statusToColor: Record<Campaign['state'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
   INACTIVE: 'bg-action-share-active text-action-share-default',
   CANCELLED: 'bg-surface-float text-text-secondary',
@@ -24,7 +24,7 @@ export const BoostStatus = ({
   status,
   remainingDays,
 }: {
-  status: PromotedPost['status'];
+  status: Campaign['state'];
   remainingDays?: number;
 }) => {
   const copy = (() => {
@@ -59,20 +59,20 @@ export const BoostStatus = ({
 };
 
 interface CampaignListItemProps {
-  data: BoostedPostData;
+  campaign: Campaign;
   className?: string;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 export function CampaignListItem({
-  data,
+  campaign,
   className,
   onClick,
 }: CampaignListItemProps): ReactElement {
-  const { campaign, post } = data;
+  const { post } = campaign;
 
   const getRemaining = () => {
-    if (campaign.status !== 'ACTIVE') {
+    if (campaign.state !== 'ACTIVE') {
       return undefined;
     }
 
@@ -109,7 +109,7 @@ export function CampaignListItem({
           </Typography>
         </span>
       </span>
-      <BoostStatus status={campaign.status} remainingDays={getRemaining()} />
+      <BoostStatus status={campaign.state} remainingDays={getRemaining()} />
       <ArrowIcon size={IconSize.Medium} className="rotate-90" />
     </button>
   );

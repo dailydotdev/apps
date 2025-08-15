@@ -1,10 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import user from '../../../__tests__/fixture/loggedUser';
-import type {
-  StartCampaignProps,
-  CampaignType,
-} from '../../graphql/post/boost';
-import { getBoostEstimatedReachDaily } from '../../graphql/post/boost';
+import type { StartCampaignProps, CampaignType } from '../../graphql/campaigns';
+import { getDailyCampaignReachEstimate } from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 interface UseCampaignEstimationProps {
@@ -38,7 +35,7 @@ export const useCampaignEstimation = ({
   } = useQuery({
     queryKey,
     queryFn: () =>
-      getBoostEstimatedReachDaily({
+      getDailyCampaignReachEstimate({
         type,
         value: referenceId,
         budget: query.budget,
