@@ -330,29 +330,29 @@ const faq = [
   },
 ];
 
+const source = {
+  handle: 'Linear',
+  image: null,
+  website: 'https://vg.no',
+};
+
+const user: UserImageProps & { title: string } = {
+  image: null,
+  name: 'Rachel Brown',
+  title: 'Lead Talent Acquisition',
+};
+
+const socialMediaLinks = [
+  { key: 'linkedin', href: '#', icon: <LinkedInIcon /> },
+  { key: 'twitter', href: '#', icon: <TwitterIcon /> },
+  { key: 'github', href: '#', icon: <GitHubIcon /> },
+  { key: 'crunchbase', href: '#', icon: <CrunchbaseIcon /> },
+];
+
 const JobPage = (): ReactElement => {
   const { checkHasCompleted } = useActions();
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
-
-  const source = {
-    handle: 'Linear',
-    image: null,
-    website: 'https://vg.no',
-  };
-
-  const user: UserImageProps & { title: string } = {
-    image: null,
-    name: 'Rachel Brown',
-    title: 'Lead Talent Acquisition',
-  };
-
-  const socialMediaLinks = [
-    { key: 'linkedin', href: '#', icon: <LinkedInIcon /> },
-    { key: 'twitter', href: '#', icon: <TwitterIcon /> },
-    { key: 'github', href: '#', icon: <GitHubIcon /> },
-    { key: 'crunchbase', href: '#', icon: <CrunchbaseIcon /> },
-  ];
 
   return (
     <>
