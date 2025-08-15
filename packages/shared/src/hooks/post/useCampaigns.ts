@@ -2,10 +2,10 @@ import type { InfiniteData } from '@tanstack/react-query';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type {
-  BoostedPostConnection,
-  BoostedPostStats,
-} from '../../graphql/post/boost';
-import { getBoostedPostCampaigns } from '../../graphql/post/boost';
+  CampaignConnection,
+  CampaignStats,
+} from '../../graphql/campaigns';
+import { getCampaigns } from '../../graphql/campaigns';
 import {
   generateQueryKey,
   RequestKey,
@@ -16,22 +16,23 @@ import type { InfiniteScrollingQueryProps } from '../../components/containers/In
 import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
 
 interface UsePostBoost {
-  stats: BoostedPostStats;
-  data?: InfiniteData<BoostedPostConnection>;
+  stats: CampaignStats;
+  data?: InfiniteData<CampaignConnection>;
   isLoading: boolean;
   infiniteScrollingProps: InfiniteScrollingQueryProps;
 }
 
 const FIRST_DEFAULT_VALUE = 20;
-const defaultStats = {
-  totalSpend: 0,
+
+const defaultStats: CampaignStats = {
+  spend: 0,
+  users: 0,
+  budget: 0,
   clicks: 0,
   impressions: 0,
-  engagements: 0,
-  users: 0,
 };
 
-export const usePostBoost = (): UsePostBoost => {
+export const useCampaigns = (): UsePostBoost => {
   const { user } = useAuthContext();
   const key = generateQueryKey(RequestKey.PostCampaigns, user, {
     first: FIRST_DEFAULT_VALUE,
@@ -39,7 +40,7 @@ export const usePostBoost = (): UsePostBoost => {
   const queryResult = useInfiniteQuery({
     queryKey: key,
     queryFn: ({ pageParam }) =>
-      getBoostedPostCampaigns({
+      getCampaigns({
         first: FIRST_DEFAULT_VALUE,
         after: pageParam,
       }),
@@ -67,7 +68,7 @@ export const usePostBoost = (): UsePostBoost => {
 
   return {
     data: campaigns,
-    stats: campaigns?.pages?.[0]?.stats ?? defaultStats,
+    stats: defaultStats, // TODO: introduce new query for stats
     isLoading: isPending && !isFetched,
     infiniteScrollingProps: {
       isFetchingNextPage,

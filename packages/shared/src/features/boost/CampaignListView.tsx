@@ -18,7 +18,7 @@ import { DataTile } from './DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
-import type { BoostedPostData } from '../../graphql/post/boost';
+import type { Campaign } from '../../graphql/campaigns';
 import { DateFormat } from '../../components/utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { boostDashboardInfo } from '../../components/modals/post/boost/common';
@@ -26,7 +26,7 @@ import { Modal } from '../../components/modals/common/Modal';
 import { formatDataTileValue } from '../../lib';
 
 interface CampaignListViewProps {
-  data: BoostedPostData;
+  campaign: Campaign;
   isLoading: boolean;
   onBoostClick: () => void;
 }
@@ -61,14 +61,14 @@ export const CampaignStatsGrid = ({
 );
 
 export function CampaignListView({
-  data,
+  campaign,
   isLoading,
   onBoostClick,
 }: CampaignListViewProps): ReactElement {
-  const { campaign, post } = data;
-  const isActive = campaign.status === 'ACTIVE';
+  const { post } = campaign;
+  const isActive = campaign.state === 'ACTIVE';
   const date = useMemo(() => {
-    const startedAt = new Date(campaign.startedAt);
+    const startedAt = new Date(campaign.createdAt);
     const endedAt = new Date(campaign.endedAt);
     const totalDays = getAbsoluteDifferenceInDays(endedAt, startedAt);
 
@@ -88,12 +88,12 @@ export function CampaignListView({
   }, [campaign, isActive]);
 
   const percentage = useMemo(() => {
-    if (campaign.status !== 'ACTIVE') {
+    if (campaign.state !== 'ACTIVE') {
       return 100;
     }
 
     return (date.startedIn / date.totalDays) * 100;
-  }, [campaign.status, date]);
+  }, [campaign.state, date]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -127,7 +127,7 @@ export function CampaignListView({
             color={TypographyColor.Secondary}
           >
             Started{' '}
-            <DateFormat date={campaign.startedAt} type={TimeFormatType.Post} />
+            <DateFormat date={campaign.createdAt} type={TimeFormatType.Post} />
           </Typography>
           {isActive && (
             <Typography
@@ -140,9 +140,9 @@ export function CampaignListView({
         </span>
         <CampaignStatsGrid
           className="mt-3"
-          spend={campaign.spend}
-          users={campaign.users}
-          impressions={campaign.impressions}
+          spend={campaign.flags.spend}
+          users={campaign.flags.users}
+          impressions={campaign.flags.impressions}
         />
       </div>
       <div className="h-px w-full bg-border-subtlest-tertiary" />
@@ -153,7 +153,7 @@ export function CampaignListView({
           className="flex flex-row items-center"
         >
           <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-          {formatDataTileValue(campaign.budget)} | {date.totalDays}{' '}
+          {formatDataTileValue(campaign.flags.budget)} | {date.totalDays}{' '}
           {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>
