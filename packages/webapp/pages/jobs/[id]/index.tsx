@@ -553,7 +553,7 @@ const JobPage = (): ReactElement => {
             </div>
           ))}
 
-          <div className="flex gap-3 border-t border-border-subtlest-tertiary p-3">
+          <div className="hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex">
             <Button
               className="flex-1"
               icon={<MiniCloseIcon />}
