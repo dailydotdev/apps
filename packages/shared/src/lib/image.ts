@@ -357,3 +357,15 @@ export const boostNewPostBanner =
 
 export const boostNewPostBannerLight =
   'https://media.daily.dev/image/upload/s--7CGTLpY_--/f_auto/v1754295928/public/boost-wv';
+
+export const jobsWelcomeDarkMode =
+  'https://media.daily.dev/image/upload/s--iK8V4i-t--/f_auto/v1754903868/public/darkbg-Super%20Career%20Connector';
+export const jobsWelcomeLightMode =
+  'https://media.daily.dev/image/upload/s--OwPStCCF--/f_auto/v1754903896/public/lightbg-Super%20Career%20Connector-1';
+
+export const jobsHowItWorksOne =
+  'https://media.daily.dev/image/upload/s--pyB5IXYP--/f_auto/v1754913490/public/1%20Review%20the%20opportunity';
+export const jobsHowItWorksTwo =
+  'https://media.daily.dev/image/upload/s--eJXmHvKN--/f_auto/v1754913490/public/2%20We%E2%80%99ll%20check%20mutual%20interest';
+export const jobsHowItWorksThree =
+  'https://media.daily.dev/image/upload/s--MevqcEKj--/f_auto/v1754913490/public/3%20We%20make%20a%20warm%20intro';
