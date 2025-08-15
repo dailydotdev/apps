@@ -48,7 +48,6 @@ export const UploadCv = ({
   status,
   showLinkedInExport = true,
 }: UploadCvProps): ReactElement => {
-
   return (
     <div className="flex w-full max-w-[48.75rem] flex-col items-center gap-6 p-6">
       <Typography
