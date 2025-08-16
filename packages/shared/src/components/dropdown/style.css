@@ -95,3 +95,11 @@
     transform: translateX(0);
   }
 }
+
+.DropdownMenuContent .DropdownScrollView {
+  max-height: 15rem;
+  overflow-y: auto;
+  background: inherit;
+  border-radius: inherit;
+}
+
