@@ -111,7 +111,9 @@ export const DropdownMenuContent = React.forwardRef<
         className={classNames('DropdownMenuContent', className)}
         align={align}
       >
-        {children}
+        <div className='DropdownScrollView'>
+          {children}
+        </div>
       </DropdownMenuContentRoot>
     </DropdownMenuPortal>
   );
