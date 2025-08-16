@@ -52,6 +52,14 @@
   @apply bg-surface-hover;
 }
 
+.DropdownMenuContent .DropdownScrollView {
+  max-height: 15rem;
+  overflow-y: auto;
+  background: inherit;
+  border-radius: inherit;
+}
+
+
 @keyframes slideUpAndFade {
   from {
     opacity: 0;
@@ -95,3 +103,6 @@
     transform: translateX(0);
   }
 }
+
+
+
