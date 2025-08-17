@@ -79,6 +79,7 @@ export enum NotificationType {
   Marketing = 'marketing',
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
+  InAppPurchases = 'in_app_purchases',
 }
 
 export enum NotificationIconType {
@@ -434,6 +435,14 @@ export const DAILY_DEV_NOTIFICATIONS: NotificationItem[] = [
     label: 'Community & Marketing',
     description:
       'Get emails about product news, events, giveaways, and highlights from the daily.dev community.',
+    group: false,
+  },
+];
+
+export const BILLING_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.InAppPurchases,
+    label: 'In-app purchases',
     group: false,
   },
 ];

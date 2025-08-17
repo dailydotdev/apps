@@ -5,6 +5,7 @@ import useNotificationSettings from '../../hooks/notifications/useNotificationSe
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
   ACTIVITY_NOTIFICATIONS,
+  BILLING_NOTIFICATIONS,
   DAILY_DEV_NOTIFICATIONS,
   FOLLOWING_NOTIFICATIONS,
   NotificationContainer,
@@ -138,6 +139,26 @@ const EmailNotificationsTab = (): ReactElement => {
         <PersonalizedDigest channel="email" />
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
+      <NotificationSection>
+        <Typography type={TypographyType.Body} bold>
+          Billing
+        </Typography>
+        <NotificationContainer>
+          {BILLING_NOTIFICATIONS.map((item) => (
+            <NotificationSwitch
+              key={item.id}
+              id={item.id}
+              label={item.label}
+              checked={
+                ns?.[item.id]?.email === NotificationPreferenceStatus.Subscribed
+              }
+              onToggle={() => toggleSetting(item.id, 'email')}
+            />
+          ))}
+        </NotificationContainer>
+      </NotificationSection>
+      <HorizontalSeparator className="mx-4" />
+
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           From daily.dev
