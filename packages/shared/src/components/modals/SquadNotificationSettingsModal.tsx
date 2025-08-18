@@ -10,32 +10,41 @@ import {
 } from '../typography/Typography';
 import { Switch } from '../fields/Switch';
 import { Checkbox } from '../fields/Checkbox';
-import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../graphql/contentPreference';
+  useNotificationPreference,
+  checkHasStatusPreference,
+} from '../../hooks/notifications/useNotificationPreference';
 import { Image } from '../image/Image';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationType } from '../notifications/utils';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 
 const SubscriptionCheckbox = ({
-  handle,
   squadId,
   disabled,
 }: {
-  handle: string;
   squadId: string;
   disabled: boolean;
 }) => {
-  const { data } = useContentPreferenceStatusQuery({
-    entity: ContentPreferenceType.Source,
-    id: squadId,
+  const {
+    preferences,
+    muteNotification,
+    subscribeNotification,
+    isPreferencesReady,
+  } = useNotificationPreference({
+    params: [
+      {
+        referenceId: squadId,
+        notificationType: NotificationType.SquadPostAdded,
+      },
+    ],
   });
-  const { subscribe, unsubscribe } = useContentPreference();
-  const subscribed = data?.status === ContentPreferenceStatus.Subscribed;
+
+  const subscribed = preferences.some((pref) =>
+    checkHasStatusPreference(pref, NotificationType.SquadPostAdded, squadId, [
+      NotificationPreferenceStatus.Subscribed,
+    ]),
+  );
 
   return (
     <Checkbox
@@ -43,22 +52,18 @@ const SubscriptionCheckbox = ({
       checkmarkClassName="!mr-0"
       name={squadId}
       checked={subscribed}
-      disabled={disabled}
-      onToggleCallback={() => {
-        if (subscribed) {
-          unsubscribe({
-            id: squadId,
-            entity: ContentPreferenceType.Source,
-            entityName: handle,
-          });
-        } else {
-          subscribe({
-            id: squadId,
-            entity: ContentPreferenceType.Source,
-            entityName: handle,
-          });
-        }
-      }}
+      disabled={disabled || !isPreferencesReady}
+      onToggleCallback={() =>
+        subscribed
+          ? muteNotification({
+              referenceId: squadId,
+              type: NotificationType.SquadPostAdded,
+            })
+          : subscribeNotification({
+              referenceId: squadId,
+              type: NotificationType.SquadPostAdded,
+            })
+      }
     />
   );
 };
@@ -130,11 +135,7 @@ const SquadNotificationSettingsModal = ({
                   </Typography>
                 </div>
               </div>
-              <SubscriptionCheckbox
-                handle={squad.handle}
-                squadId={squad.id}
-                disabled={disabled}
-              />
+              <SubscriptionCheckbox squadId={squad.id} disabled={disabled} />
             </li>
           ))}
         </ul>
