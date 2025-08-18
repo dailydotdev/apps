@@ -351,16 +351,16 @@ export interface FunnelStepBrowserExtension
 export interface FunnelStepUploadCv
   extends FunnelStepCommon<{
     headline: string;
-    description?: string;
+    description: string;
     dragDropDescription: string;
     ctaDesktop: string;
     ctaMobile: string;
-    linkedin?: {
-      cta?: string;
-      image?: string;
-      headline?: string;
-      explainer?: string;
-      steps?: string[];
+    linkedin: {
+      cta: string;
+      image: string;
+      headline: string;
+      explainer: string;
+      steps: string[];
     };
   }> {
   type: FunnelStepType.UploadCv;

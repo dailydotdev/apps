@@ -19,18 +19,13 @@ jest.mock('../../../contexts/AuthContext');
 // Mock the UploadCv component to make testing easier
 jest.mock('../../../components/onboarding/UploadCv', () => ({
   UploadCv: ({
-    showLinkedInExport,
     onFilesDrop,
     status,
   }: {
-    showLinkedInExport: boolean;
     onFilesDrop: (files: File[]) => void;
     status: string;
   }) => (
     <div data-testid="upload-cv-mock">
-      <div data-testid="show-linkedin-export">
-        {showLinkedInExport.toString()}
-      </div>
       <div data-testid="status">{status}</div>
       <button
         type="button"
@@ -81,16 +76,16 @@ const createQueryClient = () =>
 
 interface TestParameters {
   headline: string;
-  description?: string;
+  description: string;
   dragDropDescription: string;
   ctaDesktop: string;
   ctaMobile: string;
-  linkedin?: {
-    cta?: string;
-    image?: string;
-    headline?: string;
-    explainer?: string;
-    steps?: string[];
+  linkedin: {
+    cta: string;
+    image: string;
+    headline: string;
+    explainer: string;
+    steps: string[];
   };
 }
 
@@ -148,7 +143,7 @@ describe('FunnelUploadCv', () => {
           amount: 0,
         },
       },
-    });
+    } as never);
   });
 
   const defaultParameters = {
@@ -157,6 +152,13 @@ describe('FunnelUploadCv', () => {
     dragDropDescription: 'Drag & Drop your CV or',
     ctaDesktop: 'Browse files',
     ctaMobile: 'Upload CV',
+    linkedin: {
+      cta: 'Go to LinkedIn',
+      image: 'https://example.com/linkedin.jpg',
+      headline: 'Export from LinkedIn',
+      explainer: 'Here’s how to get your CV from LinkedIn:',
+      steps: ['Step 1', 'Step 2', 'Step 3'],
+    },
   };
 
   describe('Basic functionality', () => {
@@ -179,6 +181,9 @@ describe('FunnelUploadCv', () => {
         onUpload: mockOnUpload,
         status: 'success',
         isSuccess: true,
+        isPending: false,
+        shouldShow: false,
+        onCloseBanner: undefined,
       });
 
       renderComponent(defaultParameters, mockOnTransition);
@@ -192,6 +197,9 @@ describe('FunnelUploadCv', () => {
         onUpload: mockOnUpload,
         status: 'success',
         isSuccess: true,
+        isPending: false,
+        shouldShow: false,
+        onCloseBanner: undefined,
       });
 
       renderComponent(defaultParameters, mockOnTransition);
@@ -220,6 +228,9 @@ describe('FunnelUploadCv', () => {
         onUpload: mockOnUpload,
         status: 'pending',
         isSuccess: false,
+        isPending: true,
+        shouldShow: false,
+        onCloseBanner: jest.fn(),
       });
 
       renderComponent(defaultParameters, mockOnTransition);
@@ -228,7 +239,11 @@ describe('FunnelUploadCv', () => {
     });
 
     it('should return null when no user', () => {
-      mockUseAuthContext.mockReturnValue({ user: null });
+      mockUseAuthContext.mockReturnValue({
+        user: null,
+        isLoggedIn: false,
+        shouldShowLogin: false,
+      } as never);
 
       const { container } = renderComponent(
         defaultParameters,
@@ -236,107 +251,6 @@ describe('FunnelUploadCv', () => {
       );
 
       expect(container).toBeEmptyDOMElement();
-    });
-  });
-
-  describe('LinkedIn content detection', () => {
-    it('should show LinkedIn export when linkedin data has content', () => {
-      const parametersWithLinkedIn = {
-        ...defaultParameters,
-        linkedin: {
-          cta: 'Go to LinkedIn',
-          image: 'https://example.com/linkedin.jpg',
-          headline: 'Export from LinkedIn',
-        },
-      };
-
-      renderComponent(parametersWithLinkedIn, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'true',
-      );
-    });
-
-    it('should hide LinkedIn export when linkedin data is empty', () => {
-      const parametersWithEmptyLinkedIn = {
-        ...defaultParameters,
-        linkedin: {
-          cta: '',
-          image: '',
-          headline: '',
-          explainer: '',
-          steps: [],
-        },
-      };
-
-      renderComponent(parametersWithEmptyLinkedIn, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'false',
-      );
-    });
-
-    it('should hide LinkedIn export when no linkedin data provided', () => {
-      renderComponent(defaultParameters, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'false',
-      );
-    });
-
-    it('should show LinkedIn export with partial linkedin data', () => {
-      const parametersWithPartialLinkedIn = {
-        ...defaultParameters,
-        linkedin: {
-          headline: 'Export from LinkedIn',
-          // Other fields empty/undefined
-        },
-      };
-
-      renderComponent(parametersWithPartialLinkedIn, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'true',
-      );
-    });
-
-    it('should detect content when cta is provided', () => {
-      const parameters = {
-        ...defaultParameters,
-        linkedin: { cta: 'Go to LinkedIn' },
-      };
-
-      renderComponent(parameters, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'true',
-      );
-    });
-
-    it('should detect content when image is provided', () => {
-      const parameters = {
-        ...defaultParameters,
-        linkedin: { image: 'https://example.com/image.jpg' },
-      };
-
-      renderComponent(parameters, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'true',
-      );
-    });
-
-    it('should detect content when steps are provided', () => {
-      const parameters = {
-        ...defaultParameters,
-        linkedin: { steps: ['Step 1'] },
-      };
-
-      renderComponent(parameters, mockOnTransition);
-
-      expect(screen.getByTestId('show-linkedin-export')).toHaveTextContent(
-        'true',
-      );
     });
   });
 
@@ -358,6 +272,9 @@ describe('FunnelUploadCv', () => {
           onUpload: mockOnUpload,
           status,
           isSuccess: status === 'success',
+          isPending: status === 'pending',
+          shouldShow: false,
+          onCloseBanner: jest.fn(),
         });
 
         const { unmount } = renderComponent(
