@@ -76,6 +76,7 @@ export enum Origin {
   StreakRecover = 'streak recover',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
+  SquadBoost = 'squad boost',
 }
 
 export enum LogEvent {

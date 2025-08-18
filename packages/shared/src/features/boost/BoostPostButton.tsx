@@ -7,6 +7,24 @@ import { ButtonVariant } from '../../components/buttons/common';
 import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import type { Squad } from '../../graphql/sources';
+
+export function BoostButton({
+  buttonProps = {},
+}: {
+  buttonProps?: ButtonProps<'button'>;
+}): ReactElement {
+  return (
+    <Button
+      variant={ButtonVariant.Primary}
+      {...buttonProps}
+      icon={<BoostIcon secondary />}
+      color={ButtonColor.BlueCheese}
+    >
+      Boost
+    </Button>
+  );
+}
 
 export function BoostPostButton({
   post,
@@ -18,16 +36,32 @@ export function BoostPostButton({
   const { openModal } = useLazyModal();
 
   return (
-    <Button
-      variant={ButtonVariant.Primary}
-      {...buttonProps}
-      icon={<BoostIcon secondary />}
-      color={ButtonColor.BlueCheese}
-      onClick={() => {
-        openModal({ type: LazyModal.BoostPost, props: { post } });
+    <BoostButton
+      buttonProps={{
+        ...buttonProps,
+        onClick: () =>
+          openModal({ type: LazyModal.BoostPost, props: { post } }),
       }}
-    >
-      Boost
-    </Button>
+    />
+  );
+}
+
+export function BoostSourceButton({
+  squad,
+  buttonProps = {},
+}: {
+  squad: Squad;
+  buttonProps?: ButtonProps<'button'>;
+}): ReactElement {
+  const { openModal } = useLazyModal();
+
+  return (
+    <BoostButton
+      buttonProps={{
+        ...buttonProps,
+        onClick: () =>
+          openModal({ type: LazyModal.BoostSquad, props: { squad } }),
+      }}
+    />
   );
 }

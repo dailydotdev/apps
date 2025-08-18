@@ -26,7 +26,7 @@ export const usePostBoostEstimation = ({
   const hasTags = !!post.tags?.length || !!post.sharedPost?.tags?.length;
   const canBoost =
     isOldPost || hasTags || !!post.yggdrasilId || retriesExhausted;
-  const { estimatedReach, isLoading } = useCampaignEstimation({
+  const { estimatedReach, isLoading, isFetched } = useCampaignEstimation({
     type: CampaignType.Post,
     query,
     referenceId: post.id,
@@ -65,5 +65,5 @@ export const usePostBoostEstimation = ({
     },
   });
 
-  return { estimatedReach, isLoading, canBoost };
+  return { estimatedReach, isLoading, isFetched, canBoost };
 };

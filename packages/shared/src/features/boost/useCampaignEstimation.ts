@@ -32,6 +32,7 @@ export const useCampaignEstimation = ({
     data: estimatedReach,
     isPending,
     isRefetching,
+    isFetched,
   } = useQuery({
     queryKey,
     queryFn: () =>
@@ -46,5 +47,5 @@ export const useCampaignEstimation = ({
     staleTime: StaleTime.Default,
   });
 
-  return { estimatedReach, isLoading: isPending || isRefetching };
+  return { estimatedReach, isLoading: isPending || isRefetching, isFetched };
 };
