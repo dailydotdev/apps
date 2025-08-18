@@ -20,6 +20,7 @@ import {
   SemiActiveIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -103,8 +104,16 @@ const DeclinePage = (): ReactElement => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            💡 Tip: You can update this anytime in your job preferences so we
-            always act on your terms.
+            💡 <strong>Tip:</strong> You can update this anytime in your{' '}
+            <a
+              href="#"
+              className="text-text-link"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              job preferences
+            </a>{' '}
+            so we always act on your terms.
           </Typography>
         </div>
         <FlexRow className="justify-between">
