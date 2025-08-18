@@ -1,18 +1,19 @@
 import classNames from 'classnames';
-import type { MouseEventHandler, ReactElement } from 'react';
+import type { MouseEventHandler, PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
-import { IconSize, iconSizeToClassName } from '../../components/Icon';
+import { IconSize } from '../../components/Icon';
 import { ArrowIcon } from '../../components/icons';
 import {
   Typography,
   TypographyType,
-  TypographyColor,
   TypographyTag,
 } from '../../components/typography/Typography';
-import { Image } from '../../components/image/Image';
 import { getAbsoluteDifferenceInDays } from './utils';
 import type { Campaign } from '../../graphql/campaigns';
+import { CampaignType } from '../../graphql/campaigns';
 import { isNullOrUndefined } from '../../lib/func';
+import { CampaignListItemPost } from './CampaignListItemPost';
+import { CampaignListItemSquad } from './CampaignListItemSquad';
 
 const statusToColor: Record<Campaign['state'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
@@ -64,13 +65,24 @@ interface CampaignListItemProps {
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
+const PreviewComponent = ({
+  campaign,
+}: PropsWithChildren<{ campaign: Campaign }>) => {
+  switch (campaign.type) {
+    case CampaignType.Post:
+      return <CampaignListItemPost post={campaign.post} />;
+    case CampaignType.Source:
+      return <CampaignListItemSquad squad={campaign.source} />;
+    default:
+      return null;
+  }
+};
+
 export function CampaignListItem({
   campaign,
   className,
   onClick,
 }: CampaignListItemProps): ReactElement {
-  const { post } = campaign;
-
   const getRemaining = () => {
     if (campaign.state !== 'ACTIVE') {
       return undefined;
@@ -88,27 +100,7 @@ export function CampaignListItem({
         className,
       )}
     >
-      <span className="flex flex-1 flex-row items-center gap-2">
-        {post.image && (
-          <Image
-            src={post.image}
-            className={classNames(
-              'rounded-12 object-cover',
-              iconSizeToClassName[IconSize.Size48],
-            )}
-          />
-        )}
-        <span className="flex flex-1">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="line-clamp-2 flex-1 text-left"
-            style={{ lineBreak: 'anywhere' }}
-          >
-            {post.title}
-          </Typography>
-        </span>
-      </span>
+      <PreviewComponent campaign={campaign} />
       <BoostStatus status={campaign.state} remainingDays={getRemaining()} />
       <ArrowIcon size={IconSize.Medium} className="rotate-90" />
     </button>
