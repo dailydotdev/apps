@@ -1,32 +1,34 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { startPostBoost, cancelPostBoost } from '../../graphql/post/boost';
-import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
+import type { StartCampaignProps } from '../../graphql/campaigns';
+import { startCampaign, stopCampaign } from '../../graphql/campaigns';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../useTransactionError';
 import { useToastNotification } from '../useToastNotification';
+import type { TransactionCreated } from '../../graphql/njord';
 
-interface UsePostBoostMutationProps {
-  onBoostSuccess?: () => void;
+interface UseCampaignMutationProps {
+  onBoostSuccess?: (data: TransactionCreated, vars: StartCampaignProps) => void;
   onCancelSuccess?: () => void;
 }
 
-interface UsePostBoostMutation {
-  onBoostPost: typeof startPostBoost;
-  onCancelBoost: typeof cancelPostBoost;
+interface UseCampaignMutation {
+  onStartBoost: typeof startCampaign;
+  onCancelBoost: typeof stopCampaign;
   isLoadingCancel: boolean;
 }
 
-export const usePostBoostMutation = ({
+export const useCampaignMutation = ({
   onBoostSuccess,
   onCancelSuccess,
-}: UsePostBoostMutationProps = {}): UsePostBoostMutation => {
+}: UseCampaignMutationProps = {}): UseCampaignMutation => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
 
-  const { mutateAsync: onBoostPost } = useMutation({
-    mutationFn: startPostBoost,
+  const { mutateAsync: onStartBoost } = useMutation({
+    mutationFn: startCampaign,
     onSuccess: (data, vars) => {
       if (!data.transactionId) {
         return;
@@ -48,19 +50,13 @@ export const usePostBoostMutation = ({
         exact: false,
       });
 
-      if (data.referenceId) {
-        updatePostCache(client, vars.id, (post) => ({
-          flags: { ...post.flags, campaignId: data.referenceId },
-        }));
-      }
-
-      onBoostSuccess?.();
+      onBoostSuccess?.(data, vars);
     },
     onError: useTransactionError(),
   });
 
   const { mutateAsync: onCancelBoost, isPending } = useMutation({
-    mutationFn: cancelPostBoost,
+    mutationFn: stopCampaign,
     onSuccess: async (data) => {
       if (!data.transactionId) {
         return;
@@ -89,7 +85,7 @@ export const usePostBoostMutation = ({
   });
 
   return {
-    onBoostPost,
+    onStartBoost,
     onCancelBoost,
     isLoadingCancel: isPending,
   };

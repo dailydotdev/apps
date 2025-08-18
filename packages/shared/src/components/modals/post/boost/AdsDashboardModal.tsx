@@ -2,9 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal } from '../../common/Modal';
 import type { ModalProps } from '../../common/Modal';
-import { usePostBoost } from '../../../../hooks/post/usePostBoost';
+import { useCampaigns } from '../../../../hooks/post/useCampaigns';
 import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
-import type { BoostedPostData } from '../../../../graphql/post/boost';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
 import { usePostById } from '../../../../hooks';
 import type { Post } from '../../../../graphql/posts';
@@ -16,22 +15,23 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../typography/Typography';
-import { boostPostDocsLink } from '../../../../lib/constants';
+import { boostDocsLink } from '../../../../lib/constants';
 import { CampaignStatsGrid } from '../../../../features/boost/CampaignListView';
+import type { Campaign } from '../../../../graphql/campaigns';
 
 interface AdsDashboardModalProps extends ModalProps {
-  initialBoostedPost?: BoostedPostData;
+  initialCampaign?: Campaign;
 }
 
 export function AdsDashboardModal({
-  initialBoostedPost,
+  initialCampaign,
   ...props
 }: AdsDashboardModalProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { data, isLoading, stats, infiniteScrollingProps } = usePostBoost();
+  const { data, isLoading, stats, infiniteScrollingProps } = useCampaigns();
   const [toBoost, setToBoost] = useState<Post['id']>();
   const { post } = usePostById({ id: toBoost });
-  const [boosted, setBoosted] = useState<BoostedPostData>(initialBoostedPost);
+  const [boosted, setBoosted] = useState(initialCampaign);
   const list = useMemo(() => {
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
@@ -50,7 +50,7 @@ export function AdsDashboardModal({
     return (
       <BoostedPostViewModal
         {...props}
-        data={boosted}
+        campaign={boosted}
         isLoading={isLoading}
         onBoostAgain={setToBoost}
         onBack={() => setBoosted(null)}
@@ -70,9 +70,9 @@ export function AdsDashboardModal({
       <Modal.Body className="flex flex-col gap-4 overflow-x-hidden">
         <Modal.Subtitle>Overview all time</Modal.Subtitle>
         <CampaignStatsGrid
-          spend={stats.totalSpend}
-          impressions={stats.impressions}
+          spend={stats.spend}
           users={stats.users}
+          impressions={stats.impressions}
         />
         <Modal.Subtitle>Active ads</Modal.Subtitle>
         {!isLoading && !!list?.length && (
@@ -85,7 +85,7 @@ export function AdsDashboardModal({
               discovered by more developers.
             </Typography>
             <a
-              href={boostPostDocsLink}
+              href={boostDocsLink}
               className="text-text-link typo-callout"
               target="_blank"
             >
