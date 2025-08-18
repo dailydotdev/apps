@@ -52,11 +52,6 @@
   @apply bg-surface-hover;
 }
 
-.DropdownMenuContent.scrollable .DropdownScrollView {
-  @apply max-h-60 overflow-y-auto bg-inherit;
-}
-
-
 @keyframes slideUpAndFade {
   from {
     opacity: 0;
