@@ -8,7 +8,6 @@ import { Modal } from '../../components/modals/common/Modal';
 import type { Campaign } from '../../graphql/campaigns';
 import { getCampaignById } from '../../graphql/campaigns';
 import { useCampaignMutation } from './useCampaignMutation';
-import type { Post } from '../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
@@ -24,7 +23,7 @@ interface BoostedPostViewModalProps extends ModalProps {
   campaign: Campaign;
   isLoading?: boolean;
   onBack?: () => void;
-  onBoostAgain?: (id: Post['id']) => void;
+  onBoostAgain?: (props: Campaign) => void;
 }
 
 const promptOptions: PromptOptions = {
@@ -63,10 +62,10 @@ export function BoostedPostViewModal({
         return null;
       }
 
-      return onCancelBoost(campaign.post.id);
+      return onCancelBoost(campaign.referenceId);
     }
 
-    return onBoostAgain(campaign.post.id);
+    return onBoostAgain(campaign);
   };
 
   return (
