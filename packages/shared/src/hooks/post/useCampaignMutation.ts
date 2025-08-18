@@ -14,7 +14,7 @@ interface UseCampaignMutationProps {
 }
 
 interface UseCampaignMutation {
-  onBoostPost: typeof startCampaign;
+  onStartBoost: typeof startCampaign;
   onCancelBoost: typeof stopCampaign;
   isLoadingCancel: boolean;
 }
@@ -27,7 +27,7 @@ export const useCampaignMutation = ({
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
 
-  const { mutateAsync: onBoostPost } = useMutation({
+  const { mutateAsync: onStartBoost } = useMutation({
     mutationFn: startCampaign,
     onSuccess: (data, vars) => {
       if (!data.transactionId) {
@@ -85,7 +85,7 @@ export const useCampaignMutation = ({
   });
 
   return {
-    onBoostPost,
+    onStartBoost,
     onCancelBoost,
     isLoadingCancel: isPending,
   };

@@ -71,7 +71,7 @@ export function BoostPostModal({
     post,
     query: { budget: estimate.coresPerDay, duration: estimate.totalDays },
   });
-  const { onBoostPost } = useCampaignMutation({
+  const { onStartBoost: onBoostPost } = useCampaignMutation({
     onBoostSuccess: (data, vars) => {
       if (data.referenceId) {
         updatePostCache(client, vars.value, (old) => ({
