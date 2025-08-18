@@ -9,10 +9,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
+  AnalyticsIcon,
   MagicIcon,
   StraightArrowIcon,
   TimerIcon,
-  TLDRIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
@@ -55,12 +55,8 @@ export const GenerateBriefPage = () => {
           label: '3.5h of reading saved',
         },
         {
-          Icon: TimerIcon,
+          Icon: AnalyticsIcon,
           label: '847 posts analyzed',
-        },
-        {
-          Icon: TLDRIcon,
-          label: 'Brief completed in 8s',
         },
       ],
     }),
