@@ -169,8 +169,9 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();
+  const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
-    feedName === SharedFeedPage.MyFeed &&
+    isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
   const { getMarketingCta } = useBoot();
@@ -180,15 +181,14 @@ export default function Feed<T>({
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
-    shouldEvaluate: feedName === SharedFeedPage.MyFeed,
+    shouldEvaluate: isMyFeed,
   });
-  const showBriefCard =
-    feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
+  const showBriefCard = isMyFeed && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
   const { value: briefBannerPage } = useConditionalFeature({
     feature: briefFeedEntrypointPage,
-    shouldEvaluate: !user?.isPlus && feedName === SharedFeedPage.MyFeed,
+    shouldEvaluate: !user?.isPlus && isMyFeed,
   });
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const indexWhenShowingPromoBanner =
