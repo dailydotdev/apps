@@ -354,6 +354,11 @@ export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [
     group: false,
   },
   {
+    id: NotificationType.SquadPostAdded,
+    label: 'Squad new post',
+    group: false,
+  },
+  {
     id: NotificationType.UserPostAdded,
     label: 'User new posts',
     group: false,
