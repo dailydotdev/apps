@@ -456,10 +456,13 @@ const PostAnalyticsPage = ({
         <SectionContainer>
           <div className="flex justify-between">
             <SectionHeader>Profile activity</SectionHeader>
-            <ClickableText tag="a">
-              <ArrowIcon />
-              Profile analytics
-            </ClickableText>
+            {/* TODO profile-analytics enable when profile analytics are ready */}
+            {false && (
+              <ClickableText tag="a">
+                <ArrowIcon />
+                Profile analytics
+              </ClickableText>
+            )}
           </div>
           <AnalyticsNumbersList data={profileActivityList} />
         </SectionContainer>
