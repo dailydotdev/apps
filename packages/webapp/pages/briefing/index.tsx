@@ -150,13 +150,22 @@ const Page = (): ReactElement => {
             <Typography type={TypographyType.Title3} bold>
               Presidential briefings
             </Typography>
-            <Button
-              className="ml-auto"
-              icon={<SettingsIcon className="text-text-secondary" />}
-              onClick={() => {
-                router?.push(`${settingsUrl}/notifications`);
-              }}
-            />
+            <div className="ml-auto flex items-center gap-2">
+              {isNotPlus && !hasTodayBrief && (
+                <Button
+                  onClick={() => router.push('/briefing/generate')}
+                  variant={ButtonVariant.Primary}
+                >
+                  Generate new
+                </Button>
+              )}
+              <Button
+                icon={<SettingsIcon className="text-text-secondary" />}
+                onClick={() => {
+                  router?.push(`${settingsUrl}/notifications`);
+                }}
+              />
+            </div>
           </header>
           <div className="flex flex-col px-4">
             {isNotPlus &&
@@ -164,11 +173,6 @@ const Page = (): ReactElement => {
               firstBrief?.type !== FeedItemType.Placeholder && (
                 <BriefUpgradeAlert />
               )}
-            {isNotPlus && !hasTodayBrief && (
-              <Button onClick={() => router.push('/briefing/generate')}>
-                Generate a new brief
-              </Button>
-            )}
             <InfiniteScrolling
               isFetchingNextPage={feedQuery.isFetching}
               canFetchMore={feedQuery.canFetchMore}
