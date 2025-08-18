@@ -24,7 +24,7 @@ import { IconSize } from '../../components/Icon';
 import { Origin } from '../../lib/log';
 import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
 import { usePostImage } from '../../hooks/post/usePostImage';
-import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
+import { useCampaignMutation } from './useCampaignMutation';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
@@ -37,7 +37,7 @@ import {
   DEFAULT_CORES_PER_DAY,
   DEFAULT_DURATION_DAYS,
 } from '../../graphql/campaigns';
-import { usePostBoostEstimation } from '../../hooks/post/usePostBoostEstimation';
+import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { updatePostCache } from '../../lib/query';
 
 const Slider = dynamic(

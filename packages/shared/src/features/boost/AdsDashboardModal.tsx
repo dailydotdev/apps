@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal } from '../../components/modals/common/Modal';
 import type { ModalProps } from '../../components/modals/common/Modal';
-import { useCampaigns } from '../../hooks/post/useCampaigns';
+import { useCampaigns } from './useCampaigns';
 import { BoostHistoryLoading } from './BoostHistoryLoading';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
 import { usePostById } from '../../hooks';

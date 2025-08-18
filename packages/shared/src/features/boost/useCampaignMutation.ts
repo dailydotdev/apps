@@ -4,8 +4,8 @@ import { startCampaign, stopCampaign } from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
-import { useTransactionError } from '../useTransactionError';
-import { useToastNotification } from '../useToastNotification';
+import { useTransactionError } from '../../hooks/useTransactionError';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import type { TransactionCreated } from '../../graphql/njord';
 
 interface UseCampaignMutationProps {

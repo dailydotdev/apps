@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { BoostPostModal } from './BoostPostModal';
-import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
-import { usePostBoostEstimation } from '../../hooks/post/usePostBoostEstimation';
+import { useCampaignMutation } from './useCampaignMutation';
+import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { usePostById } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -12,8 +12,8 @@ import postFixture from '../../../__tests__/fixture/post';
 import type { Post } from '../../graphql/posts';
 
 // Mock the hooks
-jest.mock('../../../../hooks/post/useCampaignMutation');
-jest.mock('../../../../hooks/post/usePostBoostEstimation');
+jest.mock('./useCampaignMutation');
+jest.mock('./usePostBoostEstimation');
 jest.mock('../../../../hooks');
 jest.mock('../../../../hooks/useLazyModal');
 jest.mock('../../../../hooks/post/usePostImage');

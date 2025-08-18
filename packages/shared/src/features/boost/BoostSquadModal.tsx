@@ -22,7 +22,7 @@ import { largeNumberFormat } from '../../lib';
 import { IconSize } from '../../components/Icon';
 import { Origin } from '../../lib/log';
 import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
-import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
+import { useCampaignMutation } from './useCampaignMutation';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';

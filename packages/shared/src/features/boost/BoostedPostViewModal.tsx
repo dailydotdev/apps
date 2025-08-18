@@ -7,7 +7,7 @@ import type { ModalProps } from '../../components/modals/common/Modal';
 import { Modal } from '../../components/modals/common/Modal';
 import type { Campaign } from '../../graphql/campaigns';
 import { getCampaignById } from '../../graphql/campaigns';
-import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
+import { useCampaignMutation } from './useCampaignMutation';
 import type { Post } from '../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';

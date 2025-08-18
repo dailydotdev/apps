@@ -4,9 +4,9 @@ import { CampaignType } from '../../graphql/campaigns';
 import type { Post } from '../../graphql/posts';
 import { briefRefetchIntervalMs, defautRefetchMs } from '../../graphql/posts';
 import { oneMinute } from '../../lib/dateFormat';
-import { usePostById } from '../usePostById';
+import { usePostById } from '../../hooks/usePostById';
 import { isOlderThan } from '../../lib/date';
-import { useCampaignEstimation } from '../../features/boost/useCampaignEstimation';
+import { useCampaignEstimation } from './useCampaignEstimation';
 
 interface UsePostBoostEstimationProps {
   post: Post;
