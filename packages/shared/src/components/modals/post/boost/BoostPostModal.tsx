@@ -24,8 +24,8 @@ import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation'
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../common/types';
 import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
-import { postBoostSuccessCover } from '../../../../lib/image';
-import { boostPostDocsLink, walletUrl } from '../../../../lib/constants';
+import { boostSuccessCover } from '../../../../lib/image';
+import { boostDocsLink, walletUrl } from '../../../../lib/constants';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { Loader } from '../../../Loader';
 import {
@@ -133,14 +133,14 @@ export function BoostPostModal({
         secondaryCta={{
           copy: 'Learn more about boosting',
           tag: 'a',
-          href: boostPostDocsLink,
+          href: boostDocsLink,
           target: '_blank',
         }}
         content={{
           title: 'Post boosted successfully!',
           description:
             'Your post is now being promoted and will start reaching more developers shortly. You can track its performance anytime from the ads dashboard.',
-          cover: postBoostSuccessCover,
+          cover: boostSuccessCover,
         }}
       />
     );
@@ -200,7 +200,7 @@ export function BoostPostModal({
           Give your content the spotlight it deserves. Our auto-targeting engine
           ensures your post gets shown to the developers most likely to care.
           <a
-            href={boostPostDocsLink}
+            href={boostDocsLink}
             className="ml-1 text-text-link"
             target="_blank"
           >

@@ -218,7 +218,7 @@ describe('BoostPostModal', () => {
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
-        onBoostPost: mockOnBoostPost,
+        onStartBoost: mockOnBoostPost,
       });
       mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
@@ -244,7 +244,7 @@ describe('BoostPostModal', () => {
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
-        onBoostPost: mockOnBoostPost,
+        onStartBoost: mockOnBoostPost,
       });
       mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
@@ -271,7 +271,7 @@ describe('BoostPostModal', () => {
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
-        onBoostPost: mockOnBoostPost,
+        onStartBoost: mockOnBoostPost,
       });
       mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 

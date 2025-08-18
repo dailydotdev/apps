@@ -40,5 +40,5 @@ export const getDefaultStartOfWeek = (weekStart?: number): string => {
 
 export const isOlderThan = (seconds: number, date: Date) => {
   const currentDate = getTodayTz('UTC', new Date());
-  return date.getTime() < currentDate.getTime() - seconds; // 5 minutes old
+  return date.getTime() < currentDate.getTime() - seconds;
 };

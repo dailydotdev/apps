@@ -11,7 +11,7 @@ import { CampaignListItem } from './CampaignListItem';
 import type { InfiniteScrollingQueryProps } from '../../components/containers/InfiniteScrolling';
 import InfiniteScrolling from '../../components/containers/InfiniteScrolling';
 import { BoostHistoryLoading } from './BoostHistoryLoading';
-import { boostPostDocsLink } from '../../lib/constants';
+import { boostDocsLink } from '../../lib/constants';
 import type { Campaign } from '../../graphql/campaigns';
 
 interface CampaignListProps {
@@ -45,7 +45,7 @@ export function CampaignList({
           discovered by more developers.
         </Typography>
         <a
-          href={boostPostDocsLink}
+          href={boostDocsLink}
           className="mt-3 text-text-link typo-callout"
           target="_blank"
         >

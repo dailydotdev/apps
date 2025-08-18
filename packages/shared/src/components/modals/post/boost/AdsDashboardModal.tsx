@@ -15,7 +15,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../typography/Typography';
-import { boostPostDocsLink } from '../../../../lib/constants';
+import { boostDocsLink } from '../../../../lib/constants';
 import { CampaignStatsGrid } from '../../../../features/boost/CampaignListView';
 import type { Campaign } from '../../../../graphql/campaigns';
 
@@ -85,7 +85,7 @@ export function AdsDashboardModal({
               discovered by more developers.
             </Typography>
             <a
-              href={boostPostDocsLink}
+              href={boostDocsLink}
               className="text-text-link typo-callout"
               target="_blank"
             >
