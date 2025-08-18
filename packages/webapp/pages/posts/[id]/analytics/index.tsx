@@ -43,7 +43,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostPostButton';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
-import { POST_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  POST_BY_ID_STATIC_FIELDS_QUERY,
+  postAnalyticsQueryOptions,
+} from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -58,6 +61,8 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
+import { useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -65,7 +70,16 @@ import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import type { SharePostPageProps } from '../share';
 import type { AnalyticsNumberList } from '../../../../../shared/src/components/analytics/common';
-import { ImpressionsChart } from '../../../../../shared/src/components/analytics/ImpressionsChart';
+
+const ImpressionsChart = dynamic(
+  () =>
+    import(
+      '../../../../../shared/src/components/analytics/ImpressionsChart'
+    ).then((mod) => mod.ImpressionsChart),
+  {
+    loading: () => <div className="h-40 w-full" />,
+  },
+);
 
 interface SectionHeaderProps {
   children: React.ReactNode;
@@ -154,68 +168,73 @@ const PostAnalyticsPage = ({
     },
   });
 
+  const { data: postAnalytics } = useQuery(
+    postAnalyticsQueryOptions({ id: post?.id }),
+  );
+
   const profileActivityList: AnalyticsNumberList = [
     {
       icon: <ReputationIcon secondary />,
       label: 'Reputation earned',
-      value: 149,
+      value: postAnalytics?.reputation ?? 0,
       tooltip:
         'The number of reputation points you gained from this post. Reputation increases your standing in the community.',
     },
     {
       icon: <CoreFlatIcon />,
       label: 'Cores earned',
-      value: 300,
+      value: postAnalytics?.coresEarned ?? 0,
     },
     {
       icon: <UserIcon />,
       label: 'Profile viewers',
-      value: '12%',
+      value: postAnalytics?.profileViews ?? 0,
     },
 
     {
       icon: <AddUserIcon secondary={false} />,
       label: 'Followers gained',
-      value: '10',
+      value: postAnalytics?.followers ?? 0,
     },
     {
       icon: <SquadIcon />,
       label: 'Squad members gained',
-      value: '9',
+      value: postAnalytics?.squadJoins ?? 0,
     },
-  ];
+  ].filter((item) => typeof item.value !== 'undefined');
 
   const engagementActivityList: AnalyticsNumberList = [
     {
       icon: <UpvoteIcon />,
       label: 'Upvotes',
-      value: 149,
+      value: postAnalytics?.upvotes ?? 0,
     },
     {
       icon: <MergeIcon />,
       label: 'Upvotes ratio',
-      value: '12%',
+      value: `${postAnalytics?.upvotesRatio ?? 0}%`,
+      tooltip: 'The ratio of upvotes to downvotes for this post.',
     },
     {
       icon: <DiscussIcon />,
       label: 'Comments',
-      value: '300',
+      value: postAnalytics?.comments ?? 0,
     },
 
     {
       icon: <BookmarkIcon />,
-      label: 'Followers gained',
-      value: '10',
+      label: 'Bookmarks',
+      value: postAnalytics?.bookmarks ?? 0,
     },
     {
       icon: <MedalBadgeIcon secondary />,
-      label: 'Squad members gained',
-      value: '9',
+      label: 'Awards',
+      value: postAnalytics?.awards ?? 0,
     },
     {
       icon: <ShareIcon />,
       label: 'Shares',
-      value: '9',
+      value: postAnalytics?.shares ?? 0,
     },
   ];
 
@@ -249,26 +268,29 @@ const PostAnalyticsPage = ({
           <div className="flex gap-4">
             <DataTile
               label="Total impressions"
-              value={7124}
-              info="TODO: Put the right info here"
+              value={postAnalytics?.impressions ?? 0}
+              info="TODO post-analytics: Put the right info here"
               className={{
                 container: 'flex-1',
               }}
               subtitle={
-                <Typography
-                  type={TypographyType.Caption2}
-                  bold
-                  color={TypographyColor.Boost}
-                  className="flex items-center gap-0.5"
-                >
-                  <ArrowIcon size={IconSize.XXSmall} /> +3,089 boosted
-                </Typography>
+                // TODO post-analytics enable boosting data
+                false && (
+                  <Typography
+                    type={TypographyType.Caption2}
+                    bold
+                    color={TypographyColor.Boost}
+                    className="flex items-center gap-0.5"
+                  >
+                    <ArrowIcon size={IconSize.XXSmall} /> +3,089 boosted
+                  </Typography>
+                )
               }
             />
             <DataTile
-              label="Total impressions"
-              value={7124}
-              info="TODO: Put the right info here"
+              label="Unique reach"
+              value={postAnalytics?.reach ?? 0}
+              info="TODO post-analytics: Put the right info here"
               className={{
                 container: 'flex-1',
               }}
@@ -289,7 +311,7 @@ const PostAnalyticsPage = ({
               </div>
             </div>
           </div>
-          <ImpressionsChart />
+          <ImpressionsChart post={post} />
         </SectionContainer>
         <Divider className={dividerClassName} />
         <SectionContainer>
@@ -313,120 +335,124 @@ const PostAnalyticsPage = ({
           />
         </SectionContainer>
         <Divider className={dividerClassName} />
-        <SectionContainer>
-          <SectionHeader>Boosting in progress</SectionHeader>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Your post is actively being promoted to developers who are most
-            likely to engage based on our targeting engine. We’re making sure it
-            gets prime placement where it matters most, so you can focus on
-            creating while we drive the visibility.
-          </Typography>
-          <div>
+        {/* TODO post-analytics enable boosting data */}
+        {false && (
+          <SectionContainer>
+            <SectionHeader>Boosting in progress</SectionHeader>
             <Typography
               type={TypographyType.Callout}
-              className="mb-1.5 flex flex-row items-center"
+              color={TypographyColor.Tertiary}
             >
-              <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-              {formatDataTileValue(6000)} | 6 days
+              Your post is actively being promoted to developers who are most
+              likely to engage based on our targeting engine. We&apos;re making
+              sure it gets prime placement where it matters most, so you can
+              focus on creating while we drive the visibility.
             </Typography>
-            <div className="flex flex-col gap-1">
-              <ProgressBar
-                percentage={20}
-                shouldShowBg
-                className={{ wrapper: 'h-2 rounded-6' }}
-              />
-              <span className="flex flex-row justify-between">
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Secondary}
-                >
-                  Started{' '}
-                  <DateFormat date={new Date()} type={TimeFormatType.Post} />
-                </Typography>
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Secondary}
-                >
-                  Ends in 7 days
-                </Typography>
-              </span>
+            <div>
+              <Typography
+                type={TypographyType.Callout}
+                className="mb-1.5 flex flex-row items-center"
+              >
+                <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
+                {formatDataTileValue(6000)} | 6 days
+              </Typography>
+              <div className="flex flex-col gap-1">
+                <ProgressBar
+                  percentage={20}
+                  shouldShowBg
+                  className={{ wrapper: 'h-2 rounded-6' }}
+                />
+                <span className="flex flex-row justify-between">
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Secondary}
+                  >
+                    Started{' '}
+                    <DateFormat date={new Date()} type={TimeFormatType.Post} />
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Secondary}
+                  >
+                    Ends in 7 days
+                  </Typography>
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-1 gap-2 laptop:grid-cols-2">
-            <FlexRow className="order-1 gap-1">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Start date:
-              </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                bold
-                color={TypographyColor.Primary}
-              >
-                June 23, 2025
-              </Typography>
-            </FlexRow>
-            <FlexRow className="order-3 gap-1 laptop:order-2">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Spend so far:
-              </Typography>
-              <CoreIcon />
-              <Typography
-                type={TypographyType.Callout}
-                bold
-                color={TypographyColor.Primary}
-              >
-                {formatDataTileValue(2148)}
-              </Typography>
-            </FlexRow>
-            <FlexRow className="order-2 gap-1 laptop:order-3">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                End date:
-              </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                bold
-                color={TypographyColor.Primary}
-              >
-                June 31, 2025
-              </Typography>
-            </FlexRow>
-            <FlexRow className="order-4 gap-1">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-              >
-                Estimated daily reach:
-              </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                bold
-                color={TypographyColor.Primary}
-              >
-                {formatDataTileValue(5500)} - {formatDataTileValue(15000)}
-              </Typography>
-            </FlexRow>
-          </div>
-          <Button
-            variant={ButtonVariant.Float}
-            className="mr-auto bg-action-downvote-float hover:bg-action-downvote-hover"
-            color={ButtonColor.Ketchup}
-          >
-            Stop boost
-          </Button>
-        </SectionContainer>
-        <Divider className={dividerClassName} />
+            <div className="grid grid-cols-1 gap-2 laptop:grid-cols-2">
+              <FlexRow className="order-1 gap-1">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  Start date:
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  bold
+                  color={TypographyColor.Primary}
+                >
+                  June 23, 2025
+                </Typography>
+              </FlexRow>
+              <FlexRow className="order-3 gap-1 laptop:order-2">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  Spend so far:
+                </Typography>
+                <CoreIcon />
+                <Typography
+                  type={TypographyType.Callout}
+                  bold
+                  color={TypographyColor.Primary}
+                >
+                  {formatDataTileValue(2148)}
+                </Typography>
+              </FlexRow>
+              <FlexRow className="order-2 gap-1 laptop:order-3">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  End date:
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  bold
+                  color={TypographyColor.Primary}
+                >
+                  June 31, 2025
+                </Typography>
+              </FlexRow>
+              <FlexRow className="order-4 gap-1">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  Estimated daily reach:
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  bold
+                  color={TypographyColor.Primary}
+                >
+                  {formatDataTileValue(5500)} - {formatDataTileValue(15000)}
+                </Typography>
+              </FlexRow>
+            </div>
+            <Button
+              variant={ButtonVariant.Float}
+              className="mr-auto bg-action-downvote-float hover:bg-action-downvote-hover"
+              color={ButtonColor.Ketchup}
+            >
+              Stop boost
+            </Button>
+          </SectionContainer>
+        )}
+        {/* TODO post-analytics enable boosting data */}
+        {false && <Divider className={dividerClassName} />}
         <SectionContainer>
           <div className="flex justify-between">
             <SectionHeader>Profile activity</SectionHeader>

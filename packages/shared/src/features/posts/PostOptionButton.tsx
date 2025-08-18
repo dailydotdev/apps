@@ -30,7 +30,6 @@ import {
   UpvoteIcon,
   TrendingIcon,
   SettingsIcon,
-  AnalyticsIcon,
 } from '../../components/icons';
 import {
   Button,
@@ -449,13 +448,14 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
-    canBoost && {
-      icon: <MenuIcon Icon={AnalyticsIcon} />,
-      label: 'Post analytics',
-      anchorProps: {
-        href: `${webappUrl}posts/${post.slug}/analytics`,
-      },
-    },
+    // TODO post-analytics enable when available for public
+    // canBoost && {
+    //   icon: <MenuIcon Icon={AnalyticsIcon} />,
+    //   label: 'Post analytics',
+    //   anchorProps: {
+    //     href: `${webappUrl}posts/${post.slug}/analytics`,
+    //   },
+    // },
     !isBriefPost && {
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
