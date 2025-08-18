@@ -14,10 +14,10 @@ import type { Post } from '../../graphql/posts';
 // Mock the hooks
 jest.mock('./useCampaignMutation');
 jest.mock('./usePostBoostEstimation');
-jest.mock('../../../../hooks');
-jest.mock('../../../../hooks/useLazyModal');
-jest.mock('../../../../hooks/post/usePostImage');
-jest.mock('../../../../hooks/useDebounceFn');
+jest.mock('../../hooks');
+jest.mock('../../hooks/useLazyModal');
+jest.mock('../../hooks/post/usePostImage');
+jest.mock('../../hooks/useDebounceFn');
 jest.mock('next/dynamic', () => () => 'div');
 
 const mockUsePostBoostMutation = useCampaignMutation as jest.MockedFunction<

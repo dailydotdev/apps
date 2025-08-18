@@ -17,7 +17,6 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../components/icons';
 import type { Post } from '../../graphql/posts';
-
 import { Image } from '../../components/image/Image';
 import { largeNumberFormat } from '../../lib';
 import { IconSize } from '../../components/Icon';
