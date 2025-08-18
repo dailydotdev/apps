@@ -55,7 +55,10 @@ import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
-import { briefCardFeedFeature } from '../lib/featureManagement';
+import {
+  briefCardFeedFeature,
+  briefFeedEntrypointPage,
+} from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
@@ -182,6 +185,16 @@ export default function Feed<T>({
   const showBriefCard =
     feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+
+  const { value: briefBannerPage } = useConditionalFeature({
+    feature: briefFeedEntrypointPage,
+    shouldEvaluate: !user?.isPlus && feedName === SharedFeedPage.MyFeed,
+  });
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const indexWhenShowingPromoBanner =
+    typeof briefBannerPage === 'number'
+      ? (currentPageSize - 1) * briefBannerPage
+      : 0;
 
   const {
     items,
@@ -503,12 +516,6 @@ export default function Feed<T>({
         showBriefCard,
       };
 
-  const numberOfPages = 3;
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const shouldShowPromoBanner =
-    !user?.isPlus && feedName === SharedFeedPage.MyFeed;
-  const indexWhenShowingPromoBanner = numberOfPages * (currentPageSize - 1);
-
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
@@ -533,7 +540,7 @@ export default function Feed<T>({
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
                 }}
               >
-                {shouldShowPromoBanner &&
+                {!!indexWhenShowingPromoBanner &&
                   index === indexWhenShowingPromoBanner && (
                     <BriefGenerateBanner
                       style={{
