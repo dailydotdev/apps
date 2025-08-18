@@ -469,6 +469,8 @@ const JobPage = (): ReactElement => {
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const showCVScreen = !!cvStep;
+  document.body.classList.add('hidden-scrollbar');
+
   return (
     <>
       {showCVScreen && <CVOverlay />}
