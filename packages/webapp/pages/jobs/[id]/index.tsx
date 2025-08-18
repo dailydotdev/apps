@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import { useActions } from '@dailydotdev/shared/src/hooks';
@@ -469,7 +469,13 @@ const JobPage = (): ReactElement => {
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const showCVScreen = !!cvStep;
-  document.body.classList.add('hidden-scrollbar');
+
+  useEffect(() => {
+    document.body.classList.add('hidden-scrollbar');
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
 
   return (
     <>
