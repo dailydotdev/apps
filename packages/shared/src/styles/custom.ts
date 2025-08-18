@@ -22,3 +22,6 @@ export const briefCardBgSecondary =
 
 export const cvUploadBannerBg =
   'linear-gradient(270deg, rgba(239, 213, 200, 0.16) 0%, rgba(210, 233, 227, 0.16) 25.96%, rgba(198, 222, 250, 0.16) 53.37%, rgba(196, 199, 251, 0.16) 79.33%, rgba(199, 182, 250, 0.16) 100%)';
+
+export const boostButton =
+  'radial-gradient(240.08% 106.76% at 50.01% 56.13%, var(--theme-accent-blueCheese-subtlest) 0%, var(--theme-accent-cabbage-default) 100%)';

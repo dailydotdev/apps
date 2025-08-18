@@ -8,6 +8,7 @@ import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import type { Squad } from '../../graphql/sources';
+import { boostButton } from '../../styles/custom';
 
 export function BoostButton({
   buttonProps = {},
@@ -16,6 +17,7 @@ export function BoostButton({
 }): ReactElement {
   return (
     <Button
+      style={{ background: boostButton }}
       variant={ButtonVariant.Primary}
       {...buttonProps}
       icon={<BoostIcon secondary />}

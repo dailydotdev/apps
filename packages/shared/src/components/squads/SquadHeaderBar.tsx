@@ -22,7 +22,7 @@ import { useGetSquadAwardAdmin } from '../../hooks/useCoresFeature';
 import { AwardButton } from '../award/AwardButton';
 import type { LoggedUser } from '../../lib/user';
 import { Tooltip } from '../tooltip/Tooltip';
-import { BoostSourceButton } from '../../features/boost/BoostPostButton';
+import { BoostSourceButton } from '../../features/boost/BoostButton';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
   Partial<ButtonProps<T>>,
