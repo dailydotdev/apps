@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { MouseEventHandler, PropsWithChildren, ReactElement } from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import { IconSize } from '../../components/Icon';
 import { ArrowIcon } from '../../components/icons';
@@ -65,9 +65,7 @@ interface CampaignListItemProps {
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
-const PreviewComponent = ({
-  campaign,
-}: PropsWithChildren<{ campaign: Campaign }>) => {
+const PreviewComponent = ({ campaign }: { campaign: Campaign }) => {
   switch (campaign.type) {
     case CampaignType.Post:
       return <CampaignListItemPost post={campaign.post} />;

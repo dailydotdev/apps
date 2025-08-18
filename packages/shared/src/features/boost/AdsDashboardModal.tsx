@@ -4,7 +4,7 @@ import { Modal } from '../../components/modals/common/Modal';
 import type { ModalProps } from '../../components/modals/common/Modal';
 import { useCampaigns } from './useCampaigns';
 import { BoostHistoryLoading } from './BoostHistoryLoading';
-import { BoostedPostViewModal } from './BoostedPostViewModal';
+import { BoostedViewModal } from './BoostedViewModal';
 import { CampaignList } from './CampaignList';
 import {
   Typography,
@@ -52,7 +52,7 @@ export function AdsDashboardModal({
 
   if (boosted) {
     return (
-      <BoostedPostViewModal
+      <BoostedViewModal
         {...props}
         campaign={boosted}
         isLoading={isLoading}

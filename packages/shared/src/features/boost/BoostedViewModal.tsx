@@ -19,7 +19,7 @@ import {
 } from '../../components/buttons/Button';
 import { ArrowIcon } from '../../components/icons';
 
-interface BoostedPostViewModalProps extends ModalProps {
+interface BoostedViewModalProps extends ModalProps {
   campaign: Campaign;
   isLoading?: boolean;
   onBack?: () => void;
@@ -44,13 +44,13 @@ const promptOptions: PromptOptions = {
   },
 };
 
-export function BoostedPostViewModal({
+export function BoostedViewModal({
   campaign,
   isLoading,
   onBoostAgain,
   onBack,
   ...props
-}: BoostedPostViewModalProps): ReactElement {
+}: BoostedViewModalProps): ReactElement {
   const { showPrompt } = usePrompt();
   const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
     onCancelSuccess: onBack || (() => props.onRequestClose(null)),
@@ -104,7 +104,7 @@ export function BoostedPostViewModal({
 export function FetchBoostedViewModal({
   campaignId,
   ...props
-}: Omit<BoostedPostViewModalProps, 'campaign'> & {
+}: Omit<BoostedViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
   const { user } = useAuthContext();
@@ -153,5 +153,5 @@ export function FetchBoostedViewModal({
     );
   }
 
-  return <BoostedPostViewModal {...props} campaign={data} />;
+  return <BoostedViewModal {...props} campaign={data} />;
 }

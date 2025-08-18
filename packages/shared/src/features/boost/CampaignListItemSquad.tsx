@@ -34,6 +34,7 @@ export function CampaignListItemSquad({
             type={TypographyType.Callout}
             className="line-clamp-1 flex-1 text-left"
             style={{ lineBreak: 'anywhere' }}
+            bold
           >
             {squad.name}
           </Typography>
