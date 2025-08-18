@@ -59,6 +59,7 @@ import { briefCardFeedFeature } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
+import { BriefGenerateBanner } from '../features/briefing/components/BriefGenerateBanner';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -502,6 +503,12 @@ export default function Feed<T>({
         showBriefCard,
       };
 
+  const numberOfPages = 3;
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const shouldShowPromoBanner =
+    !user?.isPlus && feedName === SharedFeedPage.MyFeed;
+  const indexWhenShowingPromoBanner = numberOfPages * (currentPageSize - 1);
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
@@ -526,6 +533,16 @@ export default function Feed<T>({
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
                 }}
               >
+                {shouldShowPromoBanner &&
+                  index === indexWhenShowingPromoBanner && (
+                    <BriefGenerateBanner
+                      style={{
+                        gridColumn:
+                          !shouldUseListFeedLayout &&
+                          `span ${virtualizedNumCards}`,
+                      }}
+                    />
+                  )}
                 <FeedItemComponent
                   item={item}
                   index={index}
