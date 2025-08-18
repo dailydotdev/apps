@@ -273,33 +273,33 @@ const ListAwardsModal = dynamic(() =>
 const AdsDashboardModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "adsDashboardModal" */ './post/boost/AdsDashboardModal'
+      /* webpackChunkName: "adsDashboardModal" */ '../../features/boost/AdsDashboardModal'
     ),
 );
 
 const BoostSquadModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "boostSquadModal" */ './post/boost/BoostSquadModal'
+      /* webpackChunkName: "boostSquadModal" */ '../../features/boost/BoostSquadModal'
     ),
 );
 
 const BoostPostModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "boostPostModal" */ './post/boost/BoostPostModal'
+      /* webpackChunkName: "boostPostModal" */ '../../features/boost/BoostPostModal'
     ),
 );
 
 const BoostedPostViewModal = dynamic(() =>
   import(
-    /* webpackChunkName: "boostedPostViewModal" */ './post/boost/BoostedPostViewModal'
+    /* webpackChunkName: "boostedPostViewModal" */ '../../features/boost/BoostedPostViewModal'
   ).then((mod) => mod.BoostedPostViewModal),
 );
 
 const FetchBoostedPostViewModal = dynamic(() =>
   import(
-    /* webpackChunkName: "fetchBoostedPostViewModal" */ './post/boost/BoostedPostViewModal'
+    /* webpackChunkName: "fetchBoostedPostViewModal" */ '../../features/boost/BoostedPostViewModal'
   ).then((mod) => mod.FetchBoostedViewModal),
 );
 
