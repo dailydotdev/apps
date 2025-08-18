@@ -67,16 +67,16 @@ export const ImpressionsChart = ({
 
         if (impressionsMap[date]) {
           impressionsData.push(impressionsMap[date]);
+        } else {
+          impressionsData.push({
+            name: paddedDate.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            }),
+            value: 0,
+            isBoosted: false,
+          });
         }
-
-        impressionsData.push({
-          name: paddedDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
-          value: 0,
-          isBoosted: false,
-        });
       }
 
       return impressionsData;
