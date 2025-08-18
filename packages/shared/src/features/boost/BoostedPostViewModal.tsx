@@ -1,23 +1,24 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BoostStatus } from '../../../../features/boost/CampaignListItem';
+import { BoostStatus } from './CampaignListItem';
+import { CampaignListView, CampaignStatsGrid } from './CampaignListView';
+import type { ModalProps } from '../../components/modals/common/Modal';
+import { Modal } from '../../components/modals/common/Modal';
+import type { Campaign } from '../../graphql/campaigns';
+import { getCampaignById } from '../../graphql/campaigns';
+import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
+import type { Post } from '../../graphql/posts';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import type { PromptOptions } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
 import {
-  CampaignListView,
-  CampaignStatsGrid,
-} from '../../../../features/boost/CampaignListView';
-import type { ModalProps } from '../../common/Modal';
-import { Modal } from '../../common/Modal';
-import type { Campaign } from '../../../../graphql/campaigns';
-import { getCampaignById } from '../../../../graphql/campaigns';
-import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
-import type { Post } from '../../../../graphql/posts';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
-import { useAuthContext } from '../../../../contexts/AuthContext';
-import type { PromptOptions } from '../../../../hooks/usePrompt';
-import { usePrompt } from '../../../../hooks/usePrompt';
-import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
-import { ArrowIcon } from '../../../icons';
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { ArrowIcon } from '../../components/icons';
 
 interface BoostedPostViewModalProps extends ModalProps {
   campaign: Campaign;

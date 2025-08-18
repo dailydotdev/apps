@@ -2,42 +2,46 @@ import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Modal } from '../../common/Modal';
-import type { ModalProps } from '../../common/Modal';
+import { Modal } from '../../components/modals/common/Modal';
+import type { ModalProps } from '../../components/modals/common/Modal';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useAuthContext } from '../../../../contexts/AuthContext';
-import { CoreIcon, PlusIcon } from '../../../icons';
+} from '../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { CoreIcon, PlusIcon } from '../../components/icons';
 
-import { Image } from '../../../image/Image';
-import { largeNumberFormat } from '../../../../lib';
-import { IconSize } from '../../../Icon';
-import { Origin } from '../../../../lib/log';
-import { BuyCoresModal } from '../../award/BuyCoresModal';
-import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { LazyModal } from '../../common/types';
-import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
-import { boostSuccessCover } from '../../../../lib/image';
-import { boostDocsLink, walletUrl } from '../../../../lib/constants';
-import useDebounceFn from '../../../../hooks/useDebounceFn';
-import { Loader } from '../../../Loader';
+import { Image } from '../../components/image/Image';
+import { largeNumberFormat } from '../../lib';
+import { IconSize } from '../../components/Icon';
+import { Origin } from '../../lib/log';
+import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
+import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
+import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
+import { boostSuccessCover } from '../../lib/image';
+import { boostDocsLink, walletUrl } from '../../lib/constants';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { Loader } from '../../components/Loader';
 import {
   CampaignType,
   DEFAULT_CORES_PER_DAY,
   DEFAULT_DURATION_DAYS,
-} from '../../../../graphql/campaigns';
-import { useCampaignEstimation } from '../../../../features/boost/useCampaignEstimation';
-import type { Squad } from '../../../../graphql/sources';
-import { Separator } from '../../../cards/common/common';
-import { generateQueryKey, RequestKey } from '../../../../lib/query';
+} from '../../graphql/campaigns';
+import { useCampaignEstimation } from './useCampaignEstimation';
+import type { Squad } from '../../graphql/sources';
+import { Separator } from '../../components/cards/common/common';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 const Slider = dynamic(
-  () => import('../../../fields/Slider').then((mod) => mod.Slider),
+  () => import('../../components/fields/Slider').then((mod) => mod.Slider),
   { ssr: false },
 );
 

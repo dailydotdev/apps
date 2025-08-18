@@ -2,14 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { BoostPostModal } from './BoostPostModal';
-import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
-import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
-import { usePostById } from '../../../../hooks';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
-import loggedUser from '../../../../../__tests__/fixture/loggedUser';
-import postFixture from '../../../../../__tests__/fixture/post';
-import type { Post } from '../../../../graphql/posts';
+import { useCampaignMutation } from '../../hooks/post/useCampaignMutation';
+import { usePostBoostEstimation } from '../../hooks/post/usePostBoostEstimation';
+import { usePostById } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import postFixture from '../../../__tests__/fixture/post';
+import type { Post } from '../../graphql/posts';
 
 // Mock the hooks
 jest.mock('../../../../hooks/post/useCampaignMutation');

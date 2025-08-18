@@ -1,23 +1,23 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal } from '../../common/Modal';
-import type { ModalProps } from '../../common/Modal';
-import { useCampaigns } from '../../../../hooks/post/useCampaigns';
-import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
+import { Modal } from '../../components/modals/common/Modal';
+import type { ModalProps } from '../../components/modals/common/Modal';
+import { useCampaigns } from '../../hooks/post/useCampaigns';
+import { BoostHistoryLoading } from './BoostHistoryLoading';
 import { BoostedPostViewModal } from './BoostedPostViewModal';
-import { usePostById } from '../../../../hooks';
-import type { Post } from '../../../../graphql/posts';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { LazyModal } from '../../common/types';
-import { CampaignList } from '../../../../features/boost/CampaignList';
+import { usePostById } from '../../hooks';
+import type { Post } from '../../graphql/posts';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
+import { CampaignList } from './CampaignList';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../typography/Typography';
-import { boostDocsLink } from '../../../../lib/constants';
-import { CampaignStatsGrid } from '../../../../features/boost/CampaignListView';
-import type { Campaign } from '../../../../graphql/campaigns';
+} from '../../components/typography/Typography';
+import { boostDocsLink } from '../../lib/constants';
+import { CampaignStatsGrid } from './CampaignListView';
+import type { Campaign } from '../../graphql/campaigns';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialCampaign?: Campaign;
