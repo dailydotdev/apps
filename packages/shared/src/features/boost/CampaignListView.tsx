@@ -21,7 +21,7 @@ import { getAbsoluteDifferenceInDays } from './utils';
 import type { Campaign } from '../../graphql/campaigns';
 import { DateFormat } from '../../components/utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
-import { boostDashboardInfo } from '../../components/modals/post/boost/common';
+import { boostDashboardInfo } from './common';
 import { Modal } from '../../components/modals/common/Modal';
 import { formatDataTileValue } from '../../lib';
 
