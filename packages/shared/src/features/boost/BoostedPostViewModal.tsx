@@ -110,7 +110,7 @@ export function FetchBoostedViewModal({
 }): ReactElement {
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PostCampaigns, user, campaignId),
+    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
     queryFn: () => getCampaignById(campaignId),
     staleTime: StaleTime.Default,
     enabled: !!campaignId && !!user,

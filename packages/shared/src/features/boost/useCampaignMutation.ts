@@ -46,7 +46,7 @@ export const useCampaignMutation = ({
       });
 
       client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+        queryKey: generateQueryKey(RequestKey.Campaigns, user),
         exact: false,
       });
 
@@ -74,7 +74,7 @@ export const useCampaignMutation = ({
       });
 
       client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+        queryKey: generateQueryKey(RequestKey.Campaigns, user),
         exact: false,
       });
 
