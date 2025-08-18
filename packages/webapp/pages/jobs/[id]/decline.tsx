@@ -59,7 +59,7 @@ const options = [
 
 const DeclinePage = (): ReactElement => {
   return (
-    <div className="mx-auto flex w-full max-w-[35rem] flex-col gap-4 laptop:flex-row">
+    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="gap-4">
           <Typography type={TypographyType.LargeTitle} bold center>
@@ -80,12 +80,12 @@ const DeclinePage = (): ReactElement => {
             <Button
               key={title}
               variant={ButtonVariant.Option}
-              className="!h-auto w-full gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
+              className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
             >
               <div className="flex size-12 items-center justify-center rounded-10 bg-surface-float">
                 {icon}
               </div>
-              <div className="text-left">
+              <FlexCol className="flex-1 text-left">
                 <Typography type={TypographyType.Body} bold>
                   {title}
                 </Typography>
@@ -95,7 +95,7 @@ const DeclinePage = (): ReactElement => {
                 >
                   {description}
                 </Typography>
-              </div>
+              </FlexCol>
             </Button>
           ))}
         </FlexCol>
@@ -117,10 +117,18 @@ const DeclinePage = (): ReactElement => {
           </Typography>
         </div>
         <FlexRow className="justify-between">
-          <Button size={ButtonSize.Large} variant={ButtonVariant.Tertiary}>
+          <Button
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Tertiary}
+            className="hidden laptop:flex"
+          >
             Back
           </Button>
-          <Button size={ButtonSize.Large} variant={ButtonVariant.Primary}>
+          <Button
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Primary}
+            className="w-full laptop:w-auto"
+          >
             Save and Continue
           </Button>
         </FlexRow>
