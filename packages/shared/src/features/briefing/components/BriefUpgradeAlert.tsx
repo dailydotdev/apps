@@ -1,11 +1,12 @@
-import React, { type ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
+import React from 'react';
+import classNames from 'classnames';
 import { briefCardBg } from '../../../styles/custom';
 import {
   Typography,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { BriefPlusUpgradeCTA } from './BriefPlusUpgradeCTA';
-import classNames from 'classnames';
 
 export const BriefUpgradeAlert = ({
   className,
@@ -24,7 +25,7 @@ export const BriefUpgradeAlert = ({
     >
       <Typography
         type={TypographyType.Callout}
-        className="w-full tablet:w-auto flex-1"
+        className="w-full flex-1 tablet:w-auto"
       >
         Get unlimited access to every past and future presidential briefing with
         daily.dev Plus.
