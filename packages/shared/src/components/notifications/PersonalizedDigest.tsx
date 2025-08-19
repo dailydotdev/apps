@@ -29,13 +29,13 @@ import { HourDropdown } from '../fields/HourDropdown';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { Switch } from '../fields/Switch';
-import { NotificationType } from './utils';
+import { isMutingDigestCompletely, NotificationType } from './utils';
 import { LazyModal } from '../modals/common/types';
 import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import NotificationSwitch from './NotificationSwitch';
 import { isNullOrUndefined } from '../../lib/func';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
 
 const briefingCopy = `Your AI agent scans the entire dev landscape (posts,
                     releases, discussions) and compiles a personalized briefing
@@ -45,7 +45,11 @@ const briefingCopy = `Your AI agent scans the entire dev landscape (posts,
                     control when and how often you get them.`;
 
 const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
-  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
+  const {
+    notificationSettings: ns,
+    toggleSetting,
+    setNotificationStatus,
+  } = useNotificationSettings();
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
   const { isPushSupported } = usePushNotificationContext();
@@ -139,12 +143,8 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
     toggleSetting('briefing_ready', channel);
 
     if (isChecked) {
-      const otherChannelStatus =
-        channel === 'email'
-          ? ns?.briefing_ready?.inApp
-          : ns?.briefing_ready?.email;
-      // Only unsubscribe if the other channel is also muted
-      if (otherChannelStatus === NotificationPreferenceStatus.Muted) {
+      const shouldUnsubscribe = isMutingDigestCompletely(ns, channel);
+      if (shouldUnsubscribe) {
         unsubscribePersonalizedDigest({
           type: selectedDigest?.type,
         });
@@ -301,6 +301,11 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
                   await unsubscribePersonalizedDigest({
                     type: UserPersonalizedDigestType.Brief,
                   });
+                  setNotificationStatus(
+                    NotificationType.BriefingReady,
+                    'inApp',
+                    NotificationPreferenceStatus.Muted,
+                  );
                 }
               }}
               reverse

@@ -59,8 +59,10 @@ import { getFirstName } from '../../../lib/user';
 import { labels } from '../../../lib';
 import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
+import type { NotificationChannel } from '../../../hooks/notifications/useNotificationSettings';
 import useNotificationSettings from '../../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
+import { isMutingDigestCompletely } from '../../notifications/utils';
 
 const BriefPostContentRaw = ({
   post,
@@ -234,6 +236,22 @@ const BriefPostContentRaw = ({
   if (!authorFirstName && post.author && user?.id === post.author.id) {
     authorFirstName = 'Your';
   }
+
+  const toggleNotification = (type: NotificationChannel) => {
+    const shouldUnsubscribe = isMutingDigestCompletely(ns, type);
+
+    if (shouldUnsubscribe) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+      });
+    } else if (!briefDigest) {
+      onSubscribeDigest({
+        sendType: SendType.Daily,
+      });
+    }
+
+    toggleSetting('briefing_ready', type);
+  };
 
   return (
     <PostContentContainer
@@ -484,7 +502,7 @@ const BriefPostContentRaw = ({
                       NotificationPreferenceStatus.Subscribed
                     }
                     onToggleCallback={() => {
-                      toggleSetting('briefing_ready', 'inApp');
+                      toggleNotification('inApp');
                     }}
                   >
                     In app
@@ -497,7 +515,7 @@ const BriefPostContentRaw = ({
                       NotificationPreferenceStatus.Subscribed
                     }
                     onToggleCallback={() => {
-                      toggleSetting('briefing_ready', 'email');
+                      toggleNotification('email');
                     }}
                   >
                     Email
