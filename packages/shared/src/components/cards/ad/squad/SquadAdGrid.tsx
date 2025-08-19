@@ -71,7 +71,9 @@ export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
       domProps={{ className: 'flex flex-col gap-3 group' }}
       flagProps={{}}
     >
-      <CardLink href={source.permalink} />
+      <Link href={source.permalink}>
+        <CardLink href={source.permalink} />
+      </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
       <div className="flex flex-row justify-between">
         <Image src={source.image} className="h-8 w-8 rounded-max" />
