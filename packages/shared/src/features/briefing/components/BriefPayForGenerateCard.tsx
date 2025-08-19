@@ -154,7 +154,7 @@ export const BriefPayForGenerateCard = () => {
   ]);
 
   useEffect(() => {
-    if (isFree && !impressionRef.current) {
+    if (!isFree && !impressionRef.current) {
       impressionRef.current = true;
       logEvent({
         event_name: LogEvent.BriefPaywall,
