@@ -134,17 +134,12 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
       }
     } else if (!selectedDigest) {
       // Set default digest type based on subscription status
-      if (isPlus) {
-        subscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.Brief,
-          sendType: SendType.Daily,
-        });
-      } else {
-        subscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.Digest,
-          sendType: SendType.Daily,
-        });
-      }
+      subscribePersonalizedDigest({
+        type: isPlus
+          ? UserPersonalizedDigestType.Brief
+          : UserPersonalizedDigestType.Digest,
+        sendType: SendType.Daily,
+      });
     }
   };
 
