@@ -18,6 +18,7 @@ import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
 import { BriefPayForGenerateCard } from '../components/BriefPayForGenerateCard';
 import { BriefPlusAdvantagesCard } from '../components/BriefPlusAdvantagesCard';
+import { BriefPostHeader } from '../components/BriefPostHeader';
 
 const MockPresidentialBrief = () => (
   <div
@@ -45,23 +46,20 @@ export const GenerateBriefPage = () => {
   const { isPlus } = usePlusSubscription();
   const { isAuthReady, user } = useAuthContext();
 
-  const headerContent = useMemo(
-    () => ({
-      dateLabel: format(new Date(), 'MMMM dd, yyyy'),
-      heading: `${user?.name || user?.username}'s Presidential Briefing`,
-      stats: [
-        {
-          Icon: TimerIcon,
-          label: '3.5h of reading saved',
-        },
-        {
-          Icon: AnalyticsIcon,
-          label: '847 posts analyzed',
-        },
-      ],
-    }),
-    [user.name, user.username],
-  );
+  const headerProps = {
+    date: new Date(),
+    heading: `${user?.name || user?.username}'s Presidential Briefing`,
+    stats: [
+      {
+        Icon: TimerIcon,
+        label: '3.5h of reading saved',
+      },
+      {
+        Icon: AnalyticsIcon,
+        label: '847 posts analyzed',
+      },
+    ],
+  };
 
   if (isAuthReady && (isPlus || !user)) {
     return null;
@@ -70,31 +68,7 @@ export const GenerateBriefPage = () => {
   return (
     <div className="my-6 px-4 tablet:px-8">
       {/* Header */}
-      <div className="flex flex-col gap-1">
-        <Typography
-          color={TypographyColor.Secondary}
-          type={TypographyType.Callout}
-        >
-          {headerContent.dateLabel}
-        </Typography>
-        <Typography type={TypographyType.LargeTitle} bold>
-          {headerContent.heading}
-        </Typography>
-        <Typography
-          color={TypographyColor.Secondary}
-          type={TypographyType.Footnote}
-          className="flex gap-1"
-        >
-          {headerContent.stats.map(({ Icon, label }) => (
-            <span
-              className="flex items-center gap-1 whitespace-nowrap"
-              key={label}
-            >
-              <Icon size={IconSize.Size16} aria-hidden /> {label}
-            </span>
-          ))}
-        </Typography>
-      </div>
+      <BriefPostHeader {...headerProps} />
       {/* Unlock this Presidential Briefing */}
       <div className="relative mt-6">
         <MockPresidentialBrief />

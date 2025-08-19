@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
@@ -19,7 +19,7 @@ import Markdown from '../../Markdown';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useViewPost } from '../../../hooks/post/useViewPost';
+import { useViewPost } from '../../../hooks/post';
 import { withPostById } from '../withPostById';
 import { BriefPostHeaderActions } from './BriefPostHeaderActions';
 import {
@@ -28,8 +28,13 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Pill } from '../../Pill';
-import { ChecklistAIcon, OpenLinkIcon, TimerIcon } from '../../icons';
-import { CollectionPillSources } from '../collection/CollectionPillSources';
+import {
+  AnalyticsIcon,
+  ChecklistAIcon,
+  OpenLinkIcon,
+  TimerIcon,
+} from '../../icons';
+import { CollectionPillSources } from '../collection';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { briefButtonBg, briefCardBg } from '../../../styles/custom';
 import { plusUrl } from '../../../lib/constants';
@@ -54,13 +59,14 @@ import { UserPersonalizedDigestType } from '../../../graphql/users';
 import { useLogContext } from '../../../contexts/LogContext';
 import { sourceQueryOptions } from '../../../graphql/sources';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { getPathnameWithQuery } from '../../../lib/links';
+import { getPathnameWithQuery, labels } from '../../../lib';
 import { LazyModal } from '../../modals/common/types';
 import { getFirstName } from '../../../lib/user';
-import { labels } from '../../../lib';
 import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
 import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
+import type { BriefPostHeaderProps } from '../../../features/briefing/components/BriefPostHeader';
+import { BriefPostHeader } from '../../../features/briefing/components/BriefPostHeader';
 
 const BriefPostContentRaw = ({
   post,
@@ -227,6 +233,38 @@ const BriefPostContentRaw = ({
     authorFirstName = 'Your';
   }
 
+  const headerProps: BriefPostHeaderProps = useMemo(
+    () => ({
+      date: new Date(post.createdAt),
+      heading: authorFirstName
+        ? `${authorFirstName} presidential briefing`
+        : 'Presidential briefing',
+      stats: [
+        ...(post.flags?.savedTime
+          ? [
+              {
+                Icon: TimerIcon,
+                label: `Save ${formatDate({
+                  value: new Date(),
+                  now: new Date(Date.now() + post.flags.savedTime * 60 * 1000),
+                  type: TimeFormatType.LiveTimer,
+                })} of reading`,
+              },
+            ]
+          : []),
+        ...(post.flags?.posts
+          ? [
+              {
+                Icon: AnalyticsIcon,
+                label: `${postsCount} posts analyzed`,
+              },
+            ]
+          : []),
+      ],
+    }),
+    [],
+  );
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -246,7 +284,9 @@ const BriefPostContentRaw = ({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
-        {!!user && !user?.isPlus && <BriefUpgradeAlert className="mt-20" />}
+        {!!user && !user?.isPlus && (
+          <BriefUpgradeAlert className="!mb-0 mt-4" />
+        )}
         <BasePostContent
           className={{
             ...className,
@@ -273,46 +313,21 @@ const BriefPostContentRaw = ({
               hasNavigation || customNavigation ? 'mt-6' : 'mt-0',
             )}
           >
-            <BriefPostHeaderActions
-              post={post}
-              onClose={onClose}
-              origin={origin}
-              contextMenuId="post-widgets-context"
-            />
-            <div className="flex flex-col gap-1">
-              <Typography
-                type={TypographyType.LargeTitle}
-                bold
-                className="break-words"
-                data-testid="post-modal-title"
-              >
-                {authorFirstName
-                  ? `${authorFirstName} presidential briefing`
-                  : 'Presidential briefing'}
-              </Typography>
-              <Typography type={TypographyType.Title3}>{post.title}</Typography>
-              {!!post.flags?.savedTime && (
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                >
-                  {`Save ${formatDate({
-                    value: new Date(),
-                    now: new Date(
-                      Date.now() + post.flags.savedTime * 60 * 1000,
-                    ),
-                    type: TimeFormatType.LiveTimer,
-                  })} of reading`}
-                </Typography>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
+            <BriefPostHeader {...headerProps}>
+              <BriefPostHeaderActions
+                post={post}
+                onClose={onClose}
+                origin={origin}
+                contextMenuId="post-widgets-context"
+              />
+            </BriefPostHeader>
+            <div className="-mt-3 flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
               {!isNullOrUndefined(post.readTime) && (
                 <Pill
-                  className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2"
+                  className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2 font-normal"
                   label={
                     <div className="flex items-center gap-1">
-                      <TimerIcon />
+                      <TimerIcon aria-hidden className="text-text-tertiary" />
                       <Typography type={TypographyType.Footnote}>
                         {post.readTime}m read
                       </Typography>
@@ -324,9 +339,6 @@ const BriefPostContentRaw = ({
                 {post.collectionSources?.length > 0 && (
                   <CollectionPillSources
                     alwaysShowSources
-                    className={{
-                      main: classNames('m-2'),
-                    }}
                     sources={post.collectionSources}
                     totalSources={post.collectionSources.length}
                     size={ProfileImageSize.Size16}
@@ -334,13 +346,11 @@ const BriefPostContentRaw = ({
                   />
                 )}
                 <Typography
-                  type={TypographyType.Subhead}
+                  type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                   truncate
                 >
-                  {`Based on ${postsCount ?? 0} posts from ${
-                    sourcesCount ?? 0
-                  } sources`}
+                  {sourcesCount ?? 0} Sources
                 </Typography>
               </div>
             </div>
