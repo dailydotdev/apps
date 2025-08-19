@@ -778,3 +778,88 @@ export const deletePendingPostMutation = async (
 ): Promise<void> => {
   return gqlClient.request(DELETE_PENDING_POST_MUTATION, { postId });
 };
+
+// TODO: remove for later
+export const dummySquad = {
+  id: 'e78765d7-636f-4963-b478-c355af991889',
+  active: true,
+  handle: 'test',
+  name: 'Test',
+  permalink: 'https://app.local.fylla.dev:5002/squads/test',
+  public: true,
+  type: 'squad',
+  description: null,
+  image:
+    'https://media.daily.dev/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj',
+  membersCount: 1,
+  flags: {
+    totalUpvotes: 2,
+    featured: false,
+    totalPosts: 11,
+    totalViews: 0,
+    totalAwards: 0,
+  },
+  currentMember: {
+    user: {
+      id: 'msBoquqPdztYXggoHB7t2',
+    },
+    permissions: [
+      'view',
+      'post',
+      'post_request',
+      'leave',
+      'invite',
+      'comment_delete',
+      'post_delete',
+      'post_pin',
+      'member_remove',
+      'edit',
+      'member_unblock',
+      'view_blocked_members',
+      'welcome_post_edit',
+      'moderate_post',
+      'boost_squad',
+      'member_role_update',
+      'post_limit',
+      'delete',
+      'connect_slack',
+    ],
+    role: 'admin',
+    referralToken: '846c680d-d243-42b4-ad18-d7e81ddb081f',
+    flags: {
+      hideFeedPosts: null,
+      collapsePinnedPosts: null,
+      hasUnreadPosts: null,
+    },
+  },
+  memberPostingRole: 'member',
+  memberInviteRole: 'member',
+  moderationRequired: false,
+  referralUrl:
+    'https://app.local.fylla.dev:5002/squads/test?cid=squad&userid=msBoquqPdztYXggoHB7t2',
+  createdAt: '2025-06-03T09:42:31.201Z',
+  category: {
+    id: '3c6411cd-f206-4993-bdb5-b2b967abf645',
+    title: 'AI',
+    slug: 'ai',
+  },
+  privilegedMembers: [
+    {
+      user: {
+        id: 'msBoquqPdztYXggoHB7t2',
+        name: 'Lee Hansel Solevilla',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJC7FYU0mL-87i8_N3zVgwF84oByo75pfRPZ3FZbMYaalN1194=s96-c',
+        permalink: 'https://app.local.fylla.dev:5002/leehanselsolevilla',
+        username: 'leehanselsolevilla',
+        bio: null,
+        reputation: 10,
+        companies: [],
+        contentPreference: null,
+        coresRole: 3,
+      },
+      role: 'admin',
+    },
+  ],
+  moderationPostCount: null,
+} as unknown as Squad;

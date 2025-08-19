@@ -5,6 +5,7 @@ import type { TransactionCreated } from './njord';
 import type { Post } from './posts';
 import type { Squad } from './sources';
 import { SHARED_POST_INFO_FRAGMENT, SQUAD_BASE_FRAGMENT } from './fragments';
+import type { LoggedUser } from '../lib/user';
 
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
@@ -26,6 +27,12 @@ const CAMPAIGN_FRAGMENT = gql`
     }
     source {
       ...SquadBaseInfo
+    }
+    user {
+      id
+      username
+      name
+      image
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -69,6 +76,7 @@ export interface Campaign {
   flags: CampaignStats;
   post?: Post;
   source?: Squad;
+  user: LoggedUser;
 }
 
 export type CampaignConnection = Connection<Campaign>;

@@ -92,6 +92,7 @@ interface SourceFlags {
   totalViews: number;
   totalUpvotes: number;
   totalAwards: number;
+  campaignId?: string;
 }
 
 export interface Source {
