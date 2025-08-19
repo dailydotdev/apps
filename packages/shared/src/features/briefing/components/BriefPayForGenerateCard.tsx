@@ -104,7 +104,7 @@ export const BriefPayForGenerateCard = () => {
     },
   });
 
-  const isFree = isFirstBrief;
+  const isFree = isFirstBrief || user.isPlus;
   const hasEnoughCores = amount >= price;
   const canGenerateNow = (isFree || hasEnoughCores) && !isGenerating;
 
@@ -156,7 +156,7 @@ export const BriefPayForGenerateCard = () => {
         >
           Generate for
           {!isFree && <CoreIcon className="mx-1" aria-hidden />}
-          {isFree ? ' free' : price}
+          {` ${isFree ? 'free' : price}`}
         </Button>
       </ClickableCard>
 
@@ -165,7 +165,7 @@ export const BriefPayForGenerateCard = () => {
         onClose={() => setBuyOpen(false)}
         price={price}
         type={selected}
-        onPurchased={triggerGenerate}
+        onPurchased={() => triggerGenerate()}
       />
     </>
   );
