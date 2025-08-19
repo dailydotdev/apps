@@ -442,6 +442,8 @@ const BriefPostContentRaw = ({
                     setHourIndex={(index) => {
                       onSubscribeDigest({
                         preferredHour: index,
+                        sendType:
+                          briefDigest?.flags?.sendType ?? SendType.Daily,
                       });
                     }}
                   />
