@@ -115,8 +115,12 @@ const Page = (): ReactElement => {
   };
 
   useEffect(() => {
+    if (!isAuthReady || !isActionsFetched || user.isPlus) {
+      return;
+    }
+
     const hasGeneratedBrief = checkHasCompleted(ActionType.GeneratedBrief);
-    if (isAuthReady && isActionsFetched && !hasGeneratedBrief) {
+    if (!hasGeneratedBrief) {
       router.push(`${webappUrl}/briefing/generate`);
     }
   }, [isAuthReady, checkHasCompleted, isActionsFetched, router]);
