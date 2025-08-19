@@ -75,7 +75,7 @@ export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
       <div className="flex flex-row justify-between">
         <Image src={source.image} className="h-8 w-8 rounded-max" />
-        <SquadOptionsButton />
+        <SquadOptionsButton squad={source} />
       </div>
       <div className="flex flex-col gap-1">
         <Typography bold type={TypographyType.Title3}>
