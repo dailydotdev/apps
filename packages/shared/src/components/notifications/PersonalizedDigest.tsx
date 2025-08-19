@@ -76,14 +76,16 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
       return brief;
     }
 
-    const digest = getPersonalizedDigest(UserPersonalizedDigestType.Digest);
+    if (channel === 'email') {
+      const digest = getPersonalizedDigest(UserPersonalizedDigestType.Digest);
 
-    if (digest) {
-      return digest;
+      if (digest) {
+        return digest;
+      }
     }
 
     return null;
-  }, [getPersonalizedDigest, isLoading]);
+  }, [getPersonalizedDigest, isLoading, channel]);
 
   if (
     !isNullOrUndefined(selectedDigest) &&
@@ -155,6 +157,9 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
           ? UserPersonalizedDigestType.Brief
           : UserPersonalizedDigestType.Digest,
         sendType: SendType.Daily,
+      });
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Digest,
       });
     }
   };
