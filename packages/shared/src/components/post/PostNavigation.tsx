@@ -7,6 +7,9 @@ import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
 import { Tooltip } from '../tooltip/Tooltip';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { BRIEFING_SOURCE } from '../../types';
+import { BriefPlusUpgradeCTA } from '../../features/briefing/components/BriefPlusUpgradeCTA';
 
 function PostNavigation({
   postPosition,
@@ -17,6 +20,12 @@ function PostNavigation({
   post,
   ...props
 }: PostNavigationProps): ReactElement {
+  const { isFixedNavigation } = props;
+  const { user, isAuthReady } = useAuthContext();
+  const canUserUpgrade = isAuthReady && !user.isPlus;
+  const isBrief = post?.source.id === BRIEFING_SOURCE;
+  const shouldShowUpgrade = canUserUpgrade && isFixedNavigation && isBrief;
+
   return (
     <div
       className={classNames(
@@ -51,7 +60,8 @@ function PostNavigation({
           />
         </Tooltip>
       )}
-      <div className="ml-auto flex">
+      <div className="ml-auto flex items-center gap-1">
+        {shouldShowUpgrade && <BriefPlusUpgradeCTA />}
         {post && (
           <PostHeaderActions
             {...props}
