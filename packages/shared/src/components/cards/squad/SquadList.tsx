@@ -18,11 +18,13 @@ import { ButtonVariant } from '../../buttons/common';
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
   shouldShowCount?: boolean;
+  campaignId?: string;
 }
 
 export const SquadList = ({
   squad,
   shouldShowCount = true,
+  campaignId,
   ...attrs
 }: SquadListProps): ReactElement => {
   const { image, name, permalink } = squad;
@@ -47,6 +49,11 @@ export const SquadList = ({
           color={TypographyColor.Tertiary}
           truncate
         >
+          {campaignId && (
+            <strong>
+              Boosted <Separator />
+            </strong>
+          )}
           @{squad.handle}
           {shouldShowCount && <Separator />}
           {shouldShowCount && (

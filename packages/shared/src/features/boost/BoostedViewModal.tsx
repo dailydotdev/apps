@@ -1,15 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { BoostStatus } from './CampaignListItem';
 import { CampaignListView, CampaignStatsGrid } from './CampaignListView';
 import type { ModalProps } from '../../components/modals/common/Modal';
 import { Modal } from '../../components/modals/common/Modal';
 import type { Campaign } from '../../graphql/campaigns';
-import { getCampaignById } from '../../graphql/campaigns';
+import { useCampaignById } from '../../graphql/campaigns';
 import { useCampaignMutation } from './useCampaignMutation';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import {
@@ -107,13 +104,7 @@ export function FetchBoostedViewModal({
 }: Omit<BoostedViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
-  const { user } = useAuthContext();
-  const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
-    queryFn: () => getCampaignById(campaignId),
-    staleTime: StaleTime.Default,
-    enabled: !!campaignId && !!user,
-  });
+  const { data, isLoading } = useCampaignById(campaignId);
 
   if (isLoading) {
     return (
