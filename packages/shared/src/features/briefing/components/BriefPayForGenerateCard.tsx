@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActions, useToastNotification } from '../../../hooks';
@@ -23,11 +23,12 @@ import {
 } from '../../../components/buttons/Button';
 import { BuyCoresModal } from '../../../components/modals/award/BuyCoresModal';
 import { useToggle } from '../../../hooks/useToggle';
-import { Origin } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import type { Product } from '../../../graphql/njord';
 import { useFeature } from '../../../components/GrowthBookProvider';
 import { briefGeneratePricing } from '../../../lib/featureManagement';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useLogContext } from '../../../contexts/LogContext';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -81,13 +82,13 @@ export const BriefPayForGenerateCard = () => {
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
 
-  const [selected, setSelected] = React.useState<BriefingType>(
+  const [briefingType, setBriefingType] = React.useState<BriefingType>(
     BriefingType.Daily,
   );
   const [isBuyOpen, setBuyOpen] = useToggle(false);
 
   const prices = useFeature(briefGeneratePricing);
-  const price = prices[selected];
+  const price = prices[briefingType];
 
   const isFirstBrief =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
@@ -119,19 +120,47 @@ export const BriefPayForGenerateCard = () => {
   const hasEnoughCores = amount >= price;
   const canGenerateNow = (isFree || hasEnoughCores) && !isGenerating;
 
+  const { logEvent } = useLogContext();
+  const impressionRef = React.useRef(false);
+
   const triggerGenerate = useCallback(() => {
     if (!isGenerating) {
-      generateBrief({ type: selected });
+      generateBrief({ type: briefingType });
     }
-  }, [generateBrief, isGenerating, selected]);
+  }, [generateBrief, isGenerating, briefingType]);
 
   const onClickGenerate = useCallback(() => {
+    if (!isFree) {
+      logEvent({
+        event_name: LogEvent.StartBriefPurchase,
+        extra: JSON.stringify({
+          time_range: briefingType,
+        }),
+      });
+    }
+
     if (canGenerateNow) {
       triggerGenerate();
     } else {
       setBuyOpen(true);
     }
-  }, [canGenerateNow, setBuyOpen, triggerGenerate]);
+  }, [
+    briefingType,
+    canGenerateNow,
+    isFree,
+    logEvent,
+    setBuyOpen,
+    triggerGenerate,
+  ]);
+
+  useEffect(() => {
+    if (isFree && !impressionRef.current) {
+      impressionRef.current = true;
+      logEvent({
+        event_name: LogEvent.BriefPaywall,
+      });
+    }
+  }, [isFree, logEvent]);
 
   return (
     <>
@@ -153,8 +182,8 @@ export const BriefPayForGenerateCard = () => {
         <div className="flex-1">
           <Radio
             name="brief-type"
-            value={selected}
-            onChange={(value) => setSelected(value)}
+            value={briefingType}
+            onChange={(value) => setBriefingType(value)}
             options={OPTIONS}
           />
         </div>
@@ -175,7 +204,7 @@ export const BriefPayForGenerateCard = () => {
         isOpen={isBuyOpen}
         onClose={() => setBuyOpen(false)}
         price={price}
-        type={selected}
+        type={briefingType}
         onPurchased={() => triggerGenerate()}
       />
     </>
