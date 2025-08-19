@@ -62,7 +62,7 @@ import {
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
-import { BriefGenerateBanner } from '../features/briefing/components/BriefGenerateBanner';
+import { BriefFeedBanner } from '../features/briefing/components/BriefFeedBanner';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -542,7 +542,7 @@ export default function Feed<T>({
               >
                 {!!indexWhenShowingPromoBanner &&
                   index === indexWhenShowingPromoBanner && (
-                    <BriefGenerateBanner
+                    <BriefFeedBanner
                       style={{
                         gridColumn:
                           !shouldUseListFeedLayout &&

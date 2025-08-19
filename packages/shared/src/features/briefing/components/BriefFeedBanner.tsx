@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -14,10 +14,41 @@ import {
 } from '../../../components/buttons/Button';
 import { DevPlusIcon, TimerIcon } from '../../../components/icons';
 import { briefButtonBg } from '../../../styles/custom';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
-export const BriefGenerateBanner = (props: ComponentProps<'div'>) => {
+export const BriefFeedBanner = (props: ComponentProps<'div'>) => {
   const router = useRouter();
   const { className, style, ...attrs } = props;
+
+  const impressionRef = useRef(false);
+  const { logEvent } = useLogContext();
+  const { user, isAuthReady } = useAuthContext();
+
+  const logBriefEvent = useCallback(
+    (eventName: LogEvent) => {
+      logEvent({
+        event_name: eventName,
+        target_id: TargetId.BriefPlacement,
+        extra: JSON.stringify({
+          is_demo: !user?.isPlus,
+          brief_date: new Date(),
+        }),
+      });
+    },
+    [logEvent, user?.isPlus],
+  );
+
+  useEffect(() => {
+    if (impressionRef.current || !isAuthReady) {
+      return;
+    }
+
+    impressionRef.current = true;
+    logBriefEvent(LogEvent.ImpressionBrief);
+  }, [isAuthReady, logBriefEvent]);
+
   return (
     <div
       className={classNames(
@@ -59,7 +90,10 @@ export const BriefGenerateBanner = (props: ComponentProps<'div'>) => {
       <Button
         icon={<DevPlusIcon className="ml-0" aria-hidden />}
         size={ButtonSize.Small}
-        onClick={() => router.push('/briefing/generate')}
+        onClick={() => {
+          logBriefEvent(LogEvent.ClickBrief);
+          router.push('/briefing/generate');
+        }}
         variant={ButtonVariant.Primary}
       >
         Generate your briefing
