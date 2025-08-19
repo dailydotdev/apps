@@ -14,6 +14,7 @@ import {
   FOLLOWING_NOTIFICATIONS,
   NotificationContainer,
   NotificationSection,
+  NotificationType,
   STREAK_NOTIFICATIONS,
 } from './utils';
 
@@ -145,7 +146,9 @@ const InAppNotificationsTab = (): ReactElement => {
           Updates
         </Typography>
         <NotificationContainer>
-          {FOLLOWING_NOTIFICATIONS.map((item) =>
+          {FOLLOWING_NOTIFICATIONS.filter(
+            (item) => item.id !== NotificationType.SquadPostAdded,
+          ).map((item) =>
             item.group ? (
               <NotificationSwitch
                 key={item.id}
