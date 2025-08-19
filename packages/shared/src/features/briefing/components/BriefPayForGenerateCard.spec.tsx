@@ -21,7 +21,6 @@ import { useActions } from '../../../hooks/useActions';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useFeature } from '../../../components/GrowthBookProvider';
 import type { LoggedUser } from '../../../lib/user';
-import MockedFunction = jest.MockedFunction;
 
 // Mock the hooks and mutation options
 jest.mock('@tanstack/react-query', () => ({
