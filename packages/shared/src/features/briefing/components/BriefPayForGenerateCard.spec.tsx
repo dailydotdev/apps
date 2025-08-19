@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import nock from 'nock';
 import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
@@ -13,27 +13,40 @@ import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { defaultQueryClientTestingConfig } from '../../../../__tests__/helpers/tanstack-query';
 // eslint-disable-next-line import/extensions
 import defaultUser from '../../../../__tests__/fixture/loggedUser';
-import { BriefingType } from '../../../graphql/posts';
-import { useGenerateBrief } from '../hooks/useGenerateBrief';
+import {
+  BriefingType,
+  getGenerateBriefingMutationOptions,
+} from '../../../graphql/posts';
 import { useActions } from '../../../hooks/useActions';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useFeature } from '../../../components/GrowthBookProvider';
 import type { LoggedUser } from '../../../lib/user';
+import MockedFunction = jest.MockedFunction;
 
-// Mock the hooks
-jest.mock('../hooks/useGenerateBrief');
+// Mock the hooks and mutation options
+jest.mock('@tanstack/react-query', () => ({
+  ...(jest.requireActual('@tanstack/react-query') as Record<string, unknown>),
+  useMutation: jest.fn(),
+}));
+jest.mock('../../../graphql/posts', () => ({
+  ...(jest.requireActual('../../../graphql/posts') as Record<string, unknown>),
+  getGenerateBriefingMutationOptions: jest.fn(),
+}));
 jest.mock('../../../hooks/useActions');
 jest.mock('../../../hooks/useToastNotification');
 jest.mock('../../../components/GrowthBookProvider');
 
-const mockUseGenerateBrief = mocked(useGenerateBrief);
+const mockGetGenerateBriefingMutationOptions = mocked(
+  getGenerateBriefingMutationOptions,
+);
+const mockUseMutation = mocked(useMutation);
 const mockUseActions = mocked(useActions);
 const mockUseToastNotification = mocked(useToastNotification);
 const mockUseFeature = mocked(useFeature);
 const mockRouter = mocked(useRouter);
 
 const mockPush = jest.fn();
-const mockGenerateBrief = jest.fn();
+const mockMutationFn = jest.fn();
 const mockCheckHasCompleted = jest.fn();
 const mockCompleteAction = jest.fn();
 const mockDisplayToast = jest.fn();
@@ -66,9 +79,27 @@ describe('BriefPayForGenerateCard', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    mockUseGenerateBrief.mockReturnValue({
-      isGenerating: false,
-      generateBrief: mockGenerateBrief,
+    mockGetGenerateBriefingMutationOptions.mockReturnValue({
+      mutationFn: mockMutationFn,
+    });
+
+    mockUseMutation.mockReturnValue({
+      isPending: false,
+      mutateAsync: mockMutationFn,
+      mutate: jest.fn(),
+      reset: jest.fn(),
+      isIdle: true,
+      isError: false,
+      isSuccess: false,
+      data: undefined,
+      error: null,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      status: 'idle',
+      variables: undefined,
+      context: undefined,
+      submittedAt: new Date().getTime(),
     });
 
     mockUseActions.mockReturnValue({
@@ -113,7 +144,7 @@ describe('BriefPayForGenerateCard', () => {
       renderComponent({ user: plusUser });
 
       fireEvent.click(screen.getByText('Generate for free'));
-      expect(mockGenerateBrief).toHaveBeenCalledWith({
+      expect(mockMutationFn).toHaveBeenCalledWith({
         type: BriefingType.Daily,
       });
     });
@@ -127,7 +158,7 @@ describe('BriefPayForGenerateCard', () => {
       renderComponent({ user: freeUser });
 
       fireEvent.click(screen.getByText('Generate for free'));
-      expect(mockGenerateBrief).toHaveBeenCalledWith({
+      expect(mockMutationFn).toHaveBeenCalledWith({
         type: BriefingType.Daily,
       });
     });
@@ -161,7 +192,7 @@ describe('BriefPayForGenerateCard', () => {
       });
       fireEvent.click(generateButton);
 
-      expect(mockGenerateBrief).toHaveBeenCalledWith({
+      expect(mockMutationFn).toHaveBeenCalledWith({
         type: BriefingType.Daily,
       });
     });
@@ -183,7 +214,7 @@ describe('BriefPayForGenerateCard', () => {
       });
       fireEvent.click(generateButton);
 
-      expect(mockGenerateBrief).toHaveBeenCalledWith({
+      expect(mockMutationFn).toHaveBeenCalledWith({
         type: BriefingType.Weekly,
       });
     });
@@ -205,7 +236,7 @@ describe('BriefPayForGenerateCard', () => {
       fireEvent.click(generateButton);
 
       // Should not call generateBrief immediately
-      expect(mockGenerateBrief).not.toHaveBeenCalled();
+      expect(mockMutationFn).not.toHaveBeenCalled();
     });
 
     it('should open the modal and trigger generation after successful core purchase', async () => {
@@ -224,14 +255,14 @@ describe('BriefPayForGenerateCard', () => {
       fireEvent.click(generateButton);
 
       // Should not call generateBrief immediately
-      expect(mockGenerateBrief).not.toHaveBeenCalled();
+      expect(mockMutationFn).not.toHaveBeenCalled();
 
       // Click on complete button simulate the purchase
       const completePurchaseButton = screen.getByTestId('complete-purchase');
       fireEvent.click(completePurchaseButton);
 
       // Should trigger generation after purchase
-      expect(mockGenerateBrief).toHaveBeenCalledWith({
+      expect(mockMutationFn).toHaveBeenCalledWith({
         type: BriefingType.Daily,
       });
     });
