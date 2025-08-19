@@ -17,25 +17,29 @@ import { getLayout as getMainLayout } from './MainLayout';
  * It shows a top header on tablet and mobile to navigate back
  *
  * @param children
+ * @param hideBackButton
  * @constructor
  */
 export default function NoSidebarLayout({
   children,
-}: PropsWithChildren): ReactNode {
+  hideBackButton = false,
+}: PropsWithChildren & { hideBackButton?: boolean }): ReactNode {
   return (
     <>
-      <div className="flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary px-4 laptop:hidden">
-        <Link href={webappUrl} passHref>
-          <Button
-            tag="a"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<ArrowIcon className="-rotate-90" />}
-          >
-            Back
-          </Button>
-        </Link>
-      </div>
+      {!hideBackButton && (
+        <div className="flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary px-4 laptop:hidden">
+          <Link href={webappUrl} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="-rotate-90" />}
+            >
+              Back
+            </Button>
+          </Link>
+        </div>
+      )}
       {children}
     </>
   );
@@ -46,7 +50,13 @@ export const getLayout = (
   pageProps: Record<string, unknown>,
   layoutProps: MainLayoutProps,
 ): ReactNode =>
-  getMainLayout(<NoSidebarLayout>{page}</NoSidebarLayout>, pageProps, {
-    ...layoutProps,
-    showSidebar: false,
-  });
+  getMainLayout(
+    <NoSidebarLayout hideBackButton={layoutProps?.hideBackButton}>
+      {page}
+    </NoSidebarLayout>,
+    pageProps,
+    {
+      ...layoutProps,
+      showSidebar: false,
+    },
+  );
