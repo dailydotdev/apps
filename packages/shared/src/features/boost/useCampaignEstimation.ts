@@ -20,7 +20,7 @@ export const useCampaignEstimation = ({
   referenceId,
 }: UseCampaignEstimationProps) => {
   const queryKey = generateQueryKey(
-    RequestKey.PostCampaigns,
+    RequestKey.Campaigns,
     user,
     'estimate',
     referenceId,

@@ -6,24 +6,26 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { Image } from '../../components/image/Image';
 import {
   Button,
   ButtonColor,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { CoreIcon, OpenLinkIcon } from '../../components/icons';
+import { CoreIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { DataTile } from './DataTile';
 import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
 import type { Campaign } from '../../graphql/campaigns';
+import { CampaignType } from '../../graphql/campaigns';
 import { DateFormat } from '../../components/utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { boostDashboardInfo } from './common';
 import { Modal } from '../../components/modals/common/Modal';
 import { formatDataTileValue } from '../../lib';
+import { CampaignListViewPost } from './CampaignListViewPost';
+import { CampaignListViewSquad } from './CampaignListViewSquad';
 
 interface CampaignListViewProps {
   campaign: Campaign;
@@ -60,12 +62,22 @@ export const CampaignStatsGrid = ({
   </div>
 );
 
+const CampaignListViewPreview = ({ campaign }: { campaign: Campaign }) => {
+  switch (campaign.type) {
+    case CampaignType.Post:
+      return <CampaignListViewPost post={campaign.post} />;
+    case CampaignType.Source:
+      return <CampaignListViewSquad squad={campaign.source} />;
+    default:
+      return null;
+  }
+};
+
 export function CampaignListView({
   campaign,
   isLoading,
   onBoostClick,
 }: CampaignListViewProps): ReactElement {
-  const { post } = campaign;
   const isActive = campaign.state === 'ACTIVE';
   const date = useMemo(() => {
     const startedAt = new Date(campaign.createdAt);
@@ -97,24 +109,7 @@ export function CampaignListView({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-row items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-2 pl-3">
-        <span className="flex flex-1 flex-row">
-          <Typography
-            type={TypographyType.Callout}
-            className="line-clamp-3 flex-1"
-            style={{ lineBreak: 'anywhere' }}
-          >
-            {post.title}
-          </Typography>
-        </span>
-        <Image src={post.image} className="h-12 w-18 rounded-12 object-cover" />
-        <Button
-          icon={<OpenLinkIcon />}
-          variant={ButtonVariant.Tertiary}
-          tag="a"
-          href={post.commentsPermalink}
-        />
-      </div>
+      <CampaignListViewPreview campaign={campaign} />
       <div className="flex flex-col gap-1">
         <ProgressBar
           percentage={percentage}

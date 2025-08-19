@@ -293,13 +293,13 @@ const BoostPostModal = dynamic(
 
 const BoostedPostViewModal = dynamic(() =>
   import(
-    /* webpackChunkName: "boostedPostViewModal" */ '../../features/boost/BoostedPostViewModal'
-  ).then((mod) => mod.BoostedPostViewModal),
+    /* webpackChunkName: "boostedViewModal" */ '../../features/boost/BoostedViewModal'
+  ).then((mod) => mod.BoostedViewModal),
 );
 
 const FetchBoostedPostViewModal = dynamic(() =>
   import(
-    /* webpackChunkName: "fetchBoostedPostViewModal" */ '../../features/boost/BoostedPostViewModal'
+    /* webpackChunkName: "fetchBoostedViewModal" */ '../../features/boost/BoostedViewModal'
   ).then((mod) => mod.FetchBoostedViewModal),
 );
 

@@ -8,7 +8,6 @@ import { Modal } from '../../components/modals/common/Modal';
 import type { Campaign } from '../../graphql/campaigns';
 import { getCampaignById } from '../../graphql/campaigns';
 import { useCampaignMutation } from './useCampaignMutation';
-import type { Post } from '../../graphql/posts';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
@@ -20,11 +19,11 @@ import {
 } from '../../components/buttons/Button';
 import { ArrowIcon } from '../../components/icons';
 
-interface BoostedPostViewModalProps extends ModalProps {
+interface BoostedViewModalProps extends ModalProps {
   campaign: Campaign;
   isLoading?: boolean;
   onBack?: () => void;
-  onBoostAgain?: (id: Post['id']) => void;
+  onBoostAgain?: (props: Campaign) => void;
 }
 
 const promptOptions: PromptOptions = {
@@ -45,13 +44,13 @@ const promptOptions: PromptOptions = {
   },
 };
 
-export function BoostedPostViewModal({
+export function BoostedViewModal({
   campaign,
   isLoading,
   onBoostAgain,
   onBack,
   ...props
-}: BoostedPostViewModalProps): ReactElement {
+}: BoostedViewModalProps): ReactElement {
   const { showPrompt } = usePrompt();
   const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
     onCancelSuccess: onBack || (() => props.onRequestClose(null)),
@@ -63,10 +62,10 @@ export function BoostedPostViewModal({
         return null;
       }
 
-      return onCancelBoost(campaign.post.id);
+      return onCancelBoost(campaign.referenceId);
     }
 
-    return onBoostAgain(campaign.post.id);
+    return onBoostAgain(campaign);
   };
 
   return (
@@ -105,12 +104,12 @@ export function BoostedPostViewModal({
 export function FetchBoostedViewModal({
   campaignId,
   ...props
-}: Omit<BoostedPostViewModalProps, 'campaign'> & {
+}: Omit<BoostedViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PostCampaigns, user, campaignId),
+    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
     queryFn: () => getCampaignById(campaignId),
     staleTime: StaleTime.Default,
     enabled: !!campaignId && !!user,
@@ -154,5 +153,5 @@ export function FetchBoostedViewModal({
     );
   }
 
-  return <BoostedPostViewModal {...props} campaign={data} />;
+  return <BoostedViewModal {...props} campaign={data} />;
 }
