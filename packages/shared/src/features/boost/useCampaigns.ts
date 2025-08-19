@@ -34,7 +34,7 @@ const defaultStats: CampaignStats = {
 
 export const useCampaigns = (): UsePostBoost => {
   const { user } = useAuthContext();
-  const key = generateQueryKey(RequestKey.PostCampaigns, user, {
+  const key = generateQueryKey(RequestKey.Campaigns, user, {
     first: FIRST_DEFAULT_VALUE,
   });
   const queryResult = useInfiniteQuery({

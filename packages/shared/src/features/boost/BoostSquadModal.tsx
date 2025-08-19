@@ -2,47 +2,51 @@ import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Modal } from '../../common/Modal';
-import type { ModalProps } from '../../common/Modal';
+import { Modal } from '../../components/modals/common/Modal';
+import type { ModalProps } from '../../components/modals/common/Modal';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useAuthContext } from '../../../../contexts/AuthContext';
-import { CoreIcon, PlusIcon } from '../../../icons';
-import type { Post } from '../../../../graphql/posts';
+} from '../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { CoreIcon, PlusIcon } from '../../components/icons';
 
-import { Image } from '../../../image/Image';
-import { largeNumberFormat } from '../../../../lib';
-import { IconSize } from '../../../Icon';
-import { Origin } from '../../../../lib/log';
-import { BuyCoresModal } from '../../award/BuyCoresModal';
-import { usePostImage } from '../../../../hooks/post/usePostImage';
-import { useCampaignMutation } from '../../../../hooks/post/useCampaignMutation';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { LazyModal } from '../../common/types';
-import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
-import { boostSuccessCover } from '../../../../lib/image';
-import { boostDocsLink, walletUrl } from '../../../../lib/constants';
-import useDebounceFn from '../../../../hooks/useDebounceFn';
-import { Loader } from '../../../Loader';
+import { Image } from '../../components/image/Image';
+import { largeNumberFormat } from '../../lib';
+import { IconSize } from '../../components/Icon';
+import { Origin } from '../../lib/log';
+import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
+import { useCampaignMutation } from './useCampaignMutation';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
+import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
+import { boostSuccessCover } from '../../lib/image';
+import { boostDocsLink, walletUrl } from '../../lib/constants';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { Loader } from '../../components/Loader';
 import {
   CampaignType,
   DEFAULT_CORES_PER_DAY,
   DEFAULT_DURATION_DAYS,
-} from '../../../../graphql/campaigns';
-import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
-import { updatePostCache } from '../../../../lib/query';
+} from '../../graphql/campaigns';
+import { useCampaignEstimation } from './useCampaignEstimation';
+import type { Squad } from '../../graphql/sources';
+import { Separator } from '../../components/cards/common/common';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 const Slider = dynamic(
-  () => import('../../../fields/Slider').then((mod) => mod.Slider),
+  () => import('../../components/fields/Slider').then((mod) => mod.Slider),
   { ssr: false },
 );
 
-interface BoostPostModalProps extends ModalProps {
-  post: Post;
+interface BoostSquadModalProps extends ModalProps {
+  squad: Squad;
 }
 
 const SCREENS = {
@@ -53,13 +57,13 @@ const SCREENS = {
 
 export type Screens = keyof typeof SCREENS;
 
-export function BoostPostModal({
-  post,
+export function BoostSquadModal({
+  squad,
   ...props
-}: BoostPostModalProps): ReactElement {
+}: BoostSquadModalProps): ReactElement {
   const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
   const client = useQueryClient();
+  const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(DEFAULT_CORES_PER_DAY);
   const [totalDays, setTotalDays] = React.useState(DEFAULT_DURATION_DAYS);
@@ -67,33 +71,45 @@ export function BoostPostModal({
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
-    post,
+  const canBoost = !!squad.image && !!squad.headerImage && !!squad.description;
+  const { estimatedReach, isLoading, isFetched } = useCampaignEstimation({
+    type: CampaignType.Source,
     query: { budget: estimate.coresPerDay, duration: estimate.totalDays },
+    referenceId: squad.id,
+    enabled: canBoost,
   });
-  const { onStartBoost: onBoostPost } = useCampaignMutation({
-    onBoostSuccess: (data, vars) => {
+  const { onStartBoost } = useCampaignMutation({
+    onBoostSuccess: (data) => {
       if (data.referenceId) {
-        updatePostCache(client, vars.value, (old) => ({
-          flags: { ...old.flags, campaignId: data.referenceId },
-        }));
+        client.setQueryData<Squad>(
+          generateQueryKey(RequestKey.Squad, user, squad.handle),
+          (old) => {
+            if (!old) {
+              return old;
+            }
+
+            return {
+              ...old,
+              flags: { ...old.flags, campaignId: data.referenceId },
+            };
+          },
+        );
       }
 
       setActiveScreen(SCREENS.SUCCESS);
     },
   });
-  const image = usePostImage(post);
 
   const onButtonClick = () => {
     if (user.balance.amount < totalSpendInt) {
       return setActiveScreen(SCREENS.BUY_CORES);
     }
 
-    return onBoostPost({
+    return onStartBoost({
       duration: totalDays,
       budget: coresPerDay,
-      value: post.id,
-      type: CampaignType.Post,
+      value: squad.id,
+      type: CampaignType.Source,
     });
   };
 
@@ -114,10 +130,10 @@ export function BoostPostModal({
               {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
               more Cores
             </strong>{' '}
-            to boost the post.
+            to boost the Squad.
           </Typography>
         }
-        origin={Origin.BoostPost}
+        origin={Origin.SquadBoost}
       />
     );
   }
@@ -137,9 +153,9 @@ export function BoostPostModal({
           target: '_blank',
         }}
         content={{
-          title: 'Post boosted successfully!',
+          title: 'Squad boosted successfully!',
           description:
-            'Your post is now being promoted and will start reaching more developers shortly. You can track its performance anytime from the ads dashboard.',
+            'Your Squad is now being promoted and will start reaching more developers shortly. You can track its performance anytime from the ads dashboard.',
           cover: boostSuccessCover,
         }}
       />
@@ -170,7 +186,7 @@ export function BoostPostModal({
     >
       <Modal.Header className="items-center">
         <Typography type={TypographyType.Title3} bold>
-          Boost your post
+          Boost your Squad
         </Typography>
         <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
           <Button
@@ -197,25 +213,41 @@ export function BoostPostModal({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          Give your content the spotlight it deserves. Our auto-targeting engine
-          ensures your post gets shown to the developers most likely to care.
-          <a
-            href={boostDocsLink}
-            className="ml-1 text-text-link"
-            target="_blank"
-          >
-            Learn more
-          </a>
+          {isFetched
+            ? `Our auto-targeting engine finds developers most likely to join your Squad, so that it grows faster, stronger, and with the right people.`
+            : `Give your content the spotlight it deserves. Our auto-targeting engine ensures your Squad gets shown to the developers most likely to care.`}
+          {!isFetched && (
+            <a
+              href={boostDocsLink}
+              className="ml-1 text-text-link"
+              target="_blank"
+            >
+              Learn more
+            </a>
+          )}
         </Typography>
         <div className="rounded-16 bg-surface-float">
           <div className="flex flex-row items-center gap-5 p-2">
-            <Typography
-              type={TypographyType.Callout}
-              className="ml-2 line-clamp-2 flex-1"
-            >
-              {post.title ?? post.sharedPost?.title}
-            </Typography>
-            {image && <Image className="h-12 w-18 rounded-12" src={image} />}
+            <div className="ml-2">
+              <Typography
+                type={TypographyType.Callout}
+                className="line-clamp-1 flex-1"
+                bold
+              >
+                {squad.name}
+              </Typography>
+              <Typography
+                type={TypographyType.Subhead}
+                className="line-clamp-1 flex-1"
+                color={TypographyColor.Tertiary}
+              >
+                Squad <Separator /> @{squad.handle}
+              </Typography>
+            </div>
+            <Image
+              className="ml-auto h-12 w-12 rounded-max"
+              src={squad.image}
+            />
           </div>
           <div className="flex flex-col items-center rounded-16 bg-surface-float p-3">
             <Typography type={TypographyType.Title3} bold>
@@ -297,11 +329,12 @@ export function BoostPostModal({
           onClick={onButtonClick}
           disabled={!canBoost || isLoading}
         >
-          Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
+          Boost Squad for <CoreIcon className="mx-1" size={IconSize.Small} />
+          {totalSpend}
         </Button>
       </Modal.Footer>
     </Modal>
   );
 }
 
-export default BoostPostModal;
+export default BoostSquadModal;

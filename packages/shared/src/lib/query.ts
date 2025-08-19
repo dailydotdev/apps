@@ -204,7 +204,7 @@ export enum RequestKey {
   PriceMetadata = 'price_metadata',
   Products = 'products',
   Transactions = 'transactions',
-  PostCampaigns = 'post_campaigns',
+  Campaigns = 'campaigns',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
   CampaignReach = 'campaignReach',

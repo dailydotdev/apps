@@ -1,23 +1,22 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Modal } from '../../common/Modal';
-import type { ModalProps } from '../../common/Modal';
-import { useCampaigns } from '../../../../hooks/post/useCampaigns';
-import { BoostHistoryLoading } from '../../../../features/boost/BoostHistoryLoading';
-import { BoostedPostViewModal } from './BoostedPostViewModal';
-import { usePostById } from '../../../../hooks';
-import type { Post } from '../../../../graphql/posts';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { LazyModal } from '../../common/types';
-import { CampaignList } from '../../../../features/boost/CampaignList';
+import React, { useMemo, useState } from 'react';
+import { Modal } from '../../components/modals/common/Modal';
+import type { ModalProps } from '../../components/modals/common/Modal';
+import { useCampaigns } from './useCampaigns';
+import { BoostHistoryLoading } from './BoostHistoryLoading';
+import { BoostedViewModal } from './BoostedViewModal';
+import { CampaignList } from './CampaignList';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../typography/Typography';
-import { boostDocsLink } from '../../../../lib/constants';
-import { CampaignStatsGrid } from '../../../../features/boost/CampaignListView';
-import type { Campaign } from '../../../../graphql/campaigns';
+} from '../../components/typography/Typography';
+import { boostDocsLink } from '../../lib/constants';
+import { CampaignStatsGrid } from './CampaignListView';
+import type { Campaign } from '../../graphql/campaigns';
+import { CampaignType } from '../../graphql/campaigns';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialCampaign?: Campaign;
@@ -29,30 +28,35 @@ export function AdsDashboardModal({
 }: AdsDashboardModalProps): ReactElement {
   const { openModal } = useLazyModal();
   const { data, isLoading, stats, infiniteScrollingProps } = useCampaigns();
-  const [toBoost, setToBoost] = useState<Post['id']>();
-  const { post } = usePostById({ id: toBoost });
   const [boosted, setBoosted] = useState(initialCampaign);
   const list = useMemo(() => {
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
 
-  useEffect(() => {
-    if (post) {
-      openModal({ type: LazyModal.BoostPost, props: { post } });
+  const onBoostAgain = ({ type, post, source }: Campaign) => {
+    switch (type) {
+      case CampaignType.Post:
+        return openModal({
+          type: LazyModal.BoostPost,
+          props: { post },
+        });
+      case CampaignType.Source:
+        return openModal({
+          type: LazyModal.BoostSquad,
+          props: { squad: source },
+        });
+      default:
+        return null;
     }
-  }, [openModal, post]);
-
-  if (toBoost) {
-    return null;
-  }
+  };
 
   if (boosted) {
     return (
-      <BoostedPostViewModal
+      <BoostedViewModal
         {...props}
         campaign={boosted}
         isLoading={isLoading}
-        onBoostAgain={setToBoost}
+        onBoostAgain={onBoostAgain}
         onBack={() => setBoosted(null)}
         onRequestClose={props.onRequestClose}
       />

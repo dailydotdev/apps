@@ -4,6 +4,7 @@ import { gqlClient } from './common';
 import type { TransactionCreated } from './njord';
 import type { Post } from './posts';
 import type { Squad } from './sources';
+import { SHARED_POST_INFO_FRAGMENT, SQUAD_BASE_FRAGMENT } from './fragments';
 
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
@@ -21,19 +22,14 @@ const CAMPAIGN_FRAGMENT = gql`
       impressions
     }
     post {
-      id
-      title
-      image
-      shortId
-      permalink
-      commentsPermalink
+      ...SharedPostInfo
     }
     source {
-      id
-      name
-      handle
+      ...SquadBaseInfo
     }
   }
+  ${SHARED_POST_INFO_FRAGMENT}
+  ${SQUAD_BASE_FRAGMENT}
 `;
 export const CAMPAIGNS_LIST = gql`
   query CampaignsList($first: Int, $after: String) {
