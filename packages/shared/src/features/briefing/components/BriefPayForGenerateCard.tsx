@@ -104,7 +104,7 @@ export const BriefPayForGenerateCard = () => {
     },
   });
 
-  const isFree = isFirstBrief || user.isPlus;
+  const isFree = isFirstBrief || user?.isPlus;
   const hasEnoughCores = amount >= price;
   const canGenerateNow = (isFree || hasEnoughCores) && !isGenerating;
 

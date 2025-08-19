@@ -131,7 +131,7 @@ const Page = (): ReactElement => {
     minutes: 0,
     seconds: 0,
   }).getTime();
-  const hasTodayBrief = firstBrief && firstBrief.dataUpdatedAt < todayTime;
+  const hasTodayBrief = firstBrief && firstBrief.dataUpdatedAt >= todayTime;
 
   return (
     <ProtectedPage>
