@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -15,10 +16,15 @@ import type { BriefCardProps } from './BriefCard';
 import { BriefGradientIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useGenerateBrief } from '../../../../features/briefing/hooks/useGenerateBrief';
-import { BriefingType } from '../../../../graphql/posts';
+import {
+  BriefingType,
+  getGenerateBriefingMutationOptions,
+} from '../../../../graphql/posts';
 import { useBriefCardContext } from './BriefCardContext';
 import { useToastNotification } from '../../../../hooks';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import type { ApiError, ApiErrorResult } from '../../../../graphql/common';
 
 export type BriefCardDefaultProps = BriefCardProps;
 
@@ -35,11 +41,23 @@ export const BriefCardDefault = ({
   const briefCardContext = useBriefCardContext();
   const { displayToast } = useToastNotification();
 
-  const { generateBrief, isGenerating } = useGenerateBrief({
+  const queryClient = useQueryClient();
+  const { user } = useAuthContext();
+  const { mutateAsync: generateBrief, isPending: isGenerating } = useMutation({
+    ...getGenerateBriefingMutationOptions(),
     onSuccess: async (data) => {
       briefCardContext.setBrief({ id: data.id, createdAt: new Date() });
+      queryClient.removeQueries({
+        queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
+      });
     },
-    onError: (error) => {
+    onError: (
+      error: ApiErrorResult<{
+        code: ApiError;
+        postId: string;
+        createdAt: string;
+      }>,
+    ) => {
       const postId = error.response?.errors?.[0]?.extensions?.postId;
 
       if (postId) {

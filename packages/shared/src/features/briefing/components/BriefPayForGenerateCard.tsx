@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActions, useToastNotification } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
@@ -8,9 +9,11 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { CoreIcon } from '../../../components/icons';
-import { BriefingType } from '../../../graphql/posts';
+import {
+  BriefingType,
+  getGenerateBriefingMutationOptions,
+} from '../../../graphql/posts';
 import { ActionType } from '../../../graphql/actions';
-import { useGenerateBrief } from '../hooks/useGenerateBrief';
 import { ClickableCard } from '../../../components/cards/common/Card';
 import { Radio, type RadioProps } from '../../../components/fields/Radio';
 import {
@@ -24,6 +27,7 @@ import { Origin } from '../../../lib/log';
 import type { Product } from '../../../graphql/njord';
 import { useFeature } from '../../../components/GrowthBookProvider';
 import { briefGeneratePricing } from '../../../lib/featureManagement';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -89,9 +93,16 @@ export const BriefPayForGenerateCard = () => {
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
   const amount = user?.balance?.amount ?? 0;
 
-  const { isGenerating, generateBrief } = useGenerateBrief({
+  const queryClient = useQueryClient();
+  const { isPending: isGenerating, mutateAsync: generateBrief } = useMutation({
+    ...getGenerateBriefingMutationOptions(),
     onSuccess: async () => {
       displayToast('Your Presidential Briefing is being generated ✅');
+
+      queryClient.removeQueries({
+        queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
+      });
+
       await Promise.all([
         completeAction(ActionType.GeneratedBrief),
         router.push('/briefing'),
