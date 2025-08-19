@@ -133,7 +133,6 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
         });
       }
     } else if (!selectedDigest) {
-      // Set default digest type based on subscription status
       subscribePersonalizedDigest({
         type: isPlus
           ? UserPersonalizedDigestType.Brief
