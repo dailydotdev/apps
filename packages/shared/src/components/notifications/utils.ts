@@ -18,7 +18,7 @@ import {
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import type { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type {
   NotificationChannel,
   NotificationGroup,
@@ -434,7 +434,6 @@ export const isMutingDigestCompletely = (
     ];
 
   return (
-    otherChannelStatus === NotificationPreferenceStatus.Muted &&
-    currentChannelStatus === NotificationPreferenceStatus.Subscribed
+    otherChannelStatus === 'muted' && currentChannelStatus === 'subscribed'
   );
 };
