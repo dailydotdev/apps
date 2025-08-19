@@ -110,12 +110,12 @@ const PresidentialBriefingNotification = () => {
         type: selectedDigest?.type,
       });
     } else if (!selectedDigest) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Digest,
+      });
       subscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Brief,
         sendType: SendType.Daily,
-      });
-      unsubscribePersonalizedDigest({
-        type: UserPersonalizedDigestType.Digest,
       });
     }
   };
