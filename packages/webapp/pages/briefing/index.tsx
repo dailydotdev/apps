@@ -156,7 +156,7 @@ const Page = (): ReactElement => {
                   onClick={() => router.push('/briefing/generate')}
                   variant={ButtonVariant.Primary}
                 >
-                  Generate new
+                  Generate Brief
                 </Button>
               )}
               <Button
