@@ -10,6 +10,7 @@ import type { LoggedUser } from '../lib/user';
 import user from '../../__tests__/fixture/loggedUser';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
+
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
     id
