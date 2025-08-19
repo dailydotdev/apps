@@ -8,7 +8,7 @@ import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { BRIEFING_SOURCE } from '../../types';
+import { PostType } from '../../types';
 import { BriefPlusUpgradeCTA } from '../../features/briefing/components/BriefPlusUpgradeCTA';
 
 function PostNavigation({
@@ -23,7 +23,7 @@ function PostNavigation({
   const { isFixedNavigation } = props;
   const { user, isAuthReady } = useAuthContext();
   const canUserUpgrade = isAuthReady && !user.isPlus;
-  const isBrief = post?.source.id === BRIEFING_SOURCE;
+  const isBrief = post?.type === PostType.Brief;
   const shouldShowUpgrade = canUserUpgrade && isFixedNavigation && isBrief;
 
   return (
