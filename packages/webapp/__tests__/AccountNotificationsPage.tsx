@@ -287,7 +287,7 @@ it('should change hour for AI briefings', async () => {
           {
             preferredDay: 1,
             preferredHour: 9,
-            type: UserPersonalizedDigestType.Digest,
+            type: UserPersonalizedDigestType.Brief,
             flags: {
               sendType: SendType.Weekly,
             },
@@ -299,6 +299,12 @@ it('should change hour for AI briefings', async () => {
 
   renderComponent();
 
+  // Wait for the Presidential briefings section to be fully rendered first
+  await waitFor(() => {
+    expect(screen.getByText('Presidential briefings')).toBeInTheDocument();
+  });
+
+  // Wait for the digest settings to load and the Weekly option to appear
   const subscription = await screen.findByLabelText('Weekly');
   await waitFor(() => expect(subscription).toBeChecked());
 
@@ -308,7 +314,7 @@ it('should change hour for AI briefings', async () => {
       variables: {
         day: 3,
         hour: 0,
-        type: UserPersonalizedDigestType.Digest,
+        type: UserPersonalizedDigestType.Brief,
         sendType: SendType.Weekly,
       },
     },
@@ -317,7 +323,7 @@ it('should change hour for AI briefings', async () => {
         subscribePersonalizedDigest: {
           preferredDay: 1,
           preferredHour: 0,
-          type: UserPersonalizedDigestType.Digest,
+          type: UserPersonalizedDigestType.Brief,
           flags: {
             sendType: SendType.Weekly,
           },

@@ -32,7 +32,7 @@ import {
   NotificationPromptSource,
 } from '../../lib/log';
 import { HorizontalSeparator } from '../utilities';
-import PersonalizedDigest from './PersonalizedDigest';
+import PresidentialBriefingNotification from './PresidentialBriefingNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
 import NotificationCheckbox from './NotificationCheckbox';
@@ -228,7 +228,7 @@ const InAppNotificationsTab = (): ReactElement => {
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
-        <PersonalizedDigest channel="inApp" />
+        <PresidentialBriefingNotification />
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
