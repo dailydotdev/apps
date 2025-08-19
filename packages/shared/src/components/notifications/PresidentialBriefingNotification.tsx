@@ -48,7 +48,7 @@ const PresidentialBriefingNotification = () => {
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
 
-  const selectedDigest = useMemo(() => {
+  const briefDigest = useMemo(() => {
     if (isLoading) {
       return null;
     }
@@ -57,10 +57,10 @@ const PresidentialBriefingNotification = () => {
   }, [getPersonalizedDigest, isLoading]);
 
   if (
-    !isNullOrUndefined(selectedDigest) &&
-    selectedDigest?.preferredHour !== digestTimeIndex
+    !isNullOrUndefined(briefDigest) &&
+    briefDigest?.preferredHour !== digestTimeIndex
   ) {
-    setDigestTimeIndex(selectedDigest.preferredHour);
+    setDigestTimeIndex(briefDigest.preferredHour);
   }
 
   const onLogToggle = (isEnabled: boolean, category: NotificationCategory) => {
@@ -85,14 +85,14 @@ const PresidentialBriefingNotification = () => {
       extra: JSON.stringify({
         hour: preferredHour,
         timezone: user?.timezone,
-        frequency: selectedDigest.flags.sendType,
+        frequency: briefDigest.flags.sendType,
       }),
     });
     subscribePersonalizedDigest({
       type,
       hour: preferredHour,
-      sendType: selectedDigest.flags.sendType,
-      flags: selectedDigest.flags,
+      sendType: briefDigest.flags.sendType,
+      flags: briefDigest.flags,
     });
     setHour(preferredHour);
   };
@@ -107,9 +107,9 @@ const PresidentialBriefingNotification = () => {
 
     if (shouldUnsubscribe) {
       unsubscribePersonalizedDigest({
-        type: selectedDigest?.type,
+        type: briefDigest?.type,
       });
-    } else if (!selectedDigest) {
+    } else if (!briefDigest) {
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Digest,
       });
@@ -144,13 +144,13 @@ const PresidentialBriefingNotification = () => {
     await subscribePersonalizedDigest({
       type,
       sendType,
-      hour: preferredHour ?? selectedDigest?.preferredHour,
+      hour: preferredHour ?? briefDigest?.preferredHour,
     });
   };
 
   const { data: briefingSource } = useQuery({
     ...sourceQueryOptions({ sourceId: BRIEFING_SOURCE }),
-    enabled: selectedDigest?.type === UserPersonalizedDigestType.Brief,
+    enabled: briefDigest?.type === UserPersonalizedDigestType.Brief,
   });
 
   return (
@@ -164,7 +164,7 @@ const PresidentialBriefingNotification = () => {
         disabled={!isPlus}
         isPlusFeature
       />
-      {!!selectedDigest && isChecked && (
+      {!!briefDigest && isChecked && (
         <>
           <h3 className="font-bold typo-callout">When to send</h3>
           <HourDropdown
@@ -174,12 +174,12 @@ const PresidentialBriefingNotification = () => {
             }}
             hourIndex={digestTimeIndex}
             setHourIndex={(hour) =>
-              setCustomTime(selectedDigest.type, hour, setDigestTimeIndex)
+              setCustomTime(briefDigest.type, hour, setDigestTimeIndex)
             }
           />
           <Radio
             name="personalizedDigestSendType"
-            value={selectedDigest?.flags?.sendType ?? null}
+            value={briefDigest?.flags?.sendType ?? null}
             options={[
               { label: 'Daily', value: SendType.Daily },
               { label: 'Workdays (Mon-Fri)', value: SendType.Workdays },
@@ -187,7 +187,7 @@ const PresidentialBriefingNotification = () => {
             ]}
             onChange={(sendType) => {
               onSubscribeDigest({
-                type: selectedDigest.type,
+                type: briefDigest.type,
                 sendType,
               });
             }}
