@@ -35,6 +35,7 @@ import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import NotificationSwitch from './NotificationSwitch';
+import { isNullOrUndefined } from '../../lib/func';
 
 const briefingCopy = `Your AI agent scans the entire dev landscape (posts,
                     releases, discussions) and compiles a personalized briefing
@@ -79,6 +80,13 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
 
     return null;
   }, [getPersonalizedDigest, isLoading]);
+
+  if (
+    !isNullOrUndefined(selectedDigest) &&
+    selectedDigest?.preferredHour !== digestTimeIndex
+  ) {
+    setDigestTimeIndex(selectedDigest.preferredHour);
+  }
 
   const onLogToggle = (isEnabled: boolean, category: NotificationCategory) => {
     const baseLogProps = {
