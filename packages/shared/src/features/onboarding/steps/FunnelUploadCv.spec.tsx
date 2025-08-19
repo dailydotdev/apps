@@ -17,7 +17,7 @@ jest.mock('../../profile/hooks/useUploadCv');
 jest.mock('../../../contexts/AuthContext');
 
 // Mock the UploadCv component to make testing easier
-jest.mock('../../../components/onboarding/UploadCv', () => ({
+jest.mock('../components/UploadCv', () => ({
   UploadCv: ({
     onFilesDrop,
     status,
