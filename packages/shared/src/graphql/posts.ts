@@ -1010,6 +1010,21 @@ export const GENERATE_BRIEFING = gql`
   }
 `;
 
+export const getGenerateBriefingMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      type = BriefingType.Daily,
+    }: {
+      type: BriefingType;
+    }) => {
+      const result = await gqlClient.request<{
+        generateBriefing: Pick<Post, 'id'>;
+      }>(GENERATE_BRIEFING, { type });
+      return result.generateBriefing;
+    },
+  };
+};
+
 export const defautRefetchMs = 4000;
 export const briefRefetchIntervalMs = defautRefetchMs;
 
