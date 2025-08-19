@@ -1,24 +1,24 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
-import { DragDrop } from '../fields/DragDrop';
-import { fileValidation } from '../../features/profile/hooks/useUploadCv';
+import { DragDrop } from '../../../components/fields/DragDrop';
+import { fileValidation } from '../../profile/hooks/useUploadCv';
 
 import {
   Button,
   ButtonVariant,
   ButtonIconPosition,
   ButtonSize,
-} from '../buttons/Button';
-import { OpenLinkIcon } from '../icons';
+} from '../../../components/buttons/Button';
+import { OpenLinkIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyTag,
   TypographyType,
   TypographyColor,
-} from '../typography/Typography';
-import { Image } from '../image/Image';
-import { anchorDefaultRel } from '../../lib/strings';
+} from '../../../components/typography/Typography';
+import { Image } from '../../../components/image/Image';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 interface UploadCvProps {
   headline: string;

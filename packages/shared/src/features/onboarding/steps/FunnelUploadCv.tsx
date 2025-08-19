@@ -5,7 +5,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { FunnelStepCtaWrapper } from '../shared';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import { UploadCv } from '../../../components/onboarding';
+import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 
 function FunnelUploadCvComponent({
