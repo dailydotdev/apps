@@ -18,6 +18,8 @@ import {
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import type { NotificationPreferenceStatus } from '../../graphql/notifications';
+import type { NotificationGroup } from '../../hooks/notifications/useNotificationSettings';
 
 export const NotifContainer = classed(
   'div',
@@ -57,6 +59,26 @@ export enum NotificationType {
   UserReceivedAward = 'user_received_award',
   BriefingReady = 'briefing_ready',
   UserFollow = 'user_follow',
+  ArticleUpvoteMilestone = 'article_upvote_milestone',
+  CommentUpvoteMilestone = 'comment_upvote_milestone',
+  ArticleReportApproved = 'article_report_approved',
+  PostBookmarkReminder = 'post_bookmark_reminder',
+  StreakReminder = 'streak_reminder',
+  StreakResetRestore = 'streak_reset_restore',
+  SourcePostApproved = 'source_post_approved',
+  DevCardUnlocked = 'dev_card_unlocked',
+  PostMention = 'post_mention',
+  CommentMention = 'comment_mention',
+  SourceApproved = 'source_approved',
+  SourceRejected = 'source_rejected',
+  SourcePostRejected = 'source_post_rejected',
+  ArticlePicked = 'article_picked',
+  ArticleAnalytics = 'article_analytics',
+  SourcePostSubmitted = 'source_post_submitted',
+  SquadFeatured = 'squad_featured',
+  Marketing = 'marketing',
+  Announcements = 'announcements',
+  NewUserWelcome = 'new_user_welcome',
 }
 
 export enum NotificationIconType {
@@ -182,3 +204,217 @@ export type SubscriptionCallback = (
   source?: NotificationPromptSource,
   existing_permission?: boolean,
 ) => unknown;
+
+export const FOLLOWING_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.PostBookmarkReminder,
+];
+export const ACHIEVEMENT_KEYS = [
+  NotificationType.UserTopReaderBadge,
+  NotificationType.DevCardUnlocked,
+  NotificationType.ArticleAnalytics,
+];
+export const MENTION_KEYS = [
+  NotificationType.PostMention,
+  NotificationType.CommentMention,
+];
+export const STREAK_KEYS = [
+  NotificationType.StreakReminder,
+  NotificationType.StreakResetRestore,
+];
+export const SQUAD_ROLE_KEYS = [
+  NotificationType.PromotedToAdmin,
+  NotificationType.PromotedToModerator,
+  NotificationType.SquadBlocked,
+  NotificationType.DemotedToMember,
+];
+
+export const SOURCE_SUBMISSION_KEYS = [
+  NotificationType.SourceApproved,
+  NotificationType.SourceRejected,
+];
+
+export const SQUAD_MODERATION_KEYS = [
+  NotificationType.SourcePostSubmitted,
+  NotificationType.SquadMemberJoined,
+  NotificationType.SquadFeatured,
+];
+
+export const SQUAD_POST_REVIEW_KEYS = [
+  NotificationType.SourcePostApproved,
+  NotificationType.SourcePostRejected,
+  NotificationType.ArticlePicked,
+];
+
+export const SQUAD_KEYS = [
+  NotificationType.SquadPostAdded,
+  NotificationType.SquadMemberJoined,
+  NotificationType.SourcePostSubmitted,
+];
+
+export const COMMENT_KEYS = [
+  NotificationType.ArticleNewComment,
+  NotificationType.SquadNewComment,
+  NotificationType.SquadReply,
+];
+
+export const CREATOR_UPDATES_EMAIL_KEYS = [
+  NotificationType.SourcePostApproved,
+  NotificationType.ArticlePicked,
+];
+
+export const FOLLOWING_EMAIL_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.SquadPostAdded,
+];
+
+export const NotificationContainer = classed('div', 'flex flex-col gap-6');
+
+export const NotificationSection = classed(
+  'section',
+  'flex flex-col gap-6 px-4',
+);
+
+export interface NotificationChannelSetting {
+  email: NotificationPreferenceStatus;
+  inApp: NotificationPreferenceStatus;
+}
+
+export interface NotificationSettings {
+  [key: string]: NotificationChannelSetting;
+}
+
+type NotificationItem =
+  | {
+      id: NotificationGroup;
+      label: string;
+      description?: string;
+      group: true;
+    }
+  | {
+      id: string;
+      label: string;
+      description?: string;
+      group: false;
+    };
+
+export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'comments',
+    label: 'Comments on your posts',
+    group: true,
+  },
+  {
+    id: NotificationType.CommentReply,
+    label: 'Replies to your comment',
+    group: false,
+  },
+  {
+    id: NotificationType.ArticleUpvoteMilestone,
+    label: 'Upvotes on your post',
+    group: false,
+  },
+  {
+    id: NotificationType.CommentUpvoteMilestone,
+    label: 'Upvotes on your comment',
+    group: false,
+  },
+  {
+    id: 'mentions',
+    label: 'Mentions of your username',
+    group: true,
+  },
+  {
+    id: NotificationType.UserReceivedAward,
+    label: 'Cores & Awards you receive',
+    group: false,
+  },
+  {
+    id: NotificationType.ArticleReportApproved,
+    label: 'Report updates',
+    group: false,
+  },
+];
+
+export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'following',
+    label: 'Following',
+    description:
+      'Get notified when sources, users, collections, or threads you follow are updated. You can manage each below.',
+    group: true,
+  },
+  {
+    id: NotificationType.SourcePostAdded,
+    label: 'Source new post',
+    group: false,
+  },
+  {
+    id: NotificationType.SquadPostAdded,
+    label: 'Squad new post',
+    group: false,
+  },
+  {
+    id: NotificationType.UserPostAdded,
+    label: 'User new posts',
+    group: false,
+  },
+  {
+    id: NotificationType.CollectionUpdated,
+    label: 'Collections you follow',
+    group: false,
+  },
+  {
+    id: NotificationType.PostBookmarkReminder,
+    label: 'Read it later',
+    group: false,
+  },
+];
+
+export const STREAK_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'streaks',
+    label: 'Streaks',
+    description:
+      'Stay on track and never miss a reading day. Get reminders to protect your streak or bring it back when it breaks.',
+    group: true,
+  },
+  {
+    id: NotificationType.StreakReminder,
+    label: 'Notify me before my streak expires',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakResetRestore,
+    label: 'Restore broken streak',
+    group: false,
+  },
+];
+
+export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'sourceSubmission',
+    label: 'Source suggestions',
+    description:
+      'Get notified on suggested sources, including review progress and outcomes.',
+    group: true,
+  },
+  {
+    id: 'squadPostReview',
+    label: 'Submitted post review',
+    description:
+      'Get notified when your submitted post has been reviewed by a Squad moderator.',
+    group: true,
+  },
+  {
+    id: 'squadRoles',
+    label: 'Squad roles',
+    description:
+      'Get notified when your squad role changes, like becoming a moderator or admin.',
+    group: true,
+  },
+];
