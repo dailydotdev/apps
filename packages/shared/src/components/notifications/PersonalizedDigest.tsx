@@ -33,6 +33,7 @@ import { NotificationType } from './utils';
 import { LazyModal } from '../modals/common/types';
 import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
 
 const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
   const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
@@ -127,7 +128,7 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
           ? ns?.briefing_ready?.inApp
           : ns?.briefing_ready?.email;
       // Only unsubscribe if the other channel is also muted
-      if (otherChannelStatus === 'muted') {
+      if (otherChannelStatus === NotificationPreferenceStatus.Muted) {
         unsubscribePersonalizedDigest({
           type: selectedDigest?.type,
         });
