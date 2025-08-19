@@ -49,7 +49,6 @@ import { Checkbox } from '../../fields/Checkbox';
 import { isNullOrUndefined } from '../../../lib/func';
 import type { PropsParameters } from '../../../types';
 import { BRIEFING_SOURCE, briefSourcesLimit, PostType } from '../../../types';
-import type { UserPersonalizedDigest } from '../../../graphql/users';
 import { UserPersonalizedDigestType } from '../../../graphql/users';
 import { useLogContext } from '../../../contexts/LogContext';
 import { sourceQueryOptions } from '../../../graphql/sources';
@@ -60,6 +59,8 @@ import { getFirstName } from '../../../lib/user';
 import { labels } from '../../../lib';
 import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
+import useNotificationSettings from '../../../hooks/notifications/useNotificationSettings';
+import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 
 const BriefPostContentRaw = ({
   post,
@@ -78,6 +79,7 @@ const BriefPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
+  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const { completeAction } = useActions();
   const router = useRouter();
   const { openModal } = useLazyModal();
@@ -115,8 +117,11 @@ const BriefPostContentRaw = ({
 
   const onSendViewPost = useViewPost();
 
-  const { getPersonalizedDigest, subscribePersonalizedDigest } =
-    usePersonalizedDigest();
+  const {
+    getPersonalizedDigest,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
 
   const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
@@ -135,21 +140,15 @@ const BriefPostContentRaw = ({
 
   const onSubscribeDigest = async ({
     sendType,
-    flags,
     preferredHour,
   }: Partial<{
     type: UserPersonalizedDigestType;
     sendType: SendType;
-    flags: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
     preferredHour: number;
   }>): Promise<void> => {
     const params: PropsParameters<typeof subscribePersonalizedDigest> = {
       type: UserPersonalizedDigestType.Brief,
       sendType: sendType ?? briefDigest?.flags?.sendType,
-      flags: {
-        email: flags?.email ?? briefDigest?.flags?.email,
-        slack: flags?.slack ?? briefDigest?.flags?.slack,
-      },
       hour: preferredHour ?? briefDigest?.preferredHour,
     };
 
@@ -162,6 +161,16 @@ const BriefPostContentRaw = ({
         type: params.type,
       }),
     });
+
+    const personalDigest = getPersonalizedDigest(
+      UserPersonalizedDigestType.Digest,
+    );
+
+    if (personalDigest) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Digest,
+      });
+    }
 
     await subscribePersonalizedDigest(params);
   };
@@ -470,41 +479,38 @@ const BriefPostContentRaw = ({
                   <Checkbox
                     className="flex-row-reverse !px-0"
                     name="in-app"
-                    disabled
-                    checked={!!briefDigest}
+                    checked={
+                      ns?.briefing_ready?.inApp ===
+                      NotificationPreferenceStatus.Subscribed
+                    }
+                    onToggleCallback={() => {
+                      toggleSetting('briefing_ready', 'inApp');
+                    }}
                   >
-                    In app (always active)
+                    In app
                   </Checkbox>
                   <Checkbox
                     className="flex-row-reverse !px-0"
                     name="email"
-                    checked={!!briefDigest?.flags?.email}
-                    onToggleCallback={(checked) => {
-                      onSubscribeDigest({
-                        flags: {
-                          email: checked,
-                        },
-                      });
+                    checked={
+                      ns?.briefing_ready?.email ===
+                      NotificationPreferenceStatus.Subscribed
+                    }
+                    onToggleCallback={() => {
+                      toggleSetting('briefing_ready', 'email');
                     }}
                   >
                     Email
                   </Checkbox>
-                  <Checkbox
-                    className="flex-row-reverse !px-0"
-                    name="slack"
-                    checked={!!briefDigest?.flags?.slack}
-                    onToggleCallback={(checked) => {
-                      onSubscribeDigest({
-                        flags: {
-                          slack: checked,
-                        },
-                      });
-                    }}
-                  >
-                    Slack
-                    {!!briefDigest?.flags.slack && !!briefingSource && (
+                  <div className="flex items-center justify-between">
+                    <Typography
+                      color={TypographyColor.Tertiary}
+                      type={TypographyType.Footnote}
+                    >
+                      Slack
+                    </Typography>
+                    <div>
                       <Button
-                        className="absolute bottom-0 right-12 top-0"
                         type="text"
                         size={ButtonSize.Small}
                         variant={ButtonVariant.Subtle}
@@ -530,8 +536,8 @@ const BriefPostContentRaw = ({
                       >
                         Manage integrations
                       </Button>
-                    )}
-                  </Checkbox>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

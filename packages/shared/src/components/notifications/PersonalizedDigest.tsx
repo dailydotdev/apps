@@ -8,7 +8,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import type { UserPersonalizedDigest } from '../../graphql/users';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useFeature } from '../GrowthBookProvider';
 import { briefUIFeature } from '../../lib/featureManagement';
@@ -123,21 +122,39 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
     toggleSetting('briefing_ready', channel);
 
     if (isChecked) {
-      unsubscribePersonalizedDigest({
-        type: selectedDigest?.type,
-      });
+      const otherChannelStatus =
+        channel === 'email'
+          ? ns?.briefing_ready?.inApp
+          : ns?.briefing_ready?.email;
+      // Only unsubscribe if the other channel is also muted
+      if (otherChannelStatus === 'muted') {
+        unsubscribePersonalizedDigest({
+          type: selectedDigest?.type,
+        });
+      }
+    } else if (!selectedDigest) {
+      // Set default digest type based on subscription status
+      if (isPlus) {
+        subscribePersonalizedDigest({
+          type: UserPersonalizedDigestType.Brief,
+          sendType: SendType.Daily,
+        });
+      } else {
+        subscribePersonalizedDigest({
+          type: UserPersonalizedDigestType.Digest,
+          sendType: SendType.Daily,
+        });
+      }
     }
   };
 
   const onSubscribeDigest = async ({
     type,
     sendType,
-    flags,
     preferredHour,
   }: {
     type: UserPersonalizedDigestType;
     sendType: SendType;
-    flags?: Pick<UserPersonalizedDigest['flags'], 'email' | 'slack'>;
     preferredHour?: number;
   }): Promise<void> => {
     onLogToggle(true, NotificationCategory.Digest);
@@ -155,7 +172,6 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
     await subscribePersonalizedDigest({
       type,
       sendType,
-      flags,
       hour: preferredHour ?? selectedDigest?.preferredHour,
     });
   };
@@ -255,9 +271,6 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
               await onSubscribeDigest({
                 type: UserPersonalizedDigestType.Brief,
                 sendType: SendType.Daily,
-                flags: {
-                  email: true,
-                },
               });
               await unsubscribePersonalizedDigest({
                 type: UserPersonalizedDigestType.Digest,
@@ -279,7 +292,7 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
             container: 'gap-4',
           }}
         />
-        {!selectedDigest?.flags.slack && isChecked && isPlus && (
+        {isChecked && isPlus && (
           <button
             type="button"
             className="flex flex-row items-center gap-1 text-text-link typo-footnote"
@@ -330,7 +343,6 @@ const PersonalizedDigest = ({ channel }: { channel: 'email' | 'inApp' }) => {
               onSubscribeDigest({
                 type: selectedDigest.type,
                 sendType,
-                flags: selectedDigest.flags,
               });
             }}
           />
