@@ -45,6 +45,7 @@ import { fileValidation } from '@dailydotdev/shared/src/features/profile/hooks/u
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -380,7 +381,7 @@ const recruiters = [
       title: 'Lead Talent Acquisition',
     },
     description:
-      'Rachel specializes in connecting top-tier frontend talent with innovative startups. She values clear communication and a genuine interest in product development.',
+      'Rachel is a highly experienced Lead Talent Acquisition specialist with a proven track record of placing exceptional frontend engineers within dynamic and innovative startup environments. She possesses a deep understanding of the frontend landscape, staying abreast of the latest technologies and best practices. Rachel excels at building genuine relationships with candidates, fostering open and transparent communication throughout the entire recruitment process. She is particularly drawn to individuals who demonstrate a strong passion for product development, not just coding, and who are eager to contribute to the broader vision of a company. Her approach is collaborative, focusing on finding mutual success for both the candidate and the organization.',
     agency: false,
   },
   {
@@ -391,7 +392,7 @@ const recruiters = [
       title: 'Senior Recruiter',
     },
     description:
-      'Mark partners with leading tech companies to identify and attract engineers passionate about building scalable solutions. He has a keen eye for detail and a knack for finding great culture fits.',
+      'Mark is a dedicated Senior Recruiter working with some of the most prominent and fast-growing tech companies in the industry. His expertise lies in identifying, attracting, and securing engineers who are not only technically proficient but also deeply passionate about constructing scalable, robust, and impactful solutions. Mark is renowned for his meticulous attention to detail, ensuring that every candidate aligns perfectly with both the technical requirements and the unique cultural fabric of his client companies. He has an exceptional ability to pinpoint individuals who will thrive in specific team dynamics and contribute positively to the overall work environment, making him an invaluable partner in the talent acquisition journey.',
     agency: true,
   },
 ];
@@ -890,12 +891,10 @@ const JobPage = (): ReactElement => {
                 </div>
 
                 {/* Description */}
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  {description}
-                </Typography>
+                <ShowMoreContent
+                  content={description}
+                  className={{ text: '!text-text-secondary !typo-callout' }}
+                />
               </FlexCol>
             ))}
           </FlexCol>
