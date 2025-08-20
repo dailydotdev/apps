@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
-import { format } from 'date-fns';
 import {
   Typography,
   TypographyColor,
@@ -9,7 +8,7 @@ import {
 import { IconSize } from '../../../components/Icon';
 
 export interface BriefPostHeaderProps extends PropsWithChildren {
-  date: Date;
+  kicker: string;
   heading: string;
   stats: {
     Icon: React.ComponentType<{ size: IconSize }>;
@@ -18,12 +17,11 @@ export interface BriefPostHeaderProps extends PropsWithChildren {
 }
 
 export const BriefPostHeader = ({
-  date,
+  kicker,
   heading,
   stats,
   children,
 }: BriefPostHeaderProps) => {
-  const dateLabel = format(date, 'MMMM dd, yyyy');
   return (
     <div className="flex flex-col gap-1">
       <div className="flex min-w-full items-center justify-between gap-2">
@@ -31,7 +29,7 @@ export const BriefPostHeader = ({
           color={TypographyColor.Secondary}
           type={TypographyType.Callout}
         >
-          {dateLabel}
+          {kicker}
         </Typography>
         {children && <div>{children}</div>}
       </div>

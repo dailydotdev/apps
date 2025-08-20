@@ -235,7 +235,7 @@ const BriefPostContentRaw = ({
 
   const headerProps: BriefPostHeaderProps = useMemo(
     () => ({
-      date: new Date(post.createdAt),
+      kicker: post.title,
       heading: authorFirstName
         ? `${authorFirstName} presidential briefing`
         : 'Presidential briefing',

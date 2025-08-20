@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { usePlusSubscription } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
@@ -46,7 +47,7 @@ export const GenerateBriefPage = () => {
   const { isAuthReady, user } = useAuthContext();
 
   const headerProps = {
-    date: new Date(),
+    kicker: format(new Date(), 'MMMM dd, yyyy'),
     heading: `${user?.name || user?.username}'s Presidential Briefing`,
     stats: [
       {
