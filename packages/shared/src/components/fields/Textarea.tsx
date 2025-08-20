@@ -123,7 +123,7 @@ function Textarea({
         )}
       />
       <span className="ml-auto py-2 text-text-quaternary typo-caption1">
-        {`${inputLength}/${maxLength}`}
+        {`${inputLength || 0}/${maxLength}`}
       </span>
     </BaseFieldContainer>
   );
