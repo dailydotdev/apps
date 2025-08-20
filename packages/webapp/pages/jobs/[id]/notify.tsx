@@ -84,7 +84,7 @@ const NotifyPage = (): ReactElement => {
               </a>
             </Typography>
             <FlexRow className="items-center gap-1">
-              <MailIcon />
+              <MailIcon secondary />
               <Typography type={TypographyType.Footnote}>
                 {user?.email}
               </Typography>
