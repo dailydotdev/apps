@@ -1,8 +1,8 @@
 import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
-import type { FeedItem } from '../hooks/useFeed';
-import { isBoostedPostAd } from '../hooks/useFeed';
+import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
+import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
@@ -38,6 +38,8 @@ import { AdPixel } from './cards/ad/common/AdPixel';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
+import { SquadAdList } from './cards/ad/squad/SquadAdList';
+import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 
 const CommentPopup = dynamic(
   () =>
@@ -147,6 +149,7 @@ const getTags = ({
       ? PostTypeToTagList[postType] ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? AdList : AdGrid,
+    SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     PlusGridTag: PlusGrid,
@@ -197,6 +200,7 @@ export default function FeedItemComponent({
   const {
     PostTag,
     AdTag,
+    SquadAdTag,
     PlaceholderTag,
     MarketingCtaTag,
     PlusGridTag,
@@ -206,6 +210,10 @@ export default function FeedItemComponent({
     shouldUseListMode,
     postType: (item as PostItem).post?.type,
   });
+
+  if (isBoostedSquadAd(item) || index === 1) {
+    return <SquadAdTag item={item as AdSquadItem} />;
+  }
 
   if (item.type === FeedItemType.Post || isBoostedPostAd(item)) {
     const itemPost =

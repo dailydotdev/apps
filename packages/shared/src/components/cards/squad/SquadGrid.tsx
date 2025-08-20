@@ -11,6 +11,9 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { useCampaignById } from '../../../graphql/campaigns';
+import { Tooltip } from '../../tooltip/Tooltip';
+import { Separator } from '../common/common';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -47,7 +50,9 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
 export const SquadGrid = ({
   source,
   className,
+  campaignId,
 }: UnFeaturedSquadCardProps): ReactElement => {
+  const { data: campaign } = useCampaignById(campaignId);
   const {
     headerImage,
     image,
@@ -98,7 +103,15 @@ export const SquadGrid = ({
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
             <div className="font-bold typo-title3">{name}</div>
-            {handle && <div className="text-text-secondary">{handle}</div>}
+            <div className="text-text-secondary">
+              {campaignId && (
+                <Tooltip content={`Boosted by @${campaign.user.username}`}>
+                  <strong>Boosted</strong>
+                </Tooltip>
+              )}
+              {campaignId && <Separator />}
+              {handle}
+            </div>
             {description && (
               <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
                 {description}

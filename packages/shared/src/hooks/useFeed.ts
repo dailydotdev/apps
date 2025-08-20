@@ -27,6 +27,7 @@ import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
+import type { Squad } from '../graphql/sources';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -41,6 +42,10 @@ export interface AdItem extends FeedItemBase<FeedItemType.Ad> {
 
 export interface AdPostItem extends AdItem {
   ad: Ad & { data: { post?: Post } };
+}
+
+export interface AdSquadItem extends AdItem {
+  ad: Ad & { data: { source?: Squad } };
 }
 
 interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
@@ -60,6 +65,7 @@ interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
 export type FeedItem =
   | PostItem
   | AdItem
+  | AdSquadItem
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
@@ -67,6 +73,9 @@ export type FeedItem =
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
   item?.type === FeedItemType.Ad && !!item.ad.data?.post;
+
+export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
+  item?.type === FeedItemType.Ad && 'source' in item.ad.data;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 

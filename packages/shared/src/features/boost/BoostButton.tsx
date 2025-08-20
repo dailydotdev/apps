@@ -8,22 +8,40 @@ import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import type { Squad } from '../../graphql/sources';
+import { SourcePermissions } from '../../graphql/sources';
 import { boostButton } from '../../styles/custom';
+import { useCampaignById } from '../../graphql/campaigns';
+import { useAuthContext } from '../../contexts/AuthContext';
+import ConditionalWrapper from '../../components/ConditionalWrapper';
+import { Tooltip } from '../../components/tooltip/Tooltip';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../components/typography/Typography';
+import { MiniCloseIcon, SettingsIcon, VIcon } from '../../components/icons';
+import { IconSize } from '../../components/Icon';
+import { webappUrl } from '../../lib/constants';
+
+interface BoostButtonProps {
+  buttonProps?: ButtonProps<'button'>;
+  campaignId?: string;
+}
 
 export function BoostButton({
   buttonProps = {},
-}: {
-  buttonProps?: ButtonProps<'button'>;
-}): ReactElement {
+  campaignId,
+}: BoostButtonProps): ReactElement {
   return (
     <Button
       style={{ background: boostButton }}
-      variant={ButtonVariant.Primary}
+      variant={campaignId ? ButtonVariant.Subtle : ButtonVariant.Primary}
       {...buttonProps}
       icon={<BoostIcon secondary />}
       color={ButtonColor.BlueCheese}
     >
-      Boost
+      {campaignId ? 'Boosting' : 'Boost'}
     </Button>
   );
 }
@@ -36,17 +54,46 @@ export function BoostPostButton({
   buttonProps?: ButtonProps<'button'>;
 }): ReactElement {
   const { openModal } = useLazyModal();
+  const campaignId = post?.flags?.campaignId;
+  const { data: campaign, isFetched } = useCampaignById(campaignId);
+
+  const onBoost = () =>
+    openModal({ type: LazyModal.BoostPost, props: { post } });
+
+  const onViewBoost = () =>
+    openModal({ type: LazyModal.BoostedPostView, props: { campaign } });
 
   return (
     <BoostButton
+      campaignId={campaignId}
       buttonProps={{
         ...buttonProps,
-        onClick: () =>
-          openModal({ type: LazyModal.BoostPost, props: { post } }),
+        loading: campaignId && !isFetched,
+        onClick: campaignId ? onViewBoost : onBoost,
       }}
     />
   );
 }
+
+const Requirement = ({ copy, passed }: { copy: string; passed: boolean }) => {
+  const Icon = passed ? VIcon : MiniCloseIcon;
+
+  return (
+    <Typography
+      type={TypographyType.Body}
+      tag={TypographyTag.Span}
+      className="flex flex-row items-center"
+    >
+      {copy}
+      <Icon
+        size={IconSize.XSmall}
+        className={
+          passed ? 'text-action-upvote-default' : 'text-action-downvote-default'
+        }
+      />
+    </Typography>
+  );
+};
 
 export function BoostSourceButton({
   squad,
@@ -56,14 +103,101 @@ export function BoostSourceButton({
   buttonProps?: ButtonProps<'button'>;
 }): ReactElement {
   const { openModal } = useLazyModal();
+  const { user } = useAuthContext();
+  const campaignId = squad?.flags?.campaignId;
+  const { data: campaign, isFetched } = useCampaignById(campaignId);
+  const isBooster = user.id === campaign?.user.id;
+  const permissions = squad?.currentMember?.permissions;
+  const permittedUser = permissions?.includes(SourcePermissions.BoostSquad);
+
+  const onBoost = () =>
+    openModal({ type: LazyModal.BoostSquad, props: { squad } });
+
+  const onViewBoost = () =>
+    openModal({ type: LazyModal.BoostedPostView, props: { campaign } });
+
+  const onClick = () => {
+    if (!permittedUser) {
+      return null;
+    }
+
+    if (campaignId) {
+      if (!isBooster) {
+        return null;
+      }
+
+      return onViewBoost();
+    }
+
+    if (!squad?.image || !squad?.headerImage || !squad?.description) {
+      // open modal
+      openModal({
+        type: LazyModal.ActionSuccess,
+        props: {
+          content: {
+            title: 'Make your Squad boost-ready',
+            description: `Before we can launch your boost, your squad needs a few details. This isn't just red tape, we want your Squad to look its best and get the traction it deserves.`,
+            body: (
+              <div className="flex flex-col gap-2">
+                <Requirement copy="Profile image" passed={!!squad?.image} />
+                <Requirement copy="Cover image" passed={!!squad?.headerImage} />
+                <Requirement
+                  copy="Squad description"
+                  passed={!!squad?.description}
+                />
+                <Typography
+                  type={TypographyType.Body}
+                  color={TypographyColor.Secondary}
+                >
+                  Finish these in Squad settings to unlock boosting and make a
+                  strong impression.
+                </Typography>
+              </div>
+            ),
+          },
+          cta: {
+            copy: 'Go to Squad settings',
+            icon: <SettingsIcon />,
+            tag: 'a',
+            href: `${webappUrl}squads/${squad.handle}/edit`,
+          },
+        },
+      });
+      return null;
+    }
+
+    return onBoost();
+  };
+
+  const hasTooltip = campaignId && !isBooster && !!campaign;
+
+  if (!permittedUser) {
+    return null;
+  }
 
   return (
-    <BoostButton
-      buttonProps={{
-        ...buttonProps,
-        onClick: () =>
-          openModal({ type: LazyModal.BoostSquad, props: { squad } }),
-      }}
-    />
+    <ConditionalWrapper
+      condition={hasTooltip}
+      wrapper={(component) => (
+        <Tooltip
+          className="max-w-64"
+          content={`The Squad is currently being boosted by ${
+            campaign.user.name
+          }. You can start a new boost once this one ends on ${campaign.endedAt.toLocaleString()}`}
+        >
+          <div>{component}</div>
+        </Tooltip>
+      )}
+    >
+      <BoostButton
+        campaignId={campaignId}
+        buttonProps={{
+          ...buttonProps,
+          onClick,
+          disabled: hasTooltip,
+          loading: campaignId && !isFetched,
+        }}
+      />
+    </ConditionalWrapper>
   );
 }

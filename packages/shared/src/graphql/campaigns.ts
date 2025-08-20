@@ -1,10 +1,15 @@
 import { gql } from 'graphql-request';
+import { useQuery } from '@tanstack/react-query';
 import type { Connection, RequestQueryParams } from './common';
 import { gqlClient } from './common';
 import type { TransactionCreated } from './njord';
 import type { Post } from './posts';
 import type { Squad } from './sources';
 import { SHARED_POST_INFO_FRAGMENT, SQUAD_BASE_FRAGMENT } from './fragments';
+import type { LoggedUser } from '../lib/user';
+import user from '../../__tests__/fixture/loggedUser';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+
 
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
@@ -24,8 +29,47 @@ const CAMPAIGN_FRAGMENT = gql`
     post {
       ...SharedPostInfo
     }
+    user {
+      id
+      username
+      name
+      image
+    }
     source {
       ...SquadBaseInfo
+      flags {
+        featured
+        totalPosts
+        totalViews
+        totalUpvotes
+        totalAwards
+      }
+      headerImage
+      color
+      membersCount
+      category {
+        id
+      }
+      members {
+        edges {
+          node {
+            user {
+              id
+              name
+              image
+              permalink
+              username
+              bio
+              reputation
+              companies {
+                name
+                image
+              }
+            }
+          }
+        }
+      }
+      referralUrl
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -69,6 +113,7 @@ export interface Campaign {
   flags: CampaignStats;
   post?: Post;
   source?: Squad;
+  user: LoggedUser;
 }
 
 export type CampaignConnection = Connection<Campaign>;
@@ -212,3 +257,11 @@ export const stopCampaign = async (id: string): Promise<TransactionCreated> => {
 
 export const DEFAULT_CORES_PER_DAY = 5000;
 export const DEFAULT_DURATION_DAYS = 7;
+
+export const useCampaignById = (campaignId: string) =>
+  useQuery({
+    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
+    queryFn: () => getCampaignById(campaignId),
+    staleTime: StaleTime.Default,
+    enabled: !!campaignId,
+  });
