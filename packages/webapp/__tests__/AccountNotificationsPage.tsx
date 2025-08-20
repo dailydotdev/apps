@@ -156,6 +156,7 @@ const defaultLoggedUser: LoggedUser = {
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: false,
+  isPlus: true,
 };
 const defaultVisit: Visit = {
   sessionId: 'sample session id',
@@ -232,43 +233,49 @@ it('should show email tab content when clicked', async () => {
 it('should render comments switch', async () => {
   renderComponent();
 
-  const commentsText = await screen.findByText('Comments on your posts');
-  expect(commentsText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Comments on your posts')).toBeInTheDocument();
+  });
 });
 
 it('should render reply switch', async () => {
   renderComponent();
 
-  const replyText = await screen.findByText('Replies to your comment');
-  expect(replyText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Replies to your comment')).toBeInTheDocument();
+  });
 });
 
 it('should render following switch', async () => {
   renderComponent();
 
-  const followingText = await screen.findByText('Following');
-  expect(followingText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Following')).toBeInTheDocument();
+  });
 });
 
 it('should render upvotes switch', async () => {
   renderComponent();
 
-  const upvotesText = await screen.findByText('Upvotes on your post');
-  expect(upvotesText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Upvotes on your post')).toBeInTheDocument();
+  });
 });
 
 it('should render AI briefings switch', async () => {
   renderComponent();
 
-  const aiBriefingsText = await screen.findByText('AI Briefings');
-  expect(aiBriefingsText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Presidential briefings')).toBeInTheDocument();
+  });
 });
 
 it('should render notification categories', async () => {
   renderComponent();
 
-  const activitySection = await screen.findByText('Activity');
-  expect(activitySection).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Activity')).toBeInTheDocument();
+  });
 });
 
 it('should change hour for AI briefings', async () => {
@@ -280,7 +287,7 @@ it('should change hour for AI briefings', async () => {
           {
             preferredDay: 1,
             preferredHour: 9,
-            type: UserPersonalizedDigestType.Digest,
+            type: UserPersonalizedDigestType.Brief,
             flags: {
               sendType: SendType.Weekly,
             },
@@ -292,6 +299,12 @@ it('should change hour for AI briefings', async () => {
 
   renderComponent();
 
+  // Wait for the Presidential briefings section to be fully rendered first
+  await waitFor(() => {
+    expect(screen.getByText('Presidential briefings')).toBeInTheDocument();
+  });
+
+  // Wait for the digest settings to load and the Weekly option to appear
   const subscription = await screen.findByLabelText('Weekly');
   await waitFor(() => expect(subscription).toBeChecked());
 
@@ -301,7 +314,7 @@ it('should change hour for AI briefings', async () => {
       variables: {
         day: 3,
         hour: 0,
-        type: UserPersonalizedDigestType.Digest,
+        type: UserPersonalizedDigestType.Brief,
         sendType: SendType.Weekly,
       },
     },
@@ -310,7 +323,7 @@ it('should change hour for AI briefings', async () => {
         subscribePersonalizedDigest: {
           preferredDay: 1,
           preferredHour: 0,
-          type: UserPersonalizedDigestType.Digest,
+          type: UserPersonalizedDigestType.Brief,
           flags: {
             sendType: SendType.Weekly,
           },
@@ -333,15 +346,17 @@ it('should change hour for AI briefings', async () => {
 it('should render streaks section', async () => {
   renderComponent();
 
-  const streaksSection = await screen.findByText('Streaks');
-  expect(streaksSection).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Streaks')).toBeInTheDocument();
+  });
 });
 
 it('should render achievements section', async () => {
   renderComponent();
 
-  const achievementsSection = await screen.findByText('Achievements');
-  expect(achievementsSection).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Achievements')).toBeInTheDocument();
+  });
 });
 
 it('should render push notifications switch', async () => {
@@ -354,48 +369,57 @@ it('should render push notifications switch', async () => {
 it('should render squad notifications section', async () => {
   renderComponent();
 
-  const squadText = await screen.findByText('Squad notifications');
-  expect(squadText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Squad notifications')).toBeInTheDocument();
+  });
 });
 
 it('should render mentions switch', async () => {
   renderComponent();
 
-  const mentionsText = await screen.findByText('Mentions of your username');
-  expect(mentionsText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Mentions of your username')).toBeInTheDocument();
+  });
 });
 
 it('should render upvote comments switch', async () => {
   renderComponent();
 
-  const upvoteText = await screen.findByText('Upvotes on your comment');
-  expect(upvoteText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Upvotes on your comment')).toBeInTheDocument();
+  });
 });
 
 it('should render cores and awards switch', async () => {
   renderComponent();
 
-  const awardsText = await screen.findByText('Cores & Awards you receive');
-  expect(awardsText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(
+      screen.queryByText('Cores & Awards you receive'),
+    ).toBeInTheDocument();
+  });
 });
 
 it('should render source suggestions section', async () => {
   renderComponent();
 
-  const sourceText = await screen.findByText('Source suggestions');
-  expect(sourceText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Source suggestions')).toBeInTheDocument();
+  });
 });
 
 it('should render submitted post section', async () => {
   renderComponent();
 
-  const submittedText = await screen.findByText('Submitted post review');
-  expect(submittedText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Submitted post review')).toBeInTheDocument();
+  });
 });
 
 it('should render squad roles section', async () => {
   renderComponent();
 
-  const rolesText = await screen.findByText('Squad roles');
-  expect(rolesText).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Squad roles')).toBeInTheDocument();
+  });
 });
