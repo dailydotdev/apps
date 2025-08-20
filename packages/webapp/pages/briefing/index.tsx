@@ -123,7 +123,7 @@ const Page = (): ReactElement => {
     if (!hasGeneratedBrief) {
       router.push(`${webappUrl}/briefing/generate`);
     }
-  }, [checkHasCompleted, isActionsFetched, isAuthReady, router, user.isPlus]);
+  }, [checkHasCompleted, isActionsFetched, isAuthReady, router, user?.isPlus]);
 
   if (!isActionsFetched) {
     return null;
