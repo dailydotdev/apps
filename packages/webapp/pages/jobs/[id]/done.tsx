@@ -86,7 +86,14 @@ const DonePage = (): ReactElement => {
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
-        <FlexCol className="gap-4">
+        <FlexCol className="items-center gap-4">
+          <div className="size-12 rounded-10 bg-action-upvote-float">
+            <VIcon
+              size={IconSize.Size48}
+              className="text-action-upvote-default"
+              secondary
+            />
+          </div>
           <Typography type={TypographyType.LargeTitle} bold center>
             You&#39;re all set!
           </Typography>
@@ -160,7 +167,7 @@ const DonePage = (): ReactElement => {
             </FlexCol>
           </div>
         </FlexCol>
-        <FlexCol className="gap-4">
+        <FlexCol className="items-center gap-4">
           <Button
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
