@@ -22,6 +22,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -81,28 +82,28 @@ const DeclinePage = (): ReactElement => {
         </FlexCol>
         <FlexCol className="gap-2">
           {options.map(({ icon, title, description, href }) => (
-            <Button
-              key={title}
-              variant={ButtonVariant.Option}
-              className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
-              href={href}
-              tag="a"
-            >
-              <div className="flex size-12 items-center justify-center rounded-10 bg-surface-float">
-                {icon}
-              </div>
-              <FlexCol className="flex-1 text-left">
-                <Typography type={TypographyType.Body} bold>
-                  {title}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {description}
-                </Typography>
-              </FlexCol>
-            </Button>
+            <Link href={href} passHref key={title}>
+              <Button
+                variant={ButtonVariant.Option}
+                className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
+                tag="a"
+              >
+                <div className="flex size-12 items-center justify-center rounded-10 bg-surface-float">
+                  {icon}
+                </div>
+                <FlexCol className="flex-1 text-left">
+                  <Typography type={TypographyType.Body} bold>
+                    {title}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {description}
+                  </Typography>
+                </FlexCol>
+              </Button>
+            </Link>
           ))}
         </FlexCol>
         <div className="rounded-10 bg-surface-float p-2">
