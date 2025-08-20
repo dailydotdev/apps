@@ -21,6 +21,8 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -40,18 +42,21 @@ const options = [
   {
     icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
     title: 'Active looking',
+    href: `${webappUrl}jobs/job-123/preference`,
     description:
       'I’m in the market and ready to move. This one just wasn’t a fit.',
   },
   {
     icon: <SemiActiveIcon size={IconSize.XLarge} />,
     title: 'Open only if it’s right',
+    href: `${webappUrl}jobs/job-123/preference`,
     description:
       'I’m happy where I am, but I’d explore something truly exceptional.',
   },
   {
     icon: <PassiveIcon size={IconSize.XLarge} />,
     title: 'Not looking right now',
+    href: `${webappUrl}jobs/job-123/passive-done`,
     description:
       'I’m not open to opportunities right now. Step back until I say otherwise.',
   },
@@ -76,27 +81,29 @@ const DeclinePage = (): ReactElement => {
           </Typography>
         </FlexCol>
         <FlexCol className="gap-2">
-          {options.map(({ icon, title, description }) => (
-            <Button
-              key={title}
-              variant={ButtonVariant.Option}
-              className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
-            >
-              <div className="flex size-12 items-center justify-center rounded-10 bg-surface-float">
-                {icon}
-              </div>
-              <FlexCol className="flex-1 text-left">
-                <Typography type={TypographyType.Body} bold>
-                  {title}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {description}
-                </Typography>
-              </FlexCol>
-            </Button>
+          {options.map(({ icon, title, description, href }) => (
+            <Link href={href} passHref key={title}>
+              <Button
+                variant={ButtonVariant.Option}
+                className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
+                tag="a"
+              >
+                <div className="flex size-12 items-center justify-center rounded-10 bg-surface-float">
+                  {icon}
+                </div>
+                <FlexCol className="flex-1 text-left">
+                  <Typography type={TypographyType.Body} bold>
+                    {title}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {description}
+                  </Typography>
+                </FlexCol>
+              </Button>
+            </Link>
           ))}
         </FlexCol>
         <div className="rounded-10 bg-surface-float p-2">

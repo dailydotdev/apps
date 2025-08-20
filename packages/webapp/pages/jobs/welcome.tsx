@@ -33,6 +33,8 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -62,22 +64,25 @@ const HeaderSection = (): ReactElement => {
         Getting hired the old way
         <br /> is officially dead
       </Typography>
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Large}
-        style={{
-          background: briefButtonBg,
-        }}
-        className="mt-4 gap-2 border-none !px-16 text-black"
-      >
-        <ProfilePicture
-          size={ProfileImageSize.Small}
-          ref={null}
-          user={user}
-          nativeLazyLoading
-        />
-        Show me what you got →
-      </Button>
+      <Link href={`${webappUrl}jobs/job-123?cv_step=true`} passHref>
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Large}
+          style={{
+            background: briefButtonBg,
+          }}
+          tag="a"
+          className="mt-4 gap-2 border-none !px-16 text-black"
+        >
+          <ProfilePicture
+            size={ProfileImageSize.Small}
+            ref={null}
+            user={user}
+            nativeLazyLoading
+          />
+          Show me what you got →
+        </Button>
+      </Link>
       <FlexRow className="items-center gap-1">
         <VIcon className="text-accent-avocado-subtlest" />
         <Typography

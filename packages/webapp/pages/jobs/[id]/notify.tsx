@@ -21,6 +21,8 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -119,13 +121,16 @@ const NotifyPage = (): ReactElement => {
           )}
         </FlexCol>
         <FlexRow className="justify-center">
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-            className="w-full laptop:w-auto"
-          >
-            Continue
-          </Button>
+          <Link href={`${webappUrl}jobs/job-123/done`} passHref>
+            <Button
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              className="w-full laptop:w-auto"
+              tag="a"
+            >
+              Continue
+            </Button>
+          </Link>
         </FlexRow>
       </FlexCol>
     </div>
