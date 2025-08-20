@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useId } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import { useActions } from '@dailydotdev/shared/src/hooks';
@@ -23,6 +23,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  ArrowIcon,
   CrunchbaseIcon,
   GitHubIcon,
   LinkedInIcon,
@@ -504,6 +505,10 @@ const JobPage = (): ReactElement => {
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
   const activatedCVScreen = useRef<boolean>();
 
+  const [showMore, setShowMore] = useState(false);
+  const id = useId();
+  const contentId = `company-show-more-${id}`;
+
   useEffect(() => {
     if (cvStep && !activatedCVScreen.current) {
       setShowCVScreen(true);
@@ -785,67 +790,77 @@ const JobPage = (): ReactElement => {
               </ul>
             </div>
 
-            {/* See more */}
-            <div className="flex items-center justify-center gap-1 border-t border-border-subtlest-tertiary px-4 py-2.5">
-              <Accordion
-                title={
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                  >
-                    See more
+            {showMore && (
+              <>
+                {/* Resources */}
+                <div className="flex flex-col gap-2 px-4">
+                  <Typography bold type={TypographyType.Callout}>
+                    Resources
                   </Typography>
-                }
-              >
-                <FlexCol className="gap-4">
-                  {/* Resources */}
-                  <div className="flex flex-col gap-2">
-                    <Typography bold type={TypographyType.Callout}>
-                      Resources
-                    </Typography>
 
-                    {resourcesLinks.map(({ key, href, label }) => (
-                      <Link key={key} href={href} passHref>
-                        <Button
-                          variant={ButtonVariant.Subtle}
-                          icon={<OpenLinkIcon />}
-                          iconPosition={ButtonIconPosition.Right}
-                          className="justify-between !pl-2 !pr-3"
-                        >
+                  {resourcesLinks.map(({ key, href, label }) => (
+                    <Link key={key} href={href} passHref>
+                      <Button
+                        variant={ButtonVariant.Subtle}
+                        icon={<OpenLinkIcon />}
+                        iconPosition={ButtonIconPosition.Right}
+                        className="justify-between !pl-2 !pr-3"
+                      >
+                        {label}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Featured press */}
+                <div className="flex flex-col gap-2 px-4 pb-2">
+                  <Typography bold type={TypographyType.Callout}>
+                    Featured press
+                  </Typography>
+
+                  {featuredPressLinks.map(({ key, href, label, source }) => (
+                    <Link key={key} href={href} passHref>
+                      <Button
+                        variant={ButtonVariant.Subtle}
+                        icon={<OpenLinkIcon />}
+                        iconPosition={ButtonIconPosition.Right}
+                        className="justify-between !pl-2 !pr-3"
+                      >
+                        <SourceAvatar
+                          source={source}
+                          size={ProfileImageSize.Small}
+                        />
+                        <span className="flex-1 truncate text-left">
                           {label}
-                        </Button>
-                      </Link>
-                    ))}
-                  </div>
+                        </span>
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
 
-                  {/* Featured press */}
-                  <div className="flex flex-col gap-2 pb-2">
-                    <Typography bold type={TypographyType.Callout}>
-                      Featured press
-                    </Typography>
+            <Button
+              aria-controls={contentId}
+              aria-expanded={showMore}
+              className="flex min-h-14 w-full flex-row !justify-center gap-4 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4"
+              type="button"
+              onClick={() => setShowMore((prev) => !prev)}
+            >
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                className="flex-1 text-left"
+              >
+                {showMore ? 'See less' : 'See more'}
+              </Typography>
 
-                    {featuredPressLinks.map(({ key, href, label, source }) => (
-                      <Link key={key} href={href} passHref>
-                        <Button
-                          variant={ButtonVariant.Subtle}
-                          icon={<OpenLinkIcon />}
-                          iconPosition={ButtonIconPosition.Right}
-                          className="justify-between !pl-2 !pr-3"
-                        >
-                          <SourceAvatar
-                            source={source}
-                            size={ProfileImageSize.Small}
-                          />
-                          <span className="flex-1 truncate text-left">
-                            {label}
-                          </span>
-                        </Button>
-                      </Link>
-                    ))}
-                  </div>
-                </FlexCol>
-              </Accordion>
-            </div>
+              <ArrowIcon
+                className={classNames('transition-transform ease-in-out', {
+                  'rotate-180': !showMore,
+                })}
+              />
+            </Button>
           </FlexCol>
 
           {/* Recruiter Info */}
