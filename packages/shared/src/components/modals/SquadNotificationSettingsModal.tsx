@@ -123,13 +123,14 @@ const SquadNotificationSettingsModal = ({
                   src={squad?.image}
                   alt="Squad avatar"
                 />
-                <div className="flex items-center gap-1">
-                  <Typography type={TypographyType.Callout} bold>
+                <div className="flex flex-col items-baseline gap-1 tablet:flex-row">
+                  <Typography truncate type={TypographyType.Callout} bold>
                     {squad.name}{' '}
                   </Typography>
                   <Typography
                     color={TypographyColor.Tertiary}
                     type={TypographyType.Footnote}
+                    truncate
                   >
                     @{squad.handle}
                   </Typography>

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState, useMemo } from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -18,9 +19,7 @@ import type { Squad } from '../../graphql/sources';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 
 import { Checkbox } from '../fields/Checkbox';
-import { ButtonVariant } from '../buttons/common';
 import { ArrowIcon } from '../icons';
-import { Button } from '../buttons/Button';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Image } from '../image/Image';
@@ -126,7 +125,11 @@ const SquadModerationItem = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-row items-center justify-start gap-4">
+      <button
+        type="button"
+        onClick={() => onToggleExpanded(squad.id)}
+        className="rounded--4 flex flex-row items-center justify-start gap-4 rounded-4 py-2 hover:bg-surface-float"
+      >
         <div className="flex min-h-0 min-w-0 grow basis-0 flex-row items-center justify-start gap-2">
           <Image
             className="size-8 rounded-full object-cover"
@@ -150,18 +153,13 @@ const SquadModerationItem = ({
             </Typography>
           </div>
         </div>
-        <Button
-          icon={
-            <ArrowIcon
-              className={`m-auto transition-transform ${
-                isExpanded ? 'rotate-180' : 'rotate-90'
-              }`}
-            />
-          }
-          variant={ButtonVariant.Option}
-          onClick={() => onToggleExpanded(squad.id)}
+        <ArrowIcon
+          className={classNames(
+            'm-auto !size-6 text-surface-secondary transition-transform',
+            isExpanded ? 'rotate-180' : 'rotate-90',
+          )}
         />
-      </div>
+      </button>
       {isExpanded && (
         <>
           <div className="flex flex-col gap-2">
@@ -246,7 +244,7 @@ const SquadModNotifications = (): ReactElement => {
   };
 
   return (
-    <NotificationSection>
+    <NotificationSection className="!gap-2">
       <div className="flex flex-row justify-between gap-4">
         <div className="flex flex-1 flex-col gap-1">
           <Typography type={TypographyType.Body} bold>
@@ -271,7 +269,7 @@ const SquadModNotifications = (): ReactElement => {
         />
       </div>
       {squadModerationEnabled && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col">
           {moderationSquads.map((squad) => (
             <SquadModerationItem
               key={squad.id}
