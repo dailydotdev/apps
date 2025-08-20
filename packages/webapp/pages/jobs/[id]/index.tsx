@@ -68,7 +68,7 @@ const seo: NextSeoProps = {
 
 const JobPageIntro = () => {
   return (
-    <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
+    <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4">
       <Typography bold center type={TypographyType.LargeTitle}>
         Now it&apos;s your turn to call the shots
       </Typography>
