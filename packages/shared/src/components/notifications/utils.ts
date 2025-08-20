@@ -19,7 +19,10 @@ import {
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
-import type { NotificationGroup } from '../../hooks/notifications/useNotificationSettings';
+import type {
+  NotificationChannel,
+  NotificationGroup,
+} from '../../hooks/notifications/useNotificationSettings';
 
 export const NotifContainer = classed(
   'div',
@@ -418,3 +421,19 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     group: true,
   },
 ];
+
+export const isMutingDigestCompletely = (
+  ns: NotificationSettings,
+  currentChannel: NotificationChannel,
+) => {
+  const currentChannelStatus =
+    ns[NotificationType.BriefingReady][currentChannel];
+  const otherChannelStatus =
+    ns[NotificationType.BriefingReady][
+      currentChannel === 'inApp' ? 'email' : 'inApp'
+    ];
+
+  return (
+    otherChannelStatus === 'muted' && currentChannelStatus === 'subscribed'
+  );
+};
