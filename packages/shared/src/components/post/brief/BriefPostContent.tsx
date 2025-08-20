@@ -262,7 +262,13 @@ const BriefPostContentRaw = ({
           : []),
       ],
     }),
-    [authorFirstName, post.createdAt, post.flags, postsCount],
+    [
+      authorFirstName,
+      post.flags?.posts,
+      post.flags.savedTime,
+      post.title,
+      postsCount,
+    ],
   );
 
   return (
