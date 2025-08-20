@@ -16,6 +16,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ArrowIcon,
+  MagicIcon,
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -158,6 +159,7 @@ const Page = (): ReactElement => {
             <div className="ml-auto flex items-center gap-2">
               {isNotPlus && !hasTodayBrief && (
                 <Button
+                  icon={<MagicIcon aria-hidden />}
                   onClick={() => router.push('/briefing/generate')}
                   variant={ButtonVariant.Primary}
                 >

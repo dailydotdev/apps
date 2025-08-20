@@ -55,7 +55,11 @@ export const BriefPlusAdvantagesCard = () => {
           className: 'typo-footnote py-0.5',
         }}
       />
-      <BriefPlusUpgradeCTA size={ButtonSize.Medium} className="w-full" />
+      <BriefPlusUpgradeCTA
+        icon={<DevPlusIcon aria-hidden />}
+        size={ButtonSize.Medium}
+        className="w-full"
+      />
     </ClickableCard>
   );
 };
