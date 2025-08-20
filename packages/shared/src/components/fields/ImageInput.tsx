@@ -52,6 +52,37 @@ const sizeToIconSize: Record<Size, IconSize> = {
   cover: IconSize.Small,
 };
 
+interface UseImageInputProps {
+  limitMb: number;
+  onChange: (base64: string, file: File) => void;
+}
+
+export const useImageInput = ({ limitMb, onChange }: UseImageInputProps) => {
+  const { displayToast, dismissToast } = useToastNotification();
+  const onFileChange = async (file: File) => {
+    if (!file) {
+      onChange(null, null);
+      return;
+    }
+
+    if (file.size > limitMb * MEGABYTE) {
+      displayToast(`Maximum image size is ${limitMb} MB`);
+      return;
+    }
+
+    if (!acceptedTypesList.includes(file.type)) {
+      displayToast(`File type is not allowed`);
+      return;
+    }
+
+    const base64 = await blobToBase64(file);
+    dismissToast();
+    onChange(base64, file);
+  };
+
+  return { onFileChange };
+};
+
 function ImageInput({
   initialValue,
   name = 'file',
@@ -70,33 +101,22 @@ function ImageInput({
   uploadButton = false,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
-  const toast = useToastNotification();
   const [image, setImage] = useState(initialValue || fallbackImage);
   const onClick = () => {
     inputRef.current.click();
   };
 
-  const handleFile = async (file: File) => {
-    if (!file) {
-      onChange?.(null);
-      return;
-    }
+  const { onFileChange: handleFile } = useImageInput({
+    limitMb: fileSizeLimitMB,
+    onChange(base64, file) {
+      if (!base64) {
+        return onChange?.(null);
+      }
 
-    if (file.size > fileSizeLimitMB * MEGABYTE) {
-      toast.displayToast(`Maximum image size is ${fileSizeLimitMB} MB`);
-      return;
-    }
-
-    if (!acceptedTypesList.includes(file.type)) {
-      toast.displayToast(`File type is not allowed`);
-      return;
-    }
-
-    const base64 = await blobToBase64(file);
-    toast.dismissToast();
-    setImage(base64);
-    onChange?.(base64, file);
-  };
+      setImage(base64);
+      return onChange?.(base64, file);
+    },
+  });
 
   const onFileChange = (event: ChangeEvent) => {
     const input = event.target as HTMLInputElement;
