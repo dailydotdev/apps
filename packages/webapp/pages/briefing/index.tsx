@@ -116,7 +116,7 @@ const Page = (): ReactElement => {
   };
 
   useEffect(() => {
-    if (!isAuthReady || !isActionsFetched || user.isPlus) {
+    if (!isAuthReady || !isActionsFetched || user?.isPlus) {
       return;
     }
 
