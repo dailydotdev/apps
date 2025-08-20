@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { DateFormat, TruncateText } from '../../utilities';
+import { DateFormat } from '../../utilities';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
@@ -34,7 +34,7 @@ export function PostShortInfo({
 
   return (
     <div className={classNames('flex items-center gap-2', className)}>
-      <div className="flex flex-1 flex-col gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         {author && (
           <div className="flex items-center gap-2">
             <ProfileImageLink
@@ -51,8 +51,8 @@ export function PostShortInfo({
           </div>
         )}
         {title && (
-          <Typography type={TypographyType.Body} bold>
-            <TruncateText>{title}</TruncateText>
+          <Typography type={TypographyType.Body} bold truncate>
+            {title}
           </Typography>
         )}
         <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ export function PostShortInfo({
         </div>
       </div>
       {showImage && image && (
-        <div className="h-16 w-24 overflow-hidden rounded-8">
+        <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-8">
           <LazyImage
             imgSrc={image}
             imgAlt="Post cover image"
