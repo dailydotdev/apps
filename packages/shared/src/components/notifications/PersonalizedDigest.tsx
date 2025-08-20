@@ -136,10 +136,18 @@ const PersonalizedDigest = () => {
     toggleSetting(NotificationType.BriefingReady, 'email');
 
     if (isChecked) {
-      const shouldUnsubscribe = isMutingDigestCompletely(ns, 'email');
-      if (shouldUnsubscribe) {
+      if (selectedDigest?.type === UserPersonalizedDigestType.Digest) {
         unsubscribePersonalizedDigest({
-          type: selectedDigest?.type,
+          type: UserPersonalizedDigestType.Digest,
+        });
+      }
+
+      if (
+        selectedDigest?.type === UserPersonalizedDigestType.Brief &&
+        isMutingDigestCompletely(ns, 'email')
+      ) {
+        unsubscribePersonalizedDigest({
+          type: UserPersonalizedDigestType.Brief,
         });
       }
     } else if (!selectedDigest) {

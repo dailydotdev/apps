@@ -168,30 +168,26 @@ const useNotificationSettings = () => {
     }, {});
     mutate(updatedSettings);
 
-    const shouldUnsubscribe = isMutingDigestCompletely(
-      notificationSettings,
-      'email',
+    const personalDigest = getPersonalizedDigest(
+      UserPersonalizedDigestType.Digest,
     );
 
-    if (shouldUnsubscribe) {
-      const personalDigest = getPersonalizedDigest(
-        UserPersonalizedDigestType.Digest,
-      );
-      const briefDigest = getPersonalizedDigest(
-        UserPersonalizedDigestType.Brief,
-      );
+    // We unsubscribe digest if it exists because its only available by email.
+    if (personalDigest) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Digest,
+      });
+    }
 
-      if (personalDigest) {
-        unsubscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.Digest,
-        });
-      }
+    const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
 
-      if (briefDigest) {
-        unsubscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.Brief,
-        });
-      }
+    if (
+      briefDigest &&
+      isMutingDigestCompletely(notificationSettings, 'email')
+    ) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+      });
     }
   };
 
