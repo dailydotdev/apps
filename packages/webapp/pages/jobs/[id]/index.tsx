@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import { useActions } from '@dailydotdev/shared/src/hooks';
@@ -44,6 +44,7 @@ import classNames from 'classnames';
 import { fileValidation } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
 import { useRouter } from 'next/router';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -395,7 +396,7 @@ const recruiters = [
   },
 ];
 
-const CVOverlay = (): ReactElement => (
+const CVOverlay = ({ onDismiss }: { onDismiss: () => void }): ReactElement => (
   <div className="absolute top-10 z-1 size-full bg-blur-glass backdrop-blur-xl laptop:top-16">
     <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6">
       <div>
@@ -445,8 +446,8 @@ const CVOverlay = (): ReactElement => (
       <Button
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
-        disabled
         className="mx-auto"
+        onClick={onDismiss}
       >
         Upload CV & Activate Filters
       </Button>
@@ -461,6 +462,37 @@ const CVOverlay = (): ReactElement => (
   </div>
 );
 
+const ResponseButtons = ({
+  className,
+}: {
+  className: { container?: string; buttons?: string };
+}): ReactElement => {
+  return (
+    <div className={className?.container}>
+      <Button
+        className={className?.buttons}
+        size={ButtonSize.Small}
+        icon={<MiniCloseIcon />}
+        variant={ButtonVariant.Subtle}
+        tag="a"
+        href={`${webappUrl}jobs/job-123/decline`}
+      >
+        Not for me
+      </Button>
+      <Button
+        className={className?.buttons}
+        size={ButtonSize.Small}
+        icon={<VIcon />}
+        variant={ButtonVariant.Primary}
+        tag="a"
+        href={`${webappUrl}jobs/job-123/questions`}
+      >
+        I&apos;m interested
+      </Button>
+    </div>
+  );
+};
+
 const JobPage = (): ReactElement => {
   const { checkHasCompleted } = useActions();
   const {
@@ -468,18 +500,25 @@ const JobPage = (): ReactElement => {
   } = useRouter();
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
-  const showCVScreen = !!cvStep;
+  const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
+  const activatedCVScreen = useRef<boolean>();
 
   useEffect(() => {
-    document.body.classList.add('hidden-scrollbar');
+    if (cvStep && !activatedCVScreen.current) {
+      setShowCVScreen(true);
+      activatedCVScreen.current = true;
+    }
+    if (showCVScreen) {
+      document.body.classList.add('hidden-scrollbar');
+    }
     return () => {
       document.body.classList.remove('hidden-scrollbar');
     };
-  }, []);
+  }, [showCVScreen, cvStep]);
 
   return (
     <>
-      {showCVScreen && <CVOverlay />}
+      {showCVScreen && <CVOverlay onDismiss={() => setShowCVScreen(false)} />}
       {!hasCompleted && <JobPageIntro />}
       <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
         <div className="h-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
@@ -504,22 +543,11 @@ const JobPage = (): ReactElement => {
               </Typography>
             </div>
 
-            <div className="ml-auto hidden gap-2 tablet:flex">
-              <Button
-                size={ButtonSize.Small}
-                icon={<MiniCloseIcon />}
-                variant={ButtonVariant.Subtle}
-              >
-                Not for me
-              </Button>
-              <Button
-                size={ButtonSize.Small}
-                icon={<VIcon />}
-                variant={ButtonVariant.Primary}
-              >
-                I&apos;m interested
-              </Button>
-            </div>
+            <ResponseButtons
+              className={{
+                container: 'ml-auto hidden gap-2 tablet:flex',
+              }}
+            />
           </div>
 
           {/* Content */}
@@ -560,7 +588,7 @@ const JobPage = (): ReactElement => {
             {/* Tags */}
             <div className="flex gap-2">
               {tags.map((tag) => (
-                <Chip key={tag} className="!my-0">
+                <Chip key={tag} className="!my-0 !text-text-tertiary">
                   {tag}
                 </Chip>
               ))}
@@ -637,22 +665,13 @@ const JobPage = (): ReactElement => {
             </div>
           ))}
 
-          <div className="hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex">
-            <Button
-              className="flex-1"
-              icon={<MiniCloseIcon />}
-              variant={ButtonVariant.Subtle}
-            >
-              Not for me
-            </Button>
-            <Button
-              className="flex-1"
-              icon={<VIcon />}
-              variant={ButtonVariant.Primary}
-            >
-              I&apos;m interested
-            </Button>
-          </div>
+          <ResponseButtons
+            className={{
+              container:
+                'hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex',
+              buttons: 'flex-1',
+            }}
+          />
         </div>
 
         {/* Sidebar */}
