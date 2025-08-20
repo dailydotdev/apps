@@ -405,10 +405,10 @@ export enum TargetId {
   SmartPrompt = 'smart prompt',
   Account = 'account',
   Brief = 'brief',
-  BriefPlacement = 'brief placement',
   NotificationSettings = 'notification settings',
   Feed = 'feed',
   CVWidget = 'cv widget',
+  Scroll = 'scroll',
 }
 
 export enum NotificationChannel {

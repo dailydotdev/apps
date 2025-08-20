@@ -32,7 +32,7 @@ export const BriefFeedBanner = (props: ComponentProps<'div'>) => {
     (eventName: LogEvent) => {
       logEvent({
         event_name: eventName,
-        target_id: TargetId.BriefPlacement,
+        target_id: TargetId.Scroll,
         extra: JSON.stringify({
           is_demo: !user?.isPlus,
           brief_date: new Date(),
