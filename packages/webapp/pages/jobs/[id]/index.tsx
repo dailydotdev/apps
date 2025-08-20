@@ -2,7 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useRef, useState, useEffect, useId } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   Typography,
@@ -466,14 +470,16 @@ const CVOverlay = ({ onDismiss }: { onDismiss: () => void }): ReactElement => (
 
 const ResponseButtons = ({
   className,
+  size = ButtonSize.Small,
 }: {
   className: { container?: string; buttons?: string };
+  size?: ButtonSize;
 }): ReactElement => {
   return (
     <div className={className?.container}>
       <Button
         className={className?.buttons}
-        size={ButtonSize.Small}
+        size={size}
         icon={<MiniCloseIcon />}
         variant={ButtonVariant.Subtle}
         tag="a"
@@ -483,7 +489,7 @@ const ResponseButtons = ({
       </Button>
       <Button
         className={className?.buttons}
-        size={ButtonSize.Small}
+        size={size}
         icon={<VIcon />}
         variant={ButtonVariant.Primary}
         tag="a"
@@ -500,6 +506,7 @@ const JobPage = (): ReactElement => {
   const {
     query: { cv_step: cvStep },
   } = useRouter();
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
@@ -526,6 +533,16 @@ const JobPage = (): ReactElement => {
     <>
       {showCVScreen && <CVOverlay onDismiss={() => setShowCVScreen(false)} />}
       {!hasCompleted && <JobPageIntro />}
+      {isMobile && (
+        <ResponseButtons
+          className={{
+            buttons: 'flex-1',
+            container:
+              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4',
+          }}
+          size={ButtonSize.Medium}
+        />
+      )}
       <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
         <div className="h-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
@@ -592,7 +609,7 @@ const JobPage = (): ReactElement => {
             </Typography>
 
             {/* Tags */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <Chip key={tag} className="!my-0 !text-text-tertiary">
                   {tag}
