@@ -17,10 +17,12 @@ import { briefButtonBg } from '../../../styles/custom';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useIsLightTheme } from '../../../hooks/utils';
 
 export const BriefFeedBanner = (props: ComponentProps<'div'>) => {
-  const router = useRouter();
   const { className, style, ...attrs } = props;
+  const router = useRouter();
+  const isLightMode = useIsLightTheme();
 
   const impressionRef = useRef(false);
   const { logEvent } = useLogContext();
@@ -52,8 +54,9 @@ export const BriefFeedBanner = (props: ComponentProps<'div'>) => {
   return (
     <div
       className={classNames(
-        'invert flex flex-col items-center gap-4  rounded-16 px-4 py-6 text-center',
+        'flex flex-col items-center gap-4  rounded-16 px-4 py-6 text-center',
         className,
+        { invert: !isLightMode },
       )}
       style={{
         background: briefButtonBg,
