@@ -133,7 +133,7 @@ const EmailNotificationsTab = (): ReactElement => {
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
-        <PersonalizedDigest channel="email" />
+        <PersonalizedDigest />
       </NotificationSection>
       {/* TODO: Will be added in phase 2 */}
       {/* <HorizontalSeparator className="mx-4" />
