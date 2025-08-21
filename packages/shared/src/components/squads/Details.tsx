@@ -13,7 +13,7 @@ import {
 import { TextField } from '../fields/TextField';
 import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
-import ImageInput, { useImageInput } from '../fields/ImageInput';
+import ImageInput from '../fields/ImageInput';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { formToJson } from '../../lib/form';
 import type { SquadForm } from '../../graphql/squads';
@@ -32,7 +32,8 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { Dropdown } from '../fields/Dropdown';
 import { Typography, TypographyType } from '../typography/Typography';
-import { ACCEPTED_TYPES } from '../../graphql/posts';
+import { ACCEPTED_TYPES, acceptedTypesList } from '../../graphql/posts';
+import { useFileInput } from '../../hooks/utils/useFileInput';
 
 const squadImageId = 'squad_image_file';
 const squadHeaderId = 'squad_header_file';
@@ -66,7 +67,7 @@ const getFormData = async (
   }
 
   if (headerChanged) {
-    const header = document.getElementById(squadImageId) as HTMLInputElement;
+    const header = document.getElementById(squadHeaderId) as HTMLInputElement;
     const headerFile = header.files[0];
     updated.header = headerFile;
   }
@@ -181,7 +182,8 @@ export function SquadDetails({
   };
 
   const [headerImageBase64, setHeaderImageBase64] = useState(headerImage);
-  const { onFileChange } = useImageInput({
+  const { onFileChange } = useFileInput({
+    acceptedTypes: acceptedTypesList,
     limitMb: 2,
     onChange(base64) {
       setHeaderImageBase64(base64);

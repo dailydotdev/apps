@@ -1,19 +1,14 @@
 import classNames from 'classnames';
 import type { ChangeEvent, DragEvent, ReactElement, ReactNode } from 'react';
 import React, { useRef, useState } from 'react';
-import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
 import { EditIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
-import {
-  MEGABYTE,
-  acceptedTypesList,
-  ACCEPTED_TYPES,
-} from '../../graphql/posts';
+import { ACCEPTED_TYPES, acceptedTypesList } from '../../graphql/posts';
 import { Button } from '../buttons/Button';
+import { useFileInput } from '../../hooks/utils/useFileInput';
 
 type Size = 'medium' | 'large' | 'cover';
 
@@ -52,37 +47,6 @@ const sizeToIconSize: Record<Size, IconSize> = {
   cover: IconSize.Small,
 };
 
-interface UseImageInputProps {
-  limitMb: number;
-  onChange: (base64: string, file: File) => void;
-}
-
-export const useImageInput = ({ limitMb, onChange }: UseImageInputProps) => {
-  const { displayToast, dismissToast } = useToastNotification();
-  const onFileChange = async (file: File) => {
-    if (!file) {
-      onChange(null, null);
-      return;
-    }
-
-    if (file.size > limitMb * MEGABYTE) {
-      displayToast(`Maximum image size is ${limitMb} MB`);
-      return;
-    }
-
-    if (!acceptedTypesList.includes(file.type)) {
-      displayToast(`File type is not allowed`);
-      return;
-    }
-
-    const base64 = await blobToBase64(file);
-    dismissToast();
-    onChange(base64, file);
-  };
-
-  return { onFileChange };
-};
-
 function ImageInput({
   initialValue,
   name = 'file',
@@ -106,7 +70,8 @@ function ImageInput({
     inputRef.current.click();
   };
 
-  const { onFileChange: handleFile } = useImageInput({
+  const { onFileChange: handleFile } = useFileInput({
+    acceptedTypes: acceptedTypesList,
     limitMb: fileSizeLimitMB,
     onChange(base64, file) {
       if (!base64) {
