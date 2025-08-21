@@ -1,19 +1,14 @@
 import classNames from 'classnames';
 import type { ChangeEvent, DragEvent, ReactElement, ReactNode } from 'react';
 import React, { useRef, useState } from 'react';
-import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
 import { EditIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
-import {
-  MEGABYTE,
-  acceptedTypesList,
-  ACCEPTED_TYPES,
-} from '../../graphql/posts';
+import { ACCEPTED_TYPES, acceptedTypesList } from '../../graphql/posts';
 import { Button } from '../buttons/Button';
+import { useFileInput } from '../../hooks/utils/useFileInput';
 
 type Size = 'medium' | 'large' | 'cover';
 
@@ -70,33 +65,23 @@ function ImageInput({
   uploadButton = false,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
-  const toast = useToastNotification();
   const [image, setImage] = useState(initialValue || fallbackImage);
   const onClick = () => {
     inputRef.current.click();
   };
 
-  const handleFile = async (file: File) => {
-    if (!file) {
-      onChange?.(null);
-      return;
-    }
+  const { onFileChange: handleFile } = useFileInput({
+    acceptedTypes: acceptedTypesList,
+    limitMb: fileSizeLimitMB,
+    onChange(base64, file) {
+      if (!base64) {
+        return onChange?.(null);
+      }
 
-    if (file.size > fileSizeLimitMB * MEGABYTE) {
-      toast.displayToast(`Maximum image size is ${fileSizeLimitMB} MB`);
-      return;
-    }
-
-    if (!acceptedTypesList.includes(file.type)) {
-      toast.displayToast(`File type is not allowed`);
-      return;
-    }
-
-    const base64 = await blobToBase64(file);
-    toast.dismissToast();
-    setImage(base64);
-    onChange?.(base64, file);
-  };
+      setImage(base64);
+      return onChange?.(base64, file);
+    },
+  });
 
   const onFileChange = (event: ChangeEvent) => {
     const input = event.target as HTMLInputElement;

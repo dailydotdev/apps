@@ -40,10 +40,12 @@ interface BaseSquadForm
 export interface SquadForm extends BaseSquadForm {
   status?: PrivacyOption;
   file?: File;
+  header?: File;
 }
 
 interface SharedSquadInput extends BaseSquadForm {
   image?: File;
+  headerImage?: File;
   isPrivate?: boolean;
 }
 
@@ -196,6 +198,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $headerImage: Upload
     $memberPostingRole: String
     $memberInviteRole: String
     $moderationRequired: Boolean
@@ -208,6 +211,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       handle: $handle
       description: $description
       image: $image
+      headerImage: $headerImage
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
       moderationRequired: $moderationRequired
@@ -528,6 +532,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   handle: form.handle,
   name: form.name,
   image: form.file,
+  headerImage: form.header,
   memberPostingRole: form.memberPostingRole,
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
