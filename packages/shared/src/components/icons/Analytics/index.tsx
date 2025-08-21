@@ -5,6 +5,6 @@ import Icon from '../../Icon';
 import FilledIcon from './filled.svg';
 import OutlinedIcon from './outlined.svg';
 
-export const ReputationIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconPrimary={FilledIcon} IconSecondary={OutlinedIcon} />
+export const AnalyticsIcon = (props: IconProps): ReactElement => (
+  <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );

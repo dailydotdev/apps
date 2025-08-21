@@ -160,7 +160,9 @@ export const PlusInfo = ({
     subtitle,
   });
 
-  const showBuyAsAGiftButton = !giftToUser && showGiftButton && !!giftOneYear;
+  const isOnboarding = router.pathname.startsWith('/onboarding');
+  const showBuyAsAGiftButton =
+    !giftToUser && showGiftButton && !!giftOneYear && !isOnboarding;
 
   return (
     <>

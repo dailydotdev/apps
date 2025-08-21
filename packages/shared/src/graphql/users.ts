@@ -419,8 +419,6 @@ export type UserPersonalizedDigest = {
   type?: UserPersonalizedDigestType;
   flags: {
     sendType?: SendType;
-    email?: boolean;
-    slack?: boolean;
   };
 };
 
@@ -429,8 +427,6 @@ export type UserPersonalizedDigestSubscribe = {
   hour?: number;
   type?: UserPersonalizedDigestType;
   sendType?: SendType;
-  email?: boolean;
-  slack?: boolean;
 };
 
 export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
@@ -441,8 +437,6 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
       type
       flags {
         sendType
-        email
-        slack
       }
     }
   }
@@ -471,24 +465,18 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
     $day: Int
     $type: DigestType
     $sendType: UserPersonalizedDigestSendType
-    $email: Boolean
-    $slack: Boolean
   ) {
     subscribePersonalizedDigest(
       hour: $hour
       day: $day
       type: $type
       sendType: $sendType
-      email: $email
-      slack: $slack
     ) {
       preferredDay
       preferredHour
       type
       flags {
         sendType
-        email
-        slack
       }
     }
   }

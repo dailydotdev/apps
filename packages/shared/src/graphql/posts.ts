@@ -19,6 +19,7 @@ import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
+import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -1011,3 +1012,100 @@ export const GENERATE_BRIEFING = gql`
 
 export const defautRefetchMs = 4000;
 export const briefRefetchIntervalMs = defautRefetchMs;
+
+export const POST_ANALYTICS_QUERY = gql`
+  query PostAnalytics($id: ID!) {
+    postAnalytics(id: $id) {
+      id
+      impressions
+      reach
+      bookmarks
+      profileViews
+      followers
+      squadJoins
+      reputation
+      coresEarned
+      upvotes
+      downvotes
+      comments
+      awards
+      upvotesRatio
+      shares
+    }
+  }
+`;
+
+export type PostAnalytics = {
+  id: string;
+  impressions: number;
+  reach: number;
+  bookmarks: number;
+  profileViews: number;
+  followers: number;
+  squadJoins: number;
+  reputation: number;
+  coresEarned: number;
+  upvotes: number;
+  downvotes: number;
+  comments: number;
+  awards: number;
+  upvotesRatio: number;
+  shares: number;
+};
+
+export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
+  return {
+    queryKey: [...getPostByIdKey(id), RequestKey.PostAnalytics],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        postAnalytics: PostAnalytics;
+      }>(POST_ANALYTICS_QUERY, { id });
+
+      return result.postAnalytics;
+    },
+    enabled: !!id,
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const postAnalyticsHistoryLimit = 45;
+
+export const POST_ANALYTICS_HISTORY_QUERY = gql`
+  query PostAnalyticsHistory($after: String, $first: Int, $id: ID!) {
+    postAnalyticsHistory(after: $after, first: $first, id: $id) {
+      edges {
+        cursor
+        node {
+          id
+          date
+          impressions
+        }
+      }
+    }
+  }
+`;
+
+export type PostAnalyticsHistory = Pick<PostAnalytics, 'id' | 'impressions'> & {
+  date: Date;
+};
+
+export const postAnalyticsHistoryQuery = ({
+  id,
+  first = postAnalyticsHistoryLimit,
+}: {
+  id?: string;
+  first?: number;
+}) => {
+  return {
+    queryKey: [...getPostByIdKey(id), RequestKey.PostAnalyticsHistory],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        postAnalyticsHistory: Connection<PostAnalyticsHistory>;
+      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id });
+
+      return result.postAnalyticsHistory;
+    },
+    enabled: !!id,
+    staleTime: StaleTime.Default,
+  };
+};
