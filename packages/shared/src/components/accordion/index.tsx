@@ -8,12 +8,16 @@ interface AccordionProps {
   title: ReactNode;
   children: ReactNode;
   onClick?: MouseEventHandler<HTMLButtonElement>;
+  className?: {
+    button?: string;
+  };
 }
 
 export function Accordion({
   title,
   children,
   onClick,
+  className,
 }: AccordionProps): ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const id = useId();
@@ -30,7 +34,10 @@ export function Accordion({
       <Button
         aria-controls={contentId}
         aria-expanded={isOpen}
-        className="flex w-full flex-row gap-4 !px-0 text-left"
+        className={classNames(
+          'flex w-full flex-row gap-4 !px-0 text-left',
+          className?.button,
+        )}
         type="button"
         onClick={handleClick}
       >

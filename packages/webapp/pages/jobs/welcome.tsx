@@ -255,9 +255,12 @@ const FAQSection = (): ReactElement => (
       {faq.map(({ title, description }) => (
         <div
           key={title}
-          className="rounded-10 bg-surface-float px-6 py-4 text-left"
+          className="rounded-10 bg-surface-float px-6 py-3 text-left"
         >
-          <Accordion title={<Typography>{title}</Typography>}>
+          <Accordion
+            title={<Typography>{title}</Typography>}
+            className={{ button: '!h-auto' }}
+          >
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
