@@ -46,6 +46,10 @@ export function PostShortInfo({
       return `${webappUrl}posts/${post.slug || post.id}`;
     }
 
+    if (post.sharedPost?.type === PostType.Share) {
+      return `${webappUrl}posts/${post.sharedPost.id}`;
+    }
+
     return postObject.permalink;
   }, [post]);
 
@@ -56,7 +60,7 @@ export function PostShortInfo({
   const { author, createdAt, title, image, sharedPost } = post;
 
   const postTitle = title || sharedPost?.title;
-  const postImage = image || sharedPost?.image;
+  const postImage = sharedPost?.image || image;
 
   return (
     <div className={classNames('flex items-center gap-2', className)}>
