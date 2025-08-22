@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DateFormat } from '../../utilities';
@@ -12,6 +13,7 @@ import { OpenLinkIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
+import { webappUrl } from '../../../lib/constants';
 
 interface PostShortInfoProps {
   post: Post;
@@ -26,11 +28,35 @@ export function PostShortInfo({
   showImage = true,
   showLinkIcon = true,
 }: PostShortInfoProps): ReactElement {
+  const postLink = useMemo(() => {
+    if (!post) {
+      return undefined;
+    }
+
+    const postObject = post.sharedPost || post;
+
+    if (
+      [
+        PostType.Collection,
+        PostType.Brief,
+        PostType.Freeform,
+        PostType.Welcome,
+      ].includes(post.type)
+    ) {
+      return `${webappUrl}posts/${post.slug || post.id}`;
+    }
+
+    return postObject.permalink;
+  }, [post]);
+
   if (!post) {
     return null;
   }
 
-  const { author, createdAt, title, image, permalink } = post;
+  const { author, createdAt, title, image, sharedPost } = post;
+
+  const postTitle = title || sharedPost?.title;
+  const postImage = image || sharedPost?.image;
 
   return (
     <div className={classNames('flex items-center gap-2', className)}>
@@ -50,9 +76,9 @@ export function PostShortInfo({
             </Typography>
           </div>
         )}
-        {title && (
+        {postTitle && (
           <Typography type={TypographyType.Body} bold truncate>
-            {title}
+            {postTitle}
           </Typography>
         )}
         <div className="flex items-center gap-2">
@@ -64,7 +90,7 @@ export function PostShortInfo({
               className="text-text-tertiary typo-footnote"
             />
           )}
-          {showLinkIcon && permalink && (
+          {showLinkIcon && postLink && (
             <Button
               icon={<OpenLinkIcon />}
               variant={ButtonVariant.Tertiary}
@@ -72,16 +98,16 @@ export function PostShortInfo({
               tag="a"
               target="_blank"
               rel="noopener noreferrer"
-              href={permalink}
+              href={postLink}
               size={ButtonSize.XSmall}
             />
           )}
         </div>
       </div>
-      {showImage && image && (
+      {showImage && postImage && (
         <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-8">
           <LazyImage
-            imgSrc={image}
+            imgSrc={postImage}
             imgAlt="Post cover image"
             ratio="75%"
             fallbackSrc={cloudinaryPostImageCoverPlaceholder}

@@ -63,6 +63,7 @@ import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressB
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -160,6 +161,8 @@ const PostAnalyticsPage = ({
   id,
   initialData,
 }: PostAnalyticsPageProps): ReactElement => {
+  const router = useRouter();
+
   const { post } = usePostById({
     id,
     options: {
@@ -184,6 +187,8 @@ const PostAnalyticsPage = ({
       icon: <CoreFlatIcon />,
       label: 'Cores earned',
       value: postAnalytics?.coresEarned ?? 0,
+      tooltip:
+        'The number of cores you received from this post, including any awards given by other users.',
     },
     {
       icon: <UserIcon />,
@@ -213,7 +218,7 @@ const PostAnalyticsPage = ({
       icon: <MergeIcon />,
       label: 'Upvotes ratio',
       value: `${postAnalytics?.upvotesRatio ?? 0}%`,
-      tooltip: 'The ratio of upvotes to downvotes for this post.',
+      tooltip: 'The percentage of upvotes out of total votes.',
     },
     {
       icon: <DiscussIcon />,
@@ -247,6 +252,13 @@ const PostAnalyticsPage = ({
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
+          onClick={() => {
+            router.push(
+              `${webappUrl}posts/${
+                router?.query?.id === post.slug ? post.slug : post.id
+              }`,
+            );
+          }}
         />
         <Typography
           type={TypographyType.Title3}
@@ -269,7 +281,7 @@ const PostAnalyticsPage = ({
             <DataTile
               label="Total impressions"
               value={postAnalytics?.impressions ?? 0}
-              info="TODO post-analytics: Put the right info here"
+              info="The number of times your post appeared in front of developers across the platform."
               className={{
                 container: 'flex-1',
               }}
@@ -290,7 +302,7 @@ const PostAnalyticsPage = ({
             <DataTile
               label="Unique reach"
               value={postAnalytics?.reach ?? 0}
-              info="TODO post-analytics: Put the right info here"
+              info="The number of distinct developers that saw your post. This number is an estimate and does not include repeat displays."
               className={{
                 container: 'flex-1',
               }}
