@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState, useEffect, useId } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import {
@@ -414,7 +414,11 @@ const CVOverlay = ({ onDismiss }: { onDismiss: () => void }): ReactElement => (
         >
           We never want to waste your time. Ever.
         </Typography>
-        <Typography type={TypographyType.Title3} center>
+        <Typography
+          type={TypographyType.Title3}
+          center
+          color={TypographyColor.Secondary}
+        >
           Upload your CV so we know what really matters to you and every role we
           surface, now or later, is worth your time.{' '}
         </Typography>
