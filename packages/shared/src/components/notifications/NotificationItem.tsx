@@ -204,7 +204,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         .filter((avatar) => avatar) ?? []
     );
   const hasAvatar = filteredAvatars.length > 0;
-  console.log('**** created at', createdAt);
+
   return (
     <div
       className={classNames(
