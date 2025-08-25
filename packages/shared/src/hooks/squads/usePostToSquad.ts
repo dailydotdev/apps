@@ -107,8 +107,9 @@ export const usePostToSquad = ({
     useMutation({
       mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
       onSuccess: (data, url) => {
-        setPreview({ ...data, finalUrl: data.url, url });
-        onExternalLinkSuccess?.(data, url);
+        const newPreview = { ...data, finalUrl: data.url, url };
+        setPreview(newPreview);
+        onExternalLinkSuccess?.(newPreview, url);
       },
       onError: (err: ApiErrorResult) => {
         const rateLimited = getApiError(err, ApiError.RateLimited);
@@ -252,7 +253,8 @@ export const usePostToSquad = ({
             });
       }
 
-      const { title, image, finalUrl: url } = preview;
+      const { title, image } = preview;
+      const url = preview.finalUrl ?? preview.url;
 
       if (!title) {
         displayToast('Invalid link');
