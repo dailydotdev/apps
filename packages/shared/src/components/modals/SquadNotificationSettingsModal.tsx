@@ -86,7 +86,7 @@ const SquadNotificationSettingsModal = ({
       <Modal.Header>
         <Modal.Title>Squad notifications</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="gap-5 overflow-hidden">
+      <Modal.Body className="gap-5 overflow-x-hidden">
         <div className="flex flex-row justify-between gap-4">
           <div className="flex flex-1 flex-col gap-1">
             <Typography type={TypographyType.Body} bold>
