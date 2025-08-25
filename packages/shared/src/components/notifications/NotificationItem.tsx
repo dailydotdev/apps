@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { formatDistance } from 'date-fns';
 import Link from '../utilities/Link';
 import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
@@ -28,6 +29,11 @@ import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+} from '../typography/Typography';
 
 export interface NotificationItemProps
   extends Pick<
@@ -40,6 +46,7 @@ export interface NotificationItemProps
     | 'attachments'
     | 'numTotalAvatars'
     | 'referenceId'
+    | 'createdAt'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -152,6 +159,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     targetUrl,
     numTotalAvatars,
     referenceId,
+    createdAt,
   } = props;
 
   const {
@@ -196,7 +204,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         .filter((avatar) => avatar) ?? []
     );
   const hasAvatar = filteredAvatars.length > 0;
-
+  console.log('**** created at', createdAt);
   return (
     <div
       className={classNames(
@@ -237,12 +245,24 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         {hasAvatar && (
           <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
-        <span
-          className="break-words"
-          dangerouslySetInnerHTML={{
-            __html: memoizedTitle,
-          }}
-        />
+        <div className="flex flex-row flex-wrap">
+          <span
+            className={classNames('break-words', createdAt && 'mr-1')}
+            dangerouslySetInnerHTML={{
+              __html: memoizedTitle,
+            }}
+          />
+          {createdAt && (
+            <Typography
+              tag={TypographyTag.Span}
+              color={TypographyColor.Quaternary}
+            >
+              {formatDistance(new Date(createdAt), new Date(), {
+                addSuffix: true,
+              })}
+            </Typography>
+          )}
+        </div>
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-text-quaternary"
