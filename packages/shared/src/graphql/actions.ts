@@ -46,6 +46,7 @@ export enum ActionType {
   GeneratedBrief = 'generated_brief',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
+  ViewJob = 'view_job',
 }
 
 export const cvActions = [
