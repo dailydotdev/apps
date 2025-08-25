@@ -82,6 +82,7 @@ export enum NotificationType {
   Marketing = 'marketing',
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
+  InAppPurchases = 'in_app_purchases',
 }
 
 export enum NotificationIconType {
@@ -422,6 +423,37 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
   },
 ];
 
+export const DAILY_DEV_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.NewUserWelcome,
+    label: 'New user welcome',
+    description:
+      'Get helpful tips and guidance as you get started with daily.dev.',
+    group: false,
+  },
+  {
+    id: NotificationType.Announcements,
+    label: 'Major announcements',
+    description:
+      'Get notified about big product changes, launches, and important company news from daily.dev.',
+    group: false,
+  },
+  {
+    id: NotificationType.Marketing,
+    label: 'Community & Marketing',
+    description:
+      'Get emails about product news, events, giveaways, and highlights from the daily.dev community.',
+    group: false,
+  },
+];
+
+export const BILLING_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.InAppPurchases,
+    label: 'In-app purchases',
+    group: false,
+  },
+];
 export const isMutingDigestCompletely = (
   ns: NotificationSettings,
   currentChannel: NotificationChannel,

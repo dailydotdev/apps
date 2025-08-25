@@ -9,6 +9,7 @@ import { IconSize } from '../Icon';
 import type { AnalyticsNumberList } from './common';
 import { Tooltip } from '../tooltip/Tooltip';
 import { InfoIcon } from '../icons';
+import { largeNumberFormat } from '../../lib';
 
 export const AnalyticsNumbersList = ({
   data,
@@ -26,7 +27,7 @@ export const AnalyticsNumbersList = ({
             })}
             <Typography
               type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
+              color={TypographyColor.Secondary}
             >
               {label}
             </Typography>
@@ -46,7 +47,7 @@ export const AnalyticsNumbersList = ({
               bold
               className="ml-auto"
             >
-              {value}
+              {typeof value === 'number' ? largeNumberFormat(value) : value}
             </Typography>
           </li>
         );
