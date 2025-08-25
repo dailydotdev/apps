@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
@@ -48,6 +48,7 @@ import {
   postAnalyticsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { canViewPostAnalytics } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
@@ -65,6 +66,7 @@ import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useShowBoostButton } from '@dailydotdev/shared/src/features/boost/useShowBoostButton';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -165,6 +167,7 @@ const PostAnalyticsPage = ({
   initialData,
 }: PostAnalyticsPageProps): ReactElement => {
   const router = useRouter();
+  const { user, isAuthReady } = useAuthContext();
 
   const { post } = usePostById({
     id,
@@ -174,9 +177,10 @@ const PostAnalyticsPage = ({
     },
   });
 
-  const { data: postAnalytics } = useQuery(
-    postAnalyticsQueryOptions({ id: post?.id }),
-  );
+  const { data: postAnalytics } = useQuery({
+    ...postAnalyticsQueryOptions({ id: post?.id }),
+    enabled: canViewPostAnalytics({ post, user }),
+  });
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;
@@ -249,6 +253,28 @@ const PostAnalyticsPage = ({
     },
   ];
 
+  const postLink = `${webappUrl}posts/${
+    router?.query?.id === post.slug ? post.slug : post.id
+  }`;
+
+  useEffect(() => {
+    if (!isAuthReady) {
+      return;
+    }
+
+    if (!post) {
+      return;
+    }
+
+    if (user?.isTeamMember) {
+      return;
+    }
+
+    if (!canViewPostAnalytics({ user, post })) {
+      router.replace(postLink);
+    }
+  }, [isAuthReady, post, postLink, router, user]);
+
   return (
     <div className="mx-auto w-full max-w-[48rem]">
       <LayoutHeader
@@ -259,11 +285,7 @@ const PostAnalyticsPage = ({
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={() => {
-            router.push(
-              `${webappUrl}posts/${
-                router?.query?.id === post.slug ? post.slug : post.id
-              }`,
-            );
+            router.push(postLink);
           }}
         />
         <Typography
