@@ -71,6 +71,7 @@ export enum LazyModal {
   ListAwards = 'listAwards',
   AdsDashboard = 'adsDashboard',
   BoostPost = 'boostPost',
+  BoostSquad = 'boostSquad',
   BoostedPostView = 'boostedPostView',
   FetchBoostedPostView = 'fetchBoostedPostView',
   OrganizationInviteMember = 'organizationInviteMember',

@@ -1,29 +1,29 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BoostStatus } from '../../../../features/boost/CampaignListItem';
+import { BoostStatus } from './CampaignListItem';
+import { CampaignListView, CampaignStatsGrid } from './CampaignListView';
+import type { ModalProps } from '../../components/modals/common/Modal';
+import { Modal } from '../../components/modals/common/Modal';
+import type { Campaign } from '../../graphql/campaigns';
+import { getCampaignById } from '../../graphql/campaigns';
+import { useCampaignMutation } from './useCampaignMutation';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import type { PromptOptions } from '../../hooks/usePrompt';
+import { usePrompt } from '../../hooks/usePrompt';
 import {
-  CampaignListView,
-  CampaignStatsGrid,
-} from '../../../../features/boost/CampaignListView';
-import type { ModalProps } from '../../common/Modal';
-import { Modal } from '../../common/Modal';
-import type { BoostedPostData } from '../../../../graphql/post/boost';
-import { getBoostedPostByCampaignId } from '../../../../graphql/post/boost';
-import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
-import type { Post } from '../../../../graphql/posts';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
-import { useAuthContext } from '../../../../contexts/AuthContext';
-import type { PromptOptions } from '../../../../hooks/usePrompt';
-import { usePrompt } from '../../../../hooks/usePrompt';
-import { Button, ButtonColor, ButtonVariant } from '../../../buttons/Button';
-import { ArrowIcon } from '../../../icons';
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { ArrowIcon } from '../../components/icons';
 
-interface BoostedPostViewModalProps extends ModalProps {
-  data: BoostedPostData;
+interface BoostedViewModalProps extends ModalProps {
+  campaign: Campaign;
   isLoading?: boolean;
   onBack?: () => void;
-  onBoostAgain?: (id: Post['id']) => void;
+  onBoostAgain?: (props: Campaign) => void;
 }
 
 const promptOptions: PromptOptions = {
@@ -44,28 +44,28 @@ const promptOptions: PromptOptions = {
   },
 };
 
-export function BoostedPostViewModal({
-  data,
+export function BoostedViewModal({
+  campaign,
   isLoading,
   onBoostAgain,
   onBack,
   ...props
-}: BoostedPostViewModalProps): ReactElement {
+}: BoostedViewModalProps): ReactElement {
   const { showPrompt } = usePrompt();
-  const { onCancelBoost, isLoadingCancel } = usePostBoostMutation({
+  const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
     onCancelSuccess: onBack || (() => props.onRequestClose(null)),
   });
 
   const handleBoostClick = async () => {
-    if (data.campaign.status === 'ACTIVE') {
+    if (campaign.state === 'ACTIVE') {
       if (!(await showPrompt(promptOptions))) {
         return null;
       }
 
-      return onCancelBoost(data.post.id);
+      return onCancelBoost(campaign.referenceId);
     }
 
-    return onBoostAgain(data.post.id);
+    return onBoostAgain(campaign);
   };
 
   return (
@@ -89,10 +89,10 @@ export function BoostedPostViewModal({
       <Modal.Body className="flex flex-col gap-4">
         <span className="flex flex-row items-center justify-between">
           <Modal.Subtitle>Overview</Modal.Subtitle>
-          <BoostStatus status={data.campaign.status} />
+          <BoostStatus status={campaign.state} />
         </span>
         <CampaignListView
-          data={data}
+          campaign={campaign}
           isLoading={isLoading || isLoadingCancel}
           onBoostClick={handleBoostClick}
         />
@@ -104,13 +104,13 @@ export function BoostedPostViewModal({
 export function FetchBoostedViewModal({
   campaignId,
   ...props
-}: Omit<BoostedPostViewModalProps, 'data'> & {
+}: Omit<BoostedViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.PostCampaigns, user, campaignId),
-    queryFn: () => getBoostedPostByCampaignId(campaignId),
+    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
+    queryFn: () => getCampaignById(campaignId),
     staleTime: StaleTime.Default,
     enabled: !!campaignId && !!user,
   });
@@ -153,5 +153,5 @@ export function FetchBoostedViewModal({
     );
   }
 
-  return <BoostedPostViewModal {...props} data={data} />;
+  return <BoostedViewModal {...props} campaign={data} />;
 }
