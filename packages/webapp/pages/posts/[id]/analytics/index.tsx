@@ -64,6 +64,7 @@ import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useShowBoostButton } from '@dailydotdev/shared/src/features/boost/useShowBoostButton';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -101,7 +102,9 @@ export const getServerSideProps: GetServerSideProps<
     const post = initialData.post as Post;
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-      title: getTemplatedTitle(seoTitle(post)),
+      title: getTemplatedTitle(
+        [seoTitle(post), 'Analytics'].filter(Boolean).join(' | '),
+      ),
       description: getSeoDescription(post),
       openGraph: {
         images: [
@@ -174,6 +177,9 @@ const PostAnalyticsPage = ({
   const { data: postAnalytics } = useQuery(
     postAnalyticsQueryOptions({ id: post?.id }),
   );
+
+  const canBoost = useShowBoostButton({ post });
+  const isBoosting = !!post?.flags?.campaignId;
 
   const profileActivityList: AnalyticsNumberList = [
     {
@@ -268,7 +274,14 @@ const PostAnalyticsPage = ({
         >
           Analytics
         </Typography>
-        <BoostPostButton post={post} buttonProps={{ size: ButtonSize.Small }} />
+        <BoostPostButton
+          post={post}
+          buttonProps={{
+            className: isBoosting && 'typo-footnote',
+            size: isBoosting ? ButtonSize.XSmall : ButtonSize.Small,
+          }}
+          isActive={isBoosting}
+        />
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
@@ -317,36 +330,46 @@ const PostAnalyticsPage = ({
                 <div className="size-2 rounded-full bg-brand-default" />{' '}
                 <Typography type={TypographyType.Footnote}>Organic</Typography>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Boosted</Typography>
-              </div>
+              {/* TODO post-analytics enable boosting data */}
+              {false && (
+                <div className="flex items-center gap-1">
+                  <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
+                  <Typography type={TypographyType.Footnote}>
+                    Boosted
+                  </Typography>
+                </div>
+              )}
             </div>
           </div>
           <ImpressionsChart post={post} />
         </SectionContainer>
         <Divider className={dividerClassName} />
-        <SectionContainer>
-          <SectionHeader>Boost your post</SectionHeader>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Give your content the spotlight it deserves. Our auto-targeting
-            engine gets your post in front of developers most likely to care.
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Boost}
-          >
-            Reach up to 100k more developers now
-          </Typography>
-          <BoostPostButton
-            post={post}
-            buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
-          />
-        </SectionContainer>
-        <Divider className={dividerClassName} />
+        {canBoost && (
+          <>
+            <SectionContainer>
+              <SectionHeader>Boost your post</SectionHeader>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Give your content the spotlight it deserves. Our auto-targeting
+                engine gets your post in front of developers most likely to
+                care.
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Boost}
+              >
+                Reach up to 100k more developers now
+              </Typography>
+              <BoostPostButton
+                post={post}
+                buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
+              />
+            </SectionContainer>
+            <Divider className={dividerClassName} />
+          </>
+        )}
         {/* TODO post-analytics enable boosting data */}
         {false && (
           <SectionContainer>
