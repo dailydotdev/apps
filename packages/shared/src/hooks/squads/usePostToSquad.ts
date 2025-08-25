@@ -107,7 +107,7 @@ export const usePostToSquad = ({
     useMutation({
       mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
       onSuccess: (data, url) => {
-        setPreview({ ...data, url });
+        setPreview({ ...data, finalUrl: data.url, url });
         onExternalLinkSuccess?.(data, url);
       },
       onError: (err: ApiErrorResult) => {
@@ -252,7 +252,7 @@ export const usePostToSquad = ({
             });
       }
 
-      const { title, image, url } = preview;
+      const { title, image, finalUrl: url } = preview;
 
       if (!title) {
         displayToast('Invalid link');
