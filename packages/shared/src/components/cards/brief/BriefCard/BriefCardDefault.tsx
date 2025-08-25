@@ -16,14 +16,15 @@ import type { BriefCardProps } from './BriefCard';
 import { BriefGradientIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import type { ApiError, ApiErrorResult } from '../../../../graphql/common';
-import { gqlClient } from '../../../../graphql/common';
-import type { Post } from '../../../../graphql/posts';
-import { BriefingType, GENERATE_BRIEFING } from '../../../../graphql/posts';
+import {
+  BriefingType,
+  getGenerateBriefingMutationOptions,
+} from '../../../../graphql/posts';
 import { useBriefCardContext } from './BriefCardContext';
+import { useToastNotification } from '../../../../hooks';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useToastNotification } from '../../../../hooks';
+import type { ApiError, ApiErrorResult } from '../../../../graphql/common';
 
 export type BriefCardDefaultProps = BriefCardProps;
 
@@ -37,24 +38,15 @@ export const BriefCardDefault = ({
   title,
   children,
 }: BriefCardDefaultProps): ReactElement => {
-  const { displayToast } = useToastNotification();
-  const queryClient = useQueryClient();
   const briefCardContext = useBriefCardContext();
+  const { displayToast } = useToastNotification();
+
+  const queryClient = useQueryClient();
   const { user } = useAuthContext();
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: async () => {
-      const result = await gqlClient.request<{
-        generateBriefing: Pick<Post, 'id'>;
-      }>(GENERATE_BRIEFING, {
-        type: BriefingType.Daily,
-      });
-
-      return result.generateBriefing;
-    },
-    onSuccess: (data) => {
+  const { mutateAsync: generateBrief, isPending: isGenerating } = useMutation({
+    ...getGenerateBriefingMutationOptions(),
+    onSuccess: async (data) => {
       briefCardContext.setBrief({ id: data.id, createdAt: new Date() });
-
       queryClient.removeQueries({
         queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
       });
@@ -80,7 +72,6 @@ export const BriefCardDefault = ({
               ? new Date()
               : createdAt,
         });
-
         return;
       }
 
@@ -117,9 +108,9 @@ export const BriefCardDefault = ({
         type="button"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
-        loading={isPending}
+        loading={isGenerating}
         onClick={() => {
-          mutate();
+          generateBrief({ type: BriefingType.Daily });
         }}
       >
         Deploy the agent
