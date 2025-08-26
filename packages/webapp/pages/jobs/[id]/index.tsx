@@ -27,12 +27,12 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ArrowIcon,
   CrunchbaseIcon,
   GitHubIcon,
   LinkedInIcon,
   MagicIcon,
   MiniCloseIcon,
+  MoveToIcon,
   OpenLinkIcon,
   ShieldPlusIcon,
   TwitterIcon,
@@ -876,21 +876,21 @@ const JobPage = (): ReactElement => {
             <Button
               aria-controls={contentId}
               aria-expanded={showMore}
-              className="flex min-h-14 w-full flex-row !justify-center gap-4 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4"
+              className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
               type="button"
               onClick={() => setShowMore((prev) => !prev)}
             >
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Primary}
-                className="flex-1 text-left"
               >
                 {showMore ? 'See less' : 'See more'}
               </Typography>
 
-              <ArrowIcon
+              <MoveToIcon
                 className={classNames('transition-transform ease-in-out', {
-                  'rotate-180': !showMore,
+                  'rotate-90': !showMore,
+                  '-rotate-90': showMore,
                 })}
               />
             </Button>
