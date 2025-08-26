@@ -169,7 +169,7 @@ const PostAnalyticsPage = ({
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
 
-  const { post } = usePostById({
+  const { post, isLoading } = usePostById({
     id,
     options: {
       initialData,
@@ -198,7 +198,7 @@ const PostAnalyticsPage = ({
       label: 'Cores earned',
       value: postAnalytics?.coresEarned ?? 0,
       tooltip:
-        'The number of cores you received from this post, including any awards given by other users.',
+        'The number of Cores you received from this post, including any awards given by other users.',
     },
     {
       icon: <UserIcon />,
@@ -253,16 +253,18 @@ const PostAnalyticsPage = ({
     },
   ];
 
-  const postLink = `${webappUrl}posts/${
-    router?.query?.id === post.slug ? post.slug : post.id
-  }`;
+  const postLink = post
+    ? `${webappUrl}posts/${
+        router?.query?.id === post.slug ? post.slug : post.id
+      }`
+    : webappUrl;
 
   useEffect(() => {
     if (!isAuthReady) {
       return;
     }
 
-    if (!post) {
+    if (isLoading) {
       return;
     }
 
@@ -273,7 +275,7 @@ const PostAnalyticsPage = ({
     if (!canViewPostAnalytics({ user, post })) {
       router.replace(postLink);
     }
-  }, [isAuthReady, post, postLink, router, user]);
+  }, [isLoading, isAuthReady, post, postLink, router, user]);
 
   return (
     <div className="mx-auto w-full max-w-[48rem]">
