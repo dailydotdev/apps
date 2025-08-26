@@ -294,7 +294,7 @@ const PostAnalyticsPage = ({
           color={TypographyColor.Primary}
           className="flex-1"
         >
-          Analytics
+          Post analytics
         </Typography>
         <BoostPostButton
           post={post}
