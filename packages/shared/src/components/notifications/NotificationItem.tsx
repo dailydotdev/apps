@@ -257,6 +257,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           />
           {createdAt && (
             <Typography
+              className="uppercase"
               tag={TypographyTag.Span}
               color={TypographyColor.Quaternary}
             >
