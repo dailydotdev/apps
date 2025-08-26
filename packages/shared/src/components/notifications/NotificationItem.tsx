@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { formatDistance } from 'date-fns';
 import Link from '../utilities/Link';
 import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
@@ -29,11 +28,9 @@ import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-} from '../typography/Typography';
+
+import { DateFormat } from '../utilities';
+import { TimeFormatType } from '../../lib/dateFormat';
 
 export interface NotificationItemProps
   extends Pick<
@@ -245,7 +242,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         {hasAvatar && (
           <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
-        <div className="flex flex-row flex-wrap">
+        <div className="flex flex-row flex-wrap items-center">
           <span
             className={classNames(
               'max-w-full break-words',
@@ -256,15 +253,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
             }}
           />
           {createdAt && (
-            <Typography
-              className="uppercase"
-              tag={TypographyTag.Span}
-              color={TypographyColor.Quaternary}
-            >
-              {formatDistance(new Date(createdAt), new Date(), {
-                addSuffix: true,
-              })}
-            </Typography>
+            <DateFormat
+              className="text-text-quaternary"
+              date={createdAt}
+              type={TimeFormatType.LastActivity}
+            />
           )}
         </div>
         {description && (
