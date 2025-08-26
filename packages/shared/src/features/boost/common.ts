@@ -5,6 +5,7 @@ export const boostDashboardInfo = {
     'The total number of times your boosted posts were shown to users',
   users: 'The total number of unique users that has seen your boosted post',
   spend: 'The total number of cores spent so far',
+  members: 'The total number of new members that has joined the Squad',
 };
 
 export const CampaignListViewContainer = classed(

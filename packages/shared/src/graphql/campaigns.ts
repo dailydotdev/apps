@@ -165,8 +165,8 @@ export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
 `;
 
 export enum CampaignType {
-  Post = 'post',
-  Source = 'source',
+  Post = 'POST',
+  Source = 'SOURCE',
 }
 
 export interface StartCampaignProps {
@@ -247,7 +247,7 @@ export const STOP_CAMPAIGN = gql`
 
 export const stopCampaign = async (id: string): Promise<TransactionCreated> => {
   const result = await gqlClient.request(STOP_CAMPAIGN, {
-    postId: id,
+    campaignId: id,
   });
 
   return result.stopCampaign;

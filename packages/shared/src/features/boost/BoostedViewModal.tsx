@@ -59,7 +59,7 @@ export function BoostedViewModal({
         return null;
       }
 
-      return onCancelBoost(campaign.referenceId);
+      return onCancelBoost(campaign.id);
     }
 
     return onBoostAgain(campaign);

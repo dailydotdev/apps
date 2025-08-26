@@ -37,6 +37,7 @@ interface CampaignStatsGridProps {
   impressions: number;
   users: number;
   spend: number;
+  members?: number;
   className?: string;
 }
 
@@ -44,6 +45,7 @@ export const CampaignStatsGrid = ({
   className,
   spend,
   users,
+  members,
   impressions,
 }: CampaignStatsGridProps) => (
   <div className={classNames('grid grid-cols-2 gap-4', className)}>
@@ -59,6 +61,13 @@ export const CampaignStatsGrid = ({
       info={boostDashboardInfo.impressions}
     />
     <DataTile label="Users" value={users} info={boostDashboardInfo.users} />
+    {members && (
+      <DataTile
+        label="New members"
+        value={members}
+        info={boostDashboardInfo.members}
+      />
+    )}
   </div>
 );
 
@@ -129,8 +138,8 @@ export function CampaignListView({
               type={TypographyType.Subhead}
               color={TypographyColor.Secondary}
             >
-              Ends in {date.endsIn}{' '}
-              {date.endsIn === 1 ? 'less than a day' : 'days'}
+              Ends in
+              {date.endsIn === 1 ? ' less than a day' : `${date.endsIn} days`}
             </Typography>
           )}
         </span>
