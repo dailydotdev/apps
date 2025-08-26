@@ -32,7 +32,11 @@ export const AnalyticsNumbersList = ({
               {label}
             </Typography>
             {tooltip && (
-              <Tooltip content={tooltip} className="max-w-40 text-center">
+              <Tooltip
+                content={tooltip}
+                className="max-w-40 text-center"
+                enableMobileClick
+              >
                 <div>
                   <InfoIcon
                     className="text-text-disabled"
