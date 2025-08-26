@@ -14,6 +14,7 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
 import { webappUrl } from '../../../lib/constants';
+import { BoostPostButton } from '../../../features/boost/BoostPostButton';
 
 interface PostShortInfoProps {
   post: Post;
@@ -61,6 +62,7 @@ export function PostShortInfo({
 
   const postTitle = title || sharedPost?.title;
   const postImage = sharedPost?.image || image;
+  const isBoosting = !!post.flags?.campaignId;
 
   return (
     <div className={classNames('flex items-center gap-2', className)}>
@@ -86,6 +88,16 @@ export function PostShortInfo({
           </Typography>
         )}
         <div className="flex items-center gap-2">
+          {isBoosting && (
+            <BoostPostButton
+              post={post}
+              buttonProps={{
+                className: 'typo-footnote',
+                size: ButtonSize.XSmall,
+              }}
+              isActive
+            />
+          )}
           {createdAt && (
             <DateFormat
               prefix="Published "
