@@ -695,7 +695,10 @@ const JobPage = (): ReactElement => {
               key={faqItem.key}
               className="border-t border-border-subtlest-tertiary px-8"
             >
-              <Accordion title={<Typography>{faqItem.title}</Typography>}>
+              <Accordion
+                className={{ button: 'min-h-12' }}
+                title={<Typography>{faqItem.title}</Typography>}
+              >
                 <div className="pb-4">{faqItem.content}</div>
               </Accordion>
             </div>
