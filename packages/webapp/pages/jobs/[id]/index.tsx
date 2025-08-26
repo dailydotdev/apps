@@ -51,6 +51,7 @@ import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
+import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -429,6 +430,14 @@ const CVOverlay = ({ onDismiss }: { onDismiss: () => void }): ReactElement => (
           className={classNames('w-full')}
           validation={fileValidation}
           onFilesDrop={() => {}}
+          uploadIcon={
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<UploadIcon />}
+              className="cursor-default text-text-primary"
+            />
+          }
         />
         <FeelingLazy />
       </div>
