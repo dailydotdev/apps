@@ -46,10 +46,10 @@ export interface NotificationItemProps
     | 'attachments'
     | 'numTotalAvatars'
     | 'referenceId'
-    | 'createdAt'
   > {
   isUnread?: boolean;
   targetUrl: string;
+  createdAt?: Date;
   onClick?: (
     e:
       | React.MouseEvent<HTMLAnchorElement>
