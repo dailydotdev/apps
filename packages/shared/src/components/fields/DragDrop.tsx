@@ -13,7 +13,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { ChecklistAIcon, DocsIcon } from '../icons';
+import { ChecklistAIcon, ClearIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
@@ -67,6 +67,7 @@ export interface DragDropProps {
   ctaLabelDesktop?: string;
   ctaLabelMobile?: string;
   uploadIcon?: ReactNode;
+  showRemove?: boolean;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -95,9 +96,17 @@ interface ItemProps {
   state: MutationStatus;
   uploadAt?: Date;
   className?: string;
+  showRemove?: boolean;
+  onRemove?: () => void;
 }
 
-const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
+const LargeItem = ({
+  name,
+  state,
+  uploadAt,
+  showRemove,
+  onRemove,
+}: ItemProps) => (
   <div className="flex w-full items-center gap-1">
     <DocsIcon secondary size={IconSize.Size48} />
     <div className="flex min-w-0 flex-1 flex-col">
@@ -116,10 +125,24 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
       )}
     </div>
     {getIcon(state)}
+    {showRemove && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={onRemove}
+        icon={<ClearIcon />}
+      />
+    )}
   </div>
 );
 
-const CompactItem = ({ name, state, className }: ItemProps) => (
+const CompactItem = ({
+  name,
+  state,
+  className,
+  showRemove,
+  onRemove,
+}: ItemProps) => (
   <div className={classNames('flex w-full items-center gap-1', className)}>
     <DocsIcon secondary />
     <div className="min-w-0 flex-1 text-left">
@@ -128,6 +151,14 @@ const CompactItem = ({ name, state, className }: ItemProps) => (
       </Typography>
     </div>
     {getIcon(state)}
+    {showRemove && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={onRemove}
+        icon={<ClearIcon />}
+      />
+    )}
   </div>
 );
 
@@ -150,6 +181,7 @@ export function DragDrop({
   ctaLabelDesktop = 'Upload PDF',
   ctaLabelMobile = 'Upload PDF',
   uploadIcon,
+  showRemove,
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
@@ -312,6 +344,15 @@ export function DragDrop({
     }, 0);
   };
 
+  const removeFile = (name: string) => {
+    const newFilenames = filenames.filter((file) => file !== name);
+    setFilenames(newFilenames);
+    // Call callback with empty array to indicate removal
+    if (newFilenames.length === 0) {
+      onFilesDrop([], []);
+    }
+  };
+
   const input = (
     <input
       type="file"
@@ -412,7 +453,13 @@ export function DragDrop({
         {shouldShowContent
           ? defaultContent
           : filenames?.map((name) => (
-              <ListItem key={name} name={name} state={state} />
+              <ListItem
+                key={name}
+                name={name}
+                state={state}
+                showRemove={showRemove}
+                onRemove={() => removeFile(name)}
+              />
             ))}
       </div>
       {input}

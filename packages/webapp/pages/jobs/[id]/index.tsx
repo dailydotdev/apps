@@ -430,6 +430,7 @@ const CVOverlay = ({ onDismiss }: { onDismiss: () => void }): ReactElement => {
         <div className="flex w-full flex-col gap-2">
           <DragDrop
             isCompactList
+            showRemove
             className={classNames('w-full')}
             validation={fileValidation}
             onFilesDrop={() => {
