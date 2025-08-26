@@ -247,7 +247,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         )}
         <div className="flex flex-row flex-wrap">
           <span
-            className={classNames('break-words', createdAt && 'mr-1')}
+            className={classNames(
+              'max-w-full break-words',
+              createdAt && 'mr-1',
+            )}
             dangerouslySetInnerHTML={{
               __html: memoizedTitle,
             }}
