@@ -271,8 +271,12 @@ export const canViewPostAnalytics = ({
   user,
   post,
 }: {
-  user?: Pick<LoggedUser, 'id'>;
+  user?: Pick<LoggedUser, 'id' | 'isTeamMember'>;
   post?: Pick<Post, 'author'>;
 }): boolean => {
+  if (user?.isTeamMember) {
+    return true;
+  }
+
   return !!user?.id && user.id === post?.author?.id;
 };
