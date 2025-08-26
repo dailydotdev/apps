@@ -165,6 +165,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     type
     description
     image
+    headerImage
     membersCount
     flags {
       totalUpvotes
