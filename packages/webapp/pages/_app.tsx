@@ -43,6 +43,7 @@ import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
+import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -87,6 +88,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useIOSError();
 
   useCheckCoresRole();
+  useCheckLocation();
 
   useEffect(() => {
     if (
