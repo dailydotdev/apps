@@ -506,26 +506,28 @@ const ResponseButtons = ({
 }): ReactElement => {
   return (
     <div className={className?.container}>
-      <Button
-        className={className?.buttons}
-        size={size}
-        icon={<MiniCloseIcon />}
-        variant={ButtonVariant.Subtle}
-        tag="a"
-        href={`${webappUrl}jobs/job-123/decline`}
-      >
-        Not for me
-      </Button>
-      <Button
-        className={className?.buttons}
-        size={size}
-        icon={<VIcon />}
-        variant={ButtonVariant.Primary}
-        tag="a"
-        href={`${webappUrl}jobs/job-123/questions`}
-      >
-        I&apos;m interested
-      </Button>
+      <Link href={`${webappUrl}jobs/job-123/decline`} passHref>
+        <Button
+          className={className?.buttons}
+          size={size}
+          icon={<MiniCloseIcon />}
+          variant={ButtonVariant.Subtle}
+          tag="a"
+        >
+          Not for me
+        </Button>
+      </Link>
+      <Link href={`${webappUrl}jobs/job-123/questions`} passHref>
+        <Button
+          className={className?.buttons}
+          size={size}
+          icon={<VIcon />}
+          variant={ButtonVariant.Primary}
+          tag="a"
+        >
+          I&apos;m interested
+        </Button>
+      </Link>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -22,7 +22,8 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -49,7 +50,7 @@ const options = [
   {
     icon: <SemiActiveIcon size={IconSize.XLarge} />,
     title: 'Open only if it’s right',
-    href: `${webappUrl}jobs/job-123/preference`,
+    href: `${webappUrl}jobs/job-123/preference#semi-active-done`,
     description:
       'I’m happy where I am, but I’d explore something truly exceptional.',
   },
@@ -63,6 +64,8 @@ const options = [
 ];
 
 const DeclinePage = (): ReactElement => {
+  const [option, setOption] = useState(null);
+  const { push, back } = useRouter();
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -82,32 +85,36 @@ const DeclinePage = (): ReactElement => {
         </FlexCol>
         <FlexCol className="gap-2">
           {options.map(({ icon, title, description, href }) => (
-            <Link href={href} passHref key={title}>
-              <Button
-                variant={ButtonVariant.Option}
-                className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary !p-3"
-                tag="a"
-              >
-                <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
-                  {icon}
-                </div>
-                <FlexCol className="flex-1 text-left">
-                  <Typography
-                    color={TypographyColor.Primary}
-                    type={TypographyType.Body}
-                    bold
-                  >
-                    {title}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {description}
-                  </Typography>
-                </FlexCol>
-              </Button>
-            </Link>
+            <Button
+              key={title}
+              variant={ButtonVariant.Option}
+              className={classNames(
+                '!h-auto w-auto gap-3 border border-border-subtlest-tertiary !p-3',
+                {
+                  'bg-surface-float': option === href,
+                },
+              )}
+              onClick={() => setOption(href)}
+            >
+              <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
+                {icon}
+              </div>
+              <FlexCol className="flex-1 text-left">
+                <Typography
+                  color={TypographyColor.Primary}
+                  type={TypographyType.Body}
+                  bold
+                >
+                  {title}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {description}
+                </Typography>
+              </FlexCol>
+            </Button>
           ))}
         </FlexCol>
         <div className="rounded-10 bg-surface-float p-2">
@@ -132,6 +139,7 @@ const DeclinePage = (): ReactElement => {
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}
             className="hidden laptop:flex"
+            onClick={() => back()}
           >
             Back
           </Button>
@@ -139,6 +147,8 @@ const DeclinePage = (): ReactElement => {
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
             className="w-full laptop:w-auto"
+            disabled={!option}
+            onClick={() => option && push(option)}
           >
             Save and Continue
           </Button>
