@@ -26,6 +26,14 @@ export const USER_SHORT_BY_ID = `
   }
 `;
 
+export const CHECK_LOCATION_QUERY = gql`
+  query checkLocation {
+    checkLocation {
+      _
+    }
+  }
+`;
+
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
     user(id: $id) {

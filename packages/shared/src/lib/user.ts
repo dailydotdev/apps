@@ -163,6 +163,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
     amount: number;
   };
   clickbaitTries?: number;
+  hasLocationSet?: boolean;
 }
 
 export async function logout(reason: string): Promise<void> {
