@@ -35,7 +35,7 @@ export function BoostButton({
 }: BoostButtonProps): ReactElement {
   return (
     <Button
-      style={{ background: boostButton }}
+      style={{ background: campaignId ? undefined : boostButton }}
       variant={campaignId ? ButtonVariant.Subtle : ButtonVariant.Primary}
       {...buttonProps}
       icon={<BoostIcon secondary />}

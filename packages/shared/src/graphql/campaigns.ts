@@ -5,11 +5,10 @@ import { gqlClient } from './common';
 import type { TransactionCreated } from './njord';
 import type { Post } from './posts';
 import type { Squad } from './sources';
-import { SHARED_POST_INFO_FRAGMENT, SQUAD_BASE_FRAGMENT } from './fragments';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 import type { LoggedUser } from '../lib/user';
 import user from '../../__tests__/fixture/loggedUser';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
-
 
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
@@ -36,7 +35,9 @@ const CAMPAIGN_FRAGMENT = gql`
       image
     }
     source {
-      ...SquadBaseInfo
+      ...SourceBaseInfo
+      referralUrl
+      createdAt
       flags {
         featured
         totalPosts
@@ -70,10 +71,15 @@ const CAMPAIGN_FRAGMENT = gql`
         }
       }
       referralUrl
+      category {
+        id
+        title
+        slug
+      }
+      ...PrivilegedMembers
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
-  ${SQUAD_BASE_FRAGMENT}
 `;
 export const CAMPAIGNS_LIST = gql`
   query CampaignsList($first: Int, $after: String) {
@@ -150,14 +156,8 @@ export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
     $type: CampaignType!
     $value: ID!
     $budget: Int!
-    $duration: Int!
   ) {
-    dailyCampaignReachEstimate(
-      type: $type
-      value: $value
-      duration: $duration
-      budget: $budget
-    ) {
+    dailyCampaignReachEstimate(type: $type, value: $value, budget: $budget) {
       min
       max
     }
@@ -185,13 +185,11 @@ export const getDailyCampaignReachEstimate = async ({
   type,
   value,
   budget,
-  duration,
-}: StartCampaignProps): Promise<EstimatedReach> => {
+}: Omit<StartCampaignProps, 'duration'>): Promise<EstimatedReach> => {
   const result = await gqlClient.request(DAILY_CAMPAIGN_REACH_ESTIMATE, {
     type,
     value,
     budget,
-    duration,
   });
 
   return result.dailyCampaignReachEstimate;
