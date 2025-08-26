@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
@@ -48,7 +48,6 @@ import {
   postAnalyticsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { canViewPostAnalytics } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
@@ -65,8 +64,6 @@ import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useShowBoostButton } from '@dailydotdev/shared/src/features/boost/useShowBoostButton';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -104,9 +101,7 @@ export const getServerSideProps: GetServerSideProps<
     const post = initialData.post as Post;
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-      title: getTemplatedTitle(
-        [seoTitle(post), 'Analytics'].filter(Boolean).join(' | '),
-      ),
+      title: getTemplatedTitle(seoTitle(post)),
       description: getSeoDescription(post),
       openGraph: {
         images: [
@@ -167,7 +162,6 @@ const PostAnalyticsPage = ({
   initialData,
 }: PostAnalyticsPageProps): ReactElement => {
   const router = useRouter();
-  const { user, isAuthReady } = useAuthContext();
 
   const { post } = usePostById({
     id,
@@ -177,13 +171,9 @@ const PostAnalyticsPage = ({
     },
   });
 
-  const { data: postAnalytics } = useQuery({
-    ...postAnalyticsQueryOptions({ id: post?.id }),
-    enabled: canViewPostAnalytics({ post, user }),
-  });
-
-  const canBoost = useShowBoostButton({ post });
-  const isBoosting = !!post?.flags?.campaignId;
+  const { data: postAnalytics } = useQuery(
+    postAnalyticsQueryOptions({ id: post?.id }),
+  );
 
   const profileActivityList: AnalyticsNumberList = [
     {
@@ -253,28 +243,6 @@ const PostAnalyticsPage = ({
     },
   ];
 
-  const postLink = `${webappUrl}posts/${
-    router?.query?.id === post.slug ? post.slug : post.id
-  }`;
-
-  useEffect(() => {
-    if (!isAuthReady) {
-      return;
-    }
-
-    if (!post) {
-      return;
-    }
-
-    if (user?.isTeamMember) {
-      return;
-    }
-
-    if (!canViewPostAnalytics({ user, post })) {
-      router.replace(postLink);
-    }
-  }, [isAuthReady, post, postLink, router, user]);
-
   return (
     <div className="mx-auto w-full max-w-[48rem]">
       <LayoutHeader
@@ -285,7 +253,11 @@ const PostAnalyticsPage = ({
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={() => {
-            router.push(postLink);
+            router.push(
+              `${webappUrl}posts/${
+                router?.query?.id === post.slug ? post.slug : post.id
+              }`,
+            );
           }}
         />
         <Typography
@@ -296,14 +268,7 @@ const PostAnalyticsPage = ({
         >
           Analytics
         </Typography>
-        <BoostPostButton
-          post={post}
-          buttonProps={{
-            className: isBoosting && 'typo-footnote',
-            size: isBoosting ? ButtonSize.XSmall : ButtonSize.Small,
-          }}
-          isActive={isBoosting}
-        />
+        <BoostPostButton post={post} buttonProps={{ size: ButtonSize.Small }} />
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
@@ -352,46 +317,36 @@ const PostAnalyticsPage = ({
                 <div className="size-2 rounded-full bg-brand-default" />{' '}
                 <Typography type={TypographyType.Footnote}>Organic</Typography>
               </div>
-              {/* TODO post-analytics enable boosting data */}
-              {false && (
-                <div className="flex items-center gap-1">
-                  <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                  <Typography type={TypographyType.Footnote}>
-                    Boosted
-                  </Typography>
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
+                <Typography type={TypographyType.Footnote}>Boosted</Typography>
+              </div>
             </div>
           </div>
           <ImpressionsChart post={post} />
         </SectionContainer>
         <Divider className={dividerClassName} />
-        {canBoost && (
-          <>
-            <SectionContainer>
-              <SectionHeader>Boost your post</SectionHeader>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-              >
-                Give your content the spotlight it deserves. Our auto-targeting
-                engine gets your post in front of developers most likely to
-                care.
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Boost}
-              >
-                Reach up to 100k more developers now
-              </Typography>
-              <BoostPostButton
-                post={post}
-                buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
-              />
-            </SectionContainer>
-            <Divider className={dividerClassName} />
-          </>
-        )}
+        <SectionContainer>
+          <SectionHeader>Boost your post</SectionHeader>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Give your content the spotlight it deserves. Our auto-targeting
+            engine gets your post in front of developers most likely to care.
+          </Typography>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Boost}
+          >
+            Reach up to 100k more developers now
+          </Typography>
+          <BoostPostButton
+            post={post}
+            buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
+          />
+        </SectionContainer>
+        <Divider className={dividerClassName} />
         {/* TODO post-analytics enable boosting data */}
         {false && (
           <SectionContainer>

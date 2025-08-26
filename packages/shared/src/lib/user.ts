@@ -9,7 +9,6 @@ import type { ContentPreference } from '../graphql/contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
 import type { SubscriptionProvider, SubscriptionStatus } from './plus';
 import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
-import type { Post } from '../graphql/posts';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -265,14 +264,4 @@ export const isSpecialUser = ({
 
 export const getFirstName = (name: string): string => {
   return name?.split?.(' ')?.[0] ?? '';
-};
-
-export const canViewPostAnalytics = ({
-  user,
-  post,
-}: {
-  user?: Pick<LoggedUser, 'id'>;
-  post?: Pick<Post, 'author'>;
-}): boolean => {
-  return !!user?.id && user.id === post?.author?.id;
 };

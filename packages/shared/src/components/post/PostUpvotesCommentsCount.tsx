@@ -7,12 +7,6 @@ import { Image } from '../image/Image';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
-import { canViewPostAnalytics } from '../../lib/user';
-import { useAuthContext } from '../../contexts/AuthContext';
-import Link from '../utilities/Link';
-import { Button, ButtonSize } from '../buttons/Button';
-import { AnalyticsIcon } from '../icons';
-import { webappUrl } from '../../lib/constants';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;
@@ -24,7 +18,6 @@ export function PostUpvotesCommentsCount({
   onUpvotesClick,
 }: PostUpvotesCommentsCountProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
@@ -76,18 +69,6 @@ export function PostUpvotesCommentsCount({
             {` Award${awards === 1 ? '' : 's'}`}
           </span>
         </ClickableText>
-      )}
-      {canViewPostAnalytics({ user, post }) && (
-        <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
-          <Button
-            tag="a"
-            size={ButtonSize.XSmall}
-            className="font-normal text-text-link"
-            icon={<AnalyticsIcon />}
-          >
-            Post analytics
-          </Button>
-        </Link>
       )}
     </div>
   );
