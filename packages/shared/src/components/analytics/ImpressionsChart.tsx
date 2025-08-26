@@ -19,9 +19,11 @@ import {
   postAnalyticsHistoryLimit,
   postAnalyticsHistoryQuery,
 } from '../../graphql/posts';
+import { canViewPostAnalytics } from '../../lib/user';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export type ImpressionsChartProps = {
-  post: Pick<Post, 'id'> | undefined;
+  post: Pick<Post, 'id' | 'author'> | undefined;
 };
 
 type ImpressionNode = {
@@ -38,8 +40,11 @@ const tickProp: TickProp = {
 export const ImpressionsChart = ({
   post,
 }: ImpressionsChartProps): ReactElement => {
+  const { user } = useAuthContext();
+
   const { data: postAnalyticsHistory } = useQuery({
     ...postAnalyticsHistoryQuery({ id: post?.id }),
+    enabled: canViewPostAnalytics({ post, user }),
     select: useCallback((data): ImpressionNode[] => {
       if (!data) {
         return [];

@@ -32,6 +32,7 @@ import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structu
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
+import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -68,6 +69,7 @@ function InternalApp(): ReactElement {
   const shouldRedirectOnboarding =
     isPageReady && (!user || !isOnboardingComplete) && !isTesting;
 
+  useCheckLocation();
   useCheckCoresRole();
 
   useEffect(() => {
