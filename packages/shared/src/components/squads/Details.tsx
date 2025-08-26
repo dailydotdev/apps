@@ -63,7 +63,6 @@ const getFormData = async (
     const input = document.getElementById(squadImageId) as HTMLInputElement;
     const file = input.files[0];
     updated.file = file;
-    return current;
   }
 
   if (headerChanged) {
