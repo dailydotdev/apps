@@ -1028,7 +1028,6 @@ export const POST_ANALYTICS_QUERY = gql`
       reputation
       coresEarned
       upvotes
-      downvotes
       comments
       awards
       upvotesRatio
@@ -1048,7 +1047,6 @@ export type PostAnalytics = {
   reputation: number;
   coresEarned: number;
   upvotes: number;
-  downvotes: number;
   comments: number;
   awards: number;
   upvotesRatio: number;
