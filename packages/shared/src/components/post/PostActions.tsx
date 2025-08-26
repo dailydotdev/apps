@@ -15,7 +15,6 @@ import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
-import { Card } from '../cards/common/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
@@ -189,31 +188,6 @@ export function PostActions({
     // for labels is executed after the DOM is updated with the new state.
   }, [post?.userState?.awarded, canAward]);
 
-  const renderVoteButtons = () => (
-    <>
-      <QuaternaryButton
-        id="upvote-post-btn"
-        pressed={post?.userState?.vote === UserVote.Up}
-        onClick={onToggleUpvote}
-        icon={<UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />}
-        aria-label="Upvote"
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Avocado}
-      />
-      <QuaternaryButton
-        id="downvote-post-btn"
-        pressed={post?.userState?.vote === UserVote.Down}
-        onClick={onToggleDownvote}
-        icon={
-          <DownvoteIcon secondary={post?.userState?.vote === UserVote.Down} />
-        }
-        aria-label="Downvote"
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Ketchup}
-      />
-    </>
-  );
-
   return (
     <ConditionalWrapper
       condition={showTagsPanel !== undefined}
@@ -225,23 +199,34 @@ export function PostActions({
       )}
     >
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
-        {config.showVoteButtonsInCard && (
-          <Card
-            className={classNames(config.cardBaseClassName, {
-              'border-accent-avocado-default hover:!border-accent-avocado-default bg-theme-overlay-float-avocado':
-                post?.userState?.vote === UserVote.Up,
-              'border-accent-ketchup-default hover:!border-accent-ketchup-default bg-theme-overlay-float-ketchup':
-                post?.userState?.vote === UserVote.Down,
-            })}
-          >
-            {renderVoteButtons()}
-          </Card>
-        )}
         <div
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
-          {config.showVoteButtonsInActions && renderVoteButtons()}
+          <QuaternaryButton
+            id="upvote-post-btn"
+            pressed={post?.userState?.vote === UserVote.Up}
+            onClick={onToggleUpvote}
+            icon={
+              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
+            }
+            aria-label="Upvote"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Avocado}
+          />
+          <QuaternaryButton
+            id="downvote-post-btn"
+            pressed={post?.userState?.vote === UserVote.Down}
+            onClick={onToggleDownvote}
+            icon={
+              <DownvoteIcon
+                secondary={post?.userState?.vote === UserVote.Down}
+              />
+            }
+            aria-label="Downvote"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
+          />
           <QuaternaryButton
             id="comment-post-btn"
             pressed={post.commented}
