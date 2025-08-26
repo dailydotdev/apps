@@ -169,7 +169,7 @@ const PostAnalyticsPage = ({
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
 
-  const { post } = usePostById({
+  const { post, isLoading } = usePostById({
     id,
     options: {
       initialData,
@@ -257,14 +257,14 @@ const PostAnalyticsPage = ({
     ? `${webappUrl}posts/${
         router?.query?.id === post.slug ? post.slug : post.id
       }`
-    : undefined;
+    : webappUrl;
 
   useEffect(() => {
     if (!isAuthReady) {
       return;
     }
 
-    if (!post) {
+    if (isLoading) {
       return;
     }
 
@@ -275,7 +275,7 @@ const PostAnalyticsPage = ({
     if (!canViewPostAnalytics({ user, post })) {
       router.replace(postLink);
     }
-  }, [isAuthReady, post, postLink, router, user]);
+  }, [isLoading, isAuthReady, post, postLink, router, user]);
 
   return (
     <div className="mx-auto w-full max-w-[48rem]">
@@ -287,10 +287,6 @@ const PostAnalyticsPage = ({
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={() => {
-            if (!postLink) {
-              return;
-            }
-
             router.push(postLink);
           }}
         />
