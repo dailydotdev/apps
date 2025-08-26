@@ -1,5 +1,8 @@
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import type { NotificationSettings } from '../../components/notifications/utils';
+import type {
+  NotificationSettings,
+  NotificationType,
+} from '../../components/notifications/utils';
 import {
   MENTION_KEYS,
   ACHIEVEMENT_KEYS,
@@ -13,10 +16,13 @@ import {
   SQUAD_KEYS,
   CREATOR_UPDATES_EMAIL_KEYS,
   FOLLOWING_EMAIL_KEYS,
+  isMutingDigestCompletely,
 } from '../../components/notifications/utils';
 import useNotificationSettingsQuery from './useNotificationSettingsQuery';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, NotificationCategory } from '../../lib/log';
+import { UserPersonalizedDigestType } from '../../graphql/users';
+import { usePersonalizedDigest } from '../usePersonalizedDigest';
 
 const NOTIFICATION_GROUPS = {
   mentions: MENTION_KEYS,
@@ -34,7 +40,7 @@ const NOTIFICATION_GROUPS = {
 } as const;
 
 export type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;
-type NotificationChannel = 'inApp' | 'email';
+export type NotificationChannel = 'inApp' | 'email';
 
 const defaultEmailLogProps = {
   extra: JSON.stringify({
@@ -44,6 +50,8 @@ const defaultEmailLogProps = {
 };
 
 const useNotificationSettings = () => {
+  const { unsubscribePersonalizedDigest, getPersonalizedDigest } =
+    usePersonalizedDigest();
   const { logEvent } = useLogContext();
   const {
     notificationSettings,
@@ -132,6 +140,22 @@ const useNotificationSettings = () => {
     );
   };
 
+  const setNotificationStatus = (
+    type: NotificationType,
+    channel: NotificationChannel,
+    status: NotificationPreferenceStatus,
+  ) => {
+    const updatedSettings: NotificationSettings = {
+      ...notificationSettings,
+      [type]: {
+        ...notificationSettings[type],
+        [channel]: status,
+      },
+    };
+
+    mutate(updatedSettings);
+  };
+
   const unsubscribeAllEmail = () => {
     const updatedSettings: NotificationSettings = Object.keys(
       notificationSettings || {},
@@ -143,6 +167,28 @@ const useNotificationSettings = () => {
       return acc;
     }, {});
     mutate(updatedSettings);
+
+    const personalDigest = getPersonalizedDigest(
+      UserPersonalizedDigestType.Digest,
+    );
+
+    // We unsubscribe digest if it exists because its only available by email.
+    if (personalDigest) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Digest,
+      });
+    }
+
+    const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
+
+    if (
+      briefDigest &&
+      isMutingDigestCompletely(notificationSettings, 'email')
+    ) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+      });
+    }
   };
 
   const emailsDisabled = notificationSettings
@@ -155,6 +201,7 @@ const useNotificationSettings = () => {
     toggleSetting,
     toggleGroup,
     getGroupStatus,
+    setNotificationStatus,
     unsubscribeAllEmail,
     emailsDisabled,
     notificationSettings,

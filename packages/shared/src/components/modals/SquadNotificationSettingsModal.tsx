@@ -86,7 +86,7 @@ const SquadNotificationSettingsModal = ({
       <Modal.Header>
         <Modal.Title>Squad notifications</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="gap-5">
+      <Modal.Body className="gap-5 overflow-x-hidden">
         <div className="flex flex-row justify-between gap-4">
           <div className="flex flex-1 flex-col gap-1">
             <Typography type={TypographyType.Body} bold>
@@ -123,13 +123,14 @@ const SquadNotificationSettingsModal = ({
                   src={squad?.image}
                   alt="Squad avatar"
                 />
-                <div className="flex items-center gap-1">
-                  <Typography type={TypographyType.Callout} bold>
-                    {squad.name}{' '}
+                <div className="flex max-w-64 flex-col items-baseline gap-1 mobileL:max-w-70 tablet:max-w-96 tablet:flex-row">
+                  <Typography truncate type={TypographyType.Callout} bold>
+                    {squad.name}
                   </Typography>
                   <Typography
                     color={TypographyColor.Tertiary}
                     type={TypographyType.Footnote}
+                    truncate
                   >
                     @{squad.handle}
                   </Typography>

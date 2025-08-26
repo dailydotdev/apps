@@ -5,6 +5,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Switch } from '../fields/Switch';
+import { PlusUser } from '../PlusUser';
 
 interface NotificationSwitchProps {
   id: string;
@@ -13,6 +14,7 @@ interface NotificationSwitchProps {
   checked: boolean;
   onToggle: () => void;
   disabled?: boolean;
+  isPlusFeature?: boolean;
 }
 
 const NotificationSwitch = ({
@@ -22,28 +24,32 @@ const NotificationSwitch = ({
   checked,
   onToggle,
   disabled,
+  isPlusFeature,
 }: NotificationSwitchProps) => {
   return (
-    <div className="flex flex-row justify-between gap-1">
-      <div className="flex flex-1 flex-col gap-3">
-        <Typography type={TypographyType.Callout}>{label}</Typography>
-        {description && (
-          <Typography
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Footnote}
-          >
-            {description}
-          </Typography>
-        )}
+    <div className="flex flex-col gap-1">
+      <div className="flex flex-row justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Typography type={TypographyType.Callout}>{label}</Typography>
+          {isPlusFeature && <PlusUser />}
+        </div>
+        <Switch
+          inputId={id}
+          name={id}
+          checked={checked}
+          onToggle={onToggle}
+          compact={false}
+          disabled={disabled}
+        />
       </div>
-      <Switch
-        inputId={id}
-        name={id}
-        checked={checked}
-        onToggle={onToggle}
-        compact={false}
-        disabled={disabled}
-      />
+      {description && (
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Footnote}
+        >
+          {description}
+        </Typography>
+      )}
     </div>
   );
 };

@@ -41,7 +41,6 @@ function FunnelEditTagsComponent({
           headline={headline}
           userId={user?.id ?? trackingId}
           feedSettings={feedSettings}
-          onClick={handleComplete}
         />
       </div>
     </FunnelStepCtaWrapper>

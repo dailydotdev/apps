@@ -14,6 +14,7 @@ import {
   FOLLOWING_NOTIFICATIONS,
   NotificationContainer,
   NotificationSection,
+  NotificationType,
   STREAK_NOTIFICATIONS,
 } from './utils';
 
@@ -31,7 +32,7 @@ import {
   NotificationPromptSource,
 } from '../../lib/log';
 import { HorizontalSeparator } from '../utilities';
-import PersonalizedDigest from './PersonalizedDigest';
+import PresidentialBriefingNotification from './PresidentialBriefingNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
 import NotificationCheckbox from './NotificationCheckbox';
@@ -145,7 +146,9 @@ const InAppNotificationsTab = (): ReactElement => {
           Updates
         </Typography>
         <NotificationContainer>
-          {FOLLOWING_NOTIFICATIONS.map((item) =>
+          {FOLLOWING_NOTIFICATIONS.filter(
+            (item) => item.id !== NotificationType.SquadPostAdded,
+          ).map((item) =>
             item.group ? (
               <NotificationSwitch
                 key={item.id}
@@ -225,7 +228,7 @@ const InAppNotificationsTab = (): ReactElement => {
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
-        <PersonalizedDigest channel="inApp" />
+        <PresidentialBriefingNotification />
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>

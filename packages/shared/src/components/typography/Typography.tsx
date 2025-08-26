@@ -18,6 +18,7 @@ export enum TypographyTag {
   Link = 'a',
   Button = 'button',
   Ul = 'ul',
+  Ol = 'ol',
   Del = 'del',
 }
 
@@ -55,6 +56,7 @@ export enum TypographyColor {
   Plus = 'text-action-plus-default',
   Brand = 'text-brand-default',
   Credit = 'text-text-credit',
+  Boost = 'text-action-comment-default',
 }
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, TypographyTag>;

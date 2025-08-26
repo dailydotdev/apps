@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { format } from 'date-fns';
 import type { TimeFormatType } from '../../lib/dateFormat';
 import { formatDate } from '../../lib/dateFormat';
 
@@ -25,7 +26,7 @@ export const DateFormat = ({
 
   return (
     <time
-      title={convertedDate.toString()}
+      title={format(convertedDate, 'EEE MMM dd yyyy HH:mm:ss OOOO')}
       className={className}
       dateTime={convertedDate.toISOString()}
     >

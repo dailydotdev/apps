@@ -30,6 +30,7 @@ import {
   UpvoteIcon,
   TrendingIcon,
   SettingsIcon,
+  AnalyticsIcon,
 } from '../../components/icons';
 import {
   Button,
@@ -95,7 +96,7 @@ import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollo
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { MenuIcon } from '../../components/MenuIcon';
-import { Roles } from '../../lib/user';
+import { canViewPostAnalytics, Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { BoostIcon } from '../../components/icons/Boost';
@@ -447,6 +448,13 @@ const PostOptionButtonContent = ({
           post,
           ...logOpts,
         }),
+    },
+    canViewPostAnalytics({ user, post }) && {
+      icon: <MenuIcon Icon={AnalyticsIcon} />,
+      label: 'Post analytics',
+      anchorProps: {
+        href: `${webappUrl}posts/${post.id}/analytics`,
+      },
     },
     !isBriefPost && {
       icon: <MenuIcon Icon={EyeIcon} />,
