@@ -75,9 +75,9 @@ const DeclinePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            We only reach out when it’s worth it. Tell us where you stand so we
-            can match you with the right opportunities, or step back entirely
-            until you’re ready.
+            We only reach out when it&apos;s worth it. Tell us where you stand
+            so we can match you with the right opportunities, or step back
+            entirely until you&apos;re ready.
           </Typography>
         </FlexCol>
         <FlexCol className="gap-2">
@@ -85,14 +85,18 @@ const DeclinePage = (): ReactElement => {
             <Link href={href} passHref key={title}>
               <Button
                 variant={ButtonVariant.Option}
-                className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary px-3 py-3.5"
+                className="!h-auto w-auto gap-3 border border-border-subtlest-tertiary !p-3"
                 tag="a"
               >
-                <div className="flex size-12 items-center justify-center rounded-10 bg-surface-float">
+                <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
                   {icon}
                 </div>
                 <FlexCol className="flex-1 text-left">
-                  <Typography type={TypographyType.Body} bold>
+                  <Typography
+                    color={TypographyColor.Primary}
+                    type={TypographyType.Body}
+                    bold
+                  >
                     {title}
                   </Typography>
                   <Typography
