@@ -198,7 +198,7 @@ const PostAnalyticsPage = ({
       label: 'Cores earned',
       value: postAnalytics?.coresEarned ?? 0,
       tooltip:
-        'The number of cores you received from this post, including any awards given by other users.',
+        'The number of Cores you received from this post, including any awards given by other users.',
     },
     {
       icon: <UserIcon />,
@@ -253,9 +253,11 @@ const PostAnalyticsPage = ({
     },
   ];
 
-  const postLink = `${webappUrl}posts/${
-    router?.query?.id === post.slug ? post.slug : post.id
-  }`;
+  const postLink = post
+    ? `${webappUrl}posts/${
+        router?.query?.id === post.slug ? post.slug : post.id
+      }`
+    : undefined;
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -285,6 +287,10 @@ const PostAnalyticsPage = ({
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={() => {
+            if (!postLink) {
+              return;
+            }
+
             router.push(postLink);
           }}
         />
