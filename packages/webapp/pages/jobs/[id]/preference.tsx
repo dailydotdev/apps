@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -37,7 +37,10 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
+const salaryOptions = ['Annually', 'Monthly'];
+
 const PreferencePage = (): ReactElement => {
+  const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -87,7 +90,7 @@ const PreferencePage = (): ReactElement => {
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              Select all that apply to the roles you’d consider.
+              Select all that apply to the roles you&apos;d consider.
             </Typography>
             <FlexRow>
               <Checkbox name="full_time">Full-time</Checkbox>
@@ -115,9 +118,12 @@ const PreferencePage = (): ReactElement => {
                 className={{ container: 'w-40' }}
               />
               <Dropdown
-                selectedIndex={0}
-                options={['Annually', 'Monthly']}
-                onChange={() => {}}
+                selectedIndex={selectedSalaryOption}
+                options={salaryOptions}
+                className={{ label: 'text-text-primary' }}
+                onChange={(option) => {
+                  setSelectedSalaryOption(salaryOptions.indexOf(option));
+                }}
               />
             </FlexRow>
           </FlexCol>

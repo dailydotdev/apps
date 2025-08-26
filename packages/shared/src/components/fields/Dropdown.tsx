@@ -211,9 +211,13 @@ export function Dropdown({
           <DropdownMenuTrigger asChild>{renderButton()}</DropdownMenuTrigger>
           <DropdownMenuContent
             id={`${id}-content`}
-            className={classNames(className.menu || 'menu-primary', {
-              scrollable,
-            })}
+            className={classNames(
+              'overflow-hidden',
+              className.menu || 'menu-primary',
+              {
+                scrollable,
+              },
+            )}
           >
             {options.map((option, index) => (
               <DropdownMenuItem
