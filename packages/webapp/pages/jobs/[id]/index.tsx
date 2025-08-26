@@ -835,9 +835,14 @@ const JobPage = (): ReactElement => {
                     <Link key={key} href={href} passHref>
                       <Button
                         variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
+                        icon={
+                          <OpenLinkIcon
+                            className="text-text-disabled"
+                            size={IconSize.Small}
+                          />
+                        }
                         iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
+                        className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
                       >
                         {label}
                       </Button>
@@ -855,9 +860,14 @@ const JobPage = (): ReactElement => {
                     <Link key={key} href={href} passHref>
                       <Button
                         variant={ButtonVariant.Subtle}
-                        icon={<OpenLinkIcon />}
+                        icon={
+                          <OpenLinkIcon
+                            className="text-text-disabled"
+                            size={IconSize.Small}
+                          />
+                        }
                         iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3"
+                        className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
                       >
                         <SourceAvatar
                           source={source}
