@@ -211,7 +211,7 @@ export default function FeedItemComponent({
     postType: (item as PostItem).post?.type,
   });
 
-  if (isBoostedSquadAd(item)) {
+  if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
     return <SquadAdTag item={item as AdSquadItem} />;
   }
 
