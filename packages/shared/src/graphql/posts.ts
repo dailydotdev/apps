@@ -17,6 +17,7 @@ import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
 import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
+import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
@@ -1008,6 +1009,9 @@ export const GENERATE_BRIEFING = gql`
   mutation GenerateBriefing($type: BriefingType!) {
     generateBriefing(type: $type) {
       id: postId
+      balance {
+        amount
+      }
     }
   }
 `;
@@ -1020,7 +1024,7 @@ export const getGenerateBriefingMutationOptions = () => {
       type: BriefingType;
     }) => {
       const result = await gqlClient.request<{
-        generateBriefing: Pick<Post, 'id'>;
+        generateBriefing: Pick<Post, 'id'> & Pick<LoggedUser, 'balance'>;
       }>(GENERATE_BRIEFING, { type });
       return result.generateBriefing;
     },

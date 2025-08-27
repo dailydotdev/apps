@@ -78,7 +78,7 @@ function BuyCores({
 
 export const BriefPayForGenerateCard = () => {
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
 
@@ -97,12 +97,19 @@ export const BriefPayForGenerateCard = () => {
   const queryClient = useQueryClient();
   const { isPending: isGenerating, mutateAsync: generateBrief } = useMutation({
     ...getGenerateBriefingMutationOptions(),
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       displayToast('Your Presidential Briefing is being generated ✅');
 
       queryClient.removeQueries({
         queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
       });
+
+      if (data.balance) {
+        updateUser({
+          ...user,
+          balance: data.balance,
+        });
+      }
 
       await Promise.all([
         completeAction(ActionType.GeneratedBrief),

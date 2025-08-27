@@ -49,6 +49,7 @@ const mockMutationFn = jest.fn();
 const mockCheckHasCompleted = jest.fn();
 const mockCompleteAction = jest.fn();
 const mockDisplayToast = jest.fn();
+const mockUpdateUser = jest.fn();
 
 // Mock BuyCoresModal to enable testing the purchase completion flow
 jest.mock('../../../components/modals/award/BuyCoresModal', () => ({
@@ -125,7 +126,10 @@ describe('BriefPayForGenerateCard', () => {
   const freeUser = { ...defaultUser, isPlus: false };
   const renderComponent = ({ user }: { user: LoggedUser }) => {
     render(
-      <TestBootProvider client={queryClient} auth={{ user }}>
+      <TestBootProvider
+        client={queryClient}
+        auth={{ user, updateUser: mockUpdateUser }}
+      >
         <BriefPayForGenerateCard />
       </TestBootProvider>,
     );
@@ -301,6 +305,100 @@ describe('BriefPayForGenerateCard', () => {
       // Should show weekly price
       expect(screen.getByText('Generate for 20')).toBeInTheDocument();
       expect(screen.queryByText('Generate for 10')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Balance update on successful generation', () => {
+    it('should update user balance when generation succeeds with balance data', async () => {
+      const initialBalance = { amount: 100 };
+      const updatedBalance = { amount: 90 }; // After spending 10 cores
+      const mockGenerationResult = {
+        id: 'generated-post-123',
+        balance: updatedBalance,
+      };
+
+      // Mock the mutation function to return our test data
+      mockMutationFn.mockResolvedValue(mockGenerationResult);
+
+      // Use the real useMutation implementation so onSuccess gets called
+      mockUseMutation.mockImplementation(
+        jest.requireActual('@tanstack/react-query').useMutation,
+      );
+
+      // User who has already generated briefs and has cores
+      mockCheckHasCompleted.mockReturnValue(true);
+      const userWithBalance = {
+        ...freeUser,
+        balance: initialBalance,
+      };
+
+      renderComponent({ user: userWithBalance });
+
+      const generateButton = screen.getByRole('button', {
+        name: /generate for/i,
+      });
+      fireEvent.click(generateButton);
+
+      // Wait for the mutation to complete and onSuccess to run
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify mutation was called
+      expect(mockMutationFn).toHaveBeenCalledWith({
+        type: BriefingType.Daily,
+      });
+
+      // Verify updateUser was called with the updated balance
+      expect(mockUpdateUser).toHaveBeenCalledWith({
+        ...userWithBalance,
+        balance: updatedBalance,
+      });
+    });
+
+    it('should not update user balance when generation succeeds without balance data', async () => {
+      const mockGenerationResult = {
+        id: 'generated-post-123',
+        // No balance field
+      };
+
+      // Mock the mutation to resolve without balance data
+      const mockMutateAsync = jest.fn().mockResolvedValue(mockGenerationResult);
+      mockUseMutation.mockReturnValue({
+        isPending: false,
+        mutateAsync: mockMutateAsync,
+        mutate: jest.fn(),
+        reset: jest.fn(),
+        isIdle: true,
+        isError: false,
+        isSuccess: false,
+        data: undefined,
+        error: null,
+        failureCount: 0,
+        failureReason: null,
+        isPaused: false,
+        status: 'idle',
+        variables: undefined,
+        context: undefined,
+        submittedAt: new Date().getTime(),
+      });
+
+      // Plus user (free generation)
+      renderComponent({ user: plusUser });
+
+      const generateButton = screen.getByRole('button', {
+        name: /generate for free/i,
+      });
+      fireEvent.click(generateButton);
+
+      // Wait for the mutation to complete
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Verify mutation was called
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        type: BriefingType.Daily,
+      });
+
+      // Verify updateUser was NOT called since no balance data
+      expect(mockUpdateUser).not.toHaveBeenCalled();
     });
   });
 });
