@@ -28,10 +28,12 @@ import { LogEvent } from '../../../lib/log';
 
 interface SquadOptionsButtonProps {
   squad: Squad;
+  className?: string;
 }
 
 export function SquadOptionsButton({
   squad,
+  className,
 }: SquadOptionsButtonProps): ReactElement {
   const { openModal } = useLazyModal();
   const [open, setOpen] = useState(false);
@@ -96,7 +98,11 @@ export function SquadOptionsButton({
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           size={ButtonSize.Small}
-          className={classNames('group-hover:flex', !open && 'hidden')}
+          className={classNames(
+            'group-hover:flex',
+            !open && 'hidden',
+            className,
+          )}
         />
       </DropdownMenuTrigger>
       {!!open && (

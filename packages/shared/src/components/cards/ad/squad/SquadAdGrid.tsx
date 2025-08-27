@@ -1,69 +1,32 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import FeedItemContainer from '../../common/FeedItemContainer';
 import type { SquadAdFeedProps } from './common';
+import { useSquadAd } from './common';
 import { Image } from '../../../image/Image';
-import { getSquadMembers } from '../../../../graphql/squads';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
 import { Separator, separatorCharacter } from '../../common/common';
-import type { WithClassNameProps } from '../../../utilities';
 import { HorizontalSeparator } from '../../../utilities';
-import type { BasicSourceMember } from '../../../../graphql/sources';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
-import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
-import { largeNumberFormat } from '../../../../lib';
 import { Button, ButtonVariant } from '../../../buttons/Button';
 import { AdPixel } from '../common/AdPixel';
 import { Tooltip } from '../../../tooltip/Tooltip';
-import { getCampaignById } from '../../../../graphql/campaigns';
 import { Origin } from '../../../../lib/log';
 import { SquadActionButton } from '../../../squads/SquadActionButton';
 import { CardLink } from '../../common/Card';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
-
-const Stat = ({
-  label,
-  value,
-  className,
-}: { label: string; value: number } & WithClassNameProps) => (
-  <Typography
-    className={className}
-    tag={TypographyTag.Span}
-    type={TypographyType.Footnote}
-    color={TypographyColor.Primary}
-  >
-    <strong className="mr-1">{largeNumberFormat(value)}</strong>
-    <span className="text-text-tertiary">{label}</span>
-  </Typography>
-);
+import { SquadAdStat } from './SquadAdStat';
 
 export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
-  const { user: loggedUser } = useAuthContext();
-  const campaignId = item.ad?.data?.source?.flags?.campaignId;
-  const { data: campaign } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Campaigns, loggedUser, campaignId),
-    queryFn: () => getCampaignById(campaignId),
-    enabled: !!campaignId,
-    staleTime: StaleTime.Default,
+  const { campaign, members, shouldShowAction, onJustJoined } = useSquadAd({
+    item,
   });
-  const { data: members } = useQuery<BasicSourceMember[]>({
-    queryKey: generateQueryKey(RequestKey.SquadMembers, loggedUser, source.id),
-    queryFn: () => getSquadMembers(source.id),
-    staleTime: StaleTime.OneHour,
-  });
-  const isMember = !!source.currentMember;
-  const [justJoined, setJustJoined] = useState(false);
-
-  const shouldShowAction = !isMember || justJoined;
 
   return (
     <FeedItemContainer
@@ -108,14 +71,18 @@ export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
             user={user}
           />
         ))}
-        <Stat className="ml-2" label="members" value={source.membersCount} />
+        <SquadAdStat
+          className="ml-2"
+          label="members"
+          value={source.membersCount}
+        />
       </div>
       <div className="flex flex-row flex-wrap items-center text-text-tertiary">
-        <Stat label="Posts" value={source.flags.totalPosts} />
+        <SquadAdStat label="Posts" value={source.flags.totalPosts} />
         <Separator />
-        <Stat label="Upvotes" value={source.flags.totalUpvotes} />
+        <SquadAdStat label="Upvotes" value={source.flags.totalUpvotes} />
         <Separator />
-        <Stat label="Awards" value={source.flags.totalAwards} />
+        <SquadAdStat label="Awards" value={source.flags.totalAwards} />
       </div>
       {shouldShowAction ? (
         <SquadActionButton
@@ -123,7 +90,7 @@ export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
           origin={Origin.Feed}
           alwaysShow
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
-          onSuccess={() => setJustJoined(true)}
+          onSuccess={() => onJustJoined(true)}
         />
       ) : (
         <Link href={source.permalink}>
