@@ -16,9 +16,9 @@ import { PlaceholderSquadListList } from './PlaceholderSquadList';
 import Link from '../../utilities/Link';
 import type { HorizontalScrollTitleProps } from '../../HorizontalScroll/HorizontalScrollHeader';
 import { HorizontalScrollTitle } from '../../HorizontalScroll/HorizontalScrollHeader';
-import { useFetchAd } from '../../../features/monetization/useFetchAd';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { fetchDirectoryAd } from '../../../lib/ads';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -26,7 +26,7 @@ interface SquadHorizontalListProps {
   linkToSeeAll: string;
   className?: string;
   children?: ReactNode;
-  isFirstItemAd?: boolean;
+  firstItemShouldBeAd?: boolean;
 }
 
 const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
@@ -47,7 +47,7 @@ export function SquadsDirectoryFeed({
   linkToSeeAll,
   className,
   children,
-  isFirstItemAd,
+  firstItemShouldBeAd = false,
 }: SquadHorizontalListProps): ReactElement {
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -57,11 +57,10 @@ export function SquadsDirectoryFeed({
   const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLoading = !isFetched || (!inView && !result.data);
-  const { fetchAd } = useFetchAd();
   const { data: ad, isLoading: isLoadingAd } = useQuery({
     queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory'),
-    queryFn: () => fetchAd({ active: true }),
-    enabled: isFirstItemAd,
+    queryFn: fetchDirectoryAd,
+    enabled: firstItemShouldBeAd,
   });
 
   const adSource = ad?.data?.source;
@@ -77,7 +76,7 @@ export function SquadsDirectoryFeed({
 
   if (
     (flatSources.length === 0 && isFetched) ||
-    (isFirstItemAd && isLoadingAd)
+    (firstItemShouldBeAd && isLoadingAd)
   ) {
     return null;
   }

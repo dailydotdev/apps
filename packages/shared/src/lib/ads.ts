@@ -22,3 +22,11 @@ export const fetchCommentAd = async (): Promise<Ad | null> => {
   const ads = (await res.json()) as Ad[];
   return ads[0];
 };
+
+export const fetchDirectoryAd = async (): Promise<Ad | null> => {
+  const res = await fetch(`${apiUrl}/v1/a/squads_directory`, {
+    credentials: 'include',
+  });
+  const ads = (await res.json()) as Ad[];
+  return ads[0];
+};

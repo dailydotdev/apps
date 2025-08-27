@@ -139,7 +139,9 @@ export function CampaignListView({
               color={TypographyColor.Secondary}
             >
               Ends in
-              {date.endsIn === 1 ? ' less than a day' : `${date.endsIn} days`}
+              {date.endsIn === 0 || date.endsIn === 1
+                ? ' less than a day'
+                : `${date.endsIn} days`}
             </Typography>
           )}
         </span>
