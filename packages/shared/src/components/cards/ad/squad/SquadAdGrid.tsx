@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import FeedItemContainer from '../../common/FeedItemContainer';
 import type { SquadAdFeedProps } from './common';
 import { Image } from '../../../image/Image';
-import { dummySquad, getSquadMembers } from '../../../../graphql/squads';
+import { getSquadMembers } from '../../../../graphql/squads';
 import {
   Typography,
   TypographyColor,
@@ -46,7 +46,7 @@ const Stat = ({
 );
 
 export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
-  const source = dummySquad;
+  const { source } = item.ad.data;
   const { user: loggedUser } = useAuthContext();
   const campaignId = item.ad?.data?.source?.flags?.campaignId;
   const { data: campaign } = useQuery({
