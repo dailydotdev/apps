@@ -60,7 +60,7 @@ export function SquadsDirectoryFeed({
   const { fetchAd } = useFetchAd();
   const { data: ad, isLoading: isLoadingAd } = useQuery({
     queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory'),
-    queryFn: () => fetchAd({ squadOnly: true, active: true }),
+    queryFn: () => fetchAd({ active: true }),
     enabled: isFirstItemAd,
   });
 
