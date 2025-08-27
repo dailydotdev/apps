@@ -75,7 +75,7 @@ export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
   item?.type === FeedItemType.Ad && !!item.ad.data?.post;
 
 export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
-  item?.type === FeedItemType.Ad && 'source' in item.ad.data;
+  item?.type === FeedItemType.Ad && !!item.ad.data?.source;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
