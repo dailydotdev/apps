@@ -69,7 +69,7 @@ const PreviewComponent = ({ campaign }: { campaign: Campaign }) => {
   switch (campaign.type) {
     case CampaignType.Post:
       return <CampaignListItemPost post={campaign.post} />;
-    case CampaignType.Source:
+    case CampaignType.Squad:
       return <CampaignListItemSquad squad={campaign.source} />;
     default:
       return null;

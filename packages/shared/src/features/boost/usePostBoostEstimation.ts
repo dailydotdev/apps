@@ -10,7 +10,7 @@ import { useCampaignEstimation } from './useCampaignEstimation';
 
 interface UsePostBoostEstimationProps {
   post: Post;
-  query: Omit<StartCampaignProps, 'value' | 'type'>;
+  query: Omit<StartCampaignProps, 'value' | 'type' | 'duration'>;
 }
 
 export const usePostBoostEstimation = ({

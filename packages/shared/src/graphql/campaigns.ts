@@ -166,7 +166,7 @@ export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
 
 export enum CampaignType {
   Post = 'POST',
-  Source = 'SOURCE',
+  Squad = 'SQUAD',
 }
 
 export interface StartCampaignProps {

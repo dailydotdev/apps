@@ -75,7 +75,7 @@ const CampaignListViewPreview = ({ campaign }: { campaign: Campaign }) => {
   switch (campaign.type) {
     case CampaignType.Post:
       return <CampaignListViewPost post={campaign.post} />;
-    case CampaignType.Source:
+    case CampaignType.Squad:
       return <CampaignListViewSquad squad={campaign.source} />;
     default:
       return null;

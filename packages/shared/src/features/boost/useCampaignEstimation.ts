@@ -6,7 +6,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 interface UseCampaignEstimationProps {
   type: CampaignType;
-  query: Omit<StartCampaignProps, 'value' | 'type'>;
+  query: Omit<StartCampaignProps, 'value' | 'type' | 'duration'>;
   enabled?: boolean;
   referenceId: string;
 }

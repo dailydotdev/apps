@@ -73,8 +73,8 @@ export function BoostSquadModal({
   const totalSpend = largeNumberFormat(totalSpendInt);
   const canBoost = !!squad.image && !!squad.headerImage && !!squad.description;
   const { estimatedReach, isLoading, isFetched } = useCampaignEstimation({
-    type: CampaignType.Source,
-    query: { budget: estimate.coresPerDay, duration: estimate.totalDays },
+    type: CampaignType.Squad,
+    query: { budget: estimate.coresPerDay },
     referenceId: squad.id,
     enabled: canBoost,
   });
@@ -109,7 +109,7 @@ export function BoostSquadModal({
       duration: totalDays,
       budget: coresPerDay,
       value: squad.id,
-      type: CampaignType.Source,
+      type: CampaignType.Squad,
     });
   };
 

@@ -40,7 +40,7 @@ export function AdsDashboardModal({
           type: LazyModal.BoostPost,
           props: { post },
         });
-      case CampaignType.Source:
+      case CampaignType.Squad:
         return openModal({
           type: LazyModal.BoostSquad,
           props: { squad: source },
