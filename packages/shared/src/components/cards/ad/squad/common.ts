@@ -9,9 +9,10 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 
 export interface SquadAdFeedProps {
   item: AdSquadItem;
+  onClickAd: () => void;
 }
 
-export const useSquadAd = ({ item }: SquadAdFeedProps) => {
+export const useSquadAd = ({ item }: Pick<SquadAdFeedProps, 'item'>) => {
   const { source } = item.ad.data;
   const { user: loggedUser } = useAuthContext();
   const campaignId = item.ad?.data?.source?.flags?.campaignId;

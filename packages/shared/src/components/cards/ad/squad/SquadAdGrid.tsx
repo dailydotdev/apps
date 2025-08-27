@@ -22,7 +22,10 @@ import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
 
-export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
+export function SquadAdGrid({
+  item,
+  onClickAd,
+}: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { campaign, members, shouldShowAction, onJustJoined } = useSquadAd({
     item,
@@ -34,7 +37,7 @@ export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
       domProps={{ className: 'flex flex-col gap-3 group' }}
       flagProps={{}}
     >
-      <Link href={source.permalink}>
+      <Link href={source.permalink} onClick={onClickAd}>
         <CardLink href={source.permalink} />
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}

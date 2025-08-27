@@ -25,7 +25,10 @@ import { SquadAdStat } from './SquadAdStat';
 import { SourceIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
 
-export function SquadAdList({ item }: SquadAdFeedProps): ReactElement {
+export function SquadAdList({
+  item,
+  onClickAd,
+}: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { campaign, members, shouldShowAction, onJustJoined } = useSquadAd({
     item,
@@ -36,7 +39,7 @@ export function SquadAdList({ item }: SquadAdFeedProps): ReactElement {
       data-testid="adItem"
       domProps={{ className: 'flex flex-col gap-4 group' }}
     >
-      <Link href={source.permalink}>
+      <Link href={source.permalink} onClick={onClickAd}>
         <CardLink href={source.permalink} />
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}

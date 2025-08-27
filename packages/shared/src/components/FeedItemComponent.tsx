@@ -212,7 +212,12 @@ export default function FeedItemComponent({
   });
 
   if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
-    return <SquadAdTag item={item as AdSquadItem} />;
+    return (
+      <SquadAdTag
+        item={item as AdSquadItem}
+        onClickAd={() => onAdAction(AdActions.Click, item.ad, row, column)}
+      />
+    );
   }
 
   if (item.type === FeedItemType.Post || isBoostedPostAd(item)) {
