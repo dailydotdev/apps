@@ -68,6 +68,16 @@ export function SquadsDirectoryFeed({
     const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
     if (firstItemShouldBeAd && adSource) {
+      const index = map.findIndex(({ node }) => node.id === adSource.id);
+
+      if (index === 0) {
+        return map; // first item is already the ad
+      }
+
+      if (index > 0) {
+        delete map[index]; // to avoid displaying duplicate
+      }
+
       map.unshift({ node: adSource });
     }
 
