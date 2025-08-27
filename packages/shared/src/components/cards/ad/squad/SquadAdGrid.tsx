@@ -58,7 +58,7 @@ export function SquadAdGrid({ item }: SquadAdFeedProps): ReactElement {
           {separatorCharacter} @{source.handle}
         </Typography>
       </div>
-      <Typography type={TypographyType.Callout}>
+      <Typography type={TypographyType.Callout} className="line-clamp-5">
         {source.description}
       </Typography>
       <HorizontalSeparator />

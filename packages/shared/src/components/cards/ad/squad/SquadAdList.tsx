@@ -60,7 +60,7 @@ export function SquadAdList({ item }: SquadAdFeedProps): ReactElement {
         </div>
         <SquadOptionsButton squad={source} className="ml-auto" />
       </div>
-      <Typography type={TypographyType.Callout}>
+      <Typography type={TypographyType.Callout} className="line-clamp-5">
         {source.description}
       </Typography>
       <HorizontalSeparator />
