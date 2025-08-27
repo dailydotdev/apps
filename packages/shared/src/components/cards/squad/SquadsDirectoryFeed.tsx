@@ -67,12 +67,12 @@ export function SquadsDirectoryFeed({
   const flatSources = useMemo(() => {
     const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-    if (adSource) {
+    if (firstItemShouldBeAd && adSource) {
       map.unshift({ node: adSource });
     }
 
     return map;
-  }, [result.data?.pages, adSource]);
+  }, [result.data?.pages, firstItemShouldBeAd, adSource]);
 
   if (
     (flatSources.length === 0 && isFetched) ||
@@ -118,20 +118,23 @@ export function SquadsDirectoryFeed({
       scrollProps={{ title, linkToSeeAll }}
     >
       {children}
-      {flatSources?.map(({ node }, index) =>
-        node.flags?.featured && linkToSeeAll.includes('featured') ? (
+      {flatSources?.map(({ node }, index) => {
+        const shouldShowAd = adSource && index === 0;
+        const showFeaturedCard =
+          shouldShowAd ||
+          (node.flags?.featured && linkToSeeAll.includes('featured'));
+
+        return showFeaturedCard ? (
           <SquadGrid
             key={node.id}
             source={node}
             className="w-80"
-            campaignId={
-              adSource && index === 0 ? adSource.flags?.campaignId : undefined
-            }
+            campaignId={shouldShowAd ? adSource.flags?.campaignId : undefined}
           />
         ) : (
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
-        ),
-      )}
+        );
+      })}
       {isLoading && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );
