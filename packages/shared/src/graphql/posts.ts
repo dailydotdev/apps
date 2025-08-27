@@ -555,6 +555,7 @@ export interface ExternalLinkPreview {
   title?: string;
   image?: string;
   source?: Source;
+  finalUrl?: string;
   relatedPublicPosts?: Array<Post> | null;
 }
 
@@ -564,6 +565,7 @@ export const PREVIEW_LINK_MUTATION = gql`
       id
       title
       image
+      url
       relatedPublicPosts {
         id
         title
@@ -1041,7 +1043,6 @@ export const POST_ANALYTICS_QUERY = gql`
       reputation
       coresEarned
       upvotes
-      downvotes
       comments
       awards
       upvotesRatio
@@ -1061,7 +1062,6 @@ export type PostAnalytics = {
   reputation: number;
   coresEarned: number;
   upvotes: number;
-  downvotes: number;
   comments: number;
   awards: number;
   upvotesRatio: number;
