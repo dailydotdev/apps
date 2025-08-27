@@ -10,7 +10,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
-import { Separator, separatorCharacter } from '../../common/common';
+import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { Button, ButtonVariant } from '../../../buttons/Button';
@@ -55,7 +55,7 @@ export function SquadAdList({ item }: SquadAdFeedProps): ReactElement {
                 <strong>Boosted</strong>
               </button>
             </Tooltip>
-            {separatorCharacter} @{source.handle}
+            <Separator />@{source.handle}
           </Typography>
         </div>
         <SquadOptionsButton squad={source} className="ml-auto" />

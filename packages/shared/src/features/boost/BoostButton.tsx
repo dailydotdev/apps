@@ -106,7 +106,7 @@ export function BoostSourceButton({
   const { user } = useAuthContext();
   const campaignId = squad?.flags?.campaignId;
   const { data: campaign, isFetched } = useCampaignById(campaignId);
-  const isBooster = user.id === campaign?.user.id;
+  const isBooster = user && user?.id === campaign?.user.id;
   const permissions = squad?.currentMember?.permissions;
   const permittedUser = permissions?.includes(SourcePermissions.BoostSquad);
 
