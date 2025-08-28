@@ -122,7 +122,7 @@ const Notifications = (): ReactElement => {
           {length > 0 &&
             queryResult.data.pages.map((page) =>
               page.notifications.edges.reduce((nodes, { node }) => {
-                const { id, readAt, type, ...props } = node;
+                const { id, createdAt, readAt, type, ...props } = node;
 
                 if (
                   isSubscribed &&
@@ -138,6 +138,7 @@ const Notifications = (): ReactElement => {
                     type={type}
                     isUnread={!readAt}
                     onClick={() => onNotificationClick(node)}
+                    createdAt={createdAt}
                   />,
                 );
 

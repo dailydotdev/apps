@@ -35,7 +35,7 @@ export const DataTile: React.FC<DataTileProps> = ({
     >
       <span className="flex flex-row items-center gap-1">
         <Typography type={TypographyType.Footnote}>{label}</Typography>
-        <Tooltip content={info}>
+        <Tooltip content={info} enableMobileClick>
           <span className="text-text-disabled">
             <InfoIcon size={IconSize.Size16} />
           </span>
