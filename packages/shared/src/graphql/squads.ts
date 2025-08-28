@@ -121,6 +121,7 @@ export const SOURCES_QUERY = gql`
             totalViews
             totalUpvotes
             totalAwards
+            campaignId
           }
           headerImage
           color
