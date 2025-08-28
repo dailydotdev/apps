@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 import type { Squad } from '../../../../graphql/sources';
 import { IconSize } from '../../../Icon';
 import { SourceIcon } from '../../../icons';
@@ -12,6 +11,7 @@ import {
 } from '../../../typography/Typography';
 import { SquadAdStat } from './SquadAdStat';
 import { pluralize } from '../../../../lib/strings';
+import { Separator } from '../../common/common';
 
 interface SquadFeedStatsProps {
   source: Squad;
