@@ -19,6 +19,11 @@ import type { BasicSourceMember } from '../../../graphql/sources';
 import { getSquadMembers } from '../../../graphql/squads';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -111,15 +116,21 @@ export const SquadGrid = ({
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
             <div className="font-bold typo-title3">{name}</div>
-            <div className="text-text-secondary">
+            <Typography
+              className="flex flex-row items-center"
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
               {campaign && (
                 <Tooltip content={`Boosted by @${campaign.user.username}`}>
-                  <strong>Boosted</strong>
+                  <button type="button" disabled>
+                    <strong>Boosted</strong>
+                  </button>
                 </Tooltip>
               )}
               {campaign && <Separator />}
               {handle}
-            </div>
+            </Typography>
             {description && (
               <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
                 {description}
