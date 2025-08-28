@@ -158,7 +158,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -171,7 +171,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -182,7 +182,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -196,7 +196,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -207,7 +207,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
   });
@@ -232,7 +232,7 @@ describe('BoostPostModal', () => {
       expect(mockOnBoostPost).toHaveBeenCalledWith({
         duration: 7, // default totalDays
         budget: 5000, // default coresPerDay
-        type: 'post',
+        type: 'POST',
         value: 'post-1',
       });
     });
@@ -260,7 +260,7 @@ describe('BoostPostModal', () => {
       expect(mockOnBoostPost).toHaveBeenCalledWith({
         duration: 7,
         budget: 5000,
-        type: 'post',
+        type: 'POST',
         value: 'post-1',
       });
     });
@@ -300,7 +300,7 @@ describe('BoostPostModal', () => {
       // The refetching logic is now handled inside usePostBoostEstimation
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -316,7 +316,7 @@ describe('BoostPostModal', () => {
       // The refetching logic is now handled inside usePostBoostEstimation
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
   });

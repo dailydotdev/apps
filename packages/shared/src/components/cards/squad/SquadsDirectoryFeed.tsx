@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import type { SourcesQueryProps } from '../../../hooks/source/useSources';
 import { useSources } from '../../../hooks/source/useSources';
@@ -15,6 +16,9 @@ import { PlaceholderSquadListList } from './PlaceholderSquadList';
 import Link from '../../utilities/Link';
 import type { HorizontalScrollTitleProps } from '../../HorizontalScroll/HorizontalScrollHeader';
 import { HorizontalScrollTitle } from '../../HorizontalScroll/HorizontalScrollHeader';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { fetchDirectoryAd } from '../../../lib/ads';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -22,6 +26,7 @@ interface SquadHorizontalListProps {
   linkToSeeAll: string;
   className?: string;
   children?: ReactNode;
+  firstItemShouldBeAd?: boolean;
 }
 
 const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
@@ -42,19 +47,47 @@ export function SquadsDirectoryFeed({
   linkToSeeAll,
   className,
   children,
+  firstItemShouldBeAd = false,
 }: SquadHorizontalListProps): ReactElement {
   const { ref, inView } = useInView({
     triggerOnce: true,
   });
+  const { user, isAuthReady } = useAuthContext();
   const { result } = useSources<Squad>({ query, isEnabled: inView });
   const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLoading = !isFetched || (!inView && !result.data);
+  const { data: ad, isLoading: isLoadingAd } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory'),
+    queryFn: fetchDirectoryAd,
+    enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
+  });
 
-  const flatSources =
-    result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
+  const adSource = ad?.data?.source;
+  const flatSources = useMemo(() => {
+    const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-  if (flatSources.length === 0 && isFetched) {
+    if (firstItemShouldBeAd && adSource) {
+      const index = map.findIndex(({ node }) => node.id === adSource.id);
+
+      if (index === 0) {
+        return map; // first item is already the ad
+      }
+
+      if (index > 0) {
+        delete map[index]; // to avoid displaying duplicate
+      }
+
+      map.unshift({ node: adSource });
+    }
+
+    return map;
+  }, [result.data?.pages, firstItemShouldBeAd, adSource]);
+
+  if (
+    (flatSources.length === 0 && isFetched) ||
+    (firstItemShouldBeAd && isLoadingAd)
+  ) {
     return null;
   }
 
@@ -74,8 +107,14 @@ export function SquadsDirectoryFeed({
             </Button>
           </Link>
         </header>
-        {flatSources?.map(({ node }) => (
-          <SquadList key={node.id} squad={node} />
+        {flatSources?.map(({ node }, index) => (
+          <SquadList
+            key={node.id}
+            squad={node}
+            campaignId={
+              adSource && index === 0 ? adSource.flags?.campaignId : undefined
+            }
+          />
         ))}
         {isLoading && <Skeleton />}
       </div>
@@ -89,13 +128,23 @@ export function SquadsDirectoryFeed({
       scrollProps={{ title, linkToSeeAll }}
     >
       {children}
-      {flatSources?.map(({ node }) =>
-        node.flags?.featured && linkToSeeAll.includes('featured') ? (
-          <SquadGrid key={node.id} source={node} className="w-80" />
+      {flatSources?.map(({ node }, index) => {
+        const shouldShowAd = adSource && index === 0;
+        const showFeaturedCard =
+          shouldShowAd ||
+          (node.flags?.featured && linkToSeeAll.includes('featured'));
+
+        return showFeaturedCard ? (
+          <SquadGrid
+            key={node.id}
+            source={node}
+            className="w-80"
+            campaignId={shouldShowAd ? adSource.flags?.campaignId : undefined}
+          />
         ) : (
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
-        ),
-      )}
+        );
+      })}
       {isLoading && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );

@@ -1,15 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { BoostStatus } from './CampaignListItem';
 import { CampaignListView, CampaignStatsGrid } from './CampaignListView';
 import type { ModalProps } from '../../components/modals/common/Modal';
 import { Modal } from '../../components/modals/common/Modal';
 import type { Campaign } from '../../graphql/campaigns';
-import { getCampaignById } from '../../graphql/campaigns';
+import { CampaignType, useCampaignById } from '../../graphql/campaigns';
 import { useCampaignMutation } from './useCampaignMutation';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import {
@@ -18,6 +16,15 @@ import {
   ButtonVariant,
 } from '../../components/buttons/Button';
 import { ArrowIcon } from '../../components/icons';
+import type { PostData } from '../../graphql/posts';
+import {
+  updatePostCache,
+  getPostByIdKey,
+  generateQueryKey,
+  RequestKey,
+} from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import type { Squad } from '../../graphql/sources';
 
 interface BoostedViewModalProps extends ModalProps {
   campaign: Campaign;
@@ -51,9 +58,55 @@ export function BoostedViewModal({
   onBack,
   ...props
 }: BoostedViewModalProps): ReactElement {
+  const { user } = useAuthContext();
+  const client = useQueryClient();
   const { showPrompt } = usePrompt();
+  const callbackFn = onBack || (() => props.onRequestClose(null));
   const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
-    onCancelSuccess: onBack || (() => props.onRequestClose(null)),
+    onCancelSuccess: (data) => {
+      if (!data.transactionId) {
+        return callbackFn();
+      }
+
+      const id = campaign.referenceId;
+
+      if (campaign.type === CampaignType.Post) {
+        updatePostCache(client, id, (old) => ({
+          flags: { ...old.flags, campaignId: null },
+        }));
+
+        client.setQueryData<PostData>(getPostByIdKey(id), (old) => {
+          if (!old) {
+            return old;
+          }
+
+          return {
+            ...old,
+            post: {
+              ...old.post,
+              flags: { ...old.post.flags, campaignId: null },
+            },
+          };
+        });
+      }
+
+      if (campaign.type === CampaignType.Squad) {
+        const key = generateQueryKey(RequestKey.Squad, user, id);
+
+        client.setQueryData<Squad>(key, (old) => {
+          if (!old) {
+            return old;
+          }
+
+          return {
+            ...old,
+            flags: { ...old.flags, campaignId: null },
+          };
+        });
+      }
+
+      return callbackFn();
+    },
   });
 
   const handleBoostClick = async () => {
@@ -62,7 +115,7 @@ export function BoostedViewModal({
         return null;
       }
 
-      return onCancelBoost(campaign.referenceId);
+      return onCancelBoost(campaign.id);
     }
 
     return onBoostAgain(campaign);
@@ -107,13 +160,7 @@ export function FetchBoostedViewModal({
 }: Omit<BoostedViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
-  const { user } = useAuthContext();
-  const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
-    queryFn: () => getCampaignById(campaignId),
-    staleTime: StaleTime.Default,
-    enabled: !!campaignId && !!user,
-  });
+  const { data, isLoading } = useCampaignById(campaignId);
 
   if (isLoading) {
     return (

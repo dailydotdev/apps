@@ -6,7 +6,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 interface UseCampaignEstimationProps {
   type: CampaignType;
-  query: Omit<StartCampaignProps, 'value' | 'type'>;
+  query: Omit<StartCampaignProps, 'value' | 'type' | 'duration'>;
   enabled?: boolean;
   referenceId: string;
 }
@@ -40,12 +40,15 @@ export const useCampaignEstimation = ({
         type,
         value: referenceId,
         budget: query.budget,
-        duration: query.duration,
       }),
     enabled,
     placeholderData,
     staleTime: StaleTime.Default,
   });
 
-  return { estimatedReach, isLoading: isPending || isRefetching, isFetched };
+  return {
+    estimatedReach: estimatedReach ?? placeholderData,
+    isLoading: isPending || isRefetching,
+    isFetched,
+  };
 };

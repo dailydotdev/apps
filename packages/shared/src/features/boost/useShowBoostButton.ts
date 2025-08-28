@@ -15,10 +15,5 @@ export const useShowBoostButton = ({ post }: UseShowBoostButtonProps) => {
   const postById = client.getQueryData<PostData>(key);
   const { canBoost } = useCanBoostPost(post);
 
-  return (
-    canBoost &&
-    postById &&
-    !postById.post?.flags?.campaignId &&
-    postById.post?.type !== PostType.Brief
-  );
+  return canBoost && postById && postById.post?.type !== PostType.Brief;
 };

@@ -37,6 +37,7 @@ interface CampaignStatsGridProps {
   impressions: number;
   users: number;
   spend: number;
+  members?: number;
   className?: string;
 }
 
@@ -44,6 +45,7 @@ export const CampaignStatsGrid = ({
   className,
   spend,
   users,
+  members,
   impressions,
 }: CampaignStatsGridProps) => (
   <div className={classNames('grid grid-cols-2 gap-4', className)}>
@@ -59,6 +61,13 @@ export const CampaignStatsGrid = ({
       info={boostDashboardInfo.impressions}
     />
     <DataTile label="Users" value={users} info={boostDashboardInfo.users} />
+    {members && (
+      <DataTile
+        label="New members"
+        value={members}
+        info={boostDashboardInfo.members}
+      />
+    )}
   </div>
 );
 
@@ -66,7 +75,7 @@ const CampaignListViewPreview = ({ campaign }: { campaign: Campaign }) => {
   switch (campaign.type) {
     case CampaignType.Post:
       return <CampaignListViewPost post={campaign.post} />;
-    case CampaignType.Source:
+    case CampaignType.Squad:
       return <CampaignListViewSquad squad={campaign.source} />;
     default:
       return null;
@@ -107,6 +116,18 @@ export function CampaignListView({
     return (date.startedIn / date.totalDays) * 100;
   }, [campaign.state, date]);
 
+  const endsIn = (() => {
+    if (date.endsIn === 0) {
+      return 'Ends in less than a day';
+    }
+
+    if (date.endsIn === 1) {
+      return 'Ends tomorrow';
+    }
+
+    return `Ends in ${date.endsIn} days`;
+  })();
+
   return (
     <div className="flex flex-col gap-6">
       <CampaignListViewPreview campaign={campaign} />
@@ -129,7 +150,7 @@ export function CampaignListView({
               type={TypographyType.Subhead}
               color={TypographyColor.Secondary}
             >
-              Ends in {date.endsIn} {date.endsIn === 1 ? 'day' : 'days'}
+              {endsIn}
             </Typography>
           )}
         </span>

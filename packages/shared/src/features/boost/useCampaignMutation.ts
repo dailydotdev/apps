@@ -10,7 +10,7 @@ import type { TransactionCreated } from '../../graphql/njord';
 
 interface UseCampaignMutationProps {
   onBoostSuccess?: (data: TransactionCreated, vars: StartCampaignProps) => void;
-  onCancelSuccess?: () => void;
+  onCancelSuccess?: (data: TransactionCreated, id: string) => void;
 }
 
 interface UseCampaignMutation {
@@ -57,7 +57,7 @@ export const useCampaignMutation = ({
 
   const { mutateAsync: onCancelBoost, isPending } = useMutation({
     mutationFn: stopCampaign,
-    onSuccess: async (data) => {
+    onSuccess: async (data, id) => {
       if (!data.transactionId) {
         return;
       }
@@ -80,7 +80,7 @@ export const useCampaignMutation = ({
 
       displayToast('Post boost canceled!');
 
-      onCancelSuccess?.();
+      onCancelSuccess?.(data, id);
     },
   });
 

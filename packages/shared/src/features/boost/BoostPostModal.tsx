@@ -72,7 +72,7 @@ export function BoostPostModal({
   const totalSpend = largeNumberFormat(totalSpendInt);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate.coresPerDay, duration: estimate.totalDays },
+    query: { budget: estimate.coresPerDay },
   });
   const { onStartBoost: onBoostPost } = useCampaignMutation({
     onBoostSuccess: (data, vars) => {

@@ -41,7 +41,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostPostButton';
+import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostButton';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
@@ -304,7 +304,6 @@ const PostAnalyticsPage = ({
             className: isBoosting && 'typo-footnote',
             size: isBoosting ? ButtonSize.XSmall : ButtonSize.Small,
           }}
-          isActive={isBoosting}
         />
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">

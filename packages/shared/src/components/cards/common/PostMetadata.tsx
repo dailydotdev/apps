@@ -7,6 +7,7 @@ import type { Post } from '../../../graphql/posts';
 import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -39,7 +40,11 @@ export default function PostMetadata({
       )}
     >
       <TruncateText>
-        {boostedBy && <strong>Boosted by @{boostedBy.username}</strong>}
+        {boostedBy && (
+          <Tooltip content={`Boosted by @${boostedBy.username}`}>
+            <strong>Boosted</strong>
+          </Tooltip>
+        )}
         {boostedBy && (!!description || !!createdAt || showReadTime) && (
           <Separator />
         )}

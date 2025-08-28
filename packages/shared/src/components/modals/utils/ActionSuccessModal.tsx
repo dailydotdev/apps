@@ -21,7 +21,7 @@ interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
     title: string;
     description: string;
     body?: ReactNode;
-    cover: string;
+    cover?: string;
     coverDrawer?: string;
   };
 }
