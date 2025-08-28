@@ -10,7 +10,7 @@ import {
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
-import { ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
@@ -19,7 +19,8 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
 import PostAwardAction from '../../post/PostAwardAction';
-import { useCardExperimentConfig } from '../../../hooks/useCardExperimentConfig';
+import { featureCardUiColors } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -40,6 +41,7 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
+  const colorExp = useFeature(featureCardUiColors);
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
@@ -47,7 +49,6 @@ const ActionButtons = ({
   const isUpvoteActive = post.userState?.vote === UserVote.Up;
   const isDownvoteActive = post.userState?.vote === UserVote.Down;
   const { onShowPanel, onClose } = useBlockPostPanel(post);
-  const config = useCardExperimentConfig('grid');
 
   if (isFeedPreview) {
     return null;
@@ -92,8 +93,7 @@ const ActionButtons = ({
   return (
     <div
       className={classNames(
-        'flex flex-row items-center justify-between',
-        config.buttonRowPadding,
+        'flex flex-row items-center justify-between px-1 pb-1',
         className,
       )}
     >
@@ -110,11 +110,11 @@ const ActionButtons = ({
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
+            size={ButtonSize.Small}
             icon={
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
-                size={config.iconSize}
+                size={IconSize.XSmall}
               />
             }
           >
@@ -140,13 +140,13 @@ const ActionButtons = ({
             icon={
               <DownvoteIcon
                 secondary={isDownvoteActive}
-                size={config.iconSize}
+                size={IconSize.XSmall}
               />
             }
             pressed={isDownvoteActive}
             onClick={onToggleDownvote}
             variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
+            size={ButtonSize.Small}
           />
         </Tooltip>
         <Tooltip content="Comments" side="bottom">
@@ -154,11 +154,11 @@ const ActionButtons = ({
             labelClassName="!pl-[1px]"
             id={`post-${post.id}-comment-btn`}
             icon={
-              <CommentIcon secondary={post.commented} size={config.iconSize} />
+              <CommentIcon secondary={post.commented} size={IconSize.XSmall} />
             }
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
-            size={config.buttonSize}
+            size={ButtonSize.Small}
             className="btn-tertiary-blueCheese"
           >
             {post?.numComments > 0 && (
@@ -179,19 +179,19 @@ const ActionButtons = ({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: config.buttonSize,
+            size: ButtonSize.Small,
           }}
-          iconSize={config.iconSize}
+          iconSize={IconSize.XSmall}
         />
         <Tooltip content="Copy link" side="bottom">
           <QuaternaryButton
             id="copy-post-btn"
-            size={config.buttonSize}
-            icon={<LinkIcon size={config.iconSize} />}
+            size={ButtonSize.Small}
+            icon={<LinkIcon size={IconSize.XSmall} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
-            color={config.copyButtonColor}
-            buttonClassName={config.copyButtonClassName}
+            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
+            buttonClassName={colorExp && 'hover:text-text-link'}
           />
         </Tooltip>
       </div>

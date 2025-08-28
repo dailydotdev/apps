@@ -25,7 +25,8 @@ import { BookmarkButton } from '../../../buttons';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
 import PostAwardAction from '../../../post/PostAwardAction';
-import { useCardExperimentConfig } from '../../../../hooks/useCardExperimentConfig';
+import { featureCardUiColors } from '../../../../lib/featureManagement';
+import { useFeature } from '../../../GrowthBookProvider';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -40,14 +41,13 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
 }: ActionButtonsPropsList): ReactElement {
+  const colorExp = useFeature(featureCardUiColors);
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-
-  const config = useCardExperimentConfig('list');
 
   if (isFeedPreview) {
     return null;
@@ -125,7 +125,7 @@ export default function ActionButtons({
             icon={
               <UpvoteButtonIcon
                 secondary={post?.userState?.vote === UserVote.Up}
-                size={config.iconSize}
+                size={IconSize.Medium}
               />
             }
           >
@@ -190,7 +190,7 @@ export default function ActionButtons({
             )}
           </QuaternaryButton>
         </LinkWithTooltip>
-        <PostAwardAction iconSize={config.iconSize} post={post} />
+        <PostAwardAction iconSize={IconSize.Medium} post={post} />
         <BookmarkButton
           post={post}
           buttonProps={{
@@ -206,8 +206,8 @@ export default function ActionButtons({
             icon={<LinkIcon />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
-            color={config.copyButtonColor}
-            buttonClassName={config.copyButtonClassName}
+            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
+            buttonClassName={colorExp && 'hover:text-text-link'}
           />
         </Tooltip>
       </div>

@@ -32,7 +32,8 @@ import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useCardExperimentConfig } from '../../hooks/useCardExperimentConfig';
+import { useFeature } from '../GrowthBookProvider';
+import { featureCardUiColors } from '../../lib/featureManagement';
 
 interface PostActionsProps {
   post: Post;
@@ -48,6 +49,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
+  const colorExp = useFeature(featureCardUiColors);
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
@@ -57,8 +59,6 @@ export function PostActions({
     sendingUser: user,
     receivingUser: post.author as LoggedUser,
   });
-
-  const config = useCardExperimentConfig('postActions');
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
 
@@ -295,9 +295,9 @@ export function PostActions({
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             variant={ButtonVariant.Tertiary}
-            className={config.copyButtonClassName}
-            color={config.copyButtonColor}
-            labelClassName={config.copyButtonClassName}
+            className={colorExp && 'hover:text-text-link'}
+            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
+            labelClassName={colorExp && 'hover:text-text-link'}
           >
             Copy
           </QuaternaryButton>

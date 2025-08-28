@@ -12,12 +12,15 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
-import { ButtonSize } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { featureCardUiColors } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
+  const colorExp = useFeature(featureCardUiColors);
   const { isPlus } = usePlusSubscription();
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
@@ -32,7 +35,12 @@ export const AdGrid = forwardRef(function AdGrid(
   }, [ad, onRefresh, refetch]);
 
   return (
-    <Card {...domProps} data-testid="adItem" ref={ref}>
+    <Card
+      className={colorExp && '!bg-background-default'}
+      {...domProps}
+      data-testid="adItem"
+      ref={ref}
+    >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer className="flex-1">
         <CardTitle className="line-clamp-4 typo-title3">
@@ -40,15 +48,21 @@ export const AdGrid = forwardRef(function AdGrid(
         </CardTitle>
         <AdAttribution ad={ad} className={{ main: 'mt-auto font-normal' }} />
       </CardTextContainer>
-      <AdImage ad={ad} ImageComponent={CardImage} />
-      <CardTextContainer>
+      <AdImage className="mx-1" ad={ad} ImageComponent={CardImage} />
+      <CardTextContainer className="!mx-2 my-1">
         <div className="flex items-center">
           <AdRefresh
+            variant={colorExp ? ButtonVariant.Tertiary : ButtonVariant.Float}
             size={ButtonSize.Small}
             onClick={onRefreshClick}
             loading={isRefetching}
           />
-          {!isPlus && <RemoveAd size={ButtonSize.Small} />}
+          {!isPlus && (
+            <RemoveAd
+              variant={colorExp ? ButtonVariant.Tertiary : ButtonVariant.Float}
+              size={ButtonSize.Small}
+            />
+          )}
         </div>
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
