@@ -116,6 +116,18 @@ export function CampaignListView({
     return (date.startedIn / date.totalDays) * 100;
   }, [campaign.state, date]);
 
+  const endsIn = (() => {
+    if (date.endsIn === 0) {
+      return 'Ends in less than a day';
+    }
+
+    if (date.endsIn === 1) {
+      return 'Ends tomorrow';
+    }
+
+    return `Ends in ${date.endsIn} days`;
+  })();
+
   return (
     <div className="flex flex-col gap-6">
       <CampaignListViewPreview campaign={campaign} />
@@ -138,10 +150,7 @@ export function CampaignListView({
               type={TypographyType.Subhead}
               color={TypographyColor.Secondary}
             >
-              Ends in
-              {date.endsIn === 0 || date.endsIn === 1
-                ? ' less than a day'
-                : `${date.endsIn} days`}
+              {endsIn}
             </Typography>
           )}
         </span>

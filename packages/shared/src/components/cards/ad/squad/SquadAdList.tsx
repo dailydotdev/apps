@@ -7,7 +7,6 @@ import { Image } from '../../../image/Image';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
 import { Separator } from '../../common/common';
@@ -22,8 +21,7 @@ import { CardLink } from '../../common/Card';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
-import { SourceIcon } from '../../../icons';
-import { IconSize } from '../../../Icon';
+import { SquadFeedStats } from './SquadFeedStats';
 
 export function SquadAdList({
   item,
@@ -83,25 +81,7 @@ export function SquadAdList({
             value={source.membersCount}
           />
         </div>
-        <div className="flex flex-row flex-wrap items-center text-text-tertiary">
-          {source.flags.featured && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Brand}
-              className="flex flex-row items-center"
-            >
-              <SourceIcon size={IconSize.Size16} />
-              Featured
-            </Typography>
-          )}
-          {source.flags.featured && <Separator />}
-          <SquadAdStat label="Posts" value={source.flags.totalPosts} />
-          <Separator />
-          <SquadAdStat label="Upvotes" value={source.flags.totalUpvotes} />
-          <Separator />
-          <SquadAdStat label="Awards" value={source.flags.totalAwards} />
-        </div>
+        <SquadFeedStats source={source} />
       </div>
       {shouldShowAction ? (
         <SquadActionButton

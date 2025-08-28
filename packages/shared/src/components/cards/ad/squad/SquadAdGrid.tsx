@@ -9,7 +9,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../typography/Typography';
-import { Separator, separatorCharacter } from '../../common/common';
+import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { Button, ButtonVariant } from '../../../buttons/Button';
@@ -21,6 +21,8 @@ import { CardLink } from '../../common/Card';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
+import { pluralize } from '../../../../lib/strings';
+import { SquadFeedStats } from './SquadFeedStats';
 
 export function SquadAdGrid({
   item,
@@ -58,7 +60,7 @@ export function SquadAdGrid({
               <strong>Boosted</strong>
             </button>
           </Tooltip>
-          {separatorCharacter} @{source.handle}
+          <Separator />@{source.handle}
         </Typography>
       </div>
       <Typography type={TypographyType.Callout} className="line-clamp-5">
@@ -76,17 +78,11 @@ export function SquadAdGrid({
         ))}
         <SquadAdStat
           className="ml-2"
-          label="members"
+          label={pluralize('member', source.membersCount)}
           value={source.membersCount}
         />
       </div>
-      <div className="flex flex-row flex-wrap items-center text-text-tertiary">
-        <SquadAdStat label="Posts" value={source.flags.totalPosts} />
-        <Separator />
-        <SquadAdStat label="Upvotes" value={source.flags.totalUpvotes} />
-        <Separator />
-        <SquadAdStat label="Awards" value={source.flags.totalAwards} />
-      </div>
+      <SquadFeedStats source={source} />
       {shouldShowAction ? (
         <SquadActionButton
           squad={source}
