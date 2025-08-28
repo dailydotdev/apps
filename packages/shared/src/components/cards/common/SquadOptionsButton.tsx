@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -36,7 +36,6 @@ export function SquadOptionsButton({
   className,
 }: SquadOptionsButtonProps): ReactElement {
   const { openModal } = useLazyModal();
-  const [open, setOpen] = useState(false);
   const { user } = useAuthContext();
   const { data: campaign } = useCampaignById(squad.flags.campaignId);
   const isBooster = campaign && user?.id === campaign.user.id;
@@ -95,24 +94,18 @@ export function SquadOptionsButton({
   ]);
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
         <Button
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           size={ButtonSize.Small}
-          className={classNames(
-            'group-hover:flex',
-            !open && 'hidden',
-            className,
-          )}
+          className={classNames('invisible z-1 group-hover:visible', className)}
         />
       </DropdownMenuTrigger>
-      {!!open && (
-        <DropdownMenuContent>
-          <DropdownMenuOptions options={options} />
-        </DropdownMenuContent>
-      )}
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={options} />
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }
