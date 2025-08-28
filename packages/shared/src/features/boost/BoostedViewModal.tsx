@@ -17,7 +17,14 @@ import {
 } from '../../components/buttons/Button';
 import { ArrowIcon } from '../../components/icons';
 import type { PostData } from '../../graphql/posts';
-import { updatePostCache, getPostByIdKey } from '../../lib/query';
+import {
+  updatePostCache,
+  getPostByIdKey,
+  generateQueryKey,
+  RequestKey,
+} from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import type { Squad } from '../../graphql/sources';
 
 interface BoostedViewModalProps extends ModalProps {
   campaign: Campaign;
@@ -51,6 +58,7 @@ export function BoostedViewModal({
   onBack,
   ...props
 }: BoostedViewModalProps): ReactElement {
+  const { user } = useAuthContext();
   const client = useQueryClient();
   const { showPrompt } = usePrompt();
   const callbackFn = onBack || (() => props.onRequestClose(null));
@@ -82,8 +90,19 @@ export function BoostedViewModal({
         });
       }
 
-      if (campaign.type === CampaignType.Post) {
-        // set squad here
+      if (campaign.type === CampaignType.Squad) {
+        const key = generateQueryKey(RequestKey.Squad, user, id);
+
+        client.setQueryData<Squad>(key, (old) => {
+          if (!old) {
+            return old;
+          }
+
+          return {
+            ...old,
+            flags: { ...old.flags, campaignId: null },
+          };
+        });
       }
 
       return callbackFn();
