@@ -52,7 +52,7 @@ export function SquadsDirectoryFeed({
   const { ref, inView } = useInView({
     triggerOnce: true,
   });
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { result } = useSources<Squad>({ query, isEnabled: inView });
   const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -60,7 +60,7 @@ export function SquadsDirectoryFeed({
   const { data: ad, isLoading: isLoadingAd } = useQuery({
     queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory'),
     queryFn: fetchDirectoryAd,
-    enabled: firstItemShouldBeAd,
+    enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
 
   const adSource = ad?.data?.source;

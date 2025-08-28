@@ -37,7 +37,6 @@ export function SquadAdGrid({
     <FeedItemContainer
       data-testid="adItem"
       domProps={{ className: 'flex flex-col gap-3 group' }}
-      flagProps={{}}
     >
       <Link href={source.permalink} onClick={onClickAd}>
         <CardLink href={source.permalink} />

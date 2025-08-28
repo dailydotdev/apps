@@ -20,6 +20,8 @@ export const SquadAdStat = ({
     color={TypographyColor.Primary}
   >
     <strong className="mr-1">{largeNumberFormat(value)}</strong>
-    <span className="text-text-tertiary">{label}</span>
+    <Typography tag={TypographyTag.Span} color={TypographyColor.Tertiary}>
+      {label}
+    </Typography>
   </Typography>
 );

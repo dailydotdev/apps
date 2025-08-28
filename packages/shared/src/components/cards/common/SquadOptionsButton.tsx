@@ -75,7 +75,10 @@ export function SquadOptionsButton({
         label: 'Manade Ad',
         icon: <TrendingIcon />,
         action: () =>
-          openModal({ type: LazyModal.BoostedPostView, props: { campaign } }),
+          openModal({
+            type: LazyModal.BoostedCampaignView,
+            props: { campaign },
+          }),
       });
     }
 
@@ -93,7 +96,7 @@ export function SquadOptionsButton({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger content="Options" asChild>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
         <Button
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}

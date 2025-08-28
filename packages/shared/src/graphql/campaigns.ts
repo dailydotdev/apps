@@ -51,25 +51,6 @@ const CAMPAIGN_FRAGMENT = gql`
       category {
         id
       }
-      members {
-        edges {
-          node {
-            user {
-              id
-              name
-              image
-              permalink
-              username
-              bio
-              reputation
-              companies {
-                name
-                image
-              }
-            }
-          }
-        }
-      }
       referralUrl
       category {
         id
