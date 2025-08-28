@@ -292,7 +292,7 @@ const BriefPostContentRaw = ({
     [
       authorFirstName,
       post.flags?.posts,
-      post.flags.savedTime,
+      post.flags?.savedTime,
       post.title,
       postsCount,
     ],
