@@ -137,7 +137,9 @@ const Page = (): ReactElement => {
     seconds: 0,
   });
   const hasTodayBrief =
-    firstBrief && 'post' in firstBrief && new Date(firstBrief.post.createdAt) >= todayTime;
+    firstBrief &&
+    'post' in firstBrief &&
+    new Date(firstBrief.post.createdAt) >= todayTime;
 
   return (
     <ProtectedPage>
