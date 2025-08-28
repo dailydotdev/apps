@@ -104,12 +104,12 @@ export const SquadGrid = ({
           <div className="mb-5 flex-auto">
             <div className="font-bold typo-title3">{name}</div>
             <div className="text-text-secondary">
-              {campaignId && (
+              {campaign && (
                 <Tooltip content={`Boosted by @${campaign.user.username}`}>
                   <strong>Boosted</strong>
                 </Tooltip>
               )}
-              {campaignId && <Separator />}
+              {campaign && <Separator />}
               {handle}
             </div>
             {description && (
