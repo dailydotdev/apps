@@ -11,7 +11,7 @@ import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
@@ -85,7 +85,7 @@ const useBookmarkPost = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
   const postLogEvent = usePostLogEvent();

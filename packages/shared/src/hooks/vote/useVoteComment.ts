@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
@@ -41,7 +41,7 @@ export const useVoteComment = ({
   'toggleUpvote' | 'toggleDownvote'
 > => {
   const { user, showLogin } = useContext(AuthContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
 
   const { upvote, downvote, cancelVote } = useVote({
     onMutate,

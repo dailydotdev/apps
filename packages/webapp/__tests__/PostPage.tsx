@@ -50,12 +50,14 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
+
+const LogContext = getLogContextStatic();
 
 const showLogin = jest.fn();
 // let nextCallback: (value: PostsEngaged) => unknown = null;

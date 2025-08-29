@@ -19,13 +19,15 @@ import {
   GET_NOTIFICATION_SETTINGS,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { SendType } from '@dailydotdev/shared/src/hooks';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import ProfileNotificationsPage from '../pages/settings/notifications';
+
+const LogContext = getLogContextStatic();
 
 jest.mock('next/router', () => ({
   useRouter() {

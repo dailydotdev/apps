@@ -5,7 +5,7 @@ import type {
   QueryKey,
 } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import {
   feedLogExtra,
   optimisticPostUpdateInFeed,
@@ -96,7 +96,7 @@ export default function useOnPostClick({
   origin,
 }: UseOnPostClickProps): FeedPostClick {
   const client = useQueryClient();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { checkReadingStreak } = useReadingStreak();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { shouldUseListFeedLayout } = useFeedLayout({

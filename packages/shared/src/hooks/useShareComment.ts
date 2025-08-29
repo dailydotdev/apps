@@ -1,7 +1,7 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import type { Post } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
 import type { Origin } from '../lib/log';
 import type { Comment } from '../graphql/comments';
@@ -17,7 +17,7 @@ interface UseShareComment {
 }
 
 export function useShareComment(origin: Origin): UseShareComment {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { openSharePost } = useSharePost(origin);
   const { getShortUrl } = useGetShortUrl();
 

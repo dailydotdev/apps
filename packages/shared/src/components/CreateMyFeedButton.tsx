@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { PlusIcon } from './icons';
 import {
   Button,
@@ -7,7 +7,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 
 interface CreateMyFeedButtonProps {
@@ -24,7 +24,7 @@ const getLogEvent = (eventName: string, copy: string): LogEvent => ({
 export default function CreateMyFeedButton({
   action,
 }: CreateMyFeedButtonProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const buttonCopy = 'Choose tags';
   const explainerCopy = 'Get the content you need by creating a personal feed';
   const onClick = () => {

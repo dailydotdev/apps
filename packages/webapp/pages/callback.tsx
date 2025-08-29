@@ -4,8 +4,8 @@ import {
 } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import type { ReactElement } from 'react';
-import { useContext, useEffect } from 'react';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useEffect } from 'react';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   AUTH_REDIRECT_KEY,
   shouldRedirectAuth,
@@ -37,7 +37,7 @@ const handleRedirectAuth = (params: URLSearchParams) => {
 };
 
 function CallbackPage(): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
