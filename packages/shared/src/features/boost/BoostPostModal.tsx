@@ -1,40 +1,46 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
-import { Modal } from '../../common/Modal';
-import type { ModalProps } from '../../common/Modal';
+import { useQueryClient } from '@tanstack/react-query';
+import { Modal } from '../../components/modals/common/Modal';
+import type { ModalProps } from '../../components/modals/common/Modal';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useAuthContext } from '../../../../contexts/AuthContext';
-import { CoreIcon, PlusIcon } from '../../../icons';
-import type { Post } from '../../../../graphql/posts';
-
-import { Image } from '../../../image/Image';
-import { largeNumberFormat } from '../../../../lib';
-import { IconSize } from '../../../Icon';
-import { Origin } from '../../../../lib/log';
-import { BuyCoresModal } from '../../award/BuyCoresModal';
-import { usePostImage } from '../../../../hooks/post/usePostImage';
-import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { LazyModal } from '../../common/types';
-import { ActionSuccessModal } from '../../utils/ActionSuccessModal';
-import { postBoostSuccessCover } from '../../../../lib/image';
-import { boostPostDocsLink, walletUrl } from '../../../../lib/constants';
-import useDebounceFn from '../../../../hooks/useDebounceFn';
-import { Loader } from '../../../Loader';
+} from '../../components/typography/Typography';
 import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { CoreIcon, PlusIcon } from '../../components/icons';
+import type { Post } from '../../graphql/posts';
+import { Image } from '../../components/image/Image';
+import { largeNumberFormat } from '../../lib';
+import { IconSize } from '../../components/Icon';
+import { Origin } from '../../lib/log';
+import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
+import { usePostImage } from '../../hooks/post/usePostImage';
+import { useCampaignMutation } from './useCampaignMutation';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
+import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
+import { boostSuccessCover } from '../../lib/image';
+import { boostDocsLink, walletUrl } from '../../lib/constants';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { Loader } from '../../components/Loader';
+import {
+  CampaignType,
   DEFAULT_CORES_PER_DAY,
   DEFAULT_DURATION_DAYS,
-} from '../../../../graphql/post/boost';
-import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
+} from '../../graphql/campaigns';
+import { usePostBoostEstimation } from './usePostBoostEstimation';
+import { updatePostCache } from '../../lib/query';
 
 const Slider = dynamic(
-  () => import('../../../fields/Slider').then((mod) => mod.Slider),
+  () => import('../../components/fields/Slider').then((mod) => mod.Slider),
   { ssr: false },
 );
 
@@ -56,6 +62,7 @@ export function BoostPostModal({
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
+  const client = useQueryClient();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const [coresPerDay, setCoresPerDay] = React.useState(DEFAULT_CORES_PER_DAY);
   const [totalDays, setTotalDays] = React.useState(DEFAULT_DURATION_DAYS);
@@ -65,10 +72,18 @@ export function BoostPostModal({
   const totalSpend = largeNumberFormat(totalSpendInt);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate.coresPerDay, duration: estimate.totalDays },
+    query: { budget: estimate.coresPerDay },
   });
-  const { onBoostPost } = usePostBoostMutation({
-    onBoostSuccess: () => setActiveScreen(SCREENS.SUCCESS),
+  const { onStartBoost: onBoostPost } = useCampaignMutation({
+    onBoostSuccess: (data, vars) => {
+      if (data.referenceId) {
+        updatePostCache(client, vars.value, (old) => ({
+          flags: { ...old.flags, campaignId: data.referenceId },
+        }));
+      }
+
+      setActiveScreen(SCREENS.SUCCESS);
+    },
   });
   const image = usePostImage(post);
 
@@ -80,7 +95,8 @@ export function BoostPostModal({
     return onBoostPost({
       duration: totalDays,
       budget: coresPerDay,
-      id: post.id,
+      value: post.id,
+      type: CampaignType.Post,
     });
   };
 
@@ -120,14 +136,14 @@ export function BoostPostModal({
         secondaryCta={{
           copy: 'Learn more about boosting',
           tag: 'a',
-          href: boostPostDocsLink,
+          href: boostDocsLink,
           target: '_blank',
         }}
         content={{
           title: 'Post boosted successfully!',
           description:
             'Your post is now being promoted and will start reaching more developers shortly. You can track its performance anytime from the ads dashboard.',
-          cover: postBoostSuccessCover,
+          cover: boostSuccessCover,
         }}
       />
     );
@@ -187,7 +203,7 @@ export function BoostPostModal({
           Give your content the spotlight it deserves. Our auto-targeting engine
           ensures your post gets shown to the developers most likely to care.
           <a
-            href={boostPostDocsLink}
+            href={boostDocsLink}
             className="ml-1 text-text-link"
             target="_blank"
           >
@@ -284,7 +300,8 @@ export function BoostPostModal({
           onClick={onButtonClick}
           disabled={!canBoost || isLoading}
         >
-          Boost post for <CoreIcon size={IconSize.Small} /> {totalSpend}
+          Boost post for <CoreIcon className="mx-1" size={IconSize.Small} />
+          {totalSpend}
         </Button>
       </Modal.Footer>
     </Modal>

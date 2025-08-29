@@ -14,7 +14,7 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
 import { webappUrl } from '../../../lib/constants';
-import { BoostPostButton } from '../../../features/boost/BoostPostButton';
+import { BoostPostButton } from '../../../features/boost/BoostButton';
 
 interface PostShortInfoProps {
   post: Post;
@@ -95,7 +95,6 @@ export function PostShortInfo({
                 className: 'typo-footnote',
                 size: ButtonSize.XSmall,
               }}
-              isActive
             />
           )}
           {createdAt && (

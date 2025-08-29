@@ -167,4 +167,4 @@ export const webFunnelPrefix = '/helloworld';
 
 export const creatorsTermsOfService = 'https://r.daily.dev/creators-terms';
 
-export const boostPostDocsLink = 'https://r.daily.dev/boost';
+export const boostDocsLink = 'https://r.daily.dev/boost';

@@ -28,7 +28,7 @@ interface FeedItemContainerProps {
 }
 
 function FeedItemContainer(
-  { flagProps, children, domProps, bookmarked }: FeedItemContainerProps,
+  { flagProps = {}, children, domProps, bookmarked }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { highlightBookmarkedPost } = useBookmarkProvider({

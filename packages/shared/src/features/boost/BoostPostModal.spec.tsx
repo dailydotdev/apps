@@ -2,26 +2,26 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { BoostPostModal } from './BoostPostModal';
-import { usePostBoostMutation } from '../../../../hooks/post/usePostBoostMutations';
-import { usePostBoostEstimation } from '../../../../hooks/post/usePostBoostEstimation';
-import { usePostById } from '../../../../hooks';
-import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
-import loggedUser from '../../../../../__tests__/fixture/loggedUser';
-import postFixture from '../../../../../__tests__/fixture/post';
-import type { Post } from '../../../../graphql/posts';
+import { useCampaignMutation } from './useCampaignMutation';
+import { usePostBoostEstimation } from './usePostBoostEstimation';
+import { usePostById } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import postFixture from '../../../__tests__/fixture/post';
+import type { Post } from '../../graphql/posts';
 
 // Mock the hooks
-jest.mock('../../../../hooks/post/usePostBoostMutations');
-jest.mock('../../../../hooks/post/usePostBoostEstimation');
-jest.mock('../../../../hooks');
-jest.mock('../../../../hooks/useLazyModal');
-jest.mock('../../../../hooks/post/usePostImage');
-jest.mock('../../../../hooks/useDebounceFn');
+jest.mock('./useCampaignMutation');
+jest.mock('./usePostBoostEstimation');
+jest.mock('../../hooks');
+jest.mock('../../hooks/useLazyModal');
+jest.mock('../../hooks/post/usePostImage');
+jest.mock('../../hooks/useDebounceFn');
 jest.mock('next/dynamic', () => () => 'div');
 
-const mockUsePostBoostMutation = usePostBoostMutation as jest.MockedFunction<
-  typeof usePostBoostMutation
+const mockUsePostBoostMutation = useCampaignMutation as jest.MockedFunction<
+  typeof useCampaignMutation
 >;
 const mockUsePostBoostEstimation =
   usePostBoostEstimation as jest.MockedFunction<typeof usePostBoostEstimation>;
@@ -31,11 +31,11 @@ const mockUseLazyModal = useLazyModal as jest.MockedFunction<
 >;
 
 // Mock other hooks
-jest.mock('../../../../hooks/post/usePostImage', () => ({
+jest.mock('../../hooks/post/usePostImage', () => ({
   usePostImage: () => 'https://example.com/image.jpg',
 }));
 
-jest.mock('../../../../hooks/useDebounceFn', () => ({
+jest.mock('../../hooks/useDebounceFn', () => ({
   __esModule: true,
   default: (fn: unknown) => [fn],
 }));
@@ -158,7 +158,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -171,7 +171,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -182,7 +182,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -196,7 +196,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -207,7 +207,7 @@ describe('BoostPostModal', () => {
 
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
   });
@@ -218,7 +218,7 @@ describe('BoostPostModal', () => {
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
-        onBoostPost: mockOnBoostPost,
+        onStartBoost: mockOnBoostPost,
       });
       mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
@@ -232,7 +232,8 @@ describe('BoostPostModal', () => {
       expect(mockOnBoostPost).toHaveBeenCalledWith({
         duration: 7, // default totalDays
         budget: 5000, // default coresPerDay
-        id: 'post-1',
+        type: 'POST',
+        value: 'post-1',
       });
     });
 
@@ -243,7 +244,7 @@ describe('BoostPostModal', () => {
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
-        onBoostPost: mockOnBoostPost,
+        onStartBoost: mockOnBoostPost,
       });
       mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
@@ -259,7 +260,8 @@ describe('BoostPostModal', () => {
       expect(mockOnBoostPost).toHaveBeenCalledWith({
         duration: 7,
         budget: 5000,
-        id: 'post-1',
+        type: 'POST',
+        value: 'post-1',
       });
     });
 
@@ -269,7 +271,7 @@ describe('BoostPostModal', () => {
       const mockOnBoostPost = jest.fn();
       mockUsePostBoostMutation.mockReturnValue({
         ...defaultMockBoostMutation,
-        onBoostPost: mockOnBoostPost,
+        onStartBoost: mockOnBoostPost,
       });
       mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
 
@@ -298,7 +300,7 @@ describe('BoostPostModal', () => {
       // The refetching logic is now handled inside usePostBoostEstimation
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
 
@@ -314,7 +316,7 @@ describe('BoostPostModal', () => {
       // The refetching logic is now handled inside usePostBoostEstimation
       expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
         post,
-        query: { budget: 5000, duration: 7 },
+        query: { budget: 5000 },
       });
     });
   });

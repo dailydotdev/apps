@@ -23,3 +23,6 @@ export const checkLowercaseEquality = (
 export const escapeRegexCharacters = (str: string): string => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
+
+export const pluralize = (word: string, count: number, append = 's') =>
+  `${word}${count === 1 ? '' : append}`;
