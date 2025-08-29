@@ -40,6 +40,8 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
+import { adLogEvent, feedLogExtra } from '../lib/feed';
+import { useLogContext } from '../contexts/LogContext';
 
 const CommentPopup = dynamic(
   () =>
@@ -92,12 +94,7 @@ export type FeedItemComponentProps = {
     column: number,
     isAd?: boolean,
   ) => unknown;
-  onAdAction: (
-    action: Exclude<AdActions, AdActions.Impression>,
-    ad: Ad,
-    row: number,
-    column: number,
-  ) => void;
+  virtualizedNumCards: number;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -228,9 +225,10 @@ function FeedItemComponent({
   toggleBookmark,
   onMenuClick,
   onCommentClick,
-  onAdAction,
   onReadArticleClick,
+  virtualizedNumCards,
 }: FeedItemComponentProps): ReactElement {
+  const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
     item,
     index,
@@ -257,11 +255,25 @@ function FeedItemComponent({
     postType: (item as PostItem).post?.type,
   });
 
+  const onAdAction = (
+    action: Exclude<AdActions, AdActions.Impression>,
+    ad: Ad,
+  ) => {
+    logEvent(
+      adLogEvent(action, ad, {
+        columns: virtualizedNumCards,
+        column,
+        row,
+        ...feedLogExtra(feedName, ranking),
+      }),
+    );
+  };
+
   if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
     return (
       <SquadAdTag
         item={item as AdSquadItem}
-        onClickAd={() => onAdAction(AdActions.Click, item.ad, row, column)}
+        onClickAd={() => onAdAction(AdActions.Click, item.ad)}
       />
     );
   }
@@ -360,8 +372,8 @@ function FeedItemComponent({
           ad={item.ad}
           index={item.index}
           feedIndex={index}
-          onLinkClick={(ad) => onAdAction(AdActions.Click, ad, row, column)}
-          onRefresh={(ad) => onAdAction(AdActions.Refresh, ad, row, column)}
+          onLinkClick={(ad) => onAdAction(AdActions.Click, ad)}
+          onRefresh={(ad) => onAdAction(AdActions.Refresh, ad)}
         />
       );
     case FeedItemType.UserAcquisition:
