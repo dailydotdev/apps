@@ -306,6 +306,8 @@ export enum LogEvent {
   // Start Brief
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
+  StartBriefPurchase = 'start brief purchase',
+  BriefPaywall = 'brief paywall',
   // End Brief
   // CV Upload
   UploadCv = 'upload cv',
@@ -406,6 +408,7 @@ export enum TargetId {
   NotificationSettings = 'notification settings',
   Feed = 'feed',
   CVWidget = 'cv widget',
+  Scroll = 'scroll',
 }
 
 export enum NotificationChannel {

@@ -17,6 +17,7 @@ export type Alerts = {
   bootPopup?: boolean;
   showRecoverStreak?: boolean;
   showTopReader?: boolean;
+  briefBannerLastSeen?: Date;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
@@ -33,6 +34,7 @@ export const UPDATE_ALERTS = gql`
       lastBanner
       showStreakMilestone
       showTopReader
+      briefBannerLastSeen
     }
   }
 `;

@@ -55,10 +55,14 @@ import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
-import { briefCardFeedFeature } from '../lib/featureManagement';
+import {
+  briefCardFeedFeature,
+  briefFeedEntrypointPage,
+} from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
+import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -165,8 +169,9 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();
+  const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
-    feedName === SharedFeedPage.MyFeed &&
+    isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
   const { getMarketingCta } = useBoot();
@@ -176,11 +181,20 @@ export default function Feed<T>({
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
-    shouldEvaluate: feedName === SharedFeedPage.MyFeed,
+    shouldEvaluate: isMyFeed,
   });
-  const showBriefCard =
-    feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
+  const showBriefCard = isMyFeed && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+
+  const { value: briefBannerPage } = useConditionalFeature({
+    feature: briefFeedEntrypointPage,
+    shouldEvaluate: !user?.isPlus && isMyFeed,
+  });
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const indexWhenShowingPromoBanner =
+    typeof briefBannerPage === 'number'
+      ? (currentPageSize - 1) * briefBannerPage
+      : 0;
 
   const {
     items,
@@ -526,6 +540,16 @@ export default function Feed<T>({
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
                 }}
               >
+                {!!indexWhenShowingPromoBanner &&
+                  index === indexWhenShowingPromoBanner && (
+                    <BriefBannerFeed
+                      style={{
+                        gridColumn:
+                          !shouldUseListFeedLayout &&
+                          `span ${virtualizedNumCards}`,
+                      }}
+                    />
+                  )}
                 <FeedItemComponent
                   item={item}
                   index={index}

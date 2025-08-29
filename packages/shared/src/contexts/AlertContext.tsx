@@ -18,6 +18,7 @@ export const ALERT_DEFAULTS: Alerts = {
   showGenericReferral: false,
   showStreakMilestone: false,
   lastBootPopup: null,
+  briefBannerLastSeen: null,
 };
 
 export interface AlertContextData {
