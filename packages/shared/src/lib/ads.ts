@@ -7,12 +7,24 @@ export enum AdActions {
   Impression = 'impression',
 }
 
+const skadiGenerationIdHeader = 'x-generation-id';
+
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> => {
   const res = await fetch(`${apiUrl}/v1/a?${params.toString()}`, {
     credentials: 'include',
   });
+  const generationId = res.headers.get(skadiGenerationIdHeader);
+
   const ads = (await res.json()) as Ad[];
-  return ads[0];
+
+  if (!ads[0]) {
+    return null;
+  }
+
+  return {
+    ...ads[0],
+    generationId,
+  };
 };
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {

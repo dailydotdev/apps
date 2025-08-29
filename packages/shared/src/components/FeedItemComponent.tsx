@@ -159,7 +159,53 @@ const getTags = ({
   };
 };
 
-export default function FeedItemComponent({
+export const withFeedLogExtraContext = (
+  WrappedComponent: typeof FeedItemComponent,
+): typeof FeedItemComponent => {
+  const WithFeedLogExtraContext = (
+    props: FeedItemComponentProps,
+  ): ReactElement => {
+    const { item } = props;
+
+    if ([FeedItemType.Ad, FeedItemType.Post].includes(item?.type)) {
+      return (
+        <LogExtraContextProvider
+          selector={() => {
+            const extraData: Record<string, unknown> = {};
+
+            if (item.type === FeedItemType.Ad && item.ad?.generationId) {
+              extraData.gen_id = item.ad.generationId;
+            }
+
+            if (item.type === FeedItemType.Post || isBoostedPostAd(item)) {
+              const post =
+                item.type === FeedItemType.Post
+                  ? item.post
+                  : item.ad.data?.post;
+
+              return {
+                referrer_target_id: post?.id,
+                referrer_target_type: post?.id ? TargetType.Post : undefined,
+              };
+            }
+
+            return extraData;
+          }}
+        >
+          <WrappedComponent {...props} />
+        </LogExtraContextProvider>
+      );
+    }
+
+    return <WrappedComponent {...props} />;
+  };
+
+  WithFeedLogExtraContext.displayName = 'WithFeedLogExtraContext';
+
+  return WithFeedLogExtraContext;
+};
+
+function FeedItemComponent({
   item,
   index,
   row,
@@ -233,86 +279,75 @@ export default function FeedItemComponent({
 
     return (
       <ActivePostContextProvider post={itemPost}>
-        <LogExtraContextProvider
-          selector={() => {
-            return {
-              referrer_target_id: itemPost?.id,
-              referrer_target_type: itemPost?.id ? TargetType.Post : undefined,
-            };
+        <PostTag
+          enableSourceHeader={
+            feedName !== 'squad' && itemPost.source?.type === 'squad'
+          }
+          ref={inViewRef}
+          post={{ ...itemPost }}
+          data-testid="postItem"
+          onUpvoteClick={(post, origin = Origin.Feed) => {
+            toggleUpvote({
+              payload: post,
+              origin,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
           }}
+          onDownvoteClick={(post, origin = Origin.Feed) => {
+            toggleDownvote({
+              payload: post,
+              origin,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
+          onPostClick={(post) => onPostClick(post, index, row, column)}
+          onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
+          onReadArticleClick={() =>
+            onReadArticleClick(itemPost, index, row, column)
+          }
+          onShare={(post) => onShare(post, row, column)}
+          onBookmarkClick={(post, origin = Origin.Feed) => {
+            toggleBookmark({
+              post,
+              origin,
+              opts: {
+                columns,
+                column,
+                row,
+              },
+            });
+          }}
+          openNewTab={openNewTab}
+          enableMenu={!!user}
+          onMenuClick={(event) => onMenuClick(event, index, row, column)}
+          onCopyLinkClick={(event, post) =>
+            onCopyLinkClick(event, post, index, row, column)
+          }
+          menuOpened={postMenuIndex === index}
+          onCommentClick={(post) =>
+            onCommentClick(post, index, row, column, !!boostedBy)
+          }
+          eagerLoadImage={row === 0 && column === 0}
         >
-          <PostTag
-            enableSourceHeader={
-              feedName !== 'squad' && itemPost.source?.type === 'squad'
-            }
-            ref={inViewRef}
-            post={{ ...itemPost }}
-            data-testid="postItem"
-            onUpvoteClick={(post, origin = Origin.Feed) => {
-              toggleUpvote({
-                payload: post,
-                origin,
-                opts: {
-                  columns,
-                  column,
-                  row,
-                },
-              });
-            }}
-            onDownvoteClick={(post, origin = Origin.Feed) => {
-              toggleDownvote({
-                payload: post,
-                origin,
-                opts: {
-                  columns,
-                  column,
-                  row,
-                },
-              });
-            }}
-            onPostClick={(post) => onPostClick(post, index, row, column)}
-            onPostAuxClick={(post) =>
-              onPostClick(post, index, row, column, true)
-            }
-            onReadArticleClick={() =>
-              onReadArticleClick(itemPost, index, row, column)
-            }
-            onShare={(post) => onShare(post, row, column)}
-            onBookmarkClick={(post, origin = Origin.Feed) => {
-              toggleBookmark({
-                post,
-                origin,
-                opts: {
-                  columns,
-                  column,
-                  row,
-                },
-              });
-            }}
-            openNewTab={openNewTab}
-            enableMenu={!!user}
-            onMenuClick={(event) => onMenuClick(event, index, row, column)}
-            onCopyLinkClick={(event, post) =>
-              onCopyLinkClick(event, post, index, row, column)
-            }
-            menuOpened={postMenuIndex === index}
-            onCommentClick={(post) =>
-              onCommentClick(post, index, row, column, !!boostedBy)
-            }
-            eagerLoadImage={row === 0 && column === 0}
-          >
-            {showCommentPopupId === itemPost.id && (
-              <CommentPopup
-                onClose={() => setShowCommentPopupId(null)}
-                onSubmit={(content) =>
-                  comment({ post: itemPost, content, row, column, columns })
-                }
-                loading={isSendingComment}
-              />
-            )}
-            {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
-          </PostTag>
-        </LogExtraContextProvider>
+          {showCommentPopupId === itemPost.id && (
+            <CommentPopup
+              onClose={() => setShowCommentPopupId(null)}
+              onSubmit={(content) =>
+                comment({ post: itemPost, content, row, column, columns })
+              }
+              loading={isSendingComment}
+            />
+          )}
+          {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
+        </PostTag>
       </ActivePostContextProvider>
     );
   }
@@ -344,3 +379,5 @@ export default function FeedItemComponent({
       return <PlaceholderTag />;
   }
 }
+
+export default withFeedLogExtraContext(FeedItemComponent);
