@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import useMutateFilters from './useMutateFilters';
 import type { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
@@ -56,7 +56,7 @@ export default function useTagAndSource({
   const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const shouldShowLogin = useCallback(
     (requireLogin?: boolean) => (user ? false : requireLogin),
     [user],

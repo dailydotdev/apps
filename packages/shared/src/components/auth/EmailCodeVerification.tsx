@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import type { AuthFormProps } from './common';
@@ -7,7 +7,7 @@ import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import AuthForm from './AuthForm';
 import { AuthEventNames } from '../../lib/auth';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
@@ -32,7 +32,7 @@ function EmailCodeVerification({
   className,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);

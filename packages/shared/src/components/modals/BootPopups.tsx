@@ -8,7 +8,7 @@ import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { InteractivePopupProps } from '../tooltips/InteractivePopup';
@@ -29,7 +29,7 @@ const REP_TRESHOLD = 250;
  * @constructor
  */
 export const BootPopups = (): ReactElement => {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();

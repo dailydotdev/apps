@@ -1,7 +1,7 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import type { Post } from '../graphql/posts';
 import { usePostLogEvent } from '../lib/feed';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
 import type { Origin } from '../lib/log';
 import { useCopyPostLink } from './useCopyPostLink';
@@ -21,7 +21,7 @@ interface UseSharePost {
 }
 
 export function useSharePost(origin: Origin): UseSharePost {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [, copyLink] = useCopyPostLink();
   const { getShortUrl, getTrackedUrl } = useGetShortUrl();
   const { openModal } = useLazyModal();

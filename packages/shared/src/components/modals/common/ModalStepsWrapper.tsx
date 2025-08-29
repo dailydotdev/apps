@@ -2,7 +2,7 @@ import type { MouseEventHandler, ReactElement, ReactEventHandler } from 'react';
 import { useContext } from 'react';
 import { isNullOrUndefined } from '../../../lib/func';
 import { ModalPropsContext } from './types';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 
 export interface StepComponentProps<
   T extends ReactEventHandler = MouseEventHandler,
@@ -21,7 +21,7 @@ export function ModalStepsWrapper({
   view,
   children,
 }: ModalStepsProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { activeView, steps, setActiveView, onLogNext, onLogPrev } =
     useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);

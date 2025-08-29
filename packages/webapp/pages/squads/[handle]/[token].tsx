@@ -21,7 +21,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ParsedUrlQuery } from 'querystring';
 import type {
   GetStaticPathsResult,
@@ -30,7 +30,7 @@ import type {
 } from 'next';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
@@ -94,7 +94,7 @@ const SquadReferral = ({
 }: SquadReferralProps): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);

@@ -1,9 +1,9 @@
-import { useContext, useEffect } from 'react';
-import LogContext from '../contexts/LogContext';
+import { useEffect } from 'react';
+import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 
 export function useError(): void {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
 
   useEffect(() => {
     if (logEvent) {
