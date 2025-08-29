@@ -20,7 +20,7 @@ import {
   BriefingType,
   getGenerateBriefingMutationOptions,
 } from '../../../../graphql/posts';
-import { useBriefCardContext } from './BriefCardContext';
+import { useBriefContext } from '../BriefContext';
 import { useToastNotification } from '../../../../hooks';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -38,7 +38,7 @@ export const BriefCardDefault = ({
   title,
   children,
 }: BriefCardDefaultProps): ReactElement => {
-  const briefCardContext = useBriefCardContext();
+  const briefContext = useBriefContext();
   const { displayToast } = useToastNotification();
 
   const queryClient = useQueryClient();
@@ -46,7 +46,7 @@ export const BriefCardDefault = ({
   const { mutateAsync: generateBrief, isPending: isGenerating } = useMutation({
     ...getGenerateBriefingMutationOptions(),
     onSuccess: async (data) => {
-      briefCardContext.setBrief({ id: data.id, createdAt: new Date() });
+      briefContext.setBrief({ id: data.id, createdAt: new Date() });
       queryClient.removeQueries({
         queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
       });
@@ -65,7 +65,7 @@ export const BriefCardDefault = ({
           error.response?.errors?.[0]?.extensions?.createdAt,
         );
 
-        briefCardContext.setBrief({
+        briefContext.setBrief({
           id: postId,
           createdAt:
             !createdAt || Number.isNaN(createdAt.getTime())
