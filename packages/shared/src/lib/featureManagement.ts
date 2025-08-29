@@ -73,9 +73,7 @@ export const featureOnboardingGridVariation = new Feature(
   OnboardingGridVariation.Control,
 );
 
-export const featureCardUiColors = new Feature('card_ui_colors', false);
-
-export const featureCardUiButtons = new Feature('card_ui_buttons', false);
+export const featureCardUiColors = new Feature('card_ui_colors_v2', false);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
