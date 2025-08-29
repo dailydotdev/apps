@@ -4,14 +4,19 @@ import { isToday } from 'date-fns';
 import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
 import AlertContext from '../../../../contexts/AlertContext';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const bannerRef = useRef<HTMLDivElement>(null);
   const [bannerLastSeen, setBannerLastSeen] = useState<Date | null>(null);
+  const { user } = useAuthContext();
 
   const shouldShowBanner = useMemo(() => {
+    if (user.isPlus) {
+      return false;
+    }
     // Hide banner if brief was already created today
     if (brief && isToday(new Date(brief.createdAt))) {
       return false;
@@ -28,7 +33,7 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
 
     // Show banner if no brief exists OR brief is from previous day
     return true;
-  }, [brief, loadedAlerts, alerts.briefBannerLastSeen]);
+  }, [brief, loadedAlerts, alerts.briefBannerLastSeen, user.isPlus]);
 
   useEffect(() => {
     if (!shouldShowBanner || !bannerRef.current) {

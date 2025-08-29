@@ -62,7 +62,7 @@ describe('BriefBannerFeed', () => {
     client = new QueryClient(defaultQueryClientTestingConfig);
 
     mockUseAuthContext.mockReturnValue({
-      user: defaultUser,
+      user: { ...defaultUser, isPlus: false },
       isLoggedIn: true,
       isAuthReady: true,
       updateUser: jest.fn(),
@@ -256,6 +256,77 @@ describe('BriefBannerFeed', () => {
       );
 
       expect(screen.getByText(/Still scrolling/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('Plus user behavior', () => {
+    it('should never show banner for Plus users regardless of other conditions', () => {
+      // Override the default user to be a Plus user
+      mockUseAuthContext.mockReturnValue({
+        user: { ...defaultUser, isPlus: true },
+        isLoggedIn: true,
+        isAuthReady: true,
+        updateUser: jest.fn(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      mockUsePersistentState.mockReturnValueOnce([
+        undefined, // no brief exists
+        mockSetBrief,
+        true,
+      ]);
+
+      render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null, // never seen banner
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      expect(screen.queryByText(/Still scrolling/i)).not.toBeInTheDocument();
+    });
+
+    it('should never show banner for Plus users even when brief is from yesterday', () => {
+      const yesterdaysBrief = {
+        id: 'brief-yesterday',
+        createdAt: subDays(new Date(), 1),
+      };
+
+      // Override the default user to be a Plus user
+      mockUseAuthContext.mockReturnValue({
+        user: { ...defaultUser, isPlus: true },
+        isLoggedIn: true,
+        isAuthReady: true,
+        updateUser: jest.fn(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      mockUsePersistentState.mockReturnValueOnce([
+        yesterdaysBrief,
+        mockSetBrief,
+        true,
+      ]);
+
+      render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      expect(screen.queryByText(/Still scrolling/i)).not.toBeInTheDocument();
     });
   });
 
