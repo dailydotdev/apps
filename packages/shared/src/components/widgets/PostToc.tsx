@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { Post, TocItem } from '../../graphql/posts';
 import { UnreadIcon as TocIcon } from '../icons';
 import { Summary, SummaryArrow, TruncateText } from '../utilities';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import styles from './PostToc.module.css';
@@ -31,7 +31,7 @@ export default function PostToc({
   className,
   collapsible,
 }: PostTocProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
 
   const onLinkClick = async (): Promise<void> => {

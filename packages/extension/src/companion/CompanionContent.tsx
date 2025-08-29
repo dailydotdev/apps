@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { CopyIcon } from '@dailydotdev/shared/src/components/icons';
 import {
@@ -18,9 +18,9 @@ import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
@@ -34,7 +34,7 @@ const COMPANION_TOP_OFFSET_PX = 120;
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
   const { queryKey, onShowUpvoted } = useUpvoteQuery();

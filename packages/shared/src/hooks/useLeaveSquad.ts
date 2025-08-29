@@ -1,11 +1,11 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { leaveSquad } from '../graphql/squads';
 import type { Squad } from '../graphql/sources';
 import type { PromptOptions } from './usePrompt';
 import { usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { ButtonColor } from '../components/buttons/Button';
 import { ContentPreferenceType } from '../graphql/contentPreference';
@@ -25,7 +25,7 @@ type UseLeaveSquadProps = {
 
 export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   const queryClient = useQueryClient();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { showPrompt } = usePrompt();
   const { user } = useAuthContext();
   const { deleteSquad: deleteCachedSquad } = useBoot();
