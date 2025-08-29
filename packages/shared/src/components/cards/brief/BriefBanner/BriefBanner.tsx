@@ -6,20 +6,16 @@ import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../../../components/typography/Typography';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { DevPlusIcon, TimerIcon } from '../../../components/icons';
-import { briefButtonBg } from '../../../styles/custom';
-import { LogEvent, TargetId } from '../../../lib/log';
-import { useLogContext } from '../../../contexts/LogContext';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useIsLightTheme } from '../../../hooks/utils';
+} from '../../../typography/Typography';
+import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { DevPlusIcon, TimerIcon } from '../../../icons';
+import { briefButtonBg } from '../../../../styles/custom';
+import { LogEvent, TargetId } from '../../../../lib/log';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useIsLightTheme } from '../../../../hooks/utils';
 
-export const BriefFeedBanner = (props: ComponentProps<'div'>) => {
+export const BriefBanner = (props: ComponentProps<'div'>) => {
   const { className, style, ...attrs } = props;
   const router = useRouter();
   const isLightMode = useIsLightTheme();

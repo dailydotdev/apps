@@ -17,10 +17,7 @@ import {
   TimeFormatType,
 } from '../../../../lib/dateFormat';
 import { usePlusSubscription, usePostById } from '../../../../hooks';
-import {
-  BriefCardContextProvider,
-  useBriefCardContext,
-} from './BriefCardContext';
+import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { lottieAnimationQueryOptions } from '../../../../lib/lottie';
 import { useLogContext } from '../../../../contexts/LogContext';
 import type { TargetId } from '../../../../lib/log';
@@ -107,11 +104,11 @@ export const BriefCardInternal = (
   const { logEvent } = useLogContext();
   const queryClient = useQueryClient();
   const [, setLoadingIncrement] = useState(0);
-  const briefCardContext = useBriefCardContext();
+  const briefContext = useBriefContext();
   let state: 'default' | 'loading' | 'ready' = 'default';
 
   const { post } = usePostById({
-    id: briefCardContext.brief?.id,
+    id: briefContext.brief?.id,
     options: {
       refetchInterval: (query) => {
         const retries = Math.max(
@@ -143,11 +140,11 @@ export const BriefCardInternal = (
     state = 'loading';
   }
 
-  if (!briefCardContext.brief) {
+  if (!briefContext.brief) {
     state = 'default';
   }
 
-  const loadingStep = getLoadingStep(briefCardContext.brief?.createdAt);
+  const loadingStep = getLoadingStep(briefContext.brief?.createdAt);
 
   useEffect(() => {
     // don't re-render if loading takes a long time
@@ -197,10 +194,10 @@ export const BriefCardInternal = (
       extra: JSON.stringify({
         is_demo: !isPlus,
         brief_date:
-          post?.createdAt || briefCardContext.brief?.createdAt || new Date(),
+          post?.createdAt || briefContext.brief?.createdAt || new Date(),
       }),
     });
-  }, [logEvent, post?.createdAt, briefCardContext?.brief?.createdAt, isPlus]);
+  }, [logEvent, post?.createdAt, briefContext?.brief?.createdAt, isPlus]);
 
   if (state === 'loading') {
     const activeStep = loadingSteps[loadingStep] ?? loadingSteps[0];
@@ -211,7 +208,7 @@ export const BriefCardInternal = (
         animationSrc={activeStep.animationSrc}
         progressPercentage={getLoadingProgress({ loadingStep })}
         headnote={formatDate({
-          value: briefCardContext.brief.createdAt,
+          value: briefContext.brief.createdAt,
           type: TimeFormatType.LiveTimer,
         })}
         title="The agent asked to quit. We said no. Tough life."
@@ -256,7 +253,7 @@ export const BriefCard = (props: Omit<BriefCardProps, 'post' | 'state'>) => {
   const { className } = props;
 
   return (
-    <BriefCardContextProvider>
+    <BriefContextProvider>
       <div
         className={classNames(
           'flex flex-1 p-2 laptop:p-0',
@@ -265,6 +262,6 @@ export const BriefCard = (props: Omit<BriefCardProps, 'post' | 'state'>) => {
       >
         <BriefCardInternal {...props} />
       </div>
-    </BriefCardContextProvider>
+    </BriefContextProvider>
   );
 };
