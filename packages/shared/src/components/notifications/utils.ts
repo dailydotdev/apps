@@ -201,6 +201,10 @@ export const notificationMutingCopy: Partial<
     mute: 'Mute notifications',
     unmute: 'Unmute notifications',
   },
+  [NotificationType.SquadMemberJoined]: {
+    mute: 'Mute new member notifications',
+    unmute: 'Unmute new member notifications',
+  },
 };
 
 export type SubscriptionCallback = (

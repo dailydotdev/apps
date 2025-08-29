@@ -29,6 +29,9 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
 
+import { DateFormat } from '../utilities';
+import { TimeFormatType } from '../../lib/dateFormat';
+
 export interface NotificationItemProps
   extends Pick<
     Notification,
@@ -43,6 +46,7 @@ export interface NotificationItemProps
   > {
   isUnread?: boolean;
   targetUrl: string;
+  createdAt?: Date;
   onClick?: (
     e:
       | React.MouseEvent<HTMLAnchorElement>
@@ -152,6 +156,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     targetUrl,
     numTotalAvatars,
     referenceId,
+    createdAt,
   } = props;
 
   const {
@@ -237,12 +242,24 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         {hasAvatar && (
           <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
-        <span
-          className="break-words"
-          dangerouslySetInnerHTML={{
-            __html: memoizedTitle,
-          }}
-        />
+        <div className="flex flex-row flex-wrap items-center">
+          <span
+            className={classNames(
+              'max-w-full break-words',
+              createdAt && 'mr-1',
+            )}
+            dangerouslySetInnerHTML={{
+              __html: memoizedTitle,
+            }}
+          />
+          {createdAt && (
+            <DateFormat
+              className="text-text-quaternary"
+              date={createdAt}
+              type={TimeFormatType.LastActivity}
+            />
+          )}
+        </div>
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-text-quaternary"
