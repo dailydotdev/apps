@@ -51,6 +51,7 @@ function Textarea({
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
+  const isQuaternaryField = fieldType === 'quaternary';
   const invalid = validInput === false;
   const hasAdditionalSpacing = isPrimaryField && !focused && !hasInput;
 
@@ -95,6 +96,7 @@ function Textarea({
         placeholder={getFieldPlaceholder({
           isSecondaryField,
           isTertiaryField,
+          isQuaternaryField,
           placeholder,
           focused,
           label,
@@ -121,7 +123,7 @@ function Textarea({
         )}
       />
       <span className="ml-auto py-2 text-text-quaternary typo-caption1">
-        {`${inputLength}/${maxLength}`}
+        {`${inputLength || 0}/${maxLength}`}
       </span>
     </BaseFieldContainer>
   );
