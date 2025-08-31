@@ -19,6 +19,8 @@ import { HorizontalScrollTitle } from '../../HorizontalScroll/HorizontalScrollHe
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { fetchDirectoryAd } from '../../../lib/ads';
+import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
+import type { Ad } from '../../../graphql/posts';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -40,6 +42,30 @@ const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
     </div>
   </>
 );
+
+const SquadItemLogExtraContext = ({
+  ad,
+  children,
+}: {
+  ad?: Ad;
+  children: ReactNode;
+}) => {
+  return (
+    <LogExtraContextProvider
+      selector={() => {
+        if (!ad?.generationId) {
+          return undefined;
+        }
+
+        return {
+          gen_id: ad.generationId,
+        };
+      }}
+    >
+      {children}
+    </LogExtraContextProvider>
+  );
+};
 
 export function SquadsDirectoryFeed({
   query,
@@ -108,13 +134,14 @@ export function SquadsDirectoryFeed({
           </Link>
         </header>
         {flatSources?.map(({ node }, index) => (
-          <SquadList
-            key={node.id}
-            squad={node}
-            campaignId={
-              adSource && index === 0 ? adSource.flags?.campaignId : undefined
-            }
-          />
+          <SquadItemLogExtraContext key={node.id} ad={ad}>
+            <SquadList
+              squad={node}
+              campaignId={
+                adSource && index === 0 ? adSource.flags?.campaignId : undefined
+              }
+            />
+          </SquadItemLogExtraContext>
         ))}
         {isLoading && <Skeleton />}
       </div>
@@ -135,12 +162,13 @@ export function SquadsDirectoryFeed({
           (node.flags?.featured && linkToSeeAll.includes('featured'));
 
         return showFeaturedCard ? (
-          <SquadGrid
-            key={node.id}
-            source={node}
-            className="w-80"
-            campaignId={shouldShowAd ? adSource.flags?.campaignId : undefined}
-          />
+          <SquadItemLogExtraContext key={node.id} ad={ad}>
+            <SquadGrid
+              source={node}
+              className="w-80"
+              campaignId={shouldShowAd ? adSource.flags?.campaignId : undefined}
+            />
+          </SquadItemLogExtraContext>
         ) : (
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
         );

@@ -7,12 +7,33 @@ export enum AdActions {
   Impression = 'impression',
 }
 
+const skadiGenerationIdHeader = 'x-generation-id';
+
+const addGenerationIdHeader = ({ ad, res }: { ad?: Ad; res: Response }): Ad => {
+  if (!ad) {
+    return ad;
+  }
+
+  const generationId = res.headers.get(skadiGenerationIdHeader);
+
+  if (!generationId) {
+    return ad;
+  }
+
+  return {
+    ...ad,
+    generationId,
+  };
+};
+
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> => {
   const res = await fetch(`${apiUrl}/v1/a?${params.toString()}`, {
     credentials: 'include',
   });
+
   const ads = (await res.json()) as Ad[];
-  return ads[0];
+
+  return addGenerationIdHeader({ ad: ads[0], res });
 };
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {
@@ -20,7 +41,7 @@ export const fetchCommentAd = async (): Promise<Ad | null> => {
     credentials: 'include',
   });
   const ads = (await res.json()) as Ad[];
-  return ads[0];
+  return addGenerationIdHeader({ ad: ads[0], res });
 };
 
 export const fetchDirectoryAd = async (): Promise<Ad | null> => {
@@ -29,5 +50,5 @@ export const fetchDirectoryAd = async (): Promise<Ad | null> => {
     { credentials: 'include' },
   );
   const ads = (await res.json()) as Ad[];
-  return ads[0];
+  return addGenerationIdHeader({ ad: ads[0], res });
 };
