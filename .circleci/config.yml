@@ -1,5 +1,10 @@
 version: 2.1
 
+parameters:
+  run_webhook_e2e:
+    type: boolean
+    default: false
+
 orbs:
   node: circleci/node@5.2.0
   slack: circleci/slack@4.12.5
@@ -287,8 +292,6 @@ workflows:
           requires:
             - install_deps
   webhook-e2e:
-    when:
-      condition:
-        equal: [ webhook, << pipeline.trigger_source >> ]
+    when: << pipeline.parameters.run_webhook_e2e >>
     jobs:
       - webhook-e2e-tests
