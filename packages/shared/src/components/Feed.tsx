@@ -18,8 +18,8 @@ import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
-import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
+import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
@@ -28,12 +28,13 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin, TargetId, LogEvent } from '../lib/log';
+import { LogEvent, Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
 import {
+  useActions,
   useBoot,
   useConditionalFeature,
   useFeedLayout,
@@ -62,6 +63,7 @@ import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { ActionType } from '../graphql/actions';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -178,11 +180,14 @@ export default function Feed<T>({
   const { plusEntryFeed } = usePlusEntry();
   const showMarketingCta = !!marketingCta;
   const { isSearchPageLaptop } = useSearchResultsLayout();
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const hasNoBriefAction =
+    isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
-    shouldEvaluate: isMyFeed,
+    shouldEvaluate: isMyFeed && hasNoBriefAction,
   });
-  const showBriefCard = isMyFeed && briefCardFeatureValue;
+  const showBriefCard = isMyFeed && briefCardFeatureValue && hasNoBriefAction;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
   const { value: briefBannerPage } = useConditionalFeature({
@@ -497,7 +502,9 @@ export default function Feed<T>({
   const showPromoBanner = typeof briefBannerPage === 'number';
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
   const indexWhenShowingPromoBanner =
-    currentPageSize * +briefBannerPage - columnsDiffWithPage;
+    currentPageSize * Number(briefBannerPage) -
+    columnsDiffWithPage * Number(briefBannerPage) -
+    Number(showBriefCard);
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
