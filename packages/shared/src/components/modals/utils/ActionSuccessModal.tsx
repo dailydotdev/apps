@@ -24,12 +24,14 @@ interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
     cover?: string;
     coverDrawer?: string;
   };
+  withCloseOnTablet?: boolean;
 }
 
 export function ActionSuccessModal<T extends AllowedTags>({
   cta,
   secondaryCta,
   content,
+  withCloseOnTablet,
   ...props
 }: ActionSuccessModalProps<T>): React.ReactElement {
   const { title, description, body, cover, coverDrawer } = content;
@@ -96,14 +98,16 @@ export function ActionSuccessModal<T extends AllowedTags>({
             {secondaryCta.copy}
           </Button>
         )}
-        <Button
-          variant={ButtonVariant.Float}
-          className="hidden w-full tablet:flex"
-          type="button"
-          onClick={props.onRequestClose}
-        >
-          Close
-        </Button>
+        {withCloseOnTablet && (
+          <Button
+            variant={ButtonVariant.Float}
+            className="hidden w-full tablet:flex"
+            type="button"
+            onClick={props.onRequestClose}
+          >
+            Close
+          </Button>
+        )}
       </Modal.Body>
     </Modal>
   );
