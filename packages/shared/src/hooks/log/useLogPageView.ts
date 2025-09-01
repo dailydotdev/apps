@@ -1,11 +1,11 @@
 import type { MutableRefObject } from 'react';
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 
 export default function useLogPageView(): MutableRefObject<() => void> {
   const router = useRouter();
-  const { logEventStart, logEventEnd } = useContext(LogContext);
+  const { logEventStart, logEventEnd } = useLogContext();
   const routeChangedCallbackRef = useRef<() => void>();
   const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>();
 

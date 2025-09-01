@@ -11,9 +11,9 @@ import {
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { SharedFeedPage } from '../components/utilities';
 import type { EmptyResponse } from '../graphql/emptyResponse';
-import LogContext from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { isBoostedPostAd } from './useFeed';
+import { useLogContext } from '../contexts/LogContext';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -29,7 +29,7 @@ export const usePostFeedback = ({
 }: UsePostFeedbackProps = {}): UsePostFeedback => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
 
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);

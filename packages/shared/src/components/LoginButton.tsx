@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from './buttons/Button';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import { TargetType } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -33,7 +33,7 @@ const getLogEvent = (copy: ButtonCopy): LogEvent => ({
 export default function LoginButton({
   className = {},
 }: LoginButtonProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { showLogin } = useAuthContext();
   const onClick = (copy: ButtonCopy) => {
     logEvent(getLogEvent(copy));

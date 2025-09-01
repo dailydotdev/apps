@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PromptOptions } from '../usePrompt';
 import { usePrompt } from '../usePrompt';
@@ -8,7 +8,7 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { deleteComment } from '../../graphql/comments';
 import { removePostComments } from '../usePostById';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { useRequestProtocol } from '../useRequestProtocol';
 import type { Post } from '../../graphql/posts';
@@ -35,7 +35,7 @@ const options: PromptOptions = {
 export function useDeleteComment(): UseDeleteCommentRet {
   const client = useQueryClient();
   const { showPrompt } = usePrompt();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
 

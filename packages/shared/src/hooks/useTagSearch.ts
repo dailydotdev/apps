@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useContext } from 'react';
 import type { SearchTagsData } from '../graphql/feedSettings';
 import { SEARCH_TAGS_QUERY } from '../graphql/feedSettings';
 import type { Origin } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { getSearchTagsQueryKey } from './useMutateFilters';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { gqlClient } from '../graphql/common';
 
 export type UseTagSearchProps = {
@@ -24,7 +23,7 @@ export const useTagSearch = ({
   value,
   origin,
 }: UseTagSearchProps): UseTagSearch => {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
 
   const { data, isPending } = useQuery({
     queryKey: getSearchTagsQueryKey(value),

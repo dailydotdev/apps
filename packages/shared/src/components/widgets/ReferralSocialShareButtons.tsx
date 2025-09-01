@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import {
   getFacebookShareLink,
@@ -12,7 +12,7 @@ import { link } from '../../lib/links';
 import { labels } from '../../lib';
 import type { TargetType } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { Tooltip } from '../tooltip/Tooltip';
 
 interface ReferralSocialShareButtonsProps {
@@ -23,7 +23,7 @@ const ReferralSocialShareButtons = ({
   url,
   targetType,
 }: ReferralSocialShareButtonsProps): ReactElement => {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
 
   const socialShareButtonsDefaultConfig = {

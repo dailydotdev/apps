@@ -1,8 +1,8 @@
 import { useInView } from 'react-intersection-observer';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { adLogEvent, feedLogExtra, usePostLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
 import { PostType } from '../../graphql/posts';
 
@@ -23,7 +23,7 @@ export default function useLogImpression(
   feedName: string,
   ranking?: string,
 ): (node?: Element | null) => void {
-  const { logEventStart, logEventEnd } = useContext(LogContext);
+  const { logEventStart, logEventEnd } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
