@@ -20,13 +20,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-v8-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -45,11 +45,11 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Run Playwright tests
-          command: npm run test
+          command: pnpm test
           environment:
             USER_NAME: "${USER_NAME}"
             PASSWORD: "${PASSWORD}"
@@ -92,8 +92,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -113,8 +113,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -134,8 +134,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
@@ -148,8 +148,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Test
           command: |
