@@ -162,7 +162,7 @@ export function CampaignListView({
           impressions={campaign.flags.impressions}
           members={
             campaign.type === CampaignType.Squad
-              ? campaign.flags.members
+              ? campaign.flags.newMembers || 0
               : undefined
           }
         />

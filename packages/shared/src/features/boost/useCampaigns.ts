@@ -3,7 +3,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type {
   CampaignConnection,
-  CampaignStats,
+  UserCampaignStats,
 } from '../../graphql/campaigns';
 import { getCampaigns, getUserCampaignStats } from '../../graphql/campaigns';
 import {
@@ -16,7 +16,7 @@ import type { InfiniteScrollingQueryProps } from '../../components/containers/In
 import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
 
 interface UsePostBoost {
-  stats: CampaignStats;
+  stats: UserCampaignStats;
   data?: InfiniteData<CampaignConnection>;
   isLoading: boolean;
   infiniteScrollingProps: InfiniteScrollingQueryProps;
@@ -24,13 +24,12 @@ interface UsePostBoost {
 
 const FIRST_DEFAULT_VALUE = 20;
 
-export const defaultStats: CampaignStats = {
+export const defaultStats: UserCampaignStats = {
   spend: 0,
   users: 0,
-  budget: 0,
   clicks: 0,
   impressions: 0,
-  members: 0,
+  newMembers: 0,
 };
 
 export const useCampaigns = (): UsePostBoost => {

@@ -24,7 +24,7 @@ const CAMPAIGN_FRAGMENT = gql`
       users
       clicks
       impressions
-      members
+      newMembers
     }
     post {
       ...SharedPostInfo
@@ -86,14 +86,16 @@ export const CAMPAIGNS_LIST = gql`
   ${CAMPAIGN_FRAGMENT}
 `;
 
-export interface CampaignStats {
-  spend: number;
-  users: number;
+export type CampaignFlags = Partial<{
   budget: number;
-  clicks: number;
+  spend: number;
   impressions: number;
-  members: number;
-}
+  clicks: number;
+  users: number;
+  newMembers: number;
+}>;
+
+export type UserCampaignStats = Omit<CampaignFlags, 'budget'>;
 
 export enum CampaignState {
   Active = 'ACTIVE',
@@ -108,7 +110,7 @@ export interface Campaign {
   type: CampaignType;
   createdAt: Date;
   endedAt: Date;
-  flags: CampaignStats;
+  flags: CampaignFlags;
   post?: Post;
   source?: Squad;
   user: LoggedUser;
@@ -150,12 +152,12 @@ export const USER_CAMPAIGN_STATS = gql`
       clicks
       users
       spend
-      members
+      newMembers
     }
   }
 `;
 
-export const getUserCampaignStats = async (): Promise<CampaignStats> => {
+export const getUserCampaignStats = async (): Promise<UserCampaignStats> => {
   const result = await gqlClient.request(USER_CAMPAIGN_STATS);
 
   return result.userCampaignStats;

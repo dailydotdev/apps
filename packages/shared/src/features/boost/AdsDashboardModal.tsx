@@ -77,7 +77,7 @@ export function AdsDashboardModal({
           spend={stats.spend}
           users={stats.users}
           impressions={stats.impressions}
-          members={stats.members}
+          members={stats.newMembers}
         />
         <Modal.Subtitle>Active ads</Modal.Subtitle>
         {!isLoading && !!list?.length && (
