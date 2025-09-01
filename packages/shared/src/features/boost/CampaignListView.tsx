@@ -26,6 +26,7 @@ import { Modal } from '../../components/modals/common/Modal';
 import { formatDataTileValue } from '../../lib';
 import { CampaignListViewPost } from './CampaignListViewPost';
 import { CampaignListViewSquad } from './CampaignListViewSquad';
+import { isNullOrUndefined } from '../../lib/func';
 
 interface CampaignListViewProps {
   campaign: Campaign;
@@ -61,7 +62,7 @@ export const CampaignStatsGrid = ({
       info={boostDashboardInfo.impressions}
     />
     <DataTile label="Users" value={users} info={boostDashboardInfo.users} />
-    {members && (
+    {!isNullOrUndefined(members) && (
       <DataTile
         label="New members"
         value={members}
@@ -159,6 +160,11 @@ export function CampaignListView({
           spend={campaign.flags.spend}
           users={campaign.flags.users}
           impressions={campaign.flags.impressions}
+          members={
+            campaign.type === CampaignType.Squad
+              ? campaign.flags.members
+              : undefined
+          }
         />
       </div>
       <div className="h-px w-full bg-border-subtlest-tertiary" />
