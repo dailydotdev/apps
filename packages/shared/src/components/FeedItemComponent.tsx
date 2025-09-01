@@ -252,7 +252,9 @@ function FeedItemComponent({
   } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
-    postType: (item as PostItem).post?.type,
+    postType: isBoostedPostAd(item)
+      ? item.ad.data?.post?.type
+      : (item as PostItem).post?.type,
   });
 
   const onAdAction = (
