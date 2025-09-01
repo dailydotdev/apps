@@ -231,7 +231,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           </a>
         </Link>
       )}
-      <div className="absolute right-2 top-3 my-auto flex items-center">
+      <div className="absolute right-4 top-3 my-auto flex items-center">
         {Object.keys(notificationMutingCopy).includes(type) && (
           <NotificationOptionsButton notification={{ type, referenceId }} />
         )}
