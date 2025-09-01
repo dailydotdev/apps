@@ -5,6 +5,7 @@ import { ButtonVariant } from '../../components/buttons/common';
 import { OpenLinkIcon } from '../../components/icons';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
 import { CampaignListViewContainer } from './common';
@@ -25,11 +26,15 @@ export function CampaignListViewPost({
           type={TypographyType.Callout}
           className="line-clamp-3 flex-1"
           style={{ lineBreak: 'anywhere' }}
+          color={TypographyColor.Secondary}
         >
-          {post.title}
+          {post.title ?? post.sharedPost?.title}
         </Typography>
       </span>
-      <Image src={post.image} className="h-12 w-18 rounded-12 object-cover" />
+      <Image
+        src={post.sharedPost?.image ?? post.image}
+        className="h-12 w-18 rounded-12 object-cover"
+      />
       <Button
         icon={<OpenLinkIcon />}
         variant={ButtonVariant.Tertiary}

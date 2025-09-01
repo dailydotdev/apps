@@ -8,13 +8,13 @@ export const useCampaignByIdModal = (): void => {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const {
-    query: { post_boost: postBoost, c_id: campaignId },
+    query: { c_id: campaignId },
     replace,
     pathname,
   } = useRouter();
 
   useEffect(() => {
-    if (!user || !postBoost || !campaignId) {
+    if (!user || !campaignId) {
       return;
     }
     openModal({
@@ -24,5 +24,5 @@ export const useCampaignByIdModal = (): void => {
         onAfterClose: () => replace(pathname),
       },
     });
-  }, [openModal, pathname, replace, postBoost, user, campaignId]);
+  }, [openModal, pathname, replace, user, campaignId]);
 };

@@ -17,7 +17,7 @@ import { CampaignListItemSquad } from './CampaignListItemSquad';
 
 const statusToColor: Record<Campaign['state'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
-  INACTIVE: 'bg-action-share-active text-action-share-default',
+  COMPLETED: 'bg-action-share-active text-action-share-default',
   CANCELLED: 'bg-surface-float text-text-secondary',
 };
 
@@ -36,7 +36,7 @@ export const BoostStatus = ({
         }
 
         return `${remainingDays} ${remainingDays === 1 ? 'day' : 'days'} left`;
-      case 'INACTIVE':
+      case 'COMPLETED':
         return 'Completed';
       case 'CANCELLED':
         return 'Stopped';

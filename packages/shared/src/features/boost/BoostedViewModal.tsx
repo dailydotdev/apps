@@ -91,7 +91,11 @@ export function BoostedViewModal({
       }
 
       if (campaign.type === CampaignType.Squad) {
-        const key = generateQueryKey(RequestKey.Squad, user, id);
+        const key = generateQueryKey(
+          RequestKey.Squad,
+          user,
+          campaign.source?.handle,
+        );
 
         client.setQueryData<Squad>(key, (old) => {
           if (!old) {

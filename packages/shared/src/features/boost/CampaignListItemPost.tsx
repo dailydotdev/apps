@@ -4,6 +4,7 @@ import React from 'react';
 import { iconSizeToClassName, IconSize } from '../../components/Icon';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
 import { Image } from '../../components/image/Image';
@@ -20,7 +21,7 @@ export function CampaignListItemPost({
     <span className="flex flex-1 flex-row items-center gap-2">
       {post.image && (
         <Image
-          src={post.image}
+          src={post.sharedPost?.image ?? post.image}
           className={classNames(
             'rounded-12 object-cover',
             iconSizeToClassName[IconSize.Size48],
@@ -32,8 +33,9 @@ export function CampaignListItemPost({
           type={TypographyType.Callout}
           className="line-clamp-2 flex-1 text-left"
           style={{ lineBreak: 'anywhere' }}
+          color={TypographyColor.Secondary}
         >
-          {post.title}
+          {post.title ?? post.sharedPost?.title}
         </Typography>
       </span>
     </span>

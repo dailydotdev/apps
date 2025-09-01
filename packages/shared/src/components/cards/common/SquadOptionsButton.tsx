@@ -9,6 +9,7 @@ import {
 } from '../../dropdown/DropdownMenu';
 import {
   BlockIcon,
+  EyeIcon,
   FlagIcon,
   MenuIcon,
   ShareIcon,
@@ -25,6 +26,7 @@ import useMutateFilters from '../../../hooks/useMutateFilters';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
 import { LogEvent } from '../../../lib/log';
+import { plusUrl } from '../../../lib/constants';
 
 interface SquadOptionsButtonProps {
   squad: Squad;
@@ -56,6 +58,14 @@ export function SquadOptionsButton({
     const blockAction = isSourceBlocked ? unblockSource : blockSource;
     const list: MenuItemProps[] = [
       { label: 'Share via', icon: <ShareIcon />, action: onShareOrCopy },
+      {
+        label: 'Hide',
+        icon: <EyeIcon />,
+        anchorProps: {
+          href: plusUrl,
+          target: '_blank',
+        },
+      },
       {
         label: `${isSourceBlocked ? 'Unblock' : 'Block'} ${squad.handle}`,
         icon: <BlockIcon />,

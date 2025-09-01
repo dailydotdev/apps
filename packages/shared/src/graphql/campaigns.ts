@@ -24,9 +24,13 @@ const CAMPAIGN_FRAGMENT = gql`
       users
       clicks
       impressions
+      members
     }
     post {
       ...SharedPostInfo
+      sharedPost {
+        ...SharedPostInfo
+      }
     }
     user {
       id
@@ -88,12 +92,19 @@ export interface CampaignStats {
   budget: number;
   clicks: number;
   impressions: number;
+  members: number;
+}
+
+export enum CampaignState {
+  Active = 'ACTIVE',
+  Completed = 'COMPLETED',
+  Cancelled = 'CANCELLED',
 }
 
 export interface Campaign {
   id: string;
   referenceId: string;
-  state: 'INACTIVE' | 'CANCELLED' | 'ACTIVE';
+  state: CampaignState;
   type: CampaignType;
   createdAt: Date;
   endedAt: Date;
@@ -130,6 +141,24 @@ export const getCampaignById = async (id: string): Promise<Campaign> => {
   const result = await gqlClient.request(CAMPAIGN_BY_ID, { id });
 
   return result.campaignById;
+};
+
+export const USER_CAMPAIGN_STATS = gql`
+  query UserCampaignStats {
+    userCampaignStats {
+      impressions
+      clicks
+      users
+      spend
+      members
+    }
+  }
+`;
+
+export const getUserCampaignStats = async (): Promise<CampaignStats> => {
+  const result = await gqlClient.request(USER_CAMPAIGN_STATS);
+
+  return result.userCampaignStats;
 };
 
 export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
