@@ -49,7 +49,7 @@ jobs:
             - deps-v7-{{ .Branch }}
       - run:
           name: Run Playwright tests
-          command: pnpm test:e2e
+          command: pnpm test
           environment:
             USER_NAME: "${USER_NAME}"
             PASSWORD: "${PASSWORD}"
