@@ -9,15 +9,6 @@ orbs:
   node: circleci/node@5.2.0
   slack: circleci/slack@4.12.5
 
-executors:
-  playwright-executor:
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.54.2-noble
-    resource_class: medium
-    environment:
-      NODE_VERSION: "22.11"
-      PNPM_VERSION: "9.14.4"
-
 jobs:
   install_deps:
     docker:
@@ -46,12 +37,11 @@ jobs:
             - ./packages/extension/node_modules
 
   webhook-e2e-tests:
-    executor: playwright-executor
+    docker:
+      - image: cimg/node:22.11
+    resource_class: medium
     steps:
       - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
             - deps-v7-{{ checksum "pnpm-lock.yaml" }}
