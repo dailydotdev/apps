@@ -38,26 +38,31 @@ jobs:
             - ./packages/playwright/node_modules
 
   webhook-e2e-tests:
+    working_directory: packages/playwright
     docker:
-      - image: mcr.microsoft.com/playwright:v1.54.2-noble
+      - image: mcr.microsoft.com/playwright:v1.48.0-jammy
     resource_class: medium
     environment:
       NODE_VERSION: "22.11"
       PNPM_VERSION: "9.14.4"
     steps:
       - checkout
+      - run:
+          name: Install pnpm
+          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
             - deps-v8-{{ checksum "pnpm-lock.yaml" }}
             - deps-v8-{{ .Branch }}
-
+      - run:
+          name: Install dependencies (if cache miss)
+          command: pnpm install
       - run:
           name: Run Playwright tests
           command: pnpm test
           environment:
             USER_NAME: "${USER_NAME}"
             PASSWORD: "${PASSWORD}"
-          working_directory: packages/playwright
 
       - store_artifacts:
           name: Upload Playwright Report
