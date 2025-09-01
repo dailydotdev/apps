@@ -52,7 +52,7 @@ jobs:
           command: npm install
       - run:
           name: Run Playwright Tests
-          command: npm test
+          command: npm run test
 
   test_extension:
     docker:
