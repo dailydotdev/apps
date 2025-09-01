@@ -39,18 +39,17 @@ jobs:
 
   webhook-e2e-tests:
     docker:
-      - image: cimg/node:22.11
+      - image: mcr.microsoft.com/playwright:v1.54.2-noble
     resource_class: medium
+    environment:
+      NODE_VERSION: "22.11"
+      PNPM_VERSION: "9.14.4"
     steps:
       - checkout
       - restore_cache:
           keys:
             - deps-v8-{{ checksum "pnpm-lock.yaml" }}
             - deps-v8-{{ .Branch }}
-      - run:
-          name: Install Playwright Browsers
-          command: pnpm exec playwright install
-          working_directory: packages/playwright
 
       - run:
           name: Run Playwright tests
@@ -65,29 +64,29 @@ jobs:
           path: packages/playwright/playwright-report/
           destination: playwright-report
 
-      - slack/notify:
-          event: fail
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":x: *Webhook E2E Tests* failed in <${CIRCLE_BUILD_URL}|${CIRCLE_PROJECT_REPONAME}>"
-                  }
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "Linked to Repo <${CIRCLE_REPOSITORY_URL}|${CIRCLE_PROJECT_REPONAME}>"
-                    }
-                  ]
-                }
-              ]
-            }
+#      - slack/notify:
+#          event: fail
+#          custom: |
+#            {
+#              "blocks": [
+#                {
+#                  "type": "section",
+#                  "text": {
+#                    "type": "mrkdwn",
+#                    "text": ":x: *Webhook E2E Tests* failed in <${CIRCLE_BUILD_URL}|${CIRCLE_PROJECT_REPONAME}>"
+#                  }
+#                },
+#                {
+#                  "type": "context",
+#                  "elements": [
+#                    {
+#                      "type": "mrkdwn",
+#                      "text": "Linked to Repo <${CIRCLE_REPOSITORY_URL}|${CIRCLE_PROJECT_REPONAME}>"
+#                    }
+#                  ]
+#                }
+#              ]
+#            }
 
   test_extension:
     docker:
