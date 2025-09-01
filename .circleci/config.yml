@@ -53,6 +53,7 @@ jobs:
           environment:
             USER_NAME: "${USER_NAME}"
             PASSWORD: "${PASSWORD}"
+          working_directory: packages/playwright
 
       - store_artifacts:
           name: Upload Playwright Report
