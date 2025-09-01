@@ -48,7 +48,7 @@ export const AdGrid = forwardRef(function AdGrid(
         </CardTitle>
         <AdAttribution ad={ad} className={{ main: 'mt-auto font-normal' }} />
       </CardTextContainer>
-      <AdImage className="mx-1" ad={ad} ImageComponent={CardImage} />
+      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
       <CardTextContainer className="!mx-2 my-1">
         <div className="flex items-center">
           <AdRefresh
