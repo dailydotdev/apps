@@ -189,12 +189,6 @@ export default function Feed<T>({
     feature: briefFeedEntrypointPage,
     shouldEvaluate: !user?.isPlus && isMyFeed,
   });
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const indexWhenShowingPromoBanner =
-    typeof briefBannerPage === 'number'
-      ? (currentPageSize - 1) * briefBannerPage
-      : 0;
-
   const {
     items,
     updatePost,
@@ -499,6 +493,12 @@ export default function Feed<T>({
         showBriefCard,
       };
 
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const showPromoBanner = typeof briefBannerPage === 'number';
+  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    currentPageSize * +briefBannerPage - columnsDiffWithPage;
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
@@ -523,16 +523,15 @@ export default function Feed<T>({
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
                 }}
               >
-                {!!indexWhenShowingPromoBanner &&
-                  index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
-                      style={{
-                        gridColumn:
-                          !shouldUseListFeedLayout &&
-                          `span ${virtualizedNumCards}`,
-                      }}
-                    />
-                  )}
+                {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                  <BriefBannerFeed
+                    style={{
+                      gridColumn:
+                        !shouldUseListFeedLayout &&
+                        `span ${virtualizedNumCards}`,
+                    }}
+                  />
+                )}
                 <FeedItemComponent
                   item={item}
                   index={index}
