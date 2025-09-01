@@ -27,6 +27,9 @@ const CAMPAIGN_FRAGMENT = gql`
     }
     post {
       ...SharedPostInfo
+      sharedPost {
+        ...SharedPostInfo
+      }
     }
     user {
       id
@@ -90,10 +93,16 @@ export interface CampaignStats {
   impressions: number;
 }
 
+export enum CampaignState {
+  Active = 'ACTIVE',
+  Completed = 'COMPLETED',
+  Cancelled = 'CANCELLED',
+}
+
 export interface Campaign {
   id: string;
   referenceId: string;
-  state: 'INACTIVE' | 'CANCELLED' | 'ACTIVE';
+  state: CampaignState;
   type: CampaignType;
   createdAt: Date;
   endedAt: Date;
