@@ -1,6 +1,5 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
-import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
@@ -25,8 +24,6 @@ import classed from '../../../lib/classed';
 import { BlockIcon, EarthIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { IconSize } from '../../Icon';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureCardUiButtons } from '../../../lib/featureManagement';
 
 const EmptyStateContainer = classed(
   'div',
@@ -61,7 +58,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isPrivate =
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
-  const buttonExp = useFeature(featureCardUiButtons);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -98,11 +94,11 @@ export const ShareGrid = forwardRef(function ShareGrid(
         openNewTab={openNewTab}
         post={footerPost}
         className={{
-          image: buttonExp ? 'px-1' : undefined,
+          image: 'px-1',
         }}
       />
     );
-  }, [isDeleted, isPrivate, openNewTab, post, buttonExp]);
+  }, [isDeleted, isPrivate, openNewTab, post]);
 
   return (
     <FeedItemContainer
@@ -125,7 +121,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       />
 
       <>
-        <CardTextContainer className={classNames(buttonExp && 'mx-4')}>
+        <CardTextContainer>
           <PostCardHeader
             post={post}
             className="flex"
@@ -148,7 +144,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             createdAt={post.createdAt}
             readTime={post.sharedPost.readTime}
             isVideoType={isVideoType}
-            className="mx-2"
+            className="mx-4"
           />
         </Container>
       </>

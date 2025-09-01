@@ -28,8 +28,6 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import useInteractiveFeed from '../../../hooks/feed/useInteractiveFeed';
 import RelevancyTag from '../../tags/RelevancyTag';
 import InteractiveFeedTagOverlay from '../../post/tags/InteractiveFeedTagOverlay';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureCardUiButtons } from '../../../lib/featureManagement';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -50,7 +48,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const buttonExp = useFeature(featureCardUiButtons);
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
@@ -98,7 +95,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           post,
           classNames(
             className,
-            (showFeedback || buttonExp) && '!p-0',
+            showFeedback && '!p-0',
             postRelevant &&
               '!border-status-success !bg-action-upvote-float text-action-upvote-default',
             postIrrelevant &&
@@ -138,7 +135,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           showFeedback && styles.read,
         )}
       >
-        <CardTextContainer className={classNames(buttonExp && 'mx-4')}>
+        <CardTextContainer>
           <PostCardHeader
             post={post}
             className={showFeedback ? '!hidden' : 'flex'}
@@ -158,12 +155,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         {!showFeedback && (
           <Container>
             <CardSpace />
-            <div
-              className={classNames(
-                'flex items-center',
-                buttonExp ? 'mx-4 ' : 'mx-2',
-              )}
-            >
+            <div className="mx-4 flex items-center">
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
             </div>
@@ -172,7 +164,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
                 createdAt={post.createdAt}
                 readTime={post.readTime}
                 isVideoType={isVideoType}
-                className="mx-2"
+                className="mx-4"
               />
             )}
           </Container>
@@ -185,7 +177,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             isHoveringCard={isHovering}
             className={{
               image: classNames(
-                buttonExp && 'px-1',
+                'px-1',
                 showFeedback && 'mb-0',
                 smallCard && ' !my-0 !h-26',
               ),
