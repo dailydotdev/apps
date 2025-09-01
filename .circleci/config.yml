@@ -24,9 +24,16 @@ jobs:
       - image: cimg/node:22.11
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: pnpm
-          override-ci-command: pnpm install
+      - run:
+          name: Install pnpm
+          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
+      - restore_cache:
+          keys:
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
+      - run:
+          name: Install dependencies
+          command: pnpm install
       - save_cache:
           key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
           paths:
@@ -42,6 +49,9 @@ jobs:
     executor: playwright-executor
     steps:
       - checkout
+      - run:
+          name: Install pnpm
+          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
             - deps-v7-{{ checksum "pnpm-lock.yaml" }}
