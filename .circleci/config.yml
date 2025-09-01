@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   run_webhook_e2e:
     type: boolean
-    default: false
+    default: true
 
 orbs:
   node: circleci/node@5.2.0
