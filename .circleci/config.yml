@@ -24,16 +24,9 @@ jobs:
       - image: cimg/node:22.11
     steps:
       - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
-      - run:
-          name: Install dependencies
-          command: pnpm install
+      - node/install-packages:
+          pkg-manager: pnpm
+          override-ci-command: pnpm install
       - save_cache:
           key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
           paths:
@@ -55,7 +48,7 @@ jobs:
             - deps-v7-{{ .Branch }}
       - run:
           name: Run Playwright tests
-          command: npm run test:e2e
+          command: pnpm test:e2e
           environment:
             USER_NAME: "${USER_NAME}"
             PASSWORD: "${PASSWORD}"
