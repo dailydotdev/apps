@@ -35,6 +35,7 @@ jobs:
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
+            - ./packages/playwright/node_modules
 
   webhook-e2e-tests:
     docker:
