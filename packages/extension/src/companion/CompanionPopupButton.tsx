@@ -1,18 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
 

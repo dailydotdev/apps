@@ -9,7 +9,7 @@ import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { usePersonalizedDigest } from '../../hooks';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { TimezoneDropdown } from '../widgets/TimezoneDropdown';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserInitialTimezone } from '../../lib/timezones';
 import { HourDropdown } from '../fields/HourDropdown';
@@ -31,7 +31,7 @@ export const ReadingReminder = ({
   headline,
 }: ReadingReminderProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [loading, setLoading] = useState(false);
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({

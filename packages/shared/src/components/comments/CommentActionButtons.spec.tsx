@@ -20,9 +20,11 @@ import { Origin } from '../../lib/log';
 import { VOTE_MUTATION } from '../../graphql/users';
 import { UserVoteEntity } from '../../hooks';
 import { UserVote } from '../../graphql/posts';
-import LogContext from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
 import { PaymentContextProvider } from '../../contexts/payment';
+import { getLogContextStatic } from '../../contexts/LogContext';
+
+const LogContext = getLogContextStatic();
 
 const showLogin = jest.fn();
 const onComment = jest.fn();

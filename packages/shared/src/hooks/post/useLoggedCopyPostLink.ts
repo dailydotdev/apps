@@ -1,7 +1,7 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import type { Post } from '../../graphql/posts';
 import { useCopyPostLink } from '../useCopyPostLink';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import type { ShareProvider } from '../../lib/share';
 import { postLogEvent } from '../../lib/feed';
 import { Origin, LogEvent } from '../../lib/log';
@@ -24,7 +24,7 @@ export const useLoggedCopyPostLink = (
     },
   });
   const [, copyLink] = useCopyPostLink(shareLink);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
 
   const onCopyLink = useCallback(
     (provider: ShareProvider) => {

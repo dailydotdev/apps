@@ -19,7 +19,7 @@ import { useDomPurify } from '../../../hooks/useDomPurify';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;
@@ -56,7 +56,7 @@ export const SearchPanelPostSuggestions = ({
   title,
 }: SearchPanelPostSuggestionsProps): ReactElement => {
   const router = useRouter();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const searchPanel = useContext(SearchPanelContext);
   const { search } = useSearchProvider();
 
