@@ -55,7 +55,7 @@ jobs:
             - deps-v7-{{ .Branch }}
       - run:
           name: Run Playwright tests
-          command: npm test:e2e
+          command: npm run test:e2e
           environment:
             USER_NAME: "${USER_NAME}"
             PASSWORD: "${PASSWORD}"
