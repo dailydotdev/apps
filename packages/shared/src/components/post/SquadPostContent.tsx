@@ -53,7 +53,11 @@ function SquadPostContentRaw({
     ActionType.ClosedNewPostBoostBanner,
   );
   const shouldShowBanner =
-    isActionsFetched && !hasClosedBanner && isPostPage && isBoostButtonVisible;
+    isActionsFetched &&
+    !hasClosedBanner &&
+    isPostPage &&
+    isBoostButtonVisible &&
+    !post?.flags?.campaignId;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
