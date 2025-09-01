@@ -52,14 +52,14 @@ export const AdGrid = forwardRef(function AdGrid(
       <CardTextContainer className="!mx-2 my-1">
         <div className="flex items-center">
           <AdRefresh
-            variant={colorExp ? ButtonVariant.Tertiary : ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             onClick={onRefreshClick}
             loading={isRefetching}
           />
           {!isPlus && (
             <RemoveAd
-              variant={colorExp ? ButtonVariant.Tertiary : ButtonVariant.Float}
+              variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
             />
           )}
