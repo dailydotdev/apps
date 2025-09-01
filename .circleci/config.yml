@@ -38,60 +38,21 @@ jobs:
             - ./packages/playwright/node_modules
 
   webhook-e2e-tests:
-    working_directory: packages/playwright
     docker:
-      - image: mcr.microsoft.com/playwright:v1.48.0-jammy
-    resource_class: medium
-    environment:
-      NODE_VERSION: "22.11"
-      PNPM_VERSION: "9.14.4"
+      - image: mcr.microsoft.com/playwright:v1.40.0-jammy
+    working_directory: packages/playwright
     steps:
       - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
             - deps-v8-{{ checksum "pnpm-lock.yaml" }}
             - deps-v8-{{ .Branch }}
       - run:
-          name: Install dependencies (if cache miss)
-          command: pnpm install
+          name: Install Dependencies
+          command: npm install
       - run:
-          name: Run Playwright tests
-          command: pnpm test
-          environment:
-            USER_NAME: "${USER_NAME}"
-            PASSWORD: "${PASSWORD}"
-
-      - store_artifacts:
-          name: Upload Playwright Report
-          path: packages/playwright/playwright-report/
-          destination: playwright-report
-
-#      - slack/notify:
-#          event: fail
-#          custom: |
-#            {
-#              "blocks": [
-#                {
-#                  "type": "section",
-#                  "text": {
-#                    "type": "mrkdwn",
-#                    "text": ":x: *Webhook E2E Tests* failed in <${CIRCLE_BUILD_URL}|${CIRCLE_PROJECT_REPONAME}>"
-#                  }
-#                },
-#                {
-#                  "type": "context",
-#                  "elements": [
-#                    {
-#                      "type": "mrkdwn",
-#                      "text": "Linked to Repo <${CIRCLE_REPOSITORY_URL}|${CIRCLE_PROJECT_REPONAME}>"
-#                    }
-#                  ]
-#                }
-#              ]
-#            }
+          name: Run Playwright Tests
+          command: npm test
 
   test_extension:
     docker:
