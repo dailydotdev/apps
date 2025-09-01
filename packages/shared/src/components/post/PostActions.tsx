@@ -290,17 +290,23 @@ export function PostActions({
           >
             Bookmark
           </BookmarkButton>
-          <QuaternaryButton
-            id="copy-post-btn"
-            onClick={() => onCopyLinkClick(post)}
-            icon={<LinkIcon />}
-            variant={ButtonVariant.Tertiary}
-            className={colorExp && 'hover:text-text-link'}
-            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
-            labelClassName={colorExp && 'hover:text-text-link'}
-          >
-            Copy
-          </QuaternaryButton>
+          <div className="group/link-btn">
+            <QuaternaryButton
+              id="copy-post-btn-post"
+              onClick={() => onCopyLinkClick(post)}
+              icon={<LinkIcon />}
+              variant={ButtonVariant.Tertiary}
+              className={classNames(
+                'text-text-tertiary',
+                colorExp
+                  ? 'group-hover/link-btn:text-text-link'
+                  : ' group-hover/link-btn:text-accent-cabbage-default',
+              )}
+              color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
+            >
+              Copy
+            </QuaternaryButton>
+          </div>
         </div>
       </div>
     </ConditionalWrapper>
