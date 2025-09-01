@@ -179,6 +179,7 @@ export interface Ad {
   tagLine?: string;
   backgroundColor?: string;
   data?: { post?: Post };
+  generationId?: string;
 }
 
 export type ReadHistoryPost = Pick<
