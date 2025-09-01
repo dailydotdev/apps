@@ -9,7 +9,13 @@ export enum AdActions {
 
 const skadiGenerationIdHeader = 'x-generation-id';
 
-const addGenerationIdHeader = ({ ad, res }: { ad?: Ad; res: Response }): Ad => {
+const addGenerationIdHeader = ({
+  ad,
+  res,
+}: {
+  ad: Ad | null;
+  res: Response;
+}): Ad | null => {
   if (!ad) {
     return ad;
   }
@@ -32,7 +38,6 @@ export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> => {
   });
 
   const ads = (await res.json()) as Ad[];
-
   return addGenerationIdHeader({ ad: ads[0], res });
 };
 
