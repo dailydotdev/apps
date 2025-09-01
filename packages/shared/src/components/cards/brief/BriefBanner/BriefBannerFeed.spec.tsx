@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import { subDays } from 'date-fns';
+import { useInView } from 'react-intersection-observer';
 
 import { BriefBannerFeed } from './BriefBannerFeed';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -32,27 +33,26 @@ jest.mock('../../../../hooks/utils', () => ({
   useIsLightTheme: jest.fn(() => false),
 }));
 
+// Mock react-intersection-observer
+jest.mock('react-intersection-observer', () => ({
+  useInView: jest.fn(() => ({
+    ref: jest.fn(),
+    inView: false,
+    entry: undefined,
+  })),
+}));
+
 const mockUseAuthContext = mocked(useAuthContext);
 const mockUseLogContext = mocked(useLogContext);
 const mockUsePersistentState = mocked(usePersistentState);
+const mockUseInView = useInView as jest.MockedFunction<typeof useInView>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MockUseInViewReturn = any;
 
 const mockSetBrief = jest.fn();
 const mockUpdateAlerts = jest.fn();
 const mockLogEvent = jest.fn();
-
-// Mock IntersectionObserver
-const mockIntersectionObserver = jest.fn();
-const mockObserve = jest.fn();
-const mockDisconnect = jest.fn();
-
-mockIntersectionObserver.mockImplementation((callback) => ({
-  observe: mockObserve,
-  disconnect: mockDisconnect,
-  callback,
-}));
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).IntersectionObserver = mockIntersectionObserver;
 
 describe('BriefBannerFeed', () => {
   let client: QueryClient;
@@ -60,6 +60,13 @@ describe('BriefBannerFeed', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     client = new QueryClient(defaultQueryClientTestingConfig);
+
+    // Default useInView mock - not in view, with ref
+    mockUseInView.mockReturnValue({
+      ref: jest.fn(),
+      inView: false,
+      entry: undefined,
+    } as MockUseInViewReturn);
 
     mockUseAuthContext.mockReturnValue({
       user: { ...defaultUser, isPlus: false },
@@ -330,8 +337,8 @@ describe('BriefBannerFeed', () => {
     });
   });
 
-  describe('intersection observer functionality', () => {
-    it('should set up intersection observer when banner is visible', () => {
+  describe('useInView integration', () => {
+    it('should call useInView with correct options when banner should show', () => {
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
         mockSetBrief,
@@ -351,14 +358,13 @@ describe('BriefBannerFeed', () => {
         </TestWrapper>,
       );
 
-      expect(mockIntersectionObserver).toHaveBeenCalledWith(
-        expect.any(Function),
-        { threshold: 1 },
-      );
-      expect(mockObserve).toHaveBeenCalled();
+      expect(mockUseInView).toHaveBeenCalledWith({
+        threshold: 1,
+        skip: false,
+      });
     });
 
-    it('should not set up intersection observer when banner is hidden', () => {
+    it('should call useInView with skip=true when banner should not show', () => {
       const today = new Date();
 
       mockUsePersistentState.mockReturnValueOnce([
@@ -380,21 +386,19 @@ describe('BriefBannerFeed', () => {
         </TestWrapper>,
       );
 
-      expect(mockIntersectionObserver).not.toHaveBeenCalled();
-      expect(mockObserve).not.toHaveBeenCalled();
+      expect(mockUseInView).toHaveBeenCalledWith({
+        threshold: 1,
+        skip: true,
+      });
     });
 
-    it('should set bannerLastSeen when element intersects', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let intersectionCallback: (entries: any[]) => void;
-
-      mockIntersectionObserver.mockImplementation((callback) => {
-        intersectionCallback = callback;
-        return {
-          observe: mockObserve,
-          disconnect: mockDisconnect,
-        };
-      });
+    it('should not call updateAlerts immediately when banner comes into view', () => {
+      // Mock banner coming into view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: true,
+        entry: undefined,
+      } as MockUseInViewReturn);
 
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
@@ -415,28 +419,17 @@ describe('BriefBannerFeed', () => {
         </TestWrapper>,
       );
 
-      // Simulate intersection
-      const mockEntry = { isIntersecting: true };
-      if (intersectionCallback) {
-        intersectionCallback([mockEntry]);
-      }
-
-      // The intersection observer should set local state, not call updateAlerts immediately
-      // updateAlerts is only called on beforeunload
+      // updateAlerts should not be called immediately - only on unmount/beforeunload
       expect(mockUpdateAlerts).not.toHaveBeenCalled();
     });
 
-    it('should not set bannerLastSeen when element does not intersect', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let intersectionCallback: (entries: any[]) => void;
-
-      mockIntersectionObserver.mockImplementation((callback) => {
-        intersectionCallback = callback;
-        return {
-          observe: mockObserve,
-          disconnect: mockDisconnect,
-        };
-      });
+    it('should not set banner timestamp when banner is not in view', () => {
+      // Mock banner not in view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: false,
+        entry: undefined,
+      } as MockUseInViewReturn);
 
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
@@ -457,17 +450,61 @@ describe('BriefBannerFeed', () => {
         </TestWrapper>,
       );
 
-      // Simulate no intersection
-      const mockEntry = { isIntersecting: false };
-      if (intersectionCallback) {
-        intersectionCallback([mockEntry]);
-      }
-
-      // updateAlerts should not be called since intersection didn't occur
       expect(mockUpdateAlerts).not.toHaveBeenCalled();
     });
+  });
 
-    it('should disconnect observer on unmount', () => {
+  describe('hybrid save approach', () => {
+    it('should call updateAlerts on beforeunload when banner was seen', async () => {
+      // Mock banner coming into view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: true,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
+      mockUsePersistentState.mockReturnValueOnce([
+        undefined,
+        mockSetBrief,
+        true,
+      ]);
+
+      render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      // Wait for useEffect to set the timestamp in ref
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Clear any setup calls
+      mockUpdateAlerts.mockClear();
+
+      // Simulate beforeunload event
+      const beforeUnloadEvent = new Event('beforeunload');
+      window.dispatchEvent(beforeUnloadEvent);
+
+      expect(mockUpdateAlerts).toHaveBeenCalledWith({
+        briefBannerLastSeen: expect.any(Date),
+      });
+    });
+
+    it('should call updateAlerts on component unmount when banner was seen', () => {
+      // Mock banner coming into view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: true,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
         mockSetBrief,
@@ -487,69 +524,25 @@ describe('BriefBannerFeed', () => {
         </TestWrapper>,
       );
 
-      unmount();
-
-      expect(mockDisconnect).toHaveBeenCalled();
-    });
-
-    it('should call updateAlerts on beforeunload when banner was seen', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let intersectionCallback: (entries: any[]) => void;
-
-      mockIntersectionObserver.mockImplementation((callback) => {
-        intersectionCallback = callback;
-        return {
-          observe: mockObserve,
-          disconnect: mockDisconnect,
-        };
-      });
-
-      mockUsePersistentState.mockReturnValueOnce([
-        undefined,
-        mockSetBrief,
-        true,
-      ]);
-
-      render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Wait for effects to be set up
-      await waitFor(() => {
-        expect(mockIntersectionObserver).toHaveBeenCalled();
-      });
-
-      // Simulate intersection (banner seen)
-      const mockEntry = { isIntersecting: true };
-      if (intersectionCallback) {
-        intersectionCallback([mockEntry]);
-      }
-
-      // Wait for state update and useEffect to re-run
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // Clear previous updateAlerts calls
+      // Clear any setup calls
       mockUpdateAlerts.mockClear();
 
-      // Simulate beforeunload event
-      const beforeUnloadEvent = new Event('beforeunload');
-      window.dispatchEvent(beforeUnloadEvent);
+      // Unmount component
+      unmount();
 
       expect(mockUpdateAlerts).toHaveBeenCalledWith({
         briefBannerLastSeen: expect.any(Date),
       });
     });
 
-    it('should not call updateAlerts on beforeunload when banner was not seen', async () => {
+    it('should not call updateAlerts on beforeunload when banner was not seen', () => {
+      // Mock banner not in view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: false,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
         mockSetBrief,
@@ -569,17 +562,99 @@ describe('BriefBannerFeed', () => {
         </TestWrapper>,
       );
 
-      // Wait for effects to be set up
-      await waitFor(() => {
-        expect(mockIntersectionObserver).toHaveBeenCalled();
-      });
-
-      // Clear any previous updateAlerts calls
+      // Clear any setup calls
       mockUpdateAlerts.mockClear();
 
-      // Simulate beforeunload event without banner being seen
+      // Simulate beforeunload event
       const beforeUnloadEvent = new Event('beforeunload');
       window.dispatchEvent(beforeUnloadEvent);
+
+      expect(mockUpdateAlerts).not.toHaveBeenCalled();
+    });
+
+    it('should not call updateAlerts on unmount when banner was not seen', () => {
+      // Mock banner not in view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: false,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
+      mockUsePersistentState.mockReturnValueOnce([
+        undefined,
+        mockSetBrief,
+        true,
+      ]);
+
+      const { unmount } = render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      // Clear any setup calls
+      mockUpdateAlerts.mockClear();
+
+      // Unmount component
+      unmount();
+
+      expect(mockUpdateAlerts).not.toHaveBeenCalled();
+    });
+
+    it('should only save once when both beforeunload and unmount would trigger', async () => {
+      // Mock banner coming into view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: true,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
+      mockUsePersistentState.mockReturnValueOnce([
+        undefined,
+        mockSetBrief,
+        true,
+      ]);
+
+      const { unmount } = render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      // Wait for useEffect to set the timestamp in ref
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Clear any setup calls
+      mockUpdateAlerts.mockClear();
+
+      // Simulate beforeunload event first (this should save and clear the ref)
+      const beforeUnloadEvent = new Event('beforeunload');
+      window.dispatchEvent(beforeUnloadEvent);
+
+      expect(mockUpdateAlerts).toHaveBeenCalledTimes(1);
+      expect(mockUpdateAlerts).toHaveBeenCalledWith({
+        briefBannerLastSeen: expect.any(Date),
+      });
+
+      // Clear the mock to test unmount
+      mockUpdateAlerts.mockClear();
+
+      // Unmount component (this should not save again since ref was cleared)
+      unmount();
 
       expect(mockUpdateAlerts).not.toHaveBeenCalled();
     });
@@ -677,7 +752,9 @@ describe('BriefBannerFeed', () => {
         render(
           <TestWrapper
             alertsOverride={{
-              briefBannerLastSeen: null,
+              alerts: {
+                briefBannerLastSeen: null,
+              },
               loadedAlerts: true,
             }}
           >
@@ -687,21 +764,13 @@ describe('BriefBannerFeed', () => {
       }).not.toThrow();
     });
 
-    it('should handle missing ref gracefully', () => {
-      // Mock ref to be null
-      const originalCreateElement = React.createElement;
-      React.createElement = jest
-        .fn()
-        .mockImplementation((type, props, ...children) => {
-          if (type === 'div' && props?.ref) {
-            return originalCreateElement(
-              type,
-              { ...props, ref: null },
-              ...children,
-            );
-          }
-          return originalCreateElement(type, props, ...children);
-        });
+    it('should handle when useInView returns null ref', () => {
+      // Mock useInView to return null ref
+      mockUseInView.mockReturnValue({
+        ref: null,
+        inView: false,
+        entry: undefined,
+      } as MockUseInViewReturn);
 
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
@@ -713,7 +782,9 @@ describe('BriefBannerFeed', () => {
         render(
           <TestWrapper
             alertsOverride={{
-              briefBannerLastSeen: null,
+              alerts: {
+                briefBannerLastSeen: null,
+              },
               loadedAlerts: true,
             }}
           >
@@ -721,9 +792,50 @@ describe('BriefBannerFeed', () => {
           </TestWrapper>,
         );
       }).not.toThrow();
+    });
 
-      // Restore original createElement
-      React.createElement = originalCreateElement;
+    it('should only set banner timestamp once per component mount', () => {
+      // Mock banner coming into view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: true,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
+      mockUsePersistentState.mockReturnValue([undefined, mockSetBrief, true]);
+
+      const { rerender } = render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      // Clear setup calls
+      mockUpdateAlerts.mockClear();
+
+      // Rerender the component (simulating multiple effect runs)
+      rerender(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      // Still should not call updateAlerts during renders
+      expect(mockUpdateAlerts).not.toHaveBeenCalled();
     });
   });
 });
