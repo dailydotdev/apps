@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { checkKratosEmail } from '../../lib/kratos';
@@ -8,7 +8,7 @@ import { getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import type { LoginFormParams } from './LoginForm';
 import LoginForm from './LoginForm';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
@@ -61,7 +61,7 @@ const AuthDefault = ({
   loginButton,
   simplified,
 }: AuthDefaultProps): ReactElement => {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
   const { displayToast } = useToastNotification();

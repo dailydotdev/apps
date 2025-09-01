@@ -23,7 +23,7 @@ import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
@@ -79,7 +79,7 @@ export default function CompanionMenu({
   setCompanionState,
 }: CompanionMenuProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const [reportModal, setReportModal] = useState<boolean>();

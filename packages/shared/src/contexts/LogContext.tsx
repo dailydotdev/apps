@@ -16,7 +16,8 @@ const LogContext = createContext<LogContextData>({
   logEventEnd: () => {},
   sendBeacon: () => {},
 });
-export default LogContext;
+
+export const getLogContextStatic = () => LogContext;
 
 export type LogContextProviderProps = {
   app: BootApp;

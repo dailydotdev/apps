@@ -1,7 +1,7 @@
 import type { FormEvent, MutableRefObject } from 'react';
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
 import { useShortcutsUser } from './useShortcutsUser';
 import { useShortcuts } from '../contexts/ShortcutsProvider';
@@ -24,7 +24,7 @@ export interface UseShortcutLinks {
 }
 
 export function useShortcutLinks(): UseShortcutLinks {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const formRef = useRef<HTMLFormElement>();
 
   const { isManual, topSites, hasCheckedPermission, askTopSitesPermission } =

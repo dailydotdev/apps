@@ -8,12 +8,12 @@ import type { TextFieldProps } from '@dailydotdev/shared/src/components/fields/T
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
 import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { CommonTextField } from './common';
 
@@ -38,7 +38,7 @@ function EmailForm({
   passwordProps,
   verificationId,
 }: EmailFormProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [code, setCode] = useState<string>();
   const [email, setEmail] = useState<string>();
   const { timer, setTimer, runTimer } = useTimer(null, 0);

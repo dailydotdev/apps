@@ -16,9 +16,11 @@ import type { AlertContextProviderProps } from '../../src/contexts/AlertContext'
 import { AlertContextProvider } from '../../src/contexts/AlertContext';
 import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
-import LogContext from '../../src/contexts/LogContext';
 import type { LogContextData } from '../../src/hooks/log/useLogContextData';
 import { PaymentContextProvider } from '../../src/contexts/payment';
+import { getLogContextStatic } from '../../src/contexts/LogContext';
+
+const LogContext = getLogContextStatic();
 
 interface TestBootProviderProps {
   children: ReactNode;
