@@ -46,7 +46,6 @@ jobs:
             - ./packages/extension/node_modules
 
   e2e-tests:
-    context: SLACK
     executor: playwright-executor
     steps:
       - checkout
