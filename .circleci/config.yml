@@ -51,42 +51,6 @@ jobs:
       - checkout
 
       - run:
-          name: Setup Node.js
-          command: |
-            curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            node --version
-
-      - run:
-          name: Install pnpm
-          command: |
-            npm install -g pnpm@9.14.4
-            pnpm --version
-
-      - run:
-          name: Get pnpm store directory
-          command: |
-            echo 'export PNPM_STORE_PATH=$(pnpm store path --silent)' >> "$BASH_ENV"
-            source "$BASH_ENV"
-            echo "PNPM store path: $PNPM_STORE_PATH"
-
-      - restore_cache:
-          name: Restore pnpm cache
-          keys:
-            - pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
-            - pnpm-store-{{ arch }}-
-
-      - run:
-          name: Install dependencies
-          command: pnpm install --frozen-lockfile
-
-      - save_cache:
-          name: Save pnpm cache
-          key: pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
-          paths:
-            - ~/.local/share/pnpm/store
-
-      - run:
           name: Run Playwright tests
           command: pnpm test:e2e
           environment:
@@ -294,4 +258,5 @@ workflows:
   webhook-e2e:
     when: << pipeline.parameters.run_webhook_e2e >>
     jobs:
+      - install_deps
       - webhook-e2e-tests
