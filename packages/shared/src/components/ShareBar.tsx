@@ -4,7 +4,7 @@ import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import type { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { postLogEvent } from '../lib/feed';
 import { ActiveFeedContext } from '../contexts';
 import { WidgetContainer } from './widgets/common';
@@ -28,7 +28,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyPostLink();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { logOpts } = useContext(ActiveFeedContext);
 

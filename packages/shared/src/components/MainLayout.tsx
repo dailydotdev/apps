@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
@@ -78,7 +78,7 @@ function MainLayoutComponent({
   canGoBack,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { user, isAuthReady, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();

@@ -8,8 +8,10 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as func from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import CallbackPage from '../pages/callback';
+
+const LogContext = getLogContextStatic();
 
 const WEBAPP_URL = 'https://app.daily.dev';
 

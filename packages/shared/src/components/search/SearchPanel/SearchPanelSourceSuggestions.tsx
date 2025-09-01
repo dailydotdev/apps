@@ -8,7 +8,7 @@ import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
 import type { ButtonProps } from '../../buttons/Button';
 import { SearchPanelItem } from './SearchPanelItem';
@@ -88,7 +88,7 @@ export const SearchPanelSourceSuggestions = ({
   const feedSettingsEditContext = useContext(FeedSettingsEditContext);
   const feed = feedSettingsEditContext?.feed;
   const router = useRouter();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const searchPanel = useContext(SearchPanelContext);
 
   const { suggestions } = useSearchProviderSuggestions({

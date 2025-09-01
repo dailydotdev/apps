@@ -30,7 +30,7 @@ import {
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
@@ -73,7 +73,7 @@ const useRegistration = ({
   onInitializeVerification,
   keepSession = false,
 }: UseRegistrationProps): UseRegistration => {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
   const { trackingId, referral, referralOrigin, logout, geo } =

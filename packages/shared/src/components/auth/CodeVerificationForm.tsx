@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -10,7 +10,7 @@ import { AuthModalText } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { KeyIcon } from '../icons';
 import { useAuthData } from '../../contexts/AuthDataContext';
@@ -28,7 +28,7 @@ function CodeVerificationForm({
   simplified,
 }: CodeVerificationFormProps): ReactElement {
   const { email } = useAuthData();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(

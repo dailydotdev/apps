@@ -1,5 +1,4 @@
-import { useContext } from 'react';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import type { CopyNotifyFunction } from './useCopy';
 import { useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
@@ -21,7 +20,7 @@ export function useShareOrCopyLink({
   logObject,
   cid,
 }: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [copying, copyLink] = useCopyLink();
   const { getShortUrl } = useGetShortUrl();
 

@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -13,7 +13,7 @@ import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { useAuthData } from '../../contexts/AuthDataContext';
 
@@ -32,7 +32,7 @@ function ForgotPasswordForm({
   simplified,
 }: ForgotPasswordFormProps): ReactElement {
   const { email: initialEmail, setEmail } = useAuthData();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
   const { sendEmail, isLoading, token } = useAccountEmailFlow({
     flow: AuthFlow.Recovery,

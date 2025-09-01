@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from 'react';
 import nock from 'nock';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import LogContext, { LogContextProvider } from './LogContext';
+import { getLogContextStatic, LogContextProvider } from './LogContext';
 import type { LogContextData } from '../hooks/log/useLogContextData';
 import type { SettingsContextData } from './SettingsContext';
 import { ThemeMode } from './SettingsContext';
@@ -14,6 +14,8 @@ import type { Visit } from '../lib/boot';
 import { BootApp } from '../lib/boot';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
+
+const LogContext = getLogContextStatic();
 
 let queryClient: QueryClient;
 const getPage = jest.fn();
