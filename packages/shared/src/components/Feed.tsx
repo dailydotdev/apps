@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
-import type { Ad, Post } from '../graphql/posts';
+import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
@@ -24,8 +24,8 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import LogContext from '../contexts/LogContext';
-import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
+import { useLogContext } from '../contexts/LogContext';
+import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin, TargetId, LogEvent } from '../lib/log';
@@ -52,7 +52,6 @@ import type { PostClick } from '../lib/click';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
-import type { AdActions } from '../lib/ads';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 import { briefCardFeedFeature } from '../lib/featureManagement';
@@ -156,7 +155,7 @@ export default function Feed<T>({
   feedContainerRef,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
@@ -455,22 +454,6 @@ export default function Feed<T>({
     }
   };
 
-  const onAdAction = (
-    action: Exclude<AdActions, AdActions.Impression>,
-    ad: Ad,
-    row: number,
-    column: number,
-  ) => {
-    logEvent(
-      adLogEvent(action, ad, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedLogExtra(feedName, ranking),
-      }),
-    );
-  };
-
   const PostModal = PostModalMap[selectedPost?.type];
 
   if (isError) {
@@ -549,8 +532,8 @@ export default function Feed<T>({
                   onMenuClick={onMenuClick}
                   onCopyLinkClick={onCopyLinkClickLogged}
                   onCommentClick={onCommentClick}
-                  onAdAction={onAdAction}
                   onReadArticleClick={onReadArticleClick}
+                  virtualizedNumCards={virtualizedNumCards}
                 />
               </FeedCardContext.Provider>
             ))}

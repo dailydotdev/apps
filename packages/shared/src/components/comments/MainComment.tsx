@@ -17,7 +17,7 @@ import type { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -62,7 +62,7 @@ export default function MainComment({
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const isLoggedImpression = useRef(false);
   const showNotificationPermissionBanner = useMemo(
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),

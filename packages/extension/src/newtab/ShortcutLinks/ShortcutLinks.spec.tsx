@@ -20,7 +20,6 @@ import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/s
 import type { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import type { TopSites } from 'webextension-polyfill';
 import browser from 'webextension-polyfill';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,
   ShortcutsSourceType,
@@ -32,7 +31,10 @@ import * as libFuncs from '@dailydotdev/shared/src/lib/func';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import ShortcutLinks from './ShortcutLinks';
+
+const LogContext = getLogContextStatic();
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

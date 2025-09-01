@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import type { ModalProps } from './common/Modal';
@@ -25,7 +25,7 @@ export default function ShareModal({
 }: ShareProps & ModalProps): ReactElement {
   const isComment = !!comment;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
 
   const baseLogEvent = (eventName: string, extra?: Record<string, unknown>) =>
