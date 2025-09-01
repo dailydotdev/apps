@@ -6,7 +6,7 @@ import type { FeedItemPosition } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import { LogEvent, Origin } from '../../lib/log';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import type { Comment } from '../../graphql/comments';
 import { getCommentHash } from '../../graphql/comments';
 import { useSharePost } from '../../hooks/useSharePost';
@@ -57,7 +57,7 @@ export const SocialShare = ({
       : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyLink();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const [squadToShare, setSquadToShare] = shareToSquadState;

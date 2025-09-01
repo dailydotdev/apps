@@ -1,6 +1,6 @@
 import { useContext, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import type { PostData } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
@@ -35,7 +35,7 @@ const useVotePost = ({
 }: UseVotePostProps = {}): UseVotePost => {
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { logOpts } = useActiveFeedContext();
   const defaultOnMutate = ({ id, vote }) => {

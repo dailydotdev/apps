@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -9,12 +9,12 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SidebarArrowLeft, SidebarArrowRight } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { Tooltip } from '../tooltip/Tooltip';
 
 export const SidebarMenuIcon = (): ReactElement => {
   const { sidebarExpanded, toggleSidebarExpanded } = useSettingsContext();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const logAndToggleSidebarExpanded = () => {
     logEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,

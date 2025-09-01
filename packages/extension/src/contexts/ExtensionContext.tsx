@@ -1,10 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import browser from 'webextension-polyfill';
 import { useQueryClient } from '@tanstack/react-query';
-import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   requestContentScripts,
   getContentScriptPermission,
@@ -25,7 +25,7 @@ export const ExtensionContextProvider = ({
   children,
 }: ExtensionContextProviderProps): ReactElement => {
   const client = useQueryClient();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
 
   const contextData = useMemo(
     () => ({

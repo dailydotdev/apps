@@ -24,7 +24,7 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
@@ -156,7 +156,7 @@ export default function Feed<T>({
   feedContainerRef,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();

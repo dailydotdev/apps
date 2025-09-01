@@ -1,13 +1,6 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter as useRouterNext } from 'next/router';
-import LogContext from '../contexts/LogContext';
+import { useLogContext } from '../contexts/LogContext';
 import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
@@ -68,7 +61,7 @@ export const usePostModalNavigation = ({
   const basePathname = (router.query?.pmp as string) || router.pathname;
   const baseAsPath = (router.query?.pmap as string) || router.asPath;
   const pmid = router.query?.pmid as string;
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const scrollPositionOnFeed = useRef(0);
 

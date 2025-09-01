@@ -14,8 +14,10 @@ import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { settingsContext } from '../../../__tests__/helpers/boot';
 import SettingsContext from '../../contexts/SettingsContext';
-import LogContext from '../../contexts/LogContext';
+import { getLogContextStatic } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
+
+const LogContext = getLogContextStatic();
 
 beforeEach(() => {
   jest.clearAllMocks();

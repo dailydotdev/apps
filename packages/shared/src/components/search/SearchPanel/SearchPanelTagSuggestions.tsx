@@ -8,7 +8,7 @@ import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
-import LogContext from '../../../contexts/LogContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelItemContainer } from './SearchPanelInputContainer';
 import { TagLink } from '../../TagLinks';
 import { webappUrl } from '../../../lib/constants';
@@ -49,7 +49,7 @@ export const SearchPanelTagSuggestions = ({
   title,
 }: SearchPanelTagSuggestionsProps): ReactElement => {
   const router = useRouter();
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const searchPanel = useContext(SearchPanelContext);
 
   const { suggestions } = useSearchProviderSuggestions({

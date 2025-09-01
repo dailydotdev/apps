@@ -10,7 +10,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
-import LogContext from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
 import {
@@ -81,7 +81,7 @@ export default function BestDiscussions({
   isLoading,
   className,
 }: BestDiscussionsProps): ReactElement {
-  const { logEvent } = useContext(LogContext);
+  const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
 
   const onLinkClick = (post: Post): void => {
