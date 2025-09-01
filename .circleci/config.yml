@@ -48,6 +48,11 @@ jobs:
             - deps-v8-{{ checksum "pnpm-lock.yaml" }}
             - deps-v8-{{ .Branch }}
       - run:
+          name: Install Playwright Browsers
+          command: pnpm exec playwright install
+          working_directory: packages/playwright
+
+      - run:
           name: Run Playwright tests
           command: pnpm test
           environment:
