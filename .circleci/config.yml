@@ -88,6 +88,7 @@ jobs:
             }
 
   webhook-e2e-tests:
+    context: SLACK
     executor: playwright-executor
     steps:
       - checkout
@@ -260,4 +261,6 @@ workflows:
     when: << pipeline.parameters.run_webhook_e2e >>
     jobs:
       - install_deps
-      - webhook-e2e-tests
+      - webhook-e2e-tests:
+          requires:
+            - install_deps
