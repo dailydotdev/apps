@@ -100,10 +100,6 @@ export const BriefPayForGenerateCard = () => {
     onSuccess: async (data) => {
       displayToast('Your Presidential Briefing is being generated ✅');
 
-      queryClient.removeQueries({
-        queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
-      });
-
       if (data.balance) {
         updateUser({
           ...user,
@@ -112,9 +108,13 @@ export const BriefPayForGenerateCard = () => {
       }
 
       await Promise.all([
+        queryClient.refetchQueries({
+          queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
+        }),
         completeAction(ActionType.GeneratedBrief),
-        router.push('/briefing'),
       ]);
+
+      await router.push('/briefing');
     },
     onError: () => {
       displayToast(
