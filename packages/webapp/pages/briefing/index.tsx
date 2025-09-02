@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -48,7 +48,6 @@ import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/Inf
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -115,21 +114,6 @@ const Page = (): ReactElement => {
     onOpenModal(briefIndex);
   };
 
-  useEffect(() => {
-    if (!isAuthReady || !isActionsFetched || user?.isPlus) {
-      return;
-    }
-
-    const hasGeneratedBrief = checkHasCompleted(ActionType.GeneratedBrief);
-    if (!hasGeneratedBrief) {
-      router.push(`${webappUrl}/briefing/generate`);
-    }
-  }, [checkHasCompleted, isActionsFetched, isAuthReady, router, user?.isPlus]);
-
-  if (!isActionsFetched) {
-    return null;
-  }
-
   const firstBrief = items.at(0);
   const todayTime = set(new Date(), {
     hours: 0,
@@ -140,6 +124,10 @@ const Page = (): ReactElement => {
     firstBrief &&
     'post' in firstBrief &&
     new Date(firstBrief.post.createdAt) >= todayTime;
+
+  if (!isActionsFetched) {
+    return null;
+  }
 
   return (
     <ProtectedPage>
@@ -159,7 +147,7 @@ const Page = (): ReactElement => {
               Presidential briefings
             </Typography>
             <div className="ml-auto flex items-center gap-2">
-              {isNotPlus && !hasTodayBrief && (
+              {isNotPlus && !emptyFeed && !hasTodayBrief && (
                 <Button
                   icon={<MagicIcon aria-hidden />}
                   onClick={() => router.push('/briefing/generate')}
