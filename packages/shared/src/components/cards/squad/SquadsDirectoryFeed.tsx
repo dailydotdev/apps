@@ -97,6 +97,10 @@ export function SquadsDirectoryFeed({
 
   const adSource = ad?.data?.source;
   const flatSources = useMemo(() => {
+    if (isLoadingAd) {
+      return [];
+    }
+
     const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
     if (firstItemShouldBeAd && squadAd) {
@@ -110,12 +114,9 @@ export function SquadsDirectoryFeed({
     }
 
     return map;
-  }, [result.data?.pages, firstItemShouldBeAd, squadAd]);
+  }, [result.data?.pages, firstItemShouldBeAd, squadAd, isLoadingAd]);
 
-  if (
-    (flatSources.length === 0 && isFetched) ||
-    (firstItemShouldBeAd && isLoadingAd)
-  ) {
+  if (flatSources.length === 0 && isFetched) {
     return null;
   }
 
@@ -145,7 +146,7 @@ export function SquadsDirectoryFeed({
             />
           </SquadItemLogExtraContext>
         ))}
-        {isLoading && <Skeleton />}
+        {(isLoading || isLoadingAd) && <Skeleton />}
       </div>
     );
   }
@@ -175,7 +176,7 @@ export function SquadsDirectoryFeed({
           <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
         );
       })}
-      {isLoading && <Skeleton isFeatured={query.featured} />}
+      {(isLoading || isLoadingAd) && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );
 }
