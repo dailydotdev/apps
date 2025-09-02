@@ -7,8 +7,8 @@ import type { Post } from './posts';
 import type { Squad } from './sources';
 import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 import type { LoggedUser } from '../lib/user';
-import user from '../../__tests__/fixture/loggedUser';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const CAMPAIGN_FRAGMENT = gql`
   fragment CampaignFragment on Campaign {
@@ -268,10 +268,13 @@ export const stopCampaign = async (id: string): Promise<TransactionCreated> => {
 export const DEFAULT_CORES_PER_DAY = 5000;
 export const DEFAULT_DURATION_DAYS = 7;
 
-export const useCampaignById = (campaignId: string) =>
-  useQuery({
+export const useCampaignById = (campaignId: string) => {
+  const { user } = useAuthContext();
+
+  return useQuery({
     queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
     queryFn: () => getCampaignById(campaignId),
     staleTime: StaleTime.Default,
     enabled: !!campaignId,
   });
+};
