@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { GenerateBriefPage } from '@dailydotdev/shared/src/features/briefing/pages/GenerateBriefPage';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useRouter } from 'next/router';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import { pageMainClassNames } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
@@ -19,7 +21,14 @@ const Container = classed(
 );
 
 function Page() {
-  const { isAuthReady } = useAuthContext();
+  const { isAuthReady, user } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthReady && user?.isPlus) {
+      router.push(`${webappUrl}/briefing`);
+    }
+  }, [user?.isPlus, router, isAuthReady]);
 
   if (!isAuthReady) {
     return null;
