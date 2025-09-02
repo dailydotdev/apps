@@ -84,7 +84,12 @@ export function SquadsDirectoryFeed({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLoading = !isFetched || (!inView && !result.data);
   const { data: ad, isLoading: isLoadingAd } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory'),
+    queryKey: generateQueryKey(
+      RequestKey.Ads,
+      user,
+      title.copy,
+      'squads_directory',
+    ),
     queryFn: fetchDirectoryAd,
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
