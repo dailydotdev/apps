@@ -7,9 +7,7 @@ import { useInView } from 'react-intersection-observer';
 
 import { BriefBannerFeed } from './BriefBannerFeed';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useLogContext } from '../../../../contexts/LogContext';
-import { usePersistentState } from '../../../../hooks';
-import AlertContext from '../../../../contexts/AlertContext';
+import { useActions, usePersistentState } from '../../../../hooks';
 // eslint-disable-next-line import/extensions
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 // eslint-disable-next-line import/extensions
@@ -19,7 +17,6 @@ import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 
 // Mock dependencies
 jest.mock('../../../../contexts/AuthContext');
-jest.mock('../../../../contexts/LogContext');
 jest.mock('../../../../hooks');
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -33,6 +30,9 @@ jest.mock('../../../../hooks/utils', () => ({
   useIsLightTheme: jest.fn(() => false),
 }));
 
+const completeAction = jest.fn();
+const checkHasCompleted = jest.fn();
+
 // Mock react-intersection-observer
 jest.mock('react-intersection-observer', () => ({
   useInView: jest.fn(() => ({
@@ -43,20 +43,45 @@ jest.mock('react-intersection-observer', () => ({
 }));
 
 const mockUseAuthContext = mocked(useAuthContext);
-const mockUseLogContext = mocked(useLogContext);
 const mockUsePersistentState = mocked(usePersistentState);
 const mockUseInView = useInView as jest.MockedFunction<typeof useInView>;
+const mockUseActions = mocked(useActions);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockUseInViewReturn = any;
 
 const mockSetBrief = jest.fn();
 const mockUpdateAlerts = jest.fn();
-const mockLogEvent = jest.fn();
+
+let client: QueryClient;
+
+const TestWrapper: React.FC<{
+  children: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  alertsOverride?: any;
+}> = ({ children, alertsOverride = {} }) => {
+  const defaultAlerts = {
+    alerts: {
+      briefBannerLastSeen: null,
+      ...alertsOverride.alerts,
+    },
+    loadedAlerts: true,
+    updateAlerts: (props) => {
+      console.log('updateAlerts called with props:', props);
+      mockUpdateAlerts(props);
+      return Promise.resolve();
+    },
+    ...alertsOverride,
+  };
+
+  return (
+    <TestBootProvider client={client} alerts={defaultAlerts}>
+      {children}
+    </TestBootProvider>
+  );
+};
 
 describe('BriefBannerFeed', () => {
-  let client: QueryClient;
-
   beforeEach(() => {
     jest.clearAllMocks();
     client = new QueryClient(defaultQueryClientTestingConfig);
@@ -76,35 +101,17 @@ describe('BriefBannerFeed', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    mockUseLogContext.mockReturnValue({
-      logEvent: mockLogEvent,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
+    mockUseActions.mockReturnValue({
+      completeAction,
+      checkHasCompleted,
+      isActionsFetched: true,
+      actions: [],
+    });
   });
 
-  const TestWrapper: React.FC<{
-    children: React.ReactNode;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    alertsOverride?: any;
-  }> = ({ children, alertsOverride = {} }) => {
-    const defaultAlerts = {
-      alerts: {
-        briefBannerLastSeen: null,
-        ...alertsOverride.alerts,
-      },
-      loadedAlerts: true,
-      updateAlerts: mockUpdateAlerts,
-      ...alertsOverride,
-    };
-
-    return (
-      <TestBootProvider client={client}>
-        <AlertContext.Provider value={defaultAlerts}>
-          {children}
-        </AlertContext.Provider>
-      </TestBootProvider>
-    );
-  };
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
   describe('banner visibility logic', () => {
     it('should show banner when no brief exists and banner not seen today', () => {
