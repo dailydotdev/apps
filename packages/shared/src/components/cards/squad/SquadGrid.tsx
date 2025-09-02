@@ -123,7 +123,7 @@ export const SquadGrid = ({
             >
               {campaign && (
                 <Tooltip content={`Boosted by @${campaign.user.username}`}>
-                  <button type="button" disabled>
+                  <button type="button" disabled className="relative">
                     <strong>Boosted</strong>
                   </button>
                 </Tooltip>

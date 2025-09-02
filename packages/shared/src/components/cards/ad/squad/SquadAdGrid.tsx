@@ -17,12 +17,12 @@ import { AdPixel } from '../common/AdPixel';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { Origin } from '../../../../lib/log';
 import { SquadActionButton } from '../../../squads/SquadActionButton';
-import { CardLink } from '../../common/Card';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
 import { pluralize } from '../../../../lib/strings';
 import { SquadFeedStats } from './SquadFeedStats';
+import { CardLink } from '../../common/Card';
 
 export function SquadAdGrid({
   item,
@@ -55,7 +55,7 @@ export function SquadAdGrid({
           color={TypographyColor.Tertiary}
         >
           <Tooltip content={`Boosted by ${campaign?.user?.username}`}>
-            <button type="button" disabled>
+            <button type="button" disabled className="relative">
               <strong>Boosted</strong>
             </button>
           </Tooltip>
