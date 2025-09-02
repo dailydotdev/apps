@@ -1,10 +1,10 @@
 import type { ComponentProps } from 'react';
 import React, {
-  useMemo,
-  useEffect,
-  useContext,
-  useRef,
   useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
 } from 'react';
 import { isToday } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
@@ -18,21 +18,27 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const bannerLastSeenRef = useRef<Date | null>(null);
-  const { user } = useAuthContext();
+  const { user, isLoggedIn, isAuthReady } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
+    if (!isLoggedIn || !isAuthReady) {
+      return false;
+    }
+
     const hasTodayBrief = brief && isToday(new Date(brief.createdAt));
     const haveSeenBannerToday =
       loadedAlerts &&
       alerts.briefBannerLastSeen &&
       isToday(new Date(alerts.briefBannerLastSeen));
 
-    if (user.isPlus || hasTodayBrief || haveSeenBannerToday) {
-      return false;
-    }
-
-    // Show banner if no brief exists OR brief is from previous day
-    return true;
-  }, [brief, loadedAlerts, alerts.briefBannerLastSeen, user.isPlus]);
+    return !user.isPlus && !hasTodayBrief && !haveSeenBannerToday;
+  }, [
+    isLoggedIn,
+    isAuthReady,
+    brief,
+    loadedAlerts,
+    alerts.briefBannerLastSeen,
+    user?.isPlus,
+  ]);
 
   const saveBannerState = useCallback(() => {
     if (bannerLastSeenRef.current !== null) {
