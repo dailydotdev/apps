@@ -1,22 +1,16 @@
 import type { ComponentProps } from 'react';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { isToday } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
 import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
-import AlertContext from '../../../../contexts/AlertContext';
+import { useAlertsContext } from '../../../../contexts/AlertContext';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useEventListener } from '../../../../hooks';
 
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
-  const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
+  const { alerts, loadedAlerts, updateAlerts } = useAlertsContext();
   const bannerLastSeenRef = useRef<Date | null>(null);
   const { user, isLoggedIn, isAuthReady } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
