@@ -268,13 +268,16 @@ export const stopCampaign = async (id: string): Promise<TransactionCreated> => {
 export const DEFAULT_CORES_PER_DAY = 5000;
 export const DEFAULT_DURATION_DAYS = 7;
 
-export const useCampaignById = (campaignId: string) => {
+export const useCampaignByIdOptions = (campaignId: string) => {
   const { user } = useAuthContext();
 
-  return useQuery({
+  return {
     queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
     queryFn: () => getCampaignById(campaignId),
     staleTime: StaleTime.Default,
     enabled: !!campaignId,
-  });
+  };
 };
+
+export const useCampaignById = (campaignId: string) =>
+  useQuery(useCampaignByIdOptions(campaignId));
