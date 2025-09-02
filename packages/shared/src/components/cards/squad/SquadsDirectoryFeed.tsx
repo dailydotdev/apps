@@ -8,7 +8,7 @@ import { useSources } from '../../../hooks/source/useSources';
 import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SquadGrid } from './SquadGrid';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
@@ -88,27 +88,24 @@ export function SquadsDirectoryFeed({
     queryFn: fetchDirectoryAd,
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
+  const { squad: squadAd } = useSquad({ handle: ad?.data?.source?.handle });
 
   const adSource = ad?.data?.source;
   const flatSources = useMemo(() => {
     const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
-    if (firstItemShouldBeAd && adSource) {
-      const index = map.findIndex(({ node }) => node.id === adSource.id);
+    if (firstItemShouldBeAd && squadAd) {
+      const index = map.findIndex(({ node }) => node.id === squadAd.id);
 
-      if (index === 0) {
-        return map; // first item is already the ad
-      }
-
-      if (index > 0) {
+      if (index >= 0) {
         delete map[index]; // to avoid displaying duplicate
       }
 
-      map.unshift({ node: adSource });
+      map.unshift({ node: squadAd });
     }
 
     return map;
-  }, [result.data?.pages, firstItemShouldBeAd, adSource]);
+  }, [result.data?.pages, firstItemShouldBeAd, squadAd]);
 
   if (
     (flatSources.length === 0 && isFetched) ||
