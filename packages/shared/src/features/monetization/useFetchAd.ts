@@ -20,6 +20,7 @@ export const useFetchAd = (): UseFetchAds => {
       if (isEnabled) {
         params.append('allow_post_boost', 'true');
         params.append('allow_squad_boost', 'true');
+        params.append('only_squad_boost', 'true'); // TODO: remove before shipping
       }
 
       return fetchAd(params);

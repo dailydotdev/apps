@@ -28,9 +28,10 @@ export function SquadAdList({
   onClickAd,
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
-  const { campaign, members, shouldShowAction, onJustJoined } = useSquadAd({
-    item,
-  });
+  const { squad, campaign, members, shouldShowAction, onJustJoined } =
+    useSquadAd({
+      item,
+    });
 
   return (
     <FeedItemContainer
@@ -52,7 +53,7 @@ export function SquadAdList({
             color={TypographyColor.Tertiary}
           >
             <Tooltip content={`Boosted by ${campaign?.user?.username}`}>
-              <button type="button" disabled>
+              <button type="button" disabled className="relative">
                 <strong>Boosted</strong>
               </button>
             </Tooltip>
@@ -85,7 +86,7 @@ export function SquadAdList({
       </div>
       {shouldShowAction ? (
         <SquadActionButton
-          squad={source}
+          squad={squad}
           origin={Origin.Feed}
           alwaysShow
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}

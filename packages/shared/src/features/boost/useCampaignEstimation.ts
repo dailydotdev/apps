@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import user from '../../../__tests__/fixture/loggedUser';
 import type { StartCampaignProps, CampaignType } from '../../graphql/campaigns';
 import { getDailyCampaignReachEstimate } from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseCampaignEstimationProps {
   type: CampaignType;
@@ -19,6 +19,7 @@ export const useCampaignEstimation = ({
   enabled = true,
   referenceId,
 }: UseCampaignEstimationProps) => {
+  const { user } = useAuthContext();
   const queryKey = generateQueryKey(
     RequestKey.Campaigns,
     user,
