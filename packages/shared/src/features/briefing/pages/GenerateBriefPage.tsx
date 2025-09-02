@@ -19,7 +19,6 @@ import { webappUrl } from '../../../lib/constants';
 import { BriefPayForGenerateCard } from '../components/BriefPayForGenerateCard';
 import { BriefPlusAdvantagesCard } from '../components/BriefPlusAdvantagesCard';
 import { BriefPostHeader } from '../components/BriefPostHeader';
-import { BriefContextProvider } from '../../../components/cards/brief/BriefContext';
 
 const MockPresidentialBrief = () => (
   <div
@@ -115,9 +114,7 @@ export const GenerateBriefPage = () => {
           {/*  Cards */}
           <div className="flex grid-cols-2 flex-col gap-4 tablet:grid">
             <BriefPlusAdvantagesCard />
-            <BriefContextProvider>
-              <BriefPayForGenerateCard />
-            </BriefContextProvider>
+            <BriefPayForGenerateCard />
           </div>
           {/* Skip and go home */}
           <div className="text-center">

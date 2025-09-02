@@ -1,5 +1,6 @@
+import type { Dispatch, FC, SetStateAction } from 'react';
+import React from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
-import type { Dispatch, SetStateAction } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { usePersistentState } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -27,4 +28,14 @@ const [BriefContextProvider, useBriefContext] = createContextProvider(
   },
 );
 
-export { BriefContextProvider, useBriefContext };
+function withBriefContext<T>(Component: FC<T>) {
+  return function WithBriefContextComponent(props: T) {
+    return (
+      <BriefContextProvider>
+        <Component {...props} />
+      </BriefContextProvider>
+    );
+  };
+}
+
+export { BriefContextProvider, useBriefContext, withBriefContext };

@@ -14,6 +14,8 @@ import { LogEvent, TargetId } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useIsLightTheme } from '../../../../hooks/utils';
+import { useActions } from '../../../../hooks';
+import { ActionType } from '../../../../graphql/actions';
 
 export const BriefBanner = (props: ComponentProps<'div'>) => {
   const { className, style, ...attrs } = props;
@@ -23,6 +25,10 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
   const impressionRef = useRef(false);
   const { logEvent } = useLogContext();
   const { user, isAuthReady } = useAuthContext();
+
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const hasGeneratedPreviously =
+    isActionsFetched && checkHasCompleted(ActionType.GeneratedBrief);
 
   const logBriefEvent = useCallback(
     (eventName: LogEvent) => {
@@ -91,9 +97,12 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         size={ButtonSize.Small}
         onClick={() => {
           logBriefEvent(LogEvent.ClickBrief);
-          router.push('/briefing/generate');
+          router.push(
+            '/briefing'.concat(hasGeneratedPreviously ? '/generate' : ''),
+          );
         }}
         variant={ButtonVariant.Primary}
+        title={'/briefing'.concat(hasGeneratedPreviously ? '/generate' : '')}
       >
         Generate your briefing
       </Button>

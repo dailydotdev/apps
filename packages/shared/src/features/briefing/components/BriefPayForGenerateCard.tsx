@@ -29,7 +29,10 @@ import { useFeature } from '../../../components/GrowthBookProvider';
 import { briefGeneratePricing } from '../../../lib/featureManagement';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useBriefContext } from '../../../components/cards/brief/BriefContext';
+import {
+  useBriefContext,
+  withBriefContext,
+} from '../../../components/cards/brief/BriefContext';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -77,7 +80,7 @@ function BuyCores({
   );
 }
 
-export const BriefPayForGenerateCard = () => {
+export const BriefPayForGenerateCard = withBriefContext(() => {
   const router = useRouter();
   const { user, updateUser } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -223,4 +226,4 @@ export const BriefPayForGenerateCard = () => {
       />
     </>
   );
-};
+});

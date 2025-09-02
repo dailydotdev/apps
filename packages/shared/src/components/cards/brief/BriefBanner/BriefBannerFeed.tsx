@@ -2,37 +2,24 @@ import type { ComponentProps } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { isToday } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
-import { BriefContextProvider, useBriefContext } from '../BriefContext';
+import { useBriefContext, withBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
 import { useAlertsContext } from '../../../../contexts/AlertContext';
-import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useEventListener } from '../../../../hooks';
 
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
   const { alerts, loadedAlerts, updateAlerts } = useAlertsContext();
   const bannerLastSeenRef = useRef<Date | null>(null);
-  const { user, isLoggedIn, isAuthReady } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
-    if (!isLoggedIn || !isAuthReady) {
-      return false;
-    }
-
     const hasTodayBrief = brief && isToday(new Date(brief.createdAt));
     const haveSeenBannerToday =
       loadedAlerts &&
       alerts.briefBannerLastSeen &&
       isToday(new Date(alerts.briefBannerLastSeen));
 
-    return !user.isPlus && !hasTodayBrief && !haveSeenBannerToday;
-  }, [
-    isLoggedIn,
-    isAuthReady,
-    brief,
-    loadedAlerts,
-    alerts.briefBannerLastSeen,
-    user?.isPlus,
-  ]);
+    return !hasTodayBrief && !haveSeenBannerToday;
+  }, [brief, loadedAlerts, alerts.briefBannerLastSeen]);
 
   const saveBannerState = useCallback(() => {
     if (bannerLastSeenRef.current !== null) {
@@ -72,10 +59,4 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   ) : null;
 };
 
-export const BriefBannerFeed = (props: ComponentProps<'div'>) => {
-  return (
-    <BriefContextProvider>
-      <BriefBannerWithContext {...props} />
-    </BriefContextProvider>
-  );
-};
+export const BriefBannerFeed = withBriefContext(BriefBannerWithContext);
