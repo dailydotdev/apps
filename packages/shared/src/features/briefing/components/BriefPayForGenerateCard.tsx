@@ -29,6 +29,7 @@ import { useFeature } from '../../../components/GrowthBookProvider';
 import { briefGeneratePricing } from '../../../lib/featureManagement';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useBriefContext } from '../../../components/cards/brief/BriefContext';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -81,6 +82,7 @@ export const BriefPayForGenerateCard = () => {
   const { user, updateUser } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
+  const { setBrief } = useBriefContext();
 
   const [briefingType, setBriefingType] = React.useState<BriefingType>(
     BriefingType.Daily,
@@ -97,15 +99,20 @@ export const BriefPayForGenerateCard = () => {
   const queryClient = useQueryClient();
   const { isPending: isGenerating, mutateAsync: generateBrief } = useMutation({
     ...getGenerateBriefingMutationOptions(),
-    onSuccess: async (data) => {
+    onSuccess: async ({ id, balance }) => {
       displayToast('Your Presidential Briefing is being generated ✅');
 
-      if (data.balance) {
+      if (balance) {
         updateUser({
           ...user,
-          balance: data.balance,
+          balance,
         });
       }
+
+      setBrief({
+        id,
+        createdAt: new Date(),
+      });
 
       await Promise.all([
         queryClient.refetchQueries({
