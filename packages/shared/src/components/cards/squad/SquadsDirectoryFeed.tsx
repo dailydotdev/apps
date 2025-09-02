@@ -83,12 +83,15 @@ export function SquadsDirectoryFeed({
   const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLoading = !isFetched || (!inView && !result.data);
+  const shouldShowAd = firstItemShouldBeAd && isAuthReady && !user?.isPlus;
   const { data: ad, isLoading: isLoadingAd } = useQuery({
     queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory'),
     queryFn: fetchDirectoryAd,
-    enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
+    enabled: shouldShowAd,
   });
-  const { squad: squadAd } = useSquad({ handle: ad?.data?.source?.handle });
+  const { squad: squadAd } = useSquad({
+    handle: shouldShowAd ? ad?.data?.source?.handle : undefined,
+  });
 
   const adSource = ad?.data?.source;
   const flatSources = useMemo(() => {
@@ -153,17 +156,16 @@ export function SquadsDirectoryFeed({
     >
       {children}
       {flatSources?.map(({ node }, index) => {
-        const shouldShowAd = adSource && index === 0;
+        const isAd = adSource && index === 0;
         const showFeaturedCard =
-          shouldShowAd ||
-          (node.flags?.featured && linkToSeeAll.includes('featured'));
+          isAd || (node.flags?.featured && linkToSeeAll.includes('featured'));
 
         return showFeaturedCard ? (
           <SquadItemLogExtraContext key={node.id} ad={ad}>
             <SquadGrid
               source={node}
               className="w-80"
-              campaignId={shouldShowAd ? adSource.flags?.campaignId : undefined}
+              campaignId={isAd ? adSource.flags?.campaignId : undefined}
             />
           </SquadItemLogExtraContext>
         ) : (
