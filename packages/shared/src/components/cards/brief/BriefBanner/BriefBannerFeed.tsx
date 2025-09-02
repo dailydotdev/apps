@@ -19,20 +19,13 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const bannerLastSeenRef = useRef<Date | null>(null);
   const { user } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
-    if (user.isPlus) {
-      return false;
-    }
-    // Hide banner if brief was already created today
-    if (brief && isToday(new Date(brief.createdAt))) {
-      return false;
-    }
-
-    // Hide banner if user has already seen it today
-    if (
+    const hasTodayBrief = brief && isToday(new Date(brief.createdAt));
+    const haveSeenBannerToday =
       loadedAlerts &&
       alerts.briefBannerLastSeen &&
-      isToday(new Date(alerts.briefBannerLastSeen))
-    ) {
+      isToday(new Date(alerts.briefBannerLastSeen));
+
+    if (user.isPlus || hasTodayBrief || haveSeenBannerToday) {
       return false;
     }
 
