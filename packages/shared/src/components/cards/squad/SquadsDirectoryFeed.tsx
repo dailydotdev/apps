@@ -97,10 +97,6 @@ export function SquadsDirectoryFeed({
 
   const adSource = ad?.data?.source;
   const flatSources = useMemo(() => {
-    if (isLoadingAd) {
-      return [];
-    }
-
     const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
     if (firstItemShouldBeAd && squadAd) {
@@ -114,7 +110,7 @@ export function SquadsDirectoryFeed({
     }
 
     return map;
-  }, [result.data?.pages, firstItemShouldBeAd, squadAd, isLoadingAd]);
+  }, [result.data?.pages, firstItemShouldBeAd, squadAd]);
 
   if (flatSources.length === 0 && isFetched) {
     return null;
@@ -158,24 +154,27 @@ export function SquadsDirectoryFeed({
       scrollProps={{ title, linkToSeeAll }}
     >
       {children}
-      {flatSources?.map(({ node }, index) => {
-        const shouldShowAd = adSource && index === 0;
-        const showFeaturedCard =
-          shouldShowAd ||
-          (node.flags?.featured && linkToSeeAll.includes('featured'));
+      {!isLoadingAd &&
+        flatSources?.map(({ node }, index) => {
+          const shouldShowAd = adSource && index === 0;
+          const showFeaturedCard =
+            shouldShowAd ||
+            (node.flags?.featured && linkToSeeAll.includes('featured'));
 
-        return showFeaturedCard ? (
-          <SquadItemLogExtraContext key={node.id} ad={ad}>
-            <SquadGrid
-              source={node}
-              className="w-80"
-              campaignId={shouldShowAd ? adSource.flags?.campaignId : undefined}
-            />
-          </SquadItemLogExtraContext>
-        ) : (
-          <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
-        );
-      })}
+          return showFeaturedCard ? (
+            <SquadItemLogExtraContext key={node.id} ad={ad}>
+              <SquadGrid
+                source={node}
+                className="w-80"
+                campaignId={
+                  shouldShowAd ? adSource.flags?.campaignId : undefined
+                }
+              />
+            </SquadItemLogExtraContext>
+          ) : (
+            <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
+          );
+        })}
       {(isLoading || isLoadingAd) && <Skeleton isFeatured={query.featured} />}
     </HorizontalScroll>
   );
