@@ -6,11 +6,13 @@ import { useBriefContext, withBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
 import { useAlertsContext } from '../../../../contexts/AlertContext';
 import { useEventListener } from '../../../../hooks';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
   const { alerts, loadedAlerts, updateAlerts } = useAlertsContext();
   const bannerLastSeenRef = useRef<Date | null>(null);
+  const { user, isLoggedIn } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
     const hasTodayBrief = brief && isToday(new Date(brief.createdAt));
     const haveSeenBannerToday =
@@ -18,8 +20,16 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
       alerts.briefBannerLastSeen &&
       isToday(new Date(alerts.briefBannerLastSeen));
 
-    return !hasTodayBrief && !haveSeenBannerToday;
-  }, [brief, loadedAlerts, alerts.briefBannerLastSeen]);
+    return (
+      isLoggedIn && !user?.isPlus && !hasTodayBrief && !haveSeenBannerToday
+    );
+  }, [
+    isLoggedIn,
+    brief,
+    loadedAlerts,
+    alerts.briefBannerLastSeen,
+    user?.isPlus,
+  ]);
 
   const saveBannerState = useCallback(() => {
     if (bannerLastSeenRef.current !== null) {
