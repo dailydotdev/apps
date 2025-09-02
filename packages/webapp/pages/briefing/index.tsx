@@ -60,7 +60,7 @@ const Page = (): ReactElement => {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { isActionsFetched, checkHasCompleted } = useActions();
+  const { isActionsFetched } = useActions();
   const isNotPlus = !isPlus && isAuthReady;
 
   const selectedBriefId = router?.query?.pmid as string;
