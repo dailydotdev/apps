@@ -174,32 +174,32 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     return null;
   }
 
-  const avatarComponents =
-    type === NotificationType.CollectionUpdated ? (
-      <ProfilePictureGroup
-        total={numTotalAvatars}
-        size={ProfileImageSize.Medium}
-      >
-        {filteredAvatars.map((avatar) => (
-          <ProfilePicture
-            key={avatar.referenceId}
-            rounded="full"
-            size={ProfileImageSize.Medium}
-            user={{ image: avatar.image }}
-          />
-        ))}
-      </ProfilePictureGroup>
-    ) : (
-      filteredAvatars
-        .map((avatar) => (
-          <NotificationItemAvatar
-            key={avatar.referenceId}
-            className="z-1"
-            {...avatar}
-          />
-        ))
-        .filter((avatar) => avatar) ?? []
-    );
+  const avatarComponents = [
+    NotificationType.CollectionUpdated,
+    NotificationType.ArticleUpvoteMilestone,
+    NotificationType.CommentUpvoteMilestone,
+  ].includes(type) ? (
+    <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
+      {filteredAvatars.map((avatar) => (
+        <ProfilePicture
+          key={avatar.referenceId}
+          rounded="full"
+          size={ProfileImageSize.Medium}
+          user={{ image: avatar.image }}
+        />
+      ))}
+    </ProfilePictureGroup>
+  ) : (
+    filteredAvatars
+      .map((avatar) => (
+        <NotificationItemAvatar
+          key={avatar.referenceId}
+          className="z-1"
+          {...avatar}
+        />
+      ))
+      .filter((avatar) => avatar) ?? []
+  );
   const hasAvatar = filteredAvatars.length > 0;
 
   return (
@@ -237,7 +237,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         )}
         {createdAt && (
           <DateFormat
-            className="ml-1 text-text-quaternary"
+            className="ml-1 text-text-quaternary typo-footnote"
             date={createdAt}
             type={TimeFormatType.LastActivity}
           />
