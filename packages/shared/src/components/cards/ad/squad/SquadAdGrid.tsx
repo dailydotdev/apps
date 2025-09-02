@@ -89,6 +89,7 @@ export function SquadAdGrid({
           alwaysShow
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
           onSuccess={() => onJustJoined(true)}
+          className={{ button: 'mt-auto' }}
         />
       ) : (
         <Link href={source.permalink}>
