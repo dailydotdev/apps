@@ -12,6 +12,7 @@ import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
 import AlertContext from '../../../../contexts/AlertContext';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useEventListener } from '../../../../hooks';
 
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
@@ -52,17 +53,10 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   }, [inView, shouldShowBanner]);
 
   // Save banner seen state on page unload if user saw it
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      saveBannerState();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [saveBannerState]);
+  useEventListener(window, 'beforeunload', saveBannerState, {
+    passive: true,
+    once: true,
+  });
 
   // Save banner state on component unmount (SPA navigation)
   useEffect(() => {
