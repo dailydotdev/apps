@@ -101,9 +101,10 @@ export function BoostSquadModal({
   });
 
   const onButtonClick = () => {
-    if (user.balance.amount < totalSpendInt) {
-      return setActiveScreen(SCREENS.BUY_CORES);
-    }
+    // TODO: remove before shipping
+    // if (user.balance.amount < totalSpendInt) {
+    //   return setActiveScreen(SCREENS.BUY_CORES);
+    // }
 
     return onStartBoost({
       duration: totalDays,
