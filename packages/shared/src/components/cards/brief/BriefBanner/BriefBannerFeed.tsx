@@ -1,6 +1,13 @@
 import type { ComponentProps } from 'react';
-import React, { useMemo, useRef, useEffect, useContext, useState } from 'react';
+import React, {
+  useMemo,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from 'react';
 import { isToday } from 'date-fns';
+import { useInView } from 'react-intersection-observer';
 import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { BriefBanner } from './BriefBanner';
 import AlertContext from '../../../../contexts/AlertContext';
@@ -9,10 +16,8 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const [bannerLastSeen, setBannerLastSeen] = useState<Date | null>(null);
+  const bannerLastSeenRef = useRef<Date | null>(null);
   const { user } = useAuthContext();
-
   const shouldShowBanner = useMemo(() => {
     if (user.isPlus) {
       return false;
@@ -35,33 +40,28 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
     return true;
   }, [brief, loadedAlerts, alerts.briefBannerLastSeen, user.isPlus]);
 
-  useEffect(() => {
-    if (!shouldShowBanner || !bannerRef.current) {
-      return undefined;
+  const saveBannerState = useCallback(() => {
+    if (bannerLastSeenRef.current !== null) {
+      updateAlerts({ briefBannerLastSeen: bannerLastSeenRef.current });
+      bannerLastSeenRef.current = null;
     }
+  }, [updateAlerts]);
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setBannerLastSeen(new Date());
-        }
-      },
-      { threshold: 1 },
-    );
+  const { ref: bannerRef, inView } = useInView({
+    threshold: 1,
+    skip: !shouldShowBanner,
+  });
 
-    observer.observe(bannerRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [shouldShowBanner]);
+  useEffect(() => {
+    if (inView && shouldShowBanner && bannerLastSeenRef.current === null) {
+      bannerLastSeenRef.current = new Date();
+    }
+  }, [inView, shouldShowBanner]);
 
   // Save banner seen state on page unload if user saw it
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (bannerLastSeen !== null) {
-        updateAlerts({ briefBannerLastSeen: bannerLastSeen });
-      }
+      saveBannerState();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -69,7 +69,14 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [bannerLastSeen, updateAlerts]);
+  }, [saveBannerState]);
+
+  // Save banner state on component unmount (SPA navigation)
+  useEffect(() => {
+    return () => {
+      saveBannerState();
+    };
+  }, [saveBannerState]);
 
   return shouldShowBanner ? (
     <div ref={bannerRef} style={style} data-testid="brief-banner-feed">
