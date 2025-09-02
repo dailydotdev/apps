@@ -88,9 +88,10 @@ export function BoostPostModal({
   const image = usePostImage(post);
 
   const onButtonClick = () => {
-    if (user.balance.amount < totalSpendInt) {
-      return setActiveScreen(SCREENS.BUY_CORES);
-    }
+    // TODO: remove before shipping
+    // if (user.balance.amount < totalSpendInt) {
+    //   return setActiveScreen(SCREENS.BUY_CORES);
+    // }
 
     return onBoostPost({
       duration: totalDays,
