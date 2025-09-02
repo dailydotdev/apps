@@ -3,7 +3,7 @@ import React from 'react';
 import type { ButtonProps } from '../../components/buttons/Button';
 import ConditionalWrapper from '../../components/ConditionalWrapper';
 import { MiniCloseIcon, SettingsIcon, VIcon } from '../../components/icons';
-import { LazyModal } from '../../components/modals/common/types';
+import { LazyModal, ModalSize } from '../../components/modals/common/types';
 import {
   Typography,
   TypographyType,
@@ -27,7 +27,7 @@ const Requirement = ({ copy, passed }: { copy: string; passed: boolean }) => {
     <Typography
       type={TypographyType.Body}
       tag={TypographyTag.Span}
-      className="flex flex-row items-center"
+      className="flex w-full flex-row items-center justify-between"
     >
       {copy}
       <Icon
@@ -79,11 +79,12 @@ export function BoostSourceButton({
       openModal({
         type: LazyModal.ActionSuccess,
         props: {
+          size: ModalSize.XSmall,
           content: {
             title: 'Make your Squad boost-ready',
             description: `Before we can launch your boost, your squad needs a few details. This isn't just red tape, we want your Squad to look its best and get the traction it deserves.`,
             body: (
-              <div className="flex flex-col gap-2">
+              <div className="mt-2 flex flex-col gap-2">
                 <Requirement copy="Profile image" passed={!!squad?.image} />
                 <Requirement copy="Cover image" passed={!!squad?.headerImage} />
                 <Requirement
@@ -93,6 +94,7 @@ export function BoostSourceButton({
                 <Typography
                   type={TypographyType.Body}
                   color={TypographyColor.Secondary}
+                  className="mt-2"
                 >
                   Finish these in Squad settings to unlock boosting and make a
                   strong impression.
@@ -102,7 +104,7 @@ export function BoostSourceButton({
           },
           cta: {
             copy: 'Go to Squad settings',
-            icon: <SettingsIcon />,
+            icon: <SettingsIcon secondary />,
             tag: 'a',
             href: `${webappUrl}squads/${squad.handle}/edit`,
           },
