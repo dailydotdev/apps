@@ -21,14 +21,7 @@ const Container = classed(
 );
 
 function Page() {
-  const { isAuthReady, user } = useAuthContext();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isAuthReady && user?.isPlus) {
-      router.push(`${webappUrl}/briefing`);
-    }
-  }, [user?.isPlus, router, isAuthReady]);
+  const { isAuthReady } = useAuthContext();
 
   if (!isAuthReady) {
     return null;
