@@ -6,9 +6,9 @@ import { ActionType } from '../../../graphql/actions';
 import { BriefingType } from '../../../graphql/posts';
 
 export const useGenerateBriefOnLoad = ({
-  enabled = true,
+  enabled = false,
 }: {
-  enabled: boolean;
+  enabled?: boolean;
 }) => {
   const { isGenerating, generate } = useGenerateBrief({});
   const { isAuthReady, isLoggedIn } = useAuthContext();
