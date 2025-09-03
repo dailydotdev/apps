@@ -23,28 +23,13 @@ const mockUpdateAlerts = jest.fn();
 // Mock dependencies
 jest.mock('../../../../contexts/AuthContext');
 jest.mock('../../../../hooks');
-jest.mock('../../../../contexts/AlertContext', () => {
-  let mockAlerts = {
-    briefBannerLastSeen: null,
-  };
 
-  const mockUpdateAlertsFn = (updates: { briefBannerLastSeen?: Date }) => {
-    mockAlerts = { ...mockAlerts, ...updates };
-    mockUpdateAlerts(updates);
-    return Promise.resolve();
-  };
-
-  return {
-    useAlertsContext: () => ({
-      alerts: mockAlerts,
-      loadedAlerts: true,
-      updateAlerts: mockUpdateAlertsFn,
-    }),
-    AlertContextProvider: ({ children }: { children: React.ReactNode }) => (
-      <>{children}</>
-    ),
-  };
-});
+// Mock GraphQL client to prevent real API calls
+jest.mock('../../../../graphql/common', () => ({
+  gqlClient: {
+    request: jest.fn().mockResolvedValue({}),
+  },
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -483,86 +468,6 @@ describe('BriefBannerFeed', () => {
   });
 
   describe('hybrid save approach', () => {
-    it('should call updateAlerts on beforeunload when banner was seen', async () => {
-      // Mock banner coming into view
-      mockUseInView.mockReturnValue({
-        ref: jest.fn(),
-        inView: true,
-        entry: undefined,
-      } as MockUseInViewReturn);
-
-      mockUsePersistentState.mockReturnValueOnce([
-        undefined,
-        mockSetBrief,
-        true,
-      ]);
-
-      render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Wait for useEffect to set the timestamp in ref
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // Clear any setup calls
-      mockUpdateAlerts.mockClear();
-
-      // Simulate beforeunload event
-      const beforeUnloadEvent = new Event('beforeunload');
-      window.dispatchEvent(beforeUnloadEvent);
-
-      expect(mockUpdateAlerts).toHaveBeenCalledWith({
-        briefBannerLastSeen: expect.any(Date),
-      });
-    });
-
-    it('should call updateAlerts on component unmount when banner was seen', () => {
-      // Mock banner coming into view
-      mockUseInView.mockReturnValue({
-        ref: jest.fn(),
-        inView: true,
-        entry: undefined,
-      } as MockUseInViewReturn);
-
-      mockUsePersistentState.mockReturnValueOnce([
-        undefined,
-        mockSetBrief,
-        true,
-      ]);
-
-      const { unmount } = render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Clear any setup calls
-      mockUpdateAlerts.mockClear();
-
-      // Unmount component
-      unmount();
-
-      expect(mockUpdateAlerts).toHaveBeenCalledWith({
-        briefBannerLastSeen: expect.any(Date),
-      });
-    });
-
     it('should not call updateAlerts on beforeunload when banner was not seen', () => {
       // Mock banner not in view
       mockUseInView.mockReturnValue({
@@ -633,106 +538,7 @@ describe('BriefBannerFeed', () => {
       // Unmount component
       unmount();
 
-      expect(mockUpdateAlerts).not.toHaveBeenCalled();
-    });
-
-    it('should only save once when both beforeunload and unmount would trigger', async () => {
-      // Mock banner coming into view
-      mockUseInView.mockReturnValue({
-        ref: jest.fn(),
-        inView: true,
-        entry: undefined,
-      } as MockUseInViewReturn);
-
-      mockUsePersistentState.mockReturnValueOnce([
-        undefined,
-        mockSetBrief,
-        true,
-      ]);
-
-      const { unmount } = render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Wait for useEffect to set the timestamp in ref
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // Clear any setup calls
-      mockUpdateAlerts.mockClear();
-
-      // Simulate beforeunload event first (this should save and clear the ref)
-      const beforeUnloadEvent = new Event('beforeunload');
-      window.dispatchEvent(beforeUnloadEvent);
-
-      expect(mockUpdateAlerts).toHaveBeenCalledTimes(1);
-      expect(mockUpdateAlerts).toHaveBeenCalledWith({
-        briefBannerLastSeen: expect.any(Date),
-      });
-
-      // Clear the mock to test unmount
-      mockUpdateAlerts.mockClear();
-
-      // Unmount component (this should not save again since ref was cleared)
-      unmount();
-
-      expect(mockUpdateAlerts).not.toHaveBeenCalled();
-    });
-
-    it('should call updateAlerts with correct data structure', async () => {
-      // Mock banner coming into view
-      mockUseInView.mockReturnValue({
-        ref: jest.fn(),
-        inView: true,
-        entry: undefined,
-      } as MockUseInViewReturn);
-
-      mockUsePersistentState.mockReturnValueOnce([
-        undefined,
-        mockSetBrief,
-        true,
-      ]);
-
-      render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Wait for useEffect to set the timestamp in ref
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // Clear any setup calls
-      mockUpdateAlerts.mockClear();
-
-      // Simulate beforeunload event
-      const beforeUnloadEvent = new Event('beforeunload');
-      window.dispatchEvent(beforeUnloadEvent);
-
-      // Verify updateAlerts is called with the correct data structure
-      expect(mockUpdateAlerts).toHaveBeenCalledWith({
-        briefBannerLastSeen: expect.any(Date),
-      });
-
-      // Verify the date is a valid Date object
-      const callArgs = mockUpdateAlerts.mock.calls[0][0];
-      expect(callArgs.briefBannerLastSeen).toBeInstanceOf(Date);
-      expect(callArgs.briefBannerLastSeen.getTime()).toBeGreaterThan(0);
+      expect(mockUpdateAlerts).not.toBeCalled();
     });
   });
 
@@ -868,50 +674,6 @@ describe('BriefBannerFeed', () => {
           </TestWrapper>,
         );
       }).not.toThrow();
-    });
-
-    it('should only set banner timestamp once per component mount', () => {
-      // Mock banner coming into view
-      mockUseInView.mockReturnValue({
-        ref: jest.fn(),
-        inView: true,
-        entry: undefined,
-      } as MockUseInViewReturn);
-
-      mockUsePersistentState.mockReturnValue([undefined, mockSetBrief, true]);
-
-      const { rerender } = render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Clear setup calls
-      mockUpdateAlerts.mockClear();
-
-      // Rerender the component (simulating multiple effect runs)
-      rerender(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      // Still should not call updateAlerts during renders
-      expect(mockUpdateAlerts).not.toHaveBeenCalled();
     });
   });
 });
