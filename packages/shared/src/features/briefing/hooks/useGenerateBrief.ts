@@ -20,6 +20,7 @@ export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
   const { setBrief } = useBriefContext();
 
   const { isPending: isGenerating, mutateAsync: requestBrief } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.GenerateBrief, user),
     ...getGenerateBriefingMutationOptions(),
     onSuccess: async ({ id, balance }) => {
       displayToast('Your Presidential Briefing is being generated ✅');

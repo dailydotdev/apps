@@ -49,7 +49,7 @@ import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/Br
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
-import { useGenerateBriefOnLoad } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBriefOnLoad';
+import { useMutation } from '@tanstack/react-query';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -81,7 +81,10 @@ const Page = (): ReactElement => {
   );
   const { items, updatePost, fetchPage, canFetchMore, emptyFeed } = feedQuery;
 
-  const { isGenerating } = useGenerateBriefOnLoad({});
+  const { isPending: isGenerating } = useMutation({
+    mutationKey: generateQueryKey(RequestKey.GenerateBrief, user),
+  });
+
   const {
     onOpenModal,
     onCloseModal,
@@ -131,6 +134,8 @@ const Page = (): ReactElement => {
   if (!isActionsFetched) {
     return null;
   }
+
+  const showBriefCard = emptyFeed && (isGenerating || !feedQuery.isPending);
 
   return (
     <ProtectedPage>
