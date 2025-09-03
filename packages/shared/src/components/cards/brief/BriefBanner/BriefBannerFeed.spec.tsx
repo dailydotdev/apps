@@ -15,9 +15,37 @@ import { defaultQueryClientTestingConfig } from '../../../../../__tests__/helper
 // eslint-disable-next-line import/extensions
 import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 
+const completeAction = jest.fn();
+const checkHasCompleted = jest.fn();
+const mockSetBrief = jest.fn();
+const mockUpdateAlerts = jest.fn();
+
 // Mock dependencies
 jest.mock('../../../../contexts/AuthContext');
 jest.mock('../../../../hooks');
+jest.mock('../../../../contexts/AlertContext', () => {
+  let mockAlerts = {
+    briefBannerLastSeen: null,
+  };
+
+  const mockUpdateAlertsFn = (updates: { briefBannerLastSeen?: Date }) => {
+    mockAlerts = { ...mockAlerts, ...updates };
+    mockUpdateAlerts(updates);
+    return Promise.resolve();
+  };
+
+  return {
+    useAlertsContext: () => ({
+      alerts: mockAlerts,
+      loadedAlerts: true,
+      updateAlerts: mockUpdateAlertsFn,
+    }),
+    AlertContextProvider: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
+  };
+});
+
 jest.mock('next/router', () => ({
   useRouter: () => ({
     push: jest.fn(),
@@ -29,9 +57,6 @@ jest.mock('next/router', () => ({
 jest.mock('../../../../hooks/utils', () => ({
   useIsLightTheme: jest.fn(() => false),
 }));
-
-const completeAction = jest.fn();
-const checkHasCompleted = jest.fn();
 
 // Mock react-intersection-observer
 jest.mock('react-intersection-observer', () => ({
@@ -50,9 +75,6 @@ const mockUseActions = mocked(useActions);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockUseInViewReturn = any;
 
-const mockSetBrief = jest.fn();
-const mockUpdateAlerts = jest.fn();
-
 let client: QueryClient;
 
 const TestWrapper: React.FC<{
@@ -66,10 +88,7 @@ const TestWrapper: React.FC<{
       ...alertsOverride.alerts,
     },
     loadedAlerts: true,
-    updateAlerts: (...props: unknown[]) => {
-      mockUpdateAlerts(...props);
-      return Promise.resolve();
-    },
+    updateAlerts: mockUpdateAlerts,
     ...alertsOverride,
   };
 
@@ -106,6 +125,9 @@ describe('BriefBannerFeed', () => {
       isActionsFetched: true,
       actions: [],
     });
+
+    // Reset mocks
+    mockUpdateAlerts.mockReset();
   });
 
   afterEach(() => {
@@ -663,6 +685,54 @@ describe('BriefBannerFeed', () => {
       unmount();
 
       expect(mockUpdateAlerts).not.toHaveBeenCalled();
+    });
+
+    it('should call updateAlerts with correct data structure', async () => {
+      // Mock banner coming into view
+      mockUseInView.mockReturnValue({
+        ref: jest.fn(),
+        inView: true,
+        entry: undefined,
+      } as MockUseInViewReturn);
+
+      mockUsePersistentState.mockReturnValueOnce([
+        undefined,
+        mockSetBrief,
+        true,
+      ]);
+
+      render(
+        <TestWrapper
+          alertsOverride={{
+            alerts: {
+              briefBannerLastSeen: null,
+            },
+            loadedAlerts: true,
+          }}
+        >
+          <BriefBannerFeed />
+        </TestWrapper>,
+      );
+
+      // Wait for useEffect to set the timestamp in ref
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Clear any setup calls
+      mockUpdateAlerts.mockClear();
+
+      // Simulate beforeunload event
+      const beforeUnloadEvent = new Event('beforeunload');
+      window.dispatchEvent(beforeUnloadEvent);
+
+      // Verify updateAlerts is called with the correct data structure
+      expect(mockUpdateAlerts).toHaveBeenCalledWith({
+        briefBannerLastSeen: expect.any(Date),
+      });
+
+      // Verify the date is a valid Date object
+      const callArgs = mockUpdateAlerts.mock.calls[0][0];
+      expect(callArgs.briefBannerLastSeen).toBeInstanceOf(Date);
+      expect(callArgs.briefBannerLastSeen.getTime()).toBeGreaterThan(0);
     });
   });
 
