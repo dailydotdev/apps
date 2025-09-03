@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { atom } from 'jotai/vanilla';
 import { useSetAtom } from 'jotai/react';
 import type { BriefingType } from '../../../graphql/posts';
 import { getGenerateBriefingMutationOptions } from '../../../graphql/posts';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useToastNotification } from '../../../hooks';
@@ -17,7 +16,6 @@ interface UseGenerateBriefingProps {
 export const isBriefGenerationPending = atom(false);
 
 export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
-  const queryClient = useQueryClient();
   const { user, updateUser } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
@@ -41,13 +39,7 @@ export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
         createdAt: new Date(),
       });
 
-      await Promise.all([
-        queryClient.refetchQueries({
-          queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
-        }),
-        completeAction(ActionType.GeneratedBrief),
-      ]);
-
+      completeAction(ActionType.GeneratedBrief);
       onGenerated?.();
     },
     onError: () => {

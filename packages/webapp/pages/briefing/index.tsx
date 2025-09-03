@@ -210,7 +210,7 @@ const Page = (): ReactElement => {
                       />
                     );
                   })}
-                {!showBriefCard &&
+                {!isGenerating &&
                   items
                     .reduce(
                       (acc, item, index) => {

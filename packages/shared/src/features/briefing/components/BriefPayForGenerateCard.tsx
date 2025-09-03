@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import { useActions } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
@@ -26,6 +27,7 @@ import { briefGeneratePricing } from '../../../lib/featureManagement';
 import { useLogContext } from '../../../contexts/LogContext';
 import { withBriefContext } from '../../../components/cards/brief/BriefContext';
 import { useGenerateBrief } from '../hooks/useGenerateBrief';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -90,9 +92,13 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
   const amount = user?.balance?.amount ?? 0;
 
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { isGenerating, generate: generateBrief } = useGenerateBrief({
-    onGenerated: () => {
-      router.push('/briefing');
+    onGenerated: async () => {
+      await queryClient.refetchQueries({
+        queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
+      });
+      await router.push('/briefing');
     },
   });
 
