@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a pnpm monorepo containing the daily.dev application suite with the following structure:
 
 - **packages/webapp** - Next.js web application (main daily.dev site)
-- **packages/extension** - Browser extension (Chrome/Opera) built with Webpack  
+- **packages/extension** - Browser extension (Chrome/Opera) built with Webpack
 - **packages/shared** - Shared React components, hooks, utilities, and design system
 - **packages/storybook** - Component documentation and development environment
 - **packages/eslint-config** - Shared ESLint configuration
@@ -19,7 +19,7 @@ This is a pnpm monorepo containing the daily.dev application suite with the foll
 - **Node.js v22.11** (see .nvmrc)
 - **pnpm 9.14.4** for package management
 - **TypeScript** across all packages
-- **React 18.3.1** with Next.js 15.4.1 for webapp
+- **React 18.3.1** with Next.js 15.4.7 for webapp
 - **TanStack Query v5** for state management and data fetching
 - **GraphQL** with graphql-request for API communication
 - **Tailwind CSS** with custom design system
@@ -46,7 +46,7 @@ pnpm --filter webapp dev:notls
 # Run Chrome extension in development
 pnpm --filter extension dev:chrome
 
-# Run Opera extension in development  
+# Run Opera extension in development
 pnpm --filter extension dev:opera
 
 # Run Storybook for component development
@@ -99,13 +99,13 @@ All reusable components live in `packages/shared/src/components/`. New component
 - **Multi-theme support** with CSS custom properties for dark/light modes
 - **Typography system** with semantic scale (Display, Title, Body, etc.)
 - **Component categories**: Buttons, Cards, Fields, Modals, Layout, Auth, Feed, etc.
-- **Responsive breakpoints**: mobileL, mobileXL, tablet, laptop, laptopL, desktop  
+- **Responsive breakpoints**: mobileL, mobileXL, tablet, laptop, laptopL, desktop
 - **Custom Tailwind config** with design system tokens and utility classes
 - **Theme-aware components** automatically adapt to current theme
 - **ESLint rules** enforce consistent color usage (`no-custom-color`)
 - **CSS architecture**: Global styles, CSS Modules, PostCSS with custom mixins
 
-### GraphQL Integration  
+### GraphQL Integration
 - Centralized queries/mutations in `packages/shared/src/graphql/`
 - Fragment-based approach for reusable query pieces
 - Custom hooks wrapping TanStack Query for type safety
@@ -125,7 +125,7 @@ docker-compose up -d
 
 This starts:
 - PostgreSQL database (port 5432)
-- Redis (port 6379)  
+- Redis (port 6379)
 - daily-api backend (port 5000)
 
 The webapp proxies API requests to localhost:5000 when NEXT_PUBLIC_DOMAIN=localhost.
@@ -165,7 +165,7 @@ When looking for existing components or creating new ones, follow this hierarchy
 
 3. **Design tokens location**:
    - **Colors**: `packages/shared/tailwind/colors/` (semantic tokens by category)
-   - **Typography**: `packages/shared/tailwind/typography.ts` 
+   - **Typography**: `packages/shared/tailwind/typography.ts`
    - **Buttons**: `packages/shared/tailwind/buttons.ts`
    - **Shadows**: `packages/shared/tailwind/boxShadow.ts`
 
