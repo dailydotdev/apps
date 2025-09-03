@@ -61,6 +61,7 @@ export const SquadGrid = ({
   source,
   className,
   campaignId,
+  border,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const { user } = useAuthContext();
   const { data: campaign } = useCampaignById(campaignId);
@@ -79,7 +80,7 @@ export const SquadGrid = ({
     queryFn: () => getSquadMembers(source.id),
     staleTime: StaleTime.OneHour,
   });
-  const borderColor = color || SourceCardBorderColor.Avocado;
+  const borderColor = border || color || SourceCardBorderColor.Avocado;
 
   return (
     <Card
