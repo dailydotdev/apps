@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
 import FeedItemContainer from '../../common/FeedItemContainer';
 import type { SquadAdFeedProps } from './common';
 import { useSquadAd } from './common';
@@ -27,17 +28,30 @@ import { CardLink } from '../../common/Card';
 export function SquadAdGrid({
   item,
   onClickAd,
+  onMount,
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { squad, campaign, members, shouldShowAction, onJustJoined } =
     useSquadAd({
       item,
     });
+  const mounted = useRef(false);
+  const { ref, inView } = useInView({ triggerOnce: true });
+
+  useEffect(() => {
+    if (!inView || mounted.current) {
+      return;
+    }
+
+    mounted.current = true;
+    onMount?.();
+  }, [inView, onMount]);
 
   return (
     <FeedItemContainer
       data-testid="adItem"
       domProps={{ className: 'flex flex-col gap-3 group px-3 py-3' }}
+      ref={ref}
     >
       <Link href={source.permalink} onClick={onClickAd}>
         <CardLink href={source.permalink} />

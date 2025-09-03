@@ -11,6 +11,7 @@ import { useSquad } from '../../../../hooks';
 export interface SquadAdFeedProps {
   item: AdSquadItem;
   onClickAd: () => void;
+  onMount?: () => void;
 }
 
 export const useSquadAd = ({ item }: Pick<SquadAdFeedProps, 'item'>) => {

@@ -257,10 +257,7 @@ function FeedItemComponent({
       : (item as PostItem).post?.type,
   });
 
-  const onAdAction = (
-    action: Exclude<AdActions, AdActions.Impression>,
-    ad: Ad,
-  ) => {
+  const onAdAction = (action: AdActions, ad: Ad) => {
     logEvent(
       adLogEvent(action, ad, {
         columns: virtualizedNumCards,
@@ -276,6 +273,7 @@ function FeedItemComponent({
       <SquadAdTag
         item={item as AdSquadItem}
         onClickAd={() => onAdAction(AdActions.Click, item.ad)}
+        onMount={() => onAdAction(AdActions.Impression, item.ad)}
       />
     );
   }
