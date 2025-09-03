@@ -87,8 +87,8 @@ export function SquadsDirectoryFeed({
     queryKey: generateQueryKey(
       RequestKey.Ads,
       user,
-      title.copy,
       'squads_directory',
+      title.copy,
     ),
     queryFn: fetchDirectoryAd,
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
