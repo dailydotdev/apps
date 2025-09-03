@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 
 import { BriefBanner } from './BriefBanner';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useLogContext } from '../../../../contexts/LogContext';
 // eslint-disable-next-line import/extensions
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 // eslint-disable-next-line import/extensions
@@ -17,14 +16,12 @@ import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 // Mock dependencies
 jest.mock('next/router');
 jest.mock('../../../../contexts/AuthContext');
-jest.mock('../../../../contexts/LogContext');
 jest.mock('../../../../hooks/utils', () => ({
   useIsLightTheme: jest.fn(() => false),
 }));
 
 const mockUseRouter = mocked(useRouter);
 const mockUseAuthContext = mocked(useAuthContext);
-const mockUseLogContext = mocked(useLogContext);
 
 const mockPush = jest.fn();
 const mockLogEvent = jest.fn();
@@ -51,16 +48,15 @@ describe('BriefBanner', () => {
       updateUser: jest.fn(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
-
-    mockUseLogContext.mockReturnValue({
-      logEvent: mockLogEvent,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
   });
 
   const TestWrapper: React.FC<{ children: React.ReactNode }> = ({
     children,
-  }) => <TestBootProvider client={client}>{children}</TestBootProvider>;
+  }) => (
+    <TestBootProvider client={client} log={{ logEvent: mockLogEvent }}>
+      {children}
+    </TestBootProvider>
+  );
 
   describe('rendering', () => {
     it('should render brief banner with correct content', () => {
@@ -113,7 +109,7 @@ describe('BriefBanner', () => {
       const button = screen.getByRole('button');
       fireEvent.click(button);
 
-      expect(mockPush).toHaveBeenCalledWith('/briefing/generate');
+      expect(mockPush).toHaveBeenCalledWith('/briefing?generate=true');
     });
 
     it('should log click event when button is clicked', () => {
