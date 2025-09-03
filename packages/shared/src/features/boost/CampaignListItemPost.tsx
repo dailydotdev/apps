@@ -17,19 +17,17 @@ interface CampaignListItemPostProps {
 export function CampaignListItemPost({
   post,
 }: CampaignListItemPostProps): ReactElement {
-  const image = post.sharedPost?.image ?? post.image;
+  const image = post.sharedPost?.image || post.image;
 
   return (
     <span className="flex flex-1 flex-row items-center gap-2">
-      {image && (
-        <Image
-          src={image}
-          className={classNames(
-            'rounded-12 object-cover',
-            iconSizeToClassName[IconSize.Size48],
-          )}
-        />
-      )}
+      <Image
+        src={image}
+        className={classNames(
+          'rounded-12 object-cover',
+          iconSizeToClassName[IconSize.Size48],
+        )}
+      />
       <span className="flex flex-1">
         <Typography
           type={TypographyType.Callout}
