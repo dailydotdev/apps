@@ -63,10 +63,8 @@ const Page = (): ReactElement => {
   const { isActionsFetched } = useActions();
   const isNotPlus = !isPlus && isAuthReady;
 
-  const {
-    pmid: selectedBriefId,
-    generate: autoGenerate,
-  }: Partial<Record<'pmid' | 'generate', string>> = router?.query ?? {};
+  const { pmid: selectedBriefId }: Partial<Record<'pmid', string>> =
+    router?.query ?? {};
 
   const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
   const feedQuery = useFeed(

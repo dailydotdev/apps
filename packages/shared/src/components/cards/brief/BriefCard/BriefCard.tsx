@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { BriefCardDefault } from './BriefCardDefault';
 import {
   Typography,
@@ -20,8 +21,8 @@ import { usePlusSubscription, usePostById } from '../../../../hooks';
 import { BriefContextProvider, useBriefContext } from '../BriefContext';
 import { lottieAnimationQueryOptions } from '../../../../lib/lottie';
 import { useLogContext } from '../../../../contexts/LogContext';
-import type { TargetId } from '../../../../lib/log';
-import { LogEvent } from '../../../../lib/log';
+import { TargetId, LogEvent } from '../../../../lib/log';
+import { useGenerateBriefOnLoad } from '../../../../features/briefing/hooks/useGenerateBriefOnLoad';
 
 export type BriefCardProps = {
   className?: Partial<{
@@ -145,6 +146,14 @@ export const BriefCardInternal = (
   }
 
   const loadingStep = getLoadingStep(briefContext.brief?.createdAt);
+
+  const { targetId } = props;
+  const isBriefList = targetId === TargetId.List;
+  const router = useRouter();
+  const { generate: autoGenerate } = router.query;
+  useGenerateBriefOnLoad({
+    enabled: isBriefList && autoGenerate === 'true',
+  });
 
   useEffect(() => {
     // don't re-render if loading takes a long time

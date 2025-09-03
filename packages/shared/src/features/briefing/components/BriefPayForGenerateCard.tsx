@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActions, useToastNotification } from '../../../hooks';
+import { useActions } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   Typography,
@@ -9,10 +8,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { CoreIcon } from '../../../components/icons';
-import {
-  BriefingType,
-  getGenerateBriefingMutationOptions,
-} from '../../../graphql/posts';
+import { BriefingType } from '../../../graphql/posts';
 import { ActionType } from '../../../graphql/actions';
 import { ClickableCard } from '../../../components/cards/common/Card';
 import { Radio, type RadioProps } from '../../../components/fields/Radio';
@@ -27,12 +23,9 @@ import { LogEvent, Origin } from '../../../lib/log';
 import type { Product } from '../../../graphql/njord';
 import { useFeature } from '../../../components/GrowthBookProvider';
 import { briefGeneratePricing } from '../../../lib/featureManagement';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useLogContext } from '../../../contexts/LogContext';
-import {
-  useBriefContext,
-  withBriefContext,
-} from '../../../components/cards/brief/BriefContext';
+import { withBriefContext } from '../../../components/cards/brief/BriefContext';
+import { useGenerateBrief } from '../hooks/useGenerateBrief';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -81,11 +74,8 @@ function BuyCores({
 }
 
 export const BriefPayForGenerateCard = withBriefContext(() => {
-  const router = useRouter();
-  const { user, updateUser } = useAuthContext();
-  const { displayToast } = useToastNotification();
-  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
-  const { setBrief } = useBriefContext();
+  const { user } = useAuthContext();
+  const { checkHasCompleted, isActionsFetched } = useActions();
 
   const [briefingType, setBriefingType] = React.useState<BriefingType>(
     BriefingType.Daily,
@@ -99,37 +89,10 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
   const amount = user?.balance?.amount ?? 0;
 
-  const queryClient = useQueryClient();
-  const { isPending: isGenerating, mutateAsync: generateBrief } = useMutation({
-    ...getGenerateBriefingMutationOptions(),
-    onSuccess: async ({ id, balance }) => {
-      displayToast('Your Presidential Briefing is being generated ✅');
-
-      if (balance) {
-        updateUser({
-          ...user,
-          balance,
-        });
-      }
-
-      setBrief({
-        id,
-        createdAt: new Date(),
-      });
-
-      await Promise.all([
-        queryClient.refetchQueries({
-          queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
-        }),
-        completeAction(ActionType.GeneratedBrief),
-      ]);
-
-      await router.push('/briefing');
-    },
-    onError: () => {
-      displayToast(
-        'There was an error generating your Presidential Briefing. Please try again later.',
-      );
+  const router = useRouter();
+  const { isGenerating, generate: generateBrief } = useGenerateBrief({
+    onGenerated: () => {
+      router.push('/briefing');
     },
   });
 
@@ -139,12 +102,6 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
 
   const { logEvent } = useLogContext();
   const impressionRef = React.useRef(false);
-
-  const triggerGenerate = useCallback(() => {
-    if (!isGenerating) {
-      generateBrief({ type: briefingType });
-    }
-  }, [generateBrief, isGenerating, briefingType]);
 
   const onClickGenerate = useCallback(() => {
     if (!isFree) {
@@ -157,7 +114,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
     }
 
     if (canGenerateNow) {
-      triggerGenerate();
+      generateBrief({ type: briefingType });
     } else {
       setBuyOpen(true);
     }
@@ -167,7 +124,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
     isFree,
     logEvent,
     setBuyOpen,
-    triggerGenerate,
+    generateBrief,
   ]);
 
   useEffect(() => {
@@ -222,7 +179,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
         onClose={() => setBuyOpen(false)}
         price={price}
         type={briefingType}
-        onPurchased={() => triggerGenerate()}
+        onPurchased={() => generateBrief({ type: briefingType })}
       />
     </>
   );
