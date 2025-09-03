@@ -49,6 +49,7 @@ import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/Br
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
+import { useGenerateBriefOnLoad } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBriefOnLoad';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -63,9 +64,8 @@ const Page = (): ReactElement => {
   const { isActionsFetched } = useActions();
   const isNotPlus = !isPlus && isAuthReady;
 
-  const {
-    pmid: selectedBriefId,
-  }: Partial<Record<'pmid' | 'generate', string>> = router?.query ?? {};
+  const { pmid: selectedBriefId }: Partial<Record<'pmid', string>> =
+    router?.query ?? {};
 
   const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
   const feedQuery = useFeed(
@@ -81,6 +81,7 @@ const Page = (): ReactElement => {
   );
   const { items, updatePost, fetchPage, canFetchMore, emptyFeed } = feedQuery;
 
+  const { isGenerating } = useGenerateBriefOnLoad({});
   const {
     onOpenModal,
     onCloseModal,
@@ -180,7 +181,7 @@ const Page = (): ReactElement => {
               <ActiveFeedContext.Provider
                 value={{ queryKey: feedQueryKey, items }}
               >
-                {emptyFeed && !feedQuery.isPending && (
+                {emptyFeed && (isGenerating || !feedQuery.isPending) && (
                   <div className="tablet:max-w-80">
                     <BriefCardFeed
                       targetId={TargetId.List}
@@ -191,6 +192,7 @@ const Page = (): ReactElement => {
                   </div>
                 )}
                 {emptyFeed &&
+                  !isGenerating &&
                   items.map((item, index) => {
                     if (item.type !== FeedItemType.Placeholder) {
                       return null;
