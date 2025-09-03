@@ -214,10 +214,12 @@ export function SquadHeaderBar({
         />
       )}
       <SquadAwardButton squad={squad} />
-      <BoostSourceButton
-        squad={squad}
-        buttonProps={{ size: ButtonSize.Small }}
-      />
+      {squad.public && (
+        <BoostSourceButton
+          squad={squad}
+          buttonProps={{ size: ButtonSize.Small }}
+        />
+      )}
       {showPendingCount && <SquadModerationButton squad={squad} />}
       <SquadSlackButton
         squad={squad}
