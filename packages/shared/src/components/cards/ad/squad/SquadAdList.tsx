@@ -53,7 +53,11 @@ export function SquadAdList({
             color={TypographyColor.Tertiary}
           >
             <Tooltip content={`Boosted by ${campaign?.user?.username}`}>
-              <button type="button" disabled className="relative">
+              <button
+                type="button"
+                disabled
+                className="relative text-action-comment-default"
+              >
                 <strong>Boosted</strong>
               </button>
             </Tooltip>
