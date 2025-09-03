@@ -1,11 +1,11 @@
 import type { InfiniteData } from '@tanstack/react-query';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type {
   CampaignConnection,
   UserCampaignStats,
 } from '../../graphql/campaigns';
-import { getCampaigns, getUserCampaignStats } from '../../graphql/campaigns';
+import { getCampaigns } from '../../graphql/campaigns';
 import {
   generateQueryKey,
   RequestKey,
@@ -16,7 +16,6 @@ import type { InfiniteScrollingQueryProps } from '../../components/containers/In
 import { checkFetchMore } from '../../components/containers/InfiniteScrolling';
 
 interface UsePostBoost {
-  stats: UserCampaignStats;
   data?: InfiniteData<CampaignConnection>;
   isLoading: boolean;
   infiniteScrollingProps: InfiniteScrollingQueryProps;
@@ -66,16 +65,7 @@ export const useCampaigns = (): UsePostBoost => {
     fetchNextPage,
   } = queryResult;
 
-  const { data: stats } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Campaigns, user, 'stats'),
-    queryFn: getUserCampaignStats,
-    staleTime: StaleTime.Default,
-    enabled: !!user,
-    placeholderData: defaultStats,
-  });
-
   return {
-    stats,
     data: campaigns,
     isLoading: isPending && !isFetched,
     infiniteScrollingProps: {

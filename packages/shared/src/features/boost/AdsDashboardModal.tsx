@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../../components/modals/common/Modal';
 import type { ModalProps } from '../../components/modals/common/Modal';
-import { useCampaigns } from './useCampaigns';
+import { defaultStats, useCampaigns } from './useCampaigns';
 import { BoostHistoryLoading } from './BoostHistoryLoading';
 import { BoostedViewModal } from './BoostedViewModal';
 import { CampaignList } from './CampaignList';
@@ -14,9 +15,11 @@ import {
 import { boostDocsLink } from '../../lib/constants';
 import { CampaignStatsGrid } from './CampaignListView';
 import type { Campaign } from '../../graphql/campaigns';
-import { CampaignType } from '../../graphql/campaigns';
+import { CampaignType, getUserCampaignStats } from '../../graphql/campaigns';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialCampaign?: Campaign;
@@ -27,7 +30,15 @@ export function AdsDashboardModal({
   ...props
 }: AdsDashboardModalProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { data, isLoading, stats, infiniteScrollingProps } = useCampaigns();
+  const { user } = useAuthContext();
+  const { data, isLoading, infiniteScrollingProps } = useCampaigns();
+  const { data: stats } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Campaigns, user, 'stats'),
+    queryFn: getUserCampaignStats,
+    staleTime: StaleTime.Default,
+    enabled: !!user,
+    placeholderData: defaultStats,
+  });
   const [boosted, setBoosted] = useState(initialCampaign);
   const list = useMemo(() => {
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
