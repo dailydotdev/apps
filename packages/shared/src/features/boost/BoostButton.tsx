@@ -7,7 +7,6 @@ import { ButtonVariant } from '../../components/buttons/common';
 import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { boostButton } from '../../styles/custom';
 import { useCampaignById } from '../../graphql/campaigns';
 
 interface BoostButtonProps {
@@ -21,7 +20,6 @@ export function BoostButton({
 }: BoostButtonProps): ReactElement {
   return (
     <Button
-      style={{ background: campaignId ? undefined : boostButton }}
       variant={campaignId ? ButtonVariant.Subtle : ButtonVariant.Primary}
       {...buttonProps}
       icon={<BoostIcon secondary />}
