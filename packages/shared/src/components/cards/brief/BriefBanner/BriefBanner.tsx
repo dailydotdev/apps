@@ -98,11 +98,12 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         onClick={() => {
           logBriefEvent(LogEvent.ClickBrief);
           router.push(
-            '/briefing'.concat(hasGeneratedPreviously ? '/generate' : ''),
+            hasGeneratedPreviously
+              ? '/briefing/generate'
+              : '/briefing?generate=true',
           );
         }}
         variant={ButtonVariant.Primary}
-        title={'/briefing'.concat(hasGeneratedPreviously ? '/generate' : '')}
       >
         Generate your briefing
       </Button>
