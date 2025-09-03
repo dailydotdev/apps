@@ -72,7 +72,7 @@ export function BoostSquadModal({
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
   const canBoost = !!squad.image && !!squad.headerImage && !!squad.description;
-  const { estimatedReach, isLoading, isFetched } = useCampaignEstimation({
+  const { estimatedReach, isLoading } = useCampaignEstimation({
     type: CampaignType.Squad,
     query: { budget: estimate.coresPerDay },
     referenceId: squad.id,
@@ -214,18 +214,15 @@ export function BoostSquadModal({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          {isFetched
-            ? `Our auto-targeting engine finds developers most likely to join your Squad, so that it grows faster, stronger, and with the right people.`
-            : `Give your content the spotlight it deserves. Our auto-targeting engine ensures your Squad gets shown to the developers most likely to care.`}
-          {!isFetched && (
-            <a
-              href={boostDocsLink}
-              className="ml-1 text-text-link"
-              target="_blank"
-            >
-              Learn more
-            </a>
-          )}
+          Our auto-targeting engine finds developers most likely to join your
+          Squad, so that it grows faster, stronger, and with the right people.
+          <a
+            href={boostDocsLink}
+            className="ml-1 text-text-link"
+            target="_blank"
+          >
+            Learn more
+          </a>
         </Typography>
         <div className="rounded-16 bg-surface-float">
           <div className="flex flex-row items-center gap-5 p-2">

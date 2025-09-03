@@ -7,7 +7,7 @@ import type { SourcesQueryProps } from '../../../hooks/source/useSources';
 import { useSources } from '../../../hooks/source/useSources';
 import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
-import { SquadGrid } from './SquadGrid';
+import { SourceCardBorderColor, SquadGrid } from './SquadGrid';
 import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { SquadList } from './SquadList';
 import { Button, ButtonVariant } from '../../buttons/Button';
@@ -169,6 +169,7 @@ export function SquadsDirectoryFeed({
                 campaignId={
                   shouldShowAd ? adSource.flags?.campaignId : undefined
                 }
+                border={shouldShowAd ? SourceCardBorderColor.Pepper : undefined}
               />
             </SquadItemLogExtraContext>
           ) : (

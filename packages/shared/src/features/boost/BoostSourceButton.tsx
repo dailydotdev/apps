@@ -74,8 +74,10 @@ export function BoostSourceButton({
       return onViewBoost();
     }
 
-    if (!squad?.image || !squad?.headerImage || !squad?.description) {
-      // open modal
+    const isPlaceholderImage = squad?.image?.includes('squad_placeholder');
+    const isMissingImage = !squad?.image || isPlaceholderImage;
+
+    if (isMissingImage || !squad?.headerImage || !squad?.description) {
       openModal({
         type: LazyModal.ActionSuccess,
         props: {
@@ -85,7 +87,7 @@ export function BoostSourceButton({
             description: `Before we can launch your boost, your squad needs a few details. This isn't just red tape, we want your Squad to look its best and get the traction it deserves.`,
             body: (
               <div className="mt-2 flex flex-col gap-2">
-                <Requirement copy="Profile image" passed={!!squad?.image} />
+                <Requirement copy="Profile image" passed={!isMissingImage} />
                 <Requirement copy="Cover image" passed={!!squad?.headerImage} />
                 <Requirement
                   copy="Squad description"

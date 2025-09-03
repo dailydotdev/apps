@@ -61,6 +61,7 @@ export const SquadGrid = ({
   source,
   className,
   campaignId,
+  border,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const { user } = useAuthContext();
   const { data: campaign } = useCampaignById(campaignId);
@@ -79,7 +80,7 @@ export const SquadGrid = ({
     queryFn: () => getSquadMembers(source.id),
     staleTime: StaleTime.OneHour,
   });
-  const borderColor = color || SourceCardBorderColor.Avocado;
+  const borderColor = border || color || SourceCardBorderColor.Avocado;
 
   return (
     <Card
@@ -123,7 +124,11 @@ export const SquadGrid = ({
             >
               {campaign && (
                 <Tooltip content={`Boosted by @${campaign.user.username}`}>
-                  <button type="button" disabled className="relative">
+                  <button
+                    type="button"
+                    disabled
+                    className="relative text-action-comment-default"
+                  >
                     <strong>Boosted</strong>
                   </button>
                 </Tooltip>
