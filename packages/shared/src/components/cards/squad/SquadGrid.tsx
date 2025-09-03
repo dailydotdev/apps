@@ -24,6 +24,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
+import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -60,11 +61,12 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
 export const SquadGrid = ({
   source,
   className,
-  campaignId,
   border,
   children,
+  ad,
 }: PropsWithChildren<UnFeaturedSquadCardProps>): ReactElement => {
   const { user } = useAuthContext();
+  const campaignId = ad?.data?.source?.flags?.campaignId;
   const { data: campaign } = useCampaignById(campaignId);
   const {
     headerImage,
@@ -82,6 +84,7 @@ export const SquadGrid = ({
     staleTime: StaleTime.OneHour,
   });
   const borderColor = border || color || SourceCardBorderColor.Avocado;
+  const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
 
   return (
     <Card
@@ -90,8 +93,13 @@ export const SquadGrid = ({
         borderColorToClassName[borderColor],
         className,
       )}
+      ref={ad ? ref : undefined}
     >
-      <Link href={permalink} legacyBehavior>
+      <Link
+        href={permalink}
+        legacyBehavior
+        onClick={ad ? onClickAd : undefined}
+      >
         <CardLink
           href={permalink}
           rel={anchorDefaultRel}
