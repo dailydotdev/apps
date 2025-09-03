@@ -12,16 +12,14 @@ import {
 import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
-import { Button, ButtonVariant } from '../../../buttons/Button';
 import { AdPixel } from '../common/AdPixel';
 import { Tooltip } from '../../../tooltip/Tooltip';
-import { Origin } from '../../../../lib/log';
-import { SquadActionButton } from '../../../squads/SquadActionButton';
 import { CardLink } from '../../common/Card';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
 import { SquadFeedStats } from './SquadFeedStats';
+import { SquadAdAction } from './SquadAdAction';
 
 export function SquadAdList({
   item,
@@ -88,27 +86,12 @@ export function SquadAdList({
         </div>
         <SquadFeedStats source={source} />
       </div>
-      {shouldShowAction ? (
-        <SquadActionButton
-          squad={squad}
-          origin={Origin.Feed}
-          alwaysShow
-          buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
-          onSuccess={() => onJustJoined(true)}
-          className={{ button: 'relative mt-auto w-full max-w-52' }}
-        />
-      ) : (
-        <Link href={source.permalink} onClick={(e) => e.stopPropagation()}>
-          <Button
-            tag="a"
-            href={source.permalink}
-            variant={ButtonVariant.Subtle}
-            className="relative z-1 mt-auto w-full max-w-52"
-          >
-            View Squad
-          </Button>
-        </Link>
-      )}
+      <SquadAdAction
+        squad={squad}
+        onJustJoined={() => onJustJoined(true)}
+        shouldShowAction={shouldShowAction}
+        className="relative w-full max-w-52"
+      />
     </FeedItemContainer>
   );
 }
