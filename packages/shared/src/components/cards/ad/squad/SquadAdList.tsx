@@ -95,7 +95,7 @@ export function SquadAdList({
           alwaysShow
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
           onSuccess={() => onJustJoined(true)}
-          className={{ button: 'mt-auto w-full max-w-52' }}
+          className={{ button: 'relative mt-auto w-full max-w-52' }}
         />
       ) : (
         <Link href={source.permalink} onClick={(e) => e.stopPropagation()}>
