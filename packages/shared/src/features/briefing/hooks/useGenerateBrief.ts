@@ -59,7 +59,7 @@ export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
         requestBrief({ type });
       }
     },
-    [requestBrief, isGenerating, user],
+    [setPendingStatus, isGenerating, user, requestBrief],
   );
 
   return {
