@@ -103,7 +103,7 @@ export function SquadAdList({
             tag="a"
             href={source.permalink}
             variant={ButtonVariant.Subtle}
-            className="z-1 mt-auto w-full max-w-52"
+            className="relative z-1 mt-auto w-full max-w-52"
           >
             View Squad
           </Button>
