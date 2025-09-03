@@ -65,7 +65,6 @@ const Page = (): ReactElement => {
 
   const {
     pmid: selectedBriefId,
-    generate: autoGenerate,
   }: Partial<Record<'pmid' | 'generate', string>> = router?.query ?? {};
 
   const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
