@@ -66,9 +66,8 @@ const TestWrapper: React.FC<{
       ...alertsOverride.alerts,
     },
     loadedAlerts: true,
-    updateAlerts: (props) => {
-      console.log('updateAlerts called with props:', props);
-      mockUpdateAlerts(props);
+    updateAlerts: (...props: unknown[]) => {
+      mockUpdateAlerts(...props);
       return Promise.resolve();
     },
     ...alertsOverride,
