@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { atom } from 'jotai/vanilla';
+import { useSetAtom } from 'jotai/react';
 import type { BriefingType } from '../../../graphql/posts';
 import { getGenerateBriefingMutationOptions } from '../../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
@@ -12,15 +14,17 @@ interface UseGenerateBriefingProps {
   onGenerated?: () => void;
 }
 
+export const isBriefGenerationPending = atom(false);
+
 export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
   const queryClient = useQueryClient();
   const { user, updateUser } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
   const { setBrief } = useBriefContext();
+  const setPendingStatus = useSetAtom(isBriefGenerationPending);
 
   const { isPending: isGenerating, mutateAsync: requestBrief } = useMutation({
-    mutationKey: generateQueryKey(RequestKey.GenerateBrief, user),
     ...getGenerateBriefingMutationOptions(),
     onSuccess: async ({ id, balance }) => {
       displayToast('Your Presidential Briefing is being generated ✅');
@@ -51,10 +55,14 @@ export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
         'There was an error generating your Presidential Briefing. Please try again later.',
       );
     },
+    onSettled: () => {
+      setPendingStatus(false);
+    },
   });
 
   const generate = useCallback(
     ({ type }: { type: BriefingType }) => {
+      setPendingStatus(true);
       if (!isGenerating && !!user) {
         requestBrief({ type });
       }

@@ -42,6 +42,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/posts';
 import { useRouter } from 'next/router';
 import { format, set } from 'date-fns';
+import { useAtomValue } from 'jotai/react';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
@@ -49,7 +50,7 @@ import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/Br
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
-import { useMutation } from '@tanstack/react-query';
+import { isBriefGenerationPending } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBrief';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -81,9 +82,7 @@ const Page = (): ReactElement => {
   );
   const { items, updatePost, fetchPage, canFetchMore, emptyFeed } = feedQuery;
 
-  const { isPending: isGenerating } = useMutation({
-    mutationKey: generateQueryKey(RequestKey.GenerateBrief, user),
-  });
+  const isGenerating = useAtomValue(isBriefGenerationPending);
 
   const {
     onOpenModal,
@@ -186,7 +185,7 @@ const Page = (): ReactElement => {
               <ActiveFeedContext.Provider
                 value={{ queryKey: feedQueryKey, items }}
               >
-                {emptyFeed && (isGenerating || !feedQuery.isPending) && (
+                {showBriefCard && (
                   <div className="tablet:max-w-80">
                     <BriefCardFeed
                       targetId={TargetId.List}
@@ -211,85 +210,86 @@ const Page = (): ReactElement => {
                       />
                     );
                   })}
-                {items
-                  .reduce(
-                    (acc, item, index) => {
-                      const previousItem = acc[acc.length - 1];
+                {!showBriefCard &&
+                  items
+                    .reduce(
+                      (acc, item, index) => {
+                        const previousItem = acc[acc.length - 1];
 
-                      if (item.type === 'post') {
-                        const year = format(
-                          new Date(item.post.createdAt),
-                          'yyyy',
-                        );
+                        if (item.type === 'post') {
+                          const year = format(
+                            new Date(item.post.createdAt),
+                            'yyyy',
+                          );
 
-                        if (!previousItem || previousItem.title !== year) {
-                          acc.push({
-                            title: year,
-                            items: [],
-                          });
+                          if (!previousItem || previousItem.title !== year) {
+                            acc.push({
+                              title: year,
+                              items: [],
+                            });
+                          }
+
+                          const section = acc[acc.length - 1];
+
+                          const { post } = item;
+
+                          section.items.push(
+                            <BriefListItem
+                              key={post.id}
+                              post={post}
+                              title={post.title}
+                              pill={
+                                index === 0 && !post.read
+                                  ? { label: 'Just in' }
+                                  : undefined
+                              }
+                              readTime={post.readTime}
+                              isRead={post.read}
+                              postsCount={post.flags?.posts || 0}
+                              sourcesCount={post.flags?.sources || 0}
+                              onClick={onBriefClick}
+                              origin={Origin.BriefPage}
+                              targetId={TargetId.List}
+                            />,
+                          );
                         }
 
-                        const section = acc[acc.length - 1];
+                        if (item.type === 'placeholder') {
+                          if (!previousItem) {
+                            acc.push({
+                              title: new Date().getFullYear().toString(),
+                              items: [],
+                            });
+                          }
 
-                        const { post } = item;
+                          const section = acc[acc.length - 1];
 
-                        section.items.push(
-                          <BriefListItem
-                            key={post.id}
-                            post={post}
-                            title={post.title}
-                            pill={
-                              index === 0 && !post.read
-                                ? { label: 'Just in' }
-                                : undefined
-                            }
-                            readTime={post.readTime}
-                            isRead={post.read}
-                            postsCount={post.flags?.posts || 0}
-                            sourcesCount={post.flags?.sources || 0}
-                            onClick={onBriefClick}
-                            origin={Origin.BriefPage}
-                            targetId={TargetId.List}
-                          />,
-                        );
-                      }
-
-                      if (item.type === 'placeholder') {
-                        if (!previousItem) {
-                          acc.push({
-                            title: new Date().getFullYear().toString(),
-                            items: [],
-                          });
+                          section.items.push(
+                            <ElementPlaceholder
+                              // eslint-disable-next-line react/no-array-index-key
+                              key={`placeholder-${index}`}
+                              className="h-16 w-full rounded-16 border border-border-subtlest-tertiary bg-transparent p-2"
+                            />,
+                          );
                         }
 
-                        const section = acc[acc.length - 1];
-
-                        section.items.push(
-                          <ElementPlaceholder
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={`placeholder-${index}`}
-                            className="h-16 w-full rounded-16 border border-border-subtlest-tertiary bg-transparent p-2"
-                          />,
-                        );
-                      }
-
-                      return acc;
-                    },
-                    [] as {
-                      title: string;
-                      items: ReactElement[];
-                    }[],
-                  )
-                  .map((section) => {
-                    return (
-                      <BriefListSection key={section.title}>
-                        {section.title !== currentYear && (
-                          <BriefListHeading title={section.title} />
-                        )}
-                        {section.items}
-                      </BriefListSection>
-                    );
-                  })}
+                        return acc;
+                      },
+                      [] as {
+                        title: string;
+                        items: ReactElement[];
+                      }[],
+                    )
+                    .map((section) => {
+                      return (
+                        <BriefListSection key={section.title}>
+                          {section.title !== currentYear && (
+                            <BriefListHeading title={section.title} />
+                          )}
+                          {section.items}
+                        </BriefListSection>
+                      );
+                    })}
               </ActiveFeedContext.Provider>
             </InfiniteScrolling>
           </div>
