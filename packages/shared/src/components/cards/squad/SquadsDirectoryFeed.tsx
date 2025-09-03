@@ -21,6 +21,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { fetchDirectoryAd } from '../../../lib/ads';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import type { Ad } from '../../../graphql/posts';
+import { AdPixel } from '../ad/common/AdPixel';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -139,7 +140,9 @@ export function SquadsDirectoryFeed({
               campaignId={
                 adSource && index === 0 ? adSource.flags?.campaignId : undefined
               }
-            />
+            >
+              {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
+            </SquadList>
           </SquadItemLogExtraContext>
         ))}
         {(isLoading || isLoadingAd) && <Skeleton />}
@@ -170,7 +173,9 @@ export function SquadsDirectoryFeed({
                   shouldShowAd ? adSource.flags?.campaignId : undefined
                 }
                 border={shouldShowAd ? SourceCardBorderColor.Pepper : undefined}
-              />
+              >
+                {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
+              </SquadGrid>
             </SquadItemLogExtraContext>
           ) : (
             <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />

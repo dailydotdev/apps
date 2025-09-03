@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import Link from '../../utilities/Link';
 import type { Squad } from '../../../graphql/sources';
@@ -19,12 +19,14 @@ interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
   shouldShowCount?: boolean;
   campaignId?: string;
+  children?: ReactNode;
 }
 
 export const SquadList = ({
   squad,
   shouldShowCount = true,
   campaignId,
+  children,
   ...attrs
 }: SquadListProps): ReactElement => {
   const { image, name, permalink } = squad;
@@ -71,6 +73,7 @@ export const SquadList = ({
         data-testid="squad-action"
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
+      {children}
     </div>
   );
 };

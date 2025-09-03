@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -62,7 +62,8 @@ export const SquadGrid = ({
   className,
   campaignId,
   border,
-}: UnFeaturedSquadCardProps): ReactElement => {
+  children,
+}: PropsWithChildren<UnFeaturedSquadCardProps>): ReactElement => {
   const { user } = useAuthContext();
   const { data: campaign } = useCampaignById(campaignId);
   const {
@@ -152,6 +153,7 @@ export const SquadGrid = ({
           />
         </div>
       </div>
+      {children}
     </Card>
   );
 };
