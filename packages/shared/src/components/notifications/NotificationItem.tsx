@@ -131,7 +131,7 @@ const NotificationOptionsButton = ({
       >
         <Button
           variant={ButtonVariant.Tertiary}
-          className="invisible absolute right-2 top-3 my-auto group-hover:visible"
+          className="invisible group-hover:visible"
           icon={<MenuIcon />}
           size={ButtonSize.Small}
         />
@@ -174,32 +174,32 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     return null;
   }
 
-  const avatarComponents =
-    type === NotificationType.CollectionUpdated ? (
-      <ProfilePictureGroup
-        total={numTotalAvatars}
-        size={ProfileImageSize.Medium}
-      >
-        {filteredAvatars.map((avatar) => (
-          <ProfilePicture
-            key={avatar.referenceId}
-            rounded="full"
-            size={ProfileImageSize.Medium}
-            user={{ image: avatar.image }}
-          />
-        ))}
-      </ProfilePictureGroup>
-    ) : (
-      filteredAvatars
-        .map((avatar) => (
-          <NotificationItemAvatar
-            key={avatar.referenceId}
-            className="z-1"
-            {...avatar}
-          />
-        ))
-        .filter((avatar) => avatar) ?? []
-    );
+  const avatarComponents = [
+    NotificationType.CollectionUpdated,
+    NotificationType.ArticleUpvoteMilestone,
+    NotificationType.CommentUpvoteMilestone,
+  ].includes(type) ? (
+    <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
+      {filteredAvatars.map((avatar) => (
+        <ProfilePicture
+          key={avatar.referenceId}
+          rounded="full"
+          size={ProfileImageSize.Medium}
+          user={{ image: avatar.image }}
+        />
+      ))}
+    </ProfilePictureGroup>
+  ) : (
+    filteredAvatars
+      .map((avatar) => (
+        <NotificationItemAvatar
+          key={avatar.referenceId}
+          className="z-1"
+          {...avatar}
+        />
+      ))
+      .filter((avatar) => avatar) ?? []
+  );
   const hasAvatar = filteredAvatars.length > 0;
 
   return (
@@ -231,9 +231,19 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           </a>
         </Link>
       )}
-      {Object.keys(notificationMutingCopy).includes(type) && (
-        <NotificationOptionsButton notification={{ type, referenceId }} />
-      )}
+      <div className="absolute right-4 top-3 my-auto flex items-center">
+        {Object.keys(notificationMutingCopy).includes(type) && (
+          <NotificationOptionsButton notification={{ type, referenceId }} />
+        )}
+        {createdAt && (
+          <DateFormat
+            className="ml-1 text-text-quaternary typo-footnote"
+            date={createdAt}
+            type={TimeFormatType.LastActivity}
+          />
+        )}
+      </div>
+
       <NotificationItemIcon
         icon={icon}
         iconTheme={notificationTypeTheme[type]}
@@ -242,24 +252,12 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         {hasAvatar && (
           <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
-        <div className="flex flex-row flex-wrap items-center">
-          <span
-            className={classNames(
-              'max-w-full break-words',
-              createdAt && 'mr-1',
-            )}
-            dangerouslySetInnerHTML={{
-              __html: memoizedTitle,
-            }}
-          />
-          {createdAt && (
-            <DateFormat
-              className="text-text-quaternary"
-              date={createdAt}
-              type={TimeFormatType.LastActivity}
-            />
-          )}
-        </div>
+        <span
+          className="max-w-full break-words"
+          dangerouslySetInnerHTML={{
+            __html: memoizedTitle,
+          }}
+        />
         {description && (
           <p
             className="mt-2 w-4/5 break-words text-text-quaternary"
