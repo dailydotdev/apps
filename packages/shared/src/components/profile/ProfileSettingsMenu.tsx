@@ -28,6 +28,7 @@ import {
   ExitIcon,
   OrganizationIcon,
   TrendingIcon,
+  JobIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -86,6 +87,11 @@ const useAccountPageItems = () => {
               title: 'Account',
               icon: MailIcon,
               href: `${settingsUrl}/security`,
+            },
+            'job-preferences': {
+              title: 'Job preferences',
+              icon: JobIcon,
+              href: `${settingsUrl}/job-preferences`,
             },
             appearance: {
               title: 'Appearance',
