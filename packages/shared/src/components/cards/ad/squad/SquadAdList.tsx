@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import FeedItemContainer from '../../common/list/FeedItemContainer';
 import type { SquadAdFeedProps } from './common';
@@ -34,15 +34,13 @@ export function SquadAdList({
     useSquadAd({
       item,
     });
-  const mounted = useRef(false);
   const { ref, inView } = useInView({ triggerOnce: true });
 
   useEffect(() => {
-    if (!inView || mounted.current) {
+    if (!inView) {
       return;
     }
 
-    mounted.current = true;
     onMount?.();
   }, [inView, onMount]);
 
