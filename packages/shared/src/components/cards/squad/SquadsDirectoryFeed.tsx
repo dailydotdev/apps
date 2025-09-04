@@ -22,6 +22,7 @@ import { fetchDirectoryAd } from '../../../lib/ads';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import type { Ad } from '../../../graphql/posts';
 import { AdPixel } from '../ad/common/AdPixel';
+import { TargetType } from '../../../lib/log';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -54,13 +55,22 @@ const SquadItemLogExtraContext = ({
   return (
     <LogExtraContextProvider
       selector={() => {
-        if (!ad?.generationId) {
-          return undefined;
+        const extraData: Record<string, unknown> = {};
+
+        if (ad?.data?.source) {
+          const { source } = ad.data;
+
+          extraData.referrer_target_id = source.id;
+          extraData.referrer_target_type = source.id
+            ? TargetType.Source
+            : undefined;
         }
 
-        return {
-          gen_id: ad.generationId,
-        };
+        if (ad?.generationId) {
+          extraData.gen_id = ad.generationId;
+        }
+
+        return extraData;
       }}
     >
       {children}

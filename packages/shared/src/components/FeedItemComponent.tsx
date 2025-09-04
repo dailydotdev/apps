@@ -186,6 +186,15 @@ export const withFeedLogExtraContext = (
                 : undefined;
             }
 
+            if (isBoostedSquadAd(item)) {
+              const source = item.ad.data?.source;
+
+              extraData.referrer_target_id = source?.id;
+              extraData.referrer_target_type = source?.id
+                ? TargetType.Source
+                : undefined;
+            }
+
             return extraData;
           }}
         >
