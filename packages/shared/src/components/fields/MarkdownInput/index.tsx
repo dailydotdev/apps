@@ -43,6 +43,7 @@ import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
+import RecommendedEmojiTooltip from '../../tooltips/RecommendedEmojiTooltip';
 
 interface ClassName {
   container?: string;
@@ -282,6 +283,9 @@ function MarkdownInput(
         onClickOutside={onCloseMention}
         appendTo={parentSelector}
       />
+      {textareaRef?.current?.value && (
+        <RecommendedEmojiTooltip textareaRef={textareaRef} emojis={[]} />
+      )}
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
