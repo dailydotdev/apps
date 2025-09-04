@@ -499,12 +499,13 @@ export default function Feed<T>({
       };
 
   const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = typeof briefBannerPage === 'number';
+  const showPromoBanner =
+    typeof briefBannerPage === 'number' && briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
   const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) -
-    columnsDiffWithPage * Number(briefBannerPage) -
-    Number(showBriefCard);
+    currentPageSize * Number(briefBannerPage) - // number of items at that page
+    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
+    Number(showBriefCard); // if showing the brief card, we need to subtract 1 to the index
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
