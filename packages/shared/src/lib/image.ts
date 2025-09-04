@@ -324,7 +324,7 @@ export const plusShowcaseAdFreeImage =
 export const plusShowcaseSquadImage =
   'https://media.daily.dev/image/upload/s--LKIr_f6r--/f_auto/v1741698925/public/Members-only Squad';
 
-export const postBoostSuccessCover =
+export const boostSuccessCover =
   'https://media.daily.dev/image/upload/s--i9EWmj0H--/f_auto/v1753620990/public/boost';
 
 export const plusShowcaseTranslateImage =

@@ -1,6 +1,7 @@
-import type { ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
 import SquadMemberShortList from '../../squads/SquadMemberShortList';
 import { Card, CardLink } from '../common/Card';
@@ -11,6 +12,19 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { useCampaignById } from '../../../graphql/campaigns';
+import { Tooltip } from '../../tooltip/Tooltip';
+import { Separator } from '../common/common';
+import type { BasicSourceMember } from '../../../graphql/sources';
+import { getSquadMembers } from '../../../graphql/squads';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -47,7 +61,13 @@ const borderColorToClassName: Record<SourceCardBorderColor, string> = {
 export const SquadGrid = ({
   source,
   className,
-}: UnFeaturedSquadCardProps): ReactElement => {
+  border,
+  children,
+  ad,
+}: PropsWithChildren<UnFeaturedSquadCardProps>): ReactElement => {
+  const { user } = useAuthContext();
+  const campaignId = ad?.data?.source?.flags?.campaignId;
+  const { data: campaign } = useCampaignById(campaignId);
   const {
     headerImage,
     image,
@@ -58,7 +78,13 @@ export const SquadGrid = ({
     permalink,
     membersCount,
   } = source;
-  const borderColor = color || SourceCardBorderColor.Avocado;
+  const { data: members } = useQuery<BasicSourceMember[]>({
+    queryKey: generateQueryKey(RequestKey.SquadMembers, user, source.id),
+    queryFn: () => getSquadMembers(source.id),
+    staleTime: StaleTime.OneHour,
+  });
+  const borderColor = border || color || SourceCardBorderColor.Avocado;
+  const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
 
   return (
     <Card
@@ -67,8 +93,13 @@ export const SquadGrid = ({
         borderColorToClassName[borderColor],
         className,
       )}
+      ref={ad ? ref : undefined}
     >
-      <Link href={permalink} legacyBehavior>
+      <Link
+        href={permalink}
+        legacyBehavior
+        onClick={ad ? onClickAd : undefined}
+      >
         <CardLink
           href={permalink}
           rel={anchorDefaultRel}
@@ -89,16 +120,31 @@ export const SquadGrid = ({
             type={ImageType.Squad}
           />
           {membersCount > 0 && (
-            <SquadMemberShortList
-              squad={source}
-              members={source.members?.edges?.map(({ node }) => node)}
-            />
+            <SquadMemberShortList squad={source} members={members} />
           )}
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
             <div className="font-bold typo-title3">{name}</div>
-            {handle && <div className="text-text-secondary">{handle}</div>}
+            <Typography
+              className="flex flex-row items-center"
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              {campaign && (
+                <Tooltip content={`Boosted by @${campaign.user.username}`}>
+                  <button
+                    type="button"
+                    disabled
+                    className="relative text-action-comment-default"
+                  >
+                    <strong>Boosted</strong>
+                  </button>
+                </Tooltip>
+              )}
+              {campaign && <Separator />}
+              {handle}
+            </Typography>
             {description && (
               <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
                 {description}
@@ -115,6 +161,7 @@ export const SquadGrid = ({
           />
         </div>
       </div>
+      {children}
     </Card>
   );
 };

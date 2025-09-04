@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { BoostingLabel } from './BoostingLabel';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
@@ -14,7 +15,6 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
 import { webappUrl } from '../../../lib/constants';
-import { BoostPostButton } from '../../../features/boost/BoostPostButton';
 
 interface PostShortInfoProps {
   post: Post;
@@ -88,16 +88,7 @@ export function PostShortInfo({
           </Typography>
         )}
         <div className="flex items-center gap-2">
-          {isBoosting && (
-            <BoostPostButton
-              post={post}
-              buttonProps={{
-                className: 'typo-footnote',
-                size: ButtonSize.XSmall,
-              }}
-              isActive
-            />
-          )}
+          {isBoosting && <BoostingLabel />}
           {createdAt && (
             <DateFormat
               prefix="Published "

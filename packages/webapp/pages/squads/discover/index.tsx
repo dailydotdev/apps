@@ -35,6 +35,7 @@ function SquadDiscoveryPage(): ReactElement {
         linkToSeeAll="/squads/discover/featured"
         title={{ copy: 'Featured', icon: sourceIcon }}
         query={{ isPublic: true, featured: true, first: limit }}
+        firstItemShouldBeAd
       >
         {isMobile && isFetched && (
           <div className="absolute inset-0 -left-4 -z-1 flex w-[calc(100%+2rem)] bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
