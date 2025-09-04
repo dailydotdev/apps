@@ -106,7 +106,7 @@ export function WriteLinkPreview({
             This link has already been shared here:
           </Typography>
 
-          <div className="flex max-h-52 tablet:max-h-28 flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4">
+          <div className="flex max-h-52 flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4 tablet:max-h-28">
             {preview.relatedPublicPosts.map((post) => {
               const isUserSource = isSourceUserSource(post.source);
 
