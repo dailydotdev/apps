@@ -14,26 +14,38 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { Image, ImageType } from '../../image/Image';
 import { ButtonVariant } from '../../buttons/common';
+import type { Ad } from '../../../graphql/posts';
+import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
   shouldShowCount?: boolean;
-  campaignId?: string;
   children?: ReactNode;
+  ad?: Ad;
 }
 
 export const SquadList = ({
   squad,
   shouldShowCount = true,
-  campaignId,
   children,
+  ad,
   ...attrs
 }: SquadListProps): ReactElement => {
   const { image, name, permalink } = squad;
+  const campaignId = ad?.data?.source?.flags?.campaignId;
+  const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
 
   return (
-    <div {...attrs} className="relative flex flex-row items-center gap-4">
-      <Link href={permalink} legacyBehavior>
+    <div
+      {...attrs}
+      className="relative flex flex-row items-center gap-4"
+      ref={ad ? ref : undefined}
+    >
+      <Link
+        href={permalink}
+        legacyBehavior
+        onClick={ad ? onClickAd : undefined}
+      >
         <CardLink href={permalink} rel="noopener" title={name} />
       </Link>
       <Image

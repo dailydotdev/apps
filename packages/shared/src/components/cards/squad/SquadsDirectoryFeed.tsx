@@ -22,6 +22,7 @@ import { fetchDirectoryAd } from '../../../lib/ads';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import type { Ad } from '../../../graphql/posts';
 import { AdPixel } from '../ad/common/AdPixel';
+import { TargetType } from '../../../lib/log';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -54,13 +55,22 @@ const SquadItemLogExtraContext = ({
   return (
     <LogExtraContextProvider
       selector={() => {
-        if (!ad?.generationId) {
-          return undefined;
+        const extraData: Record<string, unknown> = {};
+
+        if (ad?.data?.source) {
+          const { source } = ad.data;
+
+          extraData.referrer_target_id = source.id;
+          extraData.referrer_target_type = source.id
+            ? TargetType.Source
+            : undefined;
         }
 
-        return {
-          gen_id: ad.generationId,
-        };
+        if (ad?.generationId) {
+          extraData.gen_id = ad.generationId;
+        }
+
+        return extraData;
       }}
     >
       {children}
@@ -95,8 +105,6 @@ export function SquadsDirectoryFeed({
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
   const { squad: squadAd } = useSquad({ handle: ad?.data?.source?.handle });
-
-  const adSource = ad?.data?.source;
   const flatSources = useMemo(() => {
     const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
 
@@ -133,18 +141,17 @@ export function SquadsDirectoryFeed({
             </Button>
           </Link>
         </header>
-        {flatSources?.map(({ node }, index) => (
-          <SquadItemLogExtraContext key={node.id} ad={ad}>
-            <SquadList
-              squad={node}
-              campaignId={
-                adSource && index === 0 ? adSource.flags?.campaignId : undefined
-              }
-            >
-              {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
-            </SquadList>
-          </SquadItemLogExtraContext>
-        ))}
+        {flatSources?.map(({ node }, index) => {
+          const isAd = ad && index === 0;
+
+          return (
+            <SquadItemLogExtraContext key={node.id} ad={ad}>
+              <SquadList squad={node} ad={isAd ? ad : undefined}>
+                {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
+              </SquadList>
+            </SquadItemLogExtraContext>
+          );
+        })}
         {(isLoading || isLoadingAd) && <Skeleton />}
       </div>
     );
@@ -159,7 +166,7 @@ export function SquadsDirectoryFeed({
       {children}
       {!isLoadingAd &&
         flatSources?.map(({ node }, index) => {
-          const shouldShowAd = adSource && index === 0;
+          const shouldShowAd = ad && index === 0;
           const showFeaturedCard =
             shouldShowAd ||
             (node.flags?.featured && linkToSeeAll.includes('featured'));
@@ -169,10 +176,8 @@ export function SquadsDirectoryFeed({
               <SquadGrid
                 source={node}
                 className="w-80"
-                campaignId={
-                  shouldShowAd ? adSource.flags?.campaignId : undefined
-                }
                 border={shouldShowAd ? SourceCardBorderColor.Pepper : undefined}
+                ad={shouldShowAd ? ad : undefined}
               >
                 {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
               </SquadGrid>

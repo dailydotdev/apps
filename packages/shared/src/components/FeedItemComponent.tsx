@@ -186,6 +186,15 @@ export const withFeedLogExtraContext = (
                 : undefined;
             }
 
+            if (isBoostedSquadAd(item)) {
+              const source = item.ad.data?.source;
+
+              extraData.referrer_target_id = source?.id;
+              extraData.referrer_target_type = source?.id
+                ? TargetType.Source
+                : undefined;
+            }
+
             return extraData;
           }}
         >
@@ -257,10 +266,7 @@ function FeedItemComponent({
       : (item as PostItem).post?.type,
   });
 
-  const onAdAction = (
-    action: Exclude<AdActions, AdActions.Impression>,
-    ad: Ad,
-  ) => {
+  const onAdAction = (action: AdActions, ad: Ad) => {
     logEvent(
       adLogEvent(action, ad, {
         columns: virtualizedNumCards,
@@ -276,6 +282,7 @@ function FeedItemComponent({
       <SquadAdTag
         item={item as AdSquadItem}
         onClickAd={() => onAdAction(AdActions.Click, item.ad)}
+        onMount={() => onAdAction(AdActions.Impression, item.ad)}
       />
     );
   }
