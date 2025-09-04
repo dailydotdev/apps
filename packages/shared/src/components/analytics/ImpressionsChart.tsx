@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import {
   Bar,
@@ -11,8 +11,9 @@ import {
   YAxis,
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
-import { addDays, format, subDays } from 'date-fns';
+import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
 import type { TickProp } from 'recharts/types/util/types';
+import { utcToZonedTime } from 'date-fns-tz';
 import { largeNumberFormat } from '../../lib';
 import type { Post } from '../../graphql/posts';
 import {
@@ -21,6 +22,8 @@ import {
 } from '../../graphql/posts';
 import { canViewPostAnalytics } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useCampaigns } from '../../features/boost/useCampaigns';
+import { dateFormatInTimezone, DEFAULT_TIMEZONE } from '../../lib/timezones';
 
 export type ImpressionsChartProps = {
   post: Pick<Post, 'id' | 'author'> | undefined;
@@ -42,56 +45,102 @@ export const ImpressionsChart = ({
 }: ImpressionsChartProps): ReactElement => {
   const { user } = useAuthContext();
 
+  const { data: campaigns } = useCampaigns({
+    entityId: post?.id,
+    first: postAnalyticsHistoryLimit,
+  });
+
+  const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
+
+  const boostedRanges = useMemo(() => {
+    return campaigns?.pages.reduce(
+      (acc, page) => {
+        page.edges.forEach(({ node: campaign }) => {
+          acc.push({
+            // extract all ranges for start/end day for post's boosts
+            from: startOfDay(utcToZonedTime(campaign.createdAt, userTimezone)),
+            to: endOfDay(
+              utcToZonedTime(new Date(campaign.endedAt), userTimezone),
+            ),
+          });
+        });
+
+        return acc;
+      },
+      [] as {
+        from: Date;
+        to: Date;
+      }[],
+    );
+  }, [campaigns, userTimezone]);
+
   const { data: postAnalyticsHistory } = useQuery({
     ...postAnalyticsHistoryQuery({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
-    select: useCallback((data): ImpressionNode[] => {
-      if (!data) {
-        return [];
-      }
+    select: useCallback(
+      (data): ImpressionNode[] => {
+        if (!data) {
+          return [];
+        }
 
-      const impressionsMap = data?.edges?.reduce((acc, { node: item }) => {
-        const date = format(new Date(item.date), 'yyyy-MM-dd');
+        const impressionsMap = data?.edges?.reduce((acc, { node: item }) => {
+          const date = dateFormatInTimezone(
+            new Date(item.date),
+            'yyyy-MM-dd',
+            userTimezone,
+          );
 
-        acc[date] = {
-          name: new Date(item.date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
-          value: item.impressions,
-          isBoosted: false,
-        };
-
-        return acc;
-      }, {} as Record<string, ImpressionNode>);
-
-      const historyCutOffDate = subDays(
-        new Date(),
-        postAnalyticsHistoryLimit - 1,
-      );
-
-      const impressionsData: ImpressionNode[] = [];
-
-      for (let i = 0; i < postAnalyticsHistoryLimit; i += 1) {
-        const paddedDate = addDays(historyCutOffDate, i);
-        const date = format(paddedDate, 'yyyy-MM-dd');
-
-        if (impressionsMap[date]) {
-          impressionsData.push(impressionsMap[date]);
-        } else {
-          impressionsData.push({
-            name: paddedDate.toLocaleDateString('en-US', {
+          acc[date] = {
+            name: new Date(item.date).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
             }),
-            value: 0,
-            isBoosted: false,
-          });
-        }
-      }
+            value: item.impressions,
+            // if any boost was active on this date
+            isBoosted: boostedRanges.some((range) => {
+              const isAfterStart = new Date(date) >= range.from;
+              const isBeforeEnd = new Date(date) <= range.to;
 
-      return impressionsData;
-    }, []),
+              return isAfterStart && isBeforeEnd;
+            }),
+          };
+
+          return acc;
+        }, {} as Record<string, ImpressionNode>);
+
+        const historyCutOffDate = subDays(
+          new Date(),
+          postAnalyticsHistoryLimit - 1,
+        );
+
+        const impressionsData: ImpressionNode[] = [];
+
+        for (let i = 0; i < postAnalyticsHistoryLimit; i += 1) {
+          const paddedDate = addDays(historyCutOffDate, i);
+          const date = dateFormatInTimezone(
+            paddedDate,
+            'yyyy-MM-dd',
+            userTimezone,
+          );
+
+          if (impressionsMap[date]) {
+            impressionsData.push(impressionsMap[date]);
+          } else {
+            impressionsData.push({
+              name: paddedDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+              }),
+              value: 0,
+              isBoosted: false,
+            });
+          }
+        }
+
+        return impressionsData;
+      },
+      [boostedRanges, userTimezone],
+    ),
   });
 
   return (
