@@ -4,6 +4,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { OnboardingGridVariation } from './featureValues';
 import { isDevelopment } from './constants';
+import { BriefingType } from '../graphql/posts';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -88,6 +89,19 @@ export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
+);
+
+export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
+  'brief_generate_pricing',
+  {
+    [BriefingType.Daily]: 300,
+    [BriefingType.Weekly]: 500,
+  },
+);
+
+export const briefFeedEntrypointPage = new Feature<false | number>(
+  'brief_feed_entrypoint_page',
+  false,
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
