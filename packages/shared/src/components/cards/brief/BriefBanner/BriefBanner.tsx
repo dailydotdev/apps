@@ -92,13 +92,14 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         <span>Saves 15-20 hours of effort</span>
       </Typography>
       <Button
+        data-testid="brief-banner-cta"
         tag="a"
         icon={<DevPlusIcon className="ml-0" aria-hidden />}
         size={ButtonSize.Small}
         href={`${webappUrl}${
           hasGeneratedPreviously
-            ? '/briefing/generate'
-            : '/briefing?generate=true'
+            ? 'briefing/generate'
+            : 'briefing?generate=true'
         }`}
         onClick={() => {
           logBriefEvent(LogEvent.ClickBrief);
