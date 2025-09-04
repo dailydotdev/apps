@@ -101,7 +101,7 @@ export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
 
 export const briefFeedEntrypointPage = new Feature<false | number>(
   'brief_feed_entrypoint_page',
-  3,
+  false,
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
