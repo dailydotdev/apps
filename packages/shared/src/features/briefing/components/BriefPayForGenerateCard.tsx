@@ -28,6 +28,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { withBriefContext } from '../../../components/cards/brief/BriefContext';
 import { useGenerateBrief } from '../hooks/useGenerateBrief';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { webappUrl } from '../../../lib/constants';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -98,7 +99,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
       await queryClient.refetchQueries({
         queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
       });
-      await router.push('/briefing');
+      await router.push(`${webappUrl}/briefing`);
     },
   });
 
