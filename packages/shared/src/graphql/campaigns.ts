@@ -1,0 +1,283 @@
+import { gql } from 'graphql-request';
+import { useQuery } from '@tanstack/react-query';
+import type { Connection, RequestQueryParams } from './common';
+import { gqlClient } from './common';
+import type { TransactionCreated } from './njord';
+import type { Post } from './posts';
+import type { Squad } from './sources';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
+import type { LoggedUser } from '../lib/user';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { useAuthContext } from '../contexts/AuthContext';
+
+const CAMPAIGN_FRAGMENT = gql`
+  fragment CampaignFragment on Campaign {
+    id
+    referenceId
+    state
+    createdAt
+    endedAt
+    type
+    flags {
+      budget
+      spend
+      users
+      clicks
+      impressions
+      newMembers
+    }
+    post {
+      ...SharedPostInfo
+      sharedPost {
+        ...SharedPostInfo
+      }
+    }
+    user {
+      id
+      username
+      name
+      image
+    }
+    source {
+      ...SourceBaseInfo
+      referralUrl
+      createdAt
+      flags {
+        featured
+        totalPosts
+        totalViews
+        totalUpvotes
+        totalAwards
+      }
+      headerImage
+      color
+      membersCount
+      category {
+        id
+      }
+      referralUrl
+      category {
+        id
+        title
+        slug
+      }
+      ...PrivilegedMembers
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+export const CAMPAIGNS_LIST = gql`
+  query CampaignsList($first: Int, $after: String) {
+    campaignsList(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          ...CampaignFragment
+        }
+      }
+    }
+  }
+  ${CAMPAIGN_FRAGMENT}
+`;
+
+export type CampaignFlags = Partial<{
+  budget: number;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  users: number;
+  newMembers: number;
+}>;
+
+export type UserCampaignStats = Omit<CampaignFlags, 'budget'>;
+
+export enum CampaignState {
+  Active = 'ACTIVE',
+  Completed = 'COMPLETED',
+  Cancelled = 'CANCELLED',
+}
+
+export interface Campaign {
+  id: string;
+  referenceId: string;
+  state: CampaignState;
+  type: CampaignType;
+  createdAt: Date;
+  endedAt: Date;
+  flags: CampaignFlags;
+  post?: Post;
+  source?: Squad;
+  user: LoggedUser;
+}
+
+export type CampaignConnection = Connection<Campaign>;
+
+export const getCampaigns = async ({
+  first,
+  after,
+}: RequestQueryParams): Promise<CampaignConnection> => {
+  const result = await gqlClient.request(CAMPAIGNS_LIST, {
+    first,
+    after,
+  });
+
+  return result.campaignsList;
+};
+
+export const CAMPAIGN_BY_ID = gql`
+  query CampaignById($id: ID!) {
+    campaignById(id: $id) {
+      ...CampaignFragment
+    }
+  }
+  ${CAMPAIGN_FRAGMENT}
+`;
+
+export const getCampaignById = async (id: string): Promise<Campaign> => {
+  const result = await gqlClient.request(CAMPAIGN_BY_ID, { id });
+
+  return result.campaignById;
+};
+
+export const USER_CAMPAIGN_STATS = gql`
+  query UserCampaignStats {
+    userCampaignStats {
+      impressions
+      clicks
+      users
+      spend
+      newMembers
+    }
+  }
+`;
+
+export const getUserCampaignStats = async (): Promise<UserCampaignStats> => {
+  const result = await gqlClient.request(USER_CAMPAIGN_STATS);
+
+  return result.userCampaignStats;
+};
+
+export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
+  query DailyCampaignReachEstimate(
+    $type: CampaignType!
+    $value: ID!
+    $budget: Int!
+  ) {
+    dailyCampaignReachEstimate(type: $type, value: $value, budget: $budget) {
+      min
+      max
+    }
+  }
+`;
+
+export enum CampaignType {
+  Post = 'POST',
+  Squad = 'SQUAD',
+}
+
+export interface StartCampaignProps {
+  value: string;
+  budget: number;
+  duration: number;
+  type: CampaignType;
+}
+
+export interface EstimatedReach {
+  min: number;
+  max: number;
+}
+
+export const getDailyCampaignReachEstimate = async ({
+  type,
+  value,
+  budget,
+}: Omit<StartCampaignProps, 'duration'>): Promise<EstimatedReach> => {
+  const result = await gqlClient.request(DAILY_CAMPAIGN_REACH_ESTIMATE, {
+    type,
+    value,
+    budget,
+  });
+
+  return result.dailyCampaignReachEstimate;
+};
+
+export const START_CAMPAIGN = gql`
+  mutation StartCampaign(
+    $type: CampaignType!
+    $value: ID!
+    $budget: Int!
+    $duration: Int!
+  ) {
+    startCampaign(
+      type: $type
+      value: $value
+      duration: $duration
+      budget: $budget
+    ) {
+      transactionId
+      referenceId
+      balance {
+        amount
+      }
+    }
+  }
+`;
+
+export const startCampaign = async ({
+  type,
+  value,
+  budget,
+  duration,
+}: StartCampaignProps): Promise<TransactionCreated> => {
+  const result = await gqlClient.request(START_CAMPAIGN, {
+    type,
+    value,
+    budget,
+    duration,
+  });
+
+  return result.startCampaign;
+};
+
+export const STOP_CAMPAIGN = gql`
+  mutation StopCampaign($campaignId: ID!) {
+    stopCampaign(campaignId: $campaignId) {
+      transactionId
+      referenceId
+      balance {
+        amount
+      }
+    }
+  }
+`;
+
+export const stopCampaign = async (id: string): Promise<TransactionCreated> => {
+  const result = await gqlClient.request(STOP_CAMPAIGN, {
+    campaignId: id,
+  });
+
+  return result.stopCampaign;
+};
+
+export const DEFAULT_CORES_PER_DAY = 5000;
+export const DEFAULT_DURATION_DAYS = 7;
+
+export const useCampaignByIdOptions = (campaignId: string) => {
+  const { user } = useAuthContext();
+
+  return {
+    queryKey: generateQueryKey(RequestKey.Campaigns, user, campaignId),
+    queryFn: () => getCampaignById(campaignId),
+    staleTime: StaleTime.Default,
+    enabled: !!campaignId,
+  };
+};
+
+export const useCampaignById = (campaignId: string) =>
+  useQuery(useCampaignByIdOptions(campaignId));

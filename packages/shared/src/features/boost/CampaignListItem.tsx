@@ -1,22 +1,23 @@
 import classNames from 'classnames';
 import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
-import { IconSize, iconSizeToClassName } from '../../components/Icon';
+import { IconSize } from '../../components/Icon';
 import { ArrowIcon } from '../../components/icons';
 import {
   Typography,
   TypographyType,
-  TypographyColor,
   TypographyTag,
 } from '../../components/typography/Typography';
-import { Image } from '../../components/image/Image';
 import { getAbsoluteDifferenceInDays } from './utils';
-import type { BoostedPostData, PromotedPost } from '../../graphql/post/boost';
+import type { Campaign } from '../../graphql/campaigns';
+import { CampaignType } from '../../graphql/campaigns';
 import { isNullOrUndefined } from '../../lib/func';
+import { CampaignListItemPost } from './CampaignListItemPost';
+import { CampaignListItemSquad } from './CampaignListItemSquad';
 
-const statusToColor: Record<PromotedPost['status'], string> = {
+const statusToColor: Record<Campaign['state'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
-  INACTIVE: 'bg-action-share-active text-action-share-default',
+  COMPLETED: 'bg-action-share-active text-action-share-default',
   CANCELLED: 'bg-surface-float text-text-secondary',
 };
 
@@ -24,7 +25,7 @@ export const BoostStatus = ({
   status,
   remainingDays,
 }: {
-  status: PromotedPost['status'];
+  status: Campaign['state'];
   remainingDays?: number;
 }) => {
   const copy = (() => {
@@ -35,7 +36,7 @@ export const BoostStatus = ({
         }
 
         return `${remainingDays} ${remainingDays === 1 ? 'day' : 'days'} left`;
-      case 'INACTIVE':
+      case 'COMPLETED':
         return 'Completed';
       case 'CANCELLED':
         return 'Stopped';
@@ -59,20 +60,29 @@ export const BoostStatus = ({
 };
 
 interface CampaignListItemProps {
-  data: BoostedPostData;
+  campaign: Campaign;
   className?: string;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
+const PreviewComponent = ({ campaign }: { campaign: Campaign }) => {
+  switch (campaign.type) {
+    case CampaignType.Post:
+      return <CampaignListItemPost post={campaign.post} />;
+    case CampaignType.Squad:
+      return <CampaignListItemSquad squad={campaign.source} />;
+    default:
+      return null;
+  }
+};
+
 export function CampaignListItem({
-  data,
+  campaign,
   className,
   onClick,
 }: CampaignListItemProps): ReactElement {
-  const { campaign, post } = data;
-
   const getRemaining = () => {
-    if (campaign.status !== 'ACTIVE') {
+    if (campaign.state !== 'ACTIVE') {
       return undefined;
     }
 
@@ -88,28 +98,8 @@ export function CampaignListItem({
         className,
       )}
     >
-      <span className="flex flex-1 flex-row items-center gap-2">
-        {post.image && (
-          <Image
-            src={post.image}
-            className={classNames(
-              'rounded-12 object-cover',
-              iconSizeToClassName[IconSize.Size48],
-            )}
-          />
-        )}
-        <span className="flex flex-1">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="line-clamp-2 flex-1 text-left"
-            style={{ lineBreak: 'anywhere' }}
-          >
-            {post.title}
-          </Typography>
-        </span>
-      </span>
-      <BoostStatus status={campaign.status} remainingDays={getRemaining()} />
+      <PreviewComponent campaign={campaign} />
+      <BoostStatus status={campaign.state} remainingDays={getRemaining()} />
       <ArrowIcon size={IconSize.Medium} className="rotate-90" />
     </button>
   );
