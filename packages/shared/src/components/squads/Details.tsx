@@ -1,10 +1,15 @@
-import type { FormEvent, ReactElement, ReactNode } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import type { ChangeEvent, FormEvent, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
@@ -27,8 +32,11 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { Dropdown } from '../fields/Dropdown';
 import { Typography, TypographyType } from '../typography/Typography';
+import { ACCEPTED_TYPES, acceptedTypesList } from '../../graphql/posts';
+import { useFileInput } from '../../hooks/utils/useFileInput';
 
 const squadImageId = 'squad_image_file';
+const squadHeaderId = 'squad_header_file';
 
 interface SquadDetailsProps {
   onSubmit: (
@@ -47,15 +55,23 @@ interface SquadDetailsProps {
 const getFormData = async (
   current: SquadForm,
   imageChanged: boolean,
+  headerChanged: boolean,
 ): Promise<SquadForm> => {
-  if (!imageChanged) {
-    return current;
+  const updated = { ...current };
+
+  if (imageChanged) {
+    const input = document.getElementById(squadImageId) as HTMLInputElement;
+    const file = input.files[0];
+    updated.file = file;
   }
 
-  const input = document.getElementById(squadImageId) as HTMLInputElement;
-  const file = input.files[0];
+  if (headerChanged) {
+    const header = document.getElementById(squadHeaderId) as HTMLInputElement;
+    const headerFile = header.files[0];
+    updated.header = headerFile;
+  }
 
-  return { ...current, file };
+  return updated;
 };
 
 export function SquadDetails({
@@ -74,12 +90,14 @@ export function SquadDetails({
     image,
     category,
     flags,
+    headerImage,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
     moderationRequired: initialModerationRequired,
   } = squad ?? { ...initialData };
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
+  const [headerChanged, setHeaderChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const [categoryHint, setCategoryHint] = useState('');
@@ -87,6 +105,7 @@ export function SquadDetails({
   const [selectedChannel, setSelectedChannel] = useState<string>(null);
   const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const headerImageRef = useRef<HTMLInputElement>();
 
   const { data: channels } = useSlackChannelsQuery({
     integrationId,
@@ -130,7 +149,7 @@ export function SquadDetails({
       return null;
     }
 
-    const data = await getFormData(formJson, imageChanged);
+    const data = await getFormData(formJson, imageChanged, headerChanged);
 
     if (!createMode) {
       return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
@@ -159,6 +178,22 @@ export function SquadDetails({
     }
 
     setCanSubmit(!!formJson.name);
+  };
+
+  const [headerImageBase64, setHeaderImageBase64] = useState(headerImage);
+  const { onFileChange } = useFileInput({
+    acceptedTypes: acceptedTypesList,
+    limitMb: 2,
+    onChange(base64) {
+      setHeaderImageBase64(base64);
+      setHeaderChanged(true);
+    },
+  });
+
+  const handleFile = (event: ChangeEvent) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    return onFileChange(file);
   };
 
   return (
@@ -196,19 +231,46 @@ export function SquadDetails({
       >
         {!createMode && (
           <div className="flex flex-col items-center gap-5">
-            <ImageInput
-              initialValue={image}
-              id={squadImageId}
-              fallbackImage={cloudinarySquadsImageFallback}
-              className={{
-                container: 'mt-4 !rounded-full border-0',
-                img: 'object-cover',
+            <div
+              className="mt-4 flex w-full max-w-70 flex-row items-center justify-between rounded-32 bg-surface-float bg-cover pr-4"
+              style={{
+                background: headerImageBase64
+                  ? `url(${headerImageBase64})`
+                  : undefined,
               }}
-              hoverIcon={<CameraIcon size={IconSize.Large} />}
-              alwaysShowHover={!imageChanged}
-              onChange={() => setImageChanged(true)}
-              size="medium"
-            />
+            >
+              <ImageInput
+                initialValue={image}
+                id={squadImageId}
+                fallbackImage={cloudinarySquadsImageFallback}
+                className={{
+                  container: '!rounded-full border-0',
+                  img: 'object-cover',
+                }}
+                hoverIcon={<CameraIcon size={IconSize.Large} />}
+                alwaysShowHover={!imageChanged}
+                onChange={() => setImageChanged(true)}
+                size="medium"
+              />
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<CameraIcon />}
+                onClick={() => headerImageRef.current.click()}
+              >
+                Upload cover
+              </Button>
+              <input
+                ref={headerImageRef}
+                type="file"
+                id={squadHeaderId}
+                hidden
+                accept={ACCEPTED_TYPES}
+                multiple={false}
+                onChange={handleFile}
+              />
+            </div>
             <SquadPrivacyState
               isPublic={squad?.public}
               isFeatured={flags?.featured}

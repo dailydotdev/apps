@@ -41,7 +41,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostPostButton';
+import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostButton';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
@@ -57,6 +57,7 @@ import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analyti
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { BoostingLabel } from '@dailydotdev/shared/src/components/post/analytics/BoostingLabel';
 import { PostShortInfo } from '@dailydotdev/shared/src/components/post/analytics/PostShortInfo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib';
@@ -298,14 +299,7 @@ const PostAnalyticsPage = ({
         >
           Post analytics
         </Typography>
-        <BoostPostButton
-          post={post}
-          buttonProps={{
-            className: isBoosting && 'typo-footnote',
-            size: isBoosting ? ButtonSize.XSmall : ButtonSize.Small,
-          }}
-          isActive={isBoosting}
-        />
+        {isBoosting ? <BoostingLabel /> : <BoostPostButton post={post} />}
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>

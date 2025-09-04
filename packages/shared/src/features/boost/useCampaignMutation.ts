@@ -1,32 +1,34 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { startPostBoost, cancelPostBoost } from '../../graphql/post/boost';
-import { generateQueryKey, RequestKey, updatePostCache } from '../../lib/query';
+import type { StartCampaignProps } from '../../graphql/campaigns';
+import { startCampaign, stopCampaign } from '../../graphql/campaigns';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
-import { useTransactionError } from '../useTransactionError';
-import { useToastNotification } from '../useToastNotification';
+import { useTransactionError } from '../../hooks/useTransactionError';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import type { TransactionCreated } from '../../graphql/njord';
 
-interface UsePostBoostMutationProps {
-  onBoostSuccess?: () => void;
-  onCancelSuccess?: () => void;
+interface UseCampaignMutationProps {
+  onBoostSuccess?: (data: TransactionCreated, vars: StartCampaignProps) => void;
+  onCancelSuccess?: (data: TransactionCreated, id: string) => void;
 }
 
-interface UsePostBoostMutation {
-  onBoostPost: typeof startPostBoost;
-  onCancelBoost: typeof cancelPostBoost;
+interface UseCampaignMutation {
+  onStartBoost: typeof startCampaign;
+  onCancelBoost: typeof stopCampaign;
   isLoadingCancel: boolean;
 }
 
-export const usePostBoostMutation = ({
+export const useCampaignMutation = ({
   onBoostSuccess,
   onCancelSuccess,
-}: UsePostBoostMutationProps = {}): UsePostBoostMutation => {
+}: UseCampaignMutationProps = {}): UseCampaignMutation => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
 
-  const { mutateAsync: onBoostPost } = useMutation({
-    mutationFn: startPostBoost,
+  const { mutateAsync: onStartBoost } = useMutation({
+    mutationFn: startCampaign,
     onSuccess: (data, vars) => {
       if (!data.transactionId) {
         return;
@@ -44,24 +46,18 @@ export const usePostBoostMutation = ({
       });
 
       client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+        queryKey: generateQueryKey(RequestKey.Campaigns, user),
         exact: false,
       });
 
-      if (data.referenceId) {
-        updatePostCache(client, vars.id, (post) => ({
-          flags: { ...post.flags, campaignId: data.referenceId },
-        }));
-      }
-
-      onBoostSuccess?.();
+      onBoostSuccess?.(data, vars);
     },
     onError: useTransactionError(),
   });
 
   const { mutateAsync: onCancelBoost, isPending } = useMutation({
-    mutationFn: cancelPostBoost,
-    onSuccess: async (data) => {
+    mutationFn: stopCampaign,
+    onSuccess: async (data, id) => {
       if (!data.transactionId) {
         return;
       }
@@ -78,18 +74,18 @@ export const usePostBoostMutation = ({
       });
 
       client.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.PostCampaigns, user),
+        queryKey: generateQueryKey(RequestKey.Campaigns, user),
         exact: false,
       });
 
       displayToast('Post boost canceled!');
 
-      onCancelSuccess?.();
+      onCancelSuccess?.(data, id);
     },
   });
 
   return {
-    onBoostPost,
+    onStartBoost,
     onCancelBoost,
     isLoadingCancel: isPending,
   };

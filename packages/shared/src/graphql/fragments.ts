@@ -165,6 +165,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     type
     description
     image
+    headerImage
     membersCount
     flags {
       totalUpvotes
@@ -190,6 +191,7 @@ export const SQUAD_BASE_FRAGMENT = `
       totalViews
       totalUpvotes
       totalAwards
+      campaignId
     }
     category {
       id
