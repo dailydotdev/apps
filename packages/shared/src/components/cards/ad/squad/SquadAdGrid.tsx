@@ -13,17 +13,15 @@ import {
 import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
-import { Button, ButtonVariant } from '../../../buttons/Button';
 import { AdPixel } from '../common/AdPixel';
 import { Tooltip } from '../../../tooltip/Tooltip';
-import { Origin } from '../../../../lib/log';
-import { SquadActionButton } from '../../../squads/SquadActionButton';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
 import { pluralize } from '../../../../lib/strings';
 import { SquadFeedStats } from './SquadFeedStats';
 import { CardLink } from '../../common/Card';
+import { SquadAdAction } from './SquadAdAction';
 
 export function SquadAdGrid({
   item,
@@ -99,27 +97,11 @@ export function SquadAdGrid({
         />
       </div>
       <SquadFeedStats source={source} />
-      {shouldShowAction ? (
-        <SquadActionButton
-          squad={squad}
-          origin={Origin.Feed}
-          alwaysShow
-          buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
-          onSuccess={() => onJustJoined(true)}
-          className={{ button: 'mt-auto' }}
-        />
-      ) : (
-        <Link href={source.permalink}>
-          <Button
-            tag="a"
-            href={source.permalink}
-            variant={ButtonVariant.Subtle}
-            className="mt-auto w-full"
-          >
-            View Squad
-          </Button>
-        </Link>
-      )}
+      <SquadAdAction
+        squad={squad}
+        onJustJoined={() => onJustJoined(true)}
+        shouldShowAction={shouldShowAction}
+      />
     </FeedItemContainer>
   );
 }

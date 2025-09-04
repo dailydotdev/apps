@@ -180,10 +180,10 @@ export const withFeedLogExtraContext = (
                   ? item.post
                   : item.ad.data?.post;
 
-              return {
-                referrer_target_id: post?.id,
-                referrer_target_type: post?.id ? TargetType.Post : undefined,
-              };
+              extraData.referrer_target_id = post?.id;
+              extraData.referrer_target_type = post?.id
+                ? TargetType.Post
+                : undefined;
             }
 
             return extraData;
