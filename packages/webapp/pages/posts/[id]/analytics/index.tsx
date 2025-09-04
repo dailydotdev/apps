@@ -440,7 +440,16 @@ const PostAnalyticsPage = ({
         >
           Post analytics
         </Typography>
-        {isBoosting ? <BoostingLabel /> : <BoostPostButton post={post} />}
+        {isBoosting ? (
+          <BoostingLabel />
+        ) : (
+          <BoostPostButton
+            buttonProps={{
+              size: ButtonSize.Small,
+            }}
+            post={post}
+          />
+        )}
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
