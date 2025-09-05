@@ -8,6 +8,7 @@ export const AdPixel = ({ pixel }: Pick<Ad, 'pixel'>): ReactElement => {
   const { ref, inView } = useInView({
     triggerOnce: true,
     initialInView: isTesting, // interection observer in tests
+    fallbackInView: true, // for old browsers missing intersection observer
   });
 
   return (
