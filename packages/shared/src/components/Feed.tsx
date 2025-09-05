@@ -176,11 +176,18 @@ export default function Feed<T>({
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
   const { getMarketingCta } = useBoot();
-  const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
-  const { plusEntryFeed } = usePlusEntry();
-  const showMarketingCta = !!marketingCta;
-  const { isSearchPageLaptop } = useSearchResultsLayout();
   const { isActionsFetched, checkHasCompleted } = useActions();
+  const marketingCta =
+    getMarketingCta(MarketingCtaVariant.Card) ||
+    getMarketingCta(MarketingCtaVariant.BriefCard);
+  const { plusEntryFeed } = usePlusEntry();
+  const hasDismissBriefCta =
+    isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
+  const showMarketingCta =
+    !!marketingCta &&
+    (marketingCta?.variant !== MarketingCtaVariant.BriefCard ||
+      !hasDismissBriefCta);
+  const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
   const { value: briefCardFeatureValue } = useConditionalFeature({
