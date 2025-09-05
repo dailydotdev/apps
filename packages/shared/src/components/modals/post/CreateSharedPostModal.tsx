@@ -138,6 +138,7 @@ export function CreateSharedPostModal({
                 preview={updatedPreview ?? preview}
                 link={link}
                 onLinkChange={onInput}
+                variant="modal"
               />
             )
           }
