@@ -1,5 +1,6 @@
 import type { FormEventHandler, ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { TextField } from '../../fields/TextField';
 import { LinkIcon, OpenLinkIcon } from '../../icons';
 import { SourceAvatar } from '../../profile/source';
@@ -31,6 +32,7 @@ interface WriteLinkPreviewProps {
   className?: string;
   showPreviewLink?: boolean;
   isMinimized?: boolean;
+  variant?: 'default' | 'modal';
 }
 
 export function WriteLinkPreview({
@@ -40,6 +42,7 @@ export function WriteLinkPreview({
   className,
   isMinimized,
   showPreviewLink = true,
+  variant = 'default',
 }: WriteLinkPreviewProps): ReactElement {
   return (
     <>
@@ -106,7 +109,12 @@ export function WriteLinkPreview({
             This link has already been shared here:
           </Typography>
 
-          <div className="flex max-h-52 flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4">
+          <div
+            className={classNames(
+              'flex flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4',
+              variant === 'modal' ? 'max-h-52 tablet:max-h-28' : 'max-h-52',
+            )}
+          >
             {preview.relatedPublicPosts.map((post) => {
               const isUserSource = isSourceUserSource(post.source);
 
