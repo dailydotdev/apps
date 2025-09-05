@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { format } from 'date-fns';
 import type { MarketingCta } from './common';
@@ -29,7 +29,7 @@ import {
 } from '../dropdown/DropdownMenu';
 import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 
 const stats = [
@@ -51,6 +51,7 @@ export const MarketingCtaBriefing = ({
   const isLightMode = useIsLightTheme();
   const { clearMarketingCta } = useBoot();
   const { logEvent } = useLogContext();
+  const hasSentImpression = useRef(false);
 
   const hideCard = useCallback(() => {
     // log dismiss event
@@ -69,12 +70,15 @@ export const MarketingCtaBriefing = ({
   }, [completeAction, hideCard]);
 
   useEffect(() => {
-    // log impression event
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.MarketingCtaBrief,
-      target_id: campaignId,
-    });
+    if (!hasSentImpression.current) {
+      hasSentImpression.current = true;
+      // log impression event
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.MarketingCtaBrief,
+        target_id: campaignId,
+      });
+    }
   }, [logEvent, campaignId]);
 
   return (
