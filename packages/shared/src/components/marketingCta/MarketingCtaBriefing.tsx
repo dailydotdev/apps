@@ -110,10 +110,11 @@ export const MarketingCtaBriefing = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant={ButtonVariant.Tertiary}
+                aria-label="Show options menu"
                 className="my-auto"
                 icon={<MenuIcon />}
                 size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -139,15 +140,15 @@ export const MarketingCtaBriefing = ({
         <Typography
           bold
           color={TypographyColor.Primary}
-          type={TypographyType.Title3}
           tag={TypographyTag.H3}
+          type={TypographyType.Title3}
         >
           {title}
         </Typography>
         <Typography
           color={TypographyColor.Primary}
-          type={TypographyType.Footnote}
           tag={TypographyTag.P}
+          type={TypographyType.Footnote}
         >
           {description}
         </Typography>
@@ -156,8 +157,8 @@ export const MarketingCtaBriefing = ({
         <Typography
           className="flex flex-col gap-2"
           color={TypographyColor.Primary}
-          type={TypographyType.Footnote}
           tag={TypographyTag.P}
+          type={TypographyType.Footnote}
         >
           {stats.map(({ Icon, label }) => (
             <span
@@ -170,11 +171,11 @@ export const MarketingCtaBriefing = ({
         </Typography>
         <Button
           className="w-full"
-          tag="a"
           href={ctaUrl}
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
           onClick={onClickCta}
+          size={ButtonSize.Medium}
+          tag="a"
+          variant={ButtonVariant.Primary}
         >
           {ctaText}
         </Button>
