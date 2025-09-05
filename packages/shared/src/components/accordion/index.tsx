@@ -7,6 +7,7 @@ import { ArrowIcon } from '../icons';
 interface AccordionProps {
   title: ReactNode;
   children: ReactNode;
+  initiallyOpen?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   className?: {
     button?: string;
@@ -17,9 +18,10 @@ export function Accordion({
   title,
   children,
   onClick,
+  initiallyOpen = false,
   className,
 }: AccordionProps): ReactElement {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
   const id = useId();
   const contentId = `accordion-content-${id}`;
 

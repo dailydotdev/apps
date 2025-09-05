@@ -17,7 +17,7 @@ import {
 import { JobIcon, PassiveIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -70,7 +70,7 @@ const PassiveDonePage = (): ReactElement => {
             className="w-full tablet:w-80"
             tag="a"
             rel={anchorDefaultRel}
-            href={`${webappUrl}settings/job-preference`}
+            href={`${settingsUrl}/job-preferences`}
           >
             Update job preferences
           </Button>

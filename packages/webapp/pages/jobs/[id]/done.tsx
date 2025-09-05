@@ -23,7 +23,7 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -185,7 +185,7 @@ const DonePage = (): ReactElement => {
             className="w-full tablet:w-80"
             tag="a"
             rel={anchorDefaultRel}
-            href={`${webappUrl}settings/job-preference`}
+            href={`${settingsUrl}/job-preferences`}
           >
             Optimize future matches
           </Button>
