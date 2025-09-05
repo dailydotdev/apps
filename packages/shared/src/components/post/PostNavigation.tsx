@@ -22,7 +22,7 @@ function PostNavigation({
 }: PostNavigationProps): ReactElement {
   const { isFixedNavigation } = props;
   const { user, isAuthReady } = useAuthContext();
-  const canUserUpgrade = isAuthReady && !user.isPlus;
+  const canUserUpgrade = isAuthReady && !user?.isPlus;
   const isBrief = post?.type === PostType.Brief;
   const shouldShowUpgrade = canUserUpgrade && isFixedNavigation && isBrief;
 
