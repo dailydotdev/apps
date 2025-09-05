@@ -1,13 +1,33 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-
+import React, { useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import {
+  Divider,
+  FlexCol,
+  FlexRow,
+} from '@dailydotdev/shared/src/components/utilities';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
+import { Accordion } from '@dailydotdev/shared/src/components/accordion';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
+import classNames from 'classnames';
+import {
+  ActivelyLookingIcon,
+  SemiActiveIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -18,24 +38,153 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Manage job preferences'),
 };
 
+const options = [
+  {
+    icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
+    title: 'Active looking',
+    href: `${webappUrl}jobs/job-123/preference`,
+    description:
+      'I’m in the market and ready to move. This one just wasn’t a fit.',
+  },
+  {
+    icon: <SemiActiveIcon size={IconSize.XLarge} />,
+    title: 'Open only if it’s right',
+    href: `${webappUrl}jobs/job-123/preference#semi-active-done`,
+    description:
+      'I’m happy where I am, but I’d explore something truly exceptional.',
+  },
+];
+
 const JobPreferencesPage = (): ReactElement => {
+  const [option, setOption] = useState(null);
+
   return (
     <AccountPageContainer title="Job preferences">
       <div className="flex flex-col gap-6">
-        <FlexCol>
-          <Typography type={TypographyType.Body}>
-            <strong>Career mode</strong> (beta)
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            When this is on, daily.dev works as your trusted talent agent,
-            introducing you to real roles from real teams for your approval.
-            Nothing is shared without your say-so. We’ll only reach out when a
-            role is worth your time. No spam. No pressure. Your career, your
-            terms.
-          </Typography>
+        <FlexRow className="gap-4">
+          <FlexCol className="flex-1 gap-1">
+            <Typography type={TypographyType.Body}>
+              <strong>Career mode</strong> (beta)
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              When this is on, daily.dev works as your trusted talent agent,
+              introducing you to real roles from real teams for your approval.
+              Nothing is shared without your say-so. We’ll only reach out when a
+              role is worth your time. No spam. No pressure. Your career, your
+              terms.
+            </Typography>
+          </FlexCol>
+          <Switch inputId="-switch" name="" compact={false} />
+        </FlexRow>
+        <FlexCol className="gap-3">
+          {options.map(({ icon, title, description, href }) => (
+            <Button
+              key={title}
+              variant={ButtonVariant.Option}
+              className={classNames(
+                '!h-auto w-auto flex-row-reverse gap-3 border border-border-subtlest-tertiary !p-3 laptop:flex-row',
+                {
+                  'bg-brand-float border-brand-default': option === href,
+                },
+              )}
+              onClick={() => setOption(href)}
+            >
+              <RadioItem
+                className={{ content: '!pr-0' }}
+                checked={option === href}
+              />
+              <div className="flex flex-1">
+                <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
+                  {icon}
+                </div>
+                <FlexCol className="flex-1 text-left">
+                  <Typography
+                    color={TypographyColor.Primary}
+                    type={TypographyType.Body}
+                    bold
+                  >
+                    {title}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {description}
+                  </Typography>
+                </FlexCol>
+              </div>
+            </Button>
+          ))}
+        </FlexCol>
+        <Divider className="bg-border-subtlest-tertiary" />
+        <FlexCol className="gap-6">
+          <FlexCol>
+            <Typography type={TypographyType.Body} bold>
+              Supercharge your match quality
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              The more we understand your background and current terms, the
+              better we can filter out noise and surface only roles that are
+              truly worth your attention.{' '}
+            </Typography>
+          </FlexCol>
+          <div className="flex flex-1 flex-col gap-6 tablet:flex-row">
+            <FlexCol className="flex-1 gap-2">
+              <Typography type={TypographyType.Body} bold>
+                Upload CV
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Your CV helps us understand your skills, experience, and career
+                path so we can match you to opportunities that actually make
+                sense. Never shared unless you explicitly say yes to an
+                opportunity.
+              </Typography>
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                className="mb-4 mr-auto"
+              >
+                Upload PDF
+              </Button>
+              <FeelingLazy />
+            </FlexCol>
+            <FlexCol className="flex-1 gap-2">
+              <Typography type={TypographyType.Body} bold>
+                Upload Employment Agreement
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Sharing your current agreement lets us guarantee that any role
+                we surface will exceed your existing terms. This stays 100%
+                confidential and is only used to protect your time and
+                negotiating power.
+              </Typography>
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                className="mr-auto"
+              >
+                Upload PDF
+              </Button>
+            </FlexCol>
+          </div>
+        </FlexCol>
+        <Divider className="bg-border-subtlest-tertiary" />
+        <FlexCol className="gap-6">
+          <Accordion title="Your must-haves" initiallyOpen>
+            <PreferenceOptionsForm />
+          </Accordion>
         </FlexCol>
       </div>
     </AccountPageContainer>
