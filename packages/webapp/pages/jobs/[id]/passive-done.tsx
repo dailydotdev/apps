@@ -70,7 +70,7 @@ const PassiveDonePage = (): ReactElement => {
             className="w-full tablet:w-80"
             tag="a"
             rel={anchorDefaultRel}
-            href={`${webappUrl}settings/job-preferences`}
+            href={`${settingsUrl}/job-preferences`}
           >
             Update job preferences
           </Button>
