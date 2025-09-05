@@ -69,6 +69,15 @@ export const MarketingCtaBriefing = ({
     completeAction(ActionType.DisableBriefCardCta);
   }, [completeAction, hideCard]);
 
+  const onClickCta = useCallback(() => {
+    hideCard();
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.MarketingCtaBrief,
+      target_id: campaignId,
+    });
+  }, [hideCard, logEvent, campaignId]);
+
   useEffect(() => {
     if (!hasSentImpression.current) {
       hasSentImpression.current = true;
@@ -165,6 +174,7 @@ export const MarketingCtaBriefing = ({
           href={ctaUrl}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Medium}
+          onClick={onClickCta}
         >
           {ctaText}
         </Button>
