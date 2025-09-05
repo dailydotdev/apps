@@ -73,9 +73,9 @@ export const MarketingCtaBriefing = ({
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.MarketingCtaBrief,
-      target_id: TargetId.Feed,
+      target_id: campaignId,
     });
-  }, [logEvent]);
+  }, [logEvent, campaignId]);
 
   return (
     <ClickableCard
