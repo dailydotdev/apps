@@ -71,7 +71,7 @@ describe('BriefBanner', () => {
       expect(
         screen.getByText(/personalized Presidential Briefing/i),
       ).toBeInTheDocument();
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      expect(screen.getByRole('link')).toBeInTheDocument();
     });
 
     it('should render with custom className', () => {
@@ -106,10 +106,8 @@ describe('BriefBanner', () => {
         </TestWrapper>,
       );
 
-      const button = screen.getByRole('button');
-      fireEvent.click(button);
-
-      expect(mockPush).toHaveBeenCalledWith('/briefing?generate=true');
+      const button = screen.getByTestId('brief-banner-cta');
+      expect(button).toHaveAttribute('href', '/briefing?generate=true');
     });
 
     it('should log click event when button is clicked', () => {
@@ -119,9 +117,8 @@ describe('BriefBanner', () => {
         </TestWrapper>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByTestId('brief-banner-cta');
       fireEvent.click(button);
-
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: 'click brief',
         target_id: 'scroll',
@@ -147,7 +144,7 @@ describe('BriefBanner', () => {
         </TestWrapper>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByTestId('brief-banner-cta');
       fireEvent.click(button);
 
       expect(mockLogEvent).toHaveBeenCalledWith({
@@ -173,7 +170,7 @@ describe('BriefBanner', () => {
         </TestWrapper>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByTestId('brief-banner-cta');
       fireEvent.click(button);
 
       expect(mockLogEvent).toHaveBeenCalledWith({
@@ -267,7 +264,7 @@ describe('BriefBanner', () => {
         </TestWrapper>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByTestId('brief-banner-cta');
       expect(button).toBeInTheDocument();
       expect(button).toBeEnabled();
     });
@@ -279,7 +276,7 @@ describe('BriefBanner', () => {
         </TestWrapper>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByTestId('brief-banner-cta');
       button.focus();
       expect(button).toHaveFocus();
 

@@ -1,6 +1,5 @@
 import type { ComponentProps } from 'react';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
   Typography,
@@ -16,10 +15,10 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useIsLightTheme } from '../../../../hooks/utils';
 import { useActions } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
+import { webappUrl } from '../../../../lib/constants';
 
 export const BriefBanner = (props: ComponentProps<'div'>) => {
   const { className, style, ...attrs } = props;
-  const router = useRouter();
   const isLightMode = useIsLightTheme();
 
   const impressionRef = useRef(false);
@@ -93,15 +92,17 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         <span>Saves 15-20 hours of effort</span>
       </Typography>
       <Button
+        data-testid="brief-banner-cta"
+        tag="a"
         icon={<DevPlusIcon className="ml-0" aria-hidden />}
         size={ButtonSize.Small}
+        href={`${webappUrl}${
+          hasGeneratedPreviously
+            ? 'briefing/generate'
+            : 'briefing?generate=true'
+        }`}
         onClick={() => {
           logBriefEvent(LogEvent.ClickBrief);
-          router.push(
-            hasGeneratedPreviously
-              ? '/briefing/generate'
-              : '/briefing?generate=true',
-          );
         }}
         variant={ButtonVariant.Primary}
       >
