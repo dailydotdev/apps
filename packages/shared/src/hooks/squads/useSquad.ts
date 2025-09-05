@@ -1,8 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { UseMutateFunction } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import type { Squad } from '../../graphql/sources';
-import { clearSquadUnreadPosts, getSquad } from '../../graphql/squads';
+import { getSquad } from '../../graphql/squads';
 import type { ApiErrorResult } from '../../graphql/common';
 import { ApiError, getApiError } from '../../graphql/common';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -18,17 +17,10 @@ interface UseSquad {
   isForbidden: boolean;
   isLoading: boolean;
   isFetched: boolean;
-  clearUnreadPosts: UseMutateFunction<boolean, Error, void, unknown>;
 }
 
 export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
-  const {
-    isFetched: isBootFetched,
-    user,
-    squads,
-    updateSquads,
-  } = useAuthContext();
-  const queryClient = useQueryClient();
+  const { isFetched: isBootFetched, user } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.Squad, user, handle);
   const {
     data: squad,
@@ -42,43 +34,6 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
     retry: false,
   });
 
-  const { mutate: clearUnreadPosts } = useMutation({
-    mutationFn: () => clearSquadUnreadPosts(handle),
-    onSuccess: (res) => {
-      if (!res) {
-        return;
-      }
-
-      queryClient.setQueryData<Squad>(queryKey, (currentSquad) => {
-        if (!currentSquad || !currentSquad?.currentMember) {
-          return currentSquad;
-        }
-
-        return {
-          ...currentSquad,
-          currentMember: {
-            ...currentSquad.currentMember,
-            flags: {
-              ...(currentSquad.currentMember.flags ?? {}),
-              hasUnreadPosts: false,
-            },
-          },
-        };
-      });
-
-      if (squads?.length > 0) {
-        updateSquads(
-          squads.map((squadItem) => {
-            if (squadItem.handle === handle) {
-              return { ...squadItem, hasUnreadPosts: false };
-            }
-            return squadItem;
-          }),
-        );
-      }
-    },
-  });
-
   return {
     squad,
     isLoading,
@@ -86,6 +41,5 @@ export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
     isForbidden: isNullOrUndefined(error)
       ? false
       : !!getApiError(error as ApiErrorResult, ApiError.Forbidden),
-    clearUnreadPosts,
   };
 };
