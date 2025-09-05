@@ -7,11 +7,13 @@ type ProgressCircleProps = {
   progress: number;
   size?: number;
   color?: string;
+  stroke?: number;
 };
 
 const ProgressCircle = ({
   progress = 0,
   size = 40,
+  stroke = 5,
   color = '#b259f8',
 }: ProgressCircleProps): ReactElement => {
   const normalizedCompletion = Math.min(100, Math.max(0, progress));
@@ -40,7 +42,7 @@ const ProgressCircle = ({
             cy={size / 2}
             r={radius}
             className="stroke-border-subtlest-tertiary"
-            strokeWidth="5"
+            strokeWidth={stroke}
             fill="transparent"
           />
 
@@ -49,7 +51,7 @@ const ProgressCircle = ({
             cy={size / 2}
             r={radius}
             stroke={color}
-            strokeWidth="5"
+            strokeWidth={stroke}
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
