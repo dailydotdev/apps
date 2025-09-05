@@ -67,8 +67,8 @@ const CAMPAIGN_FRAGMENT = gql`
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 export const CAMPAIGNS_LIST = gql`
-  query CampaignsList($first: Int, $after: String) {
-    campaignsList(first: $first, after: $after) {
+  query CampaignsList($first: Int, $after: String, $entityId: ID) {
+    campaignsList(first: $first, after: $after, entityId: $entityId) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -121,10 +121,12 @@ export type CampaignConnection = Connection<Campaign>;
 export const getCampaigns = async ({
   first,
   after,
+  entityId,
 }: RequestQueryParams): Promise<CampaignConnection> => {
   const result = await gqlClient.request(CAMPAIGNS_LIST, {
     first,
     after,
+    entityId,
   });
 
   return result.campaignsList;
