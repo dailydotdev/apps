@@ -31,6 +31,7 @@ import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { anchorDefaultRel } from '../../lib/strings';
 
 const stats = [
   {
@@ -78,16 +79,18 @@ export const MarketingCtaBriefing = ({
     });
   }, [hideCard, logEvent, campaignId]);
 
+  // log impression event
   useEffect(() => {
-    if (!hasSentImpression.current) {
-      hasSentImpression.current = true;
-      // log impression event
-      logEvent({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.MarketingCtaBrief,
-        target_id: campaignId,
-      });
+    if (hasSentImpression.current) {
+      return;
     }
+
+    hasSentImpression.current = true;
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.MarketingCtaBrief,
+      target_id: campaignId,
+    });
   }, [logEvent, campaignId]);
 
   return (
@@ -173,9 +176,11 @@ export const MarketingCtaBriefing = ({
           className="w-full"
           href={ctaUrl}
           onClick={onClickCta}
-          size={ButtonSize.Medium}
+          rel={anchorDefaultRel}
+          size={ButtonSize.Small}
           tag="a"
           variant={ButtonVariant.Primary}
+          target="_blank"
         >
           {ctaText}
         </Button>
