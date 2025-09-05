@@ -71,13 +71,13 @@ export const MarketingCtaBriefing = ({
   }, [completeAction, hideCard]);
 
   const onClickCta = useCallback(() => {
-    hideCard();
+    clearMarketingCta(campaignId);
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.MarketingCtaBrief,
       target_id: campaignId,
     });
-  }, [hideCard, logEvent, campaignId]);
+  }, [clearMarketingCta, campaignId, logEvent]);
 
   // log impression event
   useEffect(() => {
