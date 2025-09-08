@@ -17,7 +17,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { JobOpportunityButton } from '../../features/jobs/JobOpportunityButton';
+import { JobOpportunityButton } from '../../features/opportunity/components/JobOpportunityButton';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters?: () => void;

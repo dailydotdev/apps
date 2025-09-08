@@ -1,14 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button } from '../../components/buttons/Button';
-import { JobIcon } from '../../components/icons';
-import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
-import { briefButtonBg } from '../../styles/custom';
-import { Tooltip } from '../../components/tooltip/Tooltip';
-import { webappUrl } from '../../lib/constants';
-import Link from '../../components/utilities/Link';
-import { useViewSize, ViewSize } from '../../hooks';
+import { Button } from '../../../components/buttons/Button';
+import { JobIcon } from '../../../components/icons';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
+import { briefButtonBg } from '../../../styles/custom';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { webappUrl } from '../../../lib/constants';
+import Link from '../../../components/utilities/Link';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 type JobOpportunityButtonProps = {
   className?: string;
