@@ -7,6 +7,7 @@ import type { UserExperienceLevel } from '../../lib/user';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { useGenerateUsername } from '../../hooks';
+import { labels } from '../../lib';
 
 export type UserExperienceLevelKey = keyof typeof UserExperienceLevel;
 
@@ -49,7 +50,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     experienceLevel: initialValues.experienceLevel as UserExperienceLevelKey,
     optOutMarketing: initialValues.optOutMarketing || false,
   });
-  const { username, isLoading } = useGenerateUsername(
+  const { username, isLoading: isLoadingUsername } = useGenerateUsername(
     initialValues.username ? undefined : initialValues.name,
   );
   const [touched, setTouched] = useState<{ [k: string]: boolean }>({});
@@ -176,15 +177,16 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         onChange={handleChange('username')}
         onBlur={handleBlur('username')}
         hint={
-          serverErrors.username ||
-          ((touched.username || submitted) && localErrors.username) ||
-          ''
+          isLoadingUsername
+            ? labels.generatingUsername
+            : serverErrors.username ||
+              ((touched.username || submitted) && localErrors.username) ||
+              ''
         }
         required
         autoComplete="user"
         className={{ container: 'w-full' }}
-        readOnly={isLoading}
-        rightIcon={isLoading ? <span className="loader" /> : null}
+        rightIcon={isLoadingUsername ? <span className="loader" /> : null}
       />
       <ExperienceLevelDropdown
         name="experienceLevel"

@@ -28,6 +28,7 @@ import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { useSignBack } from '../../hooks/auth/useSignBack';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { Loader } from '../Loader';
+import { labels } from '../../lib';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -225,9 +226,12 @@ export const SocialRegistrationForm = ({
           label="Enter a username"
           value={username}
           minLength={1}
-          readOnly={isLoadingUsername}
-          valid={!usernameHint && !hints?.username}
-          hint={hints?.username || usernameHint}
+          valid={isLoadingUsername || (!usernameHint && !hints?.username)}
+          hint={
+            isLoadingUsername
+              ? labels.generatingUsername
+              : hints?.username || usernameHint
+          }
           onBlur={(e) => setUsername(e.target.value)}
           valueChanged={() =>
             hints?.[username] && onUpdateHints({ ...hints, username: '' })
