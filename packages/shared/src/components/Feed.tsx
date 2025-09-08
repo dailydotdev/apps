@@ -506,8 +506,7 @@ export default function Feed<T>({
       };
 
   const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner =
-    typeof briefBannerPage === 'number' && !!briefBannerPage;
+  const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
   const indexWhenShowingPromoBanner =
     currentPageSize * Number(briefBannerPage) - // number of items at that page
