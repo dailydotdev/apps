@@ -317,9 +317,6 @@ const BriefPostContentRaw = ({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
-        {!!user && !user?.isPlus && (
-          <BriefUpgradeAlert className="!mb-0 mt-4" />
-        )}
         <BasePostContent
           className={{
             ...className,
@@ -340,12 +337,8 @@ const BriefPostContentRaw = ({
           origin={origin}
           post={post}
         >
-          <div
-            className={classNames(
-              'mb-6 flex flex-col gap-6',
-              hasNavigation || customNavigation ? 'mt-6' : 'mt-0',
-            )}
-          >
+          <div className="my-6 flex flex-col gap-6">
+            {!!user && !user?.isPlus && <BriefUpgradeAlert className="!mb-0" />}
             <BriefPostHeader {...headerProps}>
               <BriefPostHeaderActions
                 post={post}
