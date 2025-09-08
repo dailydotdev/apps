@@ -2,11 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useId, useRef, useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import {
-  useActions,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   Typography,
@@ -535,7 +531,6 @@ const JobPage = (): ReactElement => {
   const {
     query: { cv_step: cvStep },
   } = useRouter();
-  const isMobile = useViewSize(ViewSize.MobileL);
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
