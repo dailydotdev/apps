@@ -22,7 +22,8 @@ export default function PostTags({
 }: PostTagsProps): ReactElement {
   const [width, setWidth] = useState(0);
   const { isListMode } = useFeedLayout();
-  const tags = post?.tags || [];
+  // const tags = post?.tags || [];
+  const tags = ['webdev', 'automation', 'nocode', 'productivity', 'javascript'];
   const elementRef = useRef<HTMLDivElement>(null);
   const list = useFeedTags({
     tags,
@@ -50,7 +51,7 @@ export default function PostTags({
   return (
     <div
       className={classNames(
-        'flex min-h-px w-full min-w-0 items-center gap-2 overflow-hidden',
+        'flex min-h-px w-full min-w-0 flex-1 items-center gap-2 overflow-hidden',
         className,
       )}
       ref={elementRef}
