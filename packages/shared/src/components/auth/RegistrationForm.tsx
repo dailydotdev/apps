@@ -371,7 +371,7 @@ const RegistrationForm = ({
           inputId="traits.username"
           label="Enter a username"
           value={username}
-          disabled={isLoading}
+          readOnly={isLoading}
           onBlur={(e) => setUsername(e.target.value)}
           hint={hints?.['traits.username']}
           valueChanged={() =>
