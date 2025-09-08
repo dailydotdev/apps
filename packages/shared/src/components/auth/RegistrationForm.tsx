@@ -44,6 +44,7 @@ import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import { Loader } from '../Loader';
 
 export interface RegistrationFormProps extends AuthFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -86,7 +87,7 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
-  const { username, setUsername } = useGenerateUsername(name);
+  const { username, setUsername, isLoading } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
   const logRef = useRef<typeof logEvent>();
@@ -242,6 +243,18 @@ const RegistrationForm = ({
     !isSubmitted || !hints?.['traits.experienceLevel'];
   const { isAuthenticating = false } = useAtomValue(authAtom);
 
+  const usernameIcon = (() => {
+    if (isLoading) {
+      return <Loader />;
+    }
+
+    if (isUsernameValid) {
+      return <VIcon className="text-accent-avocado-default" />;
+    }
+
+    return null;
+  })();
+
   return (
     <>
       {!isAuthenticating && (
@@ -358,15 +371,14 @@ const RegistrationForm = ({
           inputId="traits.username"
           label="Enter a username"
           value={username}
+          disabled={isLoading}
           onBlur={(e) => setUsername(e.target.value)}
           hint={hints?.['traits.username']}
           valueChanged={() =>
             hints?.['traits.username'] &&
             onUpdateHints({ ...hints, 'traits.username': '' })
           }
-          rightIcon={
-            isUsernameValid && <VIcon className="text-accent-avocado-default" />
-          }
+          rightIcon={usernameIcon}
         />
         {isAuthorOnboarding && (
           <TextField

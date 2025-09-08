@@ -49,7 +49,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     experienceLevel: initialValues.experienceLevel as UserExperienceLevelKey,
     optOutMarketing: initialValues.optOutMarketing || false,
   });
-  const { username } = useGenerateUsername(
+  const { username, isLoading } = useGenerateUsername(
     initialValues.username ? undefined : initialValues.name,
   );
   const [touched, setTouched] = useState<{ [k: string]: boolean }>({});
@@ -183,6 +183,8 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         required
         autoComplete="user"
         className={{ container: 'w-full' }}
+        readOnly={isLoading}
+        rightIcon={isLoading ? <span className="loader" /> : null}
       />
       <ExperienceLevelDropdown
         name="experienceLevel"
