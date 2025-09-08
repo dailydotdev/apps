@@ -388,7 +388,6 @@ const recruiters = [
     },
     description:
       'Rachel is a highly experienced Lead Talent Acquisition specialist with a proven track record of placing exceptional frontend engineers within dynamic and innovative startup environments. She possesses a deep understanding of the frontend landscape, staying abreast of the latest technologies and best practices. Rachel excels at building genuine relationships with candidates, fostering open and transparent communication throughout the entire recruitment process. She is particularly drawn to individuals who demonstrate a strong passion for product development, not just coding, and who are eager to contribute to the broader vision of a company. Her approach is collaborative, focusing on finding mutual success for both the candidate and the organization.',
-    agency: false,
   },
   {
     key: 'mark_davis',
@@ -399,7 +398,6 @@ const recruiters = [
     },
     description:
       'Mark is a dedicated Senior Recruiter working with some of the most prominent and fast-growing tech companies in the industry. His expertise lies in identifying, attracting, and securing engineers who are not only technically proficient but also deeply passionate about constructing scalable, robust, and impactful solutions. Mark is renowned for his meticulous attention to detail, ensuring that every candidate aligns perfectly with both the technical requirements and the unique cultural fabric of his client companies. He has an exceptional ability to pinpoint individuals who will thrive in specific team dynamics and contribute positively to the overall work environment, making him an invaluable partner in the talent acquisition journey.',
-    agency: true,
   },
 ];
 
@@ -564,16 +562,14 @@ const JobPage = (): ReactElement => {
     <>
       {showCVScreen && <CVOverlay onDismiss={() => setShowCVScreen(false)} />}
       {!hasCompleted && <JobPageIntro />}
-      {isMobile && (
-        <ResponseButtons
-          className={{
-            buttons: 'flex-1',
-            container:
-              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4',
-          }}
-          size={ButtonSize.Medium}
-        />
-      )}
+      <ResponseButtons
+        className={{
+          buttons: 'flex-1',
+          container:
+            'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 tablet:hidden',
+        }}
+        size={ButtonSize.Medium}
+      />
       <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
         <div className="h-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
@@ -938,7 +934,7 @@ const JobPage = (): ReactElement => {
             </div>
 
             {/* Recruiters */}
-            {recruiters.map(({ key, user, description, agency }) => (
+            {recruiters.map(({ key, user, description }) => (
               <FlexCol key={key} className="gap-4 px-4 pb-4">
                 <div className="flex items-center gap-2">
                   <ProfilePicture user={user} size={ProfileImageSize.Large} />
@@ -956,12 +952,7 @@ const JobPage = (): ReactElement => {
                       color={TypographyColor.Tertiary}
                       className="flex items-center gap-1"
                     >
-                      {user.title}{' '}
-                      {agency && (
-                        <Chip className="!my-0 border-none bg-surface-float text-text-tertiary">
-                          Agency
-                        </Chip>
-                      )}
+                      {user.title}
                     </Typography>
                   </div>
                 </div>
