@@ -18,8 +18,8 @@ import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
-import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
+import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
@@ -28,12 +28,13 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin, TargetId, LogEvent } from '../lib/log';
+import { LogEvent, Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
 import {
+  useActions,
   useBoot,
   useConditionalFeature,
   useFeedLayout,
@@ -54,10 +55,15 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
-import { briefCardFeedFeature } from '../lib/featureManagement';
+import {
+  briefCardFeedFeature,
+  briefFeedEntrypointPage,
+} from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
+import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { ActionType } from '../graphql/actions';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -164,23 +170,37 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();
+  const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
-    feedName === SharedFeedPage.MyFeed &&
+    isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
     !user?.acquisitionChannel;
   const { getMarketingCta } = useBoot();
-  const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const marketingCta =
+    getMarketingCta(MarketingCtaVariant.Card) ||
+    getMarketingCta(MarketingCtaVariant.BriefCard);
   const { plusEntryFeed } = usePlusEntry();
-  const showMarketingCta = !!marketingCta;
+  const hasDismissBriefCta =
+    isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
+  const showMarketingCta =
+    !!marketingCta &&
+    (marketingCta?.variant !== MarketingCtaVariant.BriefCard ||
+      !hasDismissBriefCta);
   const { isSearchPageLaptop } = useSearchResultsLayout();
+  const hasNoBriefAction =
+    isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
-    shouldEvaluate: feedName === SharedFeedPage.MyFeed,
+    shouldEvaluate: isMyFeed && hasNoBriefAction,
   });
-  const showBriefCard =
-    feedName === SharedFeedPage.MyFeed && briefCardFeatureValue;
+  const showBriefCard = isMyFeed && briefCardFeatureValue && hasNoBriefAction;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
+  const { value: briefBannerPage } = useConditionalFeature({
+    feature: briefFeedEntrypointPage,
+    shouldEvaluate: !user?.isPlus && isMyFeed,
+  });
   const {
     items,
     updatePost,
@@ -485,6 +505,14 @@ export default function Feed<T>({
         showBriefCard,
       };
 
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const indexWhenShowingPromoBanner =
+    currentPageSize * Number(briefBannerPage) - // number of items at that page
+    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
+    Number(showBriefCard); // if showing the brief card, we need to subtract 1 to the index
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
@@ -509,6 +537,15 @@ export default function Feed<T>({
                     (item.ad.data?.post?.author || item.ad.data?.post?.scout),
                 }}
               >
+                {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                  <BriefBannerFeed
+                    style={{
+                      gridColumn:
+                        !shouldUseListFeedLayout &&
+                        `span ${virtualizedNumCards}`,
+                    }}
+                  />
+                )}
                 <FeedItemComponent
                   item={item}
                   index={index}

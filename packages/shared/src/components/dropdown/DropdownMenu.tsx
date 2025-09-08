@@ -108,7 +108,7 @@ export const DropdownMenuContent = React.forwardRef<
       <DropdownMenuContentRoot
         {...props}
         ref={forwardedRef}
-        className={classNames('DropdownMenuContent', className)}
+        className={classNames('DropdownMenuContent overflow-hidden', className)}
         align={align}
       >
         <div className="max-h-70 overflow-y-auto bg-inherit">{children}</div>

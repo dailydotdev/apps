@@ -46,6 +46,7 @@ export enum ActionType {
   GeneratedBrief = 'generated_brief',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
+  DisableBriefCardCta = 'disable_brief_card_cta',
 }
 
 export const cvActions = [

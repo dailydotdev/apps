@@ -42,6 +42,8 @@ import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
+import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 
 const CommentPopup = dynamic(
   () =>
@@ -388,6 +390,10 @@ function FeedItemComponent({
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.MarketingCta:
+      if (item.marketingCta.variant === MarketingCtaVariant.BriefCard) {
+        return <MarketingCtaBriefing {...item.marketingCta} />;
+      }
+
       return (
         <MarketingCtaTag
           key="marketing-cta-card"
