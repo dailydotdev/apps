@@ -1052,8 +1052,8 @@ export const POST_ANALYTICS_QUERY = gql`
       awards
       upvotesRatio
       shares
-      boostReach
-      boostImpressions
+      reachAds
+      impressionsAds
     }
   }
 `;
@@ -1073,8 +1073,8 @@ export type PostAnalytics = {
   awards: number;
   upvotesRatio: number;
   shares: number;
-  boostReach: number;
-  boostImpressions: number;
+  reachAds: number;
+  impressionsAds: number;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {

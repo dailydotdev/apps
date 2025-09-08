@@ -467,7 +467,7 @@ const PostAnalyticsPage = ({
                 container: 'flex-1',
               }}
               subtitle={
-                !!postAnalytics?.boostImpressions && (
+                !!postAnalytics?.impressionsAds && (
                   <Typography
                     type={TypographyType.Caption2}
                     bold
@@ -475,8 +475,7 @@ const PostAnalyticsPage = ({
                     className="flex items-center gap-0.5"
                   >
                     <BoostIcon size={IconSize.XXSmall} /> +
-                    {formatDataTileValue(postAnalytics.boostImpressions)}{' '}
-                    boosted
+                    {formatDataTileValue(postAnalytics.impressionsAds)} boosted
                   </Typography>
                 )
               }
@@ -489,7 +488,7 @@ const PostAnalyticsPage = ({
                 container: 'flex-1',
               }}
               subtitle={
-                !!postAnalytics?.boostReach && (
+                !!postAnalytics?.reachAds && (
                   <Typography
                     type={TypographyType.Caption2}
                     bold
@@ -497,7 +496,7 @@ const PostAnalyticsPage = ({
                     className="flex items-center gap-0.5"
                   >
                     <BoostIcon size={IconSize.XXSmall} /> +
-                    {formatDataTileValue(postAnalytics.boostReach)} boosted
+                    {formatDataTileValue(postAnalytics.reachAds)} boosted
                   </Typography>
                 )
               }
