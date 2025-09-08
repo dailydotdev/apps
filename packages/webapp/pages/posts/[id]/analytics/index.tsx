@@ -288,7 +288,7 @@ const PostAnalyticsPage = ({
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={() => {
-            router.push(postLink);
+            router.back();
           }}
         />
         <Typography
