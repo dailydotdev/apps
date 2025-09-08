@@ -337,7 +337,7 @@ const BriefPostContentRaw = ({
           origin={origin}
           post={post}
         >
-          <div className={classNames('my-6 flex flex-col gap-6')}>
+          <div className="my-6 flex flex-col gap-6">
             {!!user && !user?.isPlus && <BriefUpgradeAlert className="!mb-0" />}
             <BriefPostHeader {...headerProps}>
               <BriefPostHeaderActions
