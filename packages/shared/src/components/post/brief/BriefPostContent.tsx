@@ -110,7 +110,6 @@ const BriefPostContentRaw = ({
 
   const isAuthor = user?.id === post?.author?.id;
   const hasNavigation = !!onPreviousPost || !!onNextPost;
-  console.log('has nav', hasNavigation);
   const containerClass = classNames(
     '!max-w-3xl laptop:flex-row laptop:pb-0',
     className?.container,
