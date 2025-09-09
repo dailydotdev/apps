@@ -81,7 +81,7 @@ const CreatePoll = () => {
       {
         title,
         options,
-        duration,
+        duration: duration ? Number(duration) : undefined,
         content: '',
         image: undefined,
       },

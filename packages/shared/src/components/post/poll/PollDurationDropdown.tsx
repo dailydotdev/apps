@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Dropdown } from '../../fields/Dropdown';
-import { ButtonSize } from '../../buttons/common';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { useWritePostContext } from '../../../contexts';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../dropdown/DropdownMenu';
+import { ButtonVariant } from '../../buttons/common';
+import { Button } from '../../buttons/Button';
+import { ArrowIcon } from '../../icons';
 
 const options = [
   {
@@ -54,15 +61,40 @@ const PollDurationDropdown = () => {
       <Typography type={TypographyType.Body} bold>
         Poll duration
       </Typography>
-      <Dropdown
-        className={{
-          container: 'w-full tablet:w-52',
-        }}
-        options={options.map(({ label }) => label)}
-        buttonSize={ButtonSize.Medium}
-        selectedIndex={selectedIndex}
-        onChange={handleChange}
-      />
+      <DropdownMenu>
+        <DropdownMenuTrigger className="w-full tablet:w-52" asChild>
+          <Button
+            variant={ButtonVariant.Float}
+            className="!justify-between !px-3 !font-normal !typo-callout"
+          >
+            {options[selectedIndex].label}
+            <ArrowIcon
+              className="ml-auto rotate-90 laptop:rotate-180"
+              secondary
+            />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="start"
+          sideOffset={10}
+          className="flex w-[var(--radix-popper-anchor-width)] flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0"
+        >
+          {options.map(({ label }, index) => (
+            <DropdownMenuItem
+              key={label}
+              className="hover:bg-surface-float"
+              onClick={() => handleChange(label, index)}
+            >
+              <Typography
+                type={TypographyType.Body}
+                bold={selectedIndex === index}
+              >
+                {label}
+              </Typography>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
