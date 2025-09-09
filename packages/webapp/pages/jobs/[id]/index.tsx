@@ -109,12 +109,6 @@ const faq = [
   },
 ];
 
-const company = {
-  handle: 'Linear',
-  image: null,
-  website: 'https://vg.no',
-};
-
 const socialMediaLinks = [
   { key: 'linkedin', href: '#', icon: <LinkedInIcon /> },
   { key: 'twitter', href: '#', icon: <TwitterIcon /> },
@@ -324,14 +318,20 @@ const JobPage = (): ReactElement => {
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
             <div className="flex items-center">
-              <SourceAvatar source={company} size={ProfileImageSize.Medium} />
+              <SourceAvatar
+                source={{
+                  image: opportunity.organization.image,
+                  handle: opportunity.organization.name,
+                }}
+                size={ProfileImageSize.Medium}
+              />
 
               <Typography
                 bold
                 type={TypographyType.Callout}
                 color={TypographyColor.Primary}
               >
-                {company.handle}{' '}
+                {opportunity.organization.name}{' '}
                 <Typography
                   tag={TypographyTag.Span}
                   color={TypographyColor.Tertiary}
