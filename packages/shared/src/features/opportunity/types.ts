@@ -31,6 +31,10 @@ export type Salary = {
   period: ProtoEnumValue;
 };
 
+export type OpportunityKeyword = {
+  keyword: string;
+};
+
 export type Opportunity = {
   id: string;
   type: ProtoEnumValue;
@@ -49,9 +53,7 @@ export type Opportunity = {
   };
   recruiters: PublicProfile[];
   location: OpportunityLocation[];
-  keywords?: {
-    value: string;
-  }[];
+  keywords?: OpportunityKeyword[];
 };
 
 export type OpportunityMatch = {

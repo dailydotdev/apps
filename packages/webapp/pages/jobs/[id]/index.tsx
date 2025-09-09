@@ -223,8 +223,8 @@ const JobPage = (): ReactElement => {
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
               {opportunity.keywords?.map((tag) => (
-                <Chip key={tag.value} className="!my-0 !text-text-tertiary">
-                  {tag.value}
+                <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
+                  {tag.keyword}
                 </Chip>
               ))}
             </div>

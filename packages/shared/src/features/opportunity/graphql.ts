@@ -54,7 +54,7 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
         }
       }
       keywords {
-        value
+        keyword
       }
       recruiters {
         id
