@@ -49,15 +49,13 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
-import {
-  useOpportunity,
-  useOpportunityMatch,
-} from '@dailydotdev/shared/src/features/opportunity/hoos/useOpportunity';
+import { useOpportunity } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunity';
 import {
   Image,
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { useOpportunityMatch } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunityMatch';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -73,7 +71,7 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
 
 const JobPageIntro = () => {
