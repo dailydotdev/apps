@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import {
   Bar,
@@ -11,19 +11,18 @@ import {
   YAxis,
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
-import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 import type { TickProp } from 'recharts/types/util/types';
-import { utcToZonedTime } from 'date-fns-tz';
 import { largeNumberFormat } from '../../lib';
-import type { Post } from '../../graphql/posts';
+import type { Post, PostAnalyticsHistory } from '../../graphql/posts';
 import {
   postAnalyticsHistoryLimit,
   postAnalyticsHistoryQuery,
 } from '../../graphql/posts';
 import { canViewPostAnalytics } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useCampaigns } from '../../features/boost/useCampaigns';
 import { dateFormatInTimezone, DEFAULT_TIMEZONE } from '../../lib/timezones';
+import type { Connection } from '../../graphql/common';
 
 export type ImpressionsChartProps = {
   post: Pick<Post, 'id' | 'author'> | undefined;
@@ -44,41 +43,13 @@ export const ImpressionsChart = ({
   post,
 }: ImpressionsChartProps): ReactElement => {
   const { user } = useAuthContext();
-
-  const { data: campaigns } = useCampaigns({
-    entityId: post?.id,
-    first: postAnalyticsHistoryLimit,
-  });
-
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
-
-  const boostedRanges = useMemo(() => {
-    return campaigns?.pages.reduce(
-      (acc, page) => {
-        page.edges.forEach(({ node: campaign }) => {
-          acc.push({
-            // extract all ranges for start/end day for post's boosts
-            from: startOfDay(utcToZonedTime(campaign.createdAt, userTimezone)),
-            to: endOfDay(
-              utcToZonedTime(new Date(campaign.endedAt), userTimezone),
-            ),
-          });
-        });
-
-        return acc;
-      },
-      [] as {
-        from: Date;
-        to: Date;
-      }[],
-    );
-  }, [campaigns, userTimezone]);
 
   const { data: postAnalyticsHistory } = useQuery({
     ...postAnalyticsHistoryQuery({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
     select: useCallback(
-      (data): ImpressionNode[] => {
+      (data: Connection<PostAnalyticsHistory>): ImpressionNode[] => {
         if (!data) {
           return [];
         }
@@ -97,12 +68,7 @@ export const ImpressionsChart = ({
             }),
             value: item.impressions,
             // if any boost was active on this date
-            isBoosted: boostedRanges.some((range) => {
-              const isAfterStart = new Date(date) >= range.from;
-              const isBeforeEnd = new Date(date) <= range.to;
-
-              return isAfterStart && isBeforeEnd;
-            }),
+            isBoosted: item.impressionsAds > 0,
           };
 
           return acc;
@@ -139,7 +105,7 @@ export const ImpressionsChart = ({
 
         return impressionsData;
       },
-      [boostedRanges, userTimezone],
+      [userTimezone],
     ),
   });
 

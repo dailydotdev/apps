@@ -1103,13 +1103,17 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
           id
           date
           impressions
+          impressionsAds
         }
       }
     }
   }
 `;
 
-export type PostAnalyticsHistory = Pick<PostAnalytics, 'id' | 'impressions'> & {
+export type PostAnalyticsHistory = Pick<
+  PostAnalytics,
+  'id' | 'impressions' | 'impressionsAds'
+> & {
   date: Date;
 };
 
