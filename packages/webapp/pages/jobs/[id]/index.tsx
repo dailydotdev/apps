@@ -57,6 +57,7 @@ import {
   Image,
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -71,6 +72,9 @@ const seo: NextSeoProps = {
   nofollow: true,
   noindex: true,
 };
+
+const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+const iconSize = Math.round(24 * pixelRatio);
 
 const JobPageIntro = () => {
   return (
@@ -774,9 +778,9 @@ const JobPage = (): ReactElement => {
                                 'mr-2 rounded-full object-cover',
                                 sizeClasses[ProfileImageSize.Small],
                               )}
-                              src={`https://api.daily.dev/icon?size=24&url=${encodeURIComponent(
+                              src={`${apiUrl}/icon?url=${encodeURIComponent(
                                 link,
-                              )}`}
+                              )}&size=${iconSize}`}
                               type={ImageType.Squad}
                             />
                             <span className="flex-1 truncate text-left">
