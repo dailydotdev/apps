@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -113,8 +113,6 @@ const JobPage = (): ReactElement => {
   const activatedCVScreen = useRef<boolean>();
 
   const [showMore, setShowMore] = useState(false);
-  const randId = useId();
-  const contentId = `company-show-more-${randId}`;
 
   const hasLinks =
     opportunity?.organization?.customLinks?.length > 0 ||
@@ -645,7 +643,7 @@ const JobPage = (): ReactElement => {
                 )}
 
                 <Button
-                  aria-controls={contentId}
+                  aria-controls="company-show-more"
                   aria-expanded={showMore}
                   className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
                   type="button"
