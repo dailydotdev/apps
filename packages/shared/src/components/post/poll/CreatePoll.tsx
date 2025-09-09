@@ -11,6 +11,7 @@ import { ActionType } from '../../../graphql/actions';
 import { useActions } from '../../../hooks';
 import { formToJson } from '../../../lib/form';
 import { PostType } from '../../../types';
+import useDebounceFn from '../../../hooks/useDebounceFn';
 
 const MAX_TITLE_LENGTH = 250;
 const MAX_OPTION_LENGTH = 35;
@@ -36,14 +37,14 @@ const CreatePoll = () => {
     });
   };
 
-  const onUpdateTitle = (value: string) => {
+  const handleTitle = (value: string) => {
     updateDraft({
       ...draft,
       title: value,
     });
   };
 
-  const onOptionUpdate = (value: string, index: number) => {
+  const handleOption = (value: string, index: number) => {
     const newOpts = draft?.options?.map((opt, i) =>
       i === index ? value : opt,
     );
@@ -89,6 +90,12 @@ const CreatePoll = () => {
     );
   };
 
+  const [onUpdateTitle] = useDebounceFn(handleTitle, 3000);
+  const [onOptionUpdate] = useDebounceFn(
+    ({ value, index }) => handleOption(value, index),
+    3000,
+  );
+
   return (
     <WritePageMain onSubmit={handleSubmit} className="gap-4" ref={formRef}>
       <TextField
@@ -116,7 +123,10 @@ const CreatePoll = () => {
             placeholder="Give your post a title"
             required={index <= 1}
             defaultValue={option || ''}
-            onInput={(e) => onOptionUpdate(e.currentTarget.value, index)}
+            onInput={(e) =>
+              onOptionUpdate({ value: e.currentTarget.value, index })
+            }
+            onBlur={(e) => handleOption(e.currentTarget.value, index)}
             maxLength={MAX_OPTION_LENGTH}
           />
         ))}
