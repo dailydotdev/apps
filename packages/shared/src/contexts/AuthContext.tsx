@@ -66,7 +66,6 @@ export interface AuthContextData {
   refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
-  updateSquads: (updatedSquads: Squad[]) => void;
   isAuthReady?: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
@@ -130,7 +129,6 @@ export type AuthContextProviderProps = {
   | 'visit'
   | 'accessToken'
   | 'squads'
-  | 'updateSquads'
   | 'refetchBoot'
   | 'geo'
   | 'isAndroidApp'
@@ -149,7 +147,6 @@ export const AuthContextProvider = ({
   visit,
   accessToken,
   squads,
-  updateSquads,
   firstLoad,
   geo,
   isAndroidApp,
@@ -220,7 +217,6 @@ export const AuthContextProvider = ({
         deleteAccount,
         accessToken,
         squads,
-        updateSquads,
         geo,
         isAndroidApp,
         isValidRegion,

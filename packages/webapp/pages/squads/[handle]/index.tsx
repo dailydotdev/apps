@@ -101,8 +101,7 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { squad, isLoading, isFetched, isForbidden } =
-    useSquad({ handle });
+  const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
 
   useEffect(() => {
