@@ -104,7 +104,6 @@ const socialMediaIconMap = {
   crunchbase: <CrunchbaseIcon />,
 };
 
-const JobPage = (): ReactElement => {
 const JobPage = ({
   opportunity: initialData,
 }: {
