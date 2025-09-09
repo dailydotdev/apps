@@ -647,6 +647,15 @@ export interface CreatePostProps
   extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
   sourceId: string;
 }
+export interface PollOption {
+  text: string;
+  order: number;
+}
+
+export interface CreatePollPostProps extends Pick<EditPostProps, 'title'> {
+  options: PollOption[];
+  duration?: number;
+}
 
 export interface CreatePostModerationProps {
   title?: string;
@@ -778,6 +787,33 @@ export const createPost = async (
   const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
+};
+
+export const CREATE_POLL_POST_MUTATION = gql`
+  mutation CreatePollPost(
+    $sourceId: ID!
+    $title: String!
+    $options: [PollOptionInput!]!
+    $duration: Int
+  ) {
+    createPollPost(
+      sourceId: $sourceId
+      title: $title
+      options: $options
+      duration: $duration
+    ) {
+      ...SharedPostInfo
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+export const createPollPost = async (
+  variables: Partial<CreatePollPostProps>,
+): Promise<Post> => {
+  const res = await gqlClient.request(CREATE_POLL_POST_MUTATION, variables);
+
+  return res.createPollPost;
 };
 
 export const SOURCE_POST_MODERATION_QUERY = gql`
