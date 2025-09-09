@@ -520,7 +520,7 @@ const PostAnalyticsPage = ({
           <ImpressionsChart post={post} />
         </SectionContainer>
         <Divider className={dividerClassName} />
-        {canBoost && (
+        {canBoost && !isBoosting && (
           <>
             <SectionContainer>
               <SectionHeader>Boost your post</SectionHeader>
