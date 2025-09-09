@@ -48,6 +48,7 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
+import { useOpportunity } from '@dailydotdev/shared/src/features/opportunity/hoos/useOpportunity';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -82,260 +83,26 @@ const JobPageIntro = () => {
   );
 };
 
-const tags = [
-  'React',
-  'TypeScript',
-  'Next.js',
-  'Tailwind CSS',
-  'Node.js',
-  'GraphQL',
-];
-
-const jobDetails = [
-  { label: 'Location', value: 'Cupertino, California, United States' },
-  { label: 'Salary range', value: '$212K/yr - $318K/yr' },
-  { label: 'Work site', value: 'Remote (US timezone)' },
-  { label: 'Seniority level', value: 'Senior' },
-  { label: 'Employment type', value: 'Full time' },
-  { label: 'Role Type', value: 'Individual contributor' },
-  { label: 'Team size', value: '15 engineers' },
-];
-
-const companyMeta = [
-  { label: 'Founded', value: '1976' },
-  { label: 'HQ', value: 'Cupertino, California, USA' },
-  { label: 'Employees', value: '50-100 employees' },
-];
-
-const perksAndBenefits = [
-  'Competitive equity package',
-  'Health, dental, and vision insurance',
-  '$4k annual learning & development budget',
-  'Top-tier equipment and home office setup',
-  'Flexible PTO and parental leave',
-];
-
 const faq = [
   {
     key: 'overview',
     title: 'Overview',
-    content: (
-      <>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Join Linear&apos;s frontend team to build the next generation of issue
-          tracking and project management tools. You&apos;ll work on
-          performance-critical features, design systems, and collaborate closely
-          with design and product teams.
-        </Typography>
-        <br />
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Join Linear&apos;s frontend team to build the next generation of issue
-          tracking and project management tools. You&apos;ll work on
-          performance-critical features, design systems, and collaborate closely
-          with design and product teams.
-        </Typography>
-        <br />
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Join Linear&apos;s frontend team to build the next generation of issue
-          tracking and project management tools. You&apos;ll work on
-          performance-critical features, design systems, and collaborate closely
-          with design and product teams.
-        </Typography>
-      </>
-    ),
   },
   {
     key: 'responsibilities',
     title: 'Responsibilities',
-    content: (
-      <ul className="list-disc pl-7">
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Build and maintain Linear&apos;s web application using React and
-          TypeScript
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Implement pixel-perfect designs with attention to performance
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Collaborate with the team on architecture decisions
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Contribute to Linear&apos;s open-source projects
-        </Typography>
-      </ul>
-    ),
   },
   {
     key: 'requirements',
     title: 'Requirements',
-    content: (
-      <ul className="list-disc pl-7">
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          5+ years of experience building and maintaining complex web
-          applications
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Deep expertise in JavaScript, TypeScript, and React (or similar modern
-          frameworks)
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Proven track record of shipping polished, performant UIs in
-          product-led environments
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Strong understanding of frontend architecture, state management, and
-          component design
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Comfortable collaborating across design, product, and backend teams
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Clear, concise communicator, especially in remote and async work
-          setups
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Experience working in high-autonomy, fast-moving teams
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Bonus: Familiarity with tools like Vite, Next.js, GraphQL, or design
-          systems
-        </Typography>
-      </ul>
-    ),
   },
   {
-    key: 'what_youll_do',
+    key: 'whatYoullDo',
     title: "What you'll do",
-    content: (
-      <Typography type={TypographyType.Body} color={TypographyColor.Secondary}>
-        As a Senior Frontend Developer at Linear, your day will be centered
-        around crafting high-quality user experiences using React and
-        TypeScript. You&apos;ll collaborate closely with product designers and
-        backend engineers to ship clean, maintainable code across the app. Your
-        mornings might start with async stand-ups or pairing sessions
-        (remote-friendly, timezone-aligned), followed by deep focus time for
-        building new features, refining UX, or improving performance.
-        You&apos;ll participate in thoughtful code reviews, contribute to
-        architecture decisions, and help shape internal tooling and frontend
-        infrastructure. Expect a product-minded culture with minimal process
-        overhead, where autonomy and craftsmanship are highly valued.
-      </Typography>
-    ),
   },
   {
-    key: 'interview_process',
+    key: 'interviewProcess',
     title: 'Interview process',
-    content: (
-      <ol className="list-decimal pl-7">
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Intro Chat (30 mins)
-          <br />A casual conversation with our recruiter or hiring manager to
-          learn more about your background and share more about the role and
-          team.
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Technical Interview (60 mins)
-          <br />A live technical discussion or hands-on coding exercise focused
-          on frontend fundamentals, React/TypeScript, and product thinking.
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Project Assignment or Deep Dive (1-2 hrs async or scheduled)
-          <br />
-          Either a take-home project or a session diving into real-world
-          frontend challenges, followed by a walkthrough of your thought
-          process.
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Team Interviews (2 x 45 mins)
-          <br />
-          Meet with 2-3 team members across engineering and design. We&apos;ll
-          explore how you collaborate, make decisions, and approach
-          product-building.
-        </Typography>
-        <Typography
-          tag={TypographyTag.Li}
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          Final Chat (30-45 mins)
-          <br />A wrap-up conversation with leadership to align on expectations,
-          values, and any final questions.
-        </Typography>
-      </ol>
-    ),
   },
 ];
 
@@ -371,29 +138,6 @@ const featuredPressLinks = [
     href: '#',
     label: "Google's Gemini CLI Agent Comes to GitHub",
     source: company,
-  },
-];
-
-const recruiters = [
-  {
-    key: 'rachel_brown',
-    user: {
-      image: null,
-      name: 'Rachel Brown',
-      title: 'Lead Talent Acquisition',
-    },
-    description:
-      'Rachel is a highly experienced Lead Talent Acquisition specialist with a proven track record of placing exceptional frontend engineers within dynamic and innovative startup environments. She possesses a deep understanding of the frontend landscape, staying abreast of the latest technologies and best practices. Rachel excels at building genuine relationships with candidates, fostering open and transparent communication throughout the entire recruitment process. She is particularly drawn to individuals who demonstrate a strong passion for product development, not just coding, and who are eager to contribute to the broader vision of a company. Her approach is collaborative, focusing on finding mutual success for both the candidate and the organization.',
-  },
-  {
-    key: 'mark_davis',
-    user: {
-      image: null,
-      name: 'Mark Davis',
-      title: 'Senior Recruiter',
-    },
-    description:
-      'Mark is a dedicated Senior Recruiter working with some of the most prominent and fast-growing tech companies in the industry. His expertise lies in identifying, attracting, and securing engineers who are not only technically proficient but also deeply passionate about constructing scalable, robust, and impactful solutions. Mark is renowned for his meticulous attention to detail, ensuring that every candidate aligns perfectly with both the technical requirements and the unique cultural fabric of his client companies. He has an exceptional ability to pinpoint individuals who will thrive in specific team dynamics and contribute positively to the overall work environment, making him an invaluable partner in the talent acquisition journey.',
   },
 ];
 
@@ -529,16 +273,23 @@ const ResponseButtons = ({
 const JobPage = (): ReactElement => {
   const { checkHasCompleted } = useActions();
   const {
-    query: { cv_step: cvStep },
+    query: { id, cv_step: cvStep },
   } = useRouter();
+
+  const { opportunity } = useOpportunity(id as string);
+  const { match } = {
+    match: {
+      reasoning: `We noticed you've been digging into React performance optimization and exploring payment systems lately. Your skills in TypeScript and Node.js line up directly with the core technologies this team uses. You also follow several Atlassian engineers and have shown consistent interest in project management software, which makes this role a natural fit for your trajectory.`,
+    },
+  };
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
   const activatedCVScreen = useRef<boolean>();
 
   const [showMore, setShowMore] = useState(false);
-  const id = useId();
-  const contentId = `company-show-more-${id}`;
+  const randId = useId();
+  const contentId = `company-show-more-${randId}`;
 
   useEffect(() => {
     if (cvStep && !activatedCVScreen.current) {
@@ -552,6 +303,10 @@ const JobPage = (): ReactElement => {
       document.body.classList.remove('hidden-scrollbar');
     };
   }, [showCVScreen, cvStep]);
+
+  if (!opportunity) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -600,7 +355,7 @@ const JobPage = (): ReactElement => {
             {/* Recruiter */}
             <div className="flex items-center gap-2">
               <ProfilePicture
-                user={recruiters[0].user}
+                user={opportunity.recruiters[0]}
                 size={ProfileImageSize.Large}
               />
 
@@ -610,13 +365,13 @@ const JobPage = (): ReactElement => {
                   type={TypographyType.Callout}
                   color={TypographyColor.Primary}
                 >
-                  {recruiters[0].user.name}
+                  {opportunity.recruiters[0].name}
                 </Typography>
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  {recruiters[0].user.title}
+                  {opportunity.recruiters[0].bio}
                 </Typography>
               </div>
             </div>
@@ -627,14 +382,14 @@ const JobPage = (): ReactElement => {
               tag={TypographyTag.H1}
               type={TypographyType.LargeTitle}
             >
-              Senior Frontend Developer
+              {opportunity.title}
             </Typography>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Chip key={tag} className="!my-0 !text-text-tertiary">
-                  {tag}
+              {opportunity.keywords?.map((tag) => (
+                <Chip key={tag.value} className="!my-0 !text-text-tertiary">
+                  {tag.value}
                 </Chip>
               ))}
             </div>
@@ -644,34 +399,129 @@ const JobPage = (): ReactElement => {
               type={TypographyType.Body}
               color={TypographyColor.Secondary}
             >
-              <span className="font-bold text-text-primary">TLDR</span> Senior
-              frontend role at Linear (issue tracking startup). React/TS stack,
-              $140k-$180k, remote- first, Series B stage. Build dev tools used
-              by top companies. Strong culture, great benefits, perfect match
-              for your skills and preferences.
+              <span className="font-bold text-text-primary">TLDR</span>{' '}
+              {opportunity.tldr}
             </Typography>
 
             {/* Details */}
             <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white laptop:grid-cols-[max-content_1fr_max-content_1fr]">
-              {jobDetails.map(({ label, value }) => (
-                <React.Fragment key={label}>
-                  <Typography
-                    className="laptop:[&:nth-child(4n+3)]:pl-2"
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {label}
-                  </Typography>
-                  <Typography
-                    className="laptop:[&:nth-child(4n+3)]:pl-2"
-                    bold
-                    type={TypographyType.Subhead}
-                    color={TypographyColor.Primary}
-                  >
-                    {value}
-                  </Typography>
-                </React.Fragment>
-              ))}
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Location
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {opportunity.location.map((loc) => {
+                  return `${loc.city}${
+                    loc.subdivision ? `, ${loc.subdivision}` : ''
+                  }${loc.country ? `, ${loc.country}` : ''}`;
+                })}
+              </Typography>
+
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Work site
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {opportunity.location[0].type}
+              </Typography>
+
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Employment type
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {opportunity.meta.employmentType}
+              </Typography>
+
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Team size
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {opportunity.meta.teamSize}
+              </Typography>
+
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Salary range
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                ${opportunity.meta.salary.min}/{opportunity.meta.salary.period}{' '}
+                - ${opportunity.meta.salary.max}/
+                {opportunity.meta.salary.period}
+              </Typography>
+
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Seniority level
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {opportunity.meta.seniorityLevel}
+              </Typography>
+
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Role type
+              </Typography>
+              <Typography
+                className="laptop:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {opportunity.meta.roleType}
+              </Typography>
             </div>
 
             {/* Why we think */}
@@ -688,13 +538,7 @@ const JobPage = (): ReactElement => {
                 </Typography>
               </div>
               <Typography type={TypographyType.Callout}>
-                We noticed you&apos;ve been digging into React performance
-                optimization and exploring payment systems lately. Your skills
-                in TypeScript and Node.js line up directly with the core
-                technologies this team uses. You also follow several Atlassian
-                engineers and have shown consistent interest in project
-                management software, which makes this role a natural fit for
-                your trajectory.
+                {match?.reasoning}
               </Typography>
             </FlexCol>
           </div>
@@ -708,7 +552,12 @@ const JobPage = (): ReactElement => {
                 className={{ button: 'min-h-12' }}
                 title={<Typography>{faqItem.title}</Typography>}
               >
-                <div className="pb-4">{faqItem.content}</div>
+                <div
+                  className="pb-4"
+                  dangerouslySetInnerHTML={{
+                    __html: opportunity.content[faqItem.key].html,
+                  }}
+                />
               </Accordion>
             </div>
           ))}
@@ -736,36 +585,45 @@ const JobPage = (): ReactElement => {
                 Company
               </Typography>
 
-              <Link href={company.website} passHref>
-                <Button
-                  tag="a"
-                  target="_blank"
-                  rel={anchorDefaultRel}
-                  variant={ButtonVariant.Subtle}
-                  size={ButtonSize.Small}
-                  icon={<OpenLinkIcon />}
-                  iconPosition={ButtonIconPosition.Right}
-                >
-                  Website
-                </Button>
-              </Link>
+              {opportunity.organization.website && (
+                <Link href={opportunity.organization.website} passHref>
+                  <Button
+                    tag="a"
+                    target="_blank"
+                    rel={anchorDefaultRel}
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    icon={<OpenLinkIcon />}
+                    iconPosition={ButtonIconPosition.Right}
+                  >
+                    Website
+                  </Button>
+                </Link>
+              )}
             </div>
-            {/* Comapny information */}
+            {/* Company information */}
             <div className="flex px-4">
-              <SourceAvatar source={company} size={ProfileImageSize.Large} />
+              <SourceAvatar
+                source={{
+                  image: opportunity.organization.image,
+                  handle: opportunity.organization.name,
+                }}
+                size={ProfileImageSize.Large}
+              />
 
               <div className="flex flex-col">
                 <Typography
                   type={TypographyType.Body}
                   color={TypographyColor.Primary}
                 >
-                  {company.handle}
+                  {opportunity.organization.name}
                 </Typography>
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  Series B • Software
+                  {opportunity.organization.stage} •{' '}
+                  {opportunity.organization.category}
                 </Typography>
               </div>
             </div>
@@ -785,52 +643,69 @@ const JobPage = (): ReactElement => {
 
             {/* Meta */}
             <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
-              {companyMeta.map(({ label, value }) => (
-                <React.Fragment key={label}>
-                  <Typography
-                    type={TypographyType.Subhead}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {label}
-                  </Typography>
-                  <Typography type={TypographyType.Footnote} bold>
-                    {value}
-                  </Typography>
-                </React.Fragment>
-              ))}
+              <Typography
+                type={TypographyType.Subhead}
+                color={TypographyColor.Tertiary}
+              >
+                Founded
+              </Typography>
+              <Typography type={TypographyType.Footnote} bold>
+                {opportunity.organization.founded}
+              </Typography>
+
+              <Typography
+                type={TypographyType.Subhead}
+                color={TypographyColor.Tertiary}
+              >
+                HQ
+              </Typography>
+              <Typography type={TypographyType.Footnote} bold>
+                {opportunity.organization.location}
+              </Typography>
+
+              <Typography
+                type={TypographyType.Subhead}
+                color={TypographyColor.Tertiary}
+              >
+                Employees
+              </Typography>
+              <Typography type={TypographyType.Footnote} bold>
+                {opportunity.organization.size}
+              </Typography>
             </div>
 
             {/* Description */}
-            <Typography
-              className="px-4"
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              Linear is building the future of issue tracking and project
-              management. Used by companies like Vercel, Stripe, and Coinbase,
-              Linear combines speed, simplicity, and powerful functionality in a
-              beautiful interface.
-            </Typography>
+            {opportunity.organization.description && (
+              <Typography
+                className="px-4"
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+              >
+                {opportunity.organization.description}
+              </Typography>
+            )}
 
             {/* Perks & Benefits */}
-            <div className="flex flex-col gap-2 px-4">
-              <Typography bold type={TypographyType.Callout}>
-                Perks & Benefits
-              </Typography>
+            {opportunity.organization.perks && (
+              <div className="flex flex-col gap-2 px-4">
+                <Typography bold type={TypographyType.Callout}>
+                  Perks & Benefits
+                </Typography>
 
-              <ul className="list-disc pl-7">
-                {perksAndBenefits.map((perk) => (
-                  <Typography
-                    key={perk}
-                    tag={TypographyTag.Li}
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Secondary}
-                  >
-                    {perk}
-                  </Typography>
-                ))}
-              </ul>
-            </div>
+                <ul className="list-disc pl-7">
+                  {opportunity.organization.perks.map((perk) => (
+                    <Typography
+                      key={perk}
+                      tag={TypographyTag.Li}
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Secondary}
+                    >
+                      {perk}
+                    </Typography>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {showMore && (
               <>
@@ -929,8 +804,8 @@ const JobPage = (): ReactElement => {
             </div>
 
             {/* Recruiters */}
-            {recruiters.map(({ key, user, description }) => (
-              <FlexCol key={key} className="gap-4 px-4 pb-4">
+            {opportunity?.recruiters?.map((user) => (
+              <FlexCol key={user.id} className="gap-4 px-4 pb-4">
                 <div className="flex items-center gap-2">
                   <ProfilePicture user={user} size={ProfileImageSize.Large} />
 
@@ -947,14 +822,14 @@ const JobPage = (): ReactElement => {
                       color={TypographyColor.Tertiary}
                       className="flex items-center gap-1"
                     >
-                      {user.title}
+                      {user.bio}
                     </Typography>
                   </div>
                 </div>
 
                 {/* Description */}
                 <ShowMoreContent
-                  content={description}
+                  content={user.readme}
                   className={{ text: '!text-text-secondary !typo-callout' }}
                 />
               </FlexCol>

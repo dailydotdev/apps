@@ -1,4 +1,5 @@
 import type { SubscriptionStatus } from '../../lib/plus';
+import type { ProtoEnumValue } from '../../lib/protobuf';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
 
 export enum OrganizationMemberRole {
@@ -27,6 +28,15 @@ export type Organization = {
   activeSeats?: number;
   members?: OrganizationMember[];
   status?: SubscriptionStatus;
+
+  website?: string;
+  description?: string;
+  perks?: Array<string>;
+  founded?: number;
+  location?: string;
+  category?: string;
+  size?: ProtoEnumValue;
+  stage?: ProtoEnumValue;
 };
 
 export type UserOrganization = {
