@@ -78,7 +78,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           {image && <CardSpace />}
           <div
             className={classNames(
-              'mx-2 mb-2 flex items-center',
+              'mx-4 mb-2 flex items-center',
               !image && 'mt-1',
             )}
           >
