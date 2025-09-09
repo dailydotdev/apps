@@ -77,3 +77,14 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
 `;
+
+export const GET_OPPORTUNITY_MATCH_QUERY = gql`
+  query GetOpportunityMatch($id: ID!) {
+    getOpportunityMatch(id: $id) {
+      status
+      description {
+        reasoning
+      }
+    }
+  }
+`;

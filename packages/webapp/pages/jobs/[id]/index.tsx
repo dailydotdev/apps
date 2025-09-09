@@ -48,7 +48,10 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
-import { useOpportunity } from '@dailydotdev/shared/src/features/opportunity/hoos/useOpportunity';
+import {
+  useOpportunity,
+  useOpportunityMatch,
+} from '@dailydotdev/shared/src/features/opportunity/hoos/useOpportunity';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -277,11 +280,7 @@ const JobPage = (): ReactElement => {
   } = useRouter();
 
   const { opportunity } = useOpportunity(id as string);
-  const { match } = {
-    match: {
-      reasoning: `We noticed you've been digging into React performance optimization and exploring payment systems lately. Your skills in TypeScript and Node.js line up directly with the core technologies this team uses. You also follow several Atlassian engineers and have shown consistent interest in project management software, which makes this role a natural fit for your trajectory.`,
-    },
-  };
+  const { match } = useOpportunityMatch(id as string);
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
@@ -525,22 +524,24 @@ const JobPage = (): ReactElement => {
             </div>
 
             {/* Why we think */}
-            <FlexCol
-              className="gap-2 rounded-16 p-4 text-black"
-              style={{
-                background: briefButtonBg,
-              }}
-            >
-              <div className="flex items-center gap-1">
-                <MagicIcon size={IconSize.Medium} />
-                <Typography bold type={TypographyType.Body}>
-                  Why we think you&apos;ll like this
+            {match?.description?.reasoning && (
+              <FlexCol
+                className="gap-2 rounded-16 p-4 text-black"
+                style={{
+                  background: briefButtonBg,
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  <MagicIcon size={IconSize.Medium} />
+                  <Typography bold type={TypographyType.Body}>
+                    Why we think you&apos;ll like this
+                  </Typography>
+                </div>
+                <Typography type={TypographyType.Callout}>
+                  {match?.description?.reasoning}
                 </Typography>
-              </div>
-              <Typography type={TypographyType.Callout}>
-                {match?.reasoning}
-              </Typography>
-            </FlexCol>
+              </FlexCol>
+            )}
           </div>
 
           {faq.map((faqItem) => (
