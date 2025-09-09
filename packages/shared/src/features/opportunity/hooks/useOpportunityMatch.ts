@@ -3,22 +3,7 @@ import { StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { GET_OPPORTUNITY_MATCH_QUERY } from '../graphql';
 import { getOpportunityByIdKey } from './useOpportunity';
-
-export enum OpportunityMatchStatus {
-  Pending = 'pending',
-  CandidateAccepted = 'candidate_accepted',
-  CandidateRejected = 'candidate_rejected',
-  CandidateTimeOut = 'candidate_time_out',
-  RecruiterAccepted = 'recruiter_accepted',
-  RecruiterRejected = 'recruiter_rejected',
-}
-
-export type OpportunityMatch = {
-  status: OpportunityMatchStatus;
-  description?: {
-    reasoning: string;
-  };
-};
+import type { OpportunityMatch } from '../types';
 
 export const opportunityMatchOptions = ({ id }: { id: string }) => {
   return {
