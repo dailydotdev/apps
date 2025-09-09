@@ -13,11 +13,38 @@ export enum OrganizationMemberSeatType {
   Plus = 'plus',
 }
 
+export enum OrganizationLinkType {
+  Custom = 'custom',
+  Social = 'social',
+  Press = 'press',
+}
+
+export enum SocialMediaType {
+  Facebook = 'facebook',
+  X = 'x',
+  GitHub = 'github',
+  Crunchbase = 'crunchbase',
+}
+
 export type OrganizationMember = {
   role: OrganizationMemberRole;
   seatType: OrganizationMemberSeatType;
   user: PublicProfile | LoggedUser;
   lastActive: Date | null;
+};
+
+type OrganizationLinkBase = {
+  link: string;
+};
+
+export type OrganizationLink = OrganizationLinkBase & {
+  type: OrganizationLinkType.Custom | OrganizationLinkType.Press;
+  title?: string;
+};
+
+export type OrganizationSocialLink = OrganizationLinkBase & {
+  type: OrganizationLinkType.Social;
+  socialType: SocialMediaType;
 };
 
 export type Organization = {
@@ -37,6 +64,10 @@ export type Organization = {
   category?: string;
   size?: ProtoEnumValue;
   stage?: ProtoEnumValue;
+
+  customLinks?: OrganizationLink[];
+  pressLinks?: OrganizationLink[];
+  socialLinks?: OrganizationSocialLink[];
 };
 
 export type UserOrganization = {

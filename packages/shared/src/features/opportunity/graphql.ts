@@ -25,6 +25,16 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
         category
         founded
         location
+
+        customLinks {
+          ...Link
+        }
+        socialLinks {
+          ...Link
+        }
+        pressLinks {
+          ...Link
+        }
       }
       content {
         overview {
@@ -72,6 +82,13 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
         continent
       }
     }
+  }
+
+  fragment Link on OrganizationLink {
+    type
+    socialType
+    title
+    link
   }
 
   ${ORGANIZATION_SHORT_FRAGMENT}

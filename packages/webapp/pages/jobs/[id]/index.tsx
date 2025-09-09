@@ -14,6 +14,7 @@ import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source'
 import {
   ProfileImageSize,
   ProfilePicture,
+  sizeClasses,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
@@ -52,6 +53,10 @@ import {
   useOpportunity,
   useOpportunityMatch,
 } from '@dailydotdev/shared/src/features/opportunity/hoos/useOpportunity';
+import {
+  Image,
+  ImageType,
+} from '@dailydotdev/shared/src/components/image/Image';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -109,34 +114,12 @@ const faq = [
   },
 ];
 
-const socialMediaLinks = [
-  { key: 'linkedin', href: '#', icon: <LinkedInIcon /> },
-  { key: 'twitter', href: '#', icon: <TwitterIcon /> },
-  { key: 'github', href: '#', icon: <GitHubIcon /> },
-  { key: 'crunchbase', href: '#', icon: <CrunchbaseIcon /> },
-];
-
-const resourcesLinks = [
-  { key: 'engineering_blog', href: '#', label: 'Engineering Blog' },
-  { key: 'public_github', href: '#', label: 'Public GitHub / OSS Links' },
-  { key: 'workplace_policy', href: '#', label: 'Workplace Policy' },
-  { key: 'culture_deck', href: '#', label: 'Culture Deck' },
-];
-
-const featuredPressLinks = [
-  {
-    key: 'openai_aws',
-    href: '#',
-    label: 'For the first time, OpenAI models are available on AWS',
-    source: company,
-  },
-  {
-    key: 'google_gemini',
-    href: '#',
-    label: "Google's Gemini CLI Agent Comes to GitHub",
-    source: company,
-  },
-];
+const socialMediaIconMap = {
+  linkedin: <LinkedInIcon />,
+  x: <TwitterIcon />,
+  github: <GitHubIcon />,
+  crunchbase: <CrunchbaseIcon />,
+};
 
 const CVOverlay = ({ onDismiss }: { onDismiss: () => void }): ReactElement => {
   const [fileUploaded, setFileUploaded] = useState(false);
@@ -273,7 +256,7 @@ const JobPage = (): ReactElement => {
     query: { id, cv_step: cvStep },
   } = useRouter();
 
-  const { opportunity } = useOpportunity(id as string);
+  const { opportunity, isPending } = useOpportunity(id as string);
   const { match } = useOpportunityMatch(id as string);
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
@@ -283,6 +266,10 @@ const JobPage = (): ReactElement => {
   const [showMore, setShowMore] = useState(false);
   const randId = useId();
   const contentId = `company-show-more-${randId}`;
+
+  const hasLinks =
+    opportunity?.organization?.customLinks?.length > 0 ||
+    opportunity?.organization?.pressLinks?.length > 0;
 
   useEffect(() => {
     if (cvStep && !activatedCVScreen.current) {
@@ -297,8 +284,8 @@ const JobPage = (): ReactElement => {
     };
   }, [showCVScreen, cvStep]);
 
-  if (!opportunity) {
-    return <div>Loading...</div>;
+  if (!opportunity || isPending) {
+    return null;
   }
 
   return (
@@ -575,7 +562,12 @@ const JobPage = (): ReactElement => {
         {/* Sidebar */}
         <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
           {/* Company Info */}
-          <FlexCol className="flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary">
+          <FlexCol
+            className={classNames(
+              'flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary',
+              !hasLinks && 'pb-4',
+            )}
+          >
             {/* Header */}
             <div className="flex min-h-14 items-center justify-between px-4 py-3">
               <Typography
@@ -630,17 +622,25 @@ const JobPage = (): ReactElement => {
             </div>
 
             {/* SoMe Links */}
-            <div className="flex gap-2 px-4">
-              {socialMediaLinks.map(({ href, icon, key }) => (
-                <Link key={key} href={href} passHref>
-                  <Button
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.Small}
-                    icon={icon}
-                  />
-                </Link>
-              ))}
-            </div>
+            {opportunity.organization.socialLinks?.length > 0 && (
+              <div className="flex gap-2 px-4">
+                {opportunity.organization.socialLinks.map(
+                  ({ link, socialType }) => (
+                    <Link key={link} href={link} passHref>
+                      <Button
+                        variant={ButtonVariant.Subtle}
+                        size={ButtonSize.Small}
+                        icon={
+                          socialMediaIconMap[
+                            socialType.toLowerCase() as keyof typeof socialMediaIconMap
+                          ]
+                        }
+                      />
+                    </Link>
+                  ),
+                )}
+              </div>
+            )}
 
             {/* Meta */}
             <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
@@ -707,88 +707,111 @@ const JobPage = (): ReactElement => {
                 </ul>
               </div>
             )}
-
-            {showMore && (
+            {hasLinks && (
               <>
                 {/* Resources */}
-                <div className="flex flex-col gap-2 px-4">
-                  <Typography bold type={TypographyType.Callout}>
-                    Resources
-                  </Typography>
+                {opportunity.organization.customLinks?.length > 0 && (
+                  <div
+                    className={classNames(
+                      'flex flex-col gap-2 px-4 pb-2',
+                      showMore ? '' : 'hidden',
+                    )}
+                  >
+                    <Typography bold type={TypographyType.Callout}>
+                      Resources
+                    </Typography>
 
-                  {resourcesLinks.map(({ key, href, label }) => (
-                    <Link key={key} href={href} passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={
-                          <OpenLinkIcon
-                            className="text-text-disabled"
-                            size={IconSize.Small}
-                          />
-                        }
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
-                      >
-                        {label}
-                      </Button>
-                    </Link>
-                  ))}
-                </div>
+                    {opportunity.organization.customLinks.map(
+                      ({ link, title }) => (
+                        <Link key={link} href={link} passHref>
+                          <Button
+                            variant={ButtonVariant.Subtle}
+                            icon={
+                              <OpenLinkIcon
+                                className="text-text-disabled"
+                                size={IconSize.Small}
+                              />
+                            }
+                            iconPosition={ButtonIconPosition.Right}
+                            className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                          >
+                            {title}
+                          </Button>
+                        </Link>
+                      ),
+                    )}
+                  </div>
+                )}
 
                 {/* Featured press */}
-                <div className="flex flex-col gap-2 px-4 pb-2">
-                  <Typography bold type={TypographyType.Callout}>
-                    Featured press
+                {opportunity.organization.pressLinks?.length > 0 && (
+                  <div
+                    className={classNames(
+                      'flex flex-col gap-2 px-4 pb-2',
+                      showMore ? '' : 'hidden',
+                    )}
+                  >
+                    <Typography bold type={TypographyType.Callout}>
+                      Featured press
+                    </Typography>
+
+                    {opportunity.organization.pressLinks.map(
+                      ({ link, title }) => (
+                        <Link key={link} href={link} passHref>
+                          <Button
+                            variant={ButtonVariant.Subtle}
+                            icon={
+                              <OpenLinkIcon
+                                className="text-text-disabled"
+                                size={IconSize.Small}
+                              />
+                            }
+                            iconPosition={ButtonIconPosition.Right}
+                            className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                          >
+                            <Image
+                              className={classNames(
+                                'mr-2 rounded-full object-cover',
+                                sizeClasses[ProfileImageSize.Small],
+                              )}
+                              src={`https://api.daily.dev/icon?size=24&url=${encodeURIComponent(
+                                link,
+                              )}`}
+                              type={ImageType.Squad}
+                            />
+                            <span className="flex-1 truncate text-left">
+                              {title}
+                            </span>
+                          </Button>
+                        </Link>
+                      ),
+                    )}
+                  </div>
+                )}
+
+                <Button
+                  aria-controls={contentId}
+                  aria-expanded={showMore}
+                  className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
+                  type="button"
+                  onClick={() => setShowMore((prev) => !prev)}
+                >
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                  >
+                    {showMore ? 'See less' : 'See more'}
                   </Typography>
 
-                  {featuredPressLinks.map(({ key, href, label, source }) => (
-                    <Link key={key} href={href} passHref>
-                      <Button
-                        variant={ButtonVariant.Subtle}
-                        icon={
-                          <OpenLinkIcon
-                            className="text-text-disabled"
-                            size={IconSize.Small}
-                          />
-                        }
-                        iconPosition={ButtonIconPosition.Right}
-                        className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
-                      >
-                        <SourceAvatar
-                          source={source}
-                          size={ProfileImageSize.Small}
-                        />
-                        <span className="flex-1 truncate text-left">
-                          {label}
-                        </span>
-                      </Button>
-                    </Link>
-                  ))}
-                </div>
+                  <MoveToIcon
+                    className={classNames('transition-transform ease-in-out', {
+                      'rotate-90': !showMore,
+                      '-rotate-90': showMore,
+                    })}
+                  />
+                </Button>
               </>
             )}
-
-            <Button
-              aria-controls={contentId}
-              aria-expanded={showMore}
-              className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
-              type="button"
-              onClick={() => setShowMore((prev) => !prev)}
-            >
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-              >
-                {showMore ? 'See less' : 'See more'}
-              </Typography>
-
-              <MoveToIcon
-                className={classNames('transition-transform ease-in-out', {
-                  'rotate-90': !showMore,
-                  '-rotate-90': showMore,
-                })}
-              />
-            </Button>
           </FlexCol>
 
           {/* Recruiter Info */}

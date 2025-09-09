@@ -109,9 +109,11 @@ export const opportunityMatchOptions = ({ id }: { id: string }) => {
 };
 
 export const useOpportunity = (id: string) => {
-  const { data: opportunity } = useQuery(opportunityByIdOptions({ id }));
+  const { data: opportunity, isPending } = useQuery(
+    opportunityByIdOptions({ id }),
+  );
 
-  return { opportunity };
+  return { opportunity, isPending };
 };
 
 export const useOpportunityMatch = (id: string) => {
