@@ -15,6 +15,8 @@ import {
   ReadingStreakIcon,
   TimerIcon,
   CoreIcon,
+  JobIcon,
+  MagicIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -23,6 +25,7 @@ import type {
   NotificationChannel,
   NotificationGroup,
 } from '../../hooks/notifications/useNotificationSettings';
+import { briefButtonBg } from '../../styles/custom';
 
 export const NotifContainer = classed(
   'div',
@@ -83,6 +86,7 @@ export enum NotificationType {
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
   InAppPurchases = 'in_app_purchases',
+  NewOpportunityMatch = 'new_opportunity_match',
 }
 
 export enum NotificationIconType {
@@ -101,6 +105,7 @@ export enum NotificationIconType {
   TopReaderBadge = 'TopReaderBadge',
   Timer = 'Timer',
   Core = 'Core',
+  Opportunity = 'Opportunity',
 }
 
 export const notificationIcon: Record<
@@ -122,6 +127,7 @@ export const notificationIcon: Record<
   [NotificationIconType.TopReaderBadge]: BellIcon,
   [NotificationIconType.Timer]: TimerIcon,
   [NotificationIconType.Core]: CoreIcon,
+  [NotificationIconType.Opportunity]: JobIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -144,6 +150,29 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
   [NotificationIconType.Timer]: 'text-brand-default',
   [NotificationIconType.Core]: '',
+  [NotificationIconType.Opportunity]: 'text-black',
+};
+
+export const notificationIconStyle: Record<
+  NotificationIconType,
+  Record<string, string>
+> = {
+  [NotificationIconType.DailyDev]: null,
+  [NotificationIconType.CommunityPicks]: null,
+  [NotificationIconType.Comment]: null,
+  [NotificationIconType.Upvote]: null,
+  [NotificationIconType.Bell]: null,
+  [NotificationIconType.View]: null,
+  [NotificationIconType.Block]: null,
+  [NotificationIconType.User]: null,
+  [NotificationIconType.Star]: null,
+  [NotificationIconType.DevCard]: null,
+  [NotificationIconType.BookmarkReminder]: null,
+  [NotificationIconType.Streak]: null,
+  [NotificationIconType.TopReaderBadge]: null,
+  [NotificationIconType.Timer]: null,
+  [NotificationIconType.Core]: null,
+  [NotificationIconType.Opportunity]: { background: briefButtonBg },
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -165,6 +194,12 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
+
+export const descriptionIcon: Partial<
+  Record<NotificationType, ComponentType<IconProps>>
+> = {
+  [NotificationType.NewOpportunityMatch]: MagicIcon,
+};
 
 export const notificationsUrl = `/notifications`;
 
