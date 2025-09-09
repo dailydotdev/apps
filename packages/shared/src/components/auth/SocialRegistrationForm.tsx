@@ -27,6 +27,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { useSignBack } from '../../hooks/auth/useSignBack';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { Loader } from '../Loader';
+import { labels } from '../../lib';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -65,7 +67,11 @@ export const SocialRegistrationForm = ({
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
-  const { username, setUsername } = useGenerateUsername(name);
+  const {
+    username,
+    setUsername,
+    isLoading: isLoadingUsername,
+  } = useGenerateUsername(name);
   const { onUpdateSignBack } = useSignBack();
 
   useEffect(() => {
@@ -220,12 +226,17 @@ export const SocialRegistrationForm = ({
           label="Enter a username"
           value={username}
           minLength={1}
-          valid={!usernameHint && !hints?.username}
-          hint={hints?.username || usernameHint}
+          valid={isLoadingUsername || (!usernameHint && !hints?.username)}
+          hint={
+            isLoadingUsername
+              ? labels.generatingUsername
+              : hints?.username || usernameHint
+          }
           onBlur={(e) => setUsername(e.target.value)}
           valueChanged={() =>
             hints?.[username] && onUpdateHints({ ...hints, username: '' })
           }
+          rightIcon={isLoadingUsername ? <Loader /> : null}
         />
         {isAuthorOnboarding && (
           <TextField

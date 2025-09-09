@@ -132,4 +132,5 @@ export const labels = {
       completedDescription: `Your post just wrapped up a boost and got in front of the right developers. Want to keep the momentum going? You can boost it again anytime to stay in the spotlight.`,
     },
   },
+  generatingUsername: 'Generating your cool username...',
 };
