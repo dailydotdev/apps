@@ -727,6 +727,9 @@ const JobPage = (): ReactElement => {
                       ({ link, title }) => (
                         <Link key={link} href={link} passHref>
                           <Button
+                            tag="a"
+                            target="_blank"
+                            rel={anchorDefaultRel}
                             variant={ButtonVariant.Subtle}
                             icon={
                               <OpenLinkIcon
@@ -761,6 +764,9 @@ const JobPage = (): ReactElement => {
                       ({ link, title }) => (
                         <Link key={link} href={link} passHref>
                           <Button
+                            tag="a"
+                            target="_blank"
+                            rel={anchorDefaultRel}
                             variant={ButtonVariant.Subtle}
                             icon={
                               <OpenLinkIcon
