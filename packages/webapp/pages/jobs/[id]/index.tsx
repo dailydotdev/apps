@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
+import type { GetServerSideProps } from 'next';
+import { useQuery } from '@tanstack/react-query';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
@@ -41,16 +43,19 @@ import { Accordion } from '@dailydotdev/shared/src/components/accordion';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
-import { useOpportunity } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunity';
+import {
+  opportunityByIdOptions,
+  opportunityMatchOptions,
+} from '@dailydotdev/shared/src/features/opportunity/queries';
 import {
   Image,
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { useOpportunityMatch } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunityMatch';
 import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/components/CVOverlay';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
+import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -100,13 +105,23 @@ const socialMediaIconMap = {
 };
 
 const JobPage = (): ReactElement => {
+const JobPage = ({
+  opportunity: initialData,
+}: {
+  opportunity: Opportunity;
+}): ReactElement => {
   const { checkHasCompleted } = useActions();
   const {
     query: { id, cv_step: cvStep },
   } = useRouter();
 
-  const { opportunity, isPending } = useOpportunity(id as string);
-  const { match } = useOpportunityMatch(id as string);
+  const { data: opportunity, isPending } = useQuery({
+    ...opportunityByIdOptions({ id: id as string }),
+    initialData,
+  });
+  const { data: match } = useQuery(
+    opportunityMatchOptions({ id: id as string }),
+  );
 
   const hasCompleted = checkHasCompleted(ActionType.ViewJob);
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
@@ -719,6 +734,31 @@ const JobPage = (): ReactElement => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<{
+  opportunity: Opportunity;
+}> = async (ctx) => {
+  const { id } = ctx.params as { id: string };
+  if (typeof id !== 'string' || !id) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const opportunity = await opportunityByIdOptions({ id }).queryFn();
+
+  if (!opportunity) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      opportunity,
+    },
+  };
 };
 
 const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
