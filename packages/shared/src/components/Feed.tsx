@@ -137,6 +137,7 @@ export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.VideoYouTube]: ArticlePostModal,
   [PostType.Collection]: CollectionPostModal,
   [PostType.Brief]: BriefPostModal,
+  [PostType.Poll]: SharePostModal, // TODO: Implement Poll modal
 };
 
 export default function Feed<T>({

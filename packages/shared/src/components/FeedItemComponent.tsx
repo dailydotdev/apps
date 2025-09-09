@@ -119,6 +119,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
   [PostType.Brief]: BriefCard,
+  [PostType.Poll]: ShareGrid, // TODO: Implement Poll Grid
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -129,6 +130,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
   [PostType.Brief]: BriefCard,
+  [PostType.Poll]: ShareList, // TODO: Implement Poll Grid
 };
 
 type GetTagsProps = {

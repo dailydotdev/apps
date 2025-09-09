@@ -5,15 +5,18 @@ import { Switch } from '../../fields/Switch';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import PollDurationDropdown from '../poll/PollDurationDropdown';
 
 interface WriteFooterProps {
   isLoading?: boolean;
   className?: string;
+  isPoll?: boolean;
 }
 
 export function WriteFooter({
   isLoading,
   className,
+  isPoll,
 }: WriteFooterProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -22,11 +25,13 @@ export function WriteFooter({
   return (
     <span
       className={classNames(
-        'relative flex flex-col items-center tablet:flex-row',
+        'relative flex flex-col tablet:flex-row',
         !sidebarRendered && 'justify-center',
+        isPoll ? 'tablet:items-end' : 'items-center',
         className,
       )}
     >
+      {isPoll && <PollDurationDropdown />}
       {shouldShowCta && (
         <Switch
           data-testid="push_notification-switch"

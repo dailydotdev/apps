@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
 import { useCallback, useState } from 'react';
 import type {
+  CreatePollPostProps,
   CreatePostProps,
   EditPostProps,
   ExternalLinkPreview,
@@ -11,6 +12,7 @@ import type {
 } from '../../graphql/posts';
 import {
   createPost,
+  createPollPost,
   editPost,
   getExternalLinkPreview,
   PostType,
@@ -50,6 +52,7 @@ interface UsePostToSquad {
     commentary: string,
   ) => Promise<unknown>;
   onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
+  onSubmitPollPost: (post: CreatePollPostProps, squad: Squad) => Promise<void>;
   onUpdateSharePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
@@ -98,6 +101,17 @@ export const usePostToSquad = ({
     isSuccess: isEditPostSuccess,
   } = useMutation({
     mutationFn: editPost,
+    onMutate,
+    onSuccess: onPostSuccess,
+    onError,
+  });
+
+  const {
+    mutateAsync: createPollPostMutation,
+    isPending: isPollLoading,
+    isSuccess: isPollPostSuccess,
+  } = useMutation({
+    mutationFn: createPollPost,
     onMutate,
     onSuccess: onPostSuccess,
     onError,
@@ -219,6 +233,7 @@ export const usePostToSquad = ({
     isLinkLoading ||
     isPostModerationLoading ||
     isEditLoading ||
+    isPollLoading ||
     isLoadingFreeform;
 
   const isUpdating =
@@ -229,6 +244,7 @@ export const usePostToSquad = ({
     isPostSuccess ||
     isLinkSuccess ||
     isFreeformPostSuccess ||
+    isPollPostSuccess ||
     isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
@@ -329,6 +345,23 @@ export const usePostToSquad = ({
     [onCreatePost, onCreatePostModeration],
   );
 
+  const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
+    async ({ options, ...post }, squad) => {
+      const orderedOpts = options.map((opt, index) => ({
+        text: opt,
+        order: index,
+      }));
+      createPollPostMutation({
+        ...post,
+        options: orderedOpts,
+        sourceId: squad.id,
+        type: PostType.Poll,
+      });
+      return null;
+    },
+    [createPollPostMutation],
+  );
+
   return {
     isLoadingPreview,
     getLinkPreview,
@@ -339,6 +372,7 @@ export const usePostToSquad = ({
     preview,
     isSuccess,
     onSubmitFreeformPost,
+    onSubmitPollPost,
     onUpdatePreview: setPreview,
   };
 };

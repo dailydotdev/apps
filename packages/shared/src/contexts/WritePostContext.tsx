@@ -16,8 +16,10 @@ import type { SourcePostModeration } from '../graphql/squads';
 export interface WriteForm {
   title: string;
   content: string;
-  image: string;
+  image?: string;
   filename?: string;
+  options?: string[];
+  duration?: number;
 }
 
 export interface MergedWriteObject
@@ -31,6 +33,7 @@ export interface WritePostProps {
   onSubmitForm: (
     e: FormEvent<HTMLFormElement>,
     prop: WriteForm & Omit<EditPostProps, 'id'>,
+    type: Post['type'],
   ) => void;
   isPosting: boolean;
   squad: Squad;

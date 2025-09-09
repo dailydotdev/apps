@@ -7,7 +7,7 @@ import { TextField } from '../../../fields/TextField';
 import MarkdownInput from '../../../fields/MarkdownInput';
 import { WritePageMain } from './common';
 import type { EditPostProps } from '../../../../graphql/posts';
-import { imageSizeLimitMB } from '../../../../graphql/posts';
+import { imageSizeLimitMB, PostType } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
@@ -79,7 +79,7 @@ export function WriteFreeformContent({
       e.currentTarget,
     );
     const image = files?.[0] ?? (await getDraftImage());
-    await onSubmitForm(e, { title, content, image });
+    await onSubmitForm(e, { title, content, image }, PostType.Freeform);
   };
 
   const onUpdate = async () => {

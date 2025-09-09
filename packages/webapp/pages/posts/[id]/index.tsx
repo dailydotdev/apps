@@ -101,6 +101,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   [PostType.VideoYouTube]: PostContent,
   collection: CollectionPostContent,
   [PostType.Brief]: BriefPostContent,
+  [PostType.Poll]: SquadPostContent, // TODO: Implement Poll content
 };
 
 export interface PostParams extends ParsedUrlQuery {
