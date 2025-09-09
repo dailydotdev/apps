@@ -141,6 +141,7 @@ function CreatePost(): ReactElement {
 
   const param = isRouteReady && activeSquads?.length && (query.sid as string);
   const shareParam = query.share as string;
+  const pollParam = query.poll as string;
 
   useEffect(() => {
     if (!param) {
@@ -154,12 +155,12 @@ function CreatePost(): ReactElement {
   }, [activeSquads, param]);
 
   useEffect(() => {
-    if (!shareParam) {
-      return;
+    if (shareParam) {
+      setDisplay(WriteFormTab.Share);
+    } else if (pollParam) {
+      setDisplay(WriteFormTab.Poll);
     }
-
-    setDisplay(WriteFormTab.Share);
-  }, [shareParam]);
+  }, [shareParam, pollParam]);
 
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
