@@ -3,6 +3,19 @@ export function formToJson<T>(form: HTMLFormElement, initialValue?: T): T {
     if (val.name === '') {
       return acc;
     }
+
+    // Handle fields that end with [] as arrays.
+    if (val.name.endsWith('[]')) {
+      const fieldName = val.name.slice(0, -2); // Remove []
+      const existingArray = acc[fieldName] || [];
+
+      if (val.value && val.value.trim().length > 0) {
+        return { ...acc, [fieldName]: [...existingArray, val.value] };
+      }
+
+      return acc;
+    }
+
     if (val.type === 'checkbox') {
       return { ...acc, [val.name]: val.checked };
     }

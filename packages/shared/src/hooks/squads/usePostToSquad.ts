@@ -346,9 +346,14 @@ export const usePostToSquad = ({
   );
 
   const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
-    async (post, squad) => {
+    async ({ options, ...post }, squad) => {
+      const orderedOpts = options.map((opt, index) => ({
+        text: opt,
+        order: index,
+      }));
       createPollPostMutation({
         ...post,
+        options: orderedOpts,
         sourceId: squad.id,
         type: PostType.Poll,
       });

@@ -6,12 +6,7 @@ import type {
 } from 'react';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
-import type {
-  EditPostProps,
-  PollOption,
-  Post,
-  SharedPost,
-} from '../graphql/posts';
+import type { EditPostProps, Post, SharedPost } from '../graphql/posts';
 import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
@@ -23,7 +18,7 @@ export interface WriteForm {
   content: string;
   image?: string;
   filename?: string;
-  options?: PollOption[];
+  options?: string[];
   duration?: number;
 }
 

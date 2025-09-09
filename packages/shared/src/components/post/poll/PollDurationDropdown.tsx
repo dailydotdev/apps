@@ -46,6 +46,11 @@ const PollDurationDropdown = () => {
 
   return (
     <div className="flex flex-col gap-2">
+      <input
+        type="hidden"
+        name="duration"
+        value={options[selectedIndex].value}
+      />
       <Typography type={TypographyType.Body} bold>
         Poll duration
       </Typography>

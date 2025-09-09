@@ -9,6 +9,7 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import { ActionType } from '../../../graphql/actions';
 import { useActions } from '../../../hooks';
+import { formToJson } from '../../../lib/form';
 import { PostType } from '../../../types';
 
 const MAX_TITLE_LENGTH = 250;
@@ -31,13 +32,7 @@ const CreatePoll = () => {
     const opts = draft?.options || [];
     updateDraft({
       ...draft,
-      options: [
-        ...opts,
-        {
-          text: '',
-          order: opts.length,
-        },
-      ],
+      options: [...opts, ''],
     });
   };
 
@@ -48,18 +43,10 @@ const CreatePoll = () => {
     });
   };
 
-  const onOptionUpdate = (value: string, order: number) => {
-    const newOpts = draft?.options?.map((opt, index) => {
-      if (index === order) {
-        return {
-          ...opt,
-          text: value,
-        };
-      }
-
-      return opt;
-    });
-
+  const onOptionUpdate = (value: string, index: number) => {
+    const newOpts = draft?.options?.map((opt, i) =>
+      i === index ? value : opt,
+    );
     updateDraft({
       ...draft,
       options: newOpts,
@@ -70,16 +57,7 @@ const CreatePoll = () => {
     if (!isUpdatingDraft && !draft?.options) {
       updateDraft({
         ...draft,
-        options: [
-          {
-            text: '',
-            order: 0,
-          },
-          {
-            text: '',
-            order: 1,
-          },
-        ],
+        options: ['', ''],
         duration: 7,
       });
     }
@@ -88,13 +66,22 @@ const CreatePoll = () => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     completeAction(ActionType.WritePost);
+    const {
+      title,
+      options,
+      duration,
+    }: {
+      title: string;
+      options: string[];
+      duration?: number;
+    } = formToJson(e.currentTarget);
 
     onSubmitForm(
       e,
       {
-        title: draft.title,
-        options: draft.options.filter((option) => option.text.trim() !== ''),
-        duration: draft?.duration,
+        title,
+        options,
+        duration,
         content: '',
         image: undefined,
       },
@@ -119,19 +106,17 @@ const CreatePoll = () => {
         <Typography type={TypographyType.Body} bold>
           Poll options
         </Typography>
-        {draft?.options?.map((option) => (
+        {draft?.options?.map((option, index) => (
           <TextField
-            key={option.order}
+            key={`option-${index + 1}`}
             className={{ container: 'w-full' }}
-            inputId={`option-${option.order}`}
-            name={`option-${option.order}`}
-            label={`Option ${option.order + 1}${
-              option.order <= 1 ? '*' : ' (optional)'
-            }`}
+            inputId={`options-${index}`}
+            name="options[]"
+            label={`Option ${index + 1}${index <= 1 ? '*' : ' (optional)'}`}
             placeholder="Give your post a title"
-            required={option.order <= 1}
-            defaultValue={option?.text || ''}
-            onInput={(e) => onOptionUpdate(e.currentTarget.value, option.order)}
+            required={index <= 1}
+            defaultValue={option || ''}
+            onInput={(e) => onOptionUpdate(e.currentTarget.value, index)}
             maxLength={MAX_OPTION_LENGTH}
           />
         ))}
