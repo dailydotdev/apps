@@ -31,6 +31,14 @@ export type Salary = {
   period: ProtoEnumValue;
 };
 
+export type OpportunityMeta = {
+  employmentType: ProtoEnumValue;
+  teamSize: number;
+  salary: Salary;
+  seniorityLevel: ProtoEnumValue;
+  roleType: number;
+};
+
 export type OpportunityKeyword = {
   keyword: string;
 };
@@ -44,13 +52,7 @@ export type Opportunity = {
   content: {
     overview: OpportunityContentBlock;
   };
-  meta: {
-    employmentType: ProtoEnumValue;
-    teamSize: number;
-    salary: Salary;
-    seniorityLevel: ProtoEnumValue;
-    roleType: number;
-  };
+  meta: OpportunityMeta;
   recruiters: PublicProfile[];
   location: OpportunityLocation[];
   keywords?: OpportunityKeyword[];

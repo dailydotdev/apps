@@ -55,7 +55,16 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/components/CVOverlay';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
-import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
+import type {
+  Opportunity,
+  OpportunityMeta,
+} from '@dailydotdev/shared/src/features/opportunity/types';
+import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
+import {
+  EmploymentType,
+  SalaryPeriod,
+  SeniorityLevel,
+} from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -102,6 +111,93 @@ const socialMediaIconMap = {
   x: <TwitterIcon />,
   github: <GitHubIcon />,
   crunchbase: <CrunchbaseIcon />,
+};
+
+const locationTypeMap = {
+  [LocationType.UNSPECIFIED]: 'N/A',
+  [LocationType.REMOTE]: 'Remote',
+  [LocationType.OFFICE]: 'Office',
+  [LocationType.HYBRID]: 'Hybrid',
+};
+
+const roleTypeMap = {
+  0: 'Individual Contributor',
+  1: 'Management',
+};
+
+const employmentTypeMap = {
+  [EmploymentType.UNSPECIFIED]: 'N/A',
+  [EmploymentType.FULL_TIME]: 'Full-time',
+  [EmploymentType.PART_TIME]: 'Part-time',
+  [EmploymentType.CONTRACT]: 'Contract',
+  [EmploymentType.INTERNSHIP]: 'Internship',
+};
+
+const seniorityLevelMap = {
+  [SeniorityLevel.UNSPECIFIED]: 'N/A',
+  [SeniorityLevel.INTERN]: 'Intern',
+  [SeniorityLevel.JUNIOR]: 'Junior',
+  [SeniorityLevel.MID]: 'Mid',
+  [SeniorityLevel.SENIOR]: 'Senior',
+  [SeniorityLevel.LEAD]: 'Lead',
+  [SeniorityLevel.MANAGER]: 'Manager',
+  [SeniorityLevel.DIRECTOR]: 'Director',
+  [SeniorityLevel.VP]: 'VP',
+  [SeniorityLevel.C_LEVEL]: 'C-Level',
+};
+
+const salaryPeriodMap = {
+  [SalaryPeriod.UNSPECIFIED]: 'N/A',
+  [SalaryPeriod.ANNUAL]: 'year',
+  [SalaryPeriod.MONTHLY]: 'month',
+  [SalaryPeriod.HOURLY]: 'hour',
+};
+
+const metaMap = {
+  location: {
+    title: 'Location',
+    transformer: (value: Opportunity['location']) => {
+      const location = value?.[0];
+      if (!location) {
+        return 'N/A';
+      }
+      return `${location.city}${
+        location.subdivision ? `, ${location.subdivision}` : ''
+      }${location.country ? `, ${location.country}` : ''}`;
+    },
+  },
+  salary: {
+    title: 'Salary range',
+    transformer: (value: OpportunityMeta['salary']) =>
+      `$${value.min}/${value.period} - $${value.max}/${
+        salaryPeriodMap[value.period]
+      }`,
+  },
+  locationType: {
+    title: 'Work site',
+    transformer: (value: Opportunity['location']) =>
+      locationTypeMap[value?.[0].type || LocationType.UNSPECIFIED],
+  },
+  employmentType: {
+    title: 'Employment type',
+    transformer: (value: OpportunityMeta['employmentType']) =>
+      employmentTypeMap[value || EmploymentType.UNSPECIFIED],
+  },
+  teamSize: {
+    title: 'Team size',
+    transformer: (value: OpportunityMeta['teamSize']) =>
+      `${value} engineers` || 'N/A',
+  },
+  seniorityLevel: {
+    title: 'Seniority level',
+    transformer: (value: OpportunityMeta['seniorityLevel']) =>
+      seniorityLevelMap[value || SeniorityLevel.UNSPECIFIED],
+  },
+  roleType: {
+    title: 'Role type',
+    transformer: (value: OpportunityMeta['roleType']) =>
+      roleTypeMap[value] || 'N/A',
+  },
 };
 
 const JobPage = ({
@@ -254,123 +350,35 @@ const JobPage = ({
 
             {/* Details */}
             <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white laptop:grid-cols-[max-content_1fr_max-content_1fr]">
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Location
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.location.map((loc) => {
-                  return `${loc.city}${
-                    loc.subdivision ? `, ${loc.subdivision}` : ''
-                  }${loc.country ? `, ${loc.country}` : ''}`;
-                })}
-              </Typography>
+              {Object.keys(metaMap).map((metaKey) => {
+                const { title, transformer } = metaMap[metaKey];
+                const isLocation =
+                  metaKey === 'location' || metaKey === 'locationType';
 
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Work site
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.location[0].type}
-              </Typography>
+                const value = isLocation
+                  ? opportunity.location
+                  : opportunity.meta[metaKey];
 
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Employment type
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.meta.employmentType}
-              </Typography>
-
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Team size
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.meta.teamSize}
-              </Typography>
-
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Salary range
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                ${opportunity.meta.salary.min}/{opportunity.meta.salary.period}{' '}
-                - ${opportunity.meta.salary.max}/
-                {opportunity.meta.salary.period}
-              </Typography>
-
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Seniority level
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.meta.seniorityLevel}
-              </Typography>
-
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Role type
-              </Typography>
-              <Typography
-                className="laptop:[&:nth-child(4n+3)]:pl-2"
-                bold
-                type={TypographyType.Subhead}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.meta.roleType}
-              </Typography>
+                return (
+                  <>
+                    <Typography
+                      className="laptop:[&:nth-child(4n+3)]:pl-2"
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {title}
+                    </Typography>
+                    <Typography
+                      className="laptop:[&:nth-child(4n+3)]:pl-2"
+                      bold
+                      type={TypographyType.Subhead}
+                      color={TypographyColor.Primary}
+                    >
+                      {transformer(value)}
+                    </Typography>
+                  </>
+                );
+              })}
             </div>
 
             {/* Why we think */}
