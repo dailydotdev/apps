@@ -3,7 +3,6 @@ import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
-    # content
     html
   }
 `;
