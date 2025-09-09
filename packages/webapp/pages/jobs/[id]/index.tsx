@@ -140,6 +140,7 @@ const JobPage = (): ReactElement => {
       {showCVScreen && <CVOverlay onDismiss={() => setShowCVScreen(false)} />}
       {!hasCompleted && <JobPageIntro />}
       <ResponseButtons
+        id={opportunity.id}
         className={{
           buttons: 'flex-1',
           container:
@@ -177,6 +178,7 @@ const JobPage = (): ReactElement => {
             </div>
 
             <ResponseButtons
+              id={opportunity.id}
               className={{
                 container: 'ml-auto hidden gap-2 tablet:flex',
               }}
@@ -398,6 +400,7 @@ const JobPage = (): ReactElement => {
           ))}
 
           <ResponseButtons
+            id={opportunity.id}
             className={{
               container:
                 'hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex',
