@@ -124,4 +124,5 @@ export const labels = {
       },
     },
   },
+  generatingUsername: 'Generating your cool username...',
 };

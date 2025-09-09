@@ -44,6 +44,8 @@ import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import { Loader } from '../Loader';
+import { labels } from '../../lib';
 
 export interface RegistrationFormProps extends AuthFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -86,7 +88,11 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
-  const { username, setUsername } = useGenerateUsername(name);
+  const {
+    username,
+    setUsername,
+    isLoading: isLoadingUsername,
+  } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
   const logRef = useRef<typeof logEvent>();
@@ -242,6 +248,18 @@ const RegistrationForm = ({
     !isSubmitted || !hints?.['traits.experienceLevel'];
   const { isAuthenticating = false } = useAtomValue(authAtom);
 
+  const usernameIcon = (() => {
+    if (isLoadingUsername) {
+      return <Loader />;
+    }
+
+    if (isUsernameValid) {
+      return <VIcon className="text-accent-avocado-default" />;
+    }
+
+    return null;
+  })();
+
   return (
     <>
       {!isAuthenticating && (
@@ -352,21 +370,23 @@ const RegistrationForm = ({
           autoComplete="user"
           saveHintSpace
           className={{ container: 'w-full' }}
-          valid={isUsernameValid}
+          valid={isLoadingUsername || isUsernameValid}
           leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
           value={username}
           onBlur={(e) => setUsername(e.target.value)}
-          hint={hints?.['traits.username']}
+          hint={
+            isLoadingUsername
+              ? labels.generatingUsername
+              : hints?.['traits.username']
+          }
           valueChanged={() =>
             hints?.['traits.username'] &&
             onUpdateHints({ ...hints, 'traits.username': '' })
           }
-          rightIcon={
-            isUsernameValid && <VIcon className="text-accent-avocado-default" />
-          }
+          rightIcon={usernameIcon}
         />
         {isAuthorOnboarding && (
           <TextField
