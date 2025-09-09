@@ -1,6 +1,7 @@
 import { utcToZonedTime } from 'date-fns-tz';
 import { isNullOrUndefined } from './func';
 import { DEFAULT_TIMEZONE } from './timezones';
+import { getTodayTz } from './dateFormat';
 
 export enum DayOfWeek {
   Sunday = 0,
@@ -35,4 +36,9 @@ export const getDefaultStartOfWeek = (weekStart?: number): string => {
   }
 
   return (weekStart as number).toString();
+};
+
+export const isOlderThan = (seconds: number, date: Date) => {
+  const currentDate = getTodayTz('UTC', new Date());
+  return date.getTime() < currentDate.getTime() - seconds;
 };

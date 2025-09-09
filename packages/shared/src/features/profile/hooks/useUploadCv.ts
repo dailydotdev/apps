@@ -53,6 +53,7 @@ export const useUploadCv = ({
         openModal({
           type: LazyModal.ActionSuccess,
           props: {
+            withCloseOnTablet: true,
             content: {
               title: 'All set! We’ll take it from here',
               description:

@@ -28,7 +28,7 @@ const AccountNotificationsPage = (): ReactElement => {
 
   return (
     <AccountPageContent>
-      <TabContainer>
+      <TabContainer className={{ header: 'h-14 px-4' }}>
         <Tab label="Notifications">
           <InAppNotificationsTab />
         </Tab>

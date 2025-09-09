@@ -15,7 +15,7 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
-import { BoostPostButton } from '../../features/boost/BoostPostButton';
+import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 

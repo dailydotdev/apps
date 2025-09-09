@@ -16,25 +16,17 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ArrowIcon,
+  MagicIcon,
   SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  plusUrl,
-  settingsUrl,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
-import {
-  useConditionalFeature,
+  useActions,
   usePlusSubscription,
   useViewSizeClient,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { featurePlusCtaCopy } from '@dailydotdev/shared/src/lib/featureManagement';
-import { LogEvent, Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
-import {
-  briefButtonBg,
-  briefCardBg,
-} from '@dailydotdev/shared/src/styles/custom';
+import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
@@ -49,13 +41,16 @@ import {
   BRIEFING_POSTS_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { useRouter } from 'next/router';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
+import { useAtomValue } from 'jotai/react';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
 import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
+import { isBriefGenerationPending } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBrief';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -66,16 +61,12 @@ const Page = (): ReactElement => {
   const currentYear = new Date().getFullYear().toString();
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus } = usePlusSubscription();
+  const { isActionsFetched } = useActions();
   const isNotPlus = !isPlus && isAuthReady;
-  const {
-    value: { full: plusCta },
-  } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
-    shouldEvaluate: isNotPlus,
-  });
 
-  const selectedBriefId = router?.query?.pmid as string;
+  const { pmid: selectedBriefId }: Partial<Record<'pmid', string>> =
+    router?.query ?? {};
 
   const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
   const feedQuery = useFeed(
@@ -90,6 +81,8 @@ const Page = (): ReactElement => {
     },
   );
   const { items, updatePost, fetchPage, canFetchMore, emptyFeed } = feedQuery;
+
+  const isGenerating = useAtomValue(isBriefGenerationPending);
 
   const {
     onOpenModal,
@@ -126,6 +119,23 @@ const Page = (): ReactElement => {
     onOpenModal(briefIndex);
   };
 
+  const firstBrief = items.at(0);
+  const todayTime = set(new Date(), {
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+  const hasTodayBrief =
+    firstBrief &&
+    'post' in firstBrief &&
+    new Date(firstBrief.post.createdAt) >= todayTime;
+
+  if (!isActionsFetched) {
+    return null;
+  }
+
+  const showBriefCard = emptyFeed && (isGenerating || !feedQuery.isPending);
+
   return (
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
@@ -143,52 +153,29 @@ const Page = (): ReactElement => {
             <Typography type={TypographyType.Title3} bold>
               Presidential briefings
             </Typography>
-            <Button
-              className="ml-auto"
-              icon={<SettingsIcon className="text-text-secondary" />}
-              onClick={() => {
-                router?.push(`${settingsUrl}/notifications`);
-              }}
-            />
+            <div className="ml-auto flex items-center gap-2">
+              {isNotPlus && !emptyFeed && !hasTodayBrief && (
+                <Button
+                  icon={<MagicIcon aria-hidden />}
+                  onClick={() => router.push('/briefing/generate')}
+                  variant={ButtonVariant.Primary}
+                >
+                  Generate Brief
+                </Button>
+              )}
+              <Button
+                icon={<SettingsIcon className="text-text-secondary" />}
+                onClick={() => {
+                  router?.push(`${settingsUrl}/notifications`);
+                }}
+              />
+            </div>
           </header>
           <div className="flex flex-col px-4">
             {isNotPlus &&
-              !!items.length &&
-              items[0]?.type !== FeedItemType.Placeholder && (
-                <div
-                  style={{
-                    background: briefCardBg,
-                  }}
-                  className="mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white px-4 py-3"
-                >
-                  <Typography
-                    type={TypographyType.Callout}
-                    className="w-full tablet:w-auto"
-                  >
-                    Get unlimited access to every past and future presidential
-                    briefing with daily.dev Plus.
-                  </Typography>
-                  <Link href={plusUrl} passHref>
-                    <Button
-                      style={{
-                        background: briefButtonBg,
-                      }}
-                      className="ml-auto w-fit text-black"
-                      tag="a"
-                      type="button"
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Small}
-                      onClick={() => {
-                        logSubscriptionEvent({
-                          event_name: LogEvent.UpgradeSubscription,
-                          target_id: TargetId.Brief,
-                        });
-                      }}
-                    >
-                      {plusCta}
-                    </Button>
-                  </Link>
-                </div>
+              !!firstBrief &&
+              firstBrief?.type !== FeedItemType.Placeholder && (
+                <BriefUpgradeAlert />
               )}
             <InfiniteScrolling
               isFetchingNextPage={feedQuery.isFetching}
@@ -198,7 +185,7 @@ const Page = (): ReactElement => {
               <ActiveFeedContext.Provider
                 value={{ queryKey: feedQueryKey, items }}
               >
-                {emptyFeed && !feedQuery.isPending && (
+                {showBriefCard && (
                   <div className="tablet:max-w-80">
                     <BriefCardFeed
                       targetId={TargetId.List}
@@ -209,6 +196,7 @@ const Page = (): ReactElement => {
                   </div>
                 )}
                 {emptyFeed &&
+                  !isGenerating &&
                   items.map((item, index) => {
                     if (item.type !== FeedItemType.Placeholder) {
                       return null;
@@ -222,85 +210,86 @@ const Page = (): ReactElement => {
                       />
                     );
                   })}
-                {items
-                  .reduce(
-                    (acc, item, index) => {
-                      const previousItem = acc[acc.length - 1];
+                {!isGenerating &&
+                  items
+                    .reduce(
+                      (acc, item, index) => {
+                        const previousItem = acc[acc.length - 1];
 
-                      if (item.type === 'post') {
-                        const year = format(
-                          new Date(item.post.createdAt),
-                          'yyyy',
-                        );
+                        if (item.type === 'post') {
+                          const year = format(
+                            new Date(item.post.createdAt),
+                            'yyyy',
+                          );
 
-                        if (!previousItem || previousItem.title !== year) {
-                          acc.push({
-                            title: year,
-                            items: [],
-                          });
+                          if (!previousItem || previousItem.title !== year) {
+                            acc.push({
+                              title: year,
+                              items: [],
+                            });
+                          }
+
+                          const section = acc[acc.length - 1];
+
+                          const { post } = item;
+
+                          section.items.push(
+                            <BriefListItem
+                              key={post.id}
+                              post={post}
+                              title={post.title}
+                              pill={
+                                index === 0 && !post.read
+                                  ? { label: 'Just in' }
+                                  : undefined
+                              }
+                              readTime={post.readTime}
+                              isRead={post.read}
+                              postsCount={post.flags?.posts || 0}
+                              sourcesCount={post.flags?.sources || 0}
+                              onClick={onBriefClick}
+                              origin={Origin.BriefPage}
+                              targetId={TargetId.List}
+                            />,
+                          );
                         }
 
-                        const section = acc[acc.length - 1];
+                        if (item.type === 'placeholder') {
+                          if (!previousItem) {
+                            acc.push({
+                              title: new Date().getFullYear().toString(),
+                              items: [],
+                            });
+                          }
 
-                        const { post } = item;
+                          const section = acc[acc.length - 1];
 
-                        section.items.push(
-                          <BriefListItem
-                            key={post.id}
-                            post={post}
-                            title={post.title}
-                            pill={
-                              index === 0 && !post.read
-                                ? { label: 'Just in' }
-                                : undefined
-                            }
-                            readTime={post.readTime}
-                            isRead={post.read}
-                            postsCount={post.flags?.posts || 0}
-                            sourcesCount={post.flags?.sources || 0}
-                            onClick={onBriefClick}
-                            origin={Origin.BriefPage}
-                            targetId={TargetId.List}
-                          />,
-                        );
-                      }
-
-                      if (item.type === 'placeholder') {
-                        if (!previousItem) {
-                          acc.push({
-                            title: new Date().getFullYear().toString(),
-                            items: [],
-                          });
+                          section.items.push(
+                            <ElementPlaceholder
+                              // eslint-disable-next-line react/no-array-index-key
+                              key={`placeholder-${index}`}
+                              className="h-16 w-full rounded-16 border border-border-subtlest-tertiary bg-transparent p-2"
+                            />,
+                          );
                         }
 
-                        const section = acc[acc.length - 1];
-
-                        section.items.push(
-                          <ElementPlaceholder
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={`placeholder-${index}`}
-                            className="h-16 w-full rounded-16 border border-border-subtlest-tertiary bg-transparent p-2"
-                          />,
-                        );
-                      }
-
-                      return acc;
-                    },
-                    [] as {
-                      title: string;
-                      items: ReactElement[];
-                    }[],
-                  )
-                  .map((section) => {
-                    return (
-                      <BriefListSection key={section.title}>
-                        {section.title !== currentYear && (
-                          <BriefListHeading title={section.title} />
-                        )}
-                        {section.items}
-                      </BriefListSection>
-                    );
-                  })}
+                        return acc;
+                      },
+                      [] as {
+                        title: string;
+                        items: ReactElement[];
+                      }[],
+                    )
+                    .map((section) => {
+                      return (
+                        <BriefListSection key={section.title}>
+                          {section.title !== currentYear && (
+                            <BriefListHeading title={section.title} />
+                          )}
+                          {section.items}
+                        </BriefListSection>
+                      );
+                    })}
               </ActiveFeedContext.Provider>
             </InfiniteScrolling>
           </div>

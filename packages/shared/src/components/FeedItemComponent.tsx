@@ -1,8 +1,8 @@
 import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
-import type { FeedItem } from '../hooks/useFeed';
-import { isBoostedPostAd } from '../hooks/useFeed';
+import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
+import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
@@ -38,8 +38,12 @@ import { AdPixel } from './cards/ad/common/AdPixel';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
+import { SquadAdList } from './cards/ad/squad/SquadAdList';
+import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
+import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 
 const CommentPopup = dynamic(
   () =>
@@ -144,6 +148,7 @@ const getTags = ({
       ? PostTypeToTagList[postType] ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? AdList : AdGrid,
+    SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     PlusGridTag: PlusGrid,
@@ -177,10 +182,19 @@ export const withFeedLogExtraContext = (
                   ? item.post
                   : item.ad.data?.post;
 
-              return {
-                referrer_target_id: post?.id,
-                referrer_target_type: post?.id ? TargetType.Post : undefined,
-              };
+              extraData.referrer_target_id = post?.id;
+              extraData.referrer_target_type = post?.id
+                ? TargetType.Post
+                : undefined;
+            }
+
+            if (isBoostedSquadAd(item)) {
+              const source = item.ad.data?.source;
+
+              extraData.referrer_target_id = source?.id;
+              extraData.referrer_target_type = source?.id
+                ? TargetType.Source
+                : undefined;
             }
 
             return extraData;
@@ -241,6 +255,7 @@ function FeedItemComponent({
   const {
     PostTag,
     AdTag,
+    SquadAdTag,
     PlaceholderTag,
     MarketingCtaTag,
     PlusGridTag,
@@ -248,13 +263,12 @@ function FeedItemComponent({
   } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
-    postType: (item as PostItem).post?.type,
+    postType: isBoostedPostAd(item)
+      ? item.ad.data?.post?.type
+      : (item as PostItem).post?.type,
   });
 
-  const onAdAction = (
-    action: Exclude<AdActions, AdActions.Impression>,
-    ad: Ad,
-  ) => {
+  const onAdAction = (action: AdActions, ad: Ad) => {
     logEvent(
       adLogEvent(action, ad, {
         columns: virtualizedNumCards,
@@ -264,6 +278,16 @@ function FeedItemComponent({
       }),
     );
   };
+
+  if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
+    return (
+      <SquadAdTag
+        item={item as AdSquadItem}
+        onClickAd={() => onAdAction(AdActions.Click, item.ad)}
+        onMount={() => onAdAction(AdActions.Impression, item.ad)}
+      />
+    );
+  }
 
   if (item.type === FeedItemType.Post || isBoostedPostAd(item)) {
     const itemPost =
@@ -366,6 +390,10 @@ function FeedItemComponent({
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.MarketingCta:
+      if (item.marketingCta.variant === MarketingCtaVariant.BriefCard) {
+        return <MarketingCtaBriefing {...item.marketingCta} />;
+      }
+
       return (
         <MarketingCtaTag
           key="marketing-cta-card"

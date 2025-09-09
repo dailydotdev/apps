@@ -76,6 +76,7 @@ export enum Origin {
   StreakRecover = 'streak recover',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
+  SquadBoost = 'squad boost',
 }
 
 export enum LogEvent {
@@ -306,6 +307,8 @@ export enum LogEvent {
   // Start Brief
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
+  StartBriefPurchase = 'start brief purchase',
+  BriefPaywall = 'brief paywall',
   // End Brief
   // CV Upload
   UploadCv = 'upload cv',
@@ -338,6 +341,7 @@ export enum TargetType {
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
+  MarketingCtaBrief = 'promotion_briefing',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
@@ -406,6 +410,7 @@ export enum TargetId {
   NotificationSettings = 'notification settings',
   Feed = 'feed',
   CVWidget = 'cv widget',
+  Scroll = 'scroll',
 }
 
 export enum NotificationChannel {

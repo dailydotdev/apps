@@ -204,16 +204,17 @@ export enum RequestKey {
   PriceMetadata = 'price_metadata',
   Products = 'products',
   Transactions = 'transactions',
-  PostCampaigns = 'post_campaigns',
+  Campaigns = 'campaigns',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
-  PostBoostReach = 'postBoostReach',
+  CampaignReach = 'campaignReach',
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
   NotificationSettings = 'notification_settings',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   CheckLocation = 'check_location',
+  GenerateBrief = 'generate_brief',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
