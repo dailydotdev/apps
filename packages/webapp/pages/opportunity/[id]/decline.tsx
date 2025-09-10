@@ -30,6 +30,7 @@ import {
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
+import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -166,8 +167,7 @@ const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
 
 DeclinePage.getLayout = getPageLayout;
 DeclinePage.layoutProps = {
-  className: 'gap-10 laptop:pt-10 pb-10',
-  screenCentered: true,
+  ...opportunityPageLayoutProps,
   seo,
 };
 
