@@ -455,6 +455,8 @@ const JobPage = ({
                     __html: opportunity.content[faqItem.key].html,
                   }}
                 />
+                {/* TODO: this is a hack so that numeric lists are styled correctly */}
+                <span className="hidden list-decimal" />
               </Accordion>
             </div>
           ))}
