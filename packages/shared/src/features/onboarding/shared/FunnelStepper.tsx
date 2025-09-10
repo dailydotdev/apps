@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
@@ -91,6 +91,29 @@ function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   return <Component {...props} />;
 }
 
+type ShouldSkipRef = Partial<Record<FunnelStepType, boolean>>;
+
+const getNextStep = (
+  destination: string,
+  steps: FunnelStep[],
+  shouldSkipMap: ShouldSkipRef,
+) => {
+  if (destination === COMPLETED_STEP_ID) {
+    return { targetStepId: COMPLETED_STEP_ID, isLastStep: true };
+  }
+
+  const next = steps.find((s) => s.id === destination);
+  const nextSkip = next.transitions.find((t) => t.on === 'skip');
+  const targetStepId =
+    destination === NEXT_STEP_ID ? nextSkip.destination : destination;
+
+  if (shouldSkipMap[next.type]) {
+    return getNextStep(next.transitions[0].destination, steps, shouldSkipMap);
+  }
+
+  return { targetStepId, isLastStep: false };
+};
+
 export const FunnelStepper = ({
   funnel,
   initialStepId,
@@ -98,6 +121,10 @@ export const FunnelStepper = ({
   showCookieBanner,
   onComplete,
 }: FunnelStepperProps): ReactElement => {
+  const steps = useMemo(
+    () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
+    [funnel?.chapters],
+  );
   const { data: pricing } = useFunnelPricing(funnel);
   const {
     trackOnClickCapture,
@@ -119,7 +146,7 @@ export const FunnelStepper = ({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
-
+  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
@@ -131,9 +158,11 @@ export const FunnelStepper = ({
         return;
       }
 
-      const targetStepId =
-        destination === NEXT_STEP_ID ? skip.destination : destination;
-      const isLastStep = targetStepId === COMPLETED_STEP_ID;
+      const { targetStepId, isLastStep } = getNextStep(
+        destination,
+        steps,
+        shouldSkipRef.current,
+      );
 
       sendTransition({
         fromStep: step.id,
@@ -157,7 +186,7 @@ export const FunnelStepper = ({
     [
       step.transitions,
       step.id,
-      skip.destination,
+      steps,
       sendTransition,
       navigate,
       trackOnComplete,
@@ -201,11 +230,6 @@ export const FunnelStepper = ({
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
-  const steps = useMemo(
-    () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
-    [funnel?.chapters],
-  );
-
   if (!isReady) {
     return null;
   }
@@ -215,6 +239,10 @@ export const FunnelStepper = ({
   const hasOnlySkipButton =
     shouldShowHeaderSkip &&
     stepsWithOnlySkipHeader.some((type) => type === step.type);
+
+  const onRegisterStepToSkip = (type: FunnelStepType) => {
+    shouldSkipRef.current[type] = true;
+  };
 
   return (
     <section
@@ -273,6 +301,7 @@ export const FunnelStepper = ({
                       {...funnelStep}
                       isActive={isActive}
                       onTransition={onTransition}
+                      onRegisterStepToSkip={onRegisterStepToSkip}
                     />
                   </div>
                 );
