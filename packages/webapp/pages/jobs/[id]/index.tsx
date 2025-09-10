@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import type { GetServerSideProps } from 'next';
+import type { GetStaticPathsResult, GetStaticProps } from 'next';
 import { useQuery } from '@tanstack/react-query';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -785,29 +785,31 @@ const JobPage = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps<{
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: 'blocking' };
+}
+
+export const getStaticProps: GetStaticProps<{
   opportunity: Opportunity;
 }> = async (ctx) => {
-  const { id } = ctx.params as { id: string };
-  if (typeof id !== 'string' || !id) {
-    return {
-      notFound: true,
-    };
+  const id = ctx.params?.id;
+  if (!id || typeof id !== 'string') {
+    return { notFound: true };
   }
 
-  const opportunity = await opportunityByIdOptions({ id }).queryFn();
+  try {
+    const opportunity = await opportunityByIdOptions({ id }).queryFn();
+    if (!opportunity) {
+      return { notFound: true };
+    }
 
-  if (!opportunity) {
     return {
-      notFound: true,
+      props: { opportunity },
+      revalidate: 300,
     };
+  } catch (_e) {
+    return { notFound: true, revalidate: 60 };
   }
-
-  return {
-    props: {
-      opportunity,
-    },
-  };
 };
 
 const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
