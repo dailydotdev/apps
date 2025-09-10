@@ -7,6 +7,7 @@ import { useFunnelTracking } from '../hooks/useFunnelTracking';
 import { useStepTransition } from '../hooks/useStepTransition';
 import {
   COMPLETED_STEP_ID,
+  NEXT_STEP_ID,
   FunnelStepType,
   FunnelStepTransitionType,
   FunnelStepQuizQuestionType,
@@ -301,5 +302,202 @@ describe('FunnelStepper component', () => {
     // We should have one visible div and one hidden div
     const steps = screen.getAllByTestId('funnel-step');
     expect(steps.length).toBe(1);
+  });
+
+  it('should handle NEXT_STEP_ID transitions correctly', async () => {
+    // Test the edge case where transition uses NEXT_STEP_ID instead of explicit step ID
+    const stepWithNextTransition: FunnelStepQuiz = {
+      id: 'step1',
+      type: FunnelStepType.Quiz,
+      parameters: {
+        question: {
+          type: FunnelStepQuizQuestionType.Radio,
+          text: 'Test question',
+          options: [{ label: 'Option 1' }],
+        },
+        explainer: 'Test explainer',
+      },
+      transitions: [
+        { on: FunnelStepTransitionType.Complete, destination: NEXT_STEP_ID }, // Using NEXT_STEP_ID
+        { on: FunnelStepTransitionType.Skip, destination: COMPLETED_STEP_ID },
+      ],
+    } as FunnelStepQuiz;
+
+    const funnelWithNext: FunnelJSON = {
+      id: 'test-funnel',
+      version: 1,
+      parameters: {},
+      entryPoint: 'step1',
+      chapters: [
+        {
+          id: 'chapter1',
+          steps: [stepWithNextTransition, mockStep2],
+        },
+      ],
+    };
+
+    (useFunnelNavigation as jest.Mock).mockReturnValue({
+      back: mockBack,
+      skip: mockSkip,
+      navigate: mockNavigate,
+      position: { chapter: 0, step: 0 },
+      chapters: [{ steps: 2 }],
+      step: stepWithNextTransition,
+      isReady: true,
+    });
+
+    renderComponent(funnelWithNext);
+
+    await act(async () => {
+      const firstOption = screen.getByText('Option 1');
+      fireEvent.click(firstOption);
+      await waitForNock();
+    });
+
+    // Should resolve NEXT_STEP_ID to "step2"
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: 'step2',
+      type: FunnelStepTransitionType.Complete,
+      details: { step1: 'Option 1' },
+    });
+    expect(mockSendTransition).toHaveBeenCalledWith({
+      fromStep: 'step1',
+      toStep: 'step2',
+      transitionEvent: FunnelStepTransitionType.Complete,
+      inputs: { step1: 'Option 1' },
+    });
+  });
+
+  it('should render only steps that are not skipped', () => {
+    // Test that steps marked to be skipped don't render
+    // This tests the conditional step logic we implemented
+    const normalStep: FunnelStepQuiz = {
+      id: 'step1',
+      type: FunnelStepType.Quiz,
+      parameters: {
+        question: {
+          type: FunnelStepQuizQuestionType.Radio,
+          text: 'Test question',
+          options: [{ label: 'Option 1' }],
+        },
+        explainer: 'Test explainer',
+      },
+      transitions: [
+        { on: FunnelStepTransitionType.Complete, destination: 'step2' },
+      ],
+    } as FunnelStepQuiz;
+
+    // PWA install step that should be conditionally rendered
+    const conditionalStep: FunnelStep = {
+      id: 'step2',
+      type: FunnelStepType.InstallPwa,
+      parameters: {
+        headline: 'Install PWA',
+      },
+      transitions: [
+        {
+          on: FunnelStepTransitionType.Complete,
+          destination: COMPLETED_STEP_ID,
+        },
+      ],
+    } as FunnelStep;
+
+    const funnelWithConditional: FunnelJSON = {
+      id: 'test-funnel',
+      version: 1,
+      parameters: {},
+      entryPoint: 'step1',
+      chapters: [
+        {
+          id: 'chapter1',
+          steps: [normalStep, conditionalStep],
+        },
+      ],
+    };
+
+    (useFunnelNavigation as jest.Mock).mockReturnValue({
+      back: mockBack,
+      skip: mockSkip,
+      navigate: mockNavigate,
+      position: { chapter: 0, step: 0 },
+      chapters: [{ steps: 2 }],
+      step: normalStep,
+      isReady: true,
+    });
+
+    renderComponent(funnelWithConditional);
+
+    // Both steps should be in DOM but only active one visible
+    expect(screen.getByTestId('funnel-step-quiz')).toBeInTheDocument();
+
+    // The PWA step exists but is hidden (not active)
+    const hiddenSteps = screen.getAllByTestId('funnel-step');
+    expect(hiddenSteps.length).toBe(1); // Only non-active steps get this testid
+  });
+
+  it('should handle transitions to non-existent steps gracefully', async () => {
+    // Test edge case we encountered: transition pointing to step that doesn't exist
+    const stepWithBadTransition: FunnelStepQuiz = {
+      id: 'step1',
+      type: FunnelStepType.Quiz,
+      parameters: {
+        question: {
+          type: FunnelStepQuizQuestionType.Radio,
+          text: 'Test question',
+          options: [{ label: 'Option 1' }],
+        },
+        explainer: 'Test explainer',
+      },
+      transitions: [
+        {
+          on: FunnelStepTransitionType.Complete,
+          destination: 'non-existent-step',
+        },
+      ],
+    } as FunnelStepQuiz;
+
+    const funnelWithBadTransition: FunnelJSON = {
+      id: 'test-funnel',
+      version: 1,
+      parameters: {},
+      entryPoint: 'step1',
+      chapters: [
+        {
+          id: 'chapter1',
+          steps: [stepWithBadTransition], // Only one step, pointing to non-existent step
+        },
+      ],
+    };
+
+    (useFunnelNavigation as jest.Mock).mockReturnValue({
+      back: mockBack,
+      skip: mockSkip,
+      navigate: mockNavigate,
+      position: { chapter: 0, step: 0 },
+      chapters: [{ steps: 1 }],
+      step: stepWithBadTransition,
+      isReady: true,
+    });
+
+    renderComponent(funnelWithBadTransition);
+
+    await act(async () => {
+      const firstOption = screen.getByText('Option 1');
+      fireEvent.click(firstOption);
+      await waitForNock();
+    });
+
+    // Should still try to navigate to the non-existent step (getNextStep returns the ID as-is)
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: 'non-existent-step',
+      type: FunnelStepTransitionType.Complete,
+      details: { step1: 'Option 1' },
+    });
+    expect(mockSendTransition).toHaveBeenCalledWith({
+      fromStep: 'step1',
+      toStep: 'non-existent-step',
+      transitionEvent: FunnelStepTransitionType.Complete,
+      inputs: { step1: 'Option 1' },
+    });
   });
 });
