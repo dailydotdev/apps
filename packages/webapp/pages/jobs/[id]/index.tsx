@@ -197,10 +197,15 @@ const metaMap = {
   },
   salary: {
     title: 'Salary range',
-    transformer: (value: OpportunityMeta['salary']) =>
-      `$${value.min}/${value.period} - $${value.max}/${
-        salaryPeriodMap[value.period]
-      }`,
+    transformer: (value: OpportunityMeta['salary']) => {
+      const min = value?.min / 1000;
+      const max = value?.max / 1000;
+      const period = salaryPeriodMap[value?.period || SalaryPeriod.UNSPECIFIED];
+      if (!min || !max) {
+        return 'N/A';
+      }
+      return `$${min}k/${period} - $${max}k/${period}`;
+    },
   },
   locationType: {
     title: 'Work site',
