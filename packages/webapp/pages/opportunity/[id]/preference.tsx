@@ -15,9 +15,10 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 
+import { useRouter } from 'next/router';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -34,6 +35,11 @@ const seo: NextSeoProps = {
 };
 
 const PreferencePage = (): ReactElement => {
+  const {
+    query: { id },
+  } = useRouter();
+  const opportunityId = id as string;
+
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -65,7 +71,7 @@ const PreferencePage = (): ReactElement => {
             variant={ButtonVariant.Primary}
             className="w-full laptop:w-auto"
             tag="a"
-            href={`${webappUrl}jobs/job-123/preference-done`}
+            href={`${opportunityUrl}${opportunityId}/preference-done`}
           >
             Save preferences
           </Button>

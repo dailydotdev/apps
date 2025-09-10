@@ -21,8 +21,9 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useRouter } from 'next/router';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -39,6 +40,10 @@ const seo: NextSeoProps = {
 };
 
 const NotifyPage = (): ReactElement => {
+  const {
+    query: { id },
+  } = useRouter();
+  const opportunityId = id as string;
   const { user } = useAuthContext();
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
@@ -121,7 +126,7 @@ const NotifyPage = (): ReactElement => {
           )}
         </FlexCol>
         <FlexRow className="justify-center">
-          <Link href={`${webappUrl}jobs/job-123/done`} passHref>
+          <Link href={`${opportunityUrl}${opportunityId}/done`} passHref>
             <Button
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}

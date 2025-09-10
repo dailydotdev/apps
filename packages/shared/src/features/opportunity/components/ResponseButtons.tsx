@@ -7,7 +7,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon, VIcon } from '../../../components/icons';
-import { jobsUrl } from '../../../lib/constants';
+import { opportunityUrl } from '../../../lib/constants';
 import Link from '../../../components/utilities/Link';
 
 export const ResponseButtons = ({
@@ -21,7 +21,7 @@ export const ResponseButtons = ({
 }): ReactElement => {
   return (
     <div className={className?.container}>
-      <Link href={`${jobsUrl}/${id}/decline`} passHref>
+      <Link href={`${opportunityUrl}/${id}/decline`} passHref>
         <Button
           className={className?.buttons}
           size={size}
@@ -32,7 +32,7 @@ export const ResponseButtons = ({
           Not for me
         </Button>
       </Link>
-      <Link href={`${jobsUrl}/${id}/questions`} passHref>
+      <Link href={`${opportunityUrl}/${id}/questions`} passHref>
         <Button
           className={className?.buttons}
           size={size}

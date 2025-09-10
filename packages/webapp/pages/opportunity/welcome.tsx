@@ -33,7 +33,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
@@ -64,7 +64,7 @@ const HeaderSection = (): ReactElement => {
         Getting hired the old way
         <br /> is officially dead
       </Typography>
-      <Link href={`${webappUrl}jobs/job-123?cv_step=true`} passHref>
+      <Link href={`${opportunityUrl}job-123?cv_step=true`} passHref>
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}
