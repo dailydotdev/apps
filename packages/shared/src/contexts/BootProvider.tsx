@@ -243,11 +243,6 @@ export const BootDataProvider = ({
     [cachedBootData],
   );
 
-  const updateSquads = useCallback(
-    (updatedSquads: typeof squads) => updateBootData({ squads: updatedSquads }),
-    [updateBootData],
-  );
-
   if (logged?.language && logged?.isPlus) {
     gqlClient.setHeader('content-language', logged.language as string);
   } else {
@@ -314,7 +309,6 @@ export const BootDataProvider = ({
         isFetched={isBootReady}
         accessToken={remoteData?.accessToken}
         squads={squads}
-        updateSquads={updateSquads}
         firstLoad={initialLoad}
         geo={geo}
         isAndroidApp={isAndroidApp}

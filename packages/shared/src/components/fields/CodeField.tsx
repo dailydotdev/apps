@@ -33,12 +33,22 @@ export function CodeField({
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
-    onChange(newCode.join(''));
+    onChange?.(newCode.join(''));
 
     const finalCode = newCode.join('');
 
-    if (finalCode.length === DEFAULT_LENGTH && index === DEFAULT_LENGTH - 1) {
+    if (finalCode.length === length && index === length - 1) {
       onSubmit(finalCode);
+    }
+  };
+
+  const onSlice = (text: string) => {
+    const sliced = text.slice(0, length);
+    setCode(sliced.split(''));
+    onChange?.(sliced);
+
+    if (sliced.length === length) {
+      onSubmit(sliced);
     }
   };
 
@@ -51,13 +61,7 @@ export function CodeField({
       return;
     }
 
-    const sliced = text.slice(0, DEFAULT_LENGTH);
-    setCode(sliced.split(''));
-    onChange?.(sliced);
-
-    if (sliced.length === DEFAULT_LENGTH) {
-      onSubmit(sliced);
-    }
+    onSlice(text);
   };
 
   const onKeyDown = async (
@@ -100,7 +104,7 @@ export function CodeField({
     } else if (key.length === 1) {
       updateCode(key, index);
 
-      if (index < DEFAULT_LENGTH - 1) {
+      if (index < length - 1) {
         const nextIndex = index + 1;
 
         if (elementsRef.current[nextIndex]) {
@@ -118,10 +122,18 @@ export function CodeField({
         id="code"
         name="code"
         value={code.join('')}
+        onChange={() => {}} // Controlled by the individual inputs
+        autoComplete="one-time-code"
         hidden
-        readOnly
+        onInput={(e) => {
+          // Handle iOS Safari autofill
+          const { value } = e.target as HTMLInputElement;
+          if (value && value.length === length) {
+            onSlice(value);
+          }
+        }}
       />
-      {[...Array(DEFAULT_LENGTH)].map((_, index) => (
+      {[...Array(length)].map((_, index) => (
         <TextField
           // eslint-disable-next-line react/no-array-index-key
           key={`code-${index}`}
@@ -132,10 +144,13 @@ export function CodeField({
           maxLength={1}
           showMaxLength={false}
           className={{ container: 'w-12' }}
-          onPaste={index === 0 ? onPaste : undefined}
+          onPaste={onPaste}
           value={code[index] || ''}
           onKeyDown={(e) => onKeyDown(e, index)}
           disabled={disabled}
+          autoComplete="off"
+          inputMode="numeric"
+          pattern="[0-9]*"
           inputRef={(el) => {
             if (el) {
               elementsRef.current[index] = el;

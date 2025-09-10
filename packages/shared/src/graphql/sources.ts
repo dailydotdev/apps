@@ -40,7 +40,6 @@ export enum SourcePermissions {
 export type SourceMemberFlag = Partial<{
   hideFeedPosts: boolean;
   collapsePinnedPosts: boolean;
-  hasUnreadPosts: boolean;
 }>;
 
 export interface SourceMember {
@@ -84,7 +83,6 @@ export interface Squad extends Source {
   referralUrl?: string;
   category?: SourceCategory;
   moderationPostCount: number;
-  hasUnreadPosts: boolean;
 }
 
 interface SourceFlags {
