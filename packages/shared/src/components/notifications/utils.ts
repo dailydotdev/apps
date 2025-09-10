@@ -15,6 +15,7 @@ import {
   ReadingStreakIcon,
   TimerIcon,
   CoreIcon,
+  AnalyticsIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -101,6 +102,7 @@ export enum NotificationIconType {
   TopReaderBadge = 'TopReaderBadge',
   Timer = 'Timer',
   Core = 'Core',
+  Analytics = 'Analytics',
 }
 
 export const notificationIcon: Record<
@@ -122,6 +124,7 @@ export const notificationIcon: Record<
   [NotificationIconType.TopReaderBadge]: BellIcon,
   [NotificationIconType.Timer]: TimerIcon,
   [NotificationIconType.Core]: CoreIcon,
+  [NotificationIconType.Analytics]: AnalyticsIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -144,6 +147,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
   [NotificationIconType.Timer]: 'text-brand-default',
   [NotificationIconType.Core]: '',
+  [NotificationIconType.Analytics]: 'text-brand-default',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
