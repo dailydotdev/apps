@@ -326,28 +326,30 @@ const JobPage = (): ReactElement => {
           {/* Content */}
           <div className="flex flex-col gap-4 px-8 py-6">
             {/* Recruiter */}
-            <div className="flex items-center gap-2">
-              <ProfilePicture
-                user={opportunity.recruiters[0]}
-                size={ProfileImageSize.Large}
-              />
+            {!!opportunity.recruiters?.[0] && (
+              <div className="flex items-center gap-2">
+                <ProfilePicture
+                  user={opportunity.recruiters[0]}
+                  size={ProfileImageSize.Large}
+                />
 
-              <div className="flex flex-col">
-                <Typography
-                  bold
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Primary}
-                >
-                  {opportunity.recruiters[0].name}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {opportunity.recruiters[0].bio}
-                </Typography>
+                <div className="flex flex-col">
+                  <Typography
+                    bold
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                  >
+                    {opportunity.recruiters[0].name}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {opportunity.recruiters[0].bio}
+                  </Typography>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Title */}
             <Typography
@@ -359,13 +361,15 @@ const JobPage = (): ReactElement => {
             </Typography>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {opportunity.keywords?.map((tag) => (
-                <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
-                  {tag.keyword}
-                </Chip>
-              ))}
-            </div>
+            {opportunity.keywords?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {opportunity.keywords?.map((tag) => (
+                  <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
+                    {tag.keyword}
+                  </Chip>
+                ))}
+              </div>
+            )}
 
             {/* TLDR */}
             <Typography
@@ -721,50 +725,52 @@ const JobPage = (): ReactElement => {
           </FlexCol>
 
           {/* Recruiter Info */}
-          <FlexCol className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border">
-            {/* Header */}
-            <div className="flex min-h-14 items-center justify-between px-4 py-3">
-              <Typography
-                bold
-                type={TypographyType.Body}
-                color={TypographyColor.Primary}
-              >
-                Recruiters
-              </Typography>
-            </div>
+          {opportunity?.recruiters?.length > 0 && (
+            <FlexCol className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border">
+              {/* Header */}
+              <div className="flex min-h-14 items-center justify-between px-4 py-3">
+                <Typography
+                  bold
+                  type={TypographyType.Body}
+                  color={TypographyColor.Primary}
+                >
+                  Recruiters
+                </Typography>
+              </div>
 
-            {/* Recruiters */}
-            {opportunity?.recruiters?.map((user) => (
-              <FlexCol key={user.id} className="gap-4 px-4 pb-4">
-                <div className="flex items-center gap-2">
-                  <ProfilePicture user={user} size={ProfileImageSize.Large} />
+              {/* Recruiters */}
+              {opportunity?.recruiters?.map((user) => (
+                <FlexCol key={user.id} className="gap-4 px-4 pb-4">
+                  <div className="flex items-center gap-2">
+                    <ProfilePicture user={user} size={ProfileImageSize.Large} />
 
-                  <div className="flex flex-col">
-                    <Typography
-                      bold
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Primary}
-                    >
-                      {user.name}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                      className="flex items-center gap-1"
-                    >
-                      {user.bio}
-                    </Typography>
+                    <div className="flex flex-col">
+                      <Typography
+                        bold
+                        type={TypographyType.Callout}
+                        color={TypographyColor.Primary}
+                      >
+                        {user.name}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className="flex items-center gap-1"
+                      >
+                        {user.bio}
+                      </Typography>
+                    </div>
                   </div>
-                </div>
 
-                {/* Description */}
-                <ShowMoreContent
-                  content={user.readme}
-                  className={{ text: '!text-text-secondary !typo-callout' }}
-                />
-              </FlexCol>
-            ))}
-          </FlexCol>
+                  {/* Description */}
+                  <ShowMoreContent
+                    content={user.readme}
+                    className={{ text: '!text-text-secondary !typo-callout' }}
+                  />
+                </FlexCol>
+              ))}
+            </FlexCol>
+          )}
         </FlexCol>
       </div>
     </>
