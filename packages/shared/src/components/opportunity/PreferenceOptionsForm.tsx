@@ -132,7 +132,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
             <Checkbox
               key={value}
               name={value.toString()}
-              checked={preferences.employmentType.includes(value)}
+              checked={preferences?.employmentType?.includes(value)}
             >
               {label}
             </Checkbox>
