@@ -1,6 +1,5 @@
 import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
-import dynamic from 'next/dynamic';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
@@ -8,7 +7,6 @@ import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
-import type { CommentOnData } from '../graphql/comments';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { Origin, TargetType } from '../lib/log';
@@ -45,13 +43,6 @@ import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 
-const CommentPopup = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentPopup" */ './cards/common/CommentPopup'
-    ),
-);
-
 export type FeedItemComponentProps = {
   item: FeedItem;
   index: number;
@@ -60,16 +51,6 @@ export type FeedItemComponentProps = {
   columns: number;
   openNewTab: boolean;
   postMenuIndex: number | undefined;
-  showCommentPopupId: string | undefined;
-  setShowCommentPopupId: (value: string | undefined) => void;
-  isSendingComment: boolean;
-  comment: (variables: {
-    post: Post;
-    content: string;
-    row: number;
-    column: number;
-    columns: number;
-  }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
@@ -221,10 +202,6 @@ function FeedItemComponent({
   columns,
   openNewTab,
   postMenuIndex,
-  showCommentPopupId,
-  setShowCommentPopupId,
-  isSendingComment,
-  comment,
   user,
   feedName,
   ranking,
@@ -360,15 +337,6 @@ function FeedItemComponent({
           }
           eagerLoadImage={row === 0 && column === 0}
         >
-          {showCommentPopupId === itemPost.id && (
-            <CommentPopup
-              onClose={() => setShowCommentPopupId(null)}
-              onSubmit={(content) =>
-                comment({ post: itemPost, content, row, column, columns })
-              }
-              loading={isSendingComment}
-            />
-          )}
           {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
         </PostTag>
       </ActivePostContextProvider>
