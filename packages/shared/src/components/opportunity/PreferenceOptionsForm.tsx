@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { FlexCol, FlexRow } from '../utilities';
 import {
   Typography,
@@ -11,11 +12,19 @@ import { Radio } from '../fields/Radio';
 import { Checkbox } from '../fields/Checkbox';
 import { Dropdown } from '../fields/Dropdown';
 import { TextField } from '../fields/TextField';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
 
 const salaryOptions = ['Annually', 'Monthly'];
 
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
+
+  const { user } = useAuthContext();
+
+  const { data: preferences } = useQuery(
+    getCandidatePreferencesOptions(user.id),
+  );
 
   return (
     <FlexCol className="gap-6">
@@ -29,6 +38,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           rows={5}
           placeholder="Describe your next ideal role or career goal…"
           fieldType="quaternary"
+          value={preferences.role}
         />
         <Radio
           className={{ container: 'flex-1 !flex-row flex-wrap' }}
