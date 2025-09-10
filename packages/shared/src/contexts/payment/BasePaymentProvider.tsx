@@ -11,6 +11,7 @@ import { PurchaseType } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
 import { useProductPricing } from '../../hooks/useProductPricing';
 import { useAuthContext } from '../AuthContext';
+import { iOSSupportsPlusPurchase } from '../../lib/ios';
 
 interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
@@ -34,7 +35,10 @@ export const BasePaymentProvider = ({
     type: priceType,
     enabled: !funnelPricing?.length,
   });
-  const data = funnelPricing?.length ? funnelPricing : plusPricing;
+  const data =
+    !iOSSupportsPlusPurchase() && funnelPricing?.length
+      ? funnelPricing
+      : plusPricing;
 
   const giftOneYear = useMemo(
     () =>
