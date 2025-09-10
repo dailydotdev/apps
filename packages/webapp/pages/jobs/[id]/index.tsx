@@ -65,6 +65,10 @@ import {
   SalaryPeriod,
   SeniorityLevel,
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import {
+  CompanySize,
+  CompanyStage,
+} from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -151,6 +155,31 @@ const salaryPeriodMap = {
   [SalaryPeriod.ANNUAL]: 'year',
   [SalaryPeriod.MONTHLY]: 'month',
   [SalaryPeriod.HOURLY]: 'hour',
+};
+
+const companySizeMap = {
+  [CompanySize.COMPANY_SIZE_UNSPECIFIED]: 'N/A',
+  [CompanySize.COMPANY_SIZE_1_10]: '1-10',
+  [CompanySize.COMPANY_SIZE_11_50]: '11-50',
+  [CompanySize.COMPANY_SIZE_51_200]: '51-200',
+  [CompanySize.COMPANY_SIZE_201_500]: '201-500',
+  [CompanySize.COMPANY_SIZE_501_1000]: '501-1000',
+  [CompanySize.COMPANY_SIZE_1001_5000]: '1001-5000',
+  [CompanySize.COMPANY_SIZE_5000_PLUS]: '5000+',
+};
+
+const companyStageMap = {
+  [CompanyStage.UNSPECIFIED]: 'N/A',
+  [CompanyStage.PRE_SEED]: 'Pre-Seed',
+  [CompanyStage.SEED]: 'Seed',
+  [CompanyStage.SERIES_A]: 'Series A',
+  [CompanyStage.SERIES_B]: 'Series B',
+  [CompanyStage.SERIES_C]: 'Series C',
+  [CompanyStage.SERIES_D]: 'Series D',
+  [CompanyStage.PUBLIC]: 'Public',
+  [CompanyStage.BOOTSTRAPPED]: 'Bootstrapped',
+  [CompanyStage.NON_PROFIT]: 'Non-Profit',
+  [CompanyStage.GOVERNMENT]: 'Government',
 };
 
 const metaMap = {
@@ -487,7 +516,7 @@ const JobPage = ({
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  {opportunity.organization.stage} •{' '}
+                  {companyStageMap[opportunity.organization.stage]} •{' '}
                   {opportunity.organization.category}
                 </Typography>
               </div>
@@ -543,7 +572,7 @@ const JobPage = ({
                 Employees
               </Typography>
               <Typography type={TypographyType.Footnote} bold>
-                {opportunity.organization.size}
+                {companySizeMap[opportunity.organization.size]}
               </Typography>
             </div>
 
