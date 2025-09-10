@@ -15,6 +15,7 @@ import { TextField } from '../fields/TextField';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
 import { RoleType } from '../../features/opportunity/types';
+import { LocationType } from '../../features/opportunity/protobuf/util';
 
 const salaryOptions = ['Annually', 'Monthly'];
 
@@ -30,6 +31,12 @@ export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
 
   return 1.0;
 };
+
+const locationTypeOptions = [
+  { label: 'Remote', value: LocationType.REMOTE },
+  { label: 'Hybrid', value: LocationType.HYBRID },
+  { label: 'On-site', value: LocationType.OFFICE },
+];
 
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
@@ -159,9 +166,15 @@ export const PreferenceOptionsForm = (): ReactElement => {
 
         {/* Location type */}
         <FlexRow>
-          <Checkbox name="remote">Remote</Checkbox>
-          <Checkbox name="hybrid">Hybrid</Checkbox>
-          <Checkbox name="on-site">On-site</Checkbox>
+          {locationTypeOptions.map(({ label, value }) => (
+            <Checkbox
+              key={value}
+              name={value.toString()}
+              checked={preferences.locationType.includes(value)}
+            >
+              {label}
+            </Checkbox>
+          ))}
         </FlexRow>
       </FlexCol>
 
