@@ -62,7 +62,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
   const { user } = useAuthContext();
 
   const { data: preferences } = useQuery(
-    getCandidatePreferencesOptions(user.id),
+    getCandidatePreferencesOptions(user?.id),
   );
 
   useEffect(() => {
@@ -71,11 +71,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
     }
 
     setSelectedRole(snapToHalf(preferences.roleType).toFixed(1));
-    setSelectedSalaryOption(
-      salaryDurationOptions.findIndex(
-        (option) => option.value === preferences.salaryExpectation.period,
-      ),
-    );
+    if (preferences?.salaryExpectation?.period) {
+      setSelectedSalaryOption(
+        salaryDurationOptions.findIndex(
+          (option) => option.value === preferences.salaryExpectation.period,
+        ),
+      );
+    }
   }, [preferences]);
 
   return (
@@ -92,7 +94,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           rows={5}
           placeholder="Describe your next ideal role or career goal…"
           fieldType="quaternary"
-          value={preferences.role}
+          value={preferences?.role}
         />
 
         {/* Role Type */}

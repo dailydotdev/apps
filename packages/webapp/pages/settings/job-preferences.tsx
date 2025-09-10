@@ -77,7 +77,7 @@ const JobPreferencesPage = (): ReactElement => {
   const { user } = useAuthContext();
 
   const { data: preferences, isPending } = useQuery(
-    getCandidatePreferencesOptions(user.id),
+    getCandidatePreferencesOptions(user?.id),
   );
 
   const modeDisabled = preferences?.status === CandidateStatus.DISABLED;
