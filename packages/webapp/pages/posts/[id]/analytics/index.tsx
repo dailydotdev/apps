@@ -76,7 +76,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   CampaignState,
   CampaignType,
-  useCampaignById,
 } from '@dailydotdev/shared/src/graphql/campaigns';
 import { getAbsoluteDifferenceInDays } from '@dailydotdev/shared/src/features/boost/utils';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
@@ -91,6 +90,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
+import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -210,14 +210,13 @@ const PostAnalyticsPage = ({
     enabled: canViewPostAnalytics({ post, user }),
   });
 
-  // only fetch campaign for logged in users
-  const campaignQuery = useCampaignById(
-    user?.id ? post?.flags?.campaignId : undefined,
-  );
-  const campaign =
-    user?.id && user.id === campaignQuery.data?.user?.id
-      ? campaignQuery.data
-      : undefined;
+  // get latest campaign user created for this post
+  const campaignQuery = useCampaigns({
+    entityId: post?.id,
+    first: 1,
+    enabled: isAuthor && !!post?.id,
+  });
+  const campaign = campaignQuery.data?.pages[0]?.edges[0]?.node;
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;

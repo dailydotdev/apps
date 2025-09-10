@@ -34,11 +34,13 @@ export const defaultStats: UserCampaignStats = {
 export type UseCampaignsProps = {
   entityId?: string;
   first?: number;
+  enabled?: boolean;
 };
 
 export const useCampaigns = ({
   entityId,
   first = FIRST_DEFAULT_VALUE,
+  enabled = true,
 }: UseCampaignsProps = {}): UsePostBoost => {
   const { user } = useAuthContext();
   const key = generateQueryKey(RequestKey.Campaigns, user, {
@@ -63,7 +65,7 @@ export const useCampaigns = ({
 
       return getNextPageParam(data?.pageInfo);
     },
-    enabled: !!user,
+    enabled: !!user && !!enabled,
     staleTime: StaleTime.Default,
   });
 
