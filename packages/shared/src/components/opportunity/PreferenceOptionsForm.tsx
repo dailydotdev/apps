@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FlexCol, FlexRow } from '../utilities';
 import {
@@ -14,17 +14,40 @@ import { Dropdown } from '../fields/Dropdown';
 import { TextField } from '../fields/TextField';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
+import { RoleType } from '../../features/opportunity/types';
 
 const salaryOptions = ['Annually', 'Monthly'];
 
+export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
+  const x = Math.min(1, Math.max(0, v));
+
+  if (x < 0.25) {
+    return 0.0;
+  }
+  if (x < 0.75) {
+    return 0.5;
+  }
+
+  return 1.0;
+};
+
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
+  const [selectedRole, setSelectedRole] = useState(RoleType.Auto.toFixed(1));
 
   const { user } = useAuthContext();
 
   const { data: preferences } = useQuery(
     getCandidatePreferencesOptions(user.id),
   );
+
+  useEffect(() => {
+    if (!preferences) {
+      return;
+    }
+
+    setSelectedRole(snapToHalf(preferences.roleType).toFixed(1));
+  }, [preferences]);
 
   return (
     <FlexCol className="gap-6">
@@ -42,14 +65,17 @@ export const PreferenceOptionsForm = (): ReactElement => {
         />
         <Radio
           className={{ container: 'flex-1 !flex-row flex-wrap' }}
-          name="type_role"
+          name="role_type"
           options={[
-            { label: 'Auto (Recommended)', value: 'auto' },
-            { label: 'IC roles', value: 'ic' },
-            { label: 'Managerial roles', value: 'managerial' },
+            { label: 'Auto (Recommended)', value: RoleType.Auto.toFixed(1) },
+            { label: 'IC roles', value: RoleType.IC.toFixed(1) },
+            {
+              label: 'Managerial roles',
+              value: RoleType.Managerial.toFixed(1),
+            },
           ]}
-          value="auto"
-          onChange={() => {}}
+          value={selectedRole}
+          onChange={(value) => setSelectedRole(value)}
         />
       </FlexCol>
       <FlexCol className="gap-2">
