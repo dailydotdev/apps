@@ -270,6 +270,7 @@ const JobPage = ({
   useEffect(() => {
     if (!hasUploadedCV && !activatedCVScreen.current) {
       setShowCVScreen(true);
+      // TODO: remove this and fully rely on hasUploadedCV when we actually upload CV in the flow
       activatedCVScreen.current = true;
     }
   }, [hasUploadedCV, showCVScreen]);
@@ -284,7 +285,9 @@ const JobPage = ({
 
   return (
     <>
-      {showCVScreen && <CVOverlay onDismiss={() => setShowCVScreen(false)} />}
+      {!hasUploadedCV && showCVScreen && (
+        <CVOverlay onDismiss={() => setShowCVScreen(false)} />
+      )}
       {!hasCompletedInitialView && <JobPageIntro />}
       <ResponseButtons
         id={opportunity.id}
