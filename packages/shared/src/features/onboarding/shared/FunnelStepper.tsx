@@ -12,10 +12,8 @@ import {
   stepsWithOnlySkipHeader,
   stepsFullWidth,
   FunnelStepType,
-  COMPLETED_STEP_ID,
   FunnelStepTransitionType,
   stepsWithHeader,
-  NEXT_STEP_ID,
 } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
@@ -91,29 +89,6 @@ function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
   return <Component {...props} />;
 }
 
-type ShouldSkipRef = Partial<Record<FunnelStepType, boolean>>;
-
-const getNextStep = (
-  destination: string,
-  steps: FunnelStep[],
-  shouldSkipMap: ShouldSkipRef,
-) => {
-  if (destination === COMPLETED_STEP_ID) {
-    return { targetStepId: COMPLETED_STEP_ID, isLastStep: true };
-  }
-
-  const next = steps.find((s) => s.id === destination);
-  const nextSkip = next.transitions.find((t) => t.on === 'skip');
-  const targetStepId =
-    destination === NEXT_STEP_ID ? nextSkip.destination : destination;
-
-  if (shouldSkipMap[next.type]) {
-    return getNextStep(next.transitions[0].destination, steps, shouldSkipMap);
-  }
-
-  return { targetStepId, isLastStep: false };
-};
-
 export const FunnelStepper = ({
   funnel,
   initialStepId,
@@ -125,6 +100,7 @@ export const FunnelStepper = ({
     () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
     [funnel?.chapters],
   );
+  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const { data: pricing } = useFunnelPricing(funnel);
   const {
     trackOnClickCapture,
@@ -134,19 +110,27 @@ export const FunnelStepper = ({
     trackOnComplete,
     trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
-  const { back, chapters, navigate, position, skip, step, isReady } =
-    useFunnelNavigation({
-      funnel,
-      initialStepId,
-      onNavigation: trackOnNavigate,
-    });
+  const {
+    back,
+    chapters,
+    navigate,
+    position,
+    skip,
+    step,
+    isReady,
+    getNextStep,
+  } = useFunnelNavigation({
+    funnel,
+    initialStepId,
+    onNavigation: trackOnNavigate,
+    shouldSkipRef,
+  });
   const { transition: sendTransition } = useStepTransition(session.id);
   const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
   const { showBanner, ...cookieConsentProps } = useFunnelCookies({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
-  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
@@ -191,6 +175,7 @@ export const FunnelStepper = ({
       navigate,
       trackOnComplete,
       onComplete,
+      getNextStep,
     ],
   );
 
