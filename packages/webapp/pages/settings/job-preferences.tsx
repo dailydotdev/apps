@@ -156,7 +156,7 @@ const JobPreferencesPage = (): ReactElement => {
                 opportunity.
               </Typography>
               <Button
-                variant={ButtonVariant.Secondary}
+                variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
                 className="mb-4 mr-auto"
               >
@@ -164,7 +164,10 @@ const JobPreferencesPage = (): ReactElement => {
               </Button>
               <FeelingLazy />
             </FlexCol>
-            <FlexCol className="flex-1 gap-2">
+
+            {/* This is hidden until we implement it */}
+            <span className="flex-1" />
+            {/* <FlexCol className="flex-1 gap-2">
               <Typography type={TypographyType.Body} bold>
                 Upload Employment Agreement
               </Typography>
@@ -178,13 +181,13 @@ const JobPreferencesPage = (): ReactElement => {
                 negotiating power.
               </Typography>
               <Button
-                variant={ButtonVariant.Secondary}
+                variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
                 className="mr-auto"
               >
                 Upload PDF
               </Button>
-            </FlexCol>
+            </FlexCol> */}
           </div>
         </FlexCol>
         <Divider className="bg-border-subtlest-tertiary" />
