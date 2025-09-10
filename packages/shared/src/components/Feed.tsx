@@ -16,7 +16,6 @@ import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
-import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
@@ -340,13 +339,6 @@ export default function Feed<T>({
     canFetchMore: canFetchMore && feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
 
-  const {
-    showCommentPopupId,
-    setShowCommentPopupId,
-    comment,
-    isSendingComment,
-  } = useCommentPopup(feedName);
-
   const { toggleUpvote, toggleDownvote } = useFeedVotePost({
     feedName,
     ranking,
@@ -554,10 +546,6 @@ export default function Feed<T>({
                   columns={virtualizedNumCards}
                   openNewTab={openNewTab}
                   postMenuIndex={postMenuIndex}
-                  showCommentPopupId={showCommentPopupId}
-                  setShowCommentPopupId={setShowCommentPopupId}
-                  isSendingComment={isSendingComment}
-                  comment={comment}
                   user={user}
                   feedName={feedName}
                   ranking={ranking}
