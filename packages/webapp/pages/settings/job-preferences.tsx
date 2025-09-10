@@ -13,7 +13,6 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
-import { Accordion } from '@dailydotdev/shared/src/components/accordion';
 import {
   Button,
   ButtonSize,
@@ -192,9 +191,11 @@ const JobPreferencesPage = (): ReactElement => {
         </FlexCol>
         <Divider className="bg-border-subtlest-tertiary" />
         <FlexCol className="gap-6">
-          <Accordion title="Your must-haves" initiallyOpen>
-            <PreferenceOptionsForm />
-          </Accordion>
+          <Typography bold type={TypographyType.Body}>
+            Your must-haves
+          </Typography>
+
+          <PreferenceOptionsForm />
         </FlexCol>
       </div>
     </AccountPageContainer>
