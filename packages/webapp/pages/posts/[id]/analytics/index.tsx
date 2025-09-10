@@ -393,10 +393,6 @@ const PostAnalyticsPage = ({
       type: LazyModal.BoostPost,
       props: {
         post,
-        onAfterClose: () => {
-          // reload the page so all boost related data is refetched
-          router.reload();
-        },
       },
     });
   };
