@@ -18,7 +18,13 @@ import { StepHeadlineAlign } from './StepHeadline';
 import type { FunnelSession } from '../types/funnelBoot';
 
 // Mock all hooks used by the component
-jest.mock('../hooks/useFunnelNavigation');
+jest.mock('../hooks/useFunnelNavigation', () => {
+  const actual = jest.requireActual('../hooks/useFunnelNavigation');
+  return {
+    ...actual,
+    useFunnelNavigation: jest.fn(), // Only mock the hook, keep getNextStep real
+  };
+});
 jest.mock('../hooks/useFunnelTracking');
 jest.mock('../hooks/useStepTransition');
 
@@ -27,7 +33,7 @@ let client: QueryClient;
 describe('FunnelStepper component', () => {
   const mockNavigate = jest.fn();
   const mockBack = { navigate: jest.fn(), hasTarget: true };
-  const mockSkip = { navigate: jest.fn(), hasTarget: true };
+  const mockSkip = { hasTarget: true, destination: COMPLETED_STEP_ID };
   const mockTrackOnClickCapture = jest.fn();
   const mockTrackOnHoverCapture = jest.fn();
   const mockTrackOnNavigate = jest.fn();
@@ -35,7 +41,6 @@ describe('FunnelStepper component', () => {
   const mockTrackOnComplete = jest.fn();
   const mockSendTransition = jest.fn();
   const mockOnComplete = jest.fn();
-  const mockOnTransition = jest.fn();
 
   const mockStep: FunnelStepQuiz = {
     id: 'step1',
@@ -52,8 +57,21 @@ describe('FunnelStepper component', () => {
       { on: FunnelStepTransitionType.Complete, destination: 'step2' },
       { on: FunnelStepTransitionType.Skip, destination: COMPLETED_STEP_ID },
     ],
-    onTransition: mockOnTransition,
-  };
+  } as FunnelStepQuiz;
+
+  const mockStep2: FunnelStep = {
+    id: 'step2',
+    type: FunnelStepType.Fact,
+    parameters: {
+      headline: 'Step 2 Headline',
+      cta: 'Continue',
+      explainer: 'Step 2 explainer',
+      align: StepHeadlineAlign.Left,
+    },
+    transitions: [
+      { on: FunnelStepTransitionType.Complete, destination: COMPLETED_STEP_ID },
+    ],
+  } as FunnelStep;
 
   const mockFunnel: FunnelJSON = {
     id: 'test-funnel',
@@ -63,7 +81,7 @@ describe('FunnelStepper component', () => {
     chapters: [
       {
         id: 'chapter1',
-        steps: [mockStep],
+        steps: [mockStep, mockStep2],
       },
     ],
   };
@@ -78,7 +96,7 @@ describe('FunnelStepper component', () => {
       skip: mockSkip,
       navigate: mockNavigate,
       position: { chapter: 0, step: 0 },
-      chapters: [{ steps: 1 }],
+      chapters: [{ steps: 2 }],
       step: mockStep,
       isReady: true,
     });
@@ -98,7 +116,7 @@ describe('FunnelStepper component', () => {
   });
 
   const renderComponent = (funnel = mockFunnel) => {
-    render(
+    return render(
       <TestBootProvider client={client}>
         <FunnelStepper
           funnel={funnel}
@@ -169,7 +187,12 @@ describe('FunnelStepper component', () => {
       type: FunnelStepTransitionType.Complete,
       details: { step1: 'Option 1' },
     });
-    expect(mockSendTransition).toHaveBeenCalled();
+    expect(mockSendTransition).toHaveBeenCalledWith({
+      fromStep: 'step1',
+      toStep: 'step2',
+      transitionEvent: FunnelStepTransitionType.Complete,
+      inputs: { step1: 'Option 1' },
+    });
     expect(mockOnComplete).not.toHaveBeenCalled();
   });
 
@@ -194,8 +217,9 @@ describe('FunnelStepper component', () => {
       skip: mockSkip,
       navigate: mockNavigate,
       position: { chapter: 0, step: 0 },
-      chapters: [{ steps: 1 }],
+      chapters: [{ steps: 2 }],
       step: mockStep,
+      isReady: true,
     });
 
     renderComponent();
@@ -206,11 +230,12 @@ describe('FunnelStepper component', () => {
   it('should not show skip button when hasTarget is false', () => {
     (useFunnelNavigation as jest.Mock).mockReturnValue({
       back: mockBack,
-      skip: { navigate: mockSkip.navigate, hasTarget: false },
+      skip: { hasTarget: false },
       navigate: mockNavigate,
       position: { chapter: 0, step: 0 },
-      chapters: [{ steps: 1 }],
+      chapters: [{ steps: 2 }],
       step: mockStep,
+      isReady: true,
     });
 
     renderComponent();
@@ -233,8 +258,7 @@ describe('FunnelStepper component', () => {
         explainer: 'Test explainer',
       },
       transitions: [],
-      onTransition: mockOnTransition,
-    };
+    } as FunnelStepQuiz;
 
     const factStep: FunnelStep = {
       id: 'step2',
@@ -247,8 +271,7 @@ describe('FunnelStepper component', () => {
         visualUrl: 'https://example.com/image.jpg',
       },
       transitions: [],
-      onTransition: mockOnTransition,
-    };
+    } as FunnelStep;
 
     const mockFunnelWithMultipleSteps: FunnelJSON = {
       id: 'test-funnel',
