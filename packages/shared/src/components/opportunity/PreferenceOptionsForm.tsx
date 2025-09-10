@@ -182,11 +182,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="country"
             label="Country"
+            value={preferences.location?.[0].country}
             className={{ container: 'flex-1' }}
           />
           <TextField
             inputId="city"
             label="City"
+            value={preferences.location?.[0].city}
             className={{ container: 'flex-1' }}
           />
         </FlexRow>
