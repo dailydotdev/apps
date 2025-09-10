@@ -56,11 +56,6 @@ export interface UseFunnelNavigationReturn {
   step: FunnelStep;
   back: HeaderNavigation;
   skip: SkipNavigation;
-  getNextStep: (
-    destination: string,
-    steps: FunnelStep[],
-    shouldSkipMap: ShouldSkipRef,
-  ) => { targetStepId: string; isLastStep: boolean };
 }
 
 function getStepMap(funnel: FunnelJSON): StepMap {
@@ -96,16 +91,19 @@ function updateURLWithStepId({
   router.push(`${pathname}?${params.toString()}`, { scroll: true });
 }
 
-function calculateIntendedDestination(
-  currentDestination: string,
-  chapters: Chapters,
-  position: FunnelPosition,
-  funnelChapters: FunnelJSON['chapters'],
+function resolveDestination(
+  destination: string,
+  context?: {
+    chapters: Chapters;
+    position: FunnelPosition;
+    funnelChapters: FunnelJSON['chapters'];
+  },
 ): string {
-  if (currentDestination !== NEXT_STEP_ID) {
-    return currentDestination;
+  if (destination !== NEXT_STEP_ID || !context) {
+    return destination;
   }
 
+  const { chapters, position, funnelChapters } = context;
   const chapter = chapters[position.chapter];
   const isLastItem = chapter?.steps === position.step + 1;
 
@@ -114,46 +112,52 @@ function calculateIntendedDestination(
   }
 
   const isLastChapter = position.chapter === chapters.length - 1;
-
-  if (isLastChapter) {
-    return COMPLETED_STEP_ID;
-  }
-
-  return funnelChapters[position.chapter + 1].steps[0].id;
+  return isLastChapter
+    ? COMPLETED_STEP_ID
+    : funnelChapters[position.chapter + 1].steps[0].id;
 }
 
-function getNextStep(
+export function getNextStep(
   destination: string,
   steps: FunnelStep[],
   shouldSkipMap: ShouldSkipRef,
-): { targetStepId: string; isLastStep: boolean } {
-  if (destination === COMPLETED_STEP_ID) {
-    return { targetStepId: COMPLETED_STEP_ID, isLastStep: true };
+  context?: {
+    chapters: Chapters;
+    position: FunnelPosition;
+    funnelChapters: FunnelJSON['chapters'];
+  },
+): string {
+  const resolvedDestination = resolveDestination(destination, context);
+
+  if (resolvedDestination === COMPLETED_STEP_ID) {
+    return COMPLETED_STEP_ID;
   }
 
-  const next = steps.find((s) => s.id === destination);
+  const next = steps.find((s) => s.id === resolvedDestination);
 
   if (!next) {
-    return { targetStepId: destination, isLastStep: false };
+    return resolvedDestination;
   }
 
-  if (!shouldSkipMap[next.type]) {
-    const nextSkip = next.transitions.find(
-      (t) => t.on === FunnelStepTransitionType.Skip,
-    );
-    const targetStepId =
-      destination === NEXT_STEP_ID
-        ? nextSkip?.destination || destination
-        : destination;
-    return { targetStepId, isLastStep: false };
+  const shouldSkip = shouldSkipMap[next.type];
+
+  if (!shouldSkip) {
+    return resolvedDestination;
   }
 
+  // Step should be skipped, find the next destination
   const firstTransition = next.transitions[0];
   if (!firstTransition) {
-    return { targetStepId: destination, isLastStep: false };
+    return resolvedDestination;
   }
 
-  return getNextStep(firstTransition.destination, steps, shouldSkipMap);
+  // Recursively process the next transition (it might also need to be skipped)
+  return getNextStep(
+    firstTransition.destination,
+    steps,
+    shouldSkipMap,
+    context,
+  );
 }
 
 export const useFunnelNavigation = ({
@@ -265,18 +269,13 @@ export const useFunnelNavigation = ({
       return { hasTarget: false };
     }
 
-    const intendedDestination = calculateIntendedDestination(
-      transition.destination,
-      chapters,
-      position,
-      funnel.chapters,
-    );
-
     const steps = funnel.chapters.flatMap((chapter) => chapter.steps);
-    const { targetStepId: finalDestination } = getNextStep(
-      intendedDestination,
+    const context = { chapters, position, funnelChapters: funnel.chapters };
+    const finalDestination = getNextStep(
+      transition.destination,
       steps,
       shouldSkipRef?.current || {},
+      context,
     );
 
     return {
@@ -332,6 +331,5 @@ export const useFunnelNavigation = ({
     skip,
     step,
     isReady,
-    getNextStep,
   };
 };

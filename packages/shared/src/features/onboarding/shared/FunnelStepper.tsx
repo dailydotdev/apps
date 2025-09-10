@@ -12,12 +12,13 @@ import {
   stepsWithOnlySkipHeader,
   stepsFullWidth,
   FunnelStepType,
+  COMPLETED_STEP_ID,
   FunnelStepTransitionType,
   stepsWithHeader,
 } from '../types/funnel';
 import { Header } from './Header';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
-import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
+import { getNextStep, useFunnelNavigation } from '../hooks/useFunnelNavigation';
 import {
   FunnelQuiz,
   FunnelSocialProof,
@@ -110,21 +111,13 @@ export const FunnelStepper = ({
     trackOnComplete,
     trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
-  const {
-    back,
-    chapters,
-    navigate,
-    position,
-    skip,
-    step,
-    isReady,
-    getNextStep,
-  } = useFunnelNavigation({
-    funnel,
-    initialStepId,
-    onNavigation: trackOnNavigate,
-    shouldSkipRef,
-  });
+  const { back, chapters, navigate, position, skip, step, isReady } =
+    useFunnelNavigation({
+      funnel,
+      initialStepId,
+      onNavigation: trackOnNavigate,
+      shouldSkipRef,
+    });
   const { transition: sendTransition } = useStepTransition(session.id);
   const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
   const { showBanner, ...cookieConsentProps } = useFunnelCookies({
@@ -142,11 +135,15 @@ export const FunnelStepper = ({
         return;
       }
 
-      const { targetStepId, isLastStep } = getNextStep(
+      const context = { chapters, position, funnelChapters: funnel.chapters };
+      const targetStepId = getNextStep(
         destination,
         steps,
         shouldSkipRef.current,
+        context,
       );
+
+      const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
       sendTransition({
         fromStep: step.id,
@@ -162,7 +159,6 @@ export const FunnelStepper = ({
           details: details || {},
         });
       } else {
-        // not navigating to the last step
         trackOnComplete();
         onComplete?.();
       }
@@ -171,11 +167,13 @@ export const FunnelStepper = ({
       step.transitions,
       step.id,
       steps,
+      chapters,
+      position,
+      funnel,
       sendTransition,
       navigate,
       trackOnComplete,
       onComplete,
-      getNextStep,
     ],
   );
 
