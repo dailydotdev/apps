@@ -212,25 +212,25 @@ const metaMap = {
     transformer: (value: Opportunity['location']) =>
       locationTypeMap[value?.[0].type || LocationType.UNSPECIFIED],
   },
-  employmentType: {
-    title: 'Employment type',
-    transformer: (value: OpportunityMeta['employmentType']) =>
-      employmentTypeMap[value || EmploymentType.UNSPECIFIED],
-  },
-  teamSize: {
-    title: 'Team size',
-    transformer: (value: OpportunityMeta['teamSize']) =>
-      `${value} engineers` || 'N/A',
-  },
   seniorityLevel: {
     title: 'Seniority level',
     transformer: (value: OpportunityMeta['seniorityLevel']) =>
       seniorityLevelMap[value || SeniorityLevel.UNSPECIFIED],
   },
+  employmentType: {
+    title: 'Employment type',
+    transformer: (value: OpportunityMeta['employmentType']) =>
+      employmentTypeMap[value || EmploymentType.UNSPECIFIED],
+  },
   roleType: {
     title: 'Role type',
     transformer: (value: OpportunityMeta['roleType']) =>
       roleTypeMap[value] || 'N/A',
+  },
+  teamSize: {
+    title: 'Team size',
+    transformer: (value: OpportunityMeta['teamSize']) =>
+      `${value} engineers` || 'N/A',
   },
 };
 
