@@ -16,9 +16,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
 import { RoleType } from '../../features/opportunity/types';
 import { LocationType } from '../../features/opportunity/protobuf/util';
-import { EmploymentType } from '../../features/opportunity/protobuf/opportunity';
-
-const salaryOptions = ['Annually', 'Monthly'];
+import {
+  EmploymentType,
+  SalaryPeriod,
+} from '../../features/opportunity/protobuf/opportunity';
 
 export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
   const x = Math.min(1, Math.max(0, v));
@@ -32,6 +33,14 @@ export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
 
   return 1.0;
 };
+
+const salaryDurationOptions = [
+  { label: 'Annually', value: SalaryPeriod.ANNUAL },
+  { label: 'Monthly', value: SalaryPeriod.MONTHLY },
+  { label: 'Hourly', value: SalaryPeriod.HOURLY },
+];
+
+const salaryOptions = salaryDurationOptions.map((option) => option.label);
 
 const locationTypeOptions = [
   { label: 'Remote', value: LocationType.REMOTE },
@@ -62,6 +71,11 @@ export const PreferenceOptionsForm = (): ReactElement => {
     }
 
     setSelectedRole(snapToHalf(preferences.roleType).toFixed(1));
+    setSelectedSalaryOption(
+      salaryDurationOptions.findIndex(
+        (option) => option.value === preferences.salaryExpectation.period,
+      ),
+    );
   }, [preferences]);
 
   return (
