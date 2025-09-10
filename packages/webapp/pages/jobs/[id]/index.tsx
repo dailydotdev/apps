@@ -339,15 +339,17 @@ const JobPage = ({
                   size={ProfileImageSize.Large}
                 />
 
-                <div className="flex flex-col">
+                <div className="flex flex-1 flex-col truncate">
                   <Typography
                     bold
+                    truncate
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
                     {opportunity.recruiters[0].name}
                   </Typography>
                   <Typography
+                    truncate
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
@@ -752,15 +754,17 @@ const JobPage = ({
                   <div className="flex items-center gap-2">
                     <ProfilePicture user={user} size={ProfileImageSize.Large} />
 
-                    <div className="flex flex-col">
+                    <div className="flex flex-1 flex-col truncate">
                       <Typography
                         bold
+                        truncate
                         type={TypographyType.Callout}
                         color={TypographyColor.Primary}
                       >
                         {user.name}
                       </Typography>
                       <Typography
+                        truncate
                         type={TypographyType.Footnote}
                         color={TypographyColor.Tertiary}
                         className="flex items-center gap-1"
