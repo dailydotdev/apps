@@ -26,7 +26,7 @@ export const CVOverlay = ({
   const [fileUploaded, setFileUploaded] = useState(false);
   const { back } = useRouter();
   return (
-    <div className="absolute top-10 z-1 size-full bg-blur-glass backdrop-blur-xl laptop:top-16">
+    <div className="absolute top-10 z-1 size-full h-screen bg-blur-glass backdrop-blur-xl laptop:top-16">
       <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6">
         <div>
           <Typography
