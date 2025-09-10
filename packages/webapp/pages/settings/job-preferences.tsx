@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
@@ -26,6 +26,11 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
+import { useQuery } from '@tanstack/react-query';
+import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -38,7 +43,7 @@ const seo: NextSeoProps = {
 
 const options = [
   {
-    key: 'actively_looking',
+    key: CandidateStatus.ACTIVELY_LOOKING,
     icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
     title: 'Active looking',
     description: (
@@ -49,7 +54,7 @@ const options = [
     ),
   },
   {
-    key: 'open_to_offers',
+    key: CandidateStatus.OPEN_TO_OFFERS,
     icon: <SemiActiveIcon size={IconSize.XLarge} />,
     title: <>Open only if it&apos;s right</>,
     description: (
@@ -63,6 +68,29 @@ const options = [
 
 const JobPreferencesPage = (): ReactElement => {
   const [option, setOption] = useState(null);
+  const { user } = useAuthContext();
+
+  const { data: preferences, isPending } = useQuery(
+    getCandidatePreferencesOptions(user.id),
+  );
+
+  const modeDisabled = preferences?.status === CandidateStatus.DISABLED;
+
+  useEffect(() => {
+    if (!preferences) {
+      return;
+    }
+
+    setOption(preferences?.status ?? null);
+  }, [preferences]);
+
+  if (!preferences || isPending) {
+    return (
+      <AccountPageContainer title="Job preferences">
+        <Loader />
+      </AccountPageContainer>
+    );
+  }
 
   return (
     <AccountPageContainer title="Job preferences">
@@ -83,48 +111,56 @@ const JobPreferencesPage = (): ReactElement => {
               your terms.
             </Typography>
           </FlexCol>
-          <Switch inputId="-switch" name="" compact={false} />
+          <Switch
+            inputId="career_mode"
+            name="career_mode"
+            compact={false}
+            checked={!modeDisabled}
+          />
         </FlexRow>
-        <FlexCol className="gap-3">
-          {options.map(({ key, icon, title, description }) => (
-            <Button
-              key={key}
-              variant={ButtonVariant.Option}
-              className={classNames(
-                '!h-auto w-auto flex-row-reverse gap-3 border border-border-subtlest-tertiary !p-3 laptop:flex-row',
-                {
-                  'bg-brand-float border-brand-default': option === key,
-                },
-              )}
-              onClick={() => setOption(key)}
-            >
-              <RadioItem
-                className={{ content: '!pr-0' }}
-                checked={option === key}
-              />
-              <div className="flex flex-1">
-                <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
-                  {icon}
+
+        {!modeDisabled && (
+          <FlexCol className="gap-3">
+            {options.map(({ key, icon, title, description }) => (
+              <Button
+                key={key}
+                variant={ButtonVariant.Option}
+                className={classNames(
+                  '!h-auto w-auto flex-row-reverse gap-3 border border-border-subtlest-tertiary !p-3 laptop:flex-row',
+                  {
+                    'bg-brand-float border-brand-default': option === key,
+                  },
+                )}
+                onClick={() => setOption(key)}
+              >
+                <RadioItem
+                  className={{ content: '!pr-0' }}
+                  checked={option === key}
+                />
+                <div className="flex flex-1">
+                  <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
+                    {icon}
+                  </div>
+                  <FlexCol className="flex-1 text-left">
+                    <Typography
+                      color={TypographyColor.Primary}
+                      type={TypographyType.Body}
+                      bold
+                    >
+                      {title}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {description}
+                    </Typography>
+                  </FlexCol>
                 </div>
-                <FlexCol className="flex-1 text-left">
-                  <Typography
-                    color={TypographyColor.Primary}
-                    type={TypographyType.Body}
-                    bold
-                  >
-                    {title}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {description}
-                  </Typography>
-                </FlexCol>
-              </div>
-            </Button>
-          ))}
-        </FlexCol>
+              </Button>
+            ))}
+          </FlexCol>
+        )}
         <Divider className="bg-border-subtlest-tertiary" />
         <FlexCol className="gap-6">
           <FlexCol>
