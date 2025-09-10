@@ -70,7 +70,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
       return;
     }
 
-    setSelectedRole(snapToHalf(preferences.roleType).toFixed(1));
+    setSelectedRole(snapToHalf(preferences?.roleType).toFixed(1));
     if (preferences?.salaryExpectation?.period) {
       setSelectedSalaryOption(
         salaryDurationOptions.findIndex(
@@ -155,7 +155,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="min"
             label="USD"
-            value={preferences.salaryExpectation.min?.toLocaleString('en-US')}
+            value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
           />
           <Dropdown
@@ -184,13 +184,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="country"
             label="Country"
-            value={preferences.location?.[0].country}
+            value={preferences?.location?.[0].country}
             className={{ container: 'flex-1' }}
           />
           <TextField
             inputId="city"
             label="City"
-            value={preferences.location?.[0].city}
+            value={preferences?.location?.[0].city}
             className={{ container: 'flex-1' }}
           />
         </FlexRow>
@@ -201,7 +201,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
             <Checkbox
               key={value}
               name={value.toString()}
-              checked={preferences.locationType.includes(value)}
+              checked={preferences?.locationType?.includes(value)}
             >
               {label}
             </Checkbox>
