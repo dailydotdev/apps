@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -19,6 +19,8 @@ import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -57,9 +59,11 @@ const DeclinePage = (): ReactElement => {
   const {
     query: { id },
     push,
+    back,
   } = useRouter();
   const opportunityId = id as string;
   const [activeQuestion, setActiveQuestion] = useState(0);
+  const { completeAction, isActionsFetched } = useActions();
 
   const submitClick = () => {
     if (activeQuestion === questions.length - 1) {
@@ -68,6 +72,13 @@ const DeclinePage = (): ReactElement => {
     }
     setActiveQuestion((current) => current + 1);
   };
+
+  useEffect(() => {
+    if (!isActionsFetched) {
+      return;
+    }
+    completeAction(ActionType.OpportunityInitialView);
+  }, [completeAction, isActionsFetched]);
 
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
@@ -115,6 +126,7 @@ const DeclinePage = (): ReactElement => {
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}
             className="hidden laptop:flex"
+            onClick={() => back()}
           >
             Back
           </Button>

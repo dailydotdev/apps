@@ -241,7 +241,7 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
-  const { checkHasCompleted } = useActions();
+  const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     query: { id, cv_step: cvStep },
   } = useRouter();
@@ -254,7 +254,7 @@ const JobPage = ({
     opportunityMatchOptions({ id: id as string }),
   );
 
-  const hasCompleted = checkHasCompleted(ActionType.ViewJob);
+  const hasCompleted = checkHasCompleted(ActionType.OpportunityInitialView);
   const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
   const activatedCVScreen = useRef<boolean>();
 
@@ -277,7 +277,7 @@ const JobPage = ({
     };
   }, [showCVScreen, cvStep]);
 
-  if (isPending) {
+  if (isPending || !isActionsFetched) {
     return null;
   }
 
