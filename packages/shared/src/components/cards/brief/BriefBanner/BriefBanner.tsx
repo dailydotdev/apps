@@ -4,10 +4,11 @@ import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { DevPlusIcon, TimerIcon } from '../../../icons';
+import { DevPlusIcon, MoveToIcon, TimerIcon } from '../../../icons';
 import { briefButtonBg } from '../../../../styles/custom';
 import { LogEvent, TargetId } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
@@ -16,6 +17,7 @@ import { useIsLightTheme } from '../../../../hooks/utils';
 import { useActions } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
 import { webappUrl } from '../../../../lib/constants';
+import { IconSize } from '../../../Icon';
 
 export const BriefBanner = (props: ComponentProps<'div'>) => {
   const { className, style, ...attrs } = props;
@@ -52,10 +54,22 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
     logBriefEvent(LogEvent.ImpressionBrief);
   }, [isAuthReady, logBriefEvent]);
 
+  const time = (
+    <Typography
+      color={TypographyColor.Primary}
+      tag={TypographyTag.Span}
+      type={TypographyType.Footnote}
+      className="flex flex-row items-center gap-1"
+    >
+      <TimerIcon aria-hidden size={IconSize.Size16} /> Saves 15-20 hours of
+      effort
+    </Typography>
+  );
+
   return (
     <div
       className={classNames(
-        'flex flex-col items-center gap-4  rounded-16 px-4 py-6 text-center',
+        'flex flex-col items-center gap-4 rounded-16 px-4 py-6 text-center',
         className,
         { invert: !isLightMode },
       )}
@@ -81,16 +95,25 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
           deliver your personalized Presidential Briefing in seconds.
         </Typography>
       </div>
-      <Typography
-        color={TypographyColor.Primary}
-        className="flex gap-1"
-        type={TypographyType.Footnote}
-      >
-        <span>Agent scans 5,000+ posts</span>
-        <span>Reading takes 2-3 minutes</span>
-        <TimerIcon className="ml-1" aria-hidden />
-        <span>Saves 15-20 hours of effort</span>
-      </Typography>
+      <div className="flex flex-row items-center justify-center gap-6 text-text-primary tablet:gap-1 ">
+        <Typography
+          className="max-w-28 tablet:max-w-none"
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+        >
+          Agent scans 5,000+ posts
+        </Typography>
+        <MoveToIcon size={IconSize.XXSmall} />
+        <Typography
+          className="max-w-28 tablet:max-w-none"
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+        >
+          Reading takes 2-3 minutes
+        </Typography>
+        <div className="hidden tablet:block">{time}</div>
+      </div>
+      <div className="block tablet:hidden">{time}</div>
       <Button
         data-testid="brief-banner-cta"
         tag="a"
