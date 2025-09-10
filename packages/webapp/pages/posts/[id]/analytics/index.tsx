@@ -385,6 +385,8 @@ const PostAnalyticsPage = ({
       }
 
       await onCancelBoost(campaign.id);
+
+      return;
     }
 
     openModal({
