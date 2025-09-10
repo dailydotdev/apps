@@ -19,6 +19,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -104,16 +105,18 @@ const PreferenceDonePage = (): ReactElement => {
           </Typography>
         </div>
         <FlexCol className="items-center gap-4">
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-            className="w-full tablet:w-80"
-            tag="a"
-            rel={anchorDefaultRel}
-            href={webappUrl}
-          >
-            Back to daily.dev
-          </Button>
+          <Link href={webappUrl} passHref>
+            <Button
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              className="w-full tablet:w-80"
+              tag="a"
+              rel={anchorDefaultRel}
+              href={webappUrl}
+            >
+              Back to daily.dev
+            </Button>
+          </Link>
         </FlexCol>
       </FlexCol>
     </div>
