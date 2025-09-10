@@ -96,6 +96,32 @@ function updateURLWithStepId({
   router.push(`${pathname}?${params.toString()}`, { scroll: true });
 }
 
+function calculateIntendedDestination(
+  currentDestination: string,
+  chapters: Chapters,
+  position: FunnelPosition,
+  funnelChapters: FunnelJSON['chapters'],
+): string {
+  if (currentDestination !== NEXT_STEP_ID) {
+    return currentDestination;
+  }
+
+  const chapter = chapters[position.chapter];
+  const isLastItem = chapter?.steps === position.step + 1;
+
+  if (!isLastItem) {
+    return funnelChapters[position.chapter].steps[position.step + 1].id;
+  }
+
+  const isLastChapter = position.chapter === chapters.length - 1;
+
+  if (isLastChapter) {
+    return COMPLETED_STEP_ID;
+  }
+
+  return funnelChapters[position.chapter + 1].steps[0].id;
+}
+
 function getNextStep(
   destination: string,
   steps: FunnelStep[],
@@ -239,28 +265,12 @@ export const useFunnelNavigation = ({
       return { hasTarget: false };
     }
 
-    let intendedDestination = transition.destination;
-
-    if (transition.destination === NEXT_STEP_ID) {
-      const chapter = chapters[position.chapter];
-      const isLastItem = chapter?.steps === position.step + 1;
-
-      if (!isLastItem) {
-        const nextStep =
-          funnel.chapters[position.chapter].steps[position.step + 1];
-        intendedDestination = nextStep.id;
-      } else {
-        const isLastChapter = position.chapter === chapters.length - 1;
-
-        if (isLastChapter) {
-          intendedDestination = COMPLETED_STEP_ID;
-        } else {
-          const nextChapter = funnel.chapters[position.chapter + 1];
-          const nextStep = nextChapter.steps[0];
-          intendedDestination = nextStep.id;
-        }
-      }
-    }
+    const intendedDestination = calculateIntendedDestination(
+      transition.destination,
+      chapters,
+      position,
+      funnel.chapters,
+    );
 
     const steps = funnel.chapters.flatMap((chapter) => chapter.steps);
     const { targetStepId: finalDestination } = getNextStep(
@@ -274,14 +284,7 @@ export const useFunnelNavigation = ({
       destination: finalDestination,
       hasTarget: true,
     };
-  }, [
-    step?.transitions,
-    chapters,
-    position.chapter,
-    position.step,
-    funnel.chapters,
-    shouldSkipRef,
-  ]);
+  }, [step?.transitions, chapters, position, funnel.chapters, shouldSkipRef]);
 
   // On load: Update the initial position in state and URL
   useEffect(() => {
