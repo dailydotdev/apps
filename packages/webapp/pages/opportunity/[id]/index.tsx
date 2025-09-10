@@ -243,7 +243,7 @@ const JobPage = ({
 }): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
-    query: { id, cv_step: cvStep },
+    query: { id },
   } = useRouter();
 
   const { data: opportunity, isPending } = useQuery({
@@ -254,8 +254,11 @@ const JobPage = ({
     opportunityMatchOptions({ id: id as string }),
   );
 
-  const hasCompleted = checkHasCompleted(ActionType.OpportunityInitialView);
-  const [showCVScreen, setShowCVScreen] = useState(!!cvStep);
+  const hasCompletedInitialView = checkHasCompleted(
+    ActionType.OpportunityInitialView,
+  );
+  const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);
+  const [showCVScreen, setShowCVScreen] = useState(false);
   const activatedCVScreen = useRef<boolean>();
 
   const [showMore, setShowMore] = useState(false);
@@ -265,17 +268,11 @@ const JobPage = ({
     opportunity?.organization?.pressLinks?.length > 0;
 
   useEffect(() => {
-    if (cvStep && !activatedCVScreen.current) {
+    if (!hasUploadedCV && !activatedCVScreen.current) {
       setShowCVScreen(true);
       activatedCVScreen.current = true;
     }
-    if (showCVScreen) {
-      document.body.classList.add('hidden-scrollbar');
-    }
-    return () => {
-      document.body.classList.remove('hidden-scrollbar');
-    };
-  }, [showCVScreen, cvStep]);
+  }, [hasUploadedCV, showCVScreen]);
 
   if (isPending || !isActionsFetched) {
     return null;
@@ -288,7 +285,7 @@ const JobPage = ({
   return (
     <>
       {showCVScreen && <CVOverlay onDismiss={() => setShowCVScreen(false)} />}
-      {!hasCompleted && <JobPageIntro />}
+      {!hasCompletedInitialView && <JobPageIntro />}
       <ResponseButtons
         id={opportunity.id}
         className={{
