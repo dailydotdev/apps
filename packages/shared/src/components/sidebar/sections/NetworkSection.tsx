@@ -10,7 +10,7 @@ import {
 } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
-import { useConditionalFeature, useSquadNavigation } from '../../../hooks';
+import { useSquadNavigation } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { SquadImage } from '../../squads/SquadImage';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
@@ -19,29 +19,21 @@ import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
-import { showSquadUnreadPosts } from '../../../lib/featureManagement';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 export const NetworkSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
-  const { sidebarExpanded } = useSettingsContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
     status: [SourcePostModerationStatus.Pending],
   });
 
-  const { value: showUnreadPosts } = useConditionalFeature({
-    feature: showSquadUnreadPosts,
-    shouldEvaluate: sidebarExpanded,
-  });
-
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const squadItems =
       squads?.map((squad) => {
-        const { name, image, handle, hasUnreadPosts } = squad;
+        const { name, image, handle } = squad;
         return {
           icon: () =>
             image ? (
@@ -51,12 +43,6 @@ export const NetworkSection = ({
             ),
           title: name,
           path: `${webappUrl}squads/${handle}`,
-          className: {
-            text:
-              showUnreadPosts && hasUnreadPosts
-                ? 'font-bold text-text-primary'
-                : '',
-          },
         };
       }) ?? [];
     return [
@@ -91,7 +77,7 @@ export const NetworkSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [squads, isModeratorInAnySquad, count, showUnreadPosts, openNewSquad]);
+  }, [squads, isModeratorInAnySquad, count, openNewSquad]);
 
   return (
     <Section

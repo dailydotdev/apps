@@ -31,17 +31,29 @@ export const defaultStats: UserCampaignStats = {
   newMembers: 0,
 };
 
-export const useCampaigns = (): UsePostBoost => {
+export type UseCampaignsProps = {
+  entityId?: string;
+  first?: number;
+  enabled?: boolean;
+};
+
+export const useCampaigns = ({
+  entityId,
+  first = FIRST_DEFAULT_VALUE,
+  enabled = true,
+}: UseCampaignsProps = {}): UsePostBoost => {
   const { user } = useAuthContext();
   const key = generateQueryKey(RequestKey.Campaigns, user, {
-    first: FIRST_DEFAULT_VALUE,
+    first,
+    entityId,
   });
   const queryResult = useInfiniteQuery({
     queryKey: key,
     queryFn: ({ pageParam }) =>
       getCampaigns({
-        first: FIRST_DEFAULT_VALUE,
+        first,
         after: pageParam,
+        entityId,
       }),
     initialPageParam: '',
     getNextPageParam: (data, _, lastPageParam) => {
@@ -53,7 +65,7 @@ export const useCampaigns = (): UsePostBoost => {
 
       return getNextPageParam(data?.pageInfo);
     },
-    enabled: !!user,
+    enabled: !!user && !!enabled,
     staleTime: StaleTime.Default,
   });
 
