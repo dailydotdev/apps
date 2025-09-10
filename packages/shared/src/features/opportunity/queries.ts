@@ -1,8 +1,13 @@
 import type { QueryKey } from '@tanstack/react-query';
 import { RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
-import type { Opportunity, OpportunityMatch } from './types';
+import type {
+  Opportunity,
+  OpportunityMatch,
+  UserCandidatePreferences,
+} from './types';
 import {
+  GET_CANDIDATE_PREFERENCES_QUERY,
   GET_OPPORTUNITY_MATCH_QUERY,
   OPPORTUNITY_BY_ID_QUERY,
 } from './graphql';
@@ -43,5 +48,20 @@ export const opportunityMatchOptions = ({ id }: { id: string }) => {
     },
     staleTime: StaleTime.Default,
     enabled: !!id,
+  };
+};
+
+export const getCandidatePreferencesOptions = (userId: string) => {
+  return {
+    queryKey: [RequestKey.UserCandidatePreferences, userId],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        getCandidatePreferences: UserCandidatePreferences;
+      }>(GET_CANDIDATE_PREFERENCES_QUERY);
+
+      return res.getCandidatePreferences;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!userId,
   };
 };

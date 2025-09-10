@@ -105,3 +105,32 @@ export const GET_OPPORTUNITY_MATCH_QUERY = gql`
     }
   }
 `;
+
+export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
+  query GetCandidatePreferences {
+    getCandidatePreferences {
+      status
+      cv {
+        blob
+        contentType
+        lastModified
+      }
+      role
+      roleType
+      salaryExpectation {
+        min
+        period
+      }
+      location {
+        city
+        country
+        subdivision
+        continent
+      }
+      locationType
+      employmentType
+      companySize
+      companyStage
+    }
+  }
+`;

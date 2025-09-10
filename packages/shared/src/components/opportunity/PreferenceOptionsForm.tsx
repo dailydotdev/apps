@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { FlexCol, FlexRow } from '../utilities';
 import {
   Typography,
@@ -11,11 +12,61 @@ import { Radio } from '../fields/Radio';
 import { Checkbox } from '../fields/Checkbox';
 import { Dropdown } from '../fields/Dropdown';
 import { TextField } from '../fields/TextField';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
+import { RoleType } from '../../features/opportunity/types';
+import { LocationType } from '../../features/opportunity/protobuf/util';
+import {
+  EmploymentType,
+  SalaryPeriod,
+} from '../../features/opportunity/protobuf/opportunity';
+import { snapToHalf } from '../../lib/utils';
 
-const salaryOptions = ['Annually', 'Monthly'];
+const salaryDurationOptions = [
+  { label: 'Annually', value: SalaryPeriod.ANNUAL },
+  { label: 'Monthly', value: SalaryPeriod.MONTHLY },
+  { label: 'Hourly', value: SalaryPeriod.HOURLY },
+];
+
+const salaryOptions = salaryDurationOptions.map((option) => option.label);
+
+const locationTypeOptions = [
+  { label: 'Remote', value: LocationType.REMOTE },
+  { label: 'Hybrid', value: LocationType.HYBRID },
+  { label: 'On-site', value: LocationType.OFFICE },
+];
+
+const employmentTypeOptions = [
+  { label: 'Full-time', value: EmploymentType.FULL_TIME },
+  { label: 'Part-time', value: EmploymentType.PART_TIME },
+  { label: 'Contract / Freelance', value: EmploymentType.CONTRACT },
+  { label: 'Internship', value: EmploymentType.INTERNSHIP },
+];
 
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
+  const [selectedRole, setSelectedRole] = useState(RoleType.Auto.toFixed(1));
+
+  const { user } = useAuthContext();
+
+  const { data: preferences } = useQuery(
+    getCandidatePreferencesOptions(user?.id),
+  );
+
+  useEffect(() => {
+    if (!preferences) {
+      return;
+    }
+
+    setSelectedRole(snapToHalf(preferences?.roleType).toFixed(1));
+    if (preferences?.salaryExpectation?.period) {
+      setSelectedSalaryOption(
+        salaryDurationOptions.findIndex(
+          (option) => option.value === preferences.salaryExpectation.period,
+        ),
+      );
+    }
+  }, [preferences]);
 
   return (
     <FlexCol className="gap-6">
@@ -23,25 +74,35 @@ export const PreferenceOptionsForm = (): ReactElement => {
         <Typography type={TypographyType.Body} bold>
           What kind of role are you looking for?
         </Typography>
+
+        {/* Role */}
         <Textarea
           inputId="role"
           label="role"
           rows={5}
           placeholder="Describe your next ideal role or career goal…"
           fieldType="quaternary"
+          value={preferences?.role}
         />
+
+        {/* Role Type */}
         <Radio
           className={{ container: 'flex-1 !flex-row flex-wrap' }}
-          name="type_role"
+          name="role_type"
           options={[
-            { label: 'Auto (Recommended)', value: 'auto' },
-            { label: 'IC roles', value: 'ic' },
-            { label: 'Managerial roles', value: 'managerial' },
+            { label: 'Auto (Recommended)', value: RoleType.Auto.toFixed(1) },
+            { label: 'IC roles', value: RoleType.IC.toFixed(1) },
+            {
+              label: 'Managerial roles',
+              value: RoleType.Managerial.toFixed(1),
+            },
           ]}
-          value="auto"
-          onChange={() => {}}
+          value={selectedRole}
+          onChange={(value) => setSelectedRole(value)}
         />
       </FlexCol>
+
+      {/* Employment type */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Employment type
@@ -52,13 +113,22 @@ export const PreferenceOptionsForm = (): ReactElement => {
         >
           Select all that apply to the roles you&apos;d consider.
         </Typography>
+
+        {/* Employment type */}
         <FlexRow className="flex-wrap">
-          <Checkbox name="full_time">Full-time</Checkbox>
-          <Checkbox name="part-time">Part-time</Checkbox>
-          <Checkbox name="contract">Contract / Freelance</Checkbox>
-          <Checkbox name="internship">Internship</Checkbox>
+          {employmentTypeOptions.map(({ label, value }) => (
+            <Checkbox
+              key={value}
+              name={value.toString()}
+              checked={preferences?.employmentType?.includes(value)}
+            >
+              {label}
+            </Checkbox>
+          ))}
         </FlexRow>
       </FlexCol>
+
+      {/* Salary expectations */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Salary expectations
@@ -73,7 +143,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="min"
             label="USD"
-            value="120.000"
+            value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
           />
           <Dropdown
@@ -86,6 +156,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
           />
         </FlexRow>
       </FlexCol>
+
+      {/* Location preferences */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Location preferences
@@ -100,20 +172,32 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="country"
             label="Country"
+            value={preferences?.location?.[0].country}
             className={{ container: 'flex-1' }}
           />
           <TextField
             inputId="city"
             label="City"
+            value={preferences?.location?.[0].city}
             className={{ container: 'flex-1' }}
           />
         </FlexRow>
+
+        {/* Location type */}
         <FlexRow>
-          <Checkbox name="remote">Remote</Checkbox>
-          <Checkbox name="hybrid">Hybrid</Checkbox>
-          <Checkbox name="on-site">On-site</Checkbox>
+          {locationTypeOptions.map(({ label, value }) => (
+            <Checkbox
+              key={value}
+              name={value.toString()}
+              checked={preferences?.locationType?.includes(value)}
+            >
+              {label}
+            </Checkbox>
+          ))}
         </FlexRow>
       </FlexCol>
+
+      {/* Tech stack */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Preferred tech stack

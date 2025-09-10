@@ -18,6 +18,7 @@ import { JobIcon, PassiveIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -64,17 +65,18 @@ const PassiveDonePage = (): ReactElement => {
           >
             Back to daily.dev
           </Button>
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Subtle}
-            icon={<JobIcon size={IconSize.Small} />}
-            className="w-full tablet:w-80"
-            tag="a"
-            rel={anchorDefaultRel}
-            href={`${settingsUrl}/job-preferences`}
-          >
-            Update job preferences
-          </Button>
+          <Link href={`${settingsUrl}/job-preferences`} passHref>
+            <Button
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Subtle}
+              icon={<JobIcon size={IconSize.Small} />}
+              className="w-full tablet:w-80"
+              tag="a"
+              rel={anchorDefaultRel}
+            >
+              Update job preferences
+            </Button>
+          </Link>
         </FlexCol>
       </FlexCol>
     </div>

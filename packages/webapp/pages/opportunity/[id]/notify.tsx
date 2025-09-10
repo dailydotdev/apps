@@ -127,7 +127,7 @@ const NotifyPage = (): ReactElement => {
           )}
         </FlexCol>
         <FlexRow className="justify-center">
-          <Link href={`${opportunityUrl}${opportunityId}/done`} passHref>
+          <Link href={`${opportunityUrl}/${opportunityId}/done`} passHref>
             <Button
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}

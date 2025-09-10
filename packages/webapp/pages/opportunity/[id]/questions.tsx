@@ -63,7 +63,7 @@ const DeclinePage = (): ReactElement => {
 
   const submitClick = () => {
     if (activeQuestion === questions.length - 1) {
-      push(`${opportunityUrl}${opportunityId}/notify`);
+      push(`${opportunityUrl}/${opportunityId}/notify`);
       return;
     }
     setActiveQuestion((current) => current + 1);

@@ -19,6 +19,7 @@ import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 
 import { useRouter } from 'next/router';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -38,6 +39,7 @@ const seo: NextSeoProps = {
 const PreferencePage = (): ReactElement => {
   const {
     query: { id },
+    back,
   } = useRouter();
   const opportunityId = id as string;
 
@@ -64,18 +66,25 @@ const PreferencePage = (): ReactElement => {
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}
             className="hidden laptop:flex"
+            onClick={() => back()}
           >
             Back
           </Button>
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-            className="w-full laptop:w-auto"
-            tag="a"
-            href={`${opportunityUrl}${opportunityId}/preference-done`}
+
+          <Link
+            href={`${opportunityUrl}/${opportunityId}/preference-done`}
+            passHref
           >
-            Save preferences
-          </Button>
+            <Button
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              className="w-full laptop:w-auto"
+              tag="a"
+              href={`${opportunityUrl}/${opportunityId}/preference-done`}
+            >
+              Save preferences
+            </Button>
+          </Link>
         </FlexRow>
       </FlexCol>
     </div>
