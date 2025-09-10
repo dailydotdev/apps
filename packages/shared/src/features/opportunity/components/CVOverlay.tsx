@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import {
@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DragDrop } from '../../../components/fields/DragDrop';
-import { fileValidation } from '../../profile/hooks/useUploadCv';
+import { fileValidation, useUploadCv } from '../../profile/hooks/useUploadCv';
 import {
   Button,
   ButtonSize,
@@ -18,13 +18,15 @@ import { UploadIcon } from '../../../components/icons/Upload';
 import { FeelingLazy } from '../../profile/components/FeelingLazy';
 import { ShieldPlusIcon } from '../../../components/icons';
 
-export const CVOverlay = ({
-  onDismiss,
-}: {
-  onDismiss: () => void;
-}): ReactElement => {
-  const [fileUploaded, setFileUploaded] = useState(false);
+export const CVOverlay = (): ReactElement => {
   const { back } = useRouter();
+  const { onUpload } = useUploadCv({ shouldOpenModal: false });
+
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleUpload = useCallback(async () => {
+    await onUpload(file as File);
+  }, [file, onUpload]);
 
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');
@@ -33,6 +35,7 @@ export const CVOverlay = ({
       document.body.classList.remove('hidden-scrollbar');
     };
   }, []);
+
   return (
     <div className="absolute top-10 z-1 size-full h-screen bg-blur-glass backdrop-blur-xl laptop:top-16">
       <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6">
@@ -60,8 +63,8 @@ export const CVOverlay = ({
             showRemove
             className={classNames('w-full')}
             validation={fileValidation}
-            onFilesDrop={() => {
-              setFileUploaded(true);
+            onFilesDrop={(uploadedFiles) => {
+              setFile(uploadedFiles[0]);
             }}
             uploadIcon={
               <Button
@@ -106,8 +109,10 @@ export const CVOverlay = ({
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
-            onClick={onDismiss}
-            disabled={!fileUploaded}
+            onClick={() => {
+              handleUpload();
+            }}
+            disabled={!file}
           >
             Upload CV & Activate Filters
           </Button>

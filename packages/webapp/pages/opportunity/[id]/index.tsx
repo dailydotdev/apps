@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -258,22 +258,12 @@ const JobPage = ({
     ActionType.OpportunityInitialView,
   );
   const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);
-  const [showCVScreen, setShowCVScreen] = useState(false);
-  const activatedCVScreen = useRef<boolean>();
 
   const [showMore, setShowMore] = useState(false);
 
   const hasLinks =
     opportunity?.organization?.customLinks?.length > 0 ||
     opportunity?.organization?.pressLinks?.length > 0;
-
-  useEffect(() => {
-    if (!hasUploadedCV && !activatedCVScreen.current) {
-      setShowCVScreen(true);
-      // TODO: remove this and fully rely on hasUploadedCV when we actually upload CV in the flow
-      activatedCVScreen.current = true;
-    }
-  }, [hasUploadedCV, showCVScreen]);
 
   if (isPending || !isActionsFetched) {
     return null;
@@ -285,9 +275,7 @@ const JobPage = ({
 
   return (
     <>
-      {!hasUploadedCV && showCVScreen && (
-        <CVOverlay onDismiss={() => setShowCVScreen(false)} />
-      )}
+      {!hasUploadedCV && <CVOverlay />}
       {!hasCompletedInitialView && <JobPageIntro />}
       <ResponseButtons
         id={opportunity.id}
