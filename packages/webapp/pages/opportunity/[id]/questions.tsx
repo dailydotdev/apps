@@ -16,7 +16,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
@@ -53,13 +53,16 @@ const questions = [
 ];
 
 const DeclinePage = (): ReactElement => {
-  const router = useRouter();
-  const { id } = router.query;
+  const {
+    query: { id },
+    push,
+  } = useRouter();
+  const opportunityId = id as string;
   const [activeQuestion, setActiveQuestion] = useState(0);
 
   const submitClick = () => {
     if (activeQuestion === questions.length - 1) {
-      router.push(`${webappUrl}jobs/${id}/notify`);
+      push(`${opportunityUrl}${opportunityId}/notify`);
       return;
     }
     setActiveQuestion((current) => current + 1);
