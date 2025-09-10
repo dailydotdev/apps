@@ -33,7 +33,6 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     flags {
       hideFeedPosts
       collapsePinnedPosts
-      hasUnreadPosts
     }
   }
 `;
