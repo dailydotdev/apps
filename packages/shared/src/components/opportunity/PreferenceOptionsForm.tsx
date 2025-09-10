@@ -153,7 +153,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="min"
             label="USD"
-            value="120.000"
+            value={preferences.salaryExpectation.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
           />
           <Dropdown
