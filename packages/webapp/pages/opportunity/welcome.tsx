@@ -64,7 +64,10 @@ const HeaderSection = (): ReactElement => {
         Getting hired the old way
         <br /> is officially dead
       </Typography>
-      <Link href={`${opportunityUrl}job-123?cv_step=true`} passHref>
+      <Link
+        href={`${opportunityUrl}/89f3daff-d6bb-4652-8f9c-b9f7254c9af1?cv_step=true`}
+        passHref
+      >
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}

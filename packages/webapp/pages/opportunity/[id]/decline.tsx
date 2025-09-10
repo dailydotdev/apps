@@ -52,21 +52,21 @@ const DeclinePage = (): ReactElement => {
     {
       icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
       title: 'Active looking',
-      href: `${opportunityUrl}${opportunityId}/preference`,
+      href: `${opportunityUrl}/${opportunityId}/preference`,
       description:
         'I’m in the market and ready to move. This one just wasn’t a fit.',
     },
     {
       icon: <SemiActiveIcon size={IconSize.XLarge} />,
       title: 'Open only if it’s right',
-      href: `${opportunityUrl}${opportunityId}/preference#semi-active-done`,
+      href: `${opportunityUrl}/${opportunityId}/preference#semi-active-done`,
       description:
         'I’m happy where I am, but I’d explore something truly exceptional.',
     },
     {
       icon: <PassiveIcon size={IconSize.XLarge} />,
       title: 'Not looking right now',
-      href: `${opportunityUrl}${opportunityId}/passive-done`,
+      href: `${opportunityUrl}/${opportunityId}/passive-done`,
       description:
         'I’m not open to opportunities right now. Step back until I say otherwise.',
     },

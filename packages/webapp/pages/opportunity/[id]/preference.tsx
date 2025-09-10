@@ -72,7 +72,7 @@ const PreferencePage = (): ReactElement => {
             variant={ButtonVariant.Primary}
             className="w-full laptop:w-auto"
             tag="a"
-            href={`${opportunityUrl}${opportunityId}/preference-done`}
+            href={`${opportunityUrl}/${opportunityId}/preference-done`}
           >
             Save preferences
           </Button>
