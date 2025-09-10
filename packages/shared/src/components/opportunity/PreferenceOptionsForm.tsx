@@ -16,6 +16,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
 import { RoleType } from '../../features/opportunity/types';
 import { LocationType } from '../../features/opportunity/protobuf/util';
+import { EmploymentType } from '../../features/opportunity/protobuf/opportunity';
 
 const salaryOptions = ['Annually', 'Monthly'];
 
@@ -36,6 +37,13 @@ const locationTypeOptions = [
   { label: 'Remote', value: LocationType.REMOTE },
   { label: 'Hybrid', value: LocationType.HYBRID },
   { label: 'On-site', value: LocationType.OFFICE },
+];
+
+const employmentTypeOptions = [
+  { label: 'Full-time', value: EmploymentType.FULL_TIME },
+  { label: 'Part-time', value: EmploymentType.PART_TIME },
+  { label: 'Contract / Freelance', value: EmploymentType.CONTRACT },
+  { label: 'Internship', value: EmploymentType.INTERNSHIP },
 ];
 
 export const PreferenceOptionsForm = (): ReactElement => {
@@ -104,10 +112,15 @@ export const PreferenceOptionsForm = (): ReactElement => {
 
         {/* Employment type */}
         <FlexRow className="flex-wrap">
-          <Checkbox name="full_time">Full-time</Checkbox>
-          <Checkbox name="part-time">Part-time</Checkbox>
-          <Checkbox name="contract">Contract / Freelance</Checkbox>
-          <Checkbox name="internship">Internship</Checkbox>
+          {employmentTypeOptions.map(({ label, value }) => (
+            <Checkbox
+              key={value}
+              name={value.toString()}
+              checked={preferences.employmentType.includes(value)}
+            >
+              {label}
+            </Checkbox>
+          ))}
         </FlexRow>
       </FlexCol>
 
