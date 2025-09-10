@@ -39,6 +39,7 @@ const seo: NextSeoProps = {
 const PreferencePage = (): ReactElement => {
   const {
     query: { id },
+    back,
   } = useRouter();
   const opportunityId = id as string;
 
@@ -65,6 +66,7 @@ const PreferencePage = (): ReactElement => {
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}
             className="hidden laptop:flex"
+            onClick={() => back()}
           >
             Back
           </Button>
