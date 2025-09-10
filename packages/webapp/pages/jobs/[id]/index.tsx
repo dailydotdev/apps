@@ -767,7 +767,6 @@ const JobPage = ({
                         truncate
                         type={TypographyType.Footnote}
                         color={TypographyColor.Tertiary}
-                        className="flex items-center gap-1"
                       >
                         {user.bio}
                       </Typography>
