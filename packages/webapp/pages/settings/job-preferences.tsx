@@ -22,6 +22,7 @@ import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components
 import classNames from 'classnames';
 import {
   ActivelyLookingIcon,
+  DocsIcon,
   SemiActiveIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -65,6 +66,11 @@ const options = [
     ),
   },
 ];
+
+const fileSuffixMap = {
+  'application/pdf': 'pdf',
+  'application/docx': 'docx',
+};
 
 const JobPreferencesPage = (): ReactElement => {
   const [option, setOption] = useState(null);
@@ -190,6 +196,17 @@ const JobPreferencesPage = (): ReactElement => {
                 sense. Never shared unless you explicitly say yes to an
                 opportunity.
               </Typography>
+
+              {preferences?.cv?.blob && (
+                <Typography
+                  className="flex items-center gap-1"
+                  type={TypographyType.Footnote}
+                >
+                  <DocsIcon secondary /> {preferences.cv.blob}.
+                  {fileSuffixMap[preferences.cv.contentType]}
+                </Typography>
+              )}
+
               <Button
                 variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
