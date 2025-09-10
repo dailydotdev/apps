@@ -69,6 +69,7 @@ import {
   CompanySize,
   CompanyStage,
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
+import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -275,8 +276,12 @@ const JobPage = ({
     };
   }, [showCVScreen, cvStep]);
 
-  if (!opportunity || isPending) {
+  if (isPending) {
     return null;
+  }
+
+  if (!opportunity) {
+    return <NoOpportunity />;
   }
 
   return (
@@ -803,7 +808,7 @@ export const getStaticProps: GetStaticProps<{
   try {
     const opportunity = await opportunityByIdOptions({ id }).queryFn();
     if (!opportunity) {
-      return { notFound: true };
+      return { props: { opportunity: null }, revalidate: 60 };
     }
 
     return {
@@ -811,7 +816,7 @@ export const getStaticProps: GetStaticProps<{
       revalidate: 300,
     };
   } catch (_e) {
-    return { notFound: true, revalidate: 60 };
+    return { props: { opportunity: null }, revalidate: 60 };
   }
 };
 
