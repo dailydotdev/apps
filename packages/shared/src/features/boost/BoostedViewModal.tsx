@@ -33,7 +33,7 @@ interface BoostedViewModalProps extends ModalProps {
   onBoostAgain?: (props: Campaign) => void;
 }
 
-const promptOptions: PromptOptions = {
+export const stopBoostPromptOptions: PromptOptions = {
   title: 'Stop this boost?',
   description:
     "If you stop this boost now, it will no longer be promoted. We'll credit the remaining Cores back to your balance for the unused budget",
@@ -115,7 +115,7 @@ export function BoostedViewModal({
 
   const handleBoostClick = async () => {
     if (campaign.state === 'ACTIVE') {
-      if (!(await showPrompt(promptOptions))) {
+      if (!(await showPrompt(stopBoostPromptOptions))) {
         return null;
       }
 
