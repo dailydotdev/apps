@@ -26,7 +26,6 @@ import {
   SemiActiveIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
@@ -40,18 +39,26 @@ const seo: NextSeoProps = {
 
 const options = [
   {
+    key: 'actively_looking',
     icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
     title: 'Active looking',
-    href: `${webappUrl}jobs/job-123/preference`,
-    description:
-      'I’m in the market and ready to move. This one just wasn’t a fit.',
+    description: (
+      <>
+        I&apos;m in the market and ready to move. This one just wasn&apos;t a
+        fit.
+      </>
+    ),
   },
   {
+    key: 'open_to_offers',
     icon: <SemiActiveIcon size={IconSize.XLarge} />,
-    title: 'Open only if it’s right',
-    href: `${webappUrl}jobs/job-123/preference#semi-active-done`,
-    description:
-      'I’m happy where I am, but I’d explore something truly exceptional.',
+    title: <>Open only if it&apos;s right</>,
+    description: (
+      <>
+        I&apos;m happy where I am, but I&apos;d explore something truly
+        exceptional.
+      </>
+    ),
   },
 ];
 
@@ -72,29 +79,29 @@ const JobPreferencesPage = (): ReactElement => {
             >
               When this is on, daily.dev works as your trusted talent agent,
               introducing you to real roles from real teams for your approval.
-              Nothing is shared without your say-so. We’ll only reach out when a
-              role is worth your time. No spam. No pressure. Your career, your
-              terms.
+              Nothing is shared without your say-so. We&apos;ll only reach out
+              when a role is worth your time. No spam. No pressure. Your career,
+              your terms.
             </Typography>
           </FlexCol>
           <Switch inputId="-switch" name="" compact={false} />
         </FlexRow>
         <FlexCol className="gap-3">
-          {options.map(({ icon, title, description, href }) => (
+          {options.map(({ key, icon, title, description }) => (
             <Button
-              key={title}
+              key={key}
               variant={ButtonVariant.Option}
               className={classNames(
                 '!h-auto w-auto flex-row-reverse gap-3 border border-border-subtlest-tertiary !p-3 laptop:flex-row',
                 {
-                  'bg-brand-float border-brand-default': option === href,
+                  'bg-brand-float border-brand-default': option === key,
                 },
               )}
-              onClick={() => setOption(href)}
+              onClick={() => setOption(key)}
             >
               <RadioItem
                 className={{ content: '!pr-0' }}
-                checked={option === href}
+                checked={option === key}
               />
               <div className="flex flex-1">
                 <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
