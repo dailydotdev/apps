@@ -48,6 +48,7 @@ export enum ActionType {
   UploadedCV = 'uploaded_cv',
   ViewJob = 'view_job',
   DisableBriefCardCta = 'disable_brief_card_cta',
+  OpportunityWelcomePage = 'opportunity_welcome_page',
 }
 
 export const cvActions = [

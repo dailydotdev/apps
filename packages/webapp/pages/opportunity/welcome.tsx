@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
@@ -35,6 +35,9 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -48,6 +51,18 @@ const seo: NextSeoProps = {
 
 const HeaderSection = (): ReactElement => {
   const { user } = useAuthContext();
+  const { alerts } = useAlertsContext();
+
+  const { isActionsFetched, completeAction } = useActions();
+  const { opportunityId } = alerts;
+
+  useEffect(() => {
+    if (!isActionsFetched) {
+      return;
+    }
+
+    completeAction(ActionType.OpportunityWelcomePage);
+  }, [completeAction, isActionsFetched]);
 
   return (
     <FlexCol className="items-center gap-2 text-center">
@@ -64,10 +79,7 @@ const HeaderSection = (): ReactElement => {
         Getting hired the old way
         <br /> is officially dead
       </Typography>
-      <Link
-        href={`${opportunityUrl}/89f3daff-d6bb-4652-8f9c-b9f7254c9af1?cv_step=true`}
-        passHref
-      >
+      <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}
@@ -76,6 +88,7 @@ const HeaderSection = (): ReactElement => {
           }}
           tag="a"
           className="mt-4 gap-2 border-none !px-16 text-black"
+          disabled={!user || !opportunityId}
         >
           <ProfilePicture
             size={ProfileImageSize.Small}
