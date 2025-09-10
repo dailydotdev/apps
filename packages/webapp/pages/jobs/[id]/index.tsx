@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import type { GetServerSideProps } from 'next';
 import { useQuery } from '@tanstack/react-query';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -234,11 +233,7 @@ const metaMap = {
   },
 };
 
-const JobPage = ({
-  opportunity: initialData,
-}: {
-  opportunity: Opportunity;
-}): ReactElement => {
+const JobPage = (): ReactElement => {
   const { checkHasCompleted } = useActions();
   const {
     query: { id, cv_step: cvStep },
@@ -246,7 +241,6 @@ const JobPage = ({
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: id as string }),
-    initialData,
   });
   const { data: match } = useQuery(
     opportunityMatchOptions({ id: id as string }),
@@ -777,30 +771,30 @@ const JobPage = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps<{
-  opportunity: Opportunity;
-}> = async (ctx) => {
-  const { id } = ctx.params as { id: string };
-  if (typeof id !== 'string' || !id) {
-    return {
-      notFound: true,
-    };
-  }
+// export const getServerSideProps: GetServerSideProps<{
+//   opportunity: Opportunity;
+// }> = async (ctx) => {
+//   const { id } = ctx.params as { id: string };
+//   if (typeof id !== 'string' || !id) {
+//     return {
+//       notFound: true,
+//     };
+//   }
 
-  const opportunity = await opportunityByIdOptions({ id }).queryFn();
+//   const opportunity = await opportunityByIdOptions({ id }).queryFn();
 
-  if (!opportunity) {
-    return {
-      notFound: true,
-    };
-  }
+//   if (!opportunity) {
+//     return {
+//       notFound: true,
+//     };
+//   }
 
-  return {
-    props: {
-      opportunity,
-    },
-  };
-};
+//   return {
+//     props: {
+//       opportunity,
+//     },
+//   };
+// };
 
 const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
 
