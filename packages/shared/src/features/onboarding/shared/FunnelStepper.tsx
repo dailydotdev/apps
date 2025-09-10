@@ -240,8 +240,8 @@ export const FunnelStepper = ({
     shouldShowHeaderSkip &&
     stepsWithOnlySkipHeader.some((type) => type === step.type);
 
-  const onRegisterStepToSkip = (type: FunnelStepType) => {
-    shouldSkipRef.current[type] = true;
+  const onRegisterStepToSkip = (type: FunnelStepType, shouldSkip: boolean) => {
+    shouldSkipRef.current[type] = shouldSkip;
   };
 
   return (

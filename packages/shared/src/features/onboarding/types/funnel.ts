@@ -95,7 +95,7 @@ interface FunnelStepCommon<T = FunnelStepParameters> {
   parameters: FunnelStepParameters<T>;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
-  onRegisterStepToSkip: (type: FunnelStepType) => void;
+  onRegisterStepToSkip: (type: FunnelStepType, shouldSkip: boolean) => void;
 }
 
 export interface FunnelChapter {

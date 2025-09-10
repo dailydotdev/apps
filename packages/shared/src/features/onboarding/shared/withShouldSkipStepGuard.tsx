@@ -12,8 +12,8 @@ export const withShouldSkipStepGuard = <Step extends FunnelStep>(
     const { shouldSkip } = useShouldSkipStep();
 
     useEffect(() => {
-      if (shouldSkip && callbackRef.current) {
-        callbackRef.current(type);
+      if (callbackRef.current) {
+        callbackRef.current(type, shouldSkip);
       }
     }, [shouldSkip, type]);
 
