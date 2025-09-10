@@ -55,6 +55,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
         <Typography type={TypographyType.Body} bold>
           What kind of role are you looking for?
         </Typography>
+
+        {/* Role */}
         <Textarea
           inputId="role"
           label="role"
@@ -63,6 +65,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
           fieldType="quaternary"
           value={preferences.role}
         />
+
+        {/* Role Type */}
         <Radio
           className={{ container: 'flex-1 !flex-row flex-wrap' }}
           name="role_type"
@@ -78,6 +82,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
           onChange={(value) => setSelectedRole(value)}
         />
       </FlexCol>
+
+      {/* Employment type */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Employment type
@@ -88,6 +94,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
         >
           Select all that apply to the roles you&apos;d consider.
         </Typography>
+
+        {/* Employment type */}
         <FlexRow className="flex-wrap">
           <Checkbox name="full_time">Full-time</Checkbox>
           <Checkbox name="part-time">Part-time</Checkbox>
@@ -95,6 +103,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <Checkbox name="internship">Internship</Checkbox>
         </FlexRow>
       </FlexCol>
+
+      {/* Salary expectations */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Salary expectations
@@ -122,6 +132,8 @@ export const PreferenceOptionsForm = (): ReactElement => {
           />
         </FlexRow>
       </FlexCol>
+
+      {/* Location preferences */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Location preferences
@@ -144,12 +156,16 @@ export const PreferenceOptionsForm = (): ReactElement => {
             className={{ container: 'flex-1' }}
           />
         </FlexRow>
+
+        {/* Location type */}
         <FlexRow>
           <Checkbox name="remote">Remote</Checkbox>
           <Checkbox name="hybrid">Hybrid</Checkbox>
           <Checkbox name="on-site">On-site</Checkbox>
         </FlexRow>
       </FlexCol>
+
+      {/* Tech stack */}
       <FlexCol className="gap-2">
         <Typography type={TypographyType.Body} bold>
           Preferred tech stack
