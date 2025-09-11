@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { FlexCol, FlexRow } from '../utilities';
 import {
   Typography,
@@ -20,7 +20,8 @@ import {
   EmploymentType,
   SalaryPeriod,
 } from '../../features/opportunity/protobuf/opportunity';
-import { snapToHalf } from '../../lib/utils';
+import { updateCandidatePreferencesMutationOptions } from '../../features/opportunity/mutations';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -45,12 +46,13 @@ const employmentTypeOptions = [
 
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
-  const [selectedRole, setSelectedRole] = useState(RoleType.Auto.toFixed(1));
 
   const { user } = useAuthContext();
 
-  const { data: preferences } = useQuery(
-    getCandidatePreferencesOptions(user?.id),
+  const opts = getCandidatePreferencesOptions(user?.id);
+  const { data: preferences } = useQuery(opts);
+  const { mutate: updatePreferences } = useMutation(
+    updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
   );
 
   useEffect(() => {
@@ -58,7 +60,6 @@ export const PreferenceOptionsForm = (): ReactElement => {
       return;
     }
 
-    setSelectedRole(snapToHalf(preferences?.roleType).toFixed(1));
     if (preferences?.salaryExpectation?.period) {
       setSelectedSalaryOption(
         salaryDurationOptions.findIndex(
@@ -97,8 +98,10 @@ export const PreferenceOptionsForm = (): ReactElement => {
               value: RoleType.Managerial.toFixed(1),
             },
           ]}
-          value={selectedRole}
-          onChange={(value) => setSelectedRole(value)}
+          value={preferences.roleType?.toFixed(1)}
+          onChange={(value) => {
+            updatePreferences({ roleType: parseFloat(value) });
+          }}
         />
       </FlexCol>
 
@@ -172,13 +175,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="country"
             label="Country"
-            value={preferences?.location?.[0].country}
+            value={preferences?.location?.[0]?.country}
             className={{ container: 'flex-1' }}
           />
           <TextField
             inputId="city"
             label="City"
-            value={preferences?.location?.[0].city}
+            value={preferences?.location?.[0]?.city}
             className={{ container: 'flex-1' }}
           />
         </FlexRow>

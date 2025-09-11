@@ -141,10 +141,8 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
     $role: String
     $roleType: Float
     $employmentType: [ProtoEnumValue]
-    $salaryExpectationMin: Float
-    $salaryExpectationPeriod: ProtoEnumValue
-    $locationCity: String
-    $locationCountry: String
+    $salaryExpectation: SalaryExpectationInput
+    $location: [LocationInput]
     $locationType: [ProtoEnumValue]
   ) {
     updateCandidatePreferences(
@@ -152,11 +150,8 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
       role: $role
       roleType: $roleType
       employmentType: $employmentType
-      salaryExpectation: {
-        min: $salaryExpectationMin
-        period: $salaryExpectationPeriod
-      }
-      location: [{ city: $locationCity, country: $locationCountry }]
+      salaryExpectation: $salaryExpectation
+      location: $location
       locationType: $locationType
     ) {
       _
