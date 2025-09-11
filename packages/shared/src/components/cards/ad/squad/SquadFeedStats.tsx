@@ -41,11 +41,13 @@ export function SquadFeedStats({ source }: SquadFeedStatsProps): ReactElement {
         label={pluralize('Upvote', source.flags.totalUpvotes)}
         value={source.flags.totalUpvotes}
       />
-      <Separator />
-      <SquadAdStat
-        label={pluralize('Award', source.flags.totalAwards)}
-        value={source.flags.totalAwards}
-      />
+      {!!source.flags.totalAwards && <Separator />}
+      {!!source.flags.totalAwards && (
+        <SquadAdStat
+          label={pluralize('Award', source.flags.totalAwards)}
+          value={source.flags.totalAwards}
+        />
+      )}
     </div>
   );
 }

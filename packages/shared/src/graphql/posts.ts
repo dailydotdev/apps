@@ -1052,6 +1052,8 @@ export const POST_ANALYTICS_QUERY = gql`
       awards
       upvotesRatio
       shares
+      reachAds
+      impressionsAds
     }
   }
 `;
@@ -1071,6 +1073,8 @@ export type PostAnalytics = {
   awards: number;
   upvotesRatio: number;
   shares: number;
+  reachAds: number;
+  impressionsAds: number;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
@@ -1099,13 +1103,17 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
           id
           date
           impressions
+          impressionsAds
         }
       }
     }
   }
 `;
 
-export type PostAnalyticsHistory = Pick<PostAnalytics, 'id' | 'impressions'> & {
+export type PostAnalyticsHistory = Pick<
+  PostAnalytics,
+  'id' | 'impressions' | 'impressionsAds'
+> & {
   date: Date;
 };
 

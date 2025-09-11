@@ -700,7 +700,7 @@ export const TOP_READER_BADGE_BY_ID = gql`
 `;
 
 export const GET_NOTIFICATION_SETTINGS = gql`
-  query User {
+  query NotificationSettings {
     notificationSettings
   }
 `;
