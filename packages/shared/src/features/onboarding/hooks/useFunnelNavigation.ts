@@ -184,12 +184,10 @@ export function getNextStep(params: {
     return resolvedDestination;
   }
 
-  // update position to reflect our current virtual position for traversing the steps
-  const updatedPosition =
-    findStepPosition({
-      stepId: next.id,
-      funnelChapters,
-    }) || position;
+  const updatedPosition = findStepPosition({
+    stepId: next.id,
+    funnelChapters,
+  });
 
   return getNextStep({
     destination: completeTransition.destination,
