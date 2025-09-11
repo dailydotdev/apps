@@ -200,6 +200,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
               key={value}
               name={value.toString()}
               checked={preferences?.locationType?.includes(value)}
+              onToggleCallback={(checked) => {
+                updatePreferences({
+                  locationType: checked
+                    ? [...preferences?.locationType, value]
+                    : preferences?.locationType.filter((v) => v !== value),
+                });
+              }}
             >
               {label}
             </Checkbox>
