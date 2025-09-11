@@ -139,10 +139,11 @@ export const PreferenceOptionsForm = (): ReactElement => {
               name={value.toString()}
               checked={preferences?.employmentType?.includes(value)}
               onToggleCallback={(checked) => {
+                const employmentType = preferences?.employmentType || [];
                 updatePreferences({
                   employmentType: checked
-                    ? [...preferences?.employmentType, value]
-                    : preferences?.employmentType.filter((v) => v !== value),
+                    ? [...employmentType, value]
+                    : employmentType.filter((v) => v !== value),
                 });
               }}
             >
@@ -246,10 +247,11 @@ export const PreferenceOptionsForm = (): ReactElement => {
               name={value.toString()}
               checked={preferences?.locationType?.includes(value)}
               onToggleCallback={(checked) => {
+                const locationType = preferences?.locationType || [];
                 updatePreferences({
                   locationType: checked
-                    ? [...preferences?.locationType, value]
-                    : preferences?.locationType.filter((v) => v !== value),
+                    ? [...locationType, value]
+                    : locationType.filter((v) => v !== value),
                 });
               }}
             >
