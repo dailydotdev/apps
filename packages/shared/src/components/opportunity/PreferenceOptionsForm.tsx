@@ -161,6 +161,15 @@ export const PreferenceOptionsForm = (): ReactElement => {
             label="USD"
             value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
+            onChange={(e) => {
+              // TODO: debounce?
+              updatePreferences({
+                salaryExpectation: {
+                  ...preferences.salaryExpectation,
+                  min: parseFloat(e.target.value.replace(/,/g, '')),
+                },
+              });
+            }}
           />
           <Dropdown
             selectedIndex={selectedSalaryOption}
