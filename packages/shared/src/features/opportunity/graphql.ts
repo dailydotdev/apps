@@ -134,3 +134,32 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
     }
   }
 `;
+
+export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
+  mutation UpdateCandidatePreferences(
+    $status: ProtoEnumValue
+    $role: String
+    $roleType: Float
+    $employmentType: [ProtoEnumValue]
+    $salaryExpectationMin: Float
+    $salaryExpectationPeriod: ProtoEnumValue
+    $locationCity: String
+    $locationCountry: String
+    $locationType: [ProtoEnumValue]
+  ) {
+    updateCandidatePreferences(
+      status: $status
+      role: $role
+      roleType: $roleType
+      employmentType: $employmentType
+      salaryExpectation: {
+        min: $salaryExpectationMin
+        period: $salaryExpectationPeriod
+      }
+      location: [{ city: $locationCity, country: $locationCountry }]
+      locationType: $locationType
+    ) {
+      _
+    }
+  }
+`;
