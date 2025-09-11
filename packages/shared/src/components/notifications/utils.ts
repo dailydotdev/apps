@@ -315,6 +315,8 @@ export const FOLLOWING_EMAIL_KEYS = [
   NotificationType.SquadPostAdded,
 ];
 
+export const OPPORTUNITY_KEYS = [NotificationType.NewOpportunityMatch];
+
 export const NotificationContainer = classed('div', 'flex flex-col gap-6');
 
 export const NotificationSection = classed(
