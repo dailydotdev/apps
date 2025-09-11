@@ -76,8 +76,12 @@ const PlusCard = ({
     : OnboardingPlans.Free;
   const { heading, features } = cardContent[cardContentName];
 
+  // on iOS: we don't have a monthly price, so we use the yearly price/12
+  const fallbackPrice = ((plan?.price.amount ?? 0) / 12)
+    .toString()
+    .match(/^-?\d+(?:\.\d{0,2})?/)?.[0];
   const price = {
-    amount: plan?.price.monthly?.formatted ?? '0',
+    amount: plan?.price.monthly?.formatted ?? fallbackPrice ?? '0',
   };
 
   return (
@@ -111,7 +115,7 @@ const PlusCard = ({
       <div className="flex items-center gap-1.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
-          {price.amount}
+          {isPaidPlan ? price.amount : 0}
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}

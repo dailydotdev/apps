@@ -35,6 +35,7 @@ export type IAPProduct = {
       discounts: unknown[]; // Specify a more detailed type if known
       price: string;
       priceFormatted: string;
+      priceString: string;
       recurringSubscriptionPeriod: string;
     }[];
     subscriptionFamilyId: string;
@@ -82,11 +83,10 @@ export const getAppleProducts = (metadata: ProductPricingMetadata[]) =>
             metadata: item,
             priceId: item.idMap.ios,
             price: {
-              amount: parseFloat(product.attributes.offers[0].price),
+              amount: parseFloat(product.attributes.offers[0].priceString),
               formatted: product.attributes.offers[0].priceFormatted,
             },
             duration,
-            trialPeriod: null,
             currency: null,
           } as ProductPricingPreview;
         })
