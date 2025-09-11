@@ -64,7 +64,13 @@
     box-shadow: none;
 
     & .title {
-      color: var(--theme-text-quaternary);
+      color: var(--theme-text-tertiary);
+    }
+
+    &.colorExperiment {
+      & .title {
+        color: var(--theme-text-quaternary);
+      }
     }
   }
 }
