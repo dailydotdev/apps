@@ -191,12 +191,30 @@ export const PreferenceOptionsForm = (): ReactElement => {
             label="Country"
             value={preferences?.location?.[0]?.country}
             className={{ container: 'flex-1' }}
+            onChange={(e) => {
+              // TODO: debounce?
+              updatePreferences({
+                location: {
+                  ...preferences?.location?.[0],
+                  country: e.target.value,
+                },
+              });
+            }}
           />
           <TextField
             inputId="city"
             label="City"
             value={preferences?.location?.[0]?.city}
             className={{ container: 'flex-1' }}
+            onChange={(e) => {
+              // TODO: debounce?
+              updatePreferences({
+                location: {
+                  ...preferences?.location?.[0],
+                  city: e.target.value,
+                },
+              });
+            }}
           />
         </FlexRow>
 

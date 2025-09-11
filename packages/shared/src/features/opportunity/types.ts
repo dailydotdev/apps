@@ -87,7 +87,7 @@ export type UserCandidatePreferences = {
   role: string;
   roleType: number;
   salaryExpectation?: Omit<Salary, 'max' | 'currency'>;
-  location?: Omit<OpportunityLocation, 'type'>[];
+  location?: Omit<OpportunityLocation, 'type' | 'subdivision' | 'continent'>[];
   locationType?: LocationType[];
   employmentType?: EmploymentType[];
   companyStage?: CompanyStage[];

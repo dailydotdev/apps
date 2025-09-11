@@ -124,8 +124,6 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       location {
         city
         country
-        subdivision
-        continent
       }
       locationType
       employmentType
