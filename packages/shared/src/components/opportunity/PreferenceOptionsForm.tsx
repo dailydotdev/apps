@@ -45,7 +45,7 @@ const employmentTypeOptions = [
 ];
 
 export const PreferenceOptionsForm = (): ReactElement => {
-  const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
+  const [selectedSalaryOption, setSelectedSalaryOption] = useState(null);
 
   const { user } = useAuthContext();
 
@@ -161,7 +161,14 @@ export const PreferenceOptionsForm = (): ReactElement => {
             options={salaryOptions}
             className={{ label: 'text-text-primary' }}
             onChange={(option) => {
-              setSelectedSalaryOption(salaryOptions.indexOf(option));
+              const index = salaryOptions.indexOf(option);
+
+              updatePreferences({
+                salaryExpectation: {
+                  ...preferences.salaryExpectation,
+                  period: salaryDurationOptions[index].value,
+                },
+              });
             }}
           />
         </FlexRow>
