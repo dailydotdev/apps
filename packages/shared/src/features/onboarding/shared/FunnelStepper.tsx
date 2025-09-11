@@ -101,7 +101,6 @@ export const FunnelStepper = ({
     () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
     [funnel?.chapters],
   );
-  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const { data: pricing } = useFunnelPricing(funnel);
   const {
     trackOnClickCapture,
@@ -116,7 +115,6 @@ export const FunnelStepper = ({
       funnel,
       initialStepId,
       onNavigation: trackOnNavigate,
-      shouldSkipRef,
     });
   const { transition: sendTransition } = useStepTransition(session.id);
   const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
@@ -126,6 +124,7 @@ export const FunnelStepper = ({
   });
   useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
+  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
       const transition = step.transitions.find((item) => item.on === type);
@@ -135,13 +134,14 @@ export const FunnelStepper = ({
         return;
       }
 
-      const context = { chapters, position, funnelChapters: funnel.chapters };
-      const targetStepId = getNextStep(
+      const targetStepId = getNextStep({
         destination,
         steps,
-        shouldSkipRef.current,
-        context,
-      );
+        shouldSkipMap: shouldSkipRef.current,
+        chapters,
+        position,
+        funnelChapters: funnel.chapters,
+      });
 
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 

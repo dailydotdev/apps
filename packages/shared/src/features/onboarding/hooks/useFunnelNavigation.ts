@@ -26,7 +26,6 @@ interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
   initialStepId?: string | null;
   onNavigation: TrackOnNavigate;
-  shouldSkipRef?: React.MutableRefObject<ShouldSkipRef>;
 }
 
 type Chapters = Array<{ steps: number }>;
@@ -45,7 +44,7 @@ interface HeaderNavigation {
 interface SkipNavigation
   extends Omit<HeaderNavigation, 'navigate'>,
     Pick<FunnelStepTransition, 'placement'> {
-  destination?: FunnelStep['id'];
+  // Removed destination - navigation logic is handled by onTransition
 }
 
 export interface UseFunnelNavigationReturn {
@@ -91,19 +90,38 @@ function updateURLWithStepId({
   router.push(`${pathname}?${params.toString()}`, { scroll: true });
 }
 
-function resolveDestination(
-  destination: string,
-  context?: {
-    chapters: Chapters;
-    position: FunnelPosition;
-    funnelChapters: FunnelJSON['chapters'];
-  },
-): string {
-  if (destination !== NEXT_STEP_ID || !context) {
+function findStepPosition(params: {
+  stepId: string;
+  funnelChapters: FunnelJSON['chapters'];
+}): FunnelPosition | null {
+  const { stepId, funnelChapters } = params;
+  for (
+    let chapterIndex = 0;
+    chapterIndex < funnelChapters.length;
+    chapterIndex += 1
+  ) {
+    const chapter = funnelChapters[chapterIndex];
+    for (let stepIndex = 0; stepIndex < chapter.steps.length; stepIndex += 1) {
+      if (chapter.steps[stepIndex].id === stepId) {
+        return { chapter: chapterIndex, step: stepIndex };
+      }
+    }
+  }
+  return null;
+}
+
+function resolveDestination(params: {
+  destination: string;
+  chapters: Chapters;
+  position: FunnelPosition;
+  funnelChapters: FunnelJSON['chapters'];
+}): string {
+  const { destination, chapters, position, funnelChapters } = params;
+
+  if (destination !== NEXT_STEP_ID) {
     return destination;
   }
 
-  const { chapters, position, funnelChapters } = context;
   const chapter = chapters[position.chapter];
   const isLastItem = chapter?.steps === position.step + 1;
 
@@ -112,22 +130,34 @@ function resolveDestination(
   }
 
   const isLastChapter = position.chapter === chapters.length - 1;
+
   return isLastChapter
     ? COMPLETED_STEP_ID
     : funnelChapters[position.chapter + 1].steps[0].id;
 }
 
-export function getNextStep(
-  destination: string,
-  steps: FunnelStep[],
-  shouldSkipMap: ShouldSkipRef,
-  context?: {
-    chapters: Chapters;
-    position: FunnelPosition;
-    funnelChapters: FunnelJSON['chapters'];
-  },
-): string {
-  const resolvedDestination = resolveDestination(destination, context);
+export function getNextStep(params: {
+  destination: string;
+  steps: FunnelStep[];
+  shouldSkipMap: ShouldSkipRef;
+  chapters: Chapters;
+  position: FunnelPosition;
+  funnelChapters: FunnelJSON['chapters'];
+}): string {
+  const {
+    destination,
+    steps,
+    shouldSkipMap,
+    chapters,
+    position,
+    funnelChapters,
+  } = params;
+  const resolvedDestination = resolveDestination({
+    destination,
+    chapters,
+    position,
+    funnelChapters,
+  });
 
   if (resolvedDestination === COMPLETED_STEP_ID) {
     return COMPLETED_STEP_ID;
@@ -145,26 +175,36 @@ export function getNextStep(
     return resolvedDestination;
   }
 
-  // Step should be skipped, find the next destination
-  const firstTransition = next.transitions[0];
-  if (!firstTransition) {
+  // step should be automatically skipped - treat as "auto-completed"
+  const completeTransition = next.transitions.find(
+    (t) => t.on === FunnelStepTransitionType.Complete,
+  );
+
+  if (!completeTransition) {
     return resolvedDestination;
   }
 
-  // Recursively process the next transition (it might also need to be skipped)
-  return getNextStep(
-    firstTransition.destination,
+  // update position to reflect our current virtual position for traversing the steps
+  const updatedPosition =
+    findStepPosition({
+      stepId: next.id,
+      funnelChapters,
+    }) || position;
+
+  return getNextStep({
+    destination: completeTransition.destination,
     steps,
     shouldSkipMap,
-    context,
-  );
+    chapters,
+    position: updatedPosition,
+    funnelChapters,
+  });
 }
 
 export const useFunnelNavigation = ({
   funnel,
   initialStepId,
   onNavigation,
-  shouldSkipRef,
 }: UseFunnelNavigationProps): UseFunnelNavigationReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -269,21 +309,11 @@ export const useFunnelNavigation = ({
       return { hasTarget: false };
     }
 
-    const steps = funnel.chapters.flatMap((chapter) => chapter.steps);
-    const context = { chapters, position, funnelChapters: funnel.chapters };
-    const finalDestination = getNextStep(
-      transition.destination,
-      steps,
-      shouldSkipRef?.current || {},
-      context,
-    );
-
     return {
-      placement: transition.placement,
-      destination: finalDestination,
       hasTarget: true,
+      placement: transition.placement,
     };
-  }, [step?.transitions, chapters, position, funnel.chapters, shouldSkipRef]);
+  }, [step?.transitions]);
 
   // On load: Update the initial position in state and URL
   useEffect(() => {
