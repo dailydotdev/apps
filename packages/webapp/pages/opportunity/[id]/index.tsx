@@ -70,6 +70,7 @@ import {
   CompanyStage,
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
+import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -242,6 +243,7 @@ const JobPage = ({
   opportunity: Opportunity;
 }): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
+  const { alerts, clearOpportunityAlert } = useAlertsContext();
   const {
     query: { id },
   } = useRouter();
@@ -274,6 +276,14 @@ const JobPage = ({
       activatedCVScreen.current = true;
     }
   }, [hasUploadedCV, showCVScreen]);
+
+  useEffect(() => {
+    if (!opportunity || !alerts.opportunityId) {
+      return;
+    }
+
+    clearOpportunityAlert?.();
+  }, [alerts.opportunityId, clearOpportunityAlert, opportunity]);
 
   if (isPending || !isActionsFetched) {
     return null;

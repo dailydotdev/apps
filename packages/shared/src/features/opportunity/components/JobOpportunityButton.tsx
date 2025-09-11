@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Button } from '../../../components/buttons/Button';
 import { JobIcon } from '../../../components/icons';
@@ -20,7 +20,7 @@ export const JobOpportunityButton = ({
   className,
 }: JobOpportunityButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { alerts, clearOpportunityAlert } = useAlertsContext();
+  const { alerts } = useAlertsContext();
   const { checkHasCompleted } = useActions();
 
   const { opportunityId } = alerts;
@@ -29,10 +29,6 @@ export const JobOpportunityButton = ({
     ? `${opportunityUrl}/${opportunityId}`
     : `${opportunityUrl}/welcome`;
 
-  const handleClick = useCallback(async () => {
-    await clearOpportunityAlert?.();
-  }, [clearOpportunityAlert]);
-
   return (
     <Tooltip
       content="A personalized job opportunity was matched to your profile. Click to review it privately"
@@ -40,15 +36,14 @@ export const JobOpportunityButton = ({
     >
       <Link href={href} passHref>
         <Button
+          tag="a"
           icon={<JobIcon />}
           variant={ButtonVariant.Float}
           size={isMobile ? ButtonSize.Small : ButtonSize.Medium}
           style={{
             background: briefButtonBg,
           }}
-          tag="a"
           className={classNames(className, 'border-none text-black')}
-          onClick={handleClick}
         >
           One opportunity is waiting for you here
         </Button>
