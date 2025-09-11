@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { Button } from '../../../components/buttons/Button';
 import { JobIcon } from '../../../components/icons';
@@ -20,7 +20,7 @@ export const JobOpportunityButton = ({
   className,
 }: JobOpportunityButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { alerts } = useAlertsContext();
+  const { alerts, clearOpportunityAlert } = useAlertsContext();
   const { checkHasCompleted } = useActions();
 
   const { opportunityId } = alerts;
@@ -28,6 +28,10 @@ export const JobOpportunityButton = ({
   const href = checkHasCompleted(ActionType.OpportunityWelcomePage)
     ? `${opportunityUrl}/${opportunityId}`
     : `${opportunityUrl}/welcome`;
+
+  const handleClick = useCallback(async () => {
+    await clearOpportunityAlert?.();
+  }, [clearOpportunityAlert]);
 
   return (
     <Tooltip
@@ -44,6 +48,7 @@ export const JobOpportunityButton = ({
           }}
           tag="a"
           className={classNames(className, 'border-none text-black')}
+          onClick={handleClick}
         >
           One opportunity is waiting for you here
         </Button>
