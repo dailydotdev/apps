@@ -43,9 +43,7 @@ interface HeaderNavigation {
 
 interface SkipNavigation
   extends Omit<HeaderNavigation, 'navigate'>,
-    Pick<FunnelStepTransition, 'placement'> {
-  // Removed destination - navigation logic is handled by onTransition
-}
+    Pick<FunnelStepTransition, 'placement'> {}
 
 export interface UseFunnelNavigationReturn {
   chapters: Chapters;
