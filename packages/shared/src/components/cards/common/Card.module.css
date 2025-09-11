@@ -64,7 +64,7 @@
     box-shadow: none;
 
     & .title {
-      color: var(--theme-text-tertiary);
+      color: var(--theme-text-quaternary);
     }
   }
 }
