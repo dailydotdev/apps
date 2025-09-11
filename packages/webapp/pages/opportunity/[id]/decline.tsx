@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -24,6 +24,8 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -47,6 +49,7 @@ const DeclinePage = (): ReactElement => {
   const opportunityId = id as string;
   const [option, setOption] = useState(null);
   const { push, back } = useRouter();
+  const { completeAction, isActionsFetched } = useActions();
 
   const options = [
     {
@@ -71,6 +74,14 @@ const DeclinePage = (): ReactElement => {
         'I’m not open to opportunities right now. Step back until I say otherwise.',
     },
   ];
+
+  useEffect(() => {
+    if (!isActionsFetched) {
+      return;
+    }
+    completeAction(ActionType.OpportunityInitialView);
+  }, [completeAction, isActionsFetched]);
+
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">

@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import type { Opportunity } from '../features/opportunity/types';
 
 export type Alerts = {
   filter?: boolean;
@@ -18,6 +19,7 @@ export type Alerts = {
   showRecoverStreak?: boolean;
   showTopReader?: boolean;
   briefBannerLastSeen?: Date;
+  opportunityId?: Opportunity['id'] | null;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;

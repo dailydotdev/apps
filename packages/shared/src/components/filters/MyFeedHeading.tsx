@@ -18,6 +18,7 @@ import { settingsUrl, webappUrl } from '../../lib/constants';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { JobOpportunityButton } from '../../features/opportunity/components/JobOpportunityButton';
+import { useAlertsContext } from '../../contexts/AlertContext';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters?: () => void;
@@ -35,6 +36,9 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
+  const { alerts } = useAlertsContext();
+
+  const hasOpportunityAlert = !!alerts.opportunityId;
 
   const editFeedUrl = useMemo(() => {
     if (isCustomDefaultFeed && pathname === '/') {
@@ -56,7 +60,7 @@ function MyFeedHeading({
 
   return (
     <>
-      {!isMobile && <JobOpportunityButton />}
+      {hasOpportunityAlert && !isMobile && <JobOpportunityButton />}
       <FeedSettingsButton
         onClick={onClick}
         size={ButtonSize.Medium}

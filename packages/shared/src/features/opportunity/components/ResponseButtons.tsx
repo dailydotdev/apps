@@ -23,22 +23,22 @@ export const ResponseButtons = ({
     <div className={className?.container}>
       <Link href={`${opportunityUrl}/${id}/decline`} passHref>
         <Button
+          tag="a"
           className={className?.buttons}
           size={size}
           icon={<MiniCloseIcon />}
           variant={ButtonVariant.Subtle}
-          tag="a"
         >
           Not for me
         </Button>
       </Link>
       <Link href={`${opportunityUrl}/${id}/questions`} passHref>
         <Button
+          tag="a"
           className={className?.buttons}
           size={size}
           icon={<VIcon />}
           variant={ButtonVariant.Primary}
-          tag="a"
         >
           I&apos;m interested
         </Button>
