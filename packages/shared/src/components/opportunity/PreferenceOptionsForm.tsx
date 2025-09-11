@@ -20,8 +20,10 @@ import {
   EmploymentType,
   SalaryPeriod,
 } from '../../features/opportunity/protobuf/opportunity';
+import type { UpdatedCandidatePreferences } from '../../features/opportunity/mutations';
 import { updateCandidatePreferencesMutationOptions } from '../../features/opportunity/mutations';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
+import useDebounceFn from '../../hooks/useDebounceFn';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -55,6 +57,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
     updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
   );
 
+  const [debouncedUpdate] = useDebounceFn<UpdatedCandidatePreferences>(
+    (patch) => {
+      updatePreferences(patch);
+    },
+    400,
+  );
+
   useEffect(() => {
     if (!preferences) {
       return;
@@ -85,8 +94,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           fieldType="quaternary"
           value={preferences?.role}
           onChange={(e) => {
-            // TODO: debounce?
-            updatePreferences({
+            debouncedUpdate({
               role: e.target.value,
             });
           }}
@@ -162,7 +170,6 @@ export const PreferenceOptionsForm = (): ReactElement => {
             value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
             onChange={(e) => {
-              // TODO: debounce?
               updatePreferences({
                 salaryExpectation: {
                   ...preferences.salaryExpectation,
@@ -207,8 +214,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
             value={preferences?.location?.[0]?.country}
             className={{ container: 'flex-1' }}
             onChange={(e) => {
-              // TODO: debounce?
-              updatePreferences({
+              debouncedUpdate({
                 location: {
                   ...preferences?.location?.[0],
                   country: e.target.value,
@@ -222,8 +228,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
             value={preferences?.location?.[0]?.city}
             className={{ container: 'flex-1' }}
             onChange={(e) => {
-              // TODO: debounce?
-              updatePreferences({
+              debouncedUpdate({
                 location: {
                   ...preferences?.location?.[0],
                   city: e.target.value,
