@@ -60,6 +60,7 @@ function FeedItemContainer(
         data-testid="postItem"
         ref={ref}
         className={classNames(
+          // todo: remove colorExperiment from ./Card.module.css class when cleaning the experiment
           colorExp && `${style.colorExperiment} !bg-background-default`,
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
