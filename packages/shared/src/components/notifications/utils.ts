@@ -84,6 +84,7 @@ export enum NotificationType {
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
   InAppPurchases = 'in_app_purchases',
+  PostAnalytics = 'post_analytics',
 }
 
 export enum NotificationIconType {
@@ -428,6 +429,12 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     description:
       'Get notified when your squad role changes, like becoming a moderator or admin.',
     group: true,
+  },
+  {
+    id: NotificationType.PostAnalytics,
+    label: 'Post analytics',
+    description: 'Get updates about how your posts are performing.',
+    group: false,
   },
 ];
 
