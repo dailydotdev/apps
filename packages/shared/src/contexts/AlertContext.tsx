@@ -4,7 +4,6 @@ import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 import type { Alerts, AlertsUpdate } from '../graphql/alerts';
 import {
-  CLEAR_OPPORTUNITY_ALERT_MUTATION,
   UPDATE_ALERTS,
   UPDATE_LAST_BOOT_POPUP,
   UPDATE_LAST_REFERRAL_REMINDER,
@@ -102,16 +101,6 @@ export const AlertContextProvider = ({
     },
   });
 
-  const { mutateAsync: clearOpportunityAlert } = useMutation({
-    mutationFn: () => gqlClient.request(CLEAR_OPPORTUNITY_ALERT_MUTATION),
-
-    onSuccess: () =>
-      updateAlerts({
-        ...alerts,
-        opportunityId: null,
-      }),
-  });
-
   const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
@@ -120,7 +109,6 @@ export const AlertContextProvider = ({
       updateAlerts: updateRemoteAlerts,
       updateLastReferralReminder,
       updateLastBootPopup,
-      clearOpportunityAlert,
     }),
     [
       alerts,
@@ -129,7 +117,6 @@ export const AlertContextProvider = ({
       updateRemoteAlerts,
       updateLastReferralReminder,
       updateLastBootPopup,
-      clearOpportunityAlert,
     ],
   );
 

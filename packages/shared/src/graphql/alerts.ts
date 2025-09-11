@@ -56,11 +56,3 @@ export const UPDATE_LAST_BOOT_POPUP = gql`
     }
   }
 `;
-
-export const CLEAR_OPPORTUNITY_ALERT_MUTATION = gql`
-  mutation ClearOpportunityAlert {
-    clearOpportunityAlert {
-      _
-    }
-  }
-`;
