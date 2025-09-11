@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import classNames from 'classnames';
 import type { FunnelStepEditTags } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -9,7 +8,6 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { FunnelStepCtaWrapper } from '../shared';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import className = ReactMarkdown.propTypes.className;
 
 function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement },
