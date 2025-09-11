@@ -81,7 +81,7 @@ const PlusCard = ({
     .toString()
     .match(/^-?\d+(?:\.\d{0,2})?/)?.[0];
   const price = {
-    amount: plan?.price.monthly?.formatted ?? fallbackPrice ?? '0',
+    amount: plan?.price.monthly?.formatted ?? fallbackPrice,
   };
 
   return (
