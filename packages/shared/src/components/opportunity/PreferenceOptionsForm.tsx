@@ -84,6 +84,12 @@ export const PreferenceOptionsForm = (): ReactElement => {
           placeholder="Describe your next ideal role or career goal…"
           fieldType="quaternary"
           value={preferences?.role}
+          onChange={(e) => {
+            // TODO: debounce?
+            updatePreferences({
+              role: e.target.value,
+            });
+          }}
         />
 
         {/* Role Type */}
