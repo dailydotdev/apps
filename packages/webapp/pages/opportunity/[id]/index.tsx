@@ -278,7 +278,11 @@ const JobPage = ({
   }, [hasUploadedCV, showCVScreen]);
 
   useEffect(() => {
-    if (!opportunity || !alerts.opportunityId) {
+    if (
+      !opportunity ||
+      !alerts.opportunityId ||
+      alerts.opportunityId !== opportunity.id
+    ) {
       return;
     }
 
