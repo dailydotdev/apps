@@ -34,6 +34,7 @@ import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/pr
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
 import { updateCandidatePreferencesMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -75,15 +76,19 @@ const fileSuffixMap = {
 };
 
 const JobPreferencesPage = (): ReactElement => {
-  const [option, setOption] = useState(null);
   const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
+  const [option, setOption] = useState(null);
 
   const opts = getCandidatePreferencesOptions(user?.id);
 
   const { data: preferences, isPending } = useQuery(opts);
-  const { mutate: updatePreferences } = useMutation(
-    updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
-  );
+  const { mutate: updatePreferences } = useMutation({
+    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
+    onError: () => {
+      displayToast('Failed to update preferences. Please try again.');
+    },
+  });
 
   const modeDisabled = preferences?.status === CandidateStatus.DISABLED;
 
