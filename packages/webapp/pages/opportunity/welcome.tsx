@@ -79,26 +79,27 @@ const HeaderSection = (): ReactElement => {
         Getting hired the old way
         <br /> is officially dead
       </Typography>
-      <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
-        <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Large}
-          style={{
-            background: briefButtonBg,
-          }}
-          tag="a"
-          className="mt-4 gap-2 border-none !px-16 text-black"
-          disabled={!user || !opportunityId}
-        >
-          <ProfilePicture
-            size={ProfileImageSize.Small}
-            ref={null}
-            user={user}
-            nativeLazyLoading
-          />
-          Show me what you got →
-        </Button>
-      </Link>
+      {user && opportunityId && (
+        <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Large}
+            style={{
+              background: briefButtonBg,
+            }}
+            tag="a"
+            className="mt-4 gap-2 border-none !px-16 text-black"
+          >
+            <ProfilePicture
+              size={ProfileImageSize.Small}
+              ref={null}
+              user={user}
+              nativeLazyLoading
+            />
+            Show me what you got →
+          </Button>
+        </Link>
+      )}
       <FlexRow className="items-center gap-1">
         <VIcon className="text-accent-avocado-subtlest" />
         <Typography
