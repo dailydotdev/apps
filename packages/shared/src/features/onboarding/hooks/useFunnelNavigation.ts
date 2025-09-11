@@ -167,7 +167,7 @@ export function getNextStep(params: {
     return resolvedDestination;
   }
 
-  const updatedPosition = stepMap[next.id]?.position;
+  const updatedPosition = stepMap[next.id].position;
 
   return getNextStep({
     destination: completeTransition.destination,
