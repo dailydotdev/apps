@@ -104,7 +104,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
               value: RoleType.Managerial.toFixed(1),
             },
           ]}
-          value={preferences.roleType?.toFixed(1)}
+          value={preferences?.roleType?.toFixed(1)}
           onChange={(value) => {
             updatePreferences({ roleType: parseFloat(value) });
           }}
