@@ -30,7 +30,8 @@ export const updateCandidatePreferencesMutationOptions = ([
         updatedPreferences,
       );
     },
-    onError: (error) => {},
+    // TODO: add error handling
+    // onError: (error) => {},
     onSuccess: (_, variables) => {
       set({
         ...preferences,
