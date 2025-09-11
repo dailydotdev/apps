@@ -55,6 +55,7 @@ export interface UseFunnelNavigationReturn {
   step: FunnelStep;
   back: HeaderNavigation;
   skip: SkipNavigation;
+  stepMap: StepMap;
 }
 
 function getStepMap(funnel: FunnelJSON): StepMap {
@@ -90,26 +91,6 @@ function updateURLWithStepId({
   router.push(`${pathname}?${params.toString()}`, { scroll: true });
 }
 
-function findStepPosition(params: {
-  stepId: string;
-  funnelChapters: FunnelJSON['chapters'];
-}): FunnelPosition | null {
-  const { stepId, funnelChapters } = params;
-  for (
-    let chapterIndex = 0;
-    chapterIndex < funnelChapters.length;
-    chapterIndex += 1
-  ) {
-    const chapter = funnelChapters[chapterIndex];
-    for (let stepIndex = 0; stepIndex < chapter.steps.length; stepIndex += 1) {
-      if (chapter.steps[stepIndex].id === stepId) {
-        return { chapter: chapterIndex, step: stepIndex };
-      }
-    }
-  }
-  return null;
-}
-
 function resolveDestination(params: {
   destination: string;
   chapters: Chapters;
@@ -143,6 +124,7 @@ export function getNextStep(params: {
   chapters: Chapters;
   position: FunnelPosition;
   funnelChapters: FunnelJSON['chapters'];
+  stepMap: StepMap;
 }): string {
   const {
     destination,
@@ -151,6 +133,7 @@ export function getNextStep(params: {
     chapters,
     position,
     funnelChapters,
+    stepMap,
   } = params;
   const resolvedDestination = resolveDestination({
     destination,
@@ -184,10 +167,7 @@ export function getNextStep(params: {
     return resolvedDestination;
   }
 
-  const updatedPosition = findStepPosition({
-    stepId: next.id,
-    funnelChapters,
-  });
+  const updatedPosition = stepMap[next.id]?.position;
 
   return getNextStep({
     destination: completeTransition.destination,
@@ -196,6 +176,7 @@ export function getNextStep(params: {
     chapters,
     position: updatedPosition,
     funnelChapters,
+    stepMap,
   });
 }
 
@@ -358,6 +339,7 @@ export const useFunnelNavigation = ({
     position,
     skip,
     step,
+    stepMap,
     isReady,
   };
 };

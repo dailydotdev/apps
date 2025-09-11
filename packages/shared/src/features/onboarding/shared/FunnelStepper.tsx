@@ -110,7 +110,7 @@ export const FunnelStepper = ({
     trackOnComplete,
     trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
-  const { back, chapters, navigate, position, skip, step, isReady } =
+  const { back, chapters, navigate, position, skip, step, stepMap, isReady } =
     useFunnelNavigation({
       funnel,
       initialStepId,
@@ -141,6 +141,7 @@ export const FunnelStepper = ({
         chapters,
         position,
         funnelChapters: funnel.chapters,
+        stepMap,
       });
 
       const isLastStep = targetStepId === COMPLETED_STEP_ID;

@@ -99,6 +99,10 @@ describe('FunnelStepper component', () => {
       position: { chapter: 0, step: 0 },
       chapters: [{ steps: 2 }],
       step: mockStep,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+      },
       isReady: true,
     });
 
@@ -487,6 +491,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     expect(result).toBe('step3'); // Complete transition destination, not skip transition
@@ -545,6 +558,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     expect(result).toBe('step3'); // Should correctly resolve NEXT_STEP_ID from step2's position
@@ -584,6 +606,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     expect(result).toBe(COMPLETED_STEP_ID);
@@ -649,6 +680,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     expect(result).toBe('step4');
@@ -711,6 +751,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     expect(result).toBe('step4');
@@ -757,6 +806,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     expect(result).toBe(COMPLETED_STEP_ID);
@@ -793,6 +851,15 @@ describe('FunnelStepper component', () => {
       chapters: context.chapters,
       position: context.position,
       funnelChapters: context.funnelChapters,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+        step4: { position: { chapter: 0, step: 3 } },
+        'final-step': { position: { chapter: 0, step: 0 } },
+        'skippable-step': { position: { chapter: 0, step: 0 } },
+        'malformed-step': { position: { chapter: 0, step: 0 } },
+      },
     });
 
     // Should return the original step ID as fallback
