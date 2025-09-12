@@ -8,9 +8,7 @@ import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 export type UpdatedCandidatePreferences = Partial<
   Omit<UserCandidatePreferences, 'location'>
 > & {
-  location?: Partial<
-    Pick<UserCandidatePreferences['location'][0], 'city' | 'country'>
-  >;
+  location?: Partial<UserCandidatePreferences['location'][0]>;
 };
 
 export const updateCandidatePreferencesMutationOptions = ([
