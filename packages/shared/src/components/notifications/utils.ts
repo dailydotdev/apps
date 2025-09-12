@@ -15,6 +15,7 @@ import {
   ReadingStreakIcon,
   TimerIcon,
   CoreIcon,
+  AnalyticsIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -83,6 +84,7 @@ export enum NotificationType {
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
   InAppPurchases = 'in_app_purchases',
+  PostAnalytics = 'post_analytics',
 }
 
 export enum NotificationIconType {
@@ -101,6 +103,7 @@ export enum NotificationIconType {
   TopReaderBadge = 'TopReaderBadge',
   Timer = 'Timer',
   Core = 'Core',
+  Analytics = 'Analytics',
 }
 
 export const notificationIcon: Record<
@@ -122,6 +125,7 @@ export const notificationIcon: Record<
   [NotificationIconType.TopReaderBadge]: BellIcon,
   [NotificationIconType.Timer]: TimerIcon,
   [NotificationIconType.Core]: CoreIcon,
+  [NotificationIconType.Analytics]: AnalyticsIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -144,6 +148,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
   [NotificationIconType.Timer]: 'text-brand-default',
   [NotificationIconType.Core]: '',
+  [NotificationIconType.Analytics]: 'text-brand-default',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -424,6 +429,12 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     description:
       'Get notified when your squad role changes, like becoming a moderator or admin.',
     group: true,
+  },
+  {
+    id: NotificationType.PostAnalytics,
+    label: 'Post analytics',
+    description: 'Get updates about how your posts are performing.',
+    group: false,
   },
 ];
 
