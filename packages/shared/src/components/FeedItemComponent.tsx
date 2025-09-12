@@ -44,6 +44,7 @@ import { adLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
+import PollGrid from './cards/poll/PollGrid';
 
 const CommentPopup = dynamic(
   () =>
@@ -119,7 +120,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
   [PostType.Brief]: BriefCard,
-  [PostType.Poll]: ShareGrid, // TODO: Implement Poll Grid
+  [PostType.Poll]: PollGrid,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -130,7 +131,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
   [PostType.Brief]: BriefCard,
-  [PostType.Poll]: ShareList, // TODO: Implement Poll Grid
+  [PostType.Poll]: PollGrid, // TODO: Implement Poll List
 };
 
 type GetTagsProps = {
