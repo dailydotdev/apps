@@ -59,7 +59,7 @@ function FeedItemContainer(
         data-testid="postItem"
         ref={ref}
         className={classNames(
-          colorExp && '!bg-background-default',
+          colorExp && `!bg-background-default`,
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
           highlightBookmarkedPost &&
