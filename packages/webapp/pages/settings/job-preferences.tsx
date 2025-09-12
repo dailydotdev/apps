@@ -49,7 +49,7 @@ const options = [
   {
     key: CandidateStatus.ACTIVELY_LOOKING,
     icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
-    title: 'Active looking',
+    title: 'Actively looking',
     description: (
       <>
         I&apos;m in the market and ready to move. This one just wasn&apos;t a
