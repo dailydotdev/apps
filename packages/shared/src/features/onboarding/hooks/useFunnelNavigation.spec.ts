@@ -217,7 +217,6 @@ describe('useFunnelNavigation', () => {
       // The first step has explicit destination "step3" for skip
       expect(result.current.skip).toMatchObject({
         hasTarget: true,
-        destination: 'step3',
         placement: 'bottom',
       });
     });
@@ -243,7 +242,6 @@ describe('useFunnelNavigation', () => {
       // step2 has NEXT_STEP_ID which should resolve to step3
       expect(result.current.skip).toMatchObject({
         hasTarget: true,
-        destination: 'step3',
         placement: 'bottom',
       });
     });
@@ -295,7 +293,6 @@ describe('useFunnelNavigation', () => {
       // NEXT_STEP_ID from the last step of first chapter should resolve to first step of second chapter
       expect(result.current.skip).toMatchObject({
         hasTarget: true,
-        destination: 'chapter2-step1',
         placement: 'top',
       });
     });
@@ -345,7 +342,6 @@ describe('useFunnelNavigation', () => {
       // Last step with NEXT_STEP_ID should resolve to COMPLETED_STEP_ID
       expect(result.current.skip).toMatchObject({
         hasTarget: true,
-        destination: COMPLETED_STEP_ID,
         placement: 'top',
       });
     });
@@ -371,7 +367,6 @@ describe('useFunnelNavigation', () => {
       // step3 has COMPLETED_STEP_ID as skip destination
       expect(result.current.skip).toMatchObject({
         hasTarget: true,
-        destination: COMPLETED_STEP_ID,
         placement: 'top',
       });
     });

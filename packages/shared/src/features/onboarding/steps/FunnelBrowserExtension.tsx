@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { FunnelStepBrowserExtension } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -21,29 +21,16 @@ import { ButtonVariant } from '../../../components/buttons/common';
 import { FunnelTargetId } from '../types/funnelEvents';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { sanitizeMessage } from '../lib/utils';
+import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 
 const BrowserExtension = ({
   parameters: { headline, explainer },
   onTransition,
 }: FunnelStepBrowserExtension): ReactElement => {
   const { logEvent } = useLogContext();
-  const { browserName, shouldShowExtensionOnboarding, isReady } =
-    useOnboardingExtension();
+  const { browserName } = useOnboardingExtension();
   const isEdge = browserName === BrowserName.Edge;
   const imageUrls = cloudinaryOnboardingExtension[browserName];
-
-  useEffect(() => {
-    if (!shouldShowExtensionOnboarding && isReady) {
-      onTransition({
-        type: FunnelStepTransitionType.Skip,
-        details: { browserName },
-      });
-    }
-  }, [browserName, isReady, onTransition, shouldShowExtensionOnboarding]);
-
-  if (!shouldShowExtensionOnboarding || !isReady) {
-    return null;
-  }
 
   return (
     <div className="mt-10 flex flex-1 flex-col laptop:justify-between">
@@ -114,4 +101,12 @@ const BrowserExtension = ({
   );
 };
 
-export const FunnelBrowserExtension = withIsActiveGuard(BrowserExtension);
+export const FunnelBrowserExtension = withShouldSkipStepGuard(
+  withIsActiveGuard(BrowserExtension),
+  () => {
+    const { shouldShowExtensionOnboarding, isReady } = useOnboardingExtension();
+    const shouldSkip = !shouldShowExtensionOnboarding && isReady;
+
+    return { shouldSkip };
+  },
+);
