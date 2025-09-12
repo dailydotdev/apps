@@ -124,13 +124,35 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       location {
         city
         country
-        subdivision
-        continent
       }
       locationType
       employmentType
       companySize
       companyStage
+    }
+  }
+`;
+
+export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
+  mutation UpdateCandidatePreferences(
+    $status: ProtoEnumValue
+    $role: String
+    $roleType: Float
+    $employmentType: [ProtoEnumValue]
+    $salaryExpectation: SalaryExpectationInput
+    $location: [LocationInput]
+    $locationType: [ProtoEnumValue]
+  ) {
+    updateCandidatePreferences(
+      status: $status
+      role: $role
+      roleType: $roleType
+      employmentType: $employmentType
+      salaryExpectation: $salaryExpectation
+      location: $location
+      locationType: $locationType
+    ) {
+      _
     }
   }
 `;

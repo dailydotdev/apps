@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { FlexCol, FlexRow } from '../utilities';
 import {
   Typography,
@@ -20,7 +20,11 @@ import {
   EmploymentType,
   SalaryPeriod,
 } from '../../features/opportunity/protobuf/opportunity';
-import { snapToHalf } from '../../lib/utils';
+import type { UpdatedCandidatePreferences } from '../../features/opportunity/mutations';
+import { updateCandidatePreferencesMutationOptions } from '../../features/opportunity/mutations';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
+import useDebounceFn from '../../hooks/useDebounceFn';
+import { useToastNotification } from '../../hooks';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -43,14 +47,28 @@ const employmentTypeOptions = [
   { label: 'Internship', value: EmploymentType.INTERNSHIP },
 ];
 
+const DEBOUNCE_DELAY_MS = 750;
+
 export const PreferenceOptionsForm = (): ReactElement => {
-  const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
-  const [selectedRole, setSelectedRole] = useState(RoleType.Auto.toFixed(1));
+  const [selectedSalaryOption, setSelectedSalaryOption] = useState(null);
+  const { displayToast } = useToastNotification();
 
   const { user } = useAuthContext();
 
-  const { data: preferences } = useQuery(
-    getCandidatePreferencesOptions(user?.id),
+  const opts = getCandidatePreferencesOptions(user?.id);
+  const { data: preferences } = useQuery(opts);
+  const { mutate: updatePreferences } = useMutation({
+    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
+    onError: () => {
+      displayToast('Failed to update preferences. Please try again.');
+    },
+  });
+
+  const [debouncedUpdate] = useDebounceFn<UpdatedCandidatePreferences>(
+    (patch) => {
+      updatePreferences(patch);
+    },
+    DEBOUNCE_DELAY_MS,
   );
 
   useEffect(() => {
@@ -58,7 +76,6 @@ export const PreferenceOptionsForm = (): ReactElement => {
       return;
     }
 
-    setSelectedRole(snapToHalf(preferences?.roleType).toFixed(1));
     if (preferences?.salaryExpectation?.period) {
       setSelectedSalaryOption(
         salaryDurationOptions.findIndex(
@@ -83,6 +100,11 @@ export const PreferenceOptionsForm = (): ReactElement => {
           placeholder="Describe your next ideal role or career goal…"
           fieldType="quaternary"
           value={preferences?.role}
+          onChange={(e) => {
+            debouncedUpdate({
+              role: e.target.value,
+            });
+          }}
         />
 
         {/* Role Type */}
@@ -97,8 +119,10 @@ export const PreferenceOptionsForm = (): ReactElement => {
               value: RoleType.Managerial.toFixed(1),
             },
           ]}
-          value={selectedRole}
-          onChange={(value) => setSelectedRole(value)}
+          value={preferences?.roleType?.toFixed(1)}
+          onChange={(value) => {
+            updatePreferences({ roleType: parseFloat(value) });
+          }}
         />
       </FlexCol>
 
@@ -121,6 +145,14 @@ export const PreferenceOptionsForm = (): ReactElement => {
               key={value}
               name={value.toString()}
               checked={preferences?.employmentType?.includes(value)}
+              onToggleCallback={(checked) => {
+                const employmentType = preferences?.employmentType || [];
+                updatePreferences({
+                  employmentType: checked
+                    ? [...employmentType, value]
+                    : employmentType.filter((v) => v !== value),
+                });
+              }}
             >
               {label}
             </Checkbox>
@@ -145,13 +177,28 @@ export const PreferenceOptionsForm = (): ReactElement => {
             label="USD"
             value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
+            onChange={(e) => {
+              updatePreferences({
+                salaryExpectation: {
+                  ...preferences.salaryExpectation,
+                  min: parseFloat(e.target.value.replace(/,/g, '')) || 0,
+                },
+              });
+            }}
           />
           <Dropdown
             selectedIndex={selectedSalaryOption}
             options={salaryOptions}
             className={{ label: 'text-text-primary' }}
             onChange={(option) => {
-              setSelectedSalaryOption(salaryOptions.indexOf(option));
+              const index = salaryOptions.indexOf(option);
+
+              updatePreferences({
+                salaryExpectation: {
+                  ...preferences.salaryExpectation,
+                  period: salaryDurationOptions[index].value,
+                },
+              });
             }}
           />
         </FlexRow>
@@ -172,14 +219,34 @@ export const PreferenceOptionsForm = (): ReactElement => {
           <TextField
             inputId="country"
             label="Country"
-            value={preferences?.location?.[0].country}
+            value={preferences?.location?.[0]?.country}
             className={{ container: 'flex-1' }}
+            onChange={(e) => {
+              debouncedUpdate({
+                location: [
+                  {
+                    ...preferences?.location?.[0],
+                    country: e.target.value,
+                  },
+                ],
+              });
+            }}
           />
           <TextField
             inputId="city"
             label="City"
-            value={preferences?.location?.[0].city}
+            value={preferences?.location?.[0]?.city}
             className={{ container: 'flex-1' }}
+            onChange={(e) => {
+              debouncedUpdate({
+                location: [
+                  {
+                    ...preferences?.location?.[0],
+                    city: e.target.value,
+                  },
+                ],
+              });
+            }}
           />
         </FlexRow>
 
@@ -190,6 +257,14 @@ export const PreferenceOptionsForm = (): ReactElement => {
               key={value}
               name={value.toString()}
               checked={preferences?.locationType?.includes(value)}
+              onToggleCallback={(checked) => {
+                const locationType = preferences?.locationType || [];
+                updatePreferences({
+                  locationType: checked
+                    ? [...locationType, value]
+                    : locationType.filter((v) => v !== value),
+                });
+              }}
             >
               {label}
             </Checkbox>

@@ -27,11 +27,14 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
+import { updateCandidatePreferencesMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -73,12 +76,19 @@ const fileSuffixMap = {
 };
 
 const JobPreferencesPage = (): ReactElement => {
-  const [option, setOption] = useState(null);
   const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
+  const [option, setOption] = useState(null);
 
-  const { data: preferences, isPending } = useQuery(
-    getCandidatePreferencesOptions(user?.id),
-  );
+  const opts = getCandidatePreferencesOptions(user?.id);
+
+  const { data: preferences, isPending } = useQuery(opts);
+  const { mutate: updatePreferences } = useMutation({
+    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
+    onError: () => {
+      displayToast('Failed to update preferences. Please try again.');
+    },
+  });
 
   const modeDisabled = preferences?.status === CandidateStatus.DISABLED;
 
@@ -122,6 +132,13 @@ const JobPreferencesPage = (): ReactElement => {
             name="career_mode"
             compact={false}
             checked={!modeDisabled}
+            onToggle={() => {
+              updatePreferences({
+                status: modeDisabled
+                  ? CandidateStatus.OPEN_TO_OFFERS
+                  : CandidateStatus.DISABLED,
+              });
+            }}
           />
         </FlexRow>
 
@@ -137,11 +154,12 @@ const JobPreferencesPage = (): ReactElement => {
                     'bg-brand-float border-brand-default': option === key,
                   },
                 )}
-                onClick={() => setOption(key)}
+                onClick={() => updatePreferences({ status: key })}
               >
                 <RadioItem
                   className={{ content: '!pr-0' }}
                   checked={option === key}
+                  readOnly
                 />
                 <div className="flex flex-1">
                   <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">

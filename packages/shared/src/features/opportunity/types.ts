@@ -27,7 +27,7 @@ type OpportunityContentBlock = {
 };
 
 export type OpportunityLocation = {
-  type: ProtoEnumValue;
+  type?: ProtoEnumValue;
   city?: string;
   country?: string;
   subdivision?: string;
@@ -35,18 +35,18 @@ export type OpportunityLocation = {
 };
 
 export type Salary = {
-  min: number;
-  max: number;
-  currency: string;
-  period: SalaryPeriod;
+  min?: number;
+  max?: number;
+  currency?: string;
+  period?: SalaryPeriod;
 };
 
 export type OpportunityMeta = {
-  employmentType: ProtoEnumValue;
-  teamSize: number;
-  salary: Salary;
-  seniorityLevel: ProtoEnumValue;
-  roleType: number;
+  employmentType?: ProtoEnumValue;
+  teamSize?: number;
+  salary?: Salary;
+  seniorityLevel?: ProtoEnumValue;
+  roleType?: number;
 };
 
 export type OpportunityKeyword = {
@@ -87,7 +87,7 @@ export type UserCandidatePreferences = {
   role: string;
   roleType: number;
   salaryExpectation?: Omit<Salary, 'max' | 'currency'>;
-  location?: Omit<OpportunityLocation, 'type'>[];
+  location?: Omit<OpportunityLocation, 'type' | 'subdivision' | 'continent'>[];
   locationType?: LocationType[];
   employmentType?: EmploymentType[];
   companyStage?: CompanyStage[];
