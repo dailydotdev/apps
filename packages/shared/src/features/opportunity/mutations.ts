@@ -28,9 +28,6 @@ export const updateCandidatePreferencesMutationOptions = ([
       set({
         ...preferences,
         ...variables,
-        ...(!!variables.location && {
-          location: variables.location,
-        }),
       });
     },
   };
