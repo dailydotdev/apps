@@ -21,6 +21,8 @@ import { PlusPlanExtraLabel } from '../../../components/plus/PlusPlanExtraLabel'
 import type { ProductPricingPreview } from '../../../graphql/paddle';
 import { FunnelTargetId } from '../types/funnelEvents';
 import type { PlanCard } from '../types/funnel';
+import { iOSSupportsPlusPurchase } from '../../../lib/ios';
+import { PlusPriceType } from '../../../lib/featureValues';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -60,6 +62,11 @@ const cardContent = {
   },
 };
 
+const durationLabels = {
+  [PlusPriceType.Yearly]: 'year',
+  [PlusPriceType.Monthly]: 'month',
+};
+
 const PlusCard = ({
   currency,
   productOption: plan,
@@ -76,12 +83,16 @@ const PlusCard = ({
     : OnboardingPlans.Free;
   const { heading, features } = cardContent[cardContentName];
 
-  // on iOS: we don't have a monthly price, so we use the yearly price/12
-  const fallbackPrice = ((plan?.price.amount ?? 0) / 12)
-    .toString()
-    .match(/^-?\d+(?:\.\d{0,2})?/)?.[0];
+  // on iOS, due to terms, we need to show the actual payment cycle duration
+  const isIOS = iOSSupportsPlusPurchase();
+  const durationLabel =
+    isIOS && isPaidPlan
+      ? durationLabels[plan?.duration]
+      : durationLabels[PlusPriceType.Monthly];
   const price = {
-    amount: plan?.price.monthly?.formatted ?? fallbackPrice,
+    amount:
+      (isIOS ? plan?.price?.formatted : plan?.price.monthly?.formatted) ?? '0',
+    duration: isIOS ? plan?.duration : 'month',
   };
 
   return (
@@ -121,7 +132,7 @@ const PlusCard = ({
           color={TypographyColor.Tertiary}
           type={TypographyType.Footnote}
         >
-          /month
+          /{durationLabel}
         </Typography>
       </div>
       {!isPaidPlan ? (
