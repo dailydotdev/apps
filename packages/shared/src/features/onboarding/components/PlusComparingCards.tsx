@@ -21,6 +21,8 @@ import { PlusPlanExtraLabel } from '../../../components/plus/PlusPlanExtraLabel'
 import type { ProductPricingPreview } from '../../../graphql/paddle';
 import { FunnelTargetId } from '../types/funnelEvents';
 import type { PlanCard } from '../types/funnel';
+import { iOSSupportsPlusPurchase } from '../../../lib/ios';
+import { PlusPriceType } from '../../../lib/featureValues';
 
 export enum OnboardingPlans {
   Free = 'Free',
@@ -60,6 +62,11 @@ const cardContent = {
   },
 };
 
+const durationLabels = {
+  [PlusPriceType.Yearly]: 'year',
+  [PlusPriceType.Monthly]: 'month',
+};
+
 const PlusCard = ({
   currency,
   productOption: plan,
@@ -76,8 +83,13 @@ const PlusCard = ({
     : OnboardingPlans.Free;
   const { heading, features } = cardContent[cardContentName];
 
+  // on iOS, due to terms, we need to show the actual payment cycle duration
+  const isIOS = iOSSupportsPlusPurchase();
   const price = {
-    amount: plan?.price.monthly?.formatted ?? '0',
+    amount:
+      (isIOS ? plan?.price.formatted : plan?.price.monthly?.formatted) ?? 0,
+    duration:
+      durationLabels[isIOS ? PlusPriceType.Yearly : PlusPriceType.Monthly],
   };
 
   return (
@@ -111,13 +123,13 @@ const PlusCard = ({
       <div className="flex items-center gap-1.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
-          {price.amount}
+          {isPaidPlan ? price.amount : 0}
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}
           type={TypographyType.Footnote}
         >
-          /month
+          /{price.duration}
         </Typography>
       </div>
       {!isPaidPlan ? (
