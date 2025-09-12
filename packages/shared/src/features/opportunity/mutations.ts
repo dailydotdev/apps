@@ -1,6 +1,7 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
 import {
+  ACCEPT_OPPORTUNITY_MATCH,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
 } from './graphql';
@@ -51,6 +52,18 @@ export const saveOpportunityScreeningAnswersMutationOptions = (
       return gqlClient.request(SAVE_OPPORTUNITY_SCREENING_ANSWERS, {
         id: opportunityId,
         answers,
+      });
+    },
+  };
+};
+
+export const acceptOpportunityMatchMutationOptions = (
+  opportunityId: string,
+): MutationOptions<EmptyResponse> => {
+  return {
+    mutationFn: async () => {
+      return gqlClient.request(ACCEPT_OPPORTUNITY_MATCH, {
+        id: opportunityId,
       });
     },
   };

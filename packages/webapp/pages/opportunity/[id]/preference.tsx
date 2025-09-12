@@ -55,9 +55,9 @@ const PreferencePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            Tell us exactly what’s worth bugging you about so we can ghost every
-            irrelevant recruiter on your behalf. The better you set this up, the
-            less nonsense you’ll ever see.
+            Tell us exactly what&apos;s worth bugging you about so we can ghost
+            every irrelevant recruiter on your behalf. The better you set this
+            up, the less nonsense you&apos;ll ever see.
           </Typography>
         </FlexCol>
         <PreferenceOptionsForm />

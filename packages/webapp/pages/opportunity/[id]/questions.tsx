@@ -23,8 +23,12 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import type { OpportunityScreeningAnswer } from '@dailydotdev/shared/src/features/opportunity/types';
-import { saveOpportunityScreeningAnswersMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import {
+  acceptOpportunityMatchMutationOptions,
+  saveOpportunityScreeningAnswersMutationOptions,
+} from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
+import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -50,19 +54,35 @@ const AcceptPage = (): ReactElement => {
   const opportunityId = id as string;
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [activeAnswer, setActiveAnswer] = useState('');
+  const [showPreferenceForm, setShowPreferenceForm] = useState(false);
   const [answers, setAnswers] = useState<
     Record<string, OpportunityScreeningAnswer>
   >({});
-  const { completeAction, isActionsFetched } = useActions();
+  const { completeAction, isActionsFetched, checkHasCompleted } = useActions();
+
+  const hasSetPreferences = checkHasCompleted(
+    ActionType.UserCandidatePreferencesSaved,
+  );
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
   });
 
+  const { mutate: acceptOpportunity } = useMutation({
+    ...acceptOpportunityMatchMutationOptions(opportunityId),
+    onSuccess: async () => {
+      await push(`${opportunityUrl}/${opportunityId}/notify`);
+    },
+  });
+
   const { mutate: saveAnswers } = useMutation({
     ...saveOpportunityScreeningAnswersMutationOptions(opportunityId),
     onSuccess: async () => {
-      await push(`${opportunityUrl}/${opportunityId}/notify`);
+      if (hasSetPreferences) {
+        acceptOpportunity();
+      } else {
+        setShowPreferenceForm(true);
+      }
     },
   });
 
@@ -111,68 +131,112 @@ const AcceptPage = (): ReactElement => {
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
-        <FlexCol className="gap-4">
-          <Typography type={TypographyType.LargeTitle} bold center>
-            A few quick checks before we intro
-          </Typography>
-          <Typography
-            type={TypographyType.Title3}
-            color={TypographyColor.Secondary}
-            center
-          >
-            These help confirm the role is truly worth your time and ensure the
-            recruiter already sees you as a strong match.
-          </Typography>
-        </FlexCol>
-        <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-          <FlexRow className="items-center gap-2">
-            <ProgressCircle
-              size={16}
-              stroke={2}
-              progress={(activeQuestion / questions.length) * 100}
-            />
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              Step {activeQuestion + 1} of {questions.length}
-            </Typography>
-          </FlexRow>
-          <Typography type={TypographyType.Title3}>
-            {questions[activeQuestion].title}
-          </Typography>
-          <Textarea
-            inputId="one"
-            placeholder={questions[activeQuestion].placeholder}
-            label="question[1]"
-            rows={5}
-            maxLength={500}
-            fieldType="quaternary"
-            value={activeAnswer}
-            onChange={handleChange}
-          />
-        </FlexCol>
-        <FlexRow className="justify-between">
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Tertiary}
-            className="hidden laptop:flex"
-            onClick={handleBack}
-          >
-            {activeQuestion === 0 ? 'Back' : '← Previous question'}
-          </Button>
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-            className="w-full laptop:w-auto"
-            onClick={handleNext}
-            disabled={!activeAnswer.trim()}
-          >
-            {activeQuestion === questions.length - 1
-              ? 'Submit'
-              : 'Next question →'}
-          </Button>
-        </FlexRow>
+        {!showPreferenceForm && (
+          <>
+            <FlexCol className="gap-4">
+              <Typography type={TypographyType.LargeTitle} bold center>
+                A few quick checks before we intro
+              </Typography>
+              <Typography
+                type={TypographyType.Title3}
+                color={TypographyColor.Secondary}
+                center
+              >
+                These help confirm the role is truly worth your time and ensure
+                the recruiter already sees you as a strong match.
+              </Typography>
+            </FlexCol>
+            <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+              <FlexRow className="items-center gap-2">
+                <ProgressCircle
+                  size={16}
+                  stroke={2}
+                  progress={(activeQuestion / questions.length) * 100}
+                />
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  Step {activeQuestion + 1} of {questions.length}
+                </Typography>
+              </FlexRow>
+              <Typography type={TypographyType.Title3}>
+                {questions[activeQuestion].title}
+              </Typography>
+              <Textarea
+                inputId="one"
+                placeholder={questions[activeQuestion].placeholder}
+                label="question[1]"
+                rows={5}
+                maxLength={500}
+                fieldType="quaternary"
+                value={activeAnswer}
+                onChange={handleChange}
+              />
+            </FlexCol>
+            <FlexRow className="justify-between">
+              <Button
+                size={ButtonSize.Large}
+                variant={ButtonVariant.Tertiary}
+                className="hidden laptop:flex"
+                onClick={handleBack}
+              >
+                {activeQuestion === 0 ? 'Back' : '← Previous question'}
+              </Button>
+              <Button
+                size={ButtonSize.Large}
+                variant={ButtonVariant.Primary}
+                className="w-full laptop:w-auto"
+                onClick={handleNext}
+                disabled={!activeAnswer.trim()}
+              >
+                {activeQuestion === questions.length - 1
+                  ? 'Submit'
+                  : 'Next question →'}
+              </Button>
+            </FlexRow>
+          </>
+        )}
+
+        {showPreferenceForm && (
+          <>
+            <FlexCol className="gap-4">
+              <Typography type={TypographyType.LargeTitle} bold center>
+                Train us to find your unicorn job
+              </Typography>
+              <Typography
+                type={TypographyType.Title3}
+                color={TypographyColor.Secondary}
+                center
+              >
+                Tell us exactly what&apos;s worth bugging you about so we can
+                ghost every irrelevant recruiter on your behalf. The better you
+                set this up, the less nonsense you&apos;ll ever see.
+              </Typography>
+            </FlexCol>
+            <PreferenceOptionsForm />
+            <FlexRow className="justify-between">
+              <Button
+                size={ButtonSize.Large}
+                variant={ButtonVariant.Tertiary}
+                className="hidden laptop:flex"
+                onClick={() => setShowPreferenceForm(false)}
+              >
+                Back
+              </Button>
+
+              <Button
+                size={ButtonSize.Large}
+                variant={ButtonVariant.Primary}
+                className="w-full laptop:w-auto"
+                onClick={() => acceptOpportunity()}
+                disabled={!hasSetPreferences}
+              >
+                Submit
+              </Button>
+            </FlexRow>
+          </>
+        )}
       </FlexCol>
     </div>
   );
