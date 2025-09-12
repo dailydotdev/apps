@@ -86,14 +86,9 @@ const PlusCard = ({
   // on iOS, due to terms, we need to show the actual payment cycle duration
   const isIOS = iOSSupportsPlusPurchase();
   const durationLabel =
-    isIOS && isPaidPlan
-      ? durationLabels[plan?.duration]
-      : durationLabels[PlusPriceType.Monthly];
-  const price = {
-    amount:
-      (isIOS ? plan?.price?.formatted : plan?.price.monthly?.formatted) ?? '0',
-    duration: isIOS ? plan?.duration : 'month',
-  };
+    durationLabels[isIOS ? PlusPriceType.Yearly : PlusPriceType.Monthly];
+  const price =
+    (isIOS ? plan?.price.formatted : plan?.price.monthly?.formatted) ?? '0';
 
   return (
     <li
@@ -126,7 +121,7 @@ const PlusCard = ({
       <div className="flex items-center gap-1.5">
         <Typography bold tag={TypographyTag.Span} type={TypographyType.Title1}>
           {!isPaidPlan && currency}
-          {isPaidPlan ? price.amount : 0}
+          {isPaidPlan ? price : 0}
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}
