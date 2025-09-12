@@ -28,7 +28,6 @@ import {
   saveOpportunityScreeningAnswersMutationOptions,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
-import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -36,6 +35,7 @@ import {
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { InnerPreferencePage } from './preference';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -200,41 +200,30 @@ const AcceptPage = (): ReactElement => {
 
         {showPreferenceForm && (
           <>
-            <FlexCol className="gap-4">
-              <Typography type={TypographyType.LargeTitle} bold center>
-                Train us to find your unicorn job
-              </Typography>
-              <Typography
-                type={TypographyType.Title3}
-                color={TypographyColor.Secondary}
-                center
-              >
-                Tell us exactly what&apos;s worth bugging you about so we can
-                ghost every irrelevant recruiter on your behalf. The better you
-                set this up, the less nonsense you&apos;ll ever see.
-              </Typography>
-            </FlexCol>
-            <PreferenceOptionsForm />
-            <FlexRow className="justify-between">
-              <Button
-                size={ButtonSize.Large}
-                variant={ButtonVariant.Tertiary}
-                className="hidden laptop:flex"
-                onClick={() => setShowPreferenceForm(false)}
-              >
-                Back
-              </Button>
+            <InnerPreferencePage
+              buttons={
+                <>
+                  <Button
+                    size={ButtonSize.Large}
+                    variant={ButtonVariant.Tertiary}
+                    className="hidden laptop:flex"
+                    onClick={() => setShowPreferenceForm(false)}
+                  >
+                    Back
+                  </Button>
 
-              <Button
-                size={ButtonSize.Large}
-                variant={ButtonVariant.Primary}
-                className="w-full laptop:w-auto"
-                onClick={() => acceptOpportunity()}
-                disabled={!hasSetPreferences}
-              >
-                Submit
-              </Button>
-            </FlexRow>
+                  <Button
+                    size={ButtonSize.Large}
+                    variant={ButtonVariant.Primary}
+                    className="w-full laptop:w-auto"
+                    onClick={() => acceptOpportunity()}
+                    disabled={!hasSetPreferences}
+                  >
+                    Submit
+                  </Button>
+                </>
+              }
+            />
           </>
         )}
       </FlexCol>
