@@ -49,6 +49,7 @@ export enum ActionType {
   DisableBriefCardCta = 'disable_brief_card_cta',
   OpportunityWelcomePage = 'opportunity_welcome_page',
   OpportunityInitialView = 'opportunity_initial_view',
+  UserCandidatePreferencesSaved = 'user_candidate_preferences_saved',
 }
 
 export const cvActions = [

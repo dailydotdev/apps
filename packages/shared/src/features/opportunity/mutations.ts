@@ -13,10 +13,10 @@ import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 
 export type UpdatedCandidatePreferences = Partial<UserCandidatePreferences>;
 
-export const updateCandidatePreferencesMutationOptions = ([
-  get,
-  set,
-]: UseUpdateQuery<UserCandidatePreferences>): MutationOptions<
+export const updateCandidatePreferencesMutationOptions = (
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: () => void,
+): MutationOptions<
   EmptyResponse,
   DefaultError,
   UpdatedCandidatePreferences
@@ -34,6 +34,7 @@ export const updateCandidatePreferencesMutationOptions = ([
         ...preferences,
         ...variables,
       });
+      successCallback?.();
     },
   };
 };
