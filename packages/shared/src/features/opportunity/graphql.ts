@@ -172,3 +172,11 @@ export const SAVE_OPPORTUNITY_SCREENING_ANSWERS = gql`
     }
   }
 `;
+
+export const ACCEPT_OPPORTUNITY_MATCH = gql`
+  mutation AcceptOpportunityMatch($id: ID!) {
+    acceptOpportunityMatch(id: $id) {
+      _
+    }
+  }
+`;

@@ -24,7 +24,8 @@ import type { UpdatedCandidatePreferences } from '../../features/opportunity/mut
 import { updateCandidatePreferencesMutationOptions } from '../../features/opportunity/mutations';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import { useToastNotification } from '../../hooks';
+import { useActions, useToastNotification } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -52,13 +53,15 @@ const DEBOUNCE_DELAY_MS = 750;
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(null);
   const { displayToast } = useToastNotification();
-
+  const { completeAction } = useActions();
   const { user } = useAuthContext();
 
   const opts = getCandidatePreferencesOptions(user?.id);
   const { data: preferences } = useQuery(opts);
   const { mutate: updatePreferences } = useMutation({
-    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts)),
+    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts), () => {
+      completeAction(ActionType.UserCandidatePreferencesSaved);
+    }),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');
     },
