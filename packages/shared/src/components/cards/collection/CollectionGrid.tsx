@@ -17,6 +17,8 @@ import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCardUiColors } from '../../../lib/featureManagement';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -38,6 +40,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
+  const colorExp = useFeature(featureCardUiColors);
 
   return (
     <FeedItemContainer
@@ -63,6 +66,9 @@ export const CollectionGrid = forwardRef(function CollectionCard(
               hasHtmlContent: !!post.contentHtml,
             }),
             'font-bold text-text-primary typo-title3',
+            {
+              '!text-text-quaternary': post.read && colorExp,
+            },
           )}
         >
           {post.title}
