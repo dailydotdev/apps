@@ -16,11 +16,15 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
-import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import type { OpportunityScreeningAnswer } from '@dailydotdev/shared/src/features/opportunity/types';
+import { saveOpportunityScreeningAnswersMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -37,25 +41,7 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-const questions = [
-  {
-    title: 'What’s the most complex front-end project you’ve led recently?',
-    placeholder:
-      'e.g. Built and scaled a real-time dashboard for 50k+ users using React and WebSockets…',
-  },
-  {
-    title: 'Which tools, frameworks, or libraries do you work with most often?',
-    placeholder: 'e.g. React, TypeScript, Next.js, Tailwind, Zustand, Cypress…',
-  },
-  {
-    title:
-      'What’s your experience with performance optimization in large-scale React apps?',
-    placeholder:
-      'e.g. Implemented code-splitting, memoization, and custom hooks to cut load times by 40%…',
-  },
-];
-
-const DeclinePage = (): ReactElement => {
+const AcceptPage = (): ReactElement => {
   const {
     query: { id },
     push,
@@ -63,14 +49,52 @@ const DeclinePage = (): ReactElement => {
   } = useRouter();
   const opportunityId = id as string;
   const [activeQuestion, setActiveQuestion] = useState(0);
+  const [activeAnswer, setActiveAnswer] = useState('');
+  const [answers, setAnswers] = useState<
+    Record<string, OpportunityScreeningAnswer>
+  >({});
   const { completeAction, isActionsFetched } = useActions();
 
-  const submitClick = () => {
+  const { data: opportunity, isPending } = useQuery({
+    ...opportunityByIdOptions({ id: opportunityId }),
+  });
+
+  const { mutate: saveAnswers } = useMutation({
+    ...saveOpportunityScreeningAnswersMutationOptions(opportunityId),
+    onSuccess: async () => {
+      await push(`${opportunityUrl}/${opportunityId}/notify`);
+    },
+  });
+
+  const questions = opportunity?.questions || [];
+
+  const handleNext = () => {
     if (activeQuestion === questions.length - 1) {
-      push(`${opportunityUrl}/${opportunityId}/notify`);
+      saveAnswers(Object.values(answers));
       return;
     }
     setActiveQuestion((current) => current + 1);
+    setActiveAnswer('');
+  };
+
+  const handleBack = () => {
+    if (activeQuestion === 0) {
+      back();
+      return;
+    }
+    setActiveQuestion((current) => current - 1);
+    setActiveAnswer(answers[activeQuestion - 1]?.answer || '');
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setActiveAnswer(e.target.value);
+    setAnswers((current) => ({
+      ...current,
+      [activeQuestion]: {
+        questionId: questions[activeQuestion].id,
+        answer: e.target.value,
+      },
+    }));
   };
 
   useEffect(() => {
@@ -79,6 +103,10 @@ const DeclinePage = (): ReactElement => {
     }
     completeAction(ActionType.OpportunityInitialView);
   }, [completeAction, isActionsFetched]);
+
+  if (!opportunity || isPending) {
+    return null;
+  }
 
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
@@ -119,6 +147,8 @@ const DeclinePage = (): ReactElement => {
             label="question[1]"
             rows={5}
             fieldType="quaternary"
+            value={activeAnswer}
+            onChange={handleChange}
           />
         </FlexCol>
         <FlexRow className="justify-between">
@@ -126,15 +156,16 @@ const DeclinePage = (): ReactElement => {
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}
             className="hidden laptop:flex"
-            onClick={() => back()}
+            onClick={handleBack}
           >
-            Back
+            {activeQuestion === 0 ? 'Back' : '← Previous question'}
           </Button>
           <Button
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
             className="w-full laptop:w-auto"
-            onClick={submitClick}
+            onClick={handleNext}
+            disabled={!activeAnswer.trim()}
           >
             {activeQuestion === questions.length - 1
               ? 'Submit'
@@ -148,10 +179,10 @@ const DeclinePage = (): ReactElement => {
 
 const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
 
-DeclinePage.getLayout = getPageLayout;
-DeclinePage.layoutProps = {
+AcceptPage.getLayout = getPageLayout;
+AcceptPage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,
 };
 
-export default DeclinePage;
+export default AcceptPage;
