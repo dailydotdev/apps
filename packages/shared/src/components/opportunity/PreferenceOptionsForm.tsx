@@ -181,7 +181,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
               updatePreferences({
                 salaryExpectation: {
                   ...preferences.salaryExpectation,
-                  min: parseFloat(e.target.value.replace(/,/g, '')),
+                  min: parseFloat(e.target.value.replace(/,/g, '')) || 0,
                 },
               });
             }}
