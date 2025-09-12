@@ -146,6 +146,7 @@ const AcceptPage = (): ReactElement => {
             placeholder={questions[activeQuestion].placeholder}
             label="question[1]"
             rows={5}
+            maxLength={500}
             fieldType="quaternary"
             value={activeAnswer}
             onChange={handleChange}
