@@ -12,7 +12,6 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { useFeature } from '../../GrowthBookProvider';
 import { featureCardUiColors } from '../../../lib/featureManagement';
-import style from './Card.module.css';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -60,8 +59,7 @@ function FeedItemContainer(
         data-testid="postItem"
         ref={ref}
         className={classNames(
-          // todo: remove colorExperiment from ./Card.module.css class when cleaning the experiment
-          colorExp && `${style.colorExperiment} !bg-background-default`,
+          colorExp && `!bg-background-default`,
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
           highlightBookmarkedPost &&

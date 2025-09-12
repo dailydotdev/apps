@@ -66,11 +66,5 @@
     & .title {
       color: var(--theme-text-tertiary);
     }
-
-    &.colorExperiment {
-      & .title {
-        color: var(--theme-text-quaternary);
-      }
-    }
   }
 }
