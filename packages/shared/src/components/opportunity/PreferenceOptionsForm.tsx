@@ -47,7 +47,7 @@ const employmentTypeOptions = [
   { label: 'Internship', value: EmploymentType.INTERNSHIP },
 ];
 
-const DEBOUNCE_DELAY_MS = 400;
+const DEBOUNCE_DELAY_MS = 750;
 
 export const PreferenceOptionsForm = (): ReactElement => {
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(null);
