@@ -205,6 +205,18 @@ const nextConfig: NextConfig = {
             permanent: true,
           },
           {
+            source: '/account/notifications',
+            destination: '/settings/customization/streaks',
+            permanent: true,
+            has: [
+              {
+                type: 'query',
+                key: 's',
+                value: 'timezone',
+              },
+            ],
+          },
+          {
             source: '/account/:path*',
             destination: '/settings/:path*',
             permanent: true,
