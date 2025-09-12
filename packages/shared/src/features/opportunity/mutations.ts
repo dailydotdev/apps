@@ -5,11 +5,7 @@ import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type { UserCandidatePreferences } from './types';
 import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 
-export type UpdatedCandidatePreferences = Partial<
-  Omit<UserCandidatePreferences, 'location'>
-> & {
-  location?: Partial<UserCandidatePreferences['location'][0]>;
-};
+export type UpdatedCandidatePreferences = Partial<UserCandidatePreferences>;
 
 export const updateCandidatePreferencesMutationOptions = ([
   get,
@@ -33,7 +29,7 @@ export const updateCandidatePreferencesMutationOptions = ([
         ...preferences,
         ...variables,
         ...(!!variables.location && {
-          location: [variables.location],
+          location: variables.location,
         }),
       });
     },

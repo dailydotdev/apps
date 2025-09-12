@@ -223,10 +223,12 @@ export const PreferenceOptionsForm = (): ReactElement => {
             className={{ container: 'flex-1' }}
             onChange={(e) => {
               debouncedUpdate({
-                location: {
-                  ...preferences?.location?.[0],
-                  country: e.target.value,
-                },
+                location: [
+                  {
+                    ...preferences?.location?.[0],
+                    country: e.target.value,
+                  },
+                ],
               });
             }}
           />
@@ -237,10 +239,12 @@ export const PreferenceOptionsForm = (): ReactElement => {
             className={{ container: 'flex-1' }}
             onChange={(e) => {
               debouncedUpdate({
-                location: {
-                  ...preferences?.location?.[0],
-                  city: e.target.value,
-                },
+                location: [
+                  {
+                    ...preferences?.location?.[0],
+                    city: e.target.value,
+                  },
+                ],
               });
             }}
           />
