@@ -107,7 +107,7 @@ interface ReadingStreakPopupProps {
   fullWidth?: boolean;
 }
 
-const timezoneSettingsHref = `${webappUrl}account/notifications?s=timezone`;
+const timezoneSettingsHref = `${webappUrl}settings/customization/streaks`;
 
 export function ReadingStreakPopup({
   streak,
