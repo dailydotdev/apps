@@ -18,7 +18,10 @@ import {
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useRouter } from 'next/router';
 import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
@@ -59,6 +62,7 @@ const AcceptPage = (): ReactElement => {
     Record<string, OpportunityScreeningAnswer>
   >({});
   const { completeAction, isActionsFetched, checkHasCompleted } = useActions();
+  const { displayToast } = useToastNotification();
 
   const hasSetPreferences = checkHasCompleted(
     ActionType.UserCandidatePreferencesSaved,
@@ -73,6 +77,9 @@ const AcceptPage = (): ReactElement => {
     onSuccess: async () => {
       await push(`${opportunityUrl}/${opportunityId}/notify`);
     },
+    onError: () => {
+      displayToast('Failed to accept opportunity. Please try again.');
+    },
   });
 
   const { mutate: saveAnswers } = useMutation({
@@ -83,6 +90,9 @@ const AcceptPage = (): ReactElement => {
       } else {
         setShowPreferenceForm(true);
       }
+    },
+    onError: () => {
+      displayToast('Failed to save answers. Please try again.');
     },
   });
 
