@@ -31,6 +31,8 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
+import { JobOpportunityButton } from '../../features/opportunity/components/JobOpportunityButton';
+import { useAlertsContext } from '../../contexts/AlertContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -61,6 +63,7 @@ function FeedNav(): ReactElement {
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
+  const { alerts } = useAlertsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -79,6 +82,8 @@ function FeedNav(): ReactElement {
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
+
+  const hasOpportunityAlert = !!alerts.opportunityId;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
@@ -228,6 +233,11 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </div>
       </div>
+      {hasOpportunityAlert && isMobile && (
+        <div className="mx-4">
+          <JobOpportunityButton className="w-full" />
+        </div>
+      )}
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
           targetType={TargetType.PlusEntryForYouTab}

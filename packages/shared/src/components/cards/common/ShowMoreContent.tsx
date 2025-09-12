@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { ClickableText } from '../../buttons/ClickableText';
 
 interface ShowMoreContentProps {
@@ -7,7 +8,10 @@ interface ShowMoreContentProps {
   charactersLimit?: number;
   threshold?: number;
   contentPrefix?: ReactNode;
-  className?: string;
+  className?: {
+    wrapper?: string;
+    text?: string;
+  };
 }
 
 export default function ShowMoreContent({
@@ -37,9 +41,12 @@ export default function ShowMoreContent({
     isTextExpanded || !displayShowMoreLink() ? content : getSlicedContent();
 
   return (
-    <div className={className}>
+    <div className={className?.wrapper}>
       <p
-        className="select-text break-words typo-markdown"
+        className={classNames(
+          'select-text break-words typo-markdown',
+          className?.text,
+        )}
         data-testid="tldr-container"
       >
         {contentPrefix}

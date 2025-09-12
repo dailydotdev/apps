@@ -47,6 +47,8 @@ export enum ActionType {
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
   DisableBriefCardCta = 'disable_brief_card_cta',
+  OpportunityWelcomePage = 'opportunity_welcome_page',
+  OpportunityInitialView = 'opportunity_initial_view',
 }
 
 export const cvActions = [

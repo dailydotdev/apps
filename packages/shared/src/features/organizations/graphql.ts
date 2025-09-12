@@ -17,11 +17,17 @@ export const ORGANIZATION_MEMBER_FRAGMENT = gql`
   }
 `;
 
-export const ORGANIZATION_FRAGMENT = gql`
-  fragment OrganizationFragment on Organization {
+export const ORGANIZATION_SHORT_FRAGMENT = gql`
+  fragment OrganizationShortFragment on Organization {
     id
     name
     image
+  }
+`;
+
+export const ORGANIZATION_FRAGMENT = gql`
+  fragment OrganizationFragment on Organization {
+    ...OrganizationShortFragment
     seats
     activeSeats
     status
@@ -31,6 +37,7 @@ export const ORGANIZATION_FRAGMENT = gql`
     }
   }
 
+  ${ORGANIZATION_SHORT_FRAGMENT}
   ${ORGANIZATION_MEMBER_FRAGMENT}
 `;
 

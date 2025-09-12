@@ -84,7 +84,7 @@ export const SmartPrompt = ({
       <TabContainer controlledActive={activeDisplay} showHeader={false}>
         <Tab label={PromptDisplay.TLDR}>
           <ShowMoreContent
-            className="overflow-hidden"
+            className={{ wrapper: 'overflow-hidden' }}
             content={post.summary}
             charactersLimit={330}
             threshold={50}
