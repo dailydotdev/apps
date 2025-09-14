@@ -14,6 +14,7 @@ import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import usePoll from '../../../hooks/usePoll';
+import CardOverlay from '../common/CardOverlay';
 
 const PollGrid = forwardRef(function PollCard(
   {
@@ -24,10 +25,7 @@ const PollGrid = forwardRef(function PollCard(
     onDownvoteClick,
     onCommentClick,
     onBookmarkClick,
-    onShare,
     onCopyLinkClick,
-    openNewTab,
-    onReadArticleClick,
     domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -60,6 +58,11 @@ const PollGrid = forwardRef(function PollCard(
       }}
       flagProps={{ pinnedAt, trending }}
     >
+      <CardOverlay
+        post={post}
+        onPostCardAuxClick={() => onPostAuxClick(post)}
+        onPostCardClick={() => onPostClick(post)}
+      />
       <SquadPostCardHeader
         post={post}
         enableSourceHeader={source.type === 'squad'}
@@ -77,10 +80,14 @@ const PollGrid = forwardRef(function PollCard(
           isAuthor={user?.id === post.author?.id}
         />
         <PollOptions
+          className={{
+            container: 'px-2',
+          }}
           options={pollOptions}
           onClick={handleVote}
           userVote={post?.userState?.pollVoteOptionId}
           numPollVotes={numPollVotes || 0}
+          endsAt={endsAt}
         />
         <ActionButtons
           post={post}

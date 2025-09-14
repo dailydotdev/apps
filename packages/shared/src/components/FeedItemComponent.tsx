@@ -43,6 +43,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import PollGrid from './cards/poll/PollGrid';
+import { PollList } from './cards/poll/PollList';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -112,7 +113,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
   [PostType.Brief]: BriefCard,
-  [PostType.Poll]: PollGrid, // TODO: Implement Poll List
+  [PostType.Poll]: PollList,
 };
 
 type GetTagsProps = {

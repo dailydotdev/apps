@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { isBefore } from 'date-fns';
+import { isAfter } from 'date-fns';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
@@ -47,6 +47,7 @@ export default function PostMetadata({
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
   const shouldShowVotes = isPoll && (numPollVotes > 10 || isAuthor);
+  const pollHasEnded = endsAt && isAfter(new Date(), new Date(endsAt));
 
   return (
     <div
@@ -65,23 +66,30 @@ export default function PostMetadata({
           <Separator />
         )}
         {!!description && description}
-        {!endsAt ||
-          (isBefore(new Date(), new Date(endsAt)) && (
-            <>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Footnote}
-                color={TypographyColor.StatusSuccess}
-              >
-                {numPollVotes >= 10 || isAuthor ? 'Voting open' : 'New poll'}
-              </Typography>
-              <Separator />
-            </>
-          ))}
+        {pollHasEnded ? (
+          <>
+            <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
+              Voting ended
+            </Typography>
+            <Separator />
+          </>
+        ) : (
+          <>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Footnote}
+              color={TypographyColor.StatusSuccess}
+            >
+              {numPollVotes >= 10 || isAuthor ? 'Voting open' : 'New poll'}
+            </Typography>
+            <Separator />
+          </>
+        )}
         {shouldShowVotes && (
           <>
             <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
-              {largeNumberFormat(numPollVotes)} votes
+              {largeNumberFormat(numPollVotes)}{' '}
+              {pollHasEnded ? 'total votes' : 'votes'}
             </Typography>
             <Separator />
           </>
