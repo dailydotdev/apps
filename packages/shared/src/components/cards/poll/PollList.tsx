@@ -28,7 +28,6 @@ export const PollList = forwardRef(function PollList(
     onBookmarkClick,
     onCopyLinkClick,
     openNewTab,
-    children,
     onReadArticleClick,
     domProps = {},
   }: PostCardProps,
@@ -143,7 +142,6 @@ export const PollList = forwardRef(function PollList(
         </CardContent>
       </CardContainer>
       {isMobile && actionButtons}
-      {children}
     </FeedItemContainer>
   );
 });
