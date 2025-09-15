@@ -180,3 +180,11 @@ export const ACCEPT_OPPORTUNITY_MATCH = gql`
     }
   }
 `;
+
+export const CLEAR_RESUME_MUTATION = gql`
+  mutation ClearResume {
+    clearResume {
+      _
+    }
+  }
+`;

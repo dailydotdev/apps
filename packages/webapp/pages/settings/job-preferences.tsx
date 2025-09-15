@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import {
   ActivelyLookingIcon,
   DocsIcon,
+  MiniCloseIcon,
   SemiActiveIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -33,12 +34,16 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
-import { updateCandidatePreferencesMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import {
+  clearResumeMutationOptions,
+  updateCandidatePreferencesMutationOptions,
+} from '@dailydotdev/shared/src/features/opportunity/mutations';
 import {
   useActions,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -76,7 +81,8 @@ const options = [
 
 const fileSuffixMap = {
   'application/pdf': 'pdf',
-  'application/docx': 'docx',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    'docx',
 };
 
 const JobPreferencesPage = (): ReactElement => {
@@ -94,6 +100,14 @@ const JobPreferencesPage = (): ReactElement => {
     }),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');
+    },
+  });
+  const { mutate: clearResume, isPending: isClearResumePending } = useMutation({
+    ...clearResumeMutationOptions(useUpdateQuery(opts), () => {
+      completeAction(ActionType.UserCandidatePreferencesSaved);
+    }),
+    onError: () => {
+      displayToast('Failed to remove uploaded CV. Please try again.');
     },
   });
 
@@ -229,6 +243,16 @@ const JobPreferencesPage = (): ReactElement => {
                 >
                   <DocsIcon secondary /> {preferences.cv.blob}.
                   {fileSuffixMap[preferences.cv.contentType]}
+                  <Tooltip content="Remove uploaded CV">
+                    <Button
+                      icon={<MiniCloseIcon />}
+                      className="ml-1"
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      loading={isClearResumePending}
+                      onClick={() => clearResume()}
+                    />
+                  </Tooltip>
                 </Typography>
               )}
 
