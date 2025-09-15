@@ -1,15 +1,14 @@
 export const isLocalhost = process.env.NEXT_PUBLIC_DOMAIN === 'localhost';
 
-const getApiUrl = () => {
-  if (isLocalhost) {
-    // For GitPod server-side requests, use direct API URL to bypass Next.js rewrites
-    return typeof window === 'undefined' ? 'http://localhost:5000' : '/api';
-  }
+// in gitpod, we need to call the API through the proxy rewrite to avoid CORS issues
+// but when window is undefined, it means server-side request so we need to call api directly
+const shouldCallProxyRewrite =
+  process.env.NEXT_PUBLIC_DOMAIN === 'localhost' &&
+  typeof window !== 'undefined';
 
-  return process.env.NEXT_PUBLIC_API_URL;
-};
-
-export const apiUrl = getApiUrl();
+export const apiUrl = shouldCallProxyRewrite
+  ? '/api'
+  : process.env.NEXT_PUBLIC_API_URL;
 
 export const graphqlUrl = `${apiUrl}/graphql`;
 
