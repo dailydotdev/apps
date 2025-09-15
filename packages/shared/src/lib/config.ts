@@ -1,13 +1,12 @@
 export const isLocalhost = process.env.NEXT_PUBLIC_DOMAIN === 'localhost';
 
-// For server-side requests, use direct API URL to bypass Next.js rewrites
-// For client-side requests, use /api which gets rewritten by Next.js
 const getApiUrl = () => {
-  if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'; // Server-side: direct API
+  if (isLocalhost) {
+    // For GitPod server-side requests, use direct API URL to bypass Next.js rewrites
+    return typeof window === 'undefined' ? 'http://localhost:5000' : '/api';
   }
 
-  return isLocalhost ? '/api' : process.env.NEXT_PUBLIC_API_URL; // Client-side: proxy
+  return process.env.NEXT_PUBLIC_API_URL;
 };
 
 export const apiUrl = getApiUrl();
