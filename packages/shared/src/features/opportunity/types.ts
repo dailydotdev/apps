@@ -53,6 +53,17 @@ export type OpportunityKeyword = {
   keyword: string;
 };
 
+export type OpportunityScreeningQuestion = {
+  id: string;
+  title: string;
+  placeholder?: string;
+};
+
+export type OpportunityScreeningAnswer = {
+  questionId: OpportunityScreeningQuestion['id'];
+  answer: string;
+};
+
 export type Opportunity = {
   id: string;
   type: ProtoEnumValue;
@@ -66,6 +77,7 @@ export type Opportunity = {
   recruiters: PublicProfile[];
   location: OpportunityLocation[];
   keywords?: OpportunityKeyword[];
+  questions?: OpportunityScreeningQuestion[];
 };
 
 export type OpportunityMatch = {

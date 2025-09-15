@@ -81,6 +81,11 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
         subdivision
         continent
       }
+      questions {
+        id
+        title
+        placeholder
+      }
     }
   }
 
@@ -152,6 +157,25 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
       location: $location
       locationType: $locationType
     ) {
+      _
+    }
+  }
+`;
+
+export const SAVE_OPPORTUNITY_SCREENING_ANSWERS = gql`
+  mutation SaveOpportunityScreeningAnswers(
+    $id: ID!
+    $answers: [OpportunityScreeningAnswerInput!]!
+  ) {
+    saveOpportunityScreeningAnswers(id: $id, answers: $answers) {
+      _
+    }
+  }
+`;
+
+export const ACCEPT_OPPORTUNITY_MATCH = gql`
+  mutation AcceptOpportunityMatch($id: ID!) {
+    acceptOpportunityMatch(id: $id) {
       _
     }
   }
