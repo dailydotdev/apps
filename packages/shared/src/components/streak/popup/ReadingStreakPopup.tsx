@@ -20,7 +20,7 @@ import {
   getTimezoneOffsetLabel,
   isSameDayInTimezone,
 } from '../../../lib/timezones';
-import { webappUrl } from '../../../lib/constants';
+import { timezoneSettingsUrl, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -106,8 +106,6 @@ interface ReadingStreakPopupProps {
   streak: UserStreak;
   fullWidth?: boolean;
 }
-
-const timezoneSettingsHref = `${webappUrl}settings/customization/streaks`;
 
 export function ReadingStreakPopup({
   streak,
@@ -289,9 +287,9 @@ export function ReadingStreakPopup({
                         return;
                       }
 
-                      router.push(timezoneSettingsHref);
+                      router.push(timezoneSettingsUrl);
                     }}
-                    href={timezoneSettingsHref}
+                    href={timezoneSettingsUrl}
                   >
                     {isTimezoneOk
                       ? user?.timezone || DEFAULT_TIMEZONE
