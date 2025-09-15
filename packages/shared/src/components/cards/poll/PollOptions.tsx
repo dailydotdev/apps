@@ -27,10 +27,6 @@ const getPercentage = (numPollVotes: number, optionVotes: number): number => {
   return Math.round((optionVotes / numPollVotes) * 100);
 };
 
-const isUserChoice = (userVote: string, optionId: string): boolean => {
-  return userVote === optionId;
-};
-
 const PollResults = ({
   options,
   userVote,
@@ -42,7 +38,7 @@ const PollResults = ({
 }) => {
   return options.map((option) => {
     const percentage = getPercentage(numPollVotes, option.numVotes || 0);
-    const isVotedOption = isUserChoice(userVote, option.id);
+    const isVotedOption = userVote === option.id;
 
     return (
       <div
