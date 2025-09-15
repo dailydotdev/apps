@@ -804,7 +804,7 @@ export const createPost = async (
 };
 
 export const VOTE_POLL_MUTATION = gql`
-  mutation VotePoll($postId: ID!, $optionId: ID!, $sourceId: ID) {
+  mutation VotePoll($postId: ID!, $optionId: ID!, $sourceId: ID!) {
     votePoll(postId: $postId, optionId: $optionId, sourceId: $sourceId) {
       ...SharedPostInfo
     }
@@ -815,7 +815,7 @@ export const VOTE_POLL_MUTATION = gql`
 export const votePoll = async (variables: {
   postId: string;
   optionId: string;
-  sourceId?: string;
+  sourceId: string;
 }): Promise<Post> => {
   const res = await gqlClient.request(VOTE_POLL_MUTATION, variables);
 
