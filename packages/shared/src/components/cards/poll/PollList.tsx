@@ -52,7 +52,7 @@ export const PollList = forwardRef(function PollList(
   const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
-    <Container className="pointer-events-none flex-[unset]">
+    <Container className="pointer-events-none flex-[unset] tablet:mt-4">
       <ActionButtons
         className="mt-4 justify-between tablet:mt-0"
         post={post}
@@ -120,7 +120,6 @@ export const PollList = forwardRef(function PollList(
             />
           )}
         </PostCardHeader>
-
         <CardContent>
           <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
@@ -132,19 +131,13 @@ export const PollList = forwardRef(function PollList(
             >
               {title}
             </CardTitle>
-
-            <div className="mb-4 flex flex-col gap-2">
-              <PollOptions
-                options={post.pollOptions}
-                onClick={handleVote}
-                userVote={post?.userState?.pollVoteOptionId}
-                numPollVotes={post.numPollVotes || 0}
-                endsAt={post?.endsAt}
-              />
-            </div>
-
-            <div className="flex flex-1 tablet:hidden" />
-            <div className="hidden flex-1 tablet:flex" />
+            <PollOptions
+              options={post.pollOptions}
+              onClick={handleVote}
+              userVote={post?.userState?.pollVoteOptionId}
+              numPollVotes={post.numPollVotes || 0}
+              endsAt={post?.endsAt}
+            />
             {!isMobile && actionButtons}
           </div>
         </CardContent>
