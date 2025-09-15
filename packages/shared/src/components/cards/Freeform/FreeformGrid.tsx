@@ -18,6 +18,8 @@ import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../ActionsButtons/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCardUiColors } from '../../../lib/featureManagement';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -41,6 +43,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
+  const colorExp = useFeature(featureCardUiColors);
 
   return (
     <FeedItemContainer
@@ -68,6 +71,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
               hasImage: !!image,
               hasHtmlContent: !!post.contentHtml,
             }),
+            { '!text-text-quaternary': post.read && colorExp },
           )}
         >
           {title}
