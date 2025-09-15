@@ -17,6 +17,7 @@ const usePoll = ({ post }: { post: Post }) => {
     mutationFn: (optionId: string) =>
       votePoll({ postId: post.id, optionId, sourceId: post.source?.id }),
     onSuccess: (data: Post) => {
+      updatePostCache(queryClient, post.id, data);
       const updateFeed = updateCachedPagePost(queryKey, queryClient);
       const feedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
@@ -27,7 +28,6 @@ const usePoll = ({ post }: { post: Post }) => {
         false,
       );
       updateFeed(pageIndex, index, data);
-      updatePostCache(queryClient, post.id, data);
     },
   });
 

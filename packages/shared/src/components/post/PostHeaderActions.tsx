@@ -38,10 +38,11 @@ export function PostHeaderActions({
   const isCollection = post?.type === PostType.Collection;
   const isInternalReadTyped = isInternalReadType(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
+  const isPoll = post?.type === PostType.Poll;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadTyped && !!onReadArticle && (
+      {!isPoll && !isInternalReadTyped && !!onReadArticle && (
         <Tooltip
           side="bottom"
           content={readButtonText}

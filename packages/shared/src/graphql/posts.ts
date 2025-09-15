@@ -335,6 +335,14 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
           ...FeaturedAwardFragment
         }
       }
+      numPollVotes
+      pollOptions {
+        id
+        text
+        order
+        numVotes
+      }
+      endsAt
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
