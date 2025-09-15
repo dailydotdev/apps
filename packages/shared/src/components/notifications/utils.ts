@@ -15,6 +15,7 @@ import {
   ReadingStreakIcon,
   TimerIcon,
   CoreIcon,
+  AnalyticsIcon,
   JobIcon,
   MagicIcon,
 } from '../icons';
@@ -86,6 +87,7 @@ export enum NotificationType {
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
   InAppPurchases = 'in_app_purchases',
+  PostAnalytics = 'post_analytics',
   NewOpportunityMatch = 'new_opportunity_match',
 }
 
@@ -105,6 +107,7 @@ export enum NotificationIconType {
   TopReaderBadge = 'TopReaderBadge',
   Timer = 'Timer',
   Core = 'Core',
+  Analytics = 'Analytics',
   Opportunity = 'Opportunity',
 }
 
@@ -127,6 +130,7 @@ export const notificationIcon: Record<
   [NotificationIconType.TopReaderBadge]: BellIcon,
   [NotificationIconType.Timer]: TimerIcon,
   [NotificationIconType.Core]: CoreIcon,
+  [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
 };
 
@@ -150,6 +154,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
   [NotificationIconType.Timer]: 'text-brand-default',
   [NotificationIconType.Core]: '',
+  [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
 };
 
@@ -172,6 +177,7 @@ export const notificationIconStyle: Record<
   [NotificationIconType.TopReaderBadge]: null,
   [NotificationIconType.Timer]: null,
   [NotificationIconType.Core]: null,
+  [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
 };
 
@@ -461,6 +467,12 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     description:
       'Get notified when your squad role changes, like becoming a moderator or admin.',
     group: true,
+  },
+  {
+    id: NotificationType.PostAnalytics,
+    label: 'Post analytics',
+    description: 'Get updates about how your posts are performing.',
+    group: false,
   },
 ];
 
