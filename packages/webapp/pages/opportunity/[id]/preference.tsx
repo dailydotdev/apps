@@ -36,6 +36,33 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
+export const InnerPreferencePage = ({
+  buttons,
+}: {
+  buttons: ReactElement;
+}): ReactElement => {
+  return (
+    <>
+      <FlexCol className="gap-4">
+        <Typography type={TypographyType.LargeTitle} bold center>
+          Train us to find your unicorn job
+        </Typography>
+        <Typography
+          type={TypographyType.Title3}
+          color={TypographyColor.Secondary}
+          center
+        >
+          Tell us exactly what&apos;s worth bugging you about so we can ghost
+          every irrelevant recruiter on your behalf. The better you set this up,
+          the less nonsense you&apos;ll ever see.
+        </Typography>
+      </FlexCol>
+      <PreferenceOptionsForm />
+      <FlexRow className="justify-between">{buttons}</FlexRow>
+    </>
+  );
+};
+
 const PreferencePage = (): ReactElement => {
   const {
     query: { id },
@@ -46,46 +73,35 @@ const PreferencePage = (): ReactElement => {
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
-        <FlexCol className="gap-4">
-          <Typography type={TypographyType.LargeTitle} bold center>
-            Train us to find your unicorn job
-          </Typography>
-          <Typography
-            type={TypographyType.Title3}
-            color={TypographyColor.Secondary}
-            center
-          >
-            Tell us exactly what’s worth bugging you about so we can ghost every
-            irrelevant recruiter on your behalf. The better you set this up, the
-            less nonsense you’ll ever see.
-          </Typography>
-        </FlexCol>
-        <PreferenceOptionsForm />
-        <FlexRow className="justify-between">
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Tertiary}
-            className="hidden laptop:flex"
-            onClick={() => back()}
-          >
-            Back
-          </Button>
+        <InnerPreferencePage
+          buttons={
+            <>
+              <Button
+                size={ButtonSize.Large}
+                variant={ButtonVariant.Tertiary}
+                className="hidden laptop:flex"
+                onClick={() => back()}
+              >
+                Back
+              </Button>
 
-          <Link
-            href={`${opportunityUrl}/${opportunityId}/preference-done`}
-            passHref
-          >
-            <Button
-              size={ButtonSize.Large}
-              variant={ButtonVariant.Primary}
-              className="w-full laptop:w-auto"
-              tag="a"
-              href={`${opportunityUrl}/${opportunityId}/preference-done`}
-            >
-              Save preferences
-            </Button>
-          </Link>
-        </FlexRow>
+              <Link
+                href={`${opportunityUrl}/${opportunityId}/preference-done`}
+                passHref
+              >
+                <Button
+                  size={ButtonSize.Large}
+                  variant={ButtonVariant.Primary}
+                  className="w-full laptop:w-auto"
+                  tag="a"
+                  href={`${opportunityUrl}/${opportunityId}/preference-done`}
+                >
+                  Save preferences
+                </Button>
+              </Link>
+            </>
+          }
+        />
       </FlexCol>
     </div>
   );
