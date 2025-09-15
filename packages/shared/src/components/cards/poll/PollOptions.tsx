@@ -66,7 +66,7 @@ const PollOptions = ({
                   width: `${percentage}%`,
                 }}
               />
-              <div className="z-10 relative flex w-full items-center gap-2">
+              <div className="relative flex w-full items-center gap-2">
                 <div className="w-10 shrink-0">
                   <Typography type={TypographyType.Callout} bold>
                     {percentage}%
@@ -100,7 +100,7 @@ const PollOptions = ({
             onClick={() => onClick(option.id)}
             key={option.order}
             type="button"
-            className="focus-visible:ring-accent-primary flex w-full flex-1 items-center justify-center rounded-12 border border-border-subtlest-tertiary bg-transparent p-2 text-center text-text-secondary transition-colors duration-200 ease-in-out typo-callout hover:bg-surface-hover focus:bg-surface-hover focus:outline-none focus-visible:ring-2"
+            className="flex w-full flex-1 items-center justify-center rounded-12 border border-border-subtlest-tertiary p-2 text-center text-text-secondary typo-callout hover:bg-surface-hover"
           >
             <Typography
               type={TypographyType.Callout}
