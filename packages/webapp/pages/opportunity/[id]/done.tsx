@@ -52,9 +52,10 @@ const options = [
         <VIcon secondary className="text-action-upvote-default" />
       </IconWrapper>
     ),
-    title: 'Active looking',
-    description:
-      'I’m in the market and ready to move. This one just wasn’t a fit.',
+    title: 'Your profile is ready',
+    description: (
+      <>You&apos;ve provided all the details we need for this opportunity.</>
+    ),
   },
   {
     icon: (
@@ -64,9 +65,10 @@ const options = [
         </Typography>
       </IconWrapper>
     ),
-    title: 'Open only if it’s right',
-    description:
-      'I’m happy where I am, but I’d explore something truly exceptional.',
+    title: 'We reach out to the recruiter',
+    description: (
+      <>We&apos;ll confirm mutual interest before making an introduction.</>
+    ),
   },
   {
     icon: (
@@ -76,9 +78,13 @@ const options = [
         </Typography>
       </IconWrapper>
     ),
-    title: 'Not looking right now',
-    description:
-      'I’m not open to opportunities right now. Step back until I say otherwise.',
+    title: 'We connect you directly',
+    description: (
+      <>
+        If it&apos;s a yes on both sides, you&apos;ll be introduced via your
+        chosen channel.
+      </>
+    ),
   },
 ];
 
@@ -103,8 +109,8 @@ const DonePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            You’ve completed everything needed for this opportunity. We’ll take
-            it from here.
+            You&apos;ve completed everything needed for this opportunity.
+            We&apos;ll take it from here.
           </Typography>
         </FlexCol>
         <FlexCol>
