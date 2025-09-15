@@ -8,8 +8,11 @@ import {
   updatePostCache,
 } from '../lib/query';
 import { useActiveFeedContext } from '../contexts';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 const usePoll = ({ post }: { post: Post }) => {
+  const { logEvent } = useLogContext();
   const { queryKey } = useActiveFeedContext();
   const queryClient = useQueryClient();
 
@@ -33,6 +36,10 @@ const usePoll = ({ post }: { post: Post }) => {
 
   const onVote = (optionId: string) => {
     mutate(optionId);
+    logEvent({
+      event_name: LogEvent.VotePoll,
+      extra: JSON.stringify({ vote: optionId }),
+    });
   };
 
   return { onVote, isCastingVote };
