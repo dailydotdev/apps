@@ -59,7 +59,7 @@ const PlusPage = ({
   const onScroll = useCallback(() => {
     logEvent({
       event_name: LogEvent.PageScroll,
-      target_id: TargetId.PlusPage,
+      target_type: TargetId.PlusPage,
       extra: JSON.stringify({
         scrollTop: window.scrollY,
       }),

@@ -159,12 +159,13 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   const onScroll = useCallback(() => {
     logEvent({
       event_name: LogEvent.PageScroll,
-      target_id: TargetType.Post,
+      target_type: TargetType.Post,
+      target_id: post?.id,
       extra: JSON.stringify({
         scrollTop: window.scrollY,
       }),
     });
-  }, [logEvent]);
+  }, [logEvent, post?.id]);
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
   useEventListener(globalThis?.window, 'scroll', debouncedOnScroll);
 

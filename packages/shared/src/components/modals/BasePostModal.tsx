@@ -52,7 +52,8 @@ function BasePostModal({
       const targetElement = event.target as HTMLElement;
       logEvent({
         event_name: LogEvent.PageScroll,
-        target_id: TargetType.Post,
+        target_type: TargetType.Post,
+        target_id: post?.id,
         extra: JSON.stringify({
           scrollTop: targetElement.scrollTop,
         }),
