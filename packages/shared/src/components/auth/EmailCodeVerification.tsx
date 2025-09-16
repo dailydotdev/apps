@@ -91,12 +91,19 @@ function EmailCodeVerification({
 
   return (
     <AuthForm
-      className={classNames('flex flex-col items-end px-14 py-8', className)}
+      className={classNames(
+        'flex flex-col items-end py-8 mobileL:px-8 tablet:px-14',
+        className,
+      )}
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >
       <div className="flex w-full flex-col items-center gap-4">
-        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Tertiary}
+          center
+        >
           A verification code has been sent to:
         </Typography>
         <Typography type={TypographyType.Body}>{email}</Typography>
