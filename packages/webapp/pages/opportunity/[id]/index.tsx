@@ -59,6 +59,7 @@ import type {
   Opportunity,
   OpportunityMeta,
 } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -457,14 +458,16 @@ const JobPage = ({
             </div>
           ))}
 
-          <ResponseButtons
-            id={opportunity.id}
-            className={{
-              container:
-                'hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex',
-              buttons: 'flex-1',
-            }}
-          />
+          {match.status === OpportunityMatchStatus.Pending && (
+            <ResponseButtons
+              id={opportunity.id}
+              className={{
+                container:
+                  'hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex',
+                buttons: 'flex-1',
+              }}
+            />
+          )}
         </div>
 
         {/* Sidebar */}
