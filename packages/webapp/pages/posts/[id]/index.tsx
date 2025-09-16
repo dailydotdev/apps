@@ -87,6 +87,12 @@ const BriefPostContent = dynamic(() =>
   ).then((module) => module.BriefPostContent),
 );
 
+const PollPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyPollPostContent" */ '@dailydotdev/shared/src/components/post/poll/PollPostContent'
+  ).then((module) => module.PollPostContent),
+);
+
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -101,7 +107,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   [PostType.VideoYouTube]: PostContent,
   collection: CollectionPostContent,
   [PostType.Brief]: BriefPostContent,
-  [PostType.Poll]: SquadPostContent, // TODO: Implement Poll content
+  [PostType.Poll]: PollPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {

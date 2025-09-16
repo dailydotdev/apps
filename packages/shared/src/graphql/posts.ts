@@ -100,6 +100,7 @@ export interface PostUserState {
   vote: UserVote;
   flags?: UserPostFlags;
   awarded?: boolean;
+  pollOption?: { id: string };
 }
 
 export interface Post {
@@ -156,6 +157,9 @@ export interface Post {
   featuredAward?: {
     award?: FeaturedAward;
   };
+  pollOptions?: PollOption[];
+  numPollVotes?: number;
+  endsAt?: string;
 }
 
 export type RelatedPost = Pick<
@@ -331,6 +335,14 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
           ...FeaturedAwardFragment
         }
       }
+      numPollVotes
+      pollOptions {
+        id
+        text
+        order
+        numVotes
+      }
+      endsAt
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
@@ -648,8 +660,10 @@ export interface CreatePostProps
   sourceId: string;
 }
 export interface PollOption {
+  id: string;
   text: string;
   order: number;
+  numVotes: number;
 }
 
 export interface CreatePollPostProps extends Pick<EditPostProps, 'title'> {
@@ -787,6 +801,34 @@ export const createPost = async (
   const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
+};
+
+export interface VotePollResponse {
+  numPollVotes: number;
+  pollOptions: PollOption[];
+}
+
+export const VOTE_POLL_MUTATION = gql`
+  mutation VotePoll($postId: ID!, $optionId: ID!) {
+    votePoll(postId: $postId, optionId: $optionId) {
+      numPollVotes
+      pollOptions {
+        id
+        text
+        order
+        numVotes
+      }
+    }
+  }
+`;
+
+export const votePoll = async (variables: {
+  postId: string;
+  optionId: string;
+}): Promise<VotePollResponse> => {
+  const res = await gqlClient.request(VOTE_POLL_MUTATION, variables);
+
+  return res.votePoll;
 };
 
 export const CREATE_POLL_POST_MUTATION = gql`

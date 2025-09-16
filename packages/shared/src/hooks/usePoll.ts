@@ -1,0 +1,64 @@
+import type { InfiniteData } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { FeedData, Post, VotePollResponse } from '../graphql/posts';
+import { votePoll } from '../graphql/posts';
+import {
+  findIndexOfPostInData,
+  updateCachedPagePost,
+  updatePostCache,
+} from '../lib/query';
+import { useActiveFeedContext } from '../contexts';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
+
+const usePoll = ({ post }: { post: Post }) => {
+  const { logEvent } = useLogContext();
+  const { queryKey } = useActiveFeedContext();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending: isCastingVote } = useMutation({
+    mutationFn: (optionId: string) => votePoll({ postId: post.id, optionId }),
+    onSuccess: (data: VotePollResponse, optionId: string) => {
+      const postUpdate = {
+        numPollVotes: data.numPollVotes,
+        pollOptions: data.pollOptions,
+        userState: {
+          ...post.userState,
+          pollOption: { id: optionId },
+        },
+      };
+
+      updatePostCache(queryClient, post.id, postUpdate);
+      const updateFeed = updateCachedPagePost(queryKey, queryClient);
+      const feedData =
+        queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
+
+      const { pageIndex, index } = findIndexOfPostInData(
+        feedData,
+        post.id,
+        false,
+      );
+
+      if (pageIndex > -1 && index > -1) {
+        const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+        const updatedPost = {
+          ...currentPost,
+          ...postUpdate,
+        };
+        updateFeed(pageIndex, index, updatedPost);
+      }
+    },
+  });
+
+  const onVote = (optionId: string) => {
+    mutate(optionId);
+    logEvent({
+      event_name: LogEvent.VotePoll,
+      extra: JSON.stringify({ vote: optionId }),
+    });
+  };
+
+  return { onVote, isCastingVote };
+};
+
+export default usePoll;
