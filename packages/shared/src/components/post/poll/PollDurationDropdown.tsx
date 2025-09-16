@@ -68,10 +68,7 @@ const PollDurationDropdown = () => {
             className="!justify-between !px-3 !font-normal !typo-callout"
           >
             {options[selectedIndex].label}
-            <ArrowIcon
-              className="ml-auto rotate-90 laptop:rotate-180"
-              secondary
-            />
+            <ArrowIcon className="ml-auto rotate-180" secondary />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
