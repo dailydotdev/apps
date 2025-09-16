@@ -80,7 +80,7 @@ export default function PostMetadata({
               type={TypographyType.Footnote}
               color={TypographyColor.StatusSuccess}
             >
-              {numPollVotes >= 10 || isAuthor ? 'Voting open' : 'New poll'}
+              {shouldShowVotes ? 'Voting open' : 'New poll'}
             </Typography>
             <Separator />
           </>
