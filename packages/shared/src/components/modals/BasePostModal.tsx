@@ -49,7 +49,7 @@ function BasePostModal({
 
   const onScroll = useCallback(
     (event: Event) => {
-      if (!post.id) {
+      if (!post?.id) {
         return;
       }
       const targetElement = event.target as HTMLElement;
