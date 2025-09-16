@@ -43,7 +43,7 @@ const PollResults = ({
     return (
       <div
         key={option.order}
-        className="relative flex w-full flex-1 items-center overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2"
+        className="relative flex w-full flex-1 items-center overflow-hidden rounded-12 border-none p-2"
       >
         <div
           className={`absolute bottom-0 left-0 top-0 rounded-12 transition-all duration-300 ${
