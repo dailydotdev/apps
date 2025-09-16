@@ -1,6 +1,5 @@
-import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -17,10 +16,21 @@ import {
 import { UploadIcon } from '../../../components/icons/Upload';
 import { FeelingLazy } from '../../profile/components/FeelingLazy';
 import { ShieldPlusIcon } from '../../../components/icons';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
 
-export const CVOverlay = (): ReactElement => {
-  const { back } = useRouter();
-  const { onUpload } = useUploadCv({ shouldOpenModal: false });
+export const CVOverlay = ({
+  blur = true,
+  backButton,
+  onUploadSuccess,
+}: {
+  blur?: boolean;
+  backButton?: ReactNode;
+  onUploadSuccess?: () => void;
+}): ReactElement => {
+  const { onUpload, isPending: isUploadPending } = useUploadCv({
+    shouldOpenModal: false,
+    onUploadSuccess,
+  });
 
   const [file, setFile] = useState<File | null>(null);
 
@@ -29,23 +39,28 @@ export const CVOverlay = (): ReactElement => {
   }, [file, onUpload]);
 
   useEffect(() => {
+    if (!blur) {
+      return () => {};
+    }
     document.body.classList.add('hidden-scrollbar');
 
     return () => {
       document.body.classList.remove('hidden-scrollbar');
     };
-  }, []);
+  }, [blur]);
 
   return (
-    <div className="absolute top-10 z-1 size-full h-screen bg-blur-glass backdrop-blur-xl laptop:top-16">
+    <ConditionalWrapper
+      condition={blur}
+      wrapper={(children) => (
+        <div className="absolute top-10 z-1 size-full h-screen bg-blur-glass backdrop-blur-xl laptop:top-16">
+          {children}
+        </div>
+      )}
+    >
       <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6">
-        <div>
-          <Typography
-            type={TypographyType.LargeTitle}
-            bold
-            center
-            className="mb-4"
-          >
+        <div className="flex flex-col gap-4">
+          <Typography type={TypographyType.LargeTitle} bold center>
             We never want to waste your time. Ever.
           </Typography>
           <Typography
@@ -99,13 +114,7 @@ export const CVOverlay = (): ReactElement => {
           </Typography>
         </div>
         <div className="flex justify-between">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Large}
-            onClick={back}
-          >
-            Back
-          </Button>
+          {backButton}
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
@@ -113,6 +122,7 @@ export const CVOverlay = (): ReactElement => {
               handleUpload();
             }}
             disabled={!file}
+            loading={isUploadPending}
           >
             Upload CV & Activate Filters
           </Button>
@@ -125,6 +135,6 @@ export const CVOverlay = (): ReactElement => {
           🛡️ One upload. 100% confidential. Zero bad recruiting.
         </Typography>
       </div>
-    </div>
+    </ConditionalWrapper>
   );
 };

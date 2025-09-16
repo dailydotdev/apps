@@ -71,6 +71,7 @@ import {
   CompanyStage,
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -276,7 +277,21 @@ const JobPage = ({
 
   return (
     <>
-      {!hasUploadedCV && <CVOverlay />}
+      {!hasUploadedCV && (
+        <CVOverlay
+          backButton={
+            <Link href={webappUrl} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Large}
+              >
+                Back
+              </Button>
+            </Link>
+          }
+        />
+      )}
       {!hasCompletedInitialView && <JobPageIntro />}
       <ResponseButtons
         id={opportunity.id}
