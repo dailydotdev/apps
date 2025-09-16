@@ -102,8 +102,7 @@ const CreatePoll = () => {
         className={{ container: 'w-full' }}
         inputId="title"
         name="title"
-        label="Poll Title*"
-        placeholder="Give your post a title"
+        label="Ask a question*"
         required
         defaultValue={draft?.title || ''}
         onInput={(e) => onUpdateTitle(e.currentTarget.value)}
@@ -120,7 +119,6 @@ const CreatePoll = () => {
             inputId={`options-${index}`}
             name="options[]"
             label={`Option ${index + 1}${index <= 1 ? '*' : ' (optional)'}`}
-            placeholder="Give your post a title"
             required={index <= 1}
             defaultValue={option || ''}
             onInput={(e) =>
