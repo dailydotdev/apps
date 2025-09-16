@@ -27,6 +27,7 @@ import useDebounceFn from '../../hooks/useDebounceFn';
 import { useActions, useToastNotification } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { stringToBoolean } from '../../lib/utils';
+import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -303,7 +304,9 @@ export const PreferenceOptionsForm = (): ReactElement => {
           }}
         />
 
-        {preferences?.customKeywords && <p>TODO: Custom keywords input here</p>}
+        {preferences?.customKeywords && (
+          <KeywordSelection keywords={preferences.keywords} />
+        )}
       </FlexCol>
     </FlexCol>
   );

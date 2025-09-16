@@ -135,6 +135,9 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       companySize
       companyStage
       customKeywords
+      keywords {
+        keyword
+      }
     }
   }
 `;

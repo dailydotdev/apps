@@ -93,6 +93,8 @@ export type UserCV = {
   lastModified: Date;
 };
 
+export type UserCandidateKeyword = OpportunityKeyword;
+
 export type UserCandidatePreferences = {
   status: CandidateStatus;
   cv?: UserCV;
@@ -105,4 +107,5 @@ export type UserCandidatePreferences = {
   companyStage?: CompanyStage[];
   companySize?: CompanySize[];
   customKeywords?: boolean;
+  keywords?: Array<UserCandidateKeyword>;
 };
