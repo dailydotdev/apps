@@ -28,13 +28,15 @@ export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
 `;
 
 export const KeywordSelection = ({
-  keywords,
+  keywords: initialKeywords,
 }: {
   keywords?: Array<Keyword>;
 }): ReactElement => {
   const [query, setQuery] = useState<string>('');
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const keywords = new Set(initialKeywords ?? []);
 
   const { data: autocompleteKeywords, isFetching } = useQuery({
     queryKey: ['opportunity-keywords-autocomplete', query],
@@ -118,7 +120,7 @@ export const KeywordSelection = ({
               <TagElement
                 key={keyword}
                 tag={{ name: keyword }}
-                isSelected={keywords?.some((k) => k.keyword === keyword)}
+                isSelected={keywords.has({ keyword })}
                 onClick={(data) => {
                   // eslint-disable-next-line no-console
                   console.log('Clicked', data);
@@ -130,7 +132,7 @@ export const KeywordSelection = ({
       </Popover>
 
       <div className="flex flex-wrap gap-2">
-        {keywords?.map(({ keyword }) => (
+        {Array.from(keywords).map(({ keyword }) => (
           <TagElement
             key={keyword}
             tag={{ name: keyword }}
