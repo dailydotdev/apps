@@ -59,7 +59,7 @@ function BasePostModal({
         }),
       });
     },
-    [logEvent],
+    [logEvent, post?.id],
   );
 
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
