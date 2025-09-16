@@ -26,6 +26,7 @@ import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useActions, useToastNotification } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
+import { stringToBoolean } from '../../lib/utils';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -291,12 +292,18 @@ export const PreferenceOptionsForm = (): ReactElement => {
           className={{ container: '!flex-row flex-wrap' }}
           name="tech_stack"
           options={[
-            { label: 'Copy from my profile (Recommended)', value: 'auto' },
-            { label: 'Select manually', value: 'manual' },
+            { label: 'Copy from my profile (Recommended)', value: 'false' },
+            { label: 'Select manually', value: 'true' },
           ]}
-          value="auto"
-          onChange={() => {}}
+          value={preferences?.customKeywords ? 'true' : 'false'}
+          onChange={(value) => {
+            updatePreferences({
+              customKeywords: stringToBoolean(value),
+            });
+          }}
         />
+
+        {preferences?.customKeywords && <p>TODO: Custom keywords input here</p>}
       </FlexCol>
     </FlexCol>
   );

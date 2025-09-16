@@ -104,4 +104,5 @@ export type UserCandidatePreferences = {
   employmentType?: EmploymentType[];
   companyStage?: CompanyStage[];
   companySize?: CompanySize[];
+  customKeywords?: boolean;
 };

@@ -134,6 +134,7 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       employmentType
       companySize
       companyStage
+      customKeywords
     }
   }
 `;
@@ -147,6 +148,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
     $salaryExpectation: SalaryExpectationInput
     $location: [LocationInput]
     $locationType: [ProtoEnumValue]
+    $customKeywords: Boolean
   ) {
     updateCandidatePreferences(
       status: $status
@@ -156,6 +158,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
       salaryExpectation: $salaryExpectation
       location: $location
       locationType: $locationType
+      customKeywords: $customKeywords
     ) {
       _
     }
