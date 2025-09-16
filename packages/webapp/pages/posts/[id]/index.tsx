@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import type {
@@ -24,6 +24,7 @@ import {
   useJoinReferral,
   useViewSize,
   ViewSize,
+  useEventListener,
 } from '@dailydotdev/shared/src/hooks';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -38,6 +39,7 @@ import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostRef
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -154,23 +156,17 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  useEffect(() => {
-    const onScroll = () => {
-      logEvent({
-        event_name: LogEvent.PageScroll,
-        target_id: TargetType.Post,
-        extra: JSON.stringify({
-          scrollTop: window.scrollY,
-        }),
-      });
-    };
-
-    globalThis?.window?.addEventListener('scrollend', onScroll);
-
-    return () => {
-      globalThis?.window?.removeEventListener('scrollend', onScroll);
-    };
+  const onScroll = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.PageScroll,
+      target_id: TargetType.Post,
+      extra: JSON.stringify({
+        scrollTop: window.scrollY,
+      }),
+    });
   }, [logEvent]);
+  const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
+  useEventListener(globalThis?.window, 'scroll', debouncedOnScroll);
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 

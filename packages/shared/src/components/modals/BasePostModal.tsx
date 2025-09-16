@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -14,6 +14,8 @@ import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../contexts/LogExtraContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { useEventListener } from '../../hooks';
+import useDebounceFn from '../../hooks/useDebounceFn';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -41,6 +43,7 @@ function BasePostModal({
 }: BasePostModalProps): ReactElement {
   const { usePostReferrer } = usePostReferrerContext();
   const { logEvent } = useLogContext();
+  const [scrollNode, setScrollNode] = useState(null);
 
   usePostReferrer({ post });
 
@@ -58,6 +61,9 @@ function BasePostModal({
     [logEvent],
   );
 
+  const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
+  useEventListener(scrollNode, 'scroll', debouncedOnScroll);
+
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
@@ -73,11 +79,7 @@ function BasePostModal({
           kind={Modal.Kind.FlexibleTop}
           portalClassName={styles.postModal}
           id="post-modal"
-          overlayRef={(node) => {
-            if (node) {
-              node.addEventListener('scrollend', onScroll);
-            }
-          }}
+          overlayRef={setScrollNode}
           {...props}
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
           className={classNames(
