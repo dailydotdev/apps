@@ -133,7 +133,7 @@ export const PollList = forwardRef(function PollList(
             <PollOptions
               options={post.pollOptions}
               onClick={handleVote}
-              userVote={post?.userState?.pollVoteOptionId}
+              userVote={post?.userState?.pollOption?.id}
               numPollVotes={post.numPollVotes || 0}
               endsAt={post?.endsAt}
             />

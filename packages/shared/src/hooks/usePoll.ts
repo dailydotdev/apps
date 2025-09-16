@@ -1,6 +1,6 @@
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { FeedData, Post } from '../graphql/posts';
+import type { FeedData, Post, VotePollResponse } from '../graphql/posts';
 import { votePoll } from '../graphql/posts';
 import {
   findIndexOfPostInData,
@@ -17,10 +17,18 @@ const usePoll = ({ post }: { post: Post }) => {
   const queryClient = useQueryClient();
 
   const { mutate, isPending: isCastingVote } = useMutation({
-    mutationFn: (optionId: string) =>
-      votePoll({ postId: post.id, optionId, sourceId: post.source?.id }),
-    onSuccess: (data: Post) => {
-      updatePostCache(queryClient, post.id, data);
+    mutationFn: (optionId: string) => votePoll({ postId: post.id, optionId }),
+    onSuccess: (data: VotePollResponse, optionId: string) => {
+      const postUpdate = {
+        numPollVotes: data.numPollVotes,
+        pollOptions: data.pollOptions,
+        userState: {
+          ...post.userState,
+          pollOption: { id: optionId },
+        },
+      };
+
+      updatePostCache(queryClient, post.id, postUpdate);
       const updateFeed = updateCachedPagePost(queryKey, queryClient);
       const feedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
@@ -30,7 +38,15 @@ const usePoll = ({ post }: { post: Post }) => {
         post.id,
         false,
       );
-      updateFeed(pageIndex, index, data);
+
+      if (pageIndex > -1 && index > -1) {
+        const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+        const updatedPost = {
+          ...currentPost,
+          ...postUpdate,
+        };
+        updateFeed(pageIndex, index, updatedPost);
+      }
     },
   });
 

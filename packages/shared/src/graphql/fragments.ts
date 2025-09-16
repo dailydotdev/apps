@@ -274,7 +274,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     userState {
       vote
-      pollVoteOptionId
+      pollOption {
+        id
+      }
       flags {
         feedbackDismiss
       }
@@ -356,7 +358,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         feedbackDismiss
       }
       awarded
-      pollVoteOptionId
+      pollOption {
+        id
+      }
     }
     slug
     domain

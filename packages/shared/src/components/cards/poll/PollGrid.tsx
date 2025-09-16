@@ -85,7 +85,7 @@ const PollGrid = forwardRef(function PollCard(
           }}
           options={pollOptions}
           onClick={handleVote}
-          userVote={post?.userState?.pollVoteOptionId}
+          userVote={post?.userState?.pollOption?.id}
           numPollVotes={numPollVotes || 0}
           endsAt={endsAt}
         />

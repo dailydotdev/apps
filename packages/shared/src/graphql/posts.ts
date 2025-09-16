@@ -100,7 +100,7 @@ export interface PostUserState {
   vote: UserVote;
   flags?: UserPostFlags;
   awarded?: boolean;
-  pollVoteOptionId?: string;
+  pollOption?: { id: string };
 }
 
 export interface Post {
@@ -803,20 +803,29 @@ export const createPost = async (
   return res.createFreeformPost;
 };
 
+export interface VotePollResponse {
+  numPollVotes: number;
+  pollOptions: PollOption[];
+}
+
 export const VOTE_POLL_MUTATION = gql`
-  mutation VotePoll($postId: ID!, $optionId: ID!, $sourceId: ID!) {
-    votePoll(postId: $postId, optionId: $optionId, sourceId: $sourceId) {
-      ...SharedPostInfo
+  mutation VotePoll($postId: ID!, $optionId: ID!) {
+    votePoll(postId: $postId, optionId: $optionId) {
+      numPollVotes
+      pollOptions {
+        id
+        text
+        order
+        numVotes
+      }
     }
   }
-  ${SHARED_POST_INFO_FRAGMENT}
 `;
 
 export const votePoll = async (variables: {
   postId: string;
   optionId: string;
-  sourceId: string;
-}): Promise<Post> => {
+}): Promise<VotePollResponse> => {
   const res = await gqlClient.request(VOTE_POLL_MUTATION, variables);
 
   return res.votePoll;
