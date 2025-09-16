@@ -33,11 +33,16 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  opportunityUrl,
+  settingsUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
+import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/components/CVOverlay';
+import { useRouter } from 'next/router';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -49,12 +54,19 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
+const jobPreferenceUrl = `${settingsUrl}/job-preferences`;
+
 const HeaderSection = (): ReactElement => {
+  const { push } = useRouter();
   const { user } = useAuthContext();
   const { alerts } = useAlertsContext();
 
   const { isActionsFetched, completeAction } = useActions();
   const { opportunityId } = alerts;
+
+  const onUploadSuccess = () => {
+    push(jobPreferenceUrl);
+  };
 
   useEffect(() => {
     if (!isActionsFetched) {
@@ -65,40 +77,61 @@ const HeaderSection = (): ReactElement => {
   }, [completeAction, isActionsFetched]);
 
   return (
-    <FlexCol className="items-center gap-2 text-center">
+    <FlexCol className="items-center gap-2">
       <FlexRow className="items-center gap-1">
         <DailyIcon />{' '}
         <Typography
+          center
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
           Careeer mode unlocked (beta)
         </Typography>
       </FlexRow>
-      <Typography type={TypographyType.LargeTitle} bold>
+      <Typography center type={TypographyType.LargeTitle} bold>
         Getting hired the old way
         <br /> is officially dead
       </Typography>
-      {user && opportunityId && (
-        <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
-          <Button
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Large}
-            style={{
-              background: briefButtonBg,
-            }}
-            tag="a"
-            className="mt-4 gap-2 border-none !px-16 text-black"
-          >
-            <ProfilePicture
-              size={ProfileImageSize.Small}
-              ref={null}
-              user={user}
-              nativeLazyLoading
+      {user && (
+        <>
+          {opportunityId ? (
+            <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Large}
+                style={{
+                  background: briefButtonBg,
+                }}
+                tag="a"
+                className="mt-4 gap-2 border-none !px-16 text-black"
+              >
+                <ProfilePicture
+                  size={ProfileImageSize.Small}
+                  ref={null}
+                  user={user}
+                  nativeLazyLoading
+                />
+                Show me what you got →
+              </Button>
+            </Link>
+          ) : (
+            <CVOverlay
+              blur={false}
+              backButton={
+                <Link href={jobPreferenceUrl} passHref>
+                  <Button
+                    tag="a"
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Large}
+                  >
+                    Job preferences
+                  </Button>
+                </Link>
+              }
+              onUploadSuccess={onUploadSuccess}
             />
-            Show me what you got →
-          </Button>
-        </Link>
+          )}
+        </>
       )}
       <FlexRow className="items-center gap-1">
         <VIcon className="text-accent-avocado-subtlest" />
