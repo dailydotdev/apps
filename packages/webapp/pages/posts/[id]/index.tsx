@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import type {
@@ -18,7 +18,7 @@ import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
   usePostById,
   useJoinReferral,
@@ -37,6 +37,7 @@ import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -124,6 +125,7 @@ export const seoTitle = (post: Post): string | undefined => {
 
 export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   useJoinReferral();
+  const { logEvent } = useLogContext();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
@@ -151,6 +153,24 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
     offset: SCROLL_OFFSET,
     scrollProperty: 'scrollY',
   });
+
+  useEffect(() => {
+    const onScroll = () => {
+      logEvent({
+        event_name: LogEvent.PageScroll,
+        target_id: TargetType.Post,
+        extra: JSON.stringify({
+          scrollTop: window.scrollY,
+        }),
+      });
+    };
+
+    globalThis?.window?.addEventListener('scrollend', onScroll);
+
+    return () => {
+      globalThis?.window?.removeEventListener('scrollend', onScroll);
+    };
+  }, [logEvent]);
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 

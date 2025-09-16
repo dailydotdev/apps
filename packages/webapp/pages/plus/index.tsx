@@ -10,7 +10,7 @@ import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUse
 import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
@@ -55,6 +55,7 @@ const PlusPage = ({
     const onScroll = () => {
       logEvent({
         event_name: LogEvent.PageScroll,
+        target_id: TargetId.PlusPage,
         extra: JSON.stringify({
           scrollTop: window.scrollY,
         }),

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -12,7 +12,8 @@ import type { PostPosition } from '../../hooks/usePostModalNavigation';
 import { usePostReferrerContext } from '../../contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../contexts/LogExtraContext';
-import { TargetType } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -39,8 +40,23 @@ function BasePostModal({
   ...props
 }: BasePostModalProps): ReactElement {
   const { usePostReferrer } = usePostReferrerContext();
+  const { logEvent } = useLogContext();
 
   usePostReferrer({ post });
+
+  const onScroll = useCallback(
+    (event: Event) => {
+      const targetElement = event.target as HTMLElement;
+      logEvent({
+        event_name: LogEvent.PageScroll,
+        target_id: TargetType.Post,
+        extra: JSON.stringify({
+          scrollTop: targetElement.scrollTop,
+        }),
+      });
+    },
+    [logEvent],
+  );
 
   return (
     <ActivePostContextProvider post={post}>
@@ -57,6 +73,11 @@ function BasePostModal({
           kind={Modal.Kind.FlexibleTop}
           portalClassName={styles.postModal}
           id="post-modal"
+          overlayRef={(node) => {
+            if (node) {
+              node.addEventListener('scrollend', onScroll);
+            }
+          }}
           {...props}
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
           className={classNames(
