@@ -305,7 +305,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
         />
 
         {preferences?.customKeywords && (
-          <KeywordSelection keywords={preferences.keywords} />
+          <KeywordSelection keywords={preferences?.keywords} />
         )}
       </FlexCol>
     </FlexCol>

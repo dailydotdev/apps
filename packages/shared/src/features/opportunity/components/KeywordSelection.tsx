@@ -30,7 +30,7 @@ export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
 export const KeywordSelection = ({
   keywords,
 }: {
-  keywords: Array<Keyword>;
+  keywords?: Array<Keyword>;
 }): ReactElement => {
   const [query, setQuery] = useState<string>('');
   const [open, setOpen] = useState(false);
