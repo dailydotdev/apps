@@ -120,6 +120,7 @@ export const KeywordSelection = ({
                 tag={{ name: keyword }}
                 isSelected={keywords?.some((k) => k.keyword === keyword)}
                 onClick={(data) => {
+                  // eslint-disable-next-line no-console
                   console.log('Clicked', data);
                 }}
               />
@@ -135,6 +136,7 @@ export const KeywordSelection = ({
             tag={{ name: keyword }}
             isSelected
             onClick={(data) => {
+              // eslint-disable-next-line no-console
               console.log('Clicked', data);
             }}
           />
