@@ -64,6 +64,7 @@ import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding'
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -84,6 +85,10 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
+  if (isLocalhost) {
+    return { redirect: { destination: '/', permanent: false } };
+  }
+
   const { id, version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
