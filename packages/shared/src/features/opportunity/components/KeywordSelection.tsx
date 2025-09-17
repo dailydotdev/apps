@@ -61,6 +61,7 @@ export const KeywordSelection = ({
             rightIcon={
               isFetching && <GenericLoaderSpinner size={IconSize.Small} />
             }
+            hint="Add commas (,) to add multiple tags. Press Enter to submit them."
             value={query}
             onChange={({ target }) => {
               if (target.value === '') {
