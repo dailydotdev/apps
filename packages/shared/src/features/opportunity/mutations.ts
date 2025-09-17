@@ -2,12 +2,15 @@ import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
+  CANDIDATE_KEYWORD_ADD_MUTATION,
+  CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_RESUME_MUTATION,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
+  Keyword,
   OpportunityScreeningAnswer,
   UserCandidatePreferences,
 } from './types';
@@ -83,6 +86,47 @@ export const clearResumeMutationOptions = (
       set({
         ...preferences,
         cv: undefined,
+      });
+      successCallback?.();
+    },
+  };
+};
+
+export const candidateAddKeywordMutationOptions = (
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: () => void,
+): MutationOptions<EmptyResponse, DefaultError, Keyword> => {
+  const preferences = get();
+  return {
+    mutationFn: async (vars) =>
+      gqlClient.request(CANDIDATE_KEYWORD_ADD_MUTATION, vars),
+    onSuccess: (_, { keyword }) => {
+      const existingKeywords = new Set(preferences.keywords);
+      const keywords = Array.from(existingKeywords.add({ keyword }));
+      set({
+        ...preferences,
+        keywords,
+      });
+      successCallback?.();
+    },
+  };
+};
+
+export const candidateRemoveKeywordMutationOptions = (
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: () => void,
+): MutationOptions<EmptyResponse, DefaultError, Keyword> => {
+  const preferences = get();
+  return {
+    mutationFn: async (vars) =>
+      gqlClient.request(CANDIDATE_KEYWORD_REMOVE_MUTATION, vars),
+    onSuccess: (_, { keyword }) => {
+      const keywords = preferences.keywords?.filter(
+        (k) => k.keyword !== keyword,
+      );
+      set({
+        ...preferences,
+        keywords,
       });
       successCallback?.();
     },

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { PopoverContentProps } from '@radix-ui/react-popover';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
+import type { DefaultError, UseMutateFunction } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { TextField } from '../../../components/fields/TextField';
 import { SearchIcon } from '../../../components/icons';
@@ -13,16 +14,22 @@ import { GenericLoaderSpinner } from '../../../components/utilities/loaders';
 import type { Keyword } from '../types';
 import { getKeywordAutocompleteOptions } from '../queries';
 
-export const KeywordSelection = ({
-  keywords: initialKeywords,
-}: {
+import type { EmptyResponse } from '../../../graphql/emptyResponse';
+
+export type KeywordSelectionProps = {
   keywords?: Array<Keyword>;
-}): ReactElement => {
+  addKeyword: UseMutateFunction<EmptyResponse, DefaultError, Keyword>;
+  removeKeyword: UseMutateFunction<EmptyResponse, DefaultError, Keyword>;
+};
+
+export const KeywordSelection = ({
+  keywords,
+  addKeyword,
+  removeKeyword,
+}: KeywordSelectionProps): ReactElement => {
   const [query, setQuery] = useState<string>('');
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const keywords = new Set(initialKeywords ?? []);
 
   const { data: autocompleteKeywords, isFetching } = useQuery(
     getKeywordAutocompleteOptions(query),
@@ -87,17 +94,23 @@ export const KeywordSelection = ({
           className="w-full rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         >
           <div className="flex flex-wrap gap-2">
-            {autocompleteKeywords?.map(({ keyword }) => (
-              <TagElement
-                key={keyword}
-                tag={{ name: keyword }}
-                isSelected={keywords.has({ keyword })}
-                onClick={(data) => {
-                  // eslint-disable-next-line no-console
-                  console.log('Clicked', data);
-                }}
-              />
-            ))}
+            {autocompleteKeywords?.map(({ keyword }) => {
+              const isSelected = keywords?.some((k) => k.keyword === keyword);
+              return (
+                <TagElement
+                  key={keyword}
+                  tag={{ name: keyword }}
+                  isSelected={isSelected}
+                  onClick={({ tag }) => {
+                    if (isSelected) {
+                      removeKeyword({ keyword: tag.name });
+                    } else {
+                      addKeyword({ keyword: tag.name });
+                    }
+                  }}
+                />
+              );
+            })}
           </div>
         </PopoverContent>
       </Popover>
@@ -108,9 +121,8 @@ export const KeywordSelection = ({
             key={keyword}
             tag={{ name: keyword }}
             isSelected
-            onClick={(data) => {
-              // eslint-disable-next-line no-console
-              console.log('Clicked', data);
+            onClick={({ tag }) => {
+              removeKeyword({ keyword: tag.name });
             }}
           />
         ))}

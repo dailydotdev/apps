@@ -203,3 +203,19 @@ export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
     }
   }
 `;
+
+export const CANDIDATE_KEYWORD_ADD_MUTATION = gql`
+  mutation CandidateAddKeyword($keyword: String!) {
+    candidateAddKeyword(keyword: $keyword) {
+      _
+    }
+  }
+`;
+
+export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
+  mutation CandidateRemoveKeyword($keyword: String!) {
+    candidateRemoveKeyword(keyword: $keyword) {
+      _
+    }
+  }
+`;
