@@ -85,6 +85,7 @@ const PollResults = ({
 };
 
 export const PollOptionButtons = ({
+const PollOptionButtons = ({
   options,
   onClick,
 }: {
