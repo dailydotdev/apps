@@ -5,7 +5,7 @@ import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import type { DefaultError, UseMutateFunction } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { TextField } from '../../../components/fields/TextField';
-import { SearchIcon } from '../../../components/icons';
+import { FeedbackIcon, SearchIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { TagElement } from '../../../components/feeds/FeedSettings/TagElement';
 import { PopoverContent } from '../../../components/popover/Popover';
@@ -62,6 +62,7 @@ export const KeywordSelection = ({
               isFetching && <GenericLoaderSpinner size={IconSize.Small} />
             }
             hint="Add commas (,) to add multiple tags. Press Enter to submit them."
+            hintIcon={<FeedbackIcon />}
             value={query}
             onChange={({ target }) => {
               if (target.value === '') {
