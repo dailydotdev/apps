@@ -315,6 +315,7 @@ export enum LogEvent {
   UploadCv = 'upload cv',
   // end CV Upload
   ImpressionComment = 'impression comment',
+  VotePoll = 'vote poll',
 }
 
 export enum TargetType {

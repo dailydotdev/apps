@@ -15,6 +15,7 @@ import {
   EditIcon,
   LinkIcon,
   PlusIcon,
+  PollIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
@@ -71,6 +72,13 @@ export function FooterPlusButton(): ReactElement {
               href={`${link.post.create}?share=true`}
             >
               Share a link
+            </ActionButton>
+            <ActionButton
+              tag="a"
+              icon={<PollIcon />}
+              href={`${link.post.create}?poll=true`}
+            >
+              Poll
             </ActionButton>
           </div>
         </Drawer>
