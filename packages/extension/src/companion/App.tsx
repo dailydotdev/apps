@@ -108,7 +108,6 @@ export default function App({
               getRedirectUri={() => browser.runtime.getURL('index.html')}
               updateUser={() => null}
               squads={squads}
-              updateSquads={() => null}
             >
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>

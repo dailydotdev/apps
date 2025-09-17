@@ -303,7 +303,7 @@ const JobPage = ({
         size={ButtonSize.Medium}
       />
       <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
-        <div className="h-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
+        <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
             <div className="flex items-center">
@@ -363,7 +363,7 @@ const JobPage = ({
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
-                    {opportunity.recruiters[0].bio}
+                    {opportunity.recruiters[0].title}
                   </Typography>
                 </div>
               </div>
@@ -473,7 +473,7 @@ const JobPage = ({
             </div>
           ))}
 
-          {match.status === OpportunityMatchStatus.Pending && (
+          {match?.status === OpportunityMatchStatus.Pending && (
             <ResponseButtons
               id={opportunity.id}
               className={{
@@ -775,19 +775,21 @@ const JobPage = ({
                       >
                         {user.name}
                       </Typography>
-                      <Typography
-                        truncate
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                      >
-                        {user.bio}
-                      </Typography>
+                      {user?.title && (
+                        <Typography
+                          truncate
+                          type={TypographyType.Footnote}
+                          color={TypographyColor.Tertiary}
+                        >
+                          {user.title}
+                        </Typography>
+                      )}
                     </div>
                   </div>
 
                   {/* Description */}
                   <ShowMoreContent
-                    content={user.readme}
+                    content={user?.bio}
                     className={{ text: '!text-text-secondary !typo-callout' }}
                   />
                 </FlexCol>

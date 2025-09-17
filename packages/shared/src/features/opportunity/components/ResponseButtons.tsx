@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   Button,
   ButtonSize,
@@ -11,7 +11,6 @@ import { MiniCloseIcon, VIcon } from '../../../components/icons';
 import { opportunityUrl } from '../../../lib/constants';
 import Link from '../../../components/utilities/Link';
 import { opportunityMatchOptions } from '../queries';
-import type { OpportunityMatch } from '../types';
 import { OpportunityMatchStatus } from '../types';
 
 export const ResponseButtons = ({
@@ -23,10 +22,8 @@ export const ResponseButtons = ({
   className: { container?: string; buttons?: string };
   size?: ButtonSize;
 }): ReactElement => {
-  const queryClient = useQueryClient();
-  const { status } = queryClient.getQueryData<OpportunityMatch>(
-    opportunityMatchOptions({ id }).queryKey,
-  );
+  const { data } = useQuery(opportunityMatchOptions({ id }));
+  const status = data?.status;
 
   return (
     <div className={className?.container}>
