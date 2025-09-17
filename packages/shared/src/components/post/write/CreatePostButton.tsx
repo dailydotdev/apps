@@ -117,7 +117,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
         <Tooltip
           side="right"
           content={getTooltipContent()}
-          alwaysOpen={shouldShowPollTooltip}
+          open={shouldShowPollTooltip ? true : undefined}
         >
           {component}
         </Tooltip>
