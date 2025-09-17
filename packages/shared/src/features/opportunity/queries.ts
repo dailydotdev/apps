@@ -20,7 +20,11 @@ export const getOpportunityByIdKey = (id: string): QueryKey => [
   id,
 ];
 
-export const opportunityByIdOptions = ({ id }: { id: string }) => {
+export const opportunityByIdOptions = ({
+  id,
+}: {
+  id: string;
+}): UseQueryOptions<Opportunity> => {
   return {
     queryKey: getOpportunityByIdKey(id),
     queryFn: async () => {
@@ -37,7 +41,11 @@ export const opportunityByIdOptions = ({ id }: { id: string }) => {
   };
 };
 
-export const opportunityMatchOptions = ({ id }: { id: string }) => {
+export const opportunityMatchOptions = ({
+  id,
+}: {
+  id: string;
+}): UseQueryOptions<OpportunityMatch> => {
   return {
     queryKey: [...getOpportunityByIdKey(id), 'match'],
     queryFn: async () => {
@@ -54,7 +62,9 @@ export const opportunityMatchOptions = ({ id }: { id: string }) => {
   };
 };
 
-export const getCandidatePreferencesOptions = (userId: string) => {
+export const getCandidatePreferencesOptions = (
+  userId: string,
+): UseQueryOptions<UserCandidatePreferences> => {
   return {
     queryKey: [RequestKey.UserCandidatePreferences, userId],
     queryFn: async () => {
