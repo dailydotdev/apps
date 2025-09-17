@@ -9,6 +9,7 @@ import type { RenderTab } from './common';
 export interface TabProps<T extends string> {
   children?: ReactNode;
   label: T;
+  hint?: ReactNode;
   className?: string;
   style?: CSSProperties;
   showHeader?: boolean;
@@ -155,9 +156,10 @@ export function TabContainer<T extends string = string>({
         )}
       >
         <TabList<T>
-          items={children.map((child) => ({
-            label: child.props.label,
-            url: child.props?.url,
+          items={children.map(({ props }) => ({
+            label: props.label,
+            url: props.url,
+            hint: props.hint,
           }))}
           renderTab={renderTab}
           onClick={onClick}

@@ -48,6 +48,7 @@ export enum ActionType {
   UploadedCV = 'uploaded_cv',
   DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
+  SeenPostPollTab = 'seen_post_poll_tab',
 }
 
 export const cvActions = [

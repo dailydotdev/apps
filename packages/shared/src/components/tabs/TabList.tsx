@@ -17,7 +17,7 @@ interface DimensionProps {
   indicatorOffset: number;
 }
 export interface TabListProps<T extends string = string> {
-  items: Pick<TabProps<T>, 'label' | 'url'>[];
+  items: Pick<TabProps<T>, 'label' | 'url' | 'hint'>[];
   active: T;
   onClick?: (
     label: T,
@@ -109,16 +109,17 @@ function TabList<T extends string = string>({
 
   return (
     <ul className="relative flex flex-row">
-      {items.map(({ label, url: href }) => {
+      {items.map(({ label, url: href, hint }) => {
         const isActive = label === active;
         const renderedTab = renderTab?.({ label, isActive }) ?? (
           <span
             className={classNames(
-              'inline rounded-10 px-3 py-1.5',
+              'flex flex-row items-center gap-1 rounded-10 px-3 py-1.5',
               isActive && 'bg-theme-active',
             )}
           >
             {label?.length > 25 ? `${label.slice(0, 25)}...` : label}
+            {hint}
           </span>
         );
 
