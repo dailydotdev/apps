@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
@@ -63,7 +63,6 @@ export default function MainComment({
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { logEvent } = useLogContext();
-  const isLoggedImpression = useRef(false);
   const showNotificationPermissionBanner = useMemo(
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
@@ -93,25 +92,6 @@ export default function MainComment({
     triggerOnce: true,
     initialInView,
   });
-
-  useEffect(() => {
-    if (logImpression && !isLoggedImpression.current && inView) {
-      isLoggedImpression.current = true;
-      logEvent({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.Comment,
-        target_id: comment.id,
-        extra: JSON.stringify({ origin: props.origin }),
-      });
-    }
-  }, [
-    isLoggedImpression,
-    props.origin,
-    logEvent,
-    logImpression,
-    inView,
-    comment.id,
-  ]);
 
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
