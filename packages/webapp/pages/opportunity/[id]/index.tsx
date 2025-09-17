@@ -473,7 +473,7 @@ const JobPage = ({
             </div>
           ))}
 
-          {match.status === OpportunityMatchStatus.Pending && (
+          {match?.status === OpportunityMatchStatus.Pending && (
             <ResponseButtons
               id={opportunity.id}
               className={{
