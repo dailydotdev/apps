@@ -20,13 +20,13 @@ import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opport
 
 import { useRouter } from 'next/router';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -107,9 +107,7 @@ const PreferencePage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-PreferencePage.getLayout = getPageLayout;
+PreferencePage.getLayout = getOpportunityProtectedLayout;
 PreferencePage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,

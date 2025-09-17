@@ -25,13 +25,13 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -205,9 +205,7 @@ const DonePage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-DonePage.getLayout = getPageLayout;
+DonePage.getLayout = getOpportunityProtectedLayout;
 DonePage.layoutProps = {
   ...opportunityPageLayoutProps,
   hideBackButton: true,
