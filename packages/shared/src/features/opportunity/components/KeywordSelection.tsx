@@ -87,6 +87,7 @@ export const KeywordSelection = ({
           side="bottom"
           align="start"
           avoidCollisions
+          sameWidthAsAnchor
           onOpenAutoFocus={(e) => e.preventDefault()} // keep focus in input
           onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
           onPointerDownOutside={handlePopoverClose}
