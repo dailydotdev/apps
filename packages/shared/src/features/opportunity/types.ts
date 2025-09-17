@@ -21,6 +21,13 @@ export enum RoleType {
   Managerial = 1.0,
 }
 
+export type RecruiterProfile = Pick<
+  PublicProfile,
+  'id' | 'name' | 'username' | 'image' | 'bio'
+> & {
+  title?: string;
+};
+
 type OpportunityContentBlock = {
   content?: string;
   html?: string;
@@ -74,7 +81,7 @@ export type Opportunity = {
     overview: OpportunityContentBlock;
   };
   meta: OpportunityMeta;
-  recruiters: PublicProfile[];
+  recruiters: RecruiterProfile[];
   location: OpportunityLocation[];
   keywords?: OpportunityKeyword[];
   questions?: OpportunityScreeningQuestion[];

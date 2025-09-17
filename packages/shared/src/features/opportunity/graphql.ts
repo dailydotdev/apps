@@ -59,9 +59,9 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
         id
         name
         username
-        bio
-        readme
         image
+        title
+        bio
       }
       meta {
         roleType
