@@ -31,7 +31,6 @@ import {
   saveOpportunityScreeningAnswersMutationOptions,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -39,6 +38,7 @@ import {
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import { InnerPreferencePage } from './preference';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -68,8 +68,9 @@ const AcceptPage = (): ReactElement => {
     ActionType.UserCandidatePreferencesSaved,
   );
 
-  const { data: opportunity, isPending } = useQuery({
+  const { data: opportunity } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
+    enabled: false,
   });
 
   const { mutate: acceptOpportunity } = useMutation({
@@ -134,7 +135,7 @@ const AcceptPage = (): ReactElement => {
     completeAction(ActionType.OpportunityInitialView);
   }, [completeAction, isActionsFetched]);
 
-  if (!opportunity || isPending) {
+  if (!opportunity) {
     return null;
   }
 
@@ -241,9 +242,7 @@ const AcceptPage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-AcceptPage.getLayout = getPageLayout;
+AcceptPage.getLayout = getOpportunityProtectedLayout;
 AcceptPage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,

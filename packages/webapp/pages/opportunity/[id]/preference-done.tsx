@@ -20,13 +20,13 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -123,9 +123,7 @@ const PreferenceDonePage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-PreferenceDonePage.getLayout = getPageLayout;
+PreferenceDonePage.getLayout = getOpportunityProtectedLayout;
 PreferenceDonePage.layoutProps = {
   ...opportunityPageLayoutProps,
   hideBackButton: true,

@@ -1,4 +1,8 @@
-import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
+import type {
+  QueryFunctionContext,
+  QueryKey,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 import { keepPreviousData } from '@tanstack/react-query';
 import { RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
@@ -20,11 +24,15 @@ export const getOpportunityByIdKey = (id: string): QueryKey => [
   id,
 ];
 
+type QueryOptionsType<T> = Omit<UseQueryOptions<T>, 'queryFn'> & {
+  queryFn: (ctx?: QueryFunctionContext) => T | Promise<T>;
+};
+
 export const opportunityByIdOptions = ({
   id,
 }: {
   id: string;
-}): UseQueryOptions<Opportunity> => {
+}): QueryOptionsType<Opportunity> => {
   return {
     queryKey: getOpportunityByIdKey(id),
     queryFn: async () => {
@@ -45,7 +53,7 @@ export const opportunityMatchOptions = ({
   id,
 }: {
   id: string;
-}): UseQueryOptions<OpportunityMatch> => {
+}): QueryOptionsType<OpportunityMatch> => {
   return {
     queryKey: [...getOpportunityByIdKey(id), 'match'],
     queryFn: async () => {
@@ -64,7 +72,7 @@ export const opportunityMatchOptions = ({
 
 export const getCandidatePreferencesOptions = (
   userId: string,
-): UseQueryOptions<UserCandidatePreferences> => {
+): QueryOptionsType<UserCandidatePreferences> => {
   return {
     queryKey: [RequestKey.UserCandidatePreferences, userId],
     queryFn: async () => {
