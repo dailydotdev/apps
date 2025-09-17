@@ -80,12 +80,18 @@ export const KeywordSelection = ({
 
               if (e.key === 'Enter') {
                 e.preventDefault();
+                const existing = keywords.map((k) => k.keyword);
+
                 const newKeywords = query
                   .split(',')
                   .map((k) => k.trim())
-                  .filter(Boolean);
+                  .filter(Boolean)
+                  .filter((k) => !existing.includes(k)); // exclude already-added keywords
 
                 if (newKeywords.length === 0) {
+                  if (query) {
+                    setQuery('');
+                  }
                   return;
                 }
 
