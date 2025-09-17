@@ -303,7 +303,7 @@ const JobPage = ({
         size={ButtonSize.Medium}
       />
       <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
-        <div className="h-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
+        <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
             <div className="flex items-center">
