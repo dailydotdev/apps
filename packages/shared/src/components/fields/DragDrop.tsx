@@ -66,6 +66,7 @@ export interface DragDropProps {
   dragDropDescription?: string;
   ctaLabelDesktop?: string;
   ctaLabelMobile?: string;
+  uploadIcon?: ReactNode;
   showRemove?: boolean;
 }
 
@@ -180,6 +181,7 @@ export function DragDrop({
   ctaLabelDesktop = 'Upload PDF',
   ctaLabelMobile = 'Upload PDF',
   showRemove,
+  uploadIcon,
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
@@ -387,6 +389,8 @@ export function DragDrop({
     );
   }
 
+  const defaultIcon = <DocsIcon secondary />;
+
   const defaultContent = (
     <span className="flex flex-row items-center gap-1">
       <Typography
@@ -394,7 +398,7 @@ export function DragDrop({
         type={TypographyType.Footnote}
         bold={isCopyBold}
       >
-        <DocsIcon secondary />
+        {uploadIcon ?? defaultIcon}
         {dragDropDescription}
       </Typography>
       {renderCta?.(onClickCta) ?? (
