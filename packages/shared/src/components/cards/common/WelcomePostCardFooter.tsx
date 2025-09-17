@@ -1,10 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import { CardSpace } from './Card';
 import type { Post } from '../../../graphql/posts';
 import { CardCover } from './CardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCardUiColors } from '../../../lib/featureManagement';
 
 interface WelcomePostCardFooterProps {
   post: Post;
@@ -19,6 +22,7 @@ export const WelcomePostCardFooter = ({
   onShare,
   contentHtml,
 }: WelcomePostCardFooterProps): ReactElement => {
+  const colorExp = useFeature(featureCardUiColors);
   const { overlay } = useCardCover({
     post,
     className: {
@@ -60,7 +64,14 @@ export const WelcomePostCardFooter = ({
 
   if (content) {
     return (
-      <p className="mt-1 line-clamp-6 break-words px-2 typo-callout">
+      <p
+        className={classNames(
+          'mt-1 line-clamp-6 break-words px-2 typo-callout',
+          {
+            'text-text-quaternary': colorExp && post.read,
+          },
+        )}
+      >
         {decodedText}
       </p>
     );

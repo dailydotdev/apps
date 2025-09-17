@@ -97,6 +97,7 @@ export enum LogEvent {
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
   FeedEmpty = 'feed empty',
+  FinishFeed = 'finish feed',
   // notifications - start
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
@@ -313,6 +314,7 @@ export enum LogEvent {
   // CV Upload
   UploadCv = 'upload cv',
   // end CV Upload
+  ImpressionComment = 'impression comment',
 }
 
 export enum TargetType {
