@@ -26,13 +26,13 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -174,9 +174,7 @@ const DeclinePage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-DeclinePage.getLayout = getPageLayout;
+DeclinePage.getLayout = getOpportunityProtectedLayout;
 DeclinePage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,

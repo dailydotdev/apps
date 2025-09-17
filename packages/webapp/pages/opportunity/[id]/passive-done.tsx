@@ -19,13 +19,13 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -83,9 +83,7 @@ const PassiveDonePage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-PassiveDonePage.getLayout = getPageLayout;
+PassiveDonePage.getLayout = getOpportunityProtectedLayout;
 PassiveDonePage.layoutProps = {
   ...opportunityPageLayoutProps,
   hideBackButton: true,

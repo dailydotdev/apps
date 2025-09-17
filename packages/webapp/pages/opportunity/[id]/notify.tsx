@@ -24,13 +24,13 @@ import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useRouter } from 'next/router';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -143,9 +143,7 @@ const NotifyPage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
-
-NotifyPage.getLayout = getPageLayout;
+NotifyPage.getLayout = getOpportunityProtectedLayout;
 NotifyPage.layoutProps = {
   ...opportunityPageLayoutProps,
   hideBackButton: true,
