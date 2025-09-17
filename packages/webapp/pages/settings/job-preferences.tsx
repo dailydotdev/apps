@@ -1,5 +1,5 @@
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
@@ -44,6 +44,11 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import {
+  fileValidation,
+  useUploadCv,
+} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { UploadButton } from '@dailydotdev/shared/src/components/buttons/UploadButton';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -92,10 +97,11 @@ const JobPreferencesPage = (): ReactElement => {
   const [option, setOption] = useState(null);
 
   const opts = getCandidatePreferencesOptions(user?.id);
+  const updateQuery = useUpdateQuery(opts);
 
   const { data: preferences, isPending } = useQuery(opts);
   const { mutate: updatePreferences } = useMutation({
-    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts), () => {
+    ...updateCandidatePreferencesMutationOptions(updateQuery, () => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
     }),
     onError: () => {
@@ -103,13 +109,38 @@ const JobPreferencesPage = (): ReactElement => {
     },
   });
   const { mutate: clearResume, isPending: isClearResumePending } = useMutation({
-    ...clearResumeMutationOptions(useUpdateQuery(opts), () => {
+    ...clearResumeMutationOptions(updateQuery, () => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
     }),
     onError: () => {
       displayToast('Failed to remove uploaded CV. Please try again.');
     },
   });
+
+  const { onUpload: uploadCv, isPending: isUploadCvPending } = useUploadCv({
+    shouldOpenModal: false,
+    onUploadSuccess: () => displayToast('CV uploaded successfully!'),
+  });
+
+  const handleCVUpload = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) {
+        return;
+      }
+      const [, set] = updateQuery;
+      await uploadCv(files[0]);
+
+      set({
+        ...preferences,
+        cv: {
+          blob: user.id,
+          contentType: files[0].type,
+          lastModified: new Date(),
+        },
+      });
+    },
+    [preferences, updateQuery, uploadCv, user.id],
+  );
 
   const modeDisabled = preferences?.status === CandidateStatus.DISABLED;
 
@@ -256,13 +287,16 @@ const JobPreferencesPage = (): ReactElement => {
                 </Typography>
               )}
 
-              <Button
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
+              <UploadButton
                 className="mb-4 mr-auto"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Subtle}
+                validation={fileValidation}
+                loading={isUploadCvPending}
+                onFilesDrop={handleCVUpload}
               >
                 Upload PDF
-              </Button>
+              </UploadButton>
               <FeelingLazy />
             </FlexCol>
 
