@@ -164,6 +164,7 @@ export function FetchBoostedViewModal({
 }: Omit<BoostedViewModalProps, 'campaign'> & {
   campaignId: string;
 }): ReactElement {
+  const { user } = useAuthContext();
   const { data, isLoading } = useCampaignById(campaignId);
 
   if (isLoading) {
@@ -185,7 +186,7 @@ export function FetchBoostedViewModal({
     );
   }
 
-  if (!data) {
+  if (!data || !user || data.user.id !== user.id) {
     return (
       <Modal
         {...props}
