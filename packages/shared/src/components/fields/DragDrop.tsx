@@ -66,6 +66,7 @@ export interface DragDropProps {
   dragDropDescription?: string;
   ctaLabelDesktop?: string;
   ctaLabelMobile?: string;
+  showRemove?: boolean;
 }
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -94,9 +95,17 @@ interface ItemProps {
   state: MutationStatus;
   uploadAt?: Date;
   className?: string;
+  showRemove?: boolean;
+  onRemove?: () => void;
 }
 
-const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
+const LargeItem = ({
+  name,
+  state,
+  uploadAt,
+  showRemove,
+  onRemove,
+}: ItemProps) => (
   <div className="flex w-full items-center gap-1">
     <DocsIcon secondary size={IconSize.Size48} />
     <div className="flex min-w-0 flex-1 flex-col">
@@ -115,10 +124,24 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
       )}
     </div>
     {getIcon(state)}
+    {showRemove && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={onRemove}
+        icon={<ClearIcon />}
+      />
+    )}
   </div>
 );
 
-const CompactItem = ({ name, state, className }: ItemProps) => (
+const CompactItem = ({
+  name,
+  state,
+  className,
+  showRemove,
+  onRemove,
+}: ItemProps) => (
   <div className={classNames('flex w-full items-center gap-1', className)}>
     <DocsIcon secondary />
     <div className="min-w-0 flex-1 text-left">
@@ -127,6 +150,14 @@ const CompactItem = ({ name, state, className }: ItemProps) => (
       </Typography>
     </div>
     {getIcon(state)}
+    {showRemove && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={onRemove}
+        icon={<ClearIcon />}
+      />
+    )}
   </div>
 );
 
@@ -407,8 +438,14 @@ export function DragDrop({
       >
         {shouldShowContent
           ? defaultContent
-          : filenames?.map((name) => (
-              <ListItem key={name} name={name} state={state} />
+          : filenames.map((name) => (
+              <ListItem
+                key={name}
+                name={name}
+                state={state}
+                showRemove={showRemove}
+                onRemove={() => removeFile(name)}
+              />
             ))}
       </div>
       {input}
