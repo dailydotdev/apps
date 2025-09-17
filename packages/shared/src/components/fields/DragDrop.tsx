@@ -406,7 +406,7 @@ export function DragDrop({
           className="text-text-primary"
           variant={ButtonVariant.Subtle}
           size={ButtonSize.Small}
-          onClick={() => inputRef.current.click()}
+          onClick={onClickCta}
           type="button"
         >
           {ctaLabelDesktop}
