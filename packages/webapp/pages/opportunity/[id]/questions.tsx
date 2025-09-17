@@ -23,12 +23,9 @@ import {
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-import type {
-  Opportunity,
-  OpportunityScreeningAnswer,
-} from '@dailydotdev/shared/src/features/opportunity/types';
+import type { OpportunityScreeningAnswer } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
   acceptOpportunityMatchMutationOptions,
   saveOpportunityScreeningAnswersMutationOptions,
@@ -58,7 +55,6 @@ const AcceptPage = (): ReactElement => {
     back,
   } = useRouter();
   const opportunityId = id as string;
-  const queryClient = useQueryClient();
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [activeAnswer, setActiveAnswer] = useState('');
   const [showPreferenceForm, setShowPreferenceForm] = useState(false);
@@ -72,9 +68,10 @@ const AcceptPage = (): ReactElement => {
     ActionType.UserCandidatePreferencesSaved,
   );
 
-  const opportunity = queryClient.getQueryData<Opportunity>(
-    opportunityByIdOptions({ id: opportunityId }).queryKey,
-  );
+  const { data: opportunity } = useQuery({
+    ...opportunityByIdOptions({ id: opportunityId }),
+    enabled: false,
+  });
 
   const { mutate: acceptOpportunity } = useMutation({
     ...acceptOpportunityMatchMutationOptions(opportunityId),
