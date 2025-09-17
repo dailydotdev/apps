@@ -49,11 +49,14 @@ function BasePostModal({
 
   const onScroll = useCallback(
     (event: Event) => {
+      if (!post?.id) {
+        return;
+      }
       const targetElement = event.target as HTMLElement;
       logEvent({
         event_name: LogEvent.PageScroll,
         target_type: TargetType.Post,
-        target_id: post?.id,
+        target_id: post.id,
         extra: JSON.stringify({
           scrollTop: targetElement.scrollTop,
         }),
