@@ -179,6 +179,7 @@ export function DragDrop({
   dragDropDescription = 'Drag & Drop your CV or',
   ctaLabelDesktop = 'Upload PDF',
   ctaLabelMobile = 'Upload PDF',
+  showRemove,
 }: DragDropProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const inputRef = useRef<HTMLInputElement>();
