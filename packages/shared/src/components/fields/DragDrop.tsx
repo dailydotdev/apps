@@ -392,9 +392,9 @@ export function DragDrop({
   const defaultIcon = <DocsIcon secondary />;
 
   const defaultContent = (
-    <span className="flex flex-row items-center gap-1">
+    <span className="flex flex-row items-center gap-2">
       <Typography
-        className="flex flex-row items-center gap-1"
+        className="flex flex-row items-center gap-2"
         type={TypographyType.Footnote}
         bold={isCopyBold}
       >
