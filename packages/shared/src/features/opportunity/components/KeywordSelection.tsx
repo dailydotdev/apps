@@ -80,12 +80,16 @@ export const KeywordSelection = ({
 
               if (e.key === 'Enter') {
                 e.preventDefault();
-                addKeyword(
-                  query
-                    .split(',')
-                    .map((k) => k.trim())
-                    .filter(Boolean),
-                );
+                const newKeywords = query
+                  .split(',')
+                  .map((k) => k.trim())
+                  .filter(Boolean);
+
+                if (newKeywords.length === 0) {
+                  return;
+                }
+
+                addKeyword(newKeywords);
                 setQuery('');
                 return;
               }
