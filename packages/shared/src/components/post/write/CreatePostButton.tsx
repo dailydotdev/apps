@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useSquad, useViewSize, ViewSize } from '../../../hooks';
+import { useActions, useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import type {
@@ -15,6 +15,8 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { ActionType } from '../../../graphql/actions';
+import { Typography, TypographyType } from '../../typography/Typography';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
   extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
@@ -43,6 +45,18 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const hasAccess =
     !handle ||
     squads?.some((item) => verifyPermission(item, SourcePermissions.Post));
+  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
+  const completedPollType = checkHasCompleted(ActionType.SeenPostPollTooltip);
+  const [shouldShowPollTooltip, setShouldShowPollTooltip] = useState(false);
+
+  useEffect(() => {
+    if (!isActionsFetched || completedPollType) {
+      return;
+    }
+
+    completeAction(ActionType.SeenPostPollTooltip);
+    setShouldShowPollTooltip(true);
+  }, [completedPollType, isActionsFetched, completeAction]);
 
   if (!footer && !user) {
     return null;
@@ -72,11 +86,38 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);
 
+  const getTooltipContent = () => {
+    if (!shouldShowPollTooltip) {
+      return 'New Post';
+    }
+
+    return (
+      <div className="flex flex-col gap-2 py-1">
+        <Typography type={TypographyType.Subhead} center>
+          You can now create polls!
+        </Typography>
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          className="bg-surface-invert"
+          tag="a"
+          href={`${link.post.create}?poll=true`}
+        >
+          Try it now!
+        </Button>
+      </div>
+    );
+  };
+
   return (
     <ConditionalWrapper
-      condition={shouldShowAsCompact}
+      condition={shouldShowAsCompact || shouldShowPollTooltip}
       wrapper={(component: ReactElement) => (
-        <Tooltip side="bottom" content="New Post">
+        <Tooltip
+          side="right"
+          content={getTooltipContent()}
+          alwaysOpen={shouldShowPollTooltip}
+        >
           {component}
         </Tooltip>
       )}

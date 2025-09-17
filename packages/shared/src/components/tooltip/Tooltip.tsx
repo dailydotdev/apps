@@ -16,6 +16,7 @@ export type TooltipProps = TooltipProviderProps &
     appendTo?: Element | DocumentFragment;
     content: ReactNode;
     visible?: boolean;
+    alwaysOpen?: boolean;
     enableMobileClick?: boolean;
   };
 export function Tooltip({
@@ -23,6 +24,7 @@ export function Tooltip({
   content,
   appendTo,
   visible = true,
+  alwaysOpen,
   delayDuration = 200,
   className,
   enableMobileClick,
@@ -38,7 +40,7 @@ export function Tooltip({
 
   return (
     <RadixPrimitive.Provider delayDuration={delayDuration}>
-      <RadixPrimitive.Root open={open} onOpenChange={setOpen}>
+      <RadixPrimitive.Root open={alwaysOpen || open} onOpenChange={setOpen}>
         <RadixPrimitive.Trigger
           aria-label={showAriaLabel && content.toString()}
           asChild
