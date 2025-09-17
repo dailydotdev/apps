@@ -24,6 +24,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -175,27 +176,29 @@ const DonePage = (): ReactElement => {
           </div>
         </FlexCol>
         <FlexCol className="items-center gap-4">
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-            className="w-full tablet:w-80"
-            tag="a"
-            rel={anchorDefaultRel}
-            href={webappUrl}
-          >
-            Back to daily.dev
-          </Button>
-          <Button
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Subtle}
-            icon={<JobIcon size={IconSize.Small} />}
-            className="w-full tablet:w-80"
-            tag="a"
-            rel={anchorDefaultRel}
-            href={`${settingsUrl}/job-preferences`}
-          >
-            Optimize future matches
-          </Button>
+          <Link href={webappUrl} passHref>
+            <Button
+              tag="a"
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              className="w-full tablet:w-80"
+              rel={anchorDefaultRel}
+            >
+              Back to daily.dev
+            </Button>
+          </Link>
+          <Link href={`${settingsUrl}/job-preferences`} passHref>
+            <Button
+              tag="a"
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Subtle}
+              icon={<JobIcon size={IconSize.Small} />}
+              className="w-full tablet:w-80"
+              rel={anchorDefaultRel}
+            >
+              Optimize future matches
+            </Button>
+          </Link>
         </FlexCol>
       </FlexCol>
     </div>
