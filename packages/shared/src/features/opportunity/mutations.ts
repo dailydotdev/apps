@@ -10,7 +10,6 @@ import {
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
-  Keyword,
   OpportunityScreeningAnswer,
   UserCandidatePreferences,
 } from './types';
@@ -95,14 +94,18 @@ export const clearResumeMutationOptions = (
 export const candidateAddKeywordMutationOptions = (
   [get, set]: UseUpdateQuery<UserCandidatePreferences>,
   successCallback?: () => void,
-): MutationOptions<EmptyResponse, DefaultError, Keyword> => {
+): MutationOptions<EmptyResponse, DefaultError, Array<string>> => {
   const preferences = get();
   return {
     mutationFn: async (vars) =>
-      gqlClient.request(CANDIDATE_KEYWORD_ADD_MUTATION, vars),
-    onSuccess: (_, { keyword }) => {
-      const existingKeywords = new Set(preferences.keywords);
-      const keywords = Array.from(existingKeywords.add({ keyword }));
+      gqlClient.request(CANDIDATE_KEYWORD_ADD_MUTATION, { keywords: vars }),
+    onSuccess: (_, vars) => {
+      const uniqueKeywords = new Set(
+        [...preferences.keywords.map((k) => k.keyword), ...vars].filter(
+          Boolean,
+        ),
+      );
+      const keywords = Array.from(uniqueKeywords).map((k) => ({ keyword: k }));
       set({
         ...preferences,
         keywords,
@@ -115,14 +118,16 @@ export const candidateAddKeywordMutationOptions = (
 export const candidateRemoveKeywordMutationOptions = (
   [get, set]: UseUpdateQuery<UserCandidatePreferences>,
   successCallback?: () => void,
-): MutationOptions<EmptyResponse, DefaultError, Keyword> => {
+): MutationOptions<EmptyResponse, DefaultError, Array<string>> => {
   const preferences = get();
   return {
     mutationFn: async (vars) =>
-      gqlClient.request(CANDIDATE_KEYWORD_REMOVE_MUTATION, vars),
-    onSuccess: (_, { keyword }) => {
+      gqlClient.request(CANDIDATE_KEYWORD_REMOVE_MUTATION, {
+        keywords: vars,
+      }),
+    onSuccess: (_, vars) => {
       const keywords = preferences.keywords?.filter(
-        (k) => k.keyword !== keyword,
+        (k) => !vars.includes(k.keyword),
       );
       set({
         ...preferences,

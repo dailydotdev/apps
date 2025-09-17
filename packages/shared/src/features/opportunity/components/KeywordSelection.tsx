@@ -18,8 +18,8 @@ import type { EmptyResponse } from '../../../graphql/emptyResponse';
 
 export type KeywordSelectionProps = {
   keywords?: Array<Keyword>;
-  addKeyword: UseMutateFunction<EmptyResponse, DefaultError, Keyword>;
-  removeKeyword: UseMutateFunction<EmptyResponse, DefaultError, Keyword>;
+  addKeyword: UseMutateFunction<EmptyResponse, DefaultError, Array<string>>;
+  removeKeyword: UseMutateFunction<EmptyResponse, DefaultError, Array<string>>;
 };
 
 export const KeywordSelection = ({
@@ -78,6 +78,18 @@ export const KeywordSelection = ({
                 return;
               }
 
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addKeyword(
+                  query
+                    .split(',')
+                    .map((k) => k.trim())
+                    .filter(Boolean),
+                );
+                setQuery('');
+                return;
+              }
+
               if (!open) {
                 setOpen(true);
               }
@@ -106,9 +118,9 @@ export const KeywordSelection = ({
                   isSelected={isSelected}
                   onClick={({ tag }) => {
                     if (isSelected) {
-                      removeKeyword({ keyword: tag.name });
+                      removeKeyword([tag.name]);
                     } else {
-                      addKeyword({ keyword: tag.name });
+                      addKeyword([tag.name]);
                     }
                   }}
                 />
@@ -125,7 +137,7 @@ export const KeywordSelection = ({
             tag={{ name: keyword }}
             isSelected
             onClick={({ tag }) => {
-              removeKeyword({ keyword: tag.name });
+              removeKeyword([tag.name]);
             }}
           />
         ))}

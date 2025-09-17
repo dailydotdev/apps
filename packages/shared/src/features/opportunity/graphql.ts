@@ -205,16 +205,16 @@ export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
 `;
 
 export const CANDIDATE_KEYWORD_ADD_MUTATION = gql`
-  mutation CandidateAddKeyword($keyword: String!) {
-    candidateAddKeyword(keyword: $keyword) {
+  mutation CandidateAddKeywords($keywords: [String!]!) {
+    candidateAddKeywords(keywords: $keywords) {
       _
     }
   }
 `;
 
 export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
-  mutation CandidateRemoveKeyword($keyword: String!) {
-    candidateRemoveKeyword(keyword: $keyword) {
+  mutation CandidateRemoveKeywords($keywords: [String!]!) {
+    candidateRemoveKeywords(keywords: $keywords) {
       _
     }
   }
