@@ -4,8 +4,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useQueryClient } from '@tanstack/react-query';
-import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
+import { useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { getLayout as getNoSidebarLayout } from './NoSidebarLayout';
 
@@ -17,10 +16,10 @@ export const OpportunityProtectedLayout = ({
     push,
   } = useRouter();
   const opportunityId = id as string;
-  const queryClient = useQueryClient();
-  const opportunity = queryClient.getQueryData<Opportunity>(
-    opportunityByIdOptions({ id: opportunityId }).queryKey,
-  );
+  const { data: opportunity } = useQuery({
+    ...opportunityByIdOptions({ id: opportunityId }),
+    enabled: false,
+  });
 
   useEffect(() => {
     if (!opportunity) {
