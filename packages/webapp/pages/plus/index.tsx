@@ -1,8 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 
 import dynamic from 'next/dynamic';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useEventListener,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
@@ -10,7 +14,8 @@ import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUse
 import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
@@ -51,22 +56,17 @@ const PlusPage = ({
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  useEffect(() => {
-    const onScroll = () => {
-      logEvent({
-        event_name: LogEvent.PageScroll,
-        extra: JSON.stringify({
-          scrollTop: window.scrollY,
-        }),
-      });
-    };
-
-    globalThis?.window?.addEventListener('scrollend', onScroll);
-
-    return () => {
-      globalThis?.window?.removeEventListener('scrollend', onScroll);
-    };
+  const onScroll = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.PageScroll,
+      target_type: TargetId.PlusPage,
+      extra: JSON.stringify({
+        scrollTop: window.scrollY,
+      }),
+    });
   }, [logEvent]);
+  const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
+  useEventListener(globalThis?.window, 'scroll', debouncedOnScroll);
 
   if (!isReady) {
     return null;
