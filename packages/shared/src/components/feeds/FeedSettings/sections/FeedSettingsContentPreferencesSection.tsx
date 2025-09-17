@@ -4,10 +4,9 @@ import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import { useAdvancedSettings } from '../../../../hooks/feed/useAdvancedSettings';
 import {
-  getArticleSettings,
+  getAdvancedContentTypes,
   getContentCurationList,
   getContentSourceList,
-  getVideoSetting,
 } from '../../../filters/helpers';
 import {
   Typography,
@@ -17,20 +16,27 @@ import {
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
 import { FeedType } from '../../../../graphql/feed';
 
+export const TOGGLEABLE_TYPES = ['Videos', 'Polls'];
+const CUSTOM_FEEDS_ONLY = ['Article'];
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 export const FeedSettingsContentPreferencesSection = (): ReactElement => {
   const { feed, editFeedSettings } = useContext(FeedSettingsEditContext);
   const { advancedSettings } = useFeedSettings({ feedId: feed?.id });
-  const videoSetting = getVideoSetting(advancedSettings);
-  const articleSetting = getArticleSettings(advancedSettings);
   const {
     selectedSettings,
     onToggleSettings,
     checkSourceBlocked,
     onToggleSource,
-    onUpdateSettings,
   } = useAdvancedSettings({ feedId: feed?.id });
+  const toggleableTypes = useMemo(
+    () =>
+      getAdvancedContentTypes(
+        TOGGLEABLE_TYPES.concat(CUSTOM_FEEDS_ONLY),
+        advancedSettings,
+      ),
+    [advancedSettings],
+  );
 
   const contentSourceList = useMemo(
     () => getContentSourceList(advancedSettings),
@@ -57,47 +63,34 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
           </Typography>
         </div>
         <div className="flex flex-col">
-          {videoSetting && (
-            <FilterCheckbox
-              name={videoSetting.title}
-              checked={
-                selectedSettings[videoSetting.id] ??
-                videoSetting.defaultEnabledState
-              }
-              onToggleCallback={() =>
-                editFeedSettings(() =>
-                  onToggleSettings(
-                    videoSetting.id,
-                    videoSetting.defaultEnabledState,
-                  ),
-                )
-              }
-            >
-              {videoSetting.title}
-            </FilterCheckbox>
-          )}
-          {articleSetting.length && feed?.type === FeedType.Custom ? (
-            <FilterCheckbox
-              name="Articles"
-              checked={
-                articleSetting.filter(({ id }) => selectedSettings[id] ?? true)
-                  .length > 0
-              }
-              onToggleCallback={(enabled) => {
-                editFeedSettings(() =>
-                  onUpdateSettings(
-                    articleSetting.map(({ id }) => ({ id, enabled })),
-                  ),
-                );
-              }}
-            >
-              Articles
-            </FilterCheckbox>
-          ) : (
-            <FilterCheckbox name="Articles" disabled checked>
-              Articles
-            </FilterCheckbox>
-          )}
+          {toggleableTypes.map(({ id, title, defaultEnabledState }) => {
+            const isDisabled =
+              CUSTOM_FEEDS_ONLY.includes(title) &&
+              feed?.type !== FeedType.Custom;
+
+            if (isDisabled) {
+              return (
+                <FilterCheckbox key={id} name={title} disabled checked>
+                  Articles
+                </FilterCheckbox>
+              );
+            }
+
+            return (
+              <FilterCheckbox
+                key={`advanced_types-${id}`}
+                name={title}
+                checked={selectedSettings[id] ?? defaultEnabledState}
+                onToggleCallback={() =>
+                  editFeedSettings(() =>
+                    onToggleSettings(id, defaultEnabledState),
+                  )
+                }
+              >
+                {title}
+              </FilterCheckbox>
+            );
+          })}
         </div>
       </div>
       <div className="flex flex-col gap-4">
