@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Typography,
   TypographyTag,
@@ -16,10 +16,6 @@ export function SquadModerationPoll({
   const { title } = useTruncatedSummary(
     data?.title || data.sharedPost?.title || data.post?.title,
   );
-  const orderedOptions = useMemo(
-    () => post.pollOptions.sort((a, b) => a.order - b.order),
-    [post.pollOptions],
-  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -31,7 +27,7 @@ export function SquadModerationPoll({
       >
         {title}
       </Typography>
-      <PollOptionButtons options={orderedOptions} />
+      <PollOptionButtons options={post.pollOptions} />
     </div>
   );
 }
