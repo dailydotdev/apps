@@ -2,30 +2,16 @@ import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { PopoverContentProps } from '@radix-ui/react-popover';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { gql } from 'graphql-request';
+import { useQuery } from '@tanstack/react-query';
 import { TextField } from '../../../components/fields/TextField';
 import { SearchIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { TagElement } from '../../../components/feeds/FeedSettings/TagElement';
 import { PopoverContent } from '../../../components/popover/Popover';
-import { gqlClient } from '../../../graphql/common';
-import { StaleTime } from '../../../lib/query';
 import useDebounceFn from '../../../hooks/useDebounceFn';
 import { GenericLoaderSpinner } from '../../../components/utilities/loaders';
-
-type Keyword = {
-  keyword: string;
-};
-
-export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
-  query AutocompleteKeywords($query: String!, $limit: Int) {
-    autocompleteKeywords(query: $query, limit: $limit) {
-      keyword
-      title
-    }
-  }
-`;
+import type { Keyword } from '../types';
+import { getKeywordAutocompleteOptions } from '../queries';
 
 export const KeywordSelection = ({
   keywords: initialKeywords,
@@ -38,24 +24,9 @@ export const KeywordSelection = ({
 
   const keywords = new Set(initialKeywords ?? []);
 
-  const { data: autocompleteKeywords, isFetching } = useQuery({
-    queryKey: ['opportunity-keywords-autocomplete', query],
-    queryFn: async () => {
-      const res = await gqlClient.request<{
-        autocompleteKeywords: Array<{
-          keyword: string;
-          title?: string;
-        }>;
-      }>(AUTOCOMPLETE_KEYWORDS_QUERY, {
-        query,
-        limit: 10,
-      });
-      return res.autocompleteKeywords as Array<Keyword>;
-    },
-    staleTime: StaleTime.Default,
-    enabled: query.length === 0 || query.length >= 2,
-    placeholderData: keepPreviousData,
-  });
+  const { data: autocompleteKeywords, isFetching } = useQuery(
+    getKeywordAutocompleteOptions(query),
+  );
 
   const [debouncedQuery] = useDebounceFn<string>((data) => setQuery(data), 300);
 

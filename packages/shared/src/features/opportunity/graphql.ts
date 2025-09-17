@@ -194,3 +194,12 @@ export const CLEAR_RESUME_MUTATION = gql`
     }
   }
 `;
+
+export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
+  query AutocompleteKeywords($query: String!, $limit: Int) {
+    autocompleteKeywords(query: $query, limit: $limit) {
+      keyword
+      title
+    }
+  }
+`;
