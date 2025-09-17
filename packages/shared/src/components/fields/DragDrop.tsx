@@ -1,11 +1,6 @@
 import classNames from 'classnames';
-import type {
-  DragEvent,
-  MutableRefObject,
-  ReactElement,
-  ReactNode,
-} from 'react';
-import React, { useImperativeHandle, useRef, useState } from 'react';
+import type { ReactElement, ReactNode, MutableRefObject } from 'react';
+import React, { useState } from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
@@ -13,33 +8,19 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { ChecklistAIcon, DocsIcon } from '../icons';
+import { ChecklistAIcon, ClearIcon, DocsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
 import { useViewSize, ViewSize } from '../../hooks';
 import { UploadIcon } from '../icons/Upload';
-
-export interface DragDropValidation {
-  /** Maximum file size in bytes */
-  maxSize?: number;
-  /** Maximum file size in MB (convenience prop) */
-  maxSizeMB?: number;
-  /** Allowed file types (MIME types) */
-  acceptedTypes?: string[];
-  /** Allowed file extensions */
-  acceptedExtensions?: string[];
-  /** Maximum number of files allowed */
-  maxFiles?: number;
-  /** Whether to allow multiple files */
-  multiple?: boolean;
-}
-
-export interface DragDropError {
-  type: 'size' | 'format' | 'count' | 'unknown';
-  message: string;
-  file?: File;
-}
+import type {
+  DragDropError,
+  DragDropValidation,
+} from '../../features/fileUpload/hooks/useFileValidation';
+import { useFileValidation } from '../../features/fileUpload/hooks/useFileValidation';
+import { useFileInput } from '../../features/fileUpload/hooks/useFileInput';
+import { useDragAndDrop } from '../../features/fileUpload/hooks/useDragAndDrop';
 
 export interface DragDropProps {
   /** Callback when files are dropped/selected */
@@ -66,16 +47,9 @@ export interface DragDropProps {
   dragDropDescription?: string;
   ctaLabelDesktop?: string;
   ctaLabelMobile?: string;
+  uploadIcon?: ReactNode;
+  showRemove?: boolean;
 }
-
-const BYTES_PER_MB = 1024 * 1024;
-
-const defaultErrorMessages = {
-  size: 'File size exceeds the maximum allowed size',
-  format: 'File type is not supported',
-  count: 'Too many files selected',
-  unknown: 'An error occurred while processing the file',
-};
 
 const getIcon = (state: MutationStatus) => {
   if (state === 'pending') {
@@ -94,9 +68,17 @@ interface ItemProps {
   state: MutationStatus;
   uploadAt?: Date;
   className?: string;
+  showRemove?: boolean;
+  onRemove?: () => void;
 }
 
-const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
+const LargeItem = ({
+  name,
+  state,
+  uploadAt,
+  showRemove,
+  onRemove,
+}: ItemProps) => (
   <div className="flex w-full items-center gap-1">
     <DocsIcon secondary size={IconSize.Size48} />
     <div className="flex min-w-0 flex-1 flex-col">
@@ -115,10 +97,24 @@ const LargeItem = ({ name, state, uploadAt }: ItemProps) => (
       )}
     </div>
     {getIcon(state)}
+    {showRemove && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={onRemove}
+        icon={<ClearIcon />}
+      />
+    )}
   </div>
 );
 
-const CompactItem = ({ name, state, className }: ItemProps) => (
+const CompactItem = ({
+  name,
+  state,
+  className,
+  showRemove,
+  onRemove,
+}: ItemProps) => (
   <div className={classNames('flex w-full items-center gap-1', className)}>
     <DocsIcon secondary />
     <div className="min-w-0 flex-1 text-left">
@@ -127,6 +123,14 @@ const CompactItem = ({ name, state, className }: ItemProps) => (
       </Typography>
     </div>
     {getIcon(state)}
+    {showRemove && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={onRemove}
+        icon={<ClearIcon />}
+      />
+    )}
   </div>
 );
 
@@ -140,7 +144,7 @@ export function DragDrop({
   disabled = false,
   className,
   state,
-  inputRef: inputRefProps,
+  inputRef,
   isCompactList,
   ctaSize,
   renderCta,
@@ -148,123 +152,15 @@ export function DragDrop({
   dragDropDescription = 'Drag & Drop your CV or',
   ctaLabelDesktop = 'Upload PDF',
   ctaLabelMobile = 'Upload PDF',
+  showRemove,
+  uploadIcon,
 }: DragDropProps): ReactElement {
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const inputRef = useRef<HTMLInputElement>();
-  useImperativeHandle(inputRefProps, () => inputRef.current);
   const [filenames, setFilenames] = useState<string[]>([]);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [isDragValid, setIsDragValid] = useState(true);
-  const toast = useToastNotification();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { displayToast } = useToastNotification();
   const isError = state === 'error';
 
-  const {
-    maxSize,
-    maxSizeMB = 10,
-    acceptedTypes = [],
-    acceptedExtensions = [],
-    maxFiles = 1,
-    multiple = false,
-  } = validation;
-
-  const finalMaxSize = maxSize || maxSizeMB * BYTES_PER_MB;
-  const finalErrorMessages = { ...defaultErrorMessages, ...errorMessages };
-
-  const validateFile = (file: File): DragDropError | null => {
-    // Check file size
-    if (file.size > finalMaxSize) {
-      return {
-        type: 'size',
-        message: finalErrorMessages.size,
-        file,
-      };
-    }
-
-    // Check file type
-    if (acceptedTypes.length > 0 && !acceptedTypes.includes(file.type)) {
-      return {
-        type: 'format',
-        message: finalErrorMessages.format,
-        file,
-      };
-    }
-
-    // Check file extension
-    if (acceptedExtensions.length > 0) {
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-      if (!fileExtension || !acceptedExtensions.includes(fileExtension)) {
-        return {
-          type: 'format',
-          message: finalErrorMessages.format,
-          file,
-        };
-      }
-    }
-
-    return null;
-  };
-
-  const validateFiles = (
-    files: File[],
-  ): { validFiles: File[]; errors: DragDropError[] } => {
-    const validFiles: File[] = [];
-    const errors: DragDropError[] = [];
-
-    // Check file count
-    if (!multiple && files.length > 1) {
-      errors.push({
-        type: 'count',
-        message: finalErrorMessages.count,
-      });
-      return { validFiles, errors };
-    }
-
-    if (maxFiles > 0 && files.length > maxFiles) {
-      errors.push({
-        type: 'count',
-        message: finalErrorMessages.count,
-      });
-      return { validFiles, errors };
-    }
-
-    // Validate each file
-    files.forEach((file) => {
-      const error = validateFile(file);
-      if (error) {
-        errors.push(error);
-      } else {
-        validFiles.push(file);
-      }
-    });
-
-    return { validFiles, errors };
-  };
-
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (disabled) {
-      return;
-    }
-
-    setIsDragOver(true);
-
-    // Check if drag contains files
-    const hasFiles = event.dataTransfer.types.includes('Files');
-    setIsDragValid(hasFiles);
-  };
-
-  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    // Only set drag over to false if we're leaving the drop zone entirely
-    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
-      setIsDragOver(false);
-      setIsDragValid(true);
-    }
-  };
+  const { validateFiles } = useFileValidation(validation, errorMessages);
 
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) {
@@ -273,65 +169,50 @@ export function DragDrop({
 
     const fileArray = Array.from(files);
     const { validFiles, errors } = validateFiles(fileArray);
-    const [error] = errors ?? [];
 
-    if (error) {
-      const fileName = error.file ? ` (${error.file.name})` : '';
-      toast.displayToast(`${error.message}${fileName}`);
+    if (errors.length > 0) {
+      const first = errors[0];
+      const fileName = first.file ? ` (${first.file.name})` : '';
+      displayToast(`${first.message}${fileName}`);
       return;
     }
 
-    // Call callback with valid files and errors
-    setFilenames(validFiles.map(({ name }: File) => name));
+    setFilenames(validFiles.map((f) => f.name));
     onFilesDrop(validFiles, errors.length > 0 ? errors : undefined);
   };
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+  const { input, openFileInput } = useFileInput({
+    inputRef,
+    onFiles: handleFiles,
+    accept: validation.acceptedTypes,
+    multiple: validation.multiple,
+    disabled,
+  });
 
-    if (disabled) {
-      return;
+  const {
+    isDragOver,
+    isDragValid,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+  } = useDragAndDrop({ disabled, onFiles: handleFiles });
+
+  const removeFile = (name: string) => {
+    const newFilenames = filenames.filter((n) => n !== name);
+    setFilenames(newFilenames);
+    if (newFilenames.length === 0) {
+      onFilesDrop([], []);
     }
-
-    setIsDragOver(false);
-    setIsDragValid(true);
-
-    handleFiles(event.dataTransfer.files);
   };
-
-  const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleFiles(event.target.files);
-    // Reset the input value so the same file can be selected again
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-    }, 0);
-  };
-
-  const input = (
-    <input
-      type="file"
-      hidden
-      ref={inputRef}
-      onChange={handleFileInput}
-      accept={acceptedTypes.join(',')}
-      multiple={multiple}
-      disabled={disabled}
-    />
-  );
-
-  const onClickCta = () => inputRef.current.click();
 
   if (!isLaptop) {
     const isProcessed = !isError && filenames?.length;
-    const cta = renderCta?.(onClickCta) ?? (
+    const cta = renderCta?.(openFileInput) ?? (
       <Button
         type="button"
         className={classNames('w-fit', className)}
         variant={ButtonVariant.Primary}
-        onClick={onClickCta}
+        onClick={openFileInput}
         icon={<UploadIcon />}
         size={ctaSize}
       >
@@ -355,22 +236,24 @@ export function DragDrop({
     );
   }
 
+  const defaultIcon = <DocsIcon secondary />;
+
   const defaultContent = (
-    <span className="flex flex-row items-center gap-1">
+    <span className="flex flex-row items-center gap-2">
       <Typography
-        className="flex flex-row items-center gap-1"
+        className="flex flex-row items-center gap-2"
         type={TypographyType.Footnote}
         bold={isCopyBold}
       >
-        <DocsIcon secondary />
+        {uploadIcon ?? defaultIcon}
         {dragDropDescription}
       </Typography>
-      {renderCta?.(onClickCta) ?? (
+      {renderCta?.(openFileInput) ?? (
         <Button
           className="text-text-primary"
           variant={ButtonVariant.Subtle}
           size={ButtonSize.Small}
-          onClick={() => inputRef.current.click()}
+          onClick={openFileInput}
           type="button"
         >
           {ctaLabelDesktop}
@@ -407,8 +290,14 @@ export function DragDrop({
       >
         {shouldShowContent
           ? defaultContent
-          : filenames?.map((name) => (
-              <ListItem key={name} name={name} state={state} />
+          : filenames.map((name) => (
+              <ListItem
+                key={name}
+                name={name}
+                state={state}
+                showRemove={showRemove}
+                onRemove={() => removeFile(name)}
+              />
             ))}
       </div>
       {input}
