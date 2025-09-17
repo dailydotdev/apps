@@ -37,6 +37,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
 }: CreatePostButtonProps<Tag>): ReactElement {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
@@ -50,13 +51,13 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const [shouldShowPollTooltip, setShouldShowPollTooltip] = useState(false);
 
   useEffect(() => {
-    if (!isActionsFetched || completedPollType) {
+    if (!isActionsFetched || completedPollType || !isTablet) {
       return;
     }
 
     completeAction(ActionType.SeenPostPollTooltip);
     setShouldShowPollTooltip(true);
-  }, [completedPollType, isActionsFetched, completeAction]);
+  }, [completedPollType, isActionsFetched, isTablet, completeAction]);
 
   if (!footer && !user) {
     return null;
