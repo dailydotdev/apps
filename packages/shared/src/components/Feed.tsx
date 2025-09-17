@@ -1,8 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, {
+  useRef,
+  useEffect,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -175,6 +176,7 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();
+  const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
     isMyFeed &&
@@ -380,7 +382,24 @@ export default function Feed<T>({
     'go to link',
   );
 
+  const trackFinishFeed = useCallback(() => {
+    if (!canFetchMore) {
+      logEvent({
+        event_name: LogEvent.FinishFeed,
+        extra: JSON.stringify(feedLogExtra(feedName, ranking).extra),
+        ...logOpts,
+      });
+    }
+  }, [canFetchMore, feedName, logEvent, logOpts, ranking]);
+
   const { openSharePost, copyLink } = useSharePost(origin);
+
+  useEffect(() => {
+    if (!canFetchMore && !isFetching && !trackedFeedFinish.current) {
+      trackFinishFeed();
+      trackedFeedFinish.current = true;
+    }
+  }, [canFetchMore, isFetching, trackFinishFeed]);
 
   useEffect(() => {
     return () => {

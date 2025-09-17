@@ -97,6 +97,7 @@ export enum LogEvent {
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
   FeedEmpty = 'feed empty',
+  FinishFeed = 'finish feed',
   // notifications - start
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
