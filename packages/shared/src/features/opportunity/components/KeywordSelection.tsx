@@ -84,7 +84,7 @@ export const KeywordSelection = ({
         </PopoverAnchor>
 
         <PopoverContent
-          side="bottom"
+          side="top"
           align="start"
           avoidCollisions
           sameWidthAsAnchor
