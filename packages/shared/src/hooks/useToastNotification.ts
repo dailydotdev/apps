@@ -25,19 +25,12 @@ export interface ToastNotification {
     buttonProps?: ButtonProps<'button'>;
     copy: string;
   };
-  /** @deprecated use action instead */
-  onUndo?: AnyFunction;
-  /** @deprecated use action instead */
-  undoCopy?: string;
 }
 
 export const TOAST_NOTIF_KEY = ['toast_notif'];
 
 export type NotifyOptionalProps = Partial<
-  Pick<
-    ToastNotification,
-    'timer' | 'subject' | 'onUndo' | 'undoCopy' | 'action'
-  >
+  Pick<ToastNotification, 'timer' | 'subject' | 'action'>
 >;
 
 export const useToastNotification = (): UseToastNotification => {

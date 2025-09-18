@@ -30,7 +30,10 @@ const ComponentWithToast = ({ autoDismissNotifications = true }) => {
       <button
         type="button"
         onClick={() =>
-          displayToast('Undoable Notification', { onUndo: undo, timer: 500 })
+          displayToast('Undoable Notification', { 
+            action: { copy: 'Undo', onClick: undo }, 
+            timer: 500 
+          })
         }
       >
         Undoable Toast

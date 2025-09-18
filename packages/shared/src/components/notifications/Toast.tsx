@@ -58,15 +58,6 @@ const Toast = ({
     endAnimation();
   };
 
-  const undoAction = async () => {
-    if (!toast?.onUndo) {
-      return;
-    }
-
-    await toast.onUndo();
-    endAnimation();
-  };
-
   const onAction = async () => {
     if (!toast?.action) {
       return;
@@ -104,17 +95,6 @@ const Toast = ({
     <Container className={isAnimating && 'slide-in'} role="alert">
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
-        {toast?.onUndo && (
-          <Button
-            className="ml-2"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.XSmall}
-            onClick={undoAction}
-            aria-label="Undo action"
-          >
-            {toast?.undoCopy ?? 'Undo'}
-          </Button>
-        )}
         {toast.action && (
           <Button {...toast.action?.buttonProps} onClick={onAction}>
             {toast.action.copy}
