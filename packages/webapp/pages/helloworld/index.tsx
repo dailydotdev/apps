@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useCallback } from 'react';
 import type { GetServerSideProps } from 'next';
+import type { DehydratedState } from '@tanstack/react-query';
 import Head from 'next/head';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
@@ -23,6 +24,7 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 
 type PageProps = {
+  dehydratedState: DehydratedState;
   initialStepId: string | null;
   showCookieBanner?: boolean;
 };

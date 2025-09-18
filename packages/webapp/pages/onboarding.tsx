@@ -36,6 +36,7 @@ import {
 } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
+import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import {
   FunnelBootFeatureKey,
@@ -70,6 +71,7 @@ const seo: NextSeoProps = {
 };
 
 type PageProps = {
+  dehydratedState: DehydratedState;
   initialStepId: string | null;
   showCookieBanner?: boolean;
 };
