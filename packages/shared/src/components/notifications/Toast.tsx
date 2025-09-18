@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
 import type { ToastNotification } from '../../hooks';
 import { TOAST_NOTIF_KEY } from '../../hooks';
 import classed from '../../lib/classed';
@@ -96,7 +97,14 @@ const Toast = ({
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
         {toast.action && (
-          <Button {...toast.action?.buttonProps} onClick={onAction}>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.XSmall}
+            aria-label="Undo action"
+            {...(toast.action.buttonProps ?? {})}
+            className={classNames('ml-2', toast.action.buttonProps?.className)}
+            onClick={onAction}
+          >
             {toast.action.copy}
           </Button>
         )}
