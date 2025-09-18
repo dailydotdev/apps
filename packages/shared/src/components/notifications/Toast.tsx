@@ -108,11 +108,6 @@ const Toast = ({
             {toast.action.copy}
           </Button>
         )}
-        {toast.action && (
-          <Button {...toast.action?.buttonProps} onClick={onAction}>
-            {toast.action.copy}
-          </Button>
-        )}
         <Button
           className="ml-2"
           variant={ButtonVariant.Primary}
