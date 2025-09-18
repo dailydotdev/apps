@@ -68,15 +68,6 @@ const Toast = ({
     endAnimation();
   };
 
-  const onAction = async () => {
-    if (!toast?.action) {
-      return;
-    }
-
-    await toast.action.onClick();
-    endAnimation();
-  };
-
   useEffect(() => {
     if (!isTouchDevice() || !toast) {
       return;
