@@ -872,7 +872,7 @@ describe('downvote flow', () => {
         return { data: { _: true } };
       },
     });
-    const dontAskAgain = await screen.findByLabelText('Undo action');
+    const dontAskAgain = await screen.findByLabelText("Don't ask again");
     fireEvent.click(dontAskAgain);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });

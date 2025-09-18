@@ -106,7 +106,7 @@ it('should display a toast notification and undoable action', async () => {
   expect(setInterval).toHaveBeenCalledTimes(1);
   const el = await screen.findByText('Undoable Notification');
   expect(el).toBeInTheDocument();
-  const undoBtn = await screen.findByLabelText('Undo action');
+  const undoBtn = await screen.findByLabelText('Undo');
   expect(undoBtn).toBeInTheDocument();
   fireEvent.click(undoBtn);
   jest.advanceTimersByTime(500);
