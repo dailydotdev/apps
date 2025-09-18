@@ -1,3 +1,4 @@
+import React from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { FeedData, Post, VotePollResponse } from '../graphql/posts';
