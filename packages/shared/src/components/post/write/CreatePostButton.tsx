@@ -26,7 +26,7 @@ interface CreatePostButtonProps<Tag extends AllowedTags>
   footer?: boolean;
 }
 
-const SHOW_POLL_ACOUNTS_BEFORE = new Date(2025, 9, 22);
+const SHOW_POLL_ACOUNTS_BEFORE = new Date(2025, 9, 18);
 
 export function CreatePostButton<Tag extends AllowedTags>({
   className,
