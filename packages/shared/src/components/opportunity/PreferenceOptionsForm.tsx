@@ -32,6 +32,8 @@ import { useActions, useToastNotification } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { stringToBoolean } from '../../lib/utils';
 import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -57,6 +59,7 @@ const employmentTypeOptions = [
 const DEBOUNCE_DELAY_MS = 750;
 
 export const PreferenceOptionsForm = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(null);
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
@@ -65,9 +68,19 @@ export const PreferenceOptionsForm = (): ReactElement => {
   const opts = getCandidatePreferencesOptions(user?.id);
   const { data: preferences } = useQuery(opts);
   const { mutate: updatePreferences } = useMutation({
-    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts), () => {
-      completeAction(ActionType.UserCandidatePreferencesSaved);
-    }),
+    ...updateCandidatePreferencesMutationOptions(
+      useUpdateQuery(opts),
+      (variables) => {
+        completeAction(ActionType.UserCandidatePreferencesSaved);
+
+        Object.keys(variables).forEach((prefKey) => {
+          logEvent({
+            event_name: LogEvent.UpdateCandidatePreferences,
+            target_id: prefKey,
+          });
+        });
+      },
+    ),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');
     },
