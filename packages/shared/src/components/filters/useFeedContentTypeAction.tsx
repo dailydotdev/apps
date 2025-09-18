@@ -45,19 +45,9 @@ export const useFeedContentTypeAction = ({
   const onToggle = async () => {
     const icon = isEnabled ? '⛔️' : '✅';
     const update = isEnabled ? 'blocked' : 'unblocked';
-    await onUpdateSettings([
-      {
-        id,
-        enabled: !isEnabled,
-      },
-    ]);
+    await onUpdateSettings([{ id, enabled: !isEnabled }]);
     await onActionSuccess(`${icon} ${capitalize(type)} content ${update}`, () =>
-      onUpdateSettings([
-        {
-          id,
-          enabled: !isEnabled,
-        },
-      ]),
+      onUpdateSettings([{ id, enabled: !isEnabled }]),
     );
   };
 
