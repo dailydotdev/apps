@@ -21,18 +21,27 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { updateCandidatePreferencesMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
+import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
-import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -42,38 +51,82 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
+const options = [
+  {
+    value: CandidateStatus.ACTIVELY_LOOKING,
+    icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
+    title: 'Active looking',
+    description: (
+      <>
+        I&apos;m in the market and ready to move. This one just wasn&apos;t a
+        fit.
+      </>
+    ),
+  },
+  {
+    value: CandidateStatus.OPEN_TO_OFFERS,
+    icon: <SemiActiveIcon size={IconSize.XLarge} />,
+    title: <>Open only if it&apos;s right</>,
+    description: (
+      <>
+        I&apos;m happy where I am, but I&apos;d explore something truly
+        exceptional.
+      </>
+    ),
+  },
+  {
+    value: CandidateStatus.DISABLED,
+    icon: <PassiveIcon size={IconSize.XLarge} />,
+    title: 'Not looking right now',
+    description: (
+      <>
+        I&apos;m not open to opportunities right now. Step back until I say
+        otherwise.
+      </>
+    ),
+  },
+];
+
 const DeclinePage = (): ReactElement => {
   const {
     query: { id },
   } = useRouter();
   const opportunityId = id as string;
-  const [option, setOption] = useState(null);
+  const [option, setOption] = useState<CandidateStatus | null>(null);
   const { push, back } = useRouter();
   const { completeAction, isActionsFetched } = useActions();
 
-  const options = [
-    {
-      icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
-      title: 'Active looking',
-      href: `${opportunityUrl}/${opportunityId}/preference`,
-      description:
-        'I’m in the market and ready to move. This one just wasn’t a fit.',
+  const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
+  const opts = getCandidatePreferencesOptions(user?.id);
+  const updateQuery = useUpdateQuery(opts);
+  const { data: preferences } = useQuery(opts);
+  const { mutate: updatePreferences } = useMutation({
+    ...updateCandidatePreferencesMutationOptions(updateQuery),
+    onError: () => {
+      displayToast('Failed to update preferences. Please try again.');
     },
-    {
-      icon: <SemiActiveIcon size={IconSize.XLarge} />,
-      title: 'Open only if it’s right',
-      href: `${opportunityUrl}/${opportunityId}/preference#semi-active-done`,
-      description:
-        'I’m happy where I am, but I’d explore something truly exceptional.',
-    },
-    {
-      icon: <PassiveIcon size={IconSize.XLarge} />,
-      title: 'Not looking right now',
-      href: `${opportunityUrl}/${opportunityId}/passive-done`,
-      description:
-        'I’m not open to opportunities right now. Step back until I say otherwise.',
-    },
-  ];
+  });
+
+  const handleSave = () => {
+    if (preferences?.status !== option) {
+      updatePreferences({ status: option });
+    }
+
+    push(
+      `${opportunityUrl}/${opportunityId}/${
+        option === CandidateStatus.DISABLED ? 'passive-done' : 'preference'
+      }`,
+    );
+  };
+
+  useEffect(() => {
+    if (!preferences) {
+      return;
+    }
+
+    setOption(preferences.status);
+  }, [preferences]);
 
   useEffect(() => {
     if (!isActionsFetched) {
@@ -100,17 +153,17 @@ const DeclinePage = (): ReactElement => {
           </Typography>
         </FlexCol>
         <FlexCol className="gap-2">
-          {options.map(({ icon, title, description, href }) => (
+          {options.map(({ value, icon, title, description }) => (
             <Button
-              key={title}
+              key={value}
               variant={ButtonVariant.Option}
               className={classNames(
                 '!h-auto w-auto gap-3 border border-border-subtlest-tertiary !p-3',
                 {
-                  'bg-surface-float': option === href,
+                  'bg-surface-float': option === value,
                 },
               )}
-              onClick={() => setOption(href)}
+              onClick={() => setOption(value)}
             >
               <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
                 {icon}
@@ -164,7 +217,7 @@ const DeclinePage = (): ReactElement => {
             variant={ButtonVariant.Primary}
             className="w-full laptop:w-auto"
             disabled={!option}
-            onClick={() => option && push(option)}
+            onClick={handleSave}
           >
             Save and Continue
           </Button>
