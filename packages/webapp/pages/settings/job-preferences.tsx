@@ -53,6 +53,7 @@ import { ClearResumeButton } from '@dailydotdev/shared/src/features/opportunity/
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { UploadEmploymentAgreementButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadEmploymentAgreementButton';
+import { ClearEmploymentAgreementButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearEmploymentAgreementButton';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -271,7 +272,7 @@ const JobPreferencesPage = (): ReactElement => {
                 >
                   <DocsIcon secondary />{' '}
                   {preferences.employmentAgreement.fileName}
-                  {/* <ClearResumeButton /> */}
+                  <ClearEmploymentAgreementButton />
                 </Typography>
               )}
               <UploadEmploymentAgreementButton />

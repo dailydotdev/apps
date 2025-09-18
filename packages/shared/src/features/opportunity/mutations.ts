@@ -4,6 +4,7 @@ import {
   ACCEPT_OPPORTUNITY_MATCH,
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
+  CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
   CLEAR_RESUME_MUTATION,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
@@ -155,6 +156,25 @@ export const uploadEmploymentAgreementMutationOptions = <T extends File = File>(
         },
       });
       successCallback?.(file);
+    },
+  };
+};
+
+export const clearEmploymentAgreementMutationOptions = (
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: () => void,
+): MutationOptions<EmptyResponse> => {
+  const preferences = get();
+  return {
+    mutationFn: async () => {
+      return gqlClient.request(CLEAR_EMPLOYMENT_AGREEMENT_MUTATION);
+    },
+    onSuccess: () => {
+      set({
+        ...preferences,
+        employmentAgreement: undefined,
+      });
+      successCallback?.();
     },
   };
 };

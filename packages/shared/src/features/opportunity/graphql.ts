@@ -237,3 +237,11 @@ export const UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION = gql`
     }
   }
 `;
+
+export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
+  mutation ClearEmploymentAgreement {
+    clearEmploymentAgreement {
+      _
+    }
+  }
+`;
