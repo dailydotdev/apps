@@ -36,12 +36,7 @@ import {
 } from '@dailydotdev/shared/src/components/auth/common';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
-import type { DehydratedState } from '@tanstack/react-query';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import {
   FunnelBootFeatureKey,
   getFunnelBootData,
@@ -75,7 +70,6 @@ const seo: NextSeoProps = {
 };
 
 type PageProps = {
-  dehydratedState: DehydratedState;
   initialStepId: string | null;
   showCookieBanner?: boolean;
 };
@@ -360,15 +354,12 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 }
 
 function Page(props: PageProps) {
-  const { dehydratedState } = props;
   const { autoDismissNotifications } = useSettingsContext();
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <JotaiProvider>
-        <Onboarding {...props} />
-        <Toast autoDismissNotifications={autoDismissNotifications} />
-      </JotaiProvider>
-    </HydrationBoundary>
+    <JotaiProvider>
+      <Onboarding {...props} />
+      <Toast autoDismissNotifications={autoDismissNotifications} />
+    </JotaiProvider>
   );
 }
 
