@@ -347,19 +347,28 @@ export const usePostToSquad = ({
 
   const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
     async ({ options, ...post }, squad) => {
-      const orderedOpts = options.map((opt, index) => ({
-        text: opt,
+      const orderedOpts = options.map(({ text }, index) => ({
+        text,
         order: index,
       }));
-      createPollPostMutation({
-        ...post,
-        options: orderedOpts,
-        sourceId: squad.id,
-        type: PostType.Poll,
-      });
-      return null;
+
+      if (moderationRequired(squad)) {
+        onCreatePostModeration({
+          ...post,
+          pollOptions: orderedOpts,
+          sourceId: squad.id,
+          type: PostType.Poll,
+        });
+      } else {
+        createPollPostMutation({
+          ...post,
+          options: orderedOpts,
+          sourceId: squad.id,
+          type: PostType.Poll,
+        });
+      }
     },
-    [createPollPostMutation],
+    [createPollPostMutation, onCreatePostModeration],
   );
 
   return {
