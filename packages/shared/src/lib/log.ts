@@ -315,6 +315,10 @@ export enum LogEvent {
   UploadCv = 'upload cv',
   // end CV Upload
   ImpressionComment = 'impression comment',
+  // Opportunity
+  ImpressionOpportunityNudge = 'impression opportunity nudge',
+  ClickOpportunityNudge = 'click opportunity nudge',
+  // End Opportunity
 }
 
 export enum TargetType {

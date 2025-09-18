@@ -1,5 +1,5 @@
+import React, { useEffect } from 'react';
 import type { ReactElement } from 'react';
-import React from 'react';
 import classNames from 'classnames';
 import { Button } from '../../../components/buttons/Button';
 import { JobIcon } from '../../../components/icons';
@@ -11,6 +11,8 @@ import Link from '../../../components/utilities/Link';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { useAlertsContext } from '../../../contexts/AlertContext';
 import { ActionType } from '../../../graphql/actions';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 type JobOpportunityButtonProps = {
   className?: string;
@@ -22,12 +24,36 @@ export const JobOpportunityButton = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { alerts } = useAlertsContext();
   const { checkHasCompleted } = useActions();
+  const { logEvent } = useLogContext();
 
   const { opportunityId } = alerts;
 
-  const href = checkHasCompleted(ActionType.OpportunityWelcomePage)
+  const hasSeenWelcomePage = checkHasCompleted(
+    ActionType.OpportunityWelcomePage,
+  );
+
+  const href = hasSeenWelcomePage
     ? `${opportunityUrl}/${opportunityId}`
     : `${opportunityUrl}/welcome`;
+
+  const logExtraPayload = JSON.stringify({
+    count: 1, // always 1 for now
+    onboarding: !hasSeenWelcomePage,
+  });
+
+  const handleClick = (): void => {
+    logEvent({
+      event_name: LogEvent.ClickOpportunityNudge,
+      extra: logExtraPayload,
+    });
+  };
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.ImpressionOpportunityNudge,
+      extra: logExtraPayload,
+    });
+  }, [logEvent, logExtraPayload]);
 
   return (
     <Tooltip
@@ -44,6 +70,7 @@ export const JobOpportunityButton = ({
             background: briefButtonBg,
           }}
           className={classNames(className, 'border-none text-black')}
+          onClick={handleClick}
         >
           One opportunity is waiting for you here
         </Button>
