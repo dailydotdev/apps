@@ -321,6 +321,8 @@ export enum LogEvent {
   OnboardingCandidate = 'onboarding candidate',
   CompleteOnboardingCandidate = 'complete onboarding candidate',
   OpportunityMatchView = 'opportunity match view',
+  RejectOpportunityMatch = 'reject opportunity match',
+  ApproveOpportunityMatch = 'approve opportunity match',
   // End Opportunity
 }
 
