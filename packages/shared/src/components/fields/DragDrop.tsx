@@ -167,8 +167,7 @@ export function DragDrop({
       return;
     }
 
-    const fileArray = Array.from(files);
-    const { validFiles, errors } = validateFiles(fileArray);
+    const { validFiles, errors } = validateFiles(files);
 
     if (errors.length > 0) {
       const first = errors[0];

@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
@@ -15,7 +15,6 @@ import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 import {
   Button,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
@@ -23,7 +22,6 @@ import classNames from 'classnames';
 import {
   ActivelyLookingIcon,
   DocsIcon,
-  MiniCloseIcon,
   SemiActiveIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -34,16 +32,14 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
-import {
-  clearResumeMutationOptions,
-  updateCandidatePreferencesMutationOptions,
-} from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { updateCandidatePreferencesMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import {
   useActions,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { UploadCVButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadCVButton';
+import { ClearResumeButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearResumeButton';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -92,22 +88,15 @@ const JobPreferencesPage = (): ReactElement => {
   const [option, setOption] = useState(null);
 
   const opts = getCandidatePreferencesOptions(user?.id);
+  const updateQuery = useUpdateQuery(opts);
 
   const { data: preferences, isPending } = useQuery(opts);
   const { mutate: updatePreferences } = useMutation({
-    ...updateCandidatePreferencesMutationOptions(useUpdateQuery(opts), () => {
+    ...updateCandidatePreferencesMutationOptions(updateQuery, () => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
     }),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');
-    },
-  });
-  const { mutate: clearResume, isPending: isClearResumePending } = useMutation({
-    ...clearResumeMutationOptions(useUpdateQuery(opts), () => {
-      completeAction(ActionType.UserCandidatePreferencesSaved);
-    }),
-    onError: () => {
-      displayToast('Failed to remove uploaded CV. Please try again.');
     },
   });
 
@@ -243,26 +232,11 @@ const JobPreferencesPage = (): ReactElement => {
                 >
                   <DocsIcon secondary /> {preferences.cv.blob}.
                   {fileSuffixMap[preferences.cv.contentType]}
-                  <Tooltip content="Remove uploaded CV">
-                    <Button
-                      icon={<MiniCloseIcon />}
-                      className="ml-1"
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Tertiary}
-                      loading={isClearResumePending}
-                      onClick={() => clearResume()}
-                    />
-                  </Tooltip>
+                  <ClearResumeButton />
                 </Typography>
               )}
 
-              <Button
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                className="mb-4 mr-auto"
-              >
-                Upload PDF
-              </Button>
+              <UploadCVButton />
               <FeelingLazy />
             </FlexCol>
 
