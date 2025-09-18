@@ -54,7 +54,6 @@ import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
-import { getHydrationLayout } from '../../components/layouts/hydrationLayout';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
@@ -308,8 +307,7 @@ export const getStaticProps: GetStaticProps<{
   }
 };
 
-JobPreferencesPage.getLayout = (page: ReactElement) =>
-  getSettingsLayout(getHydrationLayout(page));
+JobPreferencesPage.getLayout = getSettingsLayout;
 JobPreferencesPage.layoutProps = { seo };
 
 export default JobPreferencesPage;
