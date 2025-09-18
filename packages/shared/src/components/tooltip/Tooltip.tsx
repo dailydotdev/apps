@@ -5,14 +5,17 @@ import type { ReactNode } from 'react';
 import type {
   TooltipContentProps,
   TooltipProviderProps,
+  TooltipProps as RadixTooltipProps,
 } from '@radix-ui/react-tooltip';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
+import { isNullOrUndefined } from '../../lib/func';
 
 export type TooltipProps = TooltipProviderProps &
-  Omit<TooltipContentProps, 'content'> & {
+  Omit<TooltipContentProps, 'content'> &
+  Pick<RadixTooltipProps, 'open'> & {
     appendTo?: Element | DocumentFragment;
     content: ReactNode;
     visible?: boolean;
@@ -26,6 +29,7 @@ export function Tooltip({
   delayDuration = 200,
   className,
   enableMobileClick,
+  open: controlledOpen,
   ...props
 }: TooltipProps) {
   const [open, setOpen] = useState(false);
@@ -38,7 +42,10 @@ export function Tooltip({
 
   return (
     <RadixPrimitive.Provider delayDuration={delayDuration}>
-      <RadixPrimitive.Root open={open} onOpenChange={setOpen}>
+      <RadixPrimitive.Root
+        open={isNullOrUndefined(controlledOpen) ? open : controlledOpen}
+        onOpenChange={setOpen}
+      >
         <RadixPrimitive.Trigger
           aria-label={showAriaLabel && content.toString()}
           asChild

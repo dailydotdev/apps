@@ -47,6 +47,7 @@ import {
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
+import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -60,7 +61,11 @@ const seo: NextSeoProps = {
 };
 
 function CreatePost(): ReactElement {
-  const { completeAction } = useActions();
+  const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
+  const hasCheckedPollTab = useMemo(
+    () => checkHasCompleted(ActionType.SeenPostPollTab),
+    [checkHasCompleted],
+  );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const client = useQueryClient();
@@ -189,6 +194,12 @@ function CreatePost(): ReactElement {
     return null;
   };
 
+  useEffect(() => {
+    if (!hasCheckedPollTab && display === WriteFormTab.Poll) {
+      completeAction(ActionType.SeenPostPollTab);
+    }
+  }, [display, hasCheckedPollTab, completeAction]);
+
   if (!isFetched || !isAuthReady || !isRouteReady) {
     return <WriteFreeFormSkeleton />;
   }
@@ -247,7 +258,21 @@ function CreatePost(): ReactElement {
               }}
             />
           </Tab>
-          <Tab label={WriteFormTab.Poll} className="flex flex-col gap-4 px-5">
+          <Tab
+            label={WriteFormTab.Poll}
+            className="flex flex-col gap-4 px-5"
+            hint={
+              display !== WriteFormTab.Poll &&
+              isActionsFetched &&
+              !hasCheckedPollTab ? (
+                <Pill
+                  label="New"
+                  size={PillSize.XSmall}
+                  className="mt-0.5 bg-brand-float text-brand-default"
+                />
+              ) : undefined
+            }
+          >
             {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
             <SquadsDropdown
               list={activeSquads}
