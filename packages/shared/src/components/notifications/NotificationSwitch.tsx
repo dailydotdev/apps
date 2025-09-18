@@ -10,7 +10,7 @@ import { PlusUser } from '../PlusUser';
 interface NotificationSwitchProps {
   id: string;
   label: string;
-  description?: string;
+  description?: string | React.ReactNode;
   checked: boolean;
   onToggle: () => void;
   disabled?: boolean;

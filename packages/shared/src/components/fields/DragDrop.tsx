@@ -152,8 +152,8 @@ export function DragDrop({
   dragDropDescription = 'Drag & Drop your CV or',
   ctaLabelDesktop = 'Upload PDF',
   ctaLabelMobile = 'Upload PDF',
-  showRemove,
   uploadIcon,
+  showRemove,
 }: DragDropProps): ReactElement {
   const [filenames, setFilenames] = useState<string[]>([]);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -167,8 +167,7 @@ export function DragDrop({
       return;
     }
 
-    const fileArray = Array.from(files);
-    const { validFiles, errors } = validateFiles(fileArray);
+    const { validFiles, errors } = validateFiles(files);
 
     if (errors.length > 0) {
       const first = errors[0];
@@ -290,7 +289,7 @@ export function DragDrop({
       >
         {shouldShowContent
           ? defaultContent
-          : filenames.map((name) => (
+          : filenames?.map((name) => (
               <ListItem
                 key={name}
                 name={name}

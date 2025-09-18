@@ -133,4 +133,7 @@ export const labels = {
     },
   },
   generatingUsername: 'Generating your cool username...',
+  form: {
+    required: 'This field is required',
+  },
 };

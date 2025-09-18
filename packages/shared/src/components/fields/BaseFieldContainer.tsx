@@ -14,6 +14,7 @@ interface FieldStateProps {
   disabled?: boolean;
   invalid?: boolean;
   hasActionIcon?: boolean;
+  isQuaternaryField?: boolean;
   isTertiaryField?: boolean;
   isSecondaryField?: boolean;
   isPrimaryField?: boolean;
@@ -105,10 +106,15 @@ export type BaseFieldProps<T extends ValidElement = HTMLInputElement> =
 export const getFieldPlaceholder = ({
   isSecondaryField,
   isTertiaryField,
+  isQuaternaryField,
   placeholder,
   focused,
   label,
 }: FieldPlaceholderProps): string => {
+  if (isQuaternaryField) {
+    return placeholder;
+  }
+
   if (isTertiaryField) {
     return focused ? placeholder : label;
   }

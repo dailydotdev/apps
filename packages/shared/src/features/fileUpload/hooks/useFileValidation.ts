@@ -63,8 +63,9 @@ export const useFileValidation = (
   };
 
   const validateFiles = (
-    files: File[],
+    fileList: FileList,
   ): { validFiles: File[]; errors: DragDropError[] } => {
+    const files = Array.from(fileList);
     const validFiles: File[] = [];
     const errors: DragDropError[] = [];
 
