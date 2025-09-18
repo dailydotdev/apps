@@ -112,6 +112,7 @@ const AcceptPage = (): ReactElement => {
       target_id: opportunityId,
       extra: JSON.stringify({
         index: activeQuestion,
+        question_id: questions[activeQuestion].id,
       }),
     });
     if (activeQuestion === questions.length - 1) {
