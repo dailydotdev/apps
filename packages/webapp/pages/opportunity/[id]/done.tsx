@@ -25,6 +25,8 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -91,6 +93,7 @@ const options = [
 
 const DonePage = (): ReactElement => {
   const { isSubscribed } = usePushNotificationContext();
+  const { logEvent } = useLogContext();
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -195,6 +198,12 @@ const DonePage = (): ReactElement => {
               icon={<JobIcon size={IconSize.Small} />}
               className="w-full tablet:w-80"
               rel={anchorDefaultRel}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.ClickCandidatePreferences,
+                  target_id: TargetId.OpportunityDonePage,
+                });
+              }}
             >
               Optimize future matches
             </Button>

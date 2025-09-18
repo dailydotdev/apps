@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
 import React from 'react';
+import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -19,6 +19,8 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -36,21 +38,22 @@ const seo: NextSeoProps = {
 };
 
 const PassiveDonePage = (): ReactElement => {
+  const { logEvent } = useLogContext();
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="items-center gap-4">
           <PassiveIcon size={IconSize.Size48} className="text-text-secondary" />
           <Typography type={TypographyType.LargeTitle} bold center>
-            We’ll step back until you’re ready
+            We&apos;ll step back until you&apos;re ready
           </Typography>
           <Typography
             type={TypographyType.Title3}
             color={TypographyColor.Secondary}
             center
           >
-            You won’t see any new opportunities from us unless you decide to
-            change your status. You can update your preferences anytime if
+            You won&apos;t see any new opportunities from us unless you decide
+            to change your status. You can update your preferences anytime if
             things change.
           </Typography>
         </FlexCol>
@@ -67,12 +70,18 @@ const PassiveDonePage = (): ReactElement => {
           </Button>
           <Link href={`${settingsUrl}/job-preferences`} passHref>
             <Button
+              tag="a"
               size={ButtonSize.Large}
               variant={ButtonVariant.Subtle}
               icon={<JobIcon size={IconSize.Small} />}
               className="w-full tablet:w-80"
-              tag="a"
               rel={anchorDefaultRel}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.ClickCandidatePreferences,
+                  target_id: TargetId.OpportunityPassiveDonePage,
+                });
+              }}
             >
               Update job preferences
             </Button>

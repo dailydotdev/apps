@@ -326,6 +326,7 @@ export enum LogEvent {
   AnswerScreeningQuestion = 'answer screening question',
   CompleteScreening = 'complete screening',
   ConfirmCandidateContact = 'confirm candidate contact',
+  ClickCandidatePreferences = 'click candidate preferences',
   // End Opportunity
 }
 
@@ -425,6 +426,10 @@ export enum TargetId {
   Feed = 'feed',
   CVWidget = 'cv widget',
   Scroll = 'scroll',
+  OpportunityDonePage = 'opportunity done page',
+  OpportunityPassiveDonePage = 'opportunity passive done page',
+  OpportunityUnavailablePage = 'opportunity unavailable page',
+  OpportunityWelcomePage = 'opportunity welcome page',
 }
 
 export enum NotificationChannel {

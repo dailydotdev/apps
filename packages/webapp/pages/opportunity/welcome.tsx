@@ -44,7 +44,7 @@ import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext'
 import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/components/CVOverlay';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -139,6 +139,12 @@ const HeaderSection = (): ReactElement => {
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Large}
+                    onClick={() => {
+                      logEvent({
+                        event_name: LogEvent.ClickCandidatePreferences,
+                        target_id: TargetId.OpportunityWelcomePage,
+                      });
+                    }}
                   >
                     Job preferences
                   </Button>
