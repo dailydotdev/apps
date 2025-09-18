@@ -104,6 +104,7 @@ export type UserCandidateKeyword = Keyword;
 export type UserCandidatePreferences = {
   status: CandidateStatus;
   cv?: GcsBlob;
+  employmentAgreement?: GcsBlob;
   role: string;
   roleType: number;
   salaryExpectation?: Omit<Salary, 'max' | 'currency'>;

@@ -52,6 +52,7 @@ import { UploadCVButton } from '@dailydotdev/shared/src/features/opportunity/com
 import { ClearResumeButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearResumeButton';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { UploadEmploymentAgreementButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadEmploymentAgreementButton';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -250,9 +251,7 @@ const JobPreferencesPage = (): ReactElement => {
               <FeelingLazy />
             </FlexCol>
 
-            {/* This is hidden until we implement it */}
-            <span className="flex-1" />
-            {/* <FlexCol className="flex-1 gap-2">
+            <FlexCol className="flex-1 gap-2">
               <Typography type={TypographyType.Body} bold>
                 Upload Employment Agreement
               </Typography>
@@ -265,14 +264,18 @@ const JobPreferencesPage = (): ReactElement => {
                 confidential and is only used to protect your time and
                 negotiating power.
               </Typography>
-              <Button
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                className="mr-auto"
-              >
-                Upload PDF
-              </Button>
-            </FlexCol> */}
+              {preferences?.employmentAgreement?.fileName && (
+                <Typography
+                  className="flex items-center gap-1"
+                  type={TypographyType.Footnote}
+                >
+                  <DocsIcon secondary />{' '}
+                  {preferences.employmentAgreement.fileName}
+                  {/* <ClearResumeButton /> */}
+                </Typography>
+              )}
+              <UploadEmploymentAgreementButton />
+            </FlexCol>
           </div>
         </FlexCol>
         <Divider className="bg-border-subtlest-tertiary" />

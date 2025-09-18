@@ -125,6 +125,8 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       cv {
         ...GCSBlob
       }
+      employmentAgreement {
+        ...GCSBlob
       }
       role
       roleType
@@ -223,6 +225,14 @@ export const CANDIDATE_KEYWORD_ADD_MUTATION = gql`
 export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
   mutation CandidateRemoveKeywords($keywords: [String!]!) {
     candidateRemoveKeywords(keywords: $keywords) {
+      _
+    }
+  }
+`;
+
+export const UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION = gql`
+  mutation UploadEmploymentAgreement($file: Upload!) {
+    uploadEmploymentAgreement(file: $file) {
       _
     }
   }

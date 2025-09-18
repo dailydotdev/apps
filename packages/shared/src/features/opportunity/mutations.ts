@@ -7,6 +7,7 @@ import {
   CLEAR_RESUME_MUTATION,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
+  UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
@@ -132,6 +133,28 @@ export const candidateRemoveKeywordMutationOptions = (
         keywords,
       });
       successCallback?.();
+    },
+  };
+};
+
+export const uploadEmploymentAgreementMutationOptions = <T extends File = File>(
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: (file: T) => void,
+): MutationOptions<EmptyResponse, DefaultError, T> => {
+  const preferences = get();
+
+  return {
+    mutationFn: async (file) =>
+      gqlClient.request(UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION, { file }),
+    onSuccess: (_, file) => {
+      set({
+        ...preferences,
+        employmentAgreement: {
+          fileName: file.name,
+          lastModified: new Date(),
+        },
+      });
+      successCallback?.(file);
     },
   };
 };
