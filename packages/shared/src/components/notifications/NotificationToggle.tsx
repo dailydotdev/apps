@@ -10,7 +10,7 @@ interface NotificationToggleProps {
   onToggle: () => void;
   disabled?: boolean;
   isPlusFeature?: boolean;
-  type: 'switch' | 'checkbox';
+  type?: 'switch' | 'checkbox';
 }
 
 const NotificationToggle = (props: NotificationToggleProps) => {
