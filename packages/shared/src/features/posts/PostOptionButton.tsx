@@ -291,7 +291,12 @@ const PostOptionButtonContent = ({
     };
     displayToast(message, {
       subject: ToastSubject.Feed,
-      onUndo: undo !== null ? onUndo : null,
+      ...(undo !== null && {
+        action: {
+          copy: 'Undo',
+          onClick: onUndo,
+        },
+      }),
     });
     onRemovePost?.(postIndex);
   };
