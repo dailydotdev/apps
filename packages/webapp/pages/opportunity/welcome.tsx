@@ -45,6 +45,7 @@ import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/componen
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { CandidatePreferenceButton } from '@dailydotdev/shared/src/features/opportunity/components/CandidatePreferenceButton';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -134,21 +135,9 @@ const HeaderSection = (): ReactElement => {
             <CVOverlay
               blur={false}
               backButton={
-                <Link href={jobPreferenceUrl} passHref>
-                  <Button
-                    tag="a"
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Large}
-                    onClick={() => {
-                      logEvent({
-                        event_name: LogEvent.ClickCandidatePreferences,
-                        target_id: TargetId.OpportunityWelcomePage,
-                      });
-                    }}
-                  >
-                    Job preferences
-                  </Button>
-                </Link>
+                <CandidatePreferenceButton
+                  targetId={TargetId.OpportunityWelcomePage}
+                />
               }
               onUploadSuccess={onUploadSuccess}
             />

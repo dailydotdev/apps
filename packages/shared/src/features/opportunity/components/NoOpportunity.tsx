@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { LogEvent, NotificationPromptSource, TargetId } from '../../../lib/log';
+import { NotificationPromptSource, TargetId } from '../../../lib/log';
 import { Switch } from '../../../components/fields/Switch';
 import { JobIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -14,10 +14,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import Link from '../../../components/utilities/Link';
-import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { Button } from '../../../components/buttons/Button';
-import { useLogContext } from '../../../contexts/LogContext';
+import { CandidatePreferenceButton } from './CandidatePreferenceButton';
 
 export const NoOpportunity = (): ReactElement => {
   const { isSubscribed, isInitialized, isPushSupported } =
@@ -25,7 +25,6 @@ export const NoOpportunity = (): ReactElement => {
   const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
   const showAlert =
     isPushSupported && isInitialized && (!isSubscribed || acceptedJustNow);
-  const { logEvent } = useLogContext();
 
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-4">
@@ -94,23 +93,10 @@ export const NoOpportunity = (): ReactElement => {
         </Button>
       </Link>
 
-      <Link href={`${settingsUrl}/job-preferences`} passHref>
-        <Button
-          tag="a"
-          className="w-full max-w-80"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Large}
-          icon={<JobIcon size={IconSize.Small} />}
-          onClick={() => {
-            logEvent({
-              event_name: LogEvent.ClickCandidatePreferences,
-              target_id: TargetId.OpportunityUnavailablePage,
-            });
-          }}
-        >
-          Update job preferences
-        </Button>
-      </Link>
+      <CandidatePreferenceButton
+        label="Update job preferences"
+        targetId={TargetId.OpportunityUnavailablePage}
+      />
     </div>
   );
 };

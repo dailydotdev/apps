@@ -1,8 +1,6 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-
 import type { NextSeoProps } from 'next-seo';
-
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import {
   Typography,
@@ -14,13 +12,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { JobIcon, PassiveIcon } from '@dailydotdev/shared/src/components/icons';
+import { PassiveIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import { CandidatePreferenceButton } from '@dailydotdev/shared/src/features/opportunity/components/CandidatePreferenceButton';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -38,7 +35,6 @@ const seo: NextSeoProps = {
 };
 
 const PassiveDonePage = (): ReactElement => {
-  const { logEvent } = useLogContext();
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -68,24 +64,10 @@ const PassiveDonePage = (): ReactElement => {
           >
             Back to daily.dev
           </Button>
-          <Link href={`${settingsUrl}/job-preferences`} passHref>
-            <Button
-              tag="a"
-              size={ButtonSize.Large}
-              variant={ButtonVariant.Subtle}
-              icon={<JobIcon size={IconSize.Small} />}
-              className="w-full tablet:w-80"
-              rel={anchorDefaultRel}
-              onClick={() => {
-                logEvent({
-                  event_name: LogEvent.ClickCandidatePreferences,
-                  target_id: TargetId.OpportunityPassiveDonePage,
-                });
-              }}
-            >
-              Update job preferences
-            </Button>
-          </Link>
+          <CandidatePreferenceButton
+            label="Update job preferences"
+            targetId={TargetId.OpportunityPassiveDonePage}
+          />
         </FlexCol>
       </FlexCol>
     </div>

@@ -18,15 +18,15 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { JobIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
+import { VIcon } from '@dailydotdev/shared/src/components/icons';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import { CandidatePreferenceButton } from '@dailydotdev/shared/src/features/opportunity/components/CandidatePreferenceButton';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -93,7 +93,7 @@ const options = [
 
 const DonePage = (): ReactElement => {
   const { isSubscribed } = usePushNotificationContext();
-  const { logEvent } = useLogContext();
+
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -190,24 +190,10 @@ const DonePage = (): ReactElement => {
               Back to daily.dev
             </Button>
           </Link>
-          <Link href={`${settingsUrl}/job-preferences`} passHref>
-            <Button
-              tag="a"
-              size={ButtonSize.Large}
-              variant={ButtonVariant.Subtle}
-              icon={<JobIcon size={IconSize.Small} />}
-              className="w-full tablet:w-80"
-              rel={anchorDefaultRel}
-              onClick={() => {
-                logEvent({
-                  event_name: LogEvent.ClickCandidatePreferences,
-                  target_id: TargetId.OpportunityDonePage,
-                });
-              }}
-            >
-              Optimize future matches
-            </Button>
-          </Link>
+          <CandidatePreferenceButton
+            label="Optimize future matches"
+            targetId={TargetId.OpportunityDonePage}
+          />
         </FlexCol>
       </FlexCol>
     </div>
