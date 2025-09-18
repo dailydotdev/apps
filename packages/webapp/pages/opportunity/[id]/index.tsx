@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -251,6 +251,10 @@ const JobPage = ({
     query: { id },
   } = useRouter();
 
+  const logRef = useRef<typeof logEvent>();
+  const hasLoggedRef = useRef(false);
+  logRef.current = logEvent;
+
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: id as string }),
     initialData,
@@ -271,15 +275,16 @@ const JobPage = ({
     opportunity?.organization?.pressLinks?.length > 0;
 
   useEffect(() => {
-    if (!match) {
+    if (!match || !id || hasLoggedRef.current) {
       return;
     }
-    logEvent({
+    logRef.current({
       event_name: LogEvent.OpportunityMatchView,
       target_id: id,
       extra: JSON.stringify({ match_status: match.status }),
     });
-  }, [id, logEvent, match]);
+    hasLoggedRef.current = true;
+  }, [id, match]);
 
   if (isPending || !isActionsFetched) {
     return null;

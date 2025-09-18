@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -64,6 +64,9 @@ const HeaderSection = (): ReactElement => {
   const { user } = useAuthContext();
   const { alerts } = useAlertsContext();
   const { logEvent } = useLogContext();
+  const logRef = useRef<typeof logEvent>();
+  const hasLoggedRef = useRef(false);
+  logRef.current = logEvent;
 
   const { isActionsFetched, completeAction } = useActions();
   const { opportunityId } = alerts;
@@ -73,16 +76,20 @@ const HeaderSection = (): ReactElement => {
   };
 
   const handleClick = (): void => {
-    logEvent({
+    logRef.current({
       event_name: LogEvent.CompleteOnboardingCandidate,
     });
   };
 
   useEffect(() => {
-    logEvent({
+    if (hasLoggedRef.current) {
+      return;
+    }
+    logRef.current({
       event_name: LogEvent.OnboardingCandidate,
     });
-  }, [logEvent]);
+    hasLoggedRef.current = true;
+  }, [logRef]);
 
   useEffect(() => {
     if (!isActionsFetched) {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button } from '../../../components/buttons/Button';
@@ -25,6 +25,9 @@ export const JobOpportunityButton = ({
   const { alerts } = useAlertsContext();
   const { checkHasCompleted } = useActions();
   const { logEvent } = useLogContext();
+  const logRef = useRef<typeof logEvent>();
+  const hasLoggedRef = useRef(false);
+  logRef.current = logEvent;
 
   const { opportunityId } = alerts;
 
@@ -42,18 +45,23 @@ export const JobOpportunityButton = ({
   });
 
   const handleClick = (): void => {
-    logEvent({
+    logRef.current({
       event_name: LogEvent.ClickOpportunityNudge,
       extra: logExtraPayload,
     });
   };
 
   useEffect(() => {
-    logEvent({
+    if (hasLoggedRef.current) {
+      return;
+    }
+
+    logRef.current({
       event_name: LogEvent.ImpressionOpportunityNudge,
       extra: logExtraPayload,
     });
-  }, [logEvent, logExtraPayload]);
+    hasLoggedRef.current = true;
+  }, [logExtraPayload]);
 
   return (
     <Tooltip
