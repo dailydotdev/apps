@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
 import type { ToastNotification } from '../../hooks';
 import { TOAST_NOTIF_KEY } from '../../hooks';
 import classed from '../../lib/classed';
@@ -58,15 +59,6 @@ const Toast = ({
     endAnimation();
   };
 
-  const undoAction = async () => {
-    if (!toast?.onUndo) {
-      return;
-    }
-
-    await toast.onUndo();
-    endAnimation();
-  };
-
   const onAction = async () => {
     if (!toast?.action) {
       return;
@@ -104,19 +96,15 @@ const Toast = ({
     <Container className={isAnimating && 'slide-in'} role="alert">
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
-        {toast?.onUndo && (
+        {toast.action && (
           <Button
-            className="ml-2"
             variant={ButtonVariant.Primary}
             size={ButtonSize.XSmall}
-            onClick={undoAction}
-            aria-label="Undo action"
+            aria-label={toast.action.copy}
+            {...(toast.action.buttonProps ?? {})}
+            className={classNames('ml-2', toast.action.buttonProps?.className)}
+            onClick={onAction}
           >
-            {toast?.undoCopy ?? 'Undo'}
-          </Button>
-        )}
-        {toast.action && (
-          <Button {...toast.action?.buttonProps} onClick={onAction}>
             {toast.action.copy}
           </Button>
         )}
