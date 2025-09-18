@@ -323,6 +323,8 @@ export enum LogEvent {
   OpportunityMatchView = 'opportunity match view',
   RejectOpportunityMatch = 'reject opportunity match',
   ApproveOpportunityMatch = 'approve opportunity match',
+  AnswerScreeningQuestion = 'answer screening question',
+  CompleteScreening = 'complete screening',
   // End Opportunity
 }
 
