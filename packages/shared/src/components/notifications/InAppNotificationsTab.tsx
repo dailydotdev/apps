@@ -37,6 +37,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
+import NotificationGroupToggle from './NotificationToggle';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -150,7 +151,8 @@ const InAppNotificationsTab = (): ReactElement => {
             (item) => item.id !== NotificationType.SquadPostAdded,
           ).map((item) =>
             item.group ? (
-              <NotificationSwitch
+              <NotificationGroupToggle
+                type={item.type}
                 key={item.id}
                 id={item.id}
                 label={item.label}
@@ -158,8 +160,8 @@ const InAppNotificationsTab = (): ReactElement => {
                 checked={getGroupStatus(item.id, 'inApp')}
                 onToggle={() =>
                   toggleGroup(
-                    'following',
-                    !getGroupStatus('following', 'inApp'),
+                    item.id,
+                    !getGroupStatus(item.id, 'inApp'),
                     'inApp',
                   )
                 }

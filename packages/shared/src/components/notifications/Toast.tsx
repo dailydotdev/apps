@@ -67,6 +67,15 @@ const Toast = ({
     endAnimation();
   };
 
+  const onAction = async () => {
+    if (!toast?.action) {
+      return;
+    }
+
+    await toast.action.onClick();
+    endAnimation();
+  };
+
   useEffect(() => {
     if (!isTouchDevice() || !toast) {
       return;
@@ -104,6 +113,11 @@ const Toast = ({
             aria-label="Undo action"
           >
             {toast?.undoCopy ?? 'Undo'}
+          </Button>
+        )}
+        {toast.action && (
+          <Button {...toast.action?.buttonProps} onClick={onAction}>
+            {toast.action.copy}
           </Button>
         )}
         <Button

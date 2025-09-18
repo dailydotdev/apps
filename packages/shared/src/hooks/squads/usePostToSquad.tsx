@@ -1,7 +1,7 @@
+import React, { useCallback, useState } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
-import { useCallback, useState } from 'react';
 import type {
   CreatePollPostProps,
   CreatePostProps,
@@ -30,6 +30,9 @@ import { useRequestProtocol } from '../useRequestProtocol';
 import useSourcePostModeration from '../source/useSourcePostModeration';
 import type { Squad } from '../../graphql/sources';
 import { moderationRequired } from '../../components/squads/utils';
+import useNotificationSettings from '../notifications/useNotificationSettings';
+import { ButtonSize } from '../../components/buttons/common';
+import { BellIcon } from '../../components/icons';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -78,6 +81,7 @@ export const usePostToSquad = ({
   onSourcePostModerationSuccess,
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
+  const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const client = useQueryClient();
@@ -113,7 +117,22 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPollPost,
     onMutate,
-    onSuccess: onPostSuccess,
+    onSuccess: (data, vars) => {
+      if (!getGroupStatus('pollResult', 'inApp')) {
+        displayToast('Enable push notification to get poll updates', {
+          action: {
+            onClick: () => toggleGroup('pollResult', true, 'inApp'),
+            copy: 'Enable',
+            buttonProps: {
+              className: 'bg-background-default text-text-primary',
+              size: ButtonSize.Small,
+              icon: <BellIcon />,
+            },
+          },
+        });
+      }
+      onPostSuccess?.(data, vars);
+    },
     onError,
   });
 

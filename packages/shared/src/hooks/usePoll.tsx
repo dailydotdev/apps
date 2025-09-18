@@ -1,3 +1,4 @@
+import React from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { FeedData, Post, VotePollResponse } from '../graphql/posts';
@@ -10,11 +11,19 @@ import {
 import { useActiveFeedContext } from '../contexts';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
+import useNotificationSettings from './notifications/useNotificationSettings';
+import { useToastNotification } from './useToastNotification';
+import { ButtonSize } from '../components/buttons/common';
+import { BellIcon } from '../components/icons';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const usePoll = ({ post }: { post: Post }) => {
+  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { queryKey } = useActiveFeedContext();
   const queryClient = useQueryClient();
+  const { toggleGroup, getGroupStatus } = useNotificationSettings();
+  const { displayToast } = useToastNotification();
 
   const { mutate, isPending: isCastingVote } = useMutation({
     mutationFn: (optionId: string) => votePoll({ postId: post.id, optionId }),
@@ -46,6 +55,21 @@ const usePoll = ({ post }: { post: Post }) => {
           ...postUpdate,
         };
         updateFeed(pageIndex, index, updatedPost);
+      }
+
+      const isSubscribed = getGroupStatus('pollResult', 'inApp');
+      if (post?.author?.id !== user?.id && !isSubscribed) {
+        displayToast('Your vote is in, get notified when the poll ends', {
+          action: {
+            onClick: () => toggleGroup('pollResult', true, 'inApp'),
+            copy: 'Enable',
+            buttonProps: {
+              className: 'bg-background-default text-text-primary',
+              size: ButtonSize.Small,
+              icon: <BellIcon />,
+            },
+          },
+        });
       }
     },
   });
