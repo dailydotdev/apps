@@ -26,8 +26,17 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import type { DehydratedState } from '@tanstack/react-query';
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
+import {
+  getCandidatePreferencesOptions,
+  getKeywordAutocompleteOptions,
+} from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -40,6 +49,7 @@ import {
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { UploadCVButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadCVButton';
 import { ClearResumeButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearResumeButton';
+import type { GetStaticProps } from 'next';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -276,6 +286,25 @@ const JobPreferencesPage = (): ReactElement => {
       </div>
     </AccountPageContainer>
   );
+};
+
+export const getStaticProps: GetStaticProps<{
+  dehydratedState: DehydratedState;
+}> = async () => {
+  const queryClient = new QueryClient();
+  try {
+    await queryClient.prefetchQuery(getKeywordAutocompleteOptions(''));
+    const dehydratedState = dehydrate(queryClient);
+
+    return {
+      props: {
+        dehydratedState,
+      },
+      revalidate: 300,
+    };
+  } catch (_e) {
+    return { props: { dehydratedState: null }, revalidate: 60 };
+  }
 };
 
 JobPreferencesPage.getLayout = getSettingsLayout;

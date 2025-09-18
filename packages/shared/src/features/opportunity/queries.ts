@@ -105,7 +105,7 @@ export const getKeywordAutocompleteOptions = (
 
       return res.autocompleteKeywords;
     },
-    staleTime: StaleTime.Default,
+    staleTime: query.length === 0 ? StaleTime.OneHour : StaleTime.Default,
     enabled: query.length === 0 || query.length >= 2,
     placeholderData: keepPreviousData,
   };
