@@ -1,13 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useCallback } from 'react';
 import type { GetServerSideProps } from 'next';
-import type { DehydratedState } from '@tanstack/react-query';
 import Head from 'next/head';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import {
   FUNNEL_BOOT_QUERY_KEY,
@@ -28,7 +23,6 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 
 type PageProps = {
-  dehydratedState: DehydratedState;
   initialStepId: string | null;
   showCookieBanner?: boolean;
 };
@@ -79,7 +73,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 };
 
 export default function HelloWorldPage({
-  dehydratedState,
   initialStepId,
   showCookieBanner,
 }: PageProps): ReactElement {
@@ -111,7 +104,7 @@ export default function HelloWorldPage({
   }
 
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <>
       {/* <HotJarTracking hotjarId="6381877" /> */}
       <JotaiProvider>
         <Head>
@@ -129,6 +122,6 @@ export default function HelloWorldPage({
         )}
         <Toast autoDismissNotifications />
       </JotaiProvider>
-    </HydrationBoundary>
+    </>
   );
 }
