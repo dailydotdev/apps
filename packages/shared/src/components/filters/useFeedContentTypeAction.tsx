@@ -3,18 +3,18 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import { TOGGLEABLE_TYPES } from '../feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
 import { BlockIcon, PlusIcon } from '../icons';
 import { useAdvancedSettings } from '../../hooks';
-import type { PostType } from '../../types';
 import { MenuIcon } from '../MenuIcon';
 import { capitalize } from '../../lib/strings';
+import type { Post } from '../../graphql/posts';
 
 interface UseFeedContentTypeAction {
-  type: PostType;
+  post: Post;
   customFeedId?: string;
   onActionSuccess: (copy: string, onUndo: () => void) => Promise<void>;
 }
 
 export const useFeedContentTypeAction = ({
-  type,
+  post,
   customFeedId,
   onActionSuccess,
 }: UseFeedContentTypeAction) => {
@@ -27,8 +27,14 @@ export const useFeedContentTypeAction = ({
     feedId: customFeedId,
   });
 
-  const contentType = advancedSettings?.find(
-    ({ options }) => options?.type === type,
+  if (!advancedSettings || !post) {
+    return null;
+  }
+
+  const contentType = advancedSettings.find(
+    ({ options }) =>
+      options?.type &&
+      (options.type === post.sharedPost?.type || options.type === post.type),
   );
 
   if (!contentType) {
@@ -41,7 +47,7 @@ export const useFeedContentTypeAction = ({
 
   const { id } = contentType;
   const isEnabled = checkSettingsEnabledState(id);
-  const [target] = type.split(':');
+  const [target] = contentType.options.type.split(':');
 
   const onToggle = async () => {
     const icon = isEnabled ? '⛔️' : '✅';

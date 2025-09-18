@@ -395,7 +395,7 @@ const PostOptionButtonContent = ({
   };
 
   const contentTypeItem = useFeedContentTypeAction({
-    type: post.type,
+    post,
     customFeedId,
     onActionSuccess: (copy, onUndo) =>
       showMessageAndRemovePost(copy, postIndex, onUndo),
