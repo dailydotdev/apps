@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -72,6 +72,8 @@ import {
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -243,6 +245,7 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
+  const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     query: { id },
@@ -266,6 +269,16 @@ const JobPage = ({
   const hasLinks =
     opportunity?.organization?.customLinks?.length > 0 ||
     opportunity?.organization?.pressLinks?.length > 0;
+
+  useEffect(() => {
+    if (!match) {
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.OpportunityMatchView,
+      target_id: id,
+    });
+  }, [id, logEvent, match]);
 
   if (isPending || !isActionsFetched) {
     return null;

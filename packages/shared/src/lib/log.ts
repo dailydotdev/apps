@@ -320,6 +320,7 @@ export enum LogEvent {
   ClickOpportunityNudge = 'click opportunity nudge',
   OnboardingCandidate = 'onboarding candidate',
   CompleteOnboardingCandidate = 'complete onboarding candidate',
+  OpportunityMatchView = 'opportunity match view',
   // End Opportunity
 }
 
