@@ -40,6 +40,8 @@ import {
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { UploadCVButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadCVButton';
 import { ClearResumeButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearResumeButton';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -82,6 +84,7 @@ const fileSuffixMap = {
 };
 
 const JobPreferencesPage = (): ReactElement => {
+  const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
@@ -94,6 +97,10 @@ const JobPreferencesPage = (): ReactElement => {
   const { mutate: updatePreferences } = useMutation({
     ...updateCandidatePreferencesMutationOptions(updateQuery, () => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
+      logEvent({
+        event_name: LogEvent.SelectCandidateAvailability,
+        target_id: preferences?.status,
+      });
     }),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');

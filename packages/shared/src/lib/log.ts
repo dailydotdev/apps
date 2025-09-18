@@ -326,6 +326,7 @@ export enum LogEvent {
   AnswerScreeningQuestion = 'answer screening question',
   CompleteScreening = 'complete screening',
   ConfirmCandidateContact = 'confirm candidate contact',
+  SelectCandidateAvailability = 'select candidate availability',
   UpdateCandidatePreferences = 'update candidate preferences',
   ClickCandidatePreferences = 'click candidate preferences',
   // End Opportunity
