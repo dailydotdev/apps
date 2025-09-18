@@ -27,7 +27,7 @@ export const useFeedContentTypeAction = ({
     feedId: customFeedId,
   });
 
-  const contentType = advancedSettings.find(
+  const contentType = advancedSettings?.find(
     ({ options }) => options?.type === type,
   );
 
