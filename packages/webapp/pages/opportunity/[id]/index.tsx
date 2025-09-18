@@ -277,6 +277,7 @@ const JobPage = ({
     logEvent({
       event_name: LogEvent.OpportunityMatchView,
       target_id: id,
+      extra: JSON.stringify({ match_status: match.status }),
     });
   }, [id, logEvent, match]);
 
