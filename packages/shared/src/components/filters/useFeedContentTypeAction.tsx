@@ -27,10 +27,6 @@ export const useFeedContentTypeAction = ({
     feedId: customFeedId,
   });
 
-  if (!TOGGLEABLE_TYPES.includes(type)) {
-    return null;
-  }
-
   const contentType = advancedSettings.find(
     ({ options }) => options?.type === type,
   );
@@ -39,15 +35,21 @@ export const useFeedContentTypeAction = ({
     return null;
   }
 
+  if (!TOGGLEABLE_TYPES.includes(contentType.title)) {
+    return null;
+  }
+
   const { id } = contentType;
   const isEnabled = checkSettingsEnabledState(id);
+  const [target] = type.split(':');
 
   const onToggle = async () => {
     const icon = isEnabled ? '⛔️' : '✅';
     const update = isEnabled ? 'blocked' : 'unblocked';
     await onUpdateSettings([{ id, enabled: !isEnabled }]);
-    await onActionSuccess(`${icon} ${capitalize(type)} content ${update}`, () =>
-      onUpdateSettings([{ id, enabled: !isEnabled }]),
+    await onActionSuccess(
+      `${icon} ${capitalize(target)} content ${update}`,
+      () => onUpdateSettings([{ id, enabled: !isEnabled }]),
     );
   };
 
@@ -60,7 +62,7 @@ export const useFeedContentTypeAction = ({
         Icon={isEnabled ? BlockIcon : PlusIcon}
       />
     ),
-    label: `${action} ${type} content`,
+    label: `${action} ${target} content`,
     action: onToggle,
   };
 };
