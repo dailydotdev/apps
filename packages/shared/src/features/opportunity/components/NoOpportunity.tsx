@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { NotificationPromptSource } from '../../../lib/log';
+import { NotificationPromptSource, TargetId } from '../../../lib/log';
 import { Switch } from '../../../components/fields/Switch';
 import { JobIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -14,9 +14,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import Link from '../../../components/utilities/Link';
-import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { Button } from '../../../components/buttons/Button';
+import { CandidatePreferenceButton } from './CandidatePreferenceButton';
 
 export const NoOpportunity = (): ReactElement => {
   const { isSubscribed, isInitialized, isPushSupported } =
@@ -92,17 +93,10 @@ export const NoOpportunity = (): ReactElement => {
         </Button>
       </Link>
 
-      <Link href={`${settingsUrl}/job-preferences`} passHref>
-        <Button
-          tag="a"
-          className="w-full max-w-80"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Large}
-          icon={<JobIcon size={IconSize.Small} />}
-        >
-          Update job preferences
-        </Button>
-      </Link>
+      <CandidatePreferenceButton
+        label="Update job preferences"
+        targetId={TargetId.OpportunityUnavailablePage}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
 import React from 'react';
+import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -20,10 +20,14 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  NotificationPromptSource,
+} from '@dailydotdev/shared/src/lib/log';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useRouter } from 'next/router';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -45,12 +49,21 @@ const NotifyPage = (): ReactElement => {
     query: { id },
   } = useRouter();
   const opportunityId = id as string;
+  const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
   const showAlert =
     isPushSupported && isInitialized && (!isSubscribed || acceptedJustNow);
+
+  const handleClick = (): void => {
+    logEvent({
+      event_name: LogEvent.ConfirmCandidateContact,
+      target_id: opportunityId,
+    });
+  };
+
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
@@ -109,8 +122,8 @@ const NotifyPage = (): ReactElement => {
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  Get an instant heads-up the moment there’s a match, even if
-                  you’re not in the app.
+                  Get an instant heads-up the moment there&apos;s a match, even
+                  if you&apos;re not in the app.
                 </Typography>
               </FlexCol>
               <Switch
@@ -129,10 +142,11 @@ const NotifyPage = (): ReactElement => {
         <FlexRow className="justify-center">
           <Link href={`${opportunityUrl}/${opportunityId}/done`} passHref>
             <Button
+              tag="a"
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
               className="w-full laptop:w-auto"
-              tag="a"
+              onClick={handleClick}
             >
               Continue
             </Button>

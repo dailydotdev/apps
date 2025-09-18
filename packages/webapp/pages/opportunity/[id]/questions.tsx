@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 
@@ -31,6 +31,8 @@ import {
   saveOpportunityScreeningAnswersMutationOptions,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -63,6 +65,7 @@ const AcceptPage = (): ReactElement => {
   >({});
   const { completeAction, isActionsFetched, checkHasCompleted } = useActions();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const hasSetPreferences = checkHasCompleted(
     ActionType.UserCandidatePreferencesSaved,
@@ -86,6 +89,10 @@ const AcceptPage = (): ReactElement => {
   const { mutate: saveAnswers } = useMutation({
     ...saveOpportunityScreeningAnswersMutationOptions(opportunityId),
     onSuccess: async () => {
+      logEvent({
+        event_name: LogEvent.CompleteScreening,
+        target_id: opportunityId,
+      });
       if (hasSetPreferences) {
         acceptOpportunity();
       } else {
@@ -100,6 +107,14 @@ const AcceptPage = (): ReactElement => {
   const questions = opportunity?.questions || [];
 
   const handleNext = () => {
+    logEvent({
+      event_name: LogEvent.AnswerScreeningQuestion,
+      target_id: opportunityId,
+      extra: JSON.stringify({
+        index: activeQuestion,
+        question_id: questions[activeQuestion].id,
+      }),
+    });
     if (activeQuestion === questions.length - 1) {
       saveAnswers(Object.values(answers));
       return;

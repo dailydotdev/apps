@@ -12,6 +12,8 @@ import { opportunityUrl } from '../../../lib/constants';
 import Link from '../../../components/utilities/Link';
 import { opportunityMatchOptions } from '../queries';
 import { OpportunityMatchStatus } from '../types';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const ResponseButtons = ({
   id,
@@ -22,8 +24,16 @@ export const ResponseButtons = ({
   className: { container?: string; buttons?: string };
   size?: ButtonSize;
 }): ReactElement => {
+  const { logEvent } = useLogContext();
   const { data } = useQuery(opportunityMatchOptions({ id }));
   const status = data?.status;
+
+  const handleClick = (event_name: LogEvent): void => {
+    logEvent({
+      event_name,
+      target_id: id,
+    });
+  };
 
   return (
     <div className={className?.container}>
@@ -37,6 +47,7 @@ export const ResponseButtons = ({
             icon={<MiniCloseIcon />}
             variant={ButtonVariant.Subtle}
             disabled={status === OpportunityMatchStatus.CandidateRejected}
+            onClick={() => handleClick(LogEvent.RejectOpportunityMatch)}
           >
             Not for me
           </Button>
@@ -52,6 +63,7 @@ export const ResponseButtons = ({
             icon={<VIcon />}
             variant={ButtonVariant.Primary}
             disabled={status === OpportunityMatchStatus.CandidateAccepted}
+            onClick={() => handleClick(LogEvent.ApproveOpportunityMatch)}
           >
             I&apos;m interested
           </Button>

@@ -35,6 +35,8 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
@@ -93,6 +95,7 @@ const DeclinePage = (): ReactElement => {
   } = useRouter();
   const opportunityId = id as string;
   const [option, setOption] = useState<CandidateStatus | null>(null);
+  const { logEvent } = useLogContext();
   const { push, back } = useRouter();
   const { completeAction, isActionsFetched } = useActions();
 
@@ -102,7 +105,12 @@ const DeclinePage = (): ReactElement => {
   const updateQuery = useUpdateQuery(opts);
   const { data: preferences } = useQuery(opts);
   const { mutate: updatePreferences } = useMutation({
-    ...updateCandidatePreferencesMutationOptions(updateQuery),
+    ...updateCandidatePreferencesMutationOptions(updateQuery, () => {
+      logEvent({
+        event_name: LogEvent.SelectCandidateAvailability,
+        target_id: preferences?.status,
+      });
+    }),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');
     },

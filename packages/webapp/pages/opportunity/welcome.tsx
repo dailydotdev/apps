@@ -1,5 +1,5 @@
+import React, { useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
@@ -43,6 +43,9 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/components/CVOverlay';
 import { useRouter } from 'next/router';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { CandidatePreferenceButton } from '@dailydotdev/shared/src/features/opportunity/components/CandidatePreferenceButton';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -60,6 +63,10 @@ const HeaderSection = (): ReactElement => {
   const { push } = useRouter();
   const { user } = useAuthContext();
   const { alerts } = useAlertsContext();
+  const { logEvent } = useLogContext();
+  const logRef = useRef<typeof logEvent>();
+  const hasLoggedRef = useRef(false);
+  logRef.current = logEvent;
 
   const { isActionsFetched, completeAction } = useActions();
   const { opportunityId } = alerts;
@@ -67,6 +74,22 @@ const HeaderSection = (): ReactElement => {
   const onUploadSuccess = () => {
     push(jobPreferenceUrl);
   };
+
+  const handleClick = (): void => {
+    logRef.current({
+      event_name: LogEvent.CompleteOnboardingCandidate,
+    });
+  };
+
+  useEffect(() => {
+    if (hasLoggedRef.current) {
+      return;
+    }
+    logRef.current({
+      event_name: LogEvent.OnboardingCandidate,
+    });
+    hasLoggedRef.current = true;
+  }, [logRef]);
 
   useEffect(() => {
     if (!isActionsFetched) {
@@ -97,13 +120,14 @@ const HeaderSection = (): ReactElement => {
           {opportunityId ? (
             <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
               <Button
+                tag="a"
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Large}
                 style={{
                   background: briefButtonBg,
                 }}
-                tag="a"
                 className="mt-4 gap-2 border-none !px-16 text-black"
+                onClick={handleClick}
               >
                 <ProfilePicture
                   size={ProfileImageSize.Small}
@@ -118,15 +142,9 @@ const HeaderSection = (): ReactElement => {
             <CVOverlay
               blur={false}
               backButton={
-                <Link href={jobPreferenceUrl} passHref>
-                  <Button
-                    tag="a"
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Large}
-                  >
-                    Job preferences
-                  </Button>
-                </Link>
+                <CandidatePreferenceButton
+                  targetId={TargetId.OpportunityWelcomePage}
+                />
               }
               onUploadSuccess={onUploadSuccess}
             />
