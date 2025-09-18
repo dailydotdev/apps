@@ -68,7 +68,9 @@ const Toast = ({
   };
 
   const onAction = async () => {
-    if (!toast?.action) return;
+    if (!toast?.action) {
+      return;
+    }
 
     await toast.action.onClick();
     endAnimation();

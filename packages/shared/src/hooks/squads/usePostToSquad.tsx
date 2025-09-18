@@ -31,8 +31,6 @@ import useSourcePostModeration from '../source/useSourcePostModeration';
 import type { Squad } from '../../graphql/sources';
 import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
-import { NotificationType } from '../../components/notifications/utils';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
 
