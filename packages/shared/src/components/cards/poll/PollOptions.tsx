@@ -8,6 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { VIcon } from '../../icons';
+import { isNullOrUndefined } from '../../../lib/func';
 
 type PollOptionsProps = {
   className?: {
@@ -83,15 +84,16 @@ const PollResults = ({
   });
 };
 
-const PollOptionButtons = ({
+export const PollOptionButtons = ({
   options,
   onClick,
 }: {
   options: PollOption[];
-  onClick: (optionId: string) => void;
+  onClick?: (optionId: string) => void;
 }) => {
   return options.map((option) => (
     <button
+      disabled={isNullOrUndefined(onClick)}
       onClick={() => onClick(option.id)}
       key={option.order}
       type="button"

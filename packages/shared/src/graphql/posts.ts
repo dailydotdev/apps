@@ -666,8 +666,10 @@ export interface PollOption {
   numVotes: number;
 }
 
+type CreatePollOption = Pick<PollOption, 'text' | 'order'>;
+
 export interface CreatePollPostProps extends Pick<EditPostProps, 'title'> {
-  options: PollOption[];
+  options: CreatePollOption[];
   duration?: number;
 }
 
@@ -681,6 +683,8 @@ export interface CreatePostModerationProps {
   imageUrl?: string;
   image?: File;
   postId?: string;
+  duration?: number;
+  pollOptions?: CreatePollOption[];
 }
 
 export interface UpdatePostModerationProps extends CreatePostModerationProps {
@@ -740,6 +744,8 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
     $imageUrl: String
     $externalLink: String
     $postId: ID
+    $duration: Int
+    $pollOptions: [PollOptionInput!]
   ) {
     createSourcePostModeration(
       sourceId: $sourceId
@@ -751,6 +757,8 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       imageUrl: $imageUrl
       externalLink: $externalLink
       postId: $postId
+      duration: $duration
+      pollOptions: $pollOptions
     ) {
       id
       title

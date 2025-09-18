@@ -20,19 +20,12 @@ export const getContentCurationList = (
     AdvancedSettingsGroup.SourceTypes,
   ]);
 
-/*
- * At the moment, we are only referencing the Video entity, but it should be based from the group that it is in.
- * Point being, we have to send multiple mutation requests at the same time if the user toggles the switch.
- * We should instead introduce a new mutation to handle an array of settings to toggle.
- * */
-export const getVideoSetting = (
+export const getAdvancedContentTypes = (
+  titles: string[],
   advancedSettings: AdvancedSettings[],
-): AdvancedSettings =>
-  advancedSettings?.find(({ title }) => title === 'Videos');
-
-export const getArticleSettings = (
-  advancedSettings: AdvancedSettings[],
-): AdvancedSettings[] =>
-  advancedSettings?.filter(({ title }) =>
-    ['Article', 'Share', 'Freeform', 'Welcome', 'Collection'].includes(title),
-  ) || [];
+) =>
+  titles
+    .map((title) =>
+      advancedSettings?.find((advanced) => advanced.title === title),
+    )
+    .filter(Boolean);
