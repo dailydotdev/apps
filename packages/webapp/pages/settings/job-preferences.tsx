@@ -87,12 +87,6 @@ const options = [
   },
 ];
 
-const fileSuffixMap = {
-  'application/pdf': 'pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-    'docx',
-};
-
 const JobPreferencesPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
@@ -242,13 +236,12 @@ const JobPreferencesPage = (): ReactElement => {
                 opportunity.
               </Typography>
 
-              {preferences?.cv?.blob && (
+              {preferences?.cv?.fileName && (
                 <Typography
                   className="flex items-center gap-1"
                   type={TypographyType.Footnote}
                 >
-                  <DocsIcon secondary /> {preferences.cv.blob}.
-                  {fileSuffixMap[preferences.cv.contentType]}
+                  <DocsIcon secondary /> {preferences.cv.fileName}
                   <ClearResumeButton />
                 </Typography>
               )}

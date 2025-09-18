@@ -7,6 +7,13 @@ export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   }
 `;
 
+export const GCS_BLOB_FRAGMENT = gql`
+  fragment GCSBlob on GCSBlob {
+    fileName
+    lastModified
+  }
+`;
+
 export const OPPORTUNITY_BY_ID_QUERY = gql`
   query OpportunityById($id: ID!) {
     opportunityById(id: $id) {
@@ -116,9 +123,8 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
     getCandidatePreferences {
       status
       cv {
-        blob
-        contentType
-        lastModified
+        ...GCSBlob
+      }
       }
       role
       roleType
@@ -140,6 +146,8 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       }
     }
   }
+
+  ${GCS_BLOB_FRAGMENT}
 `;
 
 export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`

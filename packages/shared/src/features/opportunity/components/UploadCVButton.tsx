@@ -34,8 +34,7 @@ export const UploadCVButton = (): ReactElement => {
       set({
         ...preferences,
         cv: {
-          blob: user.id,
-          contentType: files[0].type,
+          fileName: user.id,
           lastModified: new Date(),
         },
       });
