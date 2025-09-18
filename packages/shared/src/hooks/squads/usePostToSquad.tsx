@@ -1,7 +1,7 @@
+import React, { useCallback, useState } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
-import React, { useCallback, useState } from 'react';
 import type {
   CreatePollPostProps,
   CreatePostProps,
