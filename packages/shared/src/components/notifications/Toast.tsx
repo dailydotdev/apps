@@ -100,7 +100,7 @@ const Toast = ({
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.XSmall}
-            aria-label="Undo action"
+            aria-label={toast.action.copy}
             {...(toast.action.buttonProps ?? {})}
             className={classNames('ml-2', toast.action.buttonProps?.className)}
             onClick={onAction}
