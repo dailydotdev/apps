@@ -56,7 +56,7 @@ export type OpportunityMeta = {
   roleType?: number;
 };
 
-export type OpportunityKeyword = {
+export type Keyword = {
   keyword: string;
 };
 
@@ -83,7 +83,7 @@ export type Opportunity = {
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
   location: OpportunityLocation[];
-  keywords?: OpportunityKeyword[];
+  keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
 };
 
@@ -100,6 +100,8 @@ export type UserCV = {
   lastModified: Date;
 };
 
+export type UserCandidateKeyword = Keyword;
+
 export type UserCandidatePreferences = {
   status: CandidateStatus;
   cv?: UserCV;
@@ -112,4 +114,5 @@ export type UserCandidatePreferences = {
   companyStage?: CompanyStage[];
   companySize?: CompanySize[];
   customKeywords?: boolean;
+  keywords?: Array<UserCandidateKeyword>;
 };

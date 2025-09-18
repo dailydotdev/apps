@@ -135,6 +135,9 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       companySize
       companyStage
       customKeywords
+      keywords {
+        keyword
+      }
     }
   }
 `;
@@ -187,6 +190,31 @@ export const ACCEPT_OPPORTUNITY_MATCH = gql`
 export const CLEAR_RESUME_MUTATION = gql`
   mutation ClearResume {
     clearResume {
+      _
+    }
+  }
+`;
+
+export const AUTOCOMPLETE_KEYWORDS_QUERY = gql`
+  query AutocompleteKeywords($query: String!, $limit: Int) {
+    autocompleteKeywords(query: $query, limit: $limit) {
+      keyword
+      title
+    }
+  }
+`;
+
+export const CANDIDATE_KEYWORD_ADD_MUTATION = gql`
+  mutation CandidateAddKeywords($keywords: [String!]!) {
+    candidateAddKeywords(keywords: $keywords) {
+      _
+    }
+  }
+`;
+
+export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
+  mutation CandidateRemoveKeywords($keywords: [String!]!) {
+    candidateRemoveKeywords(keywords: $keywords) {
       _
     }
   }

@@ -21,12 +21,17 @@ import {
   SalaryPeriod,
 } from '../../features/opportunity/protobuf/opportunity';
 import type { UpdatedCandidatePreferences } from '../../features/opportunity/mutations';
-import { updateCandidatePreferencesMutationOptions } from '../../features/opportunity/mutations';
+import {
+  candidateAddKeywordMutationOptions,
+  candidateRemoveKeywordMutationOptions,
+  updateCandidatePreferencesMutationOptions,
+} from '../../features/opportunity/mutations';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useActions, useToastNotification } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { stringToBoolean } from '../../lib/utils';
+import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -65,6 +70,19 @@ export const PreferenceOptionsForm = (): ReactElement => {
     }),
     onError: () => {
       displayToast('Failed to update preferences. Please try again.');
+    },
+  });
+
+  const { mutate: addKeyword } = useMutation({
+    ...candidateAddKeywordMutationOptions(useUpdateQuery(opts)),
+    onError: () => {
+      displayToast('Failed to add keyword. Please try again.');
+    },
+  });
+  const { mutate: removeKeyword } = useMutation({
+    ...candidateRemoveKeywordMutationOptions(useUpdateQuery(opts)),
+    onError: () => {
+      displayToast('Failed to remove keyword. Please try again.');
     },
   });
 
@@ -303,7 +321,13 @@ export const PreferenceOptionsForm = (): ReactElement => {
           }}
         />
 
-        {preferences?.customKeywords && <p>TODO: Custom keywords input here</p>}
+        {preferences?.customKeywords && (
+          <KeywordSelection
+            keywords={preferences?.keywords}
+            addKeyword={addKeyword}
+            removeKeyword={removeKeyword}
+          />
+        )}
       </FlexCol>
     </FlexCol>
   );
