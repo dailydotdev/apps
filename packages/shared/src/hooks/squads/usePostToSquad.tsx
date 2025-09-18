@@ -120,7 +120,7 @@ export const usePostToSquad = ({
     mutationFn: createPollPost,
     onMutate,
     onSuccess: (data, vars) => {
-      if (getGroupStatus('pollResult', 'inApp')) {
+      if (!getGroupStatus('pollResult', 'inApp')) {
         displayToast('Enable push notification to get poll updates', {
           action: {
             onClick: () => toggleGroup('pollResult', true, 'inApp'),
