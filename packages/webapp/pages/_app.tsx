@@ -6,7 +6,12 @@ import Head from 'next/head';
 import 'focus-visible';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo, NextSeo } from 'next-seo';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { DehydratedState } from '@tanstack/react-query';
+import {
+  HydrationBoundary,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   useCookieBanner,
@@ -253,7 +258,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   );
 }
 
-export default function App(props: AppProps): ReactElement {
+export default function App(
+  props: AppProps<{ dehydratedState: DehydratedState }>,
+): ReactElement {
   const [queryClient] = useState(
     () => new QueryClient(defaultQueryClientConfig),
   );
@@ -262,27 +269,33 @@ export default function App(props: AppProps): ReactElement {
   useError();
   useManualScrollRestoration();
 
+  const {
+    pageProps: { dehydratedState },
+  } = props;
+
   return (
     <ProgressiveEnhancementContextProvider>
       <QueryClientProvider client={queryClient}>
-        <BootDataProvider
-          app={BootApp.Webapp}
-          getRedirectUri={getRedirectUri}
-          getPage={getPage}
-          version={version}
-          deviceId={deviceId}
-        >
-          <PixelsProvider>
-            <PushNotificationContextProvider>
-              <SubscriptionContextProvider>
-                <PostReferrerContextProvider>
-                  <InternalApp {...props} />
-                </PostReferrerContextProvider>
-              </SubscriptionContextProvider>
-            </PushNotificationContextProvider>
-          </PixelsProvider>
-        </BootDataProvider>
-        <ReactQueryDevtools />
+        <HydrationBoundary state={dehydratedState}>
+          <BootDataProvider
+            app={BootApp.Webapp}
+            getRedirectUri={getRedirectUri}
+            getPage={getPage}
+            version={version}
+            deviceId={deviceId}
+          >
+            <PixelsProvider>
+              <PushNotificationContextProvider>
+                <SubscriptionContextProvider>
+                  <PostReferrerContextProvider>
+                    <InternalApp {...props} />
+                  </PostReferrerContextProvider>
+                </SubscriptionContextProvider>
+              </PushNotificationContextProvider>
+            </PixelsProvider>
+          </BootDataProvider>
+          <ReactQueryDevtools />
+        </HydrationBoundary>
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );
