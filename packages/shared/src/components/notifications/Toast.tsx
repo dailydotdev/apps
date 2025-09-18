@@ -68,6 +68,15 @@ const Toast = ({
     endAnimation();
   };
 
+  const onAction = async () => {
+    if (!toast?.action) {
+      return;
+    }
+
+    await toast.action.onClick();
+    endAnimation();
+  };
+
   useEffect(() => {
     if (!isTouchDevice() || !toast) {
       return;
@@ -105,6 +114,11 @@ const Toast = ({
             className={classNames('ml-2', toast.action.buttonProps?.className)}
             onClick={onAction}
           >
+            {toast.action.copy}
+          </Button>
+        )}
+        {toast.action && (
+          <Button {...toast.action?.buttonProps} onClick={onAction}>
             {toast.action.copy}
           </Button>
         )}
