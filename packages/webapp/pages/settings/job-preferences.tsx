@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
+import type { GetStaticProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
@@ -26,8 +27,17 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import type { DehydratedState } from '@tanstack/react-query';
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
+import {
+  getCandidatePreferencesOptions,
+  getKeywordAutocompleteOptions,
+} from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CandidateStatus } from '@dailydotdev/shared/src/features/opportunity/protobuf/user-candidate-preference';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -283,6 +293,25 @@ const JobPreferencesPage = (): ReactElement => {
       </div>
     </AccountPageContainer>
   );
+};
+
+export const getStaticProps: GetStaticProps<{
+  dehydratedState: DehydratedState;
+}> = async () => {
+  const queryClient = new QueryClient();
+  try {
+    await queryClient.prefetchQuery(getKeywordAutocompleteOptions(''));
+    const dehydratedState = dehydrate(queryClient);
+
+    return {
+      props: {
+        dehydratedState,
+      },
+      revalidate: 300,
+    };
+  } catch (_e) {
+    return { props: { dehydratedState: null }, revalidate: 60 };
+  }
 };
 
 JobPreferencesPage.getLayout = getSettingsLayout;
