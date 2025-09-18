@@ -72,6 +72,10 @@ import {
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
+import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -243,6 +247,8 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
+  const { openModal } = useLazyModal();
+
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     query: { id },
@@ -276,7 +282,7 @@ const JobPage = ({
   }
 
   return (
-    <>
+    <OpportunityEditProvider>
       {!hasUploadedCV && (
         <CVOverlay
           backButton={
@@ -340,7 +346,18 @@ const JobPage = ({
           </div>
 
           {/* Content */}
-          <div className="flex flex-col gap-4 px-8 py-6">
+          <div className="relative flex flex-col gap-4 px-8 py-6">
+            <OpportunityEditButton
+              className="absolute right-4 top-4"
+              onClick={() => {
+                openModal({
+                  type: LazyModal.OpportunityEdit,
+                  props: {
+                    id: opportunity.id,
+                  },
+                });
+              }}
+            />
             {/* Recruiter */}
             {!!opportunity.recruiters?.[0] && (
               <div className="flex items-center gap-2">
@@ -798,7 +815,7 @@ const JobPage = ({
           )}
         </FlexCol>
       </div>
-    </>
+    </OpportunityEditProvider>
   );
 };
 

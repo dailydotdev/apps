@@ -102,6 +102,7 @@
   "dependencies": {
     "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e",
     "@growthbook/growthbook-react": "^0.17.0",
+    "@hookform/resolvers": "5.2.2",
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "^1.1.0",
     "@paddle/paddle-js": "1.4.0",
@@ -118,6 +119,7 @@
     "lottie-react": "^2.4.1",
     "node-fetch": "^2.6.6",
     "parsecurrency": "^1.1.1",
+    "react-hook-form": "7.54.2",
     "react-markdown": "^8.0.7",
     "react-onesignal": "^3.0.1",
     "react-syntax-highlighter": "^15.5.0",
@@ -126,7 +128,8 @@
     "tippy.js": "^6.3.7",
     "uuid": "^8.3.2",
     "web-vitals": "^3.5.0",
-    "webextension-polyfill": "^0.12.0"
+    "webextension-polyfill": "^0.12.0",
+    "zod": "4.1.8"
   },
   "sideEffects": [
     "*.css"

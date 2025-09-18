@@ -4,6 +4,7 @@ import type { PopoverContentProps } from '@radix-ui/react-popover';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import type { DefaultError, UseMutateFunction } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { TextField } from '../../../components/fields/TextField';
 import { FeedbackIcon, SearchIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -17,15 +18,21 @@ import { getKeywordAutocompleteOptions } from '../queries';
 import type { EmptyResponse } from '../../../graphql/emptyResponse';
 
 export type KeywordSelectionProps = {
+  className?: string;
   keywords?: Array<Keyword>;
   addKeyword: UseMutateFunction<EmptyResponse, DefaultError, Array<string>>;
   removeKeyword: UseMutateFunction<EmptyResponse, DefaultError, Array<string>>;
+  valid?: boolean;
+  hint?: string;
 };
 
 export const KeywordSelection = ({
+  className,
   keywords,
   addKeyword,
   removeKeyword,
+  valid,
+  hint,
 }: KeywordSelectionProps): ReactElement => {
   const [query, setQuery] = useState<string>('');
   const [open, setOpen] = useState(false);
@@ -48,7 +55,7 @@ export const KeywordSelection = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={classNames('flex flex-col gap-4', className)}>
       <Popover open={open && autocompleteKeywords?.length > 0}>
         <PopoverAnchor asChild>
           <TextField
@@ -140,18 +147,32 @@ export const KeywordSelection = ({
         </PopoverContent>
       </Popover>
 
-      <div className="flex flex-wrap gap-2">
-        {Array.from(keywords).map(({ keyword }) => (
-          <TagElement
-            key={keyword}
-            tag={{ name: keyword }}
-            isSelected
-            onClick={({ tag }) => {
-              removeKeyword([tag.name]);
-            }}
-          />
-        ))}
-      </div>
+      {keywords?.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {Array.from(keywords).map(({ keyword }) => (
+            <TagElement
+              key={keyword}
+              tag={{ name: keyword }}
+              isSelected
+              onClick={({ tag }) => {
+                removeKeyword([tag.name]);
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {!!hint && (
+        <div
+          role={!valid ? 'alert' : undefined}
+          className={classNames(
+            'flex items-center gap-1 px-2 typo-caption1',
+            !valid ? 'text-status-error' : 'text-text-quaternary',
+          )}
+        >
+          {hint}
+        </div>
+      )}
     </div>
   );
 };

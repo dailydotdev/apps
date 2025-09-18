@@ -16,6 +16,7 @@
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "workspace:*",
+    "@hookform/resolvers": "5.2.2",
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "1.1.0",
     "@paddle/paddle-js": "1.4.0",
@@ -38,10 +39,12 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-flip-toolkit": "^7.1.0",
+    "react-hook-form": "7.54.2",
     "react-intersection-observer": "^8.34.0",
     "react-modal": "^3.15.1",
     "react-parallax-tilt": "^1.7.248",
-    "react-swipeable": "^7.0.1"
+    "react-swipeable": "^7.0.1",
+    "zod": "4.1.8"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.27.1",
