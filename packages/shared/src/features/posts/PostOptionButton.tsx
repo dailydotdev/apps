@@ -46,7 +46,6 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
   ToastSubject,
-  useAdvancedSettings,
   useFeedLayout,
   usePlusSubscription,
   useSourceActionsNotify,
@@ -78,7 +77,6 @@ import {
   banPost,
   clickbaitPost,
   demotePost,
-  isVideoPost,
   PostType,
   promotePost,
   useCanBoostPost,
@@ -103,6 +101,7 @@ import { BoostIcon } from '../../components/icons/Boost';
 import type { FeedItem } from '../../hooks/useFeed';
 import { isBoostedPostAd } from '../../hooks/useFeed';
 import type { MenuItemProps } from '../../components/dropdown/common';
+import { useFeedContentTypeAction } from '../../components/filters/useFeedContentTypeAction';
 
 const getBlockLabel = (
   name: string,
@@ -176,13 +175,8 @@ const PostOptionButtonContent = ({
   const post = loadedPost ?? (initialPost as Post);
   const isBriefPost = post?.type === PostType.Brief;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { feedSettings, advancedSettings, checkSettingsEnabledState } =
-    useFeedSettings({
-      enabled: true,
-      feedId: customFeedId,
-    });
-  const { onUpdateSettings } = useAdvancedSettings({
-    enabled: false,
+  const { feedSettings } = useFeedSettings({
+    enabled: true,
     feedId: customFeedId,
   });
   const { logEvent } = useLogContext();
@@ -399,29 +393,13 @@ const PostOptionButtonContent = ({
       undoAction({ tags: [tag], requireLogin: true }),
     );
   };
-  const video = advancedSettings?.find(({ title }) => title === 'Videos');
-  const onToggleVideo = async () => {
-    const isEnabled = checkSettingsEnabledState(video?.id);
-    const icon = isEnabled ? '⛔️' : '✅';
-    const label = isEnabled ? 'blocked' : 'unblocked';
-    await onUpdateSettings([
-      {
-        id: video.id,
-        enabled: !isEnabled,
-      },
-    ]);
-    await showMessageAndRemovePost(
-      `${icon} Video content ${label}`,
-      postIndex,
-      () =>
-        onUpdateSettings([
-          {
-            id: video.id,
-            enabled: !isEnabled,
-          },
-        ]),
-    );
-  };
+
+  const contentTypeItem = useFeedContentTypeAction({
+    type: post.type,
+    customFeedId,
+    onActionSuccess: (copy, onUndo) =>
+      showMessageAndRemovePost(copy, postIndex, onUndo),
+  });
 
   const onHidePost = async (): Promise<void> => {
     const { successful } = await hidePost(post.id);
@@ -746,14 +724,8 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (video && isVideoPost(post)) {
-    const isEnabled = checkSettingsEnabledState(video.id);
-    const label = isEnabled ? `Don't show` : 'Show';
-    postOptions.push({
-      icon: <MenuIcon Icon={isEnabled ? BlockIcon : PlusIcon} />,
-      label: `${label} video content`,
-      action: onToggleVideo,
-    });
+  if (contentTypeItem) {
+    postOptions.push(contentTypeItem);
   }
 
   if (!isBriefPost) {
