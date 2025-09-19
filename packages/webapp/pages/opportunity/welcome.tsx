@@ -365,10 +365,16 @@ const BackgroundImage = (): ReactElement => {
 };
 
 const JobsWelcomePage = (): ReactElement => {
-  const { isAuthReady } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
+
+  const { isPending } = useQuery(getCandidatePreferencesOptions(user?.id));
 
   if (!isAuthReady) {
     return <BackgroundImage />;
+  }
+
+  if (isAuthReady && isPending) {
+    return null;
   }
 
   return (
