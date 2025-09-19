@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -17,6 +18,9 @@ import { UploadIcon } from '../../../components/icons/Upload';
 import { FeelingLazy } from '../../profile/components/FeelingLazy';
 import { ShieldPlusIcon } from '../../../components/icons';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import { getCandidatePreferencesOptions } from '../queries';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 
 export const CVOverlay = ({
   blur = true,
@@ -27,16 +31,30 @@ export const CVOverlay = ({
   backButton?: ReactNode;
   onUploadSuccess?: () => void;
 }): ReactElement => {
+  const { user } = useAuthContext();
   const { onUpload, isPending: isUploadPending } = useUploadCv({
     shouldOpenModal: false,
     onUploadSuccess,
   });
 
+  const opts = getCandidatePreferencesOptions(user?.id);
+  const [, set] = useUpdateQuery(opts);
+
+  const { data: preferences } = useQuery(opts);
+
   const [file, setFile] = useState<File | null>(null);
 
   const handleUpload = useCallback(async () => {
     await onUpload(file as File);
-  }, [file, onUpload]);
+
+    set({
+      ...preferences,
+      cv: {
+        fileName: file.name,
+        lastModified: new Date(),
+      },
+    });
+  }, [file, onUpload, preferences, set]);
 
   useEffect(() => {
     if (!blur) {
