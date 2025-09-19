@@ -59,7 +59,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
     new Date(user.createdAt) < SHOW_POLL_TOOLTIP_ACOUNTS_BEFORE;
 
   useEffect(() => {
-    if (shouldShowPollCondition) {
+    if (!shouldShowPollCondition) {
       return;
     }
 
