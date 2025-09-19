@@ -3,7 +3,7 @@ import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
 import type {
-  CreatePollPostProps,
+  CreatePollPostForm,
   CreatePostProps,
   EditPostProps,
   ExternalLinkPreview,
@@ -55,7 +55,7 @@ interface UsePostToSquad {
     commentary: string,
   ) => Promise<unknown>;
   onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
-  onSubmitPollPost: (post: CreatePollPostProps, squad: Squad) => Promise<void>;
+  onSubmitPollPost: (post: CreatePollPostForm, squad: Squad) => Promise<void>;
   onUpdateSharePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
@@ -366,7 +366,7 @@ export const usePostToSquad = ({
 
   const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
     async ({ options, ...post }, squad) => {
-      const orderedOpts = options.map(({ text }, index) => ({
+      const orderedOpts = options.map((text, index) => ({
         text,
         order: index,
       }));
