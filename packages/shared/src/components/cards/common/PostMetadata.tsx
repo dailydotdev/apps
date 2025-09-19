@@ -46,8 +46,9 @@ export default function PostMetadata({
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
-  const shouldShowVotes = isPoll && (numPollVotes > 10 || isAuthor);
-  const pollHasEnded = endsAt && isAfter(new Date(), new Date(endsAt));
+  const shouldShowVotes = numPollVotes > 10 || isAuthor;
+  const pollHasEnded =
+    isPoll && endsAt && isAfter(new Date(), new Date(endsAt));
 
   return (
     <div
@@ -66,14 +67,15 @@ export default function PostMetadata({
           <Separator />
         )}
         {!!description && description}
-        {pollHasEnded ? (
+        {pollHasEnded && (
           <>
             <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
               Voting ended
             </Typography>
             <Separator />
           </>
-        ) : (
+        )}
+        {isPoll && (
           <>
             <Typography
               tag={TypographyTag.Span}
@@ -85,7 +87,7 @@ export default function PostMetadata({
             <Separator />
           </>
         )}
-        {shouldShowVotes && (
+        {isPoll && shouldShowVotes && (
           <>
             <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
               {largeNumberFormat(numPollVotes)}{' '}
