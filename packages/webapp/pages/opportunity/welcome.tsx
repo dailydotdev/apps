@@ -74,7 +74,7 @@ const HeaderSection = (): ReactElement => {
   const { isActionsFetched, completeAction } = useActions();
   const { opportunityId } = alerts;
 
-  const { data: preferences, isPending } = useQuery(
+  const { data: preferences } = useQuery(
     getCandidatePreferencesOptions(user?.id),
   );
 
