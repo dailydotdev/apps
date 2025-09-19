@@ -62,7 +62,7 @@ const DEBOUNCE_DELAY_MS = 750;
 
 export const PreferenceOptionsForm = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const [selectedSalaryOption, setSelectedSalaryOption] = useState(null);
+  const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
   const { user } = useAuthContext();
