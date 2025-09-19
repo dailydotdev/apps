@@ -215,10 +215,11 @@ export const PreferenceOptionsForm = (): ReactElement => {
             value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
             onChange={(e) => {
+              const min = parseFloat(e.target.value.replace(/,/g, ''));
               updatePreferences({
                 salaryExpectation: {
                   ...preferences.salaryExpectation,
-                  min: parseFloat(e.target.value.replace(/,/g, '')) || 0,
+                  min: Number.isNaN(min) ? null : min,
                 },
               });
             }}
@@ -233,7 +234,6 @@ export const PreferenceOptionsForm = (): ReactElement => {
               updatePreferences({
                 salaryExpectation: {
                   ...preferences.salaryExpectation,
-                  min: preferences?.salaryExpectation?.min || 0,
                   period: salaryDurationOptions[index].value,
                 },
               });
