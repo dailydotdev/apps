@@ -231,6 +231,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
               updatePreferences({
                 salaryExpectation: {
                   ...preferences.salaryExpectation,
+                  min: preferences?.salaryExpectation?.min || 0,
                   period: salaryDurationOptions[index].value,
                 },
               });
