@@ -25,6 +25,7 @@ import type {
   ApiZodErrorExtension,
 } from '../../graphql/common';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
+import { useToastNotification } from '../../hooks';
 
 export type OpportunityEditModalProps = {
   id: string;
@@ -34,6 +35,7 @@ export const OpportunityEditModal = ({
   id,
   ...rest
 }: OpportunityEditModalProps) => {
+  const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
     experimental_prefetchInRender: true,
@@ -52,7 +54,7 @@ export const OpportunityEditModal = ({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setError,
   } = useForm({
     resolver: zodResolver(opportunityEditSchema),
@@ -86,6 +88,10 @@ export const OpportunityEditModal = ({
             });
           }
         });
+      } else {
+        displayToast(
+          originalError.response?.errors?.[0]?.message || labels.error.generic,
+        );
       }
 
       throw originalError;
@@ -113,6 +119,7 @@ export const OpportunityEditModal = ({
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             onClick={onSubmit}
+            loading={isSubmitting}
           >
             Save
           </Button>
