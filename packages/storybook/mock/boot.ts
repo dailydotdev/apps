@@ -2,6 +2,8 @@ import * as actual from '@dailydotdev/shared/src/lib/boot';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { fn } from 'storybook/test';
+import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 
 export enum BootApp {
   Extension = 'extension',
@@ -31,9 +33,10 @@ const defaultSettings: RemoteSettings = {
     'http://custom4.com',
     'http://custom5.com',
   ],
+  sortCommentsBy: SortCommentsBy.NewestFirst,
 };
 
-const defaultBootData: actual.BootCacheData = {
+export const defaultBootData: actual.BootCacheData = {
   alerts: defaultAlerts,
   user: defaultUser,
   settings: defaultSettings,
@@ -43,14 +46,14 @@ const defaultBootData: actual.BootCacheData = {
   geo: { ip: '', region: '' },
 };
 
-export const getBootMock = (
-  bootMock: actual.BootCacheData = defaultBootData,
-): actual.Boot => ({
-  ...bootMock,
-  accessToken: { token: '1', expiresIn: '1' },
-  visit: { sessionId: '1', visitId: '1' },
-  feeds: [],
-});
+export const getBootMock = fn(
+  (bootMock: actual.BootCacheData = defaultBootData): actual.Boot => ({
+    ...bootMock,
+    accessToken: { token: '1', expiresIn: '1' },
+    visit: { sessionId: '1', visitId: '1' },
+    feeds: [],
+  }),
+);
 
 export async function getBootData() {
   return getBootMock();
