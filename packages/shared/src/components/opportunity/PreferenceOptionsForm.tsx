@@ -214,7 +214,6 @@ export const PreferenceOptionsForm = (): ReactElement => {
             label="USD"
             value={preferences?.salaryExpectation?.min?.toLocaleString('en-US')}
             className={{ container: 'w-40' }}
-            type="number"
             onChange={(e) => {
               const min = parseFloat(e.target.value.replace(/,/g, ''));
               updatePreferences({
