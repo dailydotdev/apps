@@ -573,6 +573,7 @@ const JobPage = ({
                   ({ link, socialType }) => (
                     <Link key={link} href={link} passHref>
                       <Button
+                        tag="a"
                         variant={ButtonVariant.Subtle}
                         size={ButtonSize.Small}
                         icon={
