@@ -74,6 +74,7 @@ import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/comp
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -247,6 +248,7 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
+  const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
@@ -261,9 +263,10 @@ const JobPage = ({
     ...opportunityByIdOptions({ id: id as string }),
     initialData,
   });
-  const { data: match } = useQuery(
-    opportunityMatchOptions({ id: id as string }),
-  );
+  const { data: match } = useQuery({
+    ...opportunityMatchOptions({ id: id as string }),
+    enabled: isLoggedIn && !!id,
+  });
 
   const hasCompletedInitialView = checkHasCompleted(
     ActionType.OpportunityInitialView,
@@ -288,11 +291,11 @@ const JobPage = ({
     hasLoggedRef.current = true;
   }, [id, match]);
 
-  if (isPending || !isActionsFetched) {
+  if (isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
 
-  if (!opportunity) {
+  if (!opportunity || !isLoggedIn) {
     return <NoOpportunity />;
   }
 
