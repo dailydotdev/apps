@@ -26,6 +26,8 @@ interface CreatePostButtonProps<Tag extends AllowedTags>
   footer?: boolean;
 }
 
+const SHOW_POLL_TOOLTIP_ACOUNTS_BEFORE = new Date(2025, 9, 22);
+
 export function CreatePostButton<Tag extends AllowedTags>({
   className,
   compact,
@@ -49,15 +51,21 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const completedPollType = checkHasCompleted(ActionType.SeenPostPollTooltip);
   const [shouldShowPollTooltip, setShouldShowPollTooltip] = useState(false);
+  const shouldShowPollCondition =
+    isActionsFetched &&
+    !completedPollType &&
+    isTablet &&
+    user?.createdAt &&
+    new Date(user.createdAt) < SHOW_POLL_TOOLTIP_ACOUNTS_BEFORE;
 
   useEffect(() => {
-    if (!isActionsFetched || completedPollType || !isTablet) {
+    if (!shouldShowPollCondition) {
       return;
     }
 
     completeAction(ActionType.SeenPostPollTooltip);
     setShouldShowPollTooltip(true);
-  }, [completedPollType, isActionsFetched, isTablet, completeAction]);
+  }, [shouldShowPollCondition, completeAction]);
 
   if (!footer && !user) {
     return null;
