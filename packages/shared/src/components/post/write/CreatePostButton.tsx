@@ -108,7 +108,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
         <Button
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
-          className="bg-surface-invert"
+          className="border-surface-invert bg-surface-invert"
           tag="a"
           href={`${link.post.create}?poll=true`}
         >
