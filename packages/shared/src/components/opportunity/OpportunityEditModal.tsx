@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Modal } from '../modals/common/Modal';
@@ -18,6 +18,13 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';
 import { labels } from '../../lib';
 import { opportunityEditSchema } from '../../lib/schema/opportunity';
+import { editOpportunityMutationOptions } from '../../features/opportunity/graphql';
+import { ApiError } from '../../graphql/common';
+import type {
+  ApiResponseError,
+  ApiZodErrorExtension,
+} from '../../graphql/common';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 
 export type OpportunityEditModalProps = {
   id: string;
@@ -32,33 +39,57 @@ export const OpportunityEditModal = ({
     experimental_prefetchInRender: true,
   });
 
+  const [, updateOpportunity] = useUpdateQuery(opportunityByIdOptions({ id }));
+
+  const { mutateAsync } = useMutation({
+    ...editOpportunityMutationOptions(),
+    onSuccess: (result) => {
+      updateOpportunity(result);
+    },
+  });
+
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm({
     resolver: zodResolver(opportunityEditSchema),
     defaultValues: async () => {
       const opportunityData = await promise;
 
-      return {
-        title: opportunityData.title,
-        tldr: opportunityData.tldr,
-        keywords: opportunityData.keywords,
-        country: opportunityData.location[0]?.country,
-        city: opportunityData.location[0]?.city,
-        subdivision: opportunityData.location[0]?.subdivision,
-        roleLocation: opportunityData.location[0]?.type?.toString(),
-        employmentType: opportunityData.meta.employmentType?.toString(),
-        teamSize: opportunityData.meta.teamSize,
-        salaryMin: opportunityData.meta.salary?.min,
-        salaryMax: opportunityData.meta.salary?.max,
-        salaryPeriod: opportunityData.meta.salary?.period,
-        seniorityLevel: opportunityData.meta.seniorityLevel,
-        roleType: opportunityData.meta.roleType,
-      };
+      return opportunityData;
     },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      const result = await mutateAsync({
+        payload: { id, ...data },
+      });
+
+      return result;
+    } catch (originalError) {
+      if (
+        originalError.response?.errors?.[0]?.extensions?.code ===
+        ApiError.ZodValidationError
+      ) {
+        const apiError = originalError.response
+          .errors[0] as ApiResponseError<ApiZodErrorExtension>;
+
+        apiError.extensions.issues.forEach((issue) => {
+          if (issue.path?.length) {
+            setError(issue.path.join('.') as keyof typeof errors, {
+              type: issue.code,
+              message: issue.message,
+            });
+          }
+        });
+      }
+
+      throw originalError;
+    }
   });
 
   if (!opportunity) {
@@ -81,9 +112,7 @@ export const OpportunityEditModal = ({
             type="submit"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-            onClick={handleSubmit(() => {
-              // TODO job-upload call mutation
-            })}
+            onClick={onSubmit}
           >
             Save
           </Button>
@@ -151,7 +180,7 @@ export const OpportunityEditModal = ({
           </Typography>
           <div className="flex gap-4">
             <TextField
-              {...register('country')}
+              {...register('location.0.country')}
               className={{
                 container: 'flex-1',
               }}
@@ -159,11 +188,11 @@ export const OpportunityEditModal = ({
               type="text"
               inputId="opportunityCountry"
               label="Country"
-              valid={!errors.country}
-              hint={errors.country?.message}
+              valid={!errors.location?.[0]?.country}
+              hint={errors.location?.[0]?.country?.message}
             />
             <TextField
-              {...register('city')}
+              {...register('location.0.city')}
               className={{
                 container: 'flex-1',
               }}
@@ -171,11 +200,11 @@ export const OpportunityEditModal = ({
               type="text"
               label="City"
               inputId="opportunityCity"
-              valid={!errors.city}
-              hint={errors.city?.message}
+              valid={!errors.location?.[0]?.city}
+              hint={errors.location?.[0]?.city?.message}
             />
             <TextField
-              {...register('subdivision')}
+              {...register('location.0.subdivision')}
               className={{
                 container: 'flex-1',
               }}
@@ -183,27 +212,29 @@ export const OpportunityEditModal = ({
               type="text"
               label="Subdivision"
               inputId="opportunitySubdivision"
-              valid={!errors.subdivision}
-              hint={errors.subdivision?.message}
+              valid={!errors.location?.[0]?.subdivision}
+              hint={errors.location?.[0]?.subdivision?.message}
             />
           </div>
           <Controller
-            name="roleLocation"
+            name="location.0.type"
             control={control}
             render={({ field }) => {
               return (
                 <Radio
                   className={{ container: 'flex-1 !flex-row flex-wrap' }}
                   name={field.name}
-                  options={[
-                    { label: 'Remote', value: '1' },
-                    { label: 'Office', value: '2' },
-                    {
-                      label: 'Hybrid',
-                      value: '3',
-                    },
-                  ]}
-                  value={field.value}
+                  options={
+                    [
+                      { label: 'Remote', value: '1' },
+                      { label: 'Office', value: '2' },
+                      {
+                        label: 'Hybrid',
+                        value: '3',
+                      },
+                    ] as Record<string, string>[]
+                  }
+                  value={field.value?.toString()}
                   onChange={(value) => {
                     field.onChange(value);
                   }}
@@ -217,7 +248,7 @@ export const OpportunityEditModal = ({
             Employment type*
           </Typography>
           <Controller
-            name="employmentType"
+            name="meta.employmentType"
             control={control}
             rules={{ required: labels.form.required }}
             render={({ field }) => {
@@ -225,15 +256,17 @@ export const OpportunityEditModal = ({
                 <Radio
                   className={{ container: 'flex-1 !flex-row flex-wrap' }}
                   name={field.name}
-                  options={[
-                    { label: 'Full-time', value: '1' },
-                    { label: 'Part-time', value: '2' },
-                    {
-                      label: 'Contract',
-                      value: 'Internship',
-                    },
-                  ]}
-                  value={field.value}
+                  options={
+                    [
+                      { label: 'Full-time', value: '1' },
+                      { label: 'Part-time', value: '2' },
+                      {
+                        label: 'Contract',
+                        value: '3',
+                      },
+                    ] as Record<string, string>[]
+                  }
+                  value={field.value?.toString()}
                   onChange={(value) => {
                     field.onChange(value);
                   }}
@@ -243,7 +276,7 @@ export const OpportunityEditModal = ({
           />
         </div>
         <TextField
-          {...register('teamSize', {
+          {...register('meta.teamSize', {
             valueAsNumber: true,
           })}
           className={{
@@ -253,8 +286,8 @@ export const OpportunityEditModal = ({
           inputId="opportunityTeamSize"
           label="Team size"
           fieldType="secondary"
-          valid={!errors.teamSize}
-          hint={errors.teamSize?.message}
+          valid={!errors.meta?.teamSize}
+          hint={errors.meta?.teamSize?.message}
         />
         <div className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Caption1}>
@@ -262,7 +295,7 @@ export const OpportunityEditModal = ({
           </Typography>
           <div className="flex gap-4">
             <TextField
-              {...register('salaryMin', {
+              {...register('meta.salary.min', {
                 valueAsNumber: true,
               })}
               className={{
@@ -271,11 +304,11 @@ export const OpportunityEditModal = ({
               type="text"
               inputId="opportunitySalaryMin"
               label="Min Salary"
-              valid={!errors.salaryMin}
-              hint={errors.salaryMin?.message}
+              valid={!errors.meta?.salary?.min}
+              hint={errors.meta?.salary?.min?.message}
             />
             <TextField
-              {...register('salaryMax', {
+              {...register('meta.salary.max', {
                 valueAsNumber: true,
               })}
               className={{
@@ -285,11 +318,11 @@ export const OpportunityEditModal = ({
               type="text"
               inputId="opportunitySalaryMax"
               label="Max Salary"
-              valid={!errors.salaryMax}
-              hint={errors.salaryMax?.message}
+              valid={!errors.meta?.salary?.max}
+              hint={errors.meta?.salary?.max?.message}
             />
             <Controller
-              name="salaryPeriod"
+              name="meta.salary.period"
               control={control}
               render={({ field }) => {
                 const options = ['Annually', 'Monthly', 'Hourly'];
@@ -316,7 +349,7 @@ export const OpportunityEditModal = ({
             Seniority level*
           </Typography>
           <Controller
-            name="seniorityLevel"
+            name="meta.seniorityLevel"
             control={control}
             rules={{ required: labels.form.required }}
             render={({ field }) => {
@@ -353,7 +386,7 @@ export const OpportunityEditModal = ({
             Job type*
           </Typography>
           <Controller
-            name="roleType"
+            name="meta.roleType"
             control={control}
             rules={{ required: labels.form.required }}
             render={({ field }) => {
@@ -368,13 +401,16 @@ export const OpportunityEditModal = ({
                   className={{
                     container: 'flex-1',
                   }}
-                  selectedIndex={field.value ? field.value - 1 : 0}
+                  selectedIndex={options.findIndex(
+                    (option) => option.value === field.value,
+                  )}
                   options={options.map((option) => option.title)}
                   onChange={(value) => {
-                    const valueIndex = options.findIndex(
+                    const item = options.find(
                       (option) => option.title === value,
                     );
-                    field.onChange(valueIndex + 1);
+
+                    field.onChange(item?.value || 0);
                   }}
                 />
               );

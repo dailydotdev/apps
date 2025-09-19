@@ -1,6 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
 import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import type { GraphQLError } from 'graphql-request/dist/types';
+import type { ZodError } from 'zod';
 import type { PublicProfile, UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
 import type { UserTransactionStatus } from './njord';
@@ -87,6 +88,7 @@ export enum ApiError {
   NotFound = 'NOT_FOUND',
   RateLimited = 'RATE_LIMITED',
   BalanceTransactionError = 'BALANCE_TRANSACTION_ERROR',
+  ZodValidationError = 'ZOD_VALIDATION_ERROR',
 }
 
 export enum ApiErrorMessage {
@@ -110,6 +112,10 @@ export interface ApiUserTransactionErrorExtension
     amount: number;
   };
   transactionId: string;
+}
+
+export interface ApiZodErrorExtension extends ApiResponseErrorExtension {
+  issues: ZodError['issues'];
 }
 
 export interface ApiResponseError<

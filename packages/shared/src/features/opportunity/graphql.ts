@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
+import { gqlClient } from '../../graphql/common';
+import type { Opportunity, OpportunityEditInput } from './types';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -7,97 +9,106 @@ export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   }
 `;
 
-export const OPPORTUNITY_BY_ID_QUERY = gql`
-  query OpportunityById($id: ID!) {
-    opportunityById(id: $id) {
-      id
-      type
-      title
-      tldr
-      organization {
-        ...OrganizationShortFragment
-
-        size
-        stage
-        website
-        perks
-        category
-        founded
-        location
-
-        customLinks {
-          ...Link
-        }
-        socialLinks {
-          ...Link
-        }
-        pressLinks {
-          ...Link
-        }
-      }
-      content {
-        overview {
-          ...OpportunityContentFragment
-        }
-        responsibilities {
-          ...OpportunityContentFragment
-        }
-        requirements {
-          ...OpportunityContentFragment
-        }
-        whatYoullDo {
-          ...OpportunityContentFragment
-        }
-        interviewProcess {
-          ...OpportunityContentFragment
-        }
-      }
-      keywords {
-        keyword
-      }
-      recruiters {
-        id
-        name
-        username
-        image
-        title
-        bio
-      }
-      meta {
-        roleType
-        seniorityLevel
-        teamSize
-        employmentType
-        salary {
-          min
-          max
-          period
-        }
-      }
-      location {
-        type
-        city
-        country
-        subdivision
-        continent
-      }
-      questions {
-        id
-        title
-        placeholder
-      }
-    }
-  }
-
+export const LINK_FRAGMENT = gql`
   fragment Link on OrganizationLink {
     type
     socialType
     title
     link
   }
+`;
 
+export const OPPORTUNITY_FRAGMENT = gql`
+  fragment OpportunityFragment on Opportunity {
+    id
+    type
+    title
+    tldr
+    organization {
+      ...OrganizationShortFragment
+
+      size
+      stage
+      website
+      perks
+      category
+      founded
+      location
+
+      customLinks {
+        ...Link
+      }
+      socialLinks {
+        ...Link
+      }
+      pressLinks {
+        ...Link
+      }
+    }
+    content {
+      overview {
+        ...OpportunityContentFragment
+      }
+      responsibilities {
+        ...OpportunityContentFragment
+      }
+      requirements {
+        ...OpportunityContentFragment
+      }
+      whatYoullDo {
+        ...OpportunityContentFragment
+      }
+      interviewProcess {
+        ...OpportunityContentFragment
+      }
+    }
+    keywords {
+      keyword
+    }
+    recruiters {
+      id
+      name
+      username
+      image
+      title
+      bio
+    }
+    meta {
+      roleType
+      seniorityLevel
+      teamSize
+      employmentType
+      salary {
+        min
+        max
+        period
+      }
+    }
+    location {
+      type
+      city
+      country
+      subdivision
+      continent
+    }
+    questions {
+      id
+      title
+      placeholder
+    }
+  }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
+  ${LINK_FRAGMENT}
+`;
+
+export const OPPORTUNITY_BY_ID_QUERY = gql`
+  query OpportunityById($id: ID!) {
+    opportunityById(id: $id) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
 `;
 
 export const GET_OPPORTUNITY_MATCH_QUERY = gql`
@@ -219,3 +230,26 @@ export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
     }
   }
 `;
+
+export const EDIT_OPPORTUNITY_MUTATION = gql`
+  mutation EditOpportunity($payload: OpportunityEditInput!) {
+    editOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const editOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({ payload }: { payload: OpportunityEditInput }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
