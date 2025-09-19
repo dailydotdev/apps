@@ -1,14 +1,15 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type { ComponentPropsWithoutRef, ReactElement } from 'react';
 import React, { Fragment } from 'react';
 import Logo, { LogoPosition } from '../Logo';
 import { wrapperMaxWidth } from './common';
 import classed from '../../lib/classed';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import ConditionalWrapper from '../ConditionalWrapper';
 
-type OnboardingHeaderProps = {
+interface OnboardingHeaderProps extends ComponentPropsWithoutRef<'header'> {
   isLanding?: boolean;
-};
+}
 
 const Header = classed(
   'header',
@@ -17,10 +18,14 @@ const Header = classed(
 
 export const OnboardingHeader = ({
   isLanding = false,
+  ...attrs
 }: OnboardingHeaderProps): ReactElement => {
   const Wrapper = isLanding ? Header : Fragment;
   return (
-    <Wrapper>
+    <ConditionalWrapper
+      condition={isLanding}
+      wrapper={(content) => <Wrapper {...attrs}>{content}</Wrapper>}
+    >
       <Logo
         className={classNames(
           'w-auto',
@@ -31,6 +36,6 @@ export const OnboardingHeader = ({
         logoClassName={isLanding ? { container: 'h-6 tablet:h-8' } : undefined}
         position={LogoPosition.Relative}
       />
-    </Wrapper>
+    </ConditionalWrapper>
   );
 };
