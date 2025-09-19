@@ -199,9 +199,12 @@ const metaMap = {
       if (!location) {
         return 'N/A';
       }
-      return `${location.city}${
+
+      const output = `${location.city ? `${location.city}` : ''}${
         location.subdivision ? `, ${location.subdivision}` : ''
       }${location.country ? `, ${location.country}` : ''}`;
+
+      return output || 'N/A';
     },
   },
   salary: {
