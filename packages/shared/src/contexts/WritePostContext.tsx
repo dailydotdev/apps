@@ -6,7 +6,12 @@ import type {
 } from 'react';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
-import type { EditPostProps, Post, SharedPost } from '../graphql/posts';
+import type {
+  CreatePostPollProps,
+  CreatePostProps,
+  Post,
+  SharedPost,
+} from '../graphql/posts';
 import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { useViewSize, ViewSize } from '../hooks';
@@ -32,7 +37,7 @@ export interface MergedWriteObject
 export interface WritePostProps {
   onSubmitForm: (
     e: FormEvent<HTMLFormElement>,
-    prop: WriteForm & Omit<EditPostProps, 'id'>,
+    prop: WriteForm & Omit<CreatePostProps | CreatePostPollProps, 'id'>,
     type: Post['type'],
   ) => void;
   isPosting: boolean;

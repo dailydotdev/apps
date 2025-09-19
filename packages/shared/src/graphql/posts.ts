@@ -655,9 +655,15 @@ export interface EditPostProps {
   image: File;
 }
 
-export interface CreatePostProps
+export type CreatePostProps = Pick<
+  EditPostProps,
+  'title' | 'content' | 'image'
+>;
+
+export interface CreatePostPollProps
   extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
-  sourceId: string;
+  duration: number;
+  options: string[];
 }
 export interface PollOption {
   id: string;
@@ -668,8 +674,8 @@ export interface PollOption {
 
 type CreatePollOption = Pick<PollOption, 'text' | 'order'>;
 
-export interface CreatePollPostProps extends Pick<EditPostProps, 'title'> {
-  options: CreatePollOption[];
+export interface CreatePollPostForm extends Pick<EditPostProps, 'title'> {
+  options: string[];
   duration?: number;
 }
 
@@ -858,8 +864,12 @@ export const CREATE_POLL_POST_MUTATION = gql`
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
+interface CreatePollPostProps extends Omit<CreatePollPostForm, 'options'> {
+  options: CreatePollOption[];
+}
+
 export const createPollPost = async (
-  variables: Partial<CreatePollPostProps>,
+  variables: CreatePollPostProps,
 ): Promise<Post> => {
   const res = await gqlClient.request(CREATE_POLL_POST_MUTATION, variables);
 

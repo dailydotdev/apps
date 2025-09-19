@@ -8,6 +8,7 @@ import {
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
 import type {
+  CreatePostPollProps,
   CreatePostProps,
   Post,
 } from '@dailydotdev/shared/src/graphql/posts';
@@ -169,7 +170,7 @@ function CreatePost(): ReactElement {
 
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
-    params,
+    params: CreatePostProps | CreatePostPollProps,
     type: Post['type'],
   ) => {
     e.preventDefault();
@@ -180,13 +181,16 @@ function CreatePost(): ReactElement {
     if (!squad) {
       return type === PostType.Freeform
         ? onSubmitFreeformPost(params, generateUserSourceAsSquad(user))
-        : onSubmitPollPost(params, generateUserSourceAsSquad(user));
+        : onSubmitPollPost(
+            params as CreatePostPollProps,
+            generateUserSourceAsSquad(user),
+          );
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
       return type === PostType.Freeform
         ? onSubmitFreeformPost(params, squad)
-        : onSubmitPollPost(params, squad);
+        : onSubmitPollPost(params as CreatePostPollProps, squad);
     }
 
     await onCreateSquad(generateDefaultSquad(user.username));
