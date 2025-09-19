@@ -187,19 +187,7 @@ const renderPost = (
 
   client = new QueryClient();
 
-  // Add default mock for SeenPostPollTooltip action
-  const defaultMocks = [
-    ...mocks,
-    {
-      request: {
-        query: COMPLETE_ACTION_MUTATION,
-        variables: { type: ActionType.SeenPostPollTooltip },
-      },
-      result: () => ({ data: { _: true } }),
-    },
-  ];
-
-  defaultMocks.forEach(mockGraphQL);
+  mocks.forEach(mockGraphQL);
 
   return render(
     <TestBootProvider
