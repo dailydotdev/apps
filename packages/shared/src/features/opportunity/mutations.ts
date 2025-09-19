@@ -4,9 +4,11 @@ import {
   ACCEPT_OPPORTUNITY_MATCH,
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
+  CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
   CLEAR_RESUME_MUTATION,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
+  UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
@@ -130,6 +132,47 @@ export const candidateRemoveKeywordMutationOptions = (
       set({
         ...preferences,
         keywords,
+      });
+      successCallback?.();
+    },
+  };
+};
+
+export const uploadEmploymentAgreementMutationOptions = <T extends File = File>(
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: (file: T) => void,
+): MutationOptions<EmptyResponse, DefaultError, T> => {
+  const preferences = get();
+
+  return {
+    mutationFn: async (file) =>
+      gqlClient.request(UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION, { file }),
+    onSuccess: (_, file) => {
+      set({
+        ...preferences,
+        employmentAgreement: {
+          fileName: file.name,
+          lastModified: new Date(),
+        },
+      });
+      successCallback?.(file);
+    },
+  };
+};
+
+export const clearEmploymentAgreementMutationOptions = (
+  [get, set]: UseUpdateQuery<UserCandidatePreferences>,
+  successCallback?: () => void,
+): MutationOptions<EmptyResponse> => {
+  const preferences = get();
+  return {
+    mutationFn: async () => {
+      return gqlClient.request(CLEAR_EMPLOYMENT_AGREEMENT_MUTATION);
+    },
+    onSuccess: () => {
+      set({
+        ...preferences,
+        employmentAgreement: undefined,
       });
       successCallback?.();
     },

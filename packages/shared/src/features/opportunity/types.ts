@@ -94,9 +94,8 @@ export type OpportunityMatch = {
   };
 };
 
-export type UserCV = {
-  blob: string;
-  contentType: string;
+export type GcsBlob = {
+  fileName: string;
   lastModified: Date;
 };
 
@@ -104,7 +103,8 @@ export type UserCandidateKeyword = Keyword;
 
 export type UserCandidatePreferences = {
   status: CandidateStatus;
-  cv?: UserCV;
+  cv?: GcsBlob;
+  employmentAgreement?: GcsBlob;
   role: string;
   roleType: number;
   salaryExpectation?: Omit<Salary, 'max' | 'currency'>;

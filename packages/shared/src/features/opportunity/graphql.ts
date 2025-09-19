@@ -7,6 +7,13 @@ export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   }
 `;
 
+export const GCS_BLOB_FRAGMENT = gql`
+  fragment GCSBlob on GCSBlob {
+    fileName
+    lastModified
+  }
+`;
+
 export const OPPORTUNITY_BY_ID_QUERY = gql`
   query OpportunityById($id: ID!) {
     opportunityById(id: $id) {
@@ -116,9 +123,10 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
     getCandidatePreferences {
       status
       cv {
-        blob
-        contentType
-        lastModified
+        ...GCSBlob
+      }
+      employmentAgreement {
+        ...GCSBlob
       }
       role
       roleType
@@ -140,6 +148,8 @@ export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
       }
     }
   }
+
+  ${GCS_BLOB_FRAGMENT}
 `;
 
 export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
@@ -215,6 +225,22 @@ export const CANDIDATE_KEYWORD_ADD_MUTATION = gql`
 export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
   mutation CandidateRemoveKeywords($keywords: [String!]!) {
     candidateRemoveKeywords(keywords: $keywords) {
+      _
+    }
+  }
+`;
+
+export const UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION = gql`
+  mutation UploadEmploymentAgreement($file: Upload!) {
+    uploadEmploymentAgreement(file: $file) {
+      _
+    }
+  }
+`;
+
+export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
+  mutation ClearEmploymentAgreement {
+    clearEmploymentAgreement {
       _
     }
   }

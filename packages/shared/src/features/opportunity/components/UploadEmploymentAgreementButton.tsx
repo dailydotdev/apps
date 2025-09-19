@@ -1,45 +1,42 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fileValidation, useUploadCv } from '../../profile/hooks/useUploadCv';
+import { useMutation } from '@tanstack/react-query';
+
+import { fileValidation } from '../../profile/hooks/useUploadCv';
 import { UploadButton } from '../../../components/buttons/UploadButton';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { getCandidatePreferencesOptions } from '../queries';
+import { uploadEmploymentAgreementMutationOptions } from '../mutations';
 
-export const UploadCVButton = (): ReactElement => {
+export const UploadEmploymentAgreementButton = (): ReactElement => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
 
-  const opts = getCandidatePreferencesOptions(user?.id);
-  const updateQuery = useUpdateQuery(opts);
+  const updateQuery = useUpdateQuery(getCandidatePreferencesOptions(user?.id));
 
-  const { data: preferences } = useQuery(opts);
-
-  const { onUpload: uploadCv, isPending: isUploadCvPending } = useUploadCv({
-    shouldOpenModal: false,
-    onUploadSuccess: () => displayToast('CV uploaded successfully!'),
-  });
+  const { mutate: uploadEmploymentAgreement, isPending: isUploadPending } =
+    useMutation({
+      ...uploadEmploymentAgreementMutationOptions(updateQuery, () => {
+        displayToast('Employment agreement uploaded successfully!');
+      }),
+      onError: () => {
+        displayToast(
+          'Failed to upload employment agreement. Please try again.',
+        );
+      },
+    });
 
   const handleCVUpload = useCallback(
-    async (files: File[]) => {
+    (files: File[]) => {
       if (files.length === 0) {
         return;
       }
-      const [, set] = updateQuery;
-      await uploadCv(files[0]);
-
-      set({
-        ...preferences,
-        cv: {
-          fileName: user.id,
-          lastModified: new Date(),
-        },
-      });
+      uploadEmploymentAgreement(files[0]);
     },
-    [preferences, updateQuery, uploadCv, user.id],
+    [uploadEmploymentAgreement],
   );
 
   return (
@@ -48,7 +45,7 @@ export const UploadCVButton = (): ReactElement => {
       size={ButtonSize.Small}
       variant={ButtonVariant.Subtle}
       validation={fileValidation}
-      loading={isUploadCvPending}
+      loading={isUploadPending}
       onFilesDrop={handleCVUpload}
     >
       Upload PDF
