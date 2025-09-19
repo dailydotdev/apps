@@ -1,7 +1,7 @@
 import z from 'zod';
 import { labels } from '../labels';
 
-export const opportunityEditSchema = z.object({
+export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty(labels.form.required).max(240),
   tldr: z.string().nonempty(labels.form.required).max(480),
   keywords: z
@@ -31,4 +31,18 @@ export const opportunityEditSchema = z.object({
     seniorityLevel: z.number(),
     roleType: z.union([z.literal(0), z.literal(0.5), z.literal(1)]),
   }),
+});
+
+export const opportunityContentSchema = z.string().nonempty().max(1440);
+
+export const opportunityEditContentSchema = z.object({
+  content: z
+    .object({
+      overview: opportunityContentSchema,
+      responsibilities: opportunityContentSchema,
+      requirements: opportunityContentSchema,
+      whatYoullDo: opportunityContentSchema,
+      interviewProcess: opportunityContentSchema,
+    })
+    .partial(),
 });

@@ -1,11 +1,17 @@
 import { gql } from 'graphql-request';
+import type z from 'zod';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
 import { gqlClient } from '../../graphql/common';
-import type { Opportunity, OpportunityEditInput } from './types';
+import type { Opportunity } from './types';
+import type {
+  opportunityEditContentSchema,
+  opportunityEditInfoSchema,
+} from '../../lib/schema/opportunity';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
     html
+    content
   }
 `;
 
@@ -232,20 +238,48 @@ export const CANDIDATE_KEYWORD_REMOVE_MUTATION = gql`
 `;
 
 export const EDIT_OPPORTUNITY_MUTATION = gql`
-  mutation EditOpportunity($payload: OpportunityEditInput!) {
-    editOpportunity(payload: $payload) {
+  mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
+    editOpportunity(id: $id, payload: $payload) {
       ...OpportunityFragment
     }
   }
   ${OPPORTUNITY_FRAGMENT}
 `;
 
-export const editOpportunityMutationOptions = () => {
+export const editOpportunityInfoMutationOptions = () => {
   return {
-    mutationFn: async ({ payload }: { payload: OpportunityEditInput }) => {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditInfoSchema>;
+    }) => {
       const result = await gqlClient.request<{
         editOpportunity: Opportunity;
       }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const editOpportunityContentMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditContentSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
         payload,
       });
 

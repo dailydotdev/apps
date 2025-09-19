@@ -116,22 +116,3 @@ export type UserCandidatePreferences = {
   customKeywords?: boolean;
   keywords?: Array<UserCandidateKeyword>;
 };
-
-export type OpportunityEditInput = Pick<
-  Opportunity,
-  'id' | 'title' | 'tldr'
-> & {
-  meta: Pick<
-    Opportunity['meta'],
-    'employmentType' | 'teamSize' | 'seniorityLevel' | 'roleType'
-  > & {
-    salary?: Pick<Opportunity['meta']['salary'], 'min' | 'max' | 'period'>;
-  };
-  location: Array<
-    Pick<
-      Opportunity['location'][number],
-      'city' | 'country' | 'subdivision' | 'type'
-    >
-  >;
-  keywords?: Opportunity['keywords'];
-};

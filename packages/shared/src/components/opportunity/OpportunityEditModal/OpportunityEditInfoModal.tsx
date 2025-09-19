@@ -2,39 +2,40 @@ import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Modal } from '../modals/common/Modal';
-import { TextField } from '../fields/TextField';
-import { opportunityByIdOptions } from '../../features/opportunity/queries';
-import { Loader } from '../Loader';
-import { Radio } from '../fields/Radio';
+import type z from 'zod';
+import { Modal } from '../../modals/common/Modal';
+import { TextField } from '../../fields/TextField';
+import { opportunityByIdOptions } from '../../../features/opportunity/queries';
+import { Loader } from '../../Loader';
+import { Radio } from '../../fields/Radio';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../typography/Typography';
-import { Dropdown } from '../fields/Dropdown';
-import Textarea from '../fields/Textarea';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';
-import { labels } from '../../lib';
-import { opportunityEditSchema } from '../../lib/schema/opportunity';
-import { editOpportunityMutationOptions } from '../../features/opportunity/graphql';
-import { ApiError } from '../../graphql/common';
+} from '../../typography/Typography';
+import { Dropdown } from '../../fields/Dropdown';
+import Textarea from '../../fields/Textarea';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
+import { labels } from '../../../lib';
+import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
+import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/graphql';
+import { ApiError } from '../../../graphql/common';
 import type {
   ApiResponseError,
   ApiZodErrorExtension,
-} from '../../graphql/common';
-import { useUpdateQuery } from '../../hooks/useUpdateQuery';
-import { useToastNotification } from '../../hooks';
+} from '../../../graphql/common';
+import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
+import { useToastNotification } from '../../../hooks';
 
-export type OpportunityEditModalProps = {
+export type OpportunityEditInfoModalProps = {
   id: string;
 };
 
-export const OpportunityEditModal = ({
+export const OpportunityEditInfoModal = ({
   id,
   ...rest
-}: OpportunityEditModalProps) => {
+}: OpportunityEditInfoModalProps) => {
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
@@ -44,7 +45,7 @@ export const OpportunityEditModal = ({
   const [, updateOpportunity] = useUpdateQuery(opportunityByIdOptions({ id }));
 
   const { mutateAsync } = useMutation({
-    ...editOpportunityMutationOptions(),
+    ...editOpportunityInfoMutationOptions(),
     onSuccess: (result) => {
       updateOpportunity(result);
     },
@@ -57,7 +58,7 @@ export const OpportunityEditModal = ({
     formState: { errors, isSubmitting },
     setError,
   } = useForm({
-    resolver: zodResolver(opportunityEditSchema),
+    resolver: zodResolver(opportunityEditInfoSchema),
     defaultValues: async () => {
       const opportunityData = await promise;
 
@@ -68,7 +69,8 @@ export const OpportunityEditModal = ({
   const onSubmit = handleSubmit(async (data) => {
     try {
       const result = await mutateAsync({
-        payload: { id, ...data },
+        id,
+        payload: data as z.infer<typeof opportunityEditInfoSchema>,
       });
 
       return result;

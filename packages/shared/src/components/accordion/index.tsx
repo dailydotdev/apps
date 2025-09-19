@@ -12,6 +12,7 @@ interface AccordionProps {
   className?: {
     button?: string;
   };
+  disabled?: boolean;
 }
 
 export function Accordion({
@@ -20,12 +21,17 @@ export function Accordion({
   onClick,
   initiallyOpen = false,
   className,
+  disabled = false,
 }: AccordionProps): ReactElement {
   const [isOpen, setIsOpen] = useState(initiallyOpen);
   const id = useId();
   const contentId = `accordion-content-${id}`;
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+    if (disabled) {
+      return;
+    }
+
     onClick?.(e);
 
     setIsOpen((prev) => !prev);
@@ -38,6 +44,7 @@ export function Accordion({
         aria-expanded={isOpen}
         className={classNames(
           'flex w-full flex-row gap-4 !px-0 text-left',
+          disabled && '!cursor-default',
           className?.button,
         )}
         type="button"

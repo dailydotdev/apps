@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -32,6 +32,7 @@ import {
   MagicIcon,
   MoveToIcon,
   OpenLinkIcon,
+  PlusIcon,
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -76,6 +77,7 @@ import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opport
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -247,6 +249,7 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
+  const { user } = useAuthContext();
   const { openModal } = useLazyModal();
 
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -273,6 +276,14 @@ const JobPage = ({
     opportunity?.organization?.customLinks?.length > 0 ||
     opportunity?.organization?.pressLinks?.length > 0;
 
+  const canEdit = useMemo(() => {
+    if (!user) {
+      return false;
+    }
+
+    return !!opportunity?.recruiters?.some((item) => item.id === user.id);
+  }, [opportunity, user]);
+
   if (isPending || !isActionsFetched) {
     return null;
   }
@@ -282,7 +293,7 @@ const JobPage = ({
   }
 
   return (
-    <OpportunityEditProvider>
+    <OpportunityEditProvider canEdit={canEdit}>
       {!hasUploadedCV && (
         <CVOverlay
           backButton={
@@ -353,7 +364,10 @@ const JobPage = ({
                 openModal({
                   type: LazyModal.OpportunityEdit,
                   props: {
-                    id: opportunity.id,
+                    type: 'info',
+                    payload: {
+                      id: opportunity.id,
+                    },
                   },
                 });
               }}
@@ -469,26 +483,70 @@ const JobPage = ({
             )}
           </div>
 
-          {faq.map((faqItem) => (
-            <div
-              key={faqItem.key}
-              className="border-t border-border-subtlest-tertiary px-8"
-            >
-              <Accordion
-                className={{ button: 'min-h-12' }}
-                title={<Typography>{faqItem.title}</Typography>}
+          {faq.map((faqItem) => {
+            const content = opportunity.content[faqItem.key];
+
+            const buttonLabel = content ? 'Edit' : 'Add';
+
+            return (
+              <div
+                key={faqItem.key}
+                className={classNames(
+                  'border-t border-border-subtlest-tertiary px-4',
+                  !content && 'bg-surface-float',
+                )}
               >
-                <div
-                  className="pb-4"
-                  dangerouslySetInnerHTML={{
-                    __html: opportunity.content[faqItem.key].html,
+                <Accordion
+                  className={{
+                    button: classNames('min-h-12 flex-row-reverse'),
                   }}
-                />
-                {/* TODO: this is a hack so that numeric lists are styled correctly */}
-                <span className="hidden list-decimal" />
-              </Accordion>
-            </div>
-          ))}
+                  title={
+                    <div className="flex items-center">
+                      <Typography>{faqItem.title}</Typography>
+                      <OpportunityEditButton
+                        className="ml-auto"
+                        type="text"
+                        variant={
+                          !content
+                            ? ButtonVariant.Secondary
+                            : ButtonVariant.Tertiary
+                        }
+                        size={ButtonSize.Small}
+                        icon={!content ? <PlusIcon /> : undefined}
+                        onClick={() => {
+                          openModal({
+                            type: LazyModal.OpportunityEdit,
+                            props: {
+                              type: 'content',
+                              payload: {
+                                id: opportunity.id,
+                                contentTitle: faqItem.title,
+                                contentName: faqItem.key,
+                              },
+                            },
+                          });
+                        }}
+                      >
+                        {buttonLabel}
+                      </OpportunityEditButton>
+                    </div>
+                  }
+                  disabled={!content}
+                >
+                  {!!content && (
+                    <div
+                      className="pb-4"
+                      dangerouslySetInnerHTML={{
+                        __html: opportunity.content[faqItem.key].html,
+                      }}
+                    />
+                  )}
+                  {/* TODO: this is a hack so that numeric lists are styled correctly */}
+                  <span className="hidden list-decimal" />
+                </Accordion>
+              </div>
+            );
+          })}
 
           {match?.status === OpportunityMatchStatus.Pending && (
             <ResponseButtons
@@ -778,10 +836,13 @@ const JobPage = ({
               </div>
 
               {/* Recruiters */}
-              {opportunity?.recruiters?.map((user) => (
-                <FlexCol key={user.id} className="gap-4 px-4 pb-4">
+              {opportunity?.recruiters?.map((recruiter) => (
+                <FlexCol key={recruiter.id} className="gap-4 px-4 pb-4">
                   <div className="flex items-center gap-2">
-                    <ProfilePicture user={user} size={ProfileImageSize.Large} />
+                    <ProfilePicture
+                      user={recruiter}
+                      size={ProfileImageSize.Large}
+                    />
 
                     <div className="flex flex-1 flex-col truncate">
                       <Typography

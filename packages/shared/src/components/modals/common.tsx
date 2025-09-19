@@ -330,7 +330,7 @@ const SquadNotificationSettingsModal = dynamic(
 
 const OpportunityEditModal = dynamic(() =>
   import(
-    /* webpackChunkName: "opportunityEditModal" */ '../opportunity/OpportunityEditModal'
+    /* webpackChunkName: "opportunityEditModal" */ '../opportunity/OpportunityEditModal/OpportunityEditModal'
   ).then((mod) => mod.OpportunityEditModal),
 );
 

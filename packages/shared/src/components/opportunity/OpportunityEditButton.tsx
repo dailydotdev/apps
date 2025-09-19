@@ -12,10 +12,16 @@ import { useOpportunityEditContext } from './OpportunityEditContext';
 
 export type OpportunityEditButtonProps = {
   className?: string;
+  children?: React.ReactNode;
 } & ButtonProps<AllowedTags>;
 
 export const OpportunityEditButton = ({
   className,
+  children = 'Edit',
+  icon = <EditIcon />,
+  iconPosition = ButtonIconPosition.Left,
+  variant = ButtonVariant.Float,
+  size = ButtonSize.Small,
   ...rest
 }: OpportunityEditButtonProps) => {
   const { canEdit } = useOpportunityEditContext();
@@ -28,13 +34,13 @@ export const OpportunityEditButton = ({
     <Button
       className={classNames('z-tooltip', className)}
       type="button"
-      icon={<EditIcon />}
-      iconPosition={ButtonIconPosition.Left}
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
       {...rest}
+      icon={icon}
+      iconPosition={iconPosition}
+      variant={variant}
+      size={size}
     >
-      Edit
+      {children}
     </Button>
   );
 };
