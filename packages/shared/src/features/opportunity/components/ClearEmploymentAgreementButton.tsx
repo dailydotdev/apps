@@ -14,9 +14,12 @@ import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { clearEmploymentAgreementMutationOptions } from '../mutations';
 import { useActions, useToastNotification } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const ClearEmploymentAgreementButton = (): ReactElement => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
   const opts = getCandidatePreferencesOptions(user?.id);
@@ -25,6 +28,9 @@ export const ClearEmploymentAgreementButton = (): ReactElement => {
   const { mutate: clearFile, isPending: isClearFilePending } = useMutation({
     ...clearEmploymentAgreementMutationOptions(updateQuery, () => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
+      logEvent({
+        event_name: LogEvent.ClearEmploymentAgreement,
+      });
     }),
     onError: () => {
       displayToast(
