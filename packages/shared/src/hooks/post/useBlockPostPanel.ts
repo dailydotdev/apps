@@ -159,8 +159,10 @@ export const useBlockPostPanel = (
 
       if (!isRemovingDownvote) {
         displayToast(getBlockedMessage(0, false), {
-          onUndo: onDismissPermanently,
-          undoCopy: `Don't ask again`,
+          action: {
+            copy: `Don't ask again`,
+            onClick: onDismissPermanently,
+          },
         });
       }
 
@@ -209,8 +211,10 @@ export const useBlockPostPanel = (
           displayToast(
             getBlockedMessage(blocks.length, sourcePreferenceChanged),
             {
-              onUndo: onUndoToast,
-              undoCopy: 'Undo',
+              action: {
+                copy: 'Undo',
+                onClick: onUndoToast,
+              },
             },
           );
         }

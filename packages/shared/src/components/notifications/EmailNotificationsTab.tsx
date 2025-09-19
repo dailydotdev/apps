@@ -16,6 +16,7 @@ import { HorizontalSeparator } from '../utilities';
 import PersonalizedDigest from './PersonalizedDigest';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
+import NotificationGroupToggle from './NotificationToggle';
 
 const EmailNotificationsTab = (): ReactElement => {
   const {
@@ -66,7 +67,8 @@ const EmailNotificationsTab = (): ReactElement => {
         <NotificationContainer>
           {FOLLOWING_NOTIFICATIONS.map((item) =>
             item.group ? (
-              <NotificationSwitch
+              <NotificationGroupToggle
+                type={item.type}
                 key={item.id}
                 id={item.id}
                 label={item.label}
@@ -74,8 +76,8 @@ const EmailNotificationsTab = (): ReactElement => {
                 checked={getGroupStatus(item.id, 'email')}
                 onToggle={() =>
                   toggleGroup(
-                    'following',
-                    !getGroupStatus('following', 'email'),
+                    item.id,
+                    !getGroupStatus(item.id, 'email'),
                     'email',
                   )
                 }

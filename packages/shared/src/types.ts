@@ -29,6 +29,7 @@ export enum PostType {
   VideoYouTube = 'video:youtube',
   Collection = 'collection',
   Brief = 'brief',
+  Poll = 'poll',
 }
 
 export const briefSourcesLimit = 6;

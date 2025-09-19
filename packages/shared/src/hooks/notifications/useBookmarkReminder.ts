@@ -139,7 +139,10 @@ export const useBookmarkReminder = ({
       onUpdateCache(postId, remindAt);
 
       displayToast(`Reminder set for ${preference.toLowerCase()}`, {
-        onUndo: () => onUndoReminder({ postId, remindAt: existingReminder }),
+        action: {
+          copy: 'Undo',
+          onClick: () => onUndoReminder({ postId, remindAt: existingReminder }),
+        },
       });
 
       if (isPushSupported && !isSubscribed) {

@@ -13,7 +13,9 @@ interface UseAdvancedSettings {
   selectedSettings: Record<string, boolean>;
   onToggleSettings(id: number, state: boolean): void;
   onToggleSource(source: Source): void;
-  onUpdateSettings(updatedSettings: { id: number; enabled: boolean }[]): void;
+  onUpdateSettings(
+    updatedSettings: { id: number; enabled: boolean }[],
+  ): Promise<unknown>;
   checkSourceBlocked(source: Source): boolean;
 }
 

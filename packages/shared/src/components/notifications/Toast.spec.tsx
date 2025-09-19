@@ -30,7 +30,10 @@ const ComponentWithToast = ({ autoDismissNotifications = true }) => {
       <button
         type="button"
         onClick={() =>
-          displayToast('Undoable Notification', { onUndo: undo, timer: 500 })
+          displayToast('Undoable Notification', {
+            action: { copy: 'Undo', onClick: undo },
+            timer: 500,
+          })
         }
       >
         Undoable Toast
@@ -103,7 +106,7 @@ it('should display a toast notification and undoable action', async () => {
   expect(setInterval).toHaveBeenCalledTimes(1);
   const el = await screen.findByText('Undoable Notification');
   expect(el).toBeInTheDocument();
-  const undoBtn = await screen.findByLabelText('Undo action');
+  const undoBtn = await screen.findByLabelText('Undo');
   expect(undoBtn).toBeInTheDocument();
   fireEvent.click(undoBtn);
   jest.advanceTimersByTime(500);

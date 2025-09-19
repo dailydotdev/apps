@@ -117,6 +117,11 @@ const BriefPostModal = dynamic(
     import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
 );
 
+const PollPostModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "pollPostModal" */ './modals/PollPostModal'),
+);
+
 const BriefCardFeed = dynamic(
   () =>
     import(
@@ -137,6 +142,7 @@ export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.VideoYouTube]: ArticlePostModal,
   [PostType.Collection]: CollectionPostModal,
   [PostType.Brief]: BriefPostModal,
+  [PostType.Poll]: PollPostModal,
 };
 
 export default function Feed<T>({

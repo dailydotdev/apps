@@ -4,11 +4,12 @@ import useFeedSettings from '../../../hooks/useFeedSettings';
 
 import { useAdvancedSettings } from '../../../hooks';
 import {
+  getAdvancedContentTypes,
   getContentCurationList,
   getContentSourceList,
-  getVideoSetting,
 } from '../../filters/helpers';
 import { CardCheckbox } from '../../fields/CardCheckbox';
+import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
 
 interface ContentTypesProps {
   headline?: string;
@@ -33,14 +34,14 @@ export const ContentTypes = ({ headline }: ContentTypesProps): ReactElement => {
     [advancedSettings],
   );
 
-  const videoSetting = getVideoSetting(advancedSettings);
-
   const contentCurationAndVideoList = useMemo(() => {
-    if (videoSetting) {
-      return [...contentCurationList, videoSetting];
-    }
-    return contentCurationList;
-  }, [contentCurationList, videoSetting]);
+    const listedTypes = getAdvancedContentTypes(
+      TOGGLEABLE_TYPES,
+      advancedSettings,
+    );
+
+    return contentCurationList.concat(listedTypes);
+  }, [contentCurationList, advancedSettings]);
 
   const classes = '!h-[8.25rem] max-w-80';
 

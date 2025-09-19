@@ -32,7 +32,10 @@ const AddToCustomFeedModal = ({
       return;
     }
     displayToast(`✅ Added to ${feed?.flags?.name}`, {
-      onUndo: () => onUndo(feed?.id),
+      action: {
+        copy: 'Undo',
+        onClick: () => onUndo(feed?.id),
+      },
     });
     onAdd?.(feed?.id);
     closeModal();

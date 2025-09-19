@@ -98,8 +98,10 @@ export function ProfileUploadBanner({
   const router = useRouter();
   const handleClose = () => {
     displayToast('You can upload your CV later from your profile', {
-      onUndo: () => router.push(`${webappUrl}settings/profile`),
-      undoCopy: 'Go to profile',
+      action: {
+        copy: 'Go to profile',
+        onClick: () => router.push(`${webappUrl}settings/profile`),
+      },
     });
     onClose();
   };
