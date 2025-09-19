@@ -9,6 +9,8 @@ import { useToastNotification } from '../../../hooks';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { getCandidatePreferencesOptions } from '../queries';
 import { uploadEmploymentAgreementMutationOptions } from '../mutations';
+import { LogEvent } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
 
 const fileValidation = {
   acceptedTypes: ['application/pdf'],
@@ -17,6 +19,7 @@ const fileValidation = {
 
 export const UploadEmploymentAgreementButton = (): ReactElement => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
 
   const updateQuery = useUpdateQuery(getCandidatePreferencesOptions(user?.id));
@@ -25,6 +28,9 @@ export const UploadEmploymentAgreementButton = (): ReactElement => {
     useMutation({
       ...uploadEmploymentAgreementMutationOptions(updateQuery, () => {
         displayToast('Employment agreement uploaded successfully!');
+        logEvent({
+          event_name: LogEvent.UploadEmploymentAgreement,
+        });
       }),
       onError: () => {
         displayToast(

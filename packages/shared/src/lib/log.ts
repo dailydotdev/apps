@@ -313,6 +313,7 @@ export enum LogEvent {
   // End Brief
   // CV Upload
   UploadCv = 'upload cv',
+  ClearCv = 'clear cv',
   // end CV Upload
   ImpressionComment = 'impression comment',
   // Opportunity
@@ -330,6 +331,8 @@ export enum LogEvent {
   UpdateCandidatePreferences = 'update candidate preferences',
   ClickCandidatePreferences = 'click candidate preferences',
   // End Opportunity
+  UploadEmploymentAgreement = 'upload employment agreement',
+  ClearEmploymentAgreement = 'clear employment agreement',
 }
 
 export enum TargetType {

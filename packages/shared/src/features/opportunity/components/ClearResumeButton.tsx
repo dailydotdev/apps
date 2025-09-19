@@ -14,9 +14,12 @@ import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { clearResumeMutationOptions } from '../mutations';
 import { useActions, useToastNotification } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const ClearResumeButton = (): ReactElement => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
   const opts = getCandidatePreferencesOptions(user?.id);
@@ -25,6 +28,9 @@ export const ClearResumeButton = (): ReactElement => {
   const { mutate: clearResume, isPending: isClearResumePending } = useMutation({
     ...clearResumeMutationOptions(updateQuery, () => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
+      logEvent({
+        event_name: LogEvent.ClearCv,
+      });
     }),
     onError: () => {
       displayToast('Failed to remove uploaded CV. Please try again.');
