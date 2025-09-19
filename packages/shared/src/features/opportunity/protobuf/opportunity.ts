@@ -75,9 +75,19 @@ export enum SalaryPeriod {
   MONTHLY = 2,
 
   /**
-   * @generated from enum value: SALARY_PERIOD_HOURLY = 3;
+   * @generated from enum value: SALARY_PERIOD_WEEKLY = 3;
    */
-  HOURLY = 3,
+  WEEKLY = 3,
+
+  /**
+   * @generated from enum value: SALARY_PERIOD_DAILY = 4;
+   */
+  DAILY = 4,
+
+  /**
+   * @generated from enum value: SALARY_PERIOD_HOURLY = 5;
+   */
+  HOURLY = 5,
 }
 
 /**

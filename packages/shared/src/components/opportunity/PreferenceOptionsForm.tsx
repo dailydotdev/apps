@@ -38,6 +38,8 @@ import { LogEvent } from '../../lib/log';
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
   { label: 'Monthly', value: SalaryPeriod.MONTHLY },
+  { label: 'Weekly', value: SalaryPeriod.WEEKLY },
+  { label: 'Daily', value: SalaryPeriod.DAILY },
   { label: 'Hourly', value: SalaryPeriod.HOURLY },
 ];
 

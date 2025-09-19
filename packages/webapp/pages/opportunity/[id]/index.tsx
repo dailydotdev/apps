@@ -160,6 +160,8 @@ const salaryPeriodMap = {
   [SalaryPeriod.UNSPECIFIED]: 'N/A',
   [SalaryPeriod.ANNUAL]: 'year',
   [SalaryPeriod.MONTHLY]: 'month',
+  [SalaryPeriod.WEEKLY]: 'week',
+  [SalaryPeriod.DAILY]: 'day',
   [SalaryPeriod.HOURLY]: 'hour',
 };
 
