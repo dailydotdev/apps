@@ -435,6 +435,7 @@ export enum TargetId {
   OpportunityPassiveDonePage = 'opportunity passive done page',
   OpportunityUnavailablePage = 'opportunity unavailable page',
   OpportunityWelcomePage = 'opportunity welcome page',
+  ProfileSettingsMenu = 'profile settings menu',
 }
 
 export enum NotificationChannel {
