@@ -46,6 +46,9 @@ import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { CandidatePreferenceButton } from '@dailydotdev/shared/src/features/opportunity/components/CandidatePreferenceButton';
+import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { useQuery } from '@tanstack/react-query';
+import { CVExists } from '@dailydotdev/shared/src/features/opportunity/components/CVExists';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 
@@ -70,6 +73,10 @@ const HeaderSection = (): ReactElement => {
 
   const { isActionsFetched, completeAction } = useActions();
   const { opportunityId } = alerts;
+
+  const { data: preferences, isPending } = useQuery(
+    getCandidatePreferencesOptions(user?.id),
+  );
 
   const onUploadSuccess = () => {
     push(jobPreferenceUrl);
@@ -117,7 +124,7 @@ const HeaderSection = (): ReactElement => {
       </Typography>
       {user && (
         <>
-          {opportunityId ? (
+          {opportunityId && (
             <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
               <Button
                 tag="a"
@@ -138,17 +145,21 @@ const HeaderSection = (): ReactElement => {
                 Show me what you got →
               </Button>
             </Link>
-          ) : (
-            <CVOverlay
-              blur={false}
-              backButton={
-                <CandidatePreferenceButton
-                  targetId={TargetId.OpportunityWelcomePage}
-                />
-              }
-              onUploadSuccess={onUploadSuccess}
-            />
           )}
+          {!opportunityId &&
+            (preferences?.cv?.lastModified ? (
+              <CVExists preferences={preferences} />
+            ) : (
+              <CVOverlay
+                blur={false}
+                backButton={
+                  <CandidatePreferenceButton
+                    targetId={TargetId.OpportunityWelcomePage}
+                  />
+                }
+                onUploadSuccess={onUploadSuccess}
+              />
+            ))}
         </>
       )}
       <FlexRow className="items-center gap-1">

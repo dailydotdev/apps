@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { fileValidation, useUploadCv } from '../../profile/hooks/useUploadCv';
 import { UploadButton } from '../../../components/buttons/UploadButton';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
@@ -8,8 +9,11 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { getCandidatePreferencesOptions } from '../queries';
+import type { WithClassNameProps } from '../../../components/utilities';
 
-export const UploadCVButton = (): ReactElement => {
+export const UploadCVButton = ({
+  className,
+}: WithClassNameProps): ReactElement => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
 
@@ -44,7 +48,7 @@ export const UploadCVButton = (): ReactElement => {
 
   return (
     <UploadButton
-      className="mb-4 mr-auto"
+      className={classNames('mb-4 mr-auto', className)}
       size={ButtonSize.Small}
       variant={ButtonVariant.Subtle}
       validation={fileValidation}
