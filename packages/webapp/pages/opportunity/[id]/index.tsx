@@ -484,16 +484,16 @@ const JobPage = ({
           </div>
 
           {faq.map((faqItem) => {
-            const content = opportunity.content[faqItem.key];
+            const contentHtml = opportunity.content[faqItem.key]?.html;
 
-            const buttonLabel = content ? 'Edit' : 'Add';
+            const buttonLabel = contentHtml ? 'Edit' : 'Add';
 
             return (
               <div
                 key={faqItem.key}
                 className={classNames(
                   'border-t border-border-subtlest-tertiary px-4',
-                  !content && 'bg-surface-float',
+                  !contentHtml && 'bg-surface-float',
                 )}
               >
                 <Accordion
@@ -507,12 +507,12 @@ const JobPage = ({
                         className="ml-auto"
                         type="text"
                         variant={
-                          !content
+                          !contentHtml
                             ? ButtonVariant.Secondary
                             : ButtonVariant.Tertiary
                         }
                         size={ButtonSize.Small}
-                        icon={!content ? <PlusIcon /> : undefined}
+                        icon={!contentHtml ? <PlusIcon /> : undefined}
                         onClick={() => {
                           openModal({
                             type: LazyModal.OpportunityEdit,
@@ -531,13 +531,13 @@ const JobPage = ({
                       </OpportunityEditButton>
                     </div>
                   }
-                  disabled={!content}
+                  disabled={!contentHtml}
                 >
-                  {!!content && (
+                  {!!contentHtml && (
                     <div
                       className="pb-4"
                       dangerouslySetInnerHTML={{
-                        __html: opportunity.content[faqItem.key].html,
+                        __html: contentHtml,
                       }}
                     />
                   )}

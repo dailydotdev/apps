@@ -33,7 +33,7 @@ export const opportunityEditInfoSchema = z.object({
   }),
 });
 
-export const opportunityContentSchema = z.string().nonempty().max(1440);
+export const opportunityContentSchema = z.string().max(1440);
 
 export const opportunityEditContentSchema = z.object({
   content: z

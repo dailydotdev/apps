@@ -51,6 +51,7 @@ export const OpportunityEditContentModal = ({
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    setValue,
   } = useForm({
     resolver: zodResolver(opportunityEditContentSchema),
     defaultValues: async () => {
@@ -149,6 +150,20 @@ export const OpportunityEditContentModal = ({
             />
           )}
         />
+        <Button
+          className="max-w-36"
+          type="submit"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          onClick={() => {
+            setValue(`content.${contentName}`, '');
+
+            onSubmit();
+          }}
+          loading={isSubmitting}
+        >
+          Remove section
+        </Button>
       </Modal.Body>
     </Modal>
   );
