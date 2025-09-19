@@ -58,8 +58,9 @@ export function OnboardingHeadline({
           className?.title,
         )}
         tag={TypographyTag.H2}
-        dangerouslySetInnerHTML={{ __html: title }}
-      />
+      >
+        {title}
+      </Typography>
       {!!description?.length && (
         <h3 className={className?.description}>{description}</h3>
       )}
