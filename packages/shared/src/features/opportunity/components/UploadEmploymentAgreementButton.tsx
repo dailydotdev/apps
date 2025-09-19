@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
-import { fileValidation } from '../../profile/hooks/useUploadCv';
 import { UploadButton } from '../../../components/buttons/UploadButton';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -10,6 +9,11 @@ import { useToastNotification } from '../../../hooks';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { getCandidatePreferencesOptions } from '../queries';
 import { uploadEmploymentAgreementMutationOptions } from '../mutations';
+
+const fileValidation = {
+  acceptedTypes: ['application/pdf'],
+  acceptedExtensions: ['pdf'],
+};
 
 export const UploadEmploymentAgreementButton = (): ReactElement => {
   const { user } = useAuthContext();
