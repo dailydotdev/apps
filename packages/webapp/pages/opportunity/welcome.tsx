@@ -342,15 +342,27 @@ const FAQSection = (): ReactElement => (
   </FlexCol>
 );
 
-const JobsWelcomePage = (): ReactElement => {
+const BackgroundImage = (): ReactElement => {
   const { jobsWelcome } = useThemedAsset();
   return (
+    <img
+      src={jobsWelcome}
+      alt="Jobs welcome"
+      className="fixed left-1/2 top-12 z-0 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
+    />
+  );
+};
+
+const JobsWelcomePage = (): ReactElement => {
+  const { isAuthReady } = useAuthContext();
+
+  if (!isAuthReady) {
+    return <BackgroundImage />;
+  }
+
+  return (
     <>
-      <img
-        src={jobsWelcome}
-        alt="Jobs welcome"
-        className="fixed left-1/2 top-12 z-0 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
-      />
+      <BackgroundImage />
       <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <FlexCol className="gap-8 tablet:mx-4 laptop:mx-0">
           <HeaderSection />
