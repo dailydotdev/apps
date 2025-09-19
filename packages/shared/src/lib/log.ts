@@ -313,8 +313,26 @@ export enum LogEvent {
   // End Brief
   // CV Upload
   UploadCv = 'upload cv',
+  ClearCv = 'clear cv',
   // end CV Upload
   ImpressionComment = 'impression comment',
+  // Opportunity
+  ImpressionOpportunityNudge = 'impression opportunity nudge',
+  ClickOpportunityNudge = 'click opportunity nudge',
+  OnboardingCandidate = 'onboarding candidate',
+  CompleteOnboardingCandidate = 'complete onboarding candidate',
+  OpportunityMatchView = 'opportunity match view',
+  RejectOpportunityMatch = 'reject opportunity match',
+  ApproveOpportunityMatch = 'approve opportunity match',
+  AnswerScreeningQuestion = 'answer screening question',
+  CompleteScreening = 'complete screening',
+  ConfirmCandidateContact = 'confirm candidate contact',
+  SelectCandidateAvailability = 'select candidate availability',
+  UpdateCandidatePreferences = 'update candidate preferences',
+  ClickCandidatePreferences = 'click candidate preferences',
+  // End Opportunity
+  UploadEmploymentAgreement = 'upload employment agreement',
+  ClearEmploymentAgreement = 'clear employment agreement',
 }
 
 export enum TargetType {
@@ -413,6 +431,11 @@ export enum TargetId {
   Feed = 'feed',
   CVWidget = 'cv widget',
   Scroll = 'scroll',
+  OpportunityDonePage = 'opportunity done page',
+  OpportunityPassiveDonePage = 'opportunity passive done page',
+  OpportunityUnavailablePage = 'opportunity unavailable page',
+  OpportunityWelcomePage = 'opportunity welcome page',
+  ProfileSettingsMenu = 'profile settings menu',
 }
 
 export enum NotificationChannel {

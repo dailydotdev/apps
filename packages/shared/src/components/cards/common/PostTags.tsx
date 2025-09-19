@@ -11,7 +11,7 @@ interface PostTagsProps {
   className?: string;
 }
 
-const Chip = Classed(
+export const Chip = Classed(
   'div',
   'rounded-8 border border-border-subtlest-tertiary px-2 h-6 flex items-center justify-center typo-footnote text-text-quaternary my-2',
 );

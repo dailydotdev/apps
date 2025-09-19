@@ -132,6 +132,24 @@ const EmailNotificationsTab = (): ReactElement => {
               )
             }
           />
+          <NotificationSwitch
+            id="opportunities"
+            label="Personalized job opportunities"
+            description={
+              <>
+                Get notified only when there&apos;s a role that fits your skills
+                and preferences. No spam, no pressure.
+              </>
+            }
+            checked={getGroupStatus('opportunities', 'email')}
+            onToggle={() =>
+              toggleGroup(
+                'opportunities',
+                !getGroupStatus('opportunities', 'email'),
+                'email',
+              )
+            }
+          />
         </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />

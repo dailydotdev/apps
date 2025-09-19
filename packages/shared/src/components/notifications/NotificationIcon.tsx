@@ -3,6 +3,7 @@ import React from 'react';
 import {
   notificationIcon,
   notificationIconAsPrimary,
+  notificationIconStyle,
   NotificationIconType,
   notificationIconTypeTheme,
 } from './utils';
@@ -42,9 +43,13 @@ function NotificationItemIcon({
   }
 
   const theme = iconTheme ?? notificationIconTypeTheme[icon];
+  const style = notificationIconStyle[icon];
 
   return (
-    <span className="h-fit overflow-hidden rounded-8 bg-surface-float p-1 typo-callout">
+    <span
+      className="h-fit overflow-hidden rounded-8 bg-surface-float p-1 typo-callout"
+      style={style}
+    >
       <Icon
         size={IconSize.Small}
         secondary={secondary}

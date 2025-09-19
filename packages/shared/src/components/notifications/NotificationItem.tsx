@@ -31,6 +31,7 @@ import { NotificationFollowUserButton } from './NotificationFollowUserButton';
 
 import { DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
+import { NotificationItemDescriptionIcon } from './NotificationDescriptionIcon';
 
 export interface NotificationItemProps
   extends Pick<
@@ -259,12 +260,15 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           }}
         />
         {description && (
-          <p
-            className="mt-2 w-4/5 break-words text-text-quaternary"
-            dangerouslySetInnerHTML={{
-              __html: memoizedDescription,
-            }}
-          />
+          <span className="mt-2 flex w-4/5 flex-1 gap-2 text-text-quaternary">
+            <NotificationItemDescriptionIcon type={type} key="icon" />
+            <p
+              className="flex-1 break-words"
+              dangerouslySetInnerHTML={{
+                __html: memoizedDescription,
+              }}
+            />
+          </span>
         )}
         {type === NotificationType.UserFollow && (
           <NotificationFollowUserButton {...props} />

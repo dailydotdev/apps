@@ -28,6 +28,7 @@ import {
   ExitIcon,
   OrganizationIcon,
   TrendingIcon,
+  JobIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -57,6 +58,8 @@ import { TypographyColor, TypographyType } from '../typography/Typography';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetId } from '../../lib/log';
 
 type MenuItems = Record<
   string,
@@ -70,6 +73,7 @@ const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
 const useAccountPageItems = () => {
   const { openModal } = useLazyModal();
+  const { logEvent } = useLogContext();
 
   return useMemo(
     () =>
@@ -86,6 +90,17 @@ const useAccountPageItems = () => {
               title: 'Account',
               icon: MailIcon,
               href: `${settingsUrl}/security`,
+            },
+            'job-preferences': {
+              title: 'Job preferences',
+              icon: JobIcon,
+              href: `${settingsUrl}/job-preferences`,
+              onClick: () => {
+                logEvent({
+                  event_name: LogEvent.ClickCandidatePreferences,
+                  target_id: TargetId.ProfileSettingsMenu,
+                });
+              },
             },
             appearance: {
               title: 'Appearance',
@@ -236,7 +251,7 @@ const useAccountPageItems = () => {
           },
         },
       }),
-    [openModal],
+    [logEvent, openModal],
   );
 };
 

@@ -14,7 +14,7 @@ export const BaseField = classed(
   styles.field,
 );
 
-export type FieldType = 'primary' | 'secondary' | 'tertiary';
+export type FieldType = 'primary' | 'secondary' | 'tertiary' | 'quaternary';
 
 type Attributes<T> = T extends HTMLInputElement
   ? InputHTMLAttributes<HTMLInputElement>

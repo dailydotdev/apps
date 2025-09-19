@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { NotificationSettings } from '../../components/notifications/utils';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
 import {
   GET_NOTIFICATION_SETTINGS,
@@ -21,6 +21,7 @@ const useNotificationSettingsQuery = () => {
   const { data, isLoading } = useQuery<NotificationSettingsResponse>({
     queryKey: nsKey,
     queryFn: () => gqlClient.request(GET_NOTIFICATION_SETTINGS),
+    staleTime: StaleTime.Default,
   });
   const { mutate } = useMutation({
     onMutate: (notificationFlags) => {
