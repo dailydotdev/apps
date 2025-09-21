@@ -78,7 +78,7 @@ const PollResults = ({
 
           {isVotedOption && (
             <div className="ml-2 flex items-center justify-center rounded-full bg-brand-default">
-              <VIcon className="h-4 w-4" />
+              <VIcon secondary className="h-4 w-4" />
             </div>
           )}
         </div>
