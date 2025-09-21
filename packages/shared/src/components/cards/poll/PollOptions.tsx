@@ -46,6 +46,9 @@ const PollResults = ({
         key={option.order}
         className="relative flex w-full flex-1 items-center overflow-hidden rounded-12 border-none p-2"
       >
+        {percentage === 0 && (
+          <div className="absolute bottom-0 left-0 top-0 w-5 rounded-12 bg-surface-float" />
+        )}
         <div
           className={`absolute bottom-0 left-0 top-0 rounded-12 transition-all duration-300 ${
             isVotedOption ? 'bg-brand-active' : 'bg-surface-float'
@@ -55,7 +58,7 @@ const PollResults = ({
           }}
         />
         <div className="relative flex w-full items-center gap-2">
-          <div className="w-10 shrink-0">
+          <div className="w-10 shrink-0 text-right">
             <Typography type={TypographyType.Callout} bold>
               {percentage}%
             </Typography>
