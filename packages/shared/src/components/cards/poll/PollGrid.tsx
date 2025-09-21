@@ -68,7 +68,9 @@ const PollGrid = forwardRef(function PollCard(
         enableSourceHeader={source.type === 'squad'}
       />
       <CardTextContainer>
-        <FreeformCardTitle>{title}</FreeformCardTitle>
+        <FreeformCardTitle className={post?.read && 'text-text-quaternary'}>
+          {title}
+        </FreeformCardTitle>
       </CardTextContainer>
       <Container className="justify-end gap-2">
         <PostMetadata
