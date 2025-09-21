@@ -16,6 +16,8 @@ import {
   cloudinaryGenericErrorDark,
   boostNewPostBanner,
   boostNewPostBannerLight,
+  jobsWelcomeDarkMode,
+  jobsWelcomeLightMode,
 } from '../../lib/image';
 
 interface UseAsset {
@@ -27,6 +29,7 @@ interface UseAsset {
   githubShortcut: string;
   slackIntegrationHeader: string;
   gardrError: string;
+  jobsWelcome: string;
 }
 
 export const useIsLightTheme = (): boolean => {
@@ -66,5 +69,6 @@ export const useThemedAsset = (): UseAsset => {
     gardrError: isLight
       ? cloudinaryGenericErrorLight
       : cloudinaryGenericErrorDark,
+    jobsWelcome: isLight ? jobsWelcomeLightMode : jobsWelcomeDarkMode,
   };
 };

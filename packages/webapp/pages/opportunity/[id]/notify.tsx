@@ -1,0 +1,167 @@
+import React from 'react';
+import type { ReactElement } from 'react';
+
+import type { NextSeoProps } from 'next-seo';
+
+import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { MailIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import {
+  LogEvent,
+  NotificationPromptSource,
+} from '@dailydotdev/shared/src/lib/log';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useRouter } from 'next/router';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  defaultOpenGraph,
+  defaultSeo,
+  defaultSeoTitle,
+} from '../../../next-seo';
+import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
+
+const seo: NextSeoProps = {
+  title: defaultSeoTitle,
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+  nofollow: true,
+  noindex: true,
+};
+
+const NotifyPage = (): ReactElement => {
+  const {
+    query: { id },
+  } = useRouter();
+  const opportunityId = id as string;
+  const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
+  const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
+  const showAlert =
+    isPushSupported && isInitialized && (!isSubscribed || acceptedJustNow);
+
+  const handleClick = (): void => {
+    logEvent({
+      event_name: LogEvent.ConfirmCandidateContact,
+      target_id: opportunityId,
+    });
+  };
+
+  return (
+    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+      <FlexCol className="flex-1 gap-6">
+        <FlexCol className="gap-4">
+          <Typography type={TypographyType.LargeTitle} bold center>
+            Choose how we reach you
+          </Typography>
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Secondary}
+            center
+          >
+            When there is mutual interest from the company, we will connect you
+            quickly using the channel you check most.
+          </Typography>
+          <Typography type={TypographyType.Title3} bold center>
+            Set your contact methods
+          </Typography>
+        </FlexCol>
+        <FlexCol className="gap-2">
+          <FlexCol className="gap-1 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
+            <Typography type={TypographyType.Body} bold>
+              Confirm your email
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              This is the address we will use to introduce you when there is
+              mutual interest from the company. Want us to use a different
+              email? Update in{' '}
+              <a
+                href="#"
+                className="text-text-link"
+                target="_blank"
+                rel={anchorDefaultRel}
+              >
+                account settings
+              </a>
+            </Typography>
+            <FlexRow className="items-center gap-1">
+              <MailIcon secondary />
+              <Typography type={TypographyType.Footnote}>
+                {user?.email}
+              </Typography>
+              <VIcon className="text-accent-avocado-subtlest" />
+            </FlexRow>
+          </FlexCol>
+          {showAlert && (
+            <FlexRow className="gap-3 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
+              <FlexCol className="gap-1 ">
+                <Typography type={TypographyType.Body} bold>
+                  Enable push notifications
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  Get an instant heads-up the moment there&apos;s a match, even
+                  if you&apos;re not in the app.
+                </Typography>
+              </FlexCol>
+              <Switch
+                data-testid="show_new_posts-switch"
+                inputId="show_new_posts-switch"
+                name="show_new_posts"
+                className="w-20"
+                compact={false}
+                onToggle={() =>
+                  onTogglePermission(NotificationPromptSource.NotificationsPage)
+                }
+              />
+            </FlexRow>
+          )}
+        </FlexCol>
+        <FlexRow className="justify-center">
+          <Link href={`${opportunityUrl}/${opportunityId}/done`} passHref>
+            <Button
+              tag="a"
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              className="w-full laptop:w-auto"
+              onClick={handleClick}
+            >
+              Continue
+            </Button>
+          </Link>
+        </FlexRow>
+      </FlexCol>
+    </div>
+  );
+};
+
+NotifyPage.getLayout = getOpportunityProtectedLayout;
+NotifyPage.layoutProps = {
+  ...opportunityPageLayoutProps,
+  hideBackButton: true,
+  seo,
+};
+
+export default NotifyPage;

@@ -33,6 +33,7 @@ export interface AlertContextData {
   >;
   updateLastReferralReminder?: UseMutateAsyncFunction;
   updateLastBootPopup?: UseMutateAsyncFunction;
+  clearOpportunityAlert?: UseMutateAsyncFunction;
 }
 
 const AlertContext = React.createContext<AlertContextData>({
