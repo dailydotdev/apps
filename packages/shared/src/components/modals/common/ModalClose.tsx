@@ -5,7 +5,7 @@ import type { ButtonProps } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
 import { useModalContext } from './types';
 
-type ModalCloseProps = ButtonProps<'button'> & {
+export type ModalCloseProps = ButtonProps<'button'> & {
   position?: 'absolute' | 'fixed' | 'relative' | 'sticky' | 'static';
   zIndex?: '0' | '1' | '2';
   right?: '0' | '1' | '2' | '3' | '4';
