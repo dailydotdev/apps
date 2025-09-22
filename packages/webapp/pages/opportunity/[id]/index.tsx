@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -32,6 +32,7 @@ import {
   MagicIcon,
   MoveToIcon,
   OpenLinkIcon,
+  PlusIcon,
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -71,10 +72,16 @@ import {
   CompanyStage,
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/organization';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
+import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout } from '../../../components/layouts/NoSidebarLayout';
 import {
   defaultOpenGraph,
@@ -251,8 +258,9 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
-  const { isLoggedIn, isAuthReady } = useAuthContext();
+  const { isLoggedIn, isAuthReady, user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     query: { id },
@@ -294,6 +302,14 @@ const JobPage = ({
     hasLoggedRef.current = true;
   }, [id, match]);
 
+  const canEdit = useMemo(() => {
+    if (!user) {
+      return false;
+    }
+
+    return !!opportunity?.recruiters?.some((item) => item.id === user.id);
+  }, [opportunity, user]);
+
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
@@ -303,7 +319,7 @@ const JobPage = ({
   }
 
   return (
-    <>
+    <OpportunityEditProvider canEdit={canEdit}>
       {!hasUploadedCV && (
         <CVOverlay
           backButton={
@@ -369,7 +385,21 @@ const JobPage = ({
           </div>
 
           {/* Content */}
-          <div className="flex flex-col gap-4 px-8 py-6">
+          <div className="relative flex flex-col gap-4 px-8 py-6">
+            <OpportunityEditButton
+              className="absolute right-4 top-4"
+              onClick={() => {
+                openModal({
+                  type: LazyModal.OpportunityEdit,
+                  props: {
+                    type: 'info',
+                    payload: {
+                      id: opportunity.id,
+                    },
+                  },
+                });
+              }}
+            />
             {/* Recruiter */}
             {!!opportunity.recruiters?.[0] && (
               <div className="flex items-center gap-2">
@@ -481,26 +511,70 @@ const JobPage = ({
             )}
           </div>
 
-          {faq.map((faqItem) => (
-            <div
-              key={faqItem.key}
-              className="border-t border-border-subtlest-tertiary px-8"
-            >
-              <Accordion
-                className={{ button: 'min-h-12' }}
-                title={<Typography>{faqItem.title}</Typography>}
+          {faq.map((faqItem) => {
+            const contentHtml = opportunity.content[faqItem.key]?.html;
+
+            const buttonLabel = contentHtml ? 'Edit' : 'Add';
+
+            return (
+              <div
+                key={faqItem.key}
+                className={classNames(
+                  'border-t border-border-subtlest-tertiary px-4',
+                  !contentHtml && 'bg-surface-float',
+                )}
               >
-                <div
-                  className="pb-4"
-                  dangerouslySetInnerHTML={{
-                    __html: opportunity.content[faqItem.key].html,
+                <Accordion
+                  className={{
+                    button: classNames('min-h-12 flex-row-reverse'),
                   }}
-                />
-                {/* TODO: this is a hack so that numeric lists are styled correctly */}
-                <span className="hidden list-decimal" />
-              </Accordion>
-            </div>
-          ))}
+                  title={
+                    <div className="flex items-center">
+                      <Typography>{faqItem.title}</Typography>
+                      <OpportunityEditButton
+                        className="ml-auto"
+                        type="text"
+                        variant={
+                          !contentHtml
+                            ? ButtonVariant.Secondary
+                            : ButtonVariant.Tertiary
+                        }
+                        size={ButtonSize.Small}
+                        icon={!contentHtml ? <PlusIcon /> : undefined}
+                        onClick={() => {
+                          openModal({
+                            type: LazyModal.OpportunityEdit,
+                            props: {
+                              type: 'content',
+                              payload: {
+                                id: opportunity.id,
+                                contentTitle: faqItem.title,
+                                contentName: faqItem.key,
+                              },
+                            },
+                          });
+                        }}
+                      >
+                        {buttonLabel}
+                      </OpportunityEditButton>
+                    </div>
+                  }
+                  disabled={!contentHtml}
+                >
+                  {!!contentHtml && (
+                    <div
+                      className="pb-4"
+                      dangerouslySetInnerHTML={{
+                        __html: contentHtml,
+                      }}
+                    />
+                  )}
+                  {/* TODO: this is a hack so that numeric lists are styled correctly */}
+                  <span className="hidden list-decimal" />
+                </Accordion>
+              </div>
+            );
+          })}
 
           {match?.status === OpportunityMatchStatus.Pending && (
             <ResponseButtons
@@ -599,47 +673,57 @@ const JobPage = ({
             )}
 
             {/* Meta */}
-            <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
-              <Typography
-                type={TypographyType.Subhead}
-                color={TypographyColor.Tertiary}
-              >
-                Founded
-              </Typography>
-              <Typography type={TypographyType.Footnote} bold>
-                {opportunity.organization.founded}
-              </Typography>
+            <SimpleTooltip
+              content={labels.opportunity.companyInfoEditNotice}
+              forceLoad={!isTesting}
+            >
+              <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
+                <Typography
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Tertiary}
+                >
+                  Founded
+                </Typography>
+                <Typography type={TypographyType.Footnote} bold>
+                  {opportunity.organization.founded}
+                </Typography>
 
-              <Typography
-                type={TypographyType.Subhead}
-                color={TypographyColor.Tertiary}
-              >
-                HQ
-              </Typography>
-              <Typography type={TypographyType.Footnote} bold>
-                {opportunity.organization.location}
-              </Typography>
+                <Typography
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Tertiary}
+                >
+                  HQ
+                </Typography>
+                <Typography type={TypographyType.Footnote} bold>
+                  {opportunity.organization.location}
+                </Typography>
 
-              <Typography
-                type={TypographyType.Subhead}
-                color={TypographyColor.Tertiary}
-              >
-                Employees
-              </Typography>
-              <Typography type={TypographyType.Footnote} bold>
-                {companySizeMap[opportunity.organization.size]}
-              </Typography>
-            </div>
+                <Typography
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Tertiary}
+                >
+                  Employees
+                </Typography>
+                <Typography type={TypographyType.Footnote} bold>
+                  {companySizeMap[opportunity.organization.size]}
+                </Typography>
+              </div>
+            </SimpleTooltip>
 
             {/* Description */}
             {opportunity.organization.description && (
-              <Typography
-                className="px-4"
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
+              <SimpleTooltip
+                content={labels.opportunity.companyInfoEditNotice}
+                forceLoad={!isTesting}
               >
-                {opportunity.organization.description}
-              </Typography>
+                <Typography
+                  className="px-4"
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  {opportunity.organization.description}
+                </Typography>
+              </SimpleTooltip>
             )}
 
             {/* Perks & Benefits */}
@@ -649,18 +733,23 @@ const JobPage = ({
                   Perks & Benefits
                 </Typography>
 
-                <ul className="list-disc pl-7">
-                  {opportunity.organization.perks.map((perk) => (
-                    <Typography
-                      key={perk}
-                      tag={TypographyTag.Li}
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Secondary}
-                    >
-                      {perk}
-                    </Typography>
-                  ))}
-                </ul>
+                <SimpleTooltip
+                  content={labels.opportunity.companyInfoEditNotice}
+                  forceLoad={!isTesting}
+                >
+                  <ul className="list-disc pl-7">
+                    {opportunity.organization.perks.map((perk) => (
+                      <Typography
+                        key={perk}
+                        tag={TypographyTag.Li}
+                        type={TypographyType.Callout}
+                        color={TypographyColor.Secondary}
+                      >
+                        {perk}
+                      </Typography>
+                    ))}
+                  </ul>
+                </SimpleTooltip>
               </div>
             )}
             {hasLinks && (
@@ -791,10 +880,13 @@ const JobPage = ({
               </div>
 
               {/* Recruiters */}
-              {opportunity?.recruiters?.map((user) => (
-                <FlexCol key={user.id} className="gap-4 px-4 pb-4">
+              {opportunity?.recruiters?.map((recruiter) => (
+                <FlexCol key={recruiter.id} className="gap-4 px-4 pb-4">
                   <div className="flex items-center gap-2">
-                    <ProfilePicture user={user} size={ProfileImageSize.Large} />
+                    <ProfilePicture
+                      user={recruiter}
+                      size={ProfileImageSize.Large}
+                    />
 
                     <div className="flex flex-1 flex-col truncate">
                       <Typography
@@ -828,7 +920,7 @@ const JobPage = ({
           )}
         </FlexCol>
       </div>
-    </>
+    </OpportunityEditProvider>
   );
 };
 
