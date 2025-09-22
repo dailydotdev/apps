@@ -57,6 +57,7 @@ export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
+export const opportunityUrl = `${webappUrl}opportunity`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';

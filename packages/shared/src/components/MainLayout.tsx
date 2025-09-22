@@ -59,6 +59,7 @@ export interface MainLayoutProps
   showSidebar?: boolean;
   onNavTabClick?: (tab: string) => void;
   canGoBack?: string;
+  hideBackButton?: boolean;
 }
 
 const feeds = Object.values(SharedFeedPage);
