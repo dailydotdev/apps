@@ -15,8 +15,12 @@ export const opportunityEditInfoSchema = z.object({
   location: z.array(
     z.object({
       country: z.string().nonempty(labels.form.required).max(240),
-      city: z.string().nonempty(labels.form.required).max(240),
-      subdivision: z.string().nonempty(labels.form.required).max(240),
+      city: z.string().nonempty(labels.form.required).max(240).optional(),
+      subdivision: z
+        .string()
+        .nonempty(labels.form.required)
+        .max(240)
+        .optional(),
       type: z.coerce.number().min(1),
     }),
   ),
