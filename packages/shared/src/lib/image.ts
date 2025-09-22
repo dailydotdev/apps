@@ -325,7 +325,7 @@ export const plusShowcaseSquadImage =
   'https://media.daily.dev/image/upload/s--LKIr_f6r--/f_auto/v1741698925/public/Members-only Squad';
 
 export const boostSuccessCover =
-  'https://media.daily.dev/image/upload/s--1ayRTI4g--/f_auto/v1758438669/public/Boost%20-%20Live%20Cover%20image%20(1)';
+  'https://media.daily.dev/image/upload/s--1ayRTI4g--/f_auto/v1758532937/public/Boost%20-%20Live%20Cover%20image%20(1)';
 
 export const plusShowcaseTranslateImage =
   'https://media.daily.dev/image/upload/s--eHjHLYpQ--/f_auto/v1748954125/public/auto-translate';
