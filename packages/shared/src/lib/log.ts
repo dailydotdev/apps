@@ -37,6 +37,7 @@ export enum Origin {
   SquadInvitation = 'squad invitation',
   // squads - end
   PostCommentButton = 'comment button',
+  PollCommentButton = 'poll comment button',
   StartDiscussion = 'start discussion button',
   CompanionContextMenu = 'companion context menu',
   // search - start

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
@@ -23,6 +24,8 @@ import PollOptions from '../../cards/poll/PollOptions';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { PostTagList } from '../tags/PostTagList';
 import { Typography, TypographyType } from '../../typography/Typography';
+import { DiscussIcon } from '../../icons';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 function PollPostContentRaw({
   post,
@@ -41,6 +44,7 @@ function PollPostContentRaw({
   isPostPage,
 }: PostContentProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
+  const router = useRouter();
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -79,6 +83,17 @@ function PollPostContentRaw({
       onVote(optionId, text);
       setJustVoted(true);
     }
+  };
+
+  const handleCommentClick = () => {
+    router.push(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, comment: '' },
+      },
+      undefined,
+      { shallow: true },
+    );
   };
 
   useEffect(() => {
@@ -194,6 +209,26 @@ function PollPostContentRaw({
                 numPollVotes={post.numPollVotes || 0}
                 endsAt={post?.endsAt}
               />
+              {justVoted && (
+                <div className="mt-2 flex items-center justify-between rounded-16 bg-action-comment-float p-3">
+                  <div className="flex items-center gap-1">
+                    <DiscussIcon
+                      secondary
+                      className="text-action-comment-default"
+                    />
+                    <Typography bold>Why did you vote this way?</Typography>
+                  </div>
+                  <Button
+                    className="text-text-primary"
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.XSmall}
+                    type="button"
+                    onClick={handleCommentClick}
+                  >
+                    Comment
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </BasePostContent>
