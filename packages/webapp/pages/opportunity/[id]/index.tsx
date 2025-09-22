@@ -251,7 +251,7 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
@@ -294,7 +294,7 @@ const JobPage = ({
     hasLoggedRef.current = true;
   }, [id, match]);
 
-  if (isPending || (!isActionsFetched && isLoggedIn)) {
+  if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
 
