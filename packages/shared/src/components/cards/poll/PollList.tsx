@@ -38,9 +38,9 @@ export const PollList = forwardRef(function PollList(
   const { user } = useAuthContext();
   const { onVote, isCastingVote } = usePoll({ post });
 
-  const handleVote = (optionId: string) => {
+  const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
-      onVote(optionId);
+      onVote(optionId, text);
     }
   };
 

@@ -17,7 +17,7 @@ type PollOptionsProps = {
   options: PollOption[];
   userVote?: string;
   numPollVotes: number;
-  onClick: (optionId: string) => void;
+  onClick: (optionId: string, text: string) => void;
   endsAt?: string;
 };
 
@@ -92,12 +92,12 @@ export const PollOptionButtons = ({
   onClick,
 }: {
   options: PollOption[];
-  onClick?: (optionId: string) => void;
+  onClick?: (optionId: string, text: string) => void;
 }) => {
   return options.map((option) => (
     <button
       disabled={isNullOrUndefined(onClick)}
-      onClick={() => onClick(option.id)}
+      onClick={() => onClick(option.id, option.text)}
       key={option.order}
       type="button"
       className="flex w-full flex-1 items-center justify-center rounded-12 border border-border-subtlest-tertiary p-2 text-center text-text-secondary typo-callout hover:bg-surface-hover"

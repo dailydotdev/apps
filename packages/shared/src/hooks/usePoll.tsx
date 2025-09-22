@@ -74,11 +74,11 @@ const usePoll = ({ post }: { post: Post }) => {
     },
   });
 
-  const onVote = (optionId: string) => {
+  const onVote = (optionId: string, optionValue: string) => {
     mutate(optionId);
     logEvent({
       event_name: LogEvent.VotePoll,
-      extra: JSON.stringify({ vote: optionId }),
+      extra: JSON.stringify({ optionId, optionValue }),
     });
   };
 
