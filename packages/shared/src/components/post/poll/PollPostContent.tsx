@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
@@ -40,6 +40,7 @@ function PollPostContentRaw({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
+  const [justVoted, setJustVoted] = useState(false);
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -73,9 +74,10 @@ function PollPostContentRaw({
   };
   const isUserSource = isSourceUserSource(post?.source);
 
-  const handleVote = (optionId: string) => {
+  const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
-      onVote(optionId);
+      onVote(optionId, text);
+      setJustVoted(true);
     }
   };
 
