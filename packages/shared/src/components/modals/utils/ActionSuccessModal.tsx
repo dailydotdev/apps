@@ -10,6 +10,7 @@ import {
 } from '../../typography/Typography';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
+import type { ModalCloseProps } from '../common/ModalClose';
 import { ModalClose } from '../common/ModalClose';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { Image } from '../../image/Image';
@@ -25,6 +26,7 @@ interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
     coverDrawer?: string;
   };
   withCloseOnTablet?: boolean;
+  modalCloseButtonProps?: ModalCloseProps;
 }
 
 export function ActionSuccessModal<T extends AllowedTags>({
@@ -32,6 +34,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
   secondaryCta,
   content,
   withCloseOnTablet,
+  modalCloseButtonProps,
   ...props
 }: ActionSuccessModalProps<T>): React.ReactElement {
   const { title, description, body, cover, coverDrawer } = content;
@@ -55,6 +58,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
             size={ButtonSize.Small}
             onClick={props.onRequestClose}
             variant={ButtonVariant.Primary}
+            {...modalCloseButtonProps}
           />
           {image && (
             <div className="relative h-full max-h-56 min-h-52 w-full">

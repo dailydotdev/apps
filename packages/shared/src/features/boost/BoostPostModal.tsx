@@ -144,6 +144,9 @@ export function BoostPostModal({
           description: 'Your post is now live and reaching more developers!',
           cover: boostSuccessCover,
         }}
+        modalCloseButtonProps={{
+          variant: ButtonVariant.Tertiary,
+        }}
       />
     );
   }

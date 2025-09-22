@@ -157,6 +157,9 @@ export function BoostSquadModal({
           description: 'Your Squad is now live and reaching more developers!',
           cover: boostSuccessCover,
         }}
+        modalCloseButtonProps={{
+          variant: ButtonVariant.Tertiary,
+        }}
       />
     );
   }
