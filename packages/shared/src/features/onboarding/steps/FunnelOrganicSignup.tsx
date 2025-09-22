@@ -228,16 +228,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                         }}
                         type={TypographyType.Title2}
                       />
-                      {!!explainer?.length && (
-                        <Typography
-                          color={TypographyColor.Secondary}
-                          type={TypographyType.Body}
-                          className="mb-10 text-center"
-                          dangerouslySetInnerHTML={{
-                            __html: sanitizeMessage(explainer),
-                          }}
-                        />
-                      )}
                     </div>
                   ) : (
                     <OnboardingHeadline
@@ -281,7 +271,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
           </div>
         </ConditionalWrapper>
-
         {!!src && (
           <picture>
             <source media="(max-width: 655px)" srcSet={src} />
@@ -300,12 +289,14 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             />
           </picture>
         )}
-        <FooterLinks
-          className={classNames(
-            'mx-auto px-2 pb-6 laptop:px-0',
-            isMobileRevamp && '!-mb-4 bg-background-default pt-4',
-          )}
-        />
+        {!isMobileRevamp && (
+          <FooterLinks
+            className={classNames(
+              'mx-auto px-2 pb-6 laptop:px-0',
+              isMobileRevamp && '!-mb-4 bg-background-default pt-4',
+            )}
+          />
+        )}{' '}
       </div>
     );
   },
