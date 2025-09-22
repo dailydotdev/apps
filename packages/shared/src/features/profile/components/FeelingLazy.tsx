@@ -10,14 +10,9 @@ import { exportLinkedIn } from '../../../lib/image';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { OpenLinkIcon } from '../../../components/icons';
 import { ButtonIconPosition } from '../../../components/buttons/common';
-import { useAuthContext } from '../../../contexts/AuthContext';
 
 export function FeelingLazy(): ReactElement {
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
-  const linkedin = user?.linkedin
-    ? `https://linkedin.com/in/${user.linkedin}`
-    : `https://linkedin.com/`;
 
   return (
     <Typography
@@ -50,7 +45,7 @@ export function FeelingLazy(): ReactElement {
               cta: {
                 tag: 'a',
                 copy: 'Go to your LinkedIn profile',
-                href: linkedin,
+                href: 'https://www.linkedin.com/in/',
                 rel: 'noopener',
                 target: '_blank',
                 icon: <OpenLinkIcon />,

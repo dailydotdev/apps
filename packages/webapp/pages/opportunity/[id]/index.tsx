@@ -251,7 +251,7 @@ const JobPage = ({
 }: {
   opportunity: Opportunity;
 }): ReactElement => {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
@@ -294,7 +294,7 @@ const JobPage = ({
     hasLoggedRef.current = true;
   }, [id, match]);
 
-  if (isPending || (!isActionsFetched && isLoggedIn)) {
+  if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
 
@@ -320,15 +320,17 @@ const JobPage = ({
         />
       )}
       {!hasCompletedInitialView && <JobPageIntro />}
-      <ResponseButtons
-        id={opportunity.id}
-        className={{
-          buttons: 'flex-1',
-          container:
-            'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 tablet:hidden',
-        }}
-        size={ButtonSize.Medium}
-      />
+      {!!match && (
+        <ResponseButtons
+          id={opportunity.id}
+          className={{
+            buttons: 'flex-1',
+            container:
+              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 tablet:hidden',
+          }}
+          size={ButtonSize.Medium}
+        />
+      )}
       <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
         <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}

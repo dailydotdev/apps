@@ -21,6 +21,7 @@ import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { getCandidatePreferencesOptions } from '../queries';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
+import { IconSize } from '../../../components/Icon';
 
 export const CVOverlay = ({
   blur = true,
@@ -100,12 +101,9 @@ export const CVOverlay = ({
               setFile(uploadedFiles[0]);
             }}
             uploadIcon={
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<UploadIcon />}
-                className="cursor-default text-text-primary"
-              />
+              <span className="flex size-8 items-center justify-center rounded-10 bg-surface-float text-text-primary">
+                <UploadIcon size={IconSize.Small} />
+              </span>
             }
           />
           <FeelingLazy />
