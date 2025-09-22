@@ -98,11 +98,6 @@ export function CommentMarkdownInputComponent(
         ref={(markdownRef) => {
           if (markdownRef && shouldFocus.current) {
             markdownRef.textareaRef.current.focus();
-            markdownRef?.textareaRef?.current?.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-              inline: 'nearest',
-            });
             shouldFocus.current = false;
           }
         }}
