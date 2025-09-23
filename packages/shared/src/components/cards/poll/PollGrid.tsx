@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardTextContainer,
-  FreeformCardTitle,
+  CardTitle,
   getPostClassNames,
 } from '../common/Card';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
@@ -68,9 +68,7 @@ const PollGrid = forwardRef(function PollCard(
         enableSourceHeader={source.type === 'squad'}
       />
       <CardTextContainer>
-        <FreeformCardTitle className={post?.read && 'text-text-quaternary'}>
-          {title}
-        </FreeformCardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardTextContainer>
       <Container className="justify-end gap-2">
         <PostMetadata
