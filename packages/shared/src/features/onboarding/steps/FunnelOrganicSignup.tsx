@@ -182,9 +182,10 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     return (
       <div
         className={classNames(
-          'relative z-3 flex flex-1 flex-col items-center overflow-x-hidden',
+          'relative z-3 flex flex-1 flex-col overflow-x-hidden',
           {
             'justify-end pt-40': isMobileRevamp,
+            'items-center': !isMobileRevamp,
           },
         )}
       >
