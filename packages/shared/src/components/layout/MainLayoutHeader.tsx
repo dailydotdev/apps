@@ -57,7 +57,7 @@ function MainLayoutHeader({
         <SearchPanel
           className={{
             container: classNames(
-              'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
+              'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
               isSearchPage
                 ? 'relative right-0 tablet:!left-0 laptop:top-0'
                 : 'hidden laptop:flex',
@@ -90,7 +90,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4 laptopL:grid laptopL:auto-cols-fr laptopL:grid-flow-col',
+        'sticky top-0 z-header flex h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
         scrollClassName,
@@ -99,14 +99,7 @@ function MainLayoutHeader({
     >
       {sidebarRendered !== undefined && (
         <>
-          <div
-            className={classNames(
-              'flex flex-1  laptop:flex-none laptop:justify-start',
-              isStreaksEnabled && isStreakLarge
-                ? 'justify-start'
-                : 'justify-center',
-            )}
-          >
+          <div>
             <HeaderLogo
               position={
                 isStreaksEnabled && isStreakLarge
