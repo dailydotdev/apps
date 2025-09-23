@@ -18,10 +18,6 @@ interface PostMetadataProps
   children?: ReactNode;
   isVideoType?: boolean;
   domain?: ReactNode;
-  endsAt?: string;
-  isPoll?: boolean;
-  numPollVotes?: number;
-  isAuthor?: boolean;
   pollMetadata?: PollMetadataProps;
 }
 

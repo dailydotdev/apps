@@ -15,6 +15,7 @@ import PostMetadata from '../common/PostMetadata';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import usePoll from '../../../hooks/usePoll';
 import CardOverlay from '../common/CardOverlay';
+import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
 const PollGrid = forwardRef(function PollCard(
   {
@@ -32,22 +33,15 @@ const PollGrid = forwardRef(function PollCard(
 ) {
   const { user } = useAuthContext();
   const { onVote, isCastingVote } = usePoll({ post });
-
   const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
       onVote(optionId, text);
     }
   };
+  const { title } = useSmartTitle(post);
 
-  const {
-    title,
-    pinnedAt,
-    trending,
-    pollOptions,
-    endsAt,
-    numPollVotes,
-    source,
-  } = post;
+  const { pinnedAt, trending, pollOptions, endsAt, numPollVotes, source } =
+    post;
 
   return (
     <FeedItemContainer
@@ -72,12 +66,8 @@ const PollGrid = forwardRef(function PollCard(
       </CardTextContainer>
       <Container className="justify-end gap-2">
         <PostMetadata
-          numPollVotes={numPollVotes}
-          isPoll
-          endsAt={endsAt}
           createdAt={post.createdAt}
           className="mx-4"
-          isAuthor={user?.id === post.author?.id}
           pollMetadata={{
             endsAt,
             isAuthor: user?.id === post.author?.id,
