@@ -143,7 +143,7 @@ export function BoostSquadModal({
       <ActionSuccessModal
         {...props}
         cta={{
-          copy: 'Ads dashboard',
+          copy: 'Track performance',
           onClick: () => openModal({ type: LazyModal.AdsDashboard }),
         }}
         secondaryCta={{
@@ -153,10 +153,12 @@ export function BoostSquadModal({
           target: '_blank',
         }}
         content={{
-          title: 'Squad boosted successfully!',
-          description:
-            'Your Squad is now being promoted and will start reaching more developers shortly. You can track its performance anytime from the ads dashboard.',
+          title: 'Boost is live!',
+          description: 'Your Squad is now live and reaching more developers!',
           cover: boostSuccessCover,
+        }}
+        modalCloseButtonProps={{
+          variant: ButtonVariant.Tertiary,
         }}
       />
     );

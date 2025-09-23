@@ -133,4 +133,17 @@ export const labels = {
     },
   },
   generatingUsername: 'Generating your cool username...',
+  form: {
+    required: 'This field is required',
+    discard: {
+      title: 'Discard changes?',
+      description: 'You have unsaved changes that will be lost',
+      okButton: 'Save changes',
+      cancelButton: 'Discard',
+    },
+  },
+  opportunity: {
+    companyInfoEditNotice:
+      'You can edit company data only on the Organization page.',
+  },
 };
