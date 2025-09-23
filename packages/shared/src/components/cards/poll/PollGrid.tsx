@@ -80,6 +80,11 @@ const PollGrid = forwardRef(function PollCard(
           createdAt={post.createdAt}
           className="mx-4"
           isAuthor={user?.id === post.author?.id}
+          pollMetadata={{
+            endsAt,
+            isAuthor: user?.id === post.author?.id,
+            numPollVotes,
+          }}
         />
         <PollOptions
           className={{

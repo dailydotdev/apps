@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { isAfter } from 'date-fns';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
@@ -9,14 +8,8 @@ import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../typography/Typography';
-
-const MIN_VOTES_REQUIRED = 10;
+import type { PollMetadataProps } from './PollMetadata';
+import PollMetadata from './PollMetadata';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -29,6 +22,7 @@ interface PostMetadataProps
   isPoll?: boolean;
   numPollVotes?: number;
   isAuthor?: boolean;
+  pollMetadata?: PollMetadataProps;
 }
 
 export default function PostMetadata({
@@ -40,17 +34,11 @@ export default function PostMetadata({
   description,
   isVideoType,
   domain,
-  endsAt,
-  isPoll,
-  numPollVotes,
-  isAuthor,
+  pollMetadata,
 }: PostMetadataProps): ReactElement {
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
-  const shouldShowVotes = numPollVotes > MIN_VOTES_REQUIRED || isAuthor;
-  const pollHasEnded =
-    isPoll && endsAt && isAfter(new Date(), new Date(endsAt));
 
   return (
     <div
@@ -69,35 +57,7 @@ export default function PostMetadata({
           <Separator />
         )}
         {!!description && description}
-        {pollHasEnded && (
-          <>
-            <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
-              Voting ended
-            </Typography>
-            <Separator />
-          </>
-        )}
-        {isPoll && (
-          <>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.StatusSuccess}
-            >
-              {shouldShowVotes ? 'Voting open' : 'New poll'}
-            </Typography>
-            <Separator />
-          </>
-        )}
-        {isPoll && shouldShowVotes && (
-          <>
-            <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
-              {largeNumberFormat(numPollVotes)}{' '}
-              {pollHasEnded ? 'total votes' : 'votes'}
-            </Typography>
-            <Separator />
-          </>
-        )}
+        {pollMetadata && <PollMetadata {...pollMetadata} />}
         {!!createdAt && !!description && !boostedBy && <Separator />}
         {!!createdAt && !boostedBy && (
           <DateFormat date={createdAt} type={TimeFormatType.Post} />
