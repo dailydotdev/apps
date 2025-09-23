@@ -328,6 +328,12 @@ const SquadNotificationSettingsModal = dynamic(
     ),
 );
 
+const OpportunityEditModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "opportunityEditModal" */ '../opportunity/OpportunityEditModal/OpportunityEditModal'
+  ).then((mod) => mod.OpportunityEditModal),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -382,6 +388,7 @@ export const modals = {
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
   [LazyModal.ActionSuccess]: ActionSuccessModal,
   [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
+  [LazyModal.OpportunityEdit]: OpportunityEditModal,
 };
 
 type GetComponentProps<T> = T extends
