@@ -28,11 +28,7 @@ type QueryOptionsType<T> = Omit<UseQueryOptions<T>, 'queryFn'> & {
   queryFn: (ctx?: QueryFunctionContext) => T | Promise<T>;
 };
 
-export const opportunityByIdOptions = ({
-  id,
-}: {
-  id: string;
-}): QueryOptionsType<Opportunity> => {
+export const opportunityByIdOptions = ({ id }: { id: string }) => {
   return {
     queryKey: getOpportunityByIdKey(id),
     queryFn: async () => {
