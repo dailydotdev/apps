@@ -3,7 +3,12 @@ import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import { useFeedPreviewMode, useViewSize, ViewSize } from '../../../hooks';
+import {
+  useFeedPreviewMode,
+  useTruncatedSummary,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
@@ -48,6 +53,7 @@ export const PollList = forwardRef(function PollList(
   const isMobile = useViewSize(ViewSize.MobileL);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
+  const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
@@ -130,7 +136,7 @@ export const PollList = forwardRef(function PollList(
                 'mb-4',
               )}
             >
-              {title}
+              {truncatedTitle}
             </CardTitle>
             <PollOptions
               options={post.pollOptions}
